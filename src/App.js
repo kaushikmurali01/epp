@@ -1,6 +1,9 @@
-import logo from "./logo.svg";
-import { createTheme, colors, ThemeProvider } from "@mui/material";
+import React from "react";
+import { Provider } from "react-redux";
+import ActionComponent from "./pages/SimplePage";
 import "./App.css";
+import configureStore from "./redux/store";
+import { createTheme, ThemeProvider } from "@mui/material";
 import Header from "./components/Header";
 
 const theme = createTheme({
@@ -22,14 +25,17 @@ const theme = createTheme({
   },
 });
 
-function App() {
+const store = configureStore();
+
+const App = (props) => {
   return (
-    <ThemeProvider theme={theme}>
-      <div>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
         <Header />
-      </div>
-    </ThemeProvider>
+        {/* <ActionComponent /> */}
+      </ThemeProvider>
+    </Provider>
   );
-}
+};
 
 export default App;
