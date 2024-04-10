@@ -1,12 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Provider } from "react-redux";
+import ActionComponent from "./pages/SimplePage";
+import "./App.css";
+import configureStore from "./redux/store";
 
-function App() {
+const store = configureStore();
+
+const App = (props) => {
   return (
-    <div>
-      Enerva EPP AM & V.
-    </div>
+    <Provider store={store}>
+      <ActionComponent />
+    </Provider>
   );
-}
+};
 
 export default App;
