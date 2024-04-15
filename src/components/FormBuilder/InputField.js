@@ -1,5 +1,7 @@
 import React from 'react';
 import { TextField,FormControl } from '@mui/material';
+// or
+import { FormGroup } from '@mui/material';
 import { useField } from 'formik';
 
 const InputField = ({name,...otherProps}) => {
@@ -18,12 +20,14 @@ const InputField = ({name,...otherProps}) => {
     configTextfield.helperText = meta.error;
   }
 
-  // console.log(field, "check formik values");
+  console.log(configTextfield, "check formik values");
 
   return (
-    <FormControl sx={{width: '100%', mb:3}}>
-      <TextField {...configTextfield} />
-    </FormControl>
+    <FormGroup >
+      <FormControl>
+        <TextField {...configTextfield} />
+      </FormControl>
+    </FormGroup>
   );
 };
 

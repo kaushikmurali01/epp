@@ -1,0 +1,38 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+
+// Form CSS
+
+.ev-password-field-group {
+    &.has-error {
+        li {
+            color: #ab003c;
+        }
+    }
+    .eye-icon {
+        position: absolute;
+        right: 10px;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        display: flex;
+        align-items: center;
+    
+    }
+
+    .error-list {
+        li {
+            &.valid {
+                color: #357a38;
+            }
+            &.invalid {
+                color: #ab003c;
+            }
+        }
+    }
+}

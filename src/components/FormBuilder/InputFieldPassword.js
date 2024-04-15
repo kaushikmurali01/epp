@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TextField,FormControl } from '@mui/material';
+import { TextField,FormControl, FormGroup, List,ListItem } from '@mui/material';
 import { useField } from "formik";
 
 const InputFieldPassword = ({ name, type, ...otherProps }) => {
@@ -8,12 +8,14 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
   const configTextfield = {
     ...field,
     ...otherProps,
+    fullWidth: true,
+    variant: 'outlined'
   };
 
   const [inputType, setinputType] = useState(type);
 
   if (meta && meta.touched && meta.error) {
-    configTextfield.invalid = "true";
+    configTextfield.error = true;
     configTextfield.text = meta.error;
   }
 
@@ -34,10 +36,16 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
     });
   }, [configTextfield.value]);
 
+  console.log(configTextfield, "configTextfield")
   return (
-    <FormControl sx={{width: '100%', mb:3}}>
+    <FormGroup className={`ev-password-field-group ${
+      configTextfield.error
+        ? "has-error"
+        : ""
+    } `}>
+    <FormControl>
       <div className="form-field">
-       <TextField {...configTextfield} />
+       <TextField {...configTextfield} xs={12} />
 
         {configTextfield.showeyeicon === "true" ? (
           <span
@@ -60,24 +68,31 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
             )}
           </span>
         ) : null}
-
-        {/* <label className="flag">{label}</label> */}
       </div>
+      </FormControl>
 
-      <div className="err">
-        <ul>
-          <li
+      <List 
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap:'8px'
+          }}
+          className="error-list"
+        >
+          <ListItem
+          sx={{ width: 'auto', padding: '0' }}
             className={`${
               configTextfield.value.length === 0 
                 ? ""
                 :  pwdError.hasMinumLength
                 ? "valid"
-                : "in-valid"
+                : "invalid"
             }`}
           >
             8 Characters -
-          </li>
-          <li
+          </ListItem>
+          <ListItem
+          sx={{ width: 'auto', padding: '0' }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -87,8 +102,9 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
             }`}
           >
             1 Uppercase -
-          </li>
-          <li
+          </ListItem>
+          <ListItem
+          sx={{ width: 'auto', padding: '0' }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -98,8 +114,9 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
             }`}
           >
             1 Lowercase -
-          </li>
-          <li
+          </ListItem>
+          <ListItem
+          sx={{ width: 'auto', padding: '0' }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -109,11 +126,11 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
             }`}
           >
             1 Number 
-          </li>
+          </ListItem>
          
-        </ul>
-      </div>
-    </FormControl>
+        </List>
+    
+    </FormGroup>
   );
 };
 
