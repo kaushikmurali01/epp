@@ -28,22 +28,6 @@ function App() {
     <ThemeProvider theme={theme}>
       <div>
         <Header />
-        <h1>isahskajk</h1>
-        <h1>isahskajk</h1>
-
-        <h1>isahskajk</h1>
-
-        <h1>isahskajk</h1>
-
-        <h1>isahskajk</h1>
-
-        <h1>isahskajk</h1>
-
-        <h1>isahskajk</h1>
-        <h1>isahskajk</h1>
-        <h1>isahskajk</h1>
-        <h1>isahskajk</h1>
-
         <Footer />
       </div>
     </ThemeProvider>
