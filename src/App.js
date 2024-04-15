@@ -3,27 +3,9 @@ import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 import "./App.css";
 import configureStore from "./redux/store";
-import { createTheme, ThemeProvider } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import theme from "./styles/theme";
 import Header from "./components/Header";
-
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#2e813e",
-      contrastText: "#fff",
-    },
-    primary_2: {
-      main: "#54585a",
-    },
-    secondary: {
-      main: "#f26d04",
-    },
-    text: {
-      primary: "#333333",
-      secondary: "#757575",
-    },
-  },
-});
 
 const store = configureStore();
 
