@@ -6,6 +6,7 @@ export const simpleAction = () => (dispatch) => {
   };
   
   export const setOption = (option) => (dispatch) => {
+    
     dispatch({
       type: "SET_OPTION_ONE",
       payload: option,

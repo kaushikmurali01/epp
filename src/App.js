@@ -6,18 +6,20 @@ import "./assets/styles/styles.scss";
 import configureStore from "./redux/store";
 import { ThemeProvider } from "@mui/material";
 import theme from "./styles/theme";
-import Header from "./components/Header";
+import Header from "./components/CommonHeader/Header";
+import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
 
 
 const store = configureStore();
-
+  
 const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <Header />
+        <Footer />
         {/* <ActionComponent /> */}
         <Login />
         {/* <Signup /> */}
