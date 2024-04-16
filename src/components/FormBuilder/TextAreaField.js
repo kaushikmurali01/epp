@@ -1,8 +1,8 @@
 import React from 'react';
-import {TextField } from '@mui/material';
+import { TextareaAutosize } from '@mui/base';
 import { useField } from 'formik';
 
-const TextAreaBox = ({name,...otherProps}) => {
+const TextAreaField = ({name,...otherProps}) => {
     const [field, meta] = useField(name);
   const configTextfield = {
     ...field,
@@ -10,7 +10,6 @@ const TextAreaBox = ({name,...otherProps}) => {
     variant: 'outlined',
     fullWidth: true,
     multiline: true,
-    rows: 4,
 
   };
 
@@ -21,8 +20,9 @@ const TextAreaBox = ({name,...otherProps}) => {
   }
 
   return (
-    <TextField {...configTextfield} />
+    <TextareaAutosize {...configTextfield} xs={12} minRows={3}  placeholder="Minimum 3 rows" />
+    // <Textarea aria-label="minimum height" minRows={3} placeholder="Minimum 3 rows" />
   );
 };
 
-export default TextAreaBox;
+export default TextAreaField;

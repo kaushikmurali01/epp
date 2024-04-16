@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField,FormControl, FormGroup, List,ListItem } from '@mui/material';
 import { useField } from "formik";
 
-const InputFieldPassword = ({ name, type, ...otherProps }) => {
+const InputFieldPassword = ({ name, type, showpasswordHints, ...otherProps }) => {
   const [pwdError, setPwdError] = useState({});
   const [field, meta] = useField(name);
   const configTextfield = {
@@ -16,7 +16,7 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
 
   if (meta && meta.touched && meta.error) {
     configTextfield.error = true;
-    configTextfield.text = meta.error;
+    configTextfield.helperText = meta.error;
   }
 
   useEffect(() => {
@@ -45,7 +45,7 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
     } `}>
     <FormControl>
       <div className="form-field">
-       <TextField {...configTextfield} xs={12} />
+       <TextField {...configTextfield} type={inputType} xs={12} />
 
         {configTextfield.showeyeicon === "true" ? (
           <span
@@ -71,6 +71,7 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
       </div>
       </FormControl>
 
+    {showpasswordHints === "true"  &&     
       <List 
           sx={{
             display: 'flex',
@@ -128,7 +129,9 @@ const InputFieldPassword = ({ name, type, ...otherProps }) => {
             1 Number 
           </ListItem>
          
-        </List>
+      </List>
+      }
+
     
     </FormGroup>
   );
