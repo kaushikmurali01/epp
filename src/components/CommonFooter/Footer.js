@@ -3,13 +3,8 @@ import Box from "@mui/material/Box";
 import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
-import logo from "../assets/images/logo.png";
-
-const logoStyle = {
-  width: "100px",
-  height: "auto",
-  cursor: "pointer",
-};
+import logo from "../../assets/images/logo.png";
+import { logoStyle } from "../../styles/commonStyles";
 
 function Copyright() {
   return (

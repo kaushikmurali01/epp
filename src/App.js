@@ -1,37 +1,25 @@
-import logo from "./logo.svg";
-import { createTheme, colors, ThemeProvider } from "@mui/material";
+import React from "react";
+import { Provider } from "react-redux";
+import ActionComponent from "./pages/SimplePage";
 import "./App.css";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import configureStore from "./redux/store";
+import { ThemeProvider } from "@mui/material";
+import theme from "./styles/theme";
+import Header from "./components/CommonHeader/Header";
+import Footer from "./components/CommonFooter/Footer";
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#2e813e",
-      contrastText: "#fff",
-    },
-    primary_2: {
-      main: "#54585a",
-    },
-    secondary: {
-      main: "#f26d04",
-    },
-    text: {
-      primary: "#2e813e",
-      secondary: "#757575",
-    },
-  },
-});
-
-function App() {
+const store = configureStore();
+  
+const App = (props) => {
   return (
-    <ThemeProvider theme={theme}>
-      <div>
+    <Provider store={store}>
+      <ThemeProvider theme={theme}>
         <Header />
         <Footer />
-      </div>
-    </ThemeProvider>
+        {/* <ActionComponent /> */}
+      </ThemeProvider>
+    </Provider>
   );
-}
+};
 
 export default App;

@@ -8,14 +8,9 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Drawer from "@mui/material/Drawer";
-import logo from "../assets/images/logo.png";
+import logo from "../../assets/images/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
-
-const logoStyle = {
-  width: "100px",
-  height: "auto",
-  cursor: "pointer",
-};
+import { logoStyle } from "../../styles/commonStyles";
 
 function Header() {
   const [open, setOpen] = React.useState(false);
