@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { TextField,FormControl, FormGroup, List,ListItem } from '@mui/material';
+import { TextField,FormControl, FormGroup, List,ListItem, FormLabel } from '@mui/material';
 import { useField } from "formik";
 
-const InputFieldPassword = ({ name, type, showpasswordHints, ...otherProps }) => {
+const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProps }) => {
   const [pwdError, setPwdError] = useState({});
   const [field, meta] = useField(name);
   const configTextfield = {
@@ -44,6 +44,7 @@ const InputFieldPassword = ({ name, type, showpasswordHints, ...otherProps }) =>
         : ""
     } `}>
     <FormControl>
+    <FormLabel> {label} </FormLabel>
       <div className="form-field">
        <TextField {...configTextfield} type={inputType} xs={12} />
 

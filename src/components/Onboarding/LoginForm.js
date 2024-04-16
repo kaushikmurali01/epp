@@ -73,7 +73,7 @@ const LoginForm = () => {
 
                             <Grid container spacing={2}>
 
-                                <Grid item xs={12}>
+                                <Grid item xs={12} sx={{ marginBottom: 2 }}>
                                     <InputField
                                     name="email"
                                     label="Email"
@@ -88,7 +88,7 @@ const LoginForm = () => {
                                     />
                                 </Grid> */}
 
-                                <Grid item xs={12}>
+                                <Grid item xs={12} sx={{ marginBottom: 2 }}>
                                     <InputFieldPassword
                                     name="password"
                                     type="password"

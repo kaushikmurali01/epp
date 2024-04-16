@@ -14,3 +14,15 @@ export const validationSchemaLogIn = Yup.object({
     .matches(/[a-z]/, "Password must contain one lowercase character")
 
 });
+
+export const validationSchemaSignUp = Yup.object({
+  firstName: Yup.string()
+    .required("Please enter first name"),
+    lastName: Yup.string()
+    .required("Please enter last name"),
+    message: Yup.string()
+    .required("Please enter message")
+
+ 
+
+});

@@ -19,7 +19,7 @@ const App = (props) => {
       <ThemeProvider theme={theme}>
         <Header />
         {/* <ActionComponent /> */}
-        <Login />
+        {/* <Login /> */}
         {/* <Signup /> */}
       </ThemeProvider>
     </Provider>

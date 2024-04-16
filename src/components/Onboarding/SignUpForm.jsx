@@ -8,21 +8,23 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextAreaField from '../FormBuilder/TextAreaField';
 
 import * as yup from "yup"
-import { validationSchemaLogIn } from '../../utils/validations/formValidation';
+import { validationSchemaLogIn, validationSchemaSignUp } from '../../utils/validations/formValidation';
 import InputField from '../FormBuilder/InputField';
 import { Form, Formik } from 'formik';
 
 import ButtonWrapper from '../../components/FormBuilder//Button';
+import SelectBox from '../FormBuilder/Select';
 
 
 // Form Initial state
-
+import Countries from '../../config/countries.json';
 
 
 
 const initialValues = {
-    email: "",
-    password: "",
+    firstName: "",
+    lastName: "",
+    message:""
   };
 // Modify MUI theme
 const theme = createTheme({
@@ -63,41 +65,53 @@ const SignUpForm = () => {
                         initialValues={{
                             ...initialValues
                         }}
-                        validationSchema={validationSchemaLogIn}
+                        validationSchema={validationSchemaSignUp}
                         onSubmit={handelSubmit}  
                         >
                         <Form>
 
                             <Grid container spacing={2}>
 
-                                <Grid item xs={12}>
+                                <Grid item xs={12} sx={{ marginBottom: 2 }}>
                                     <InputField
-                                    name="email"
-                                    label="Email"
-                                    type = "email"
+                                    name="firstName"
+                                    label="FirstName"
+                                    type = "text"
                                     />
                                 </Grid>
-                                {/* <Grid item xs={12}>
+                                <Grid item xs={12} sx={{ marginBottom: 2 }}>
                                     <InputField
-                                    name="password"
-                                    label="Password"
-                                    type = "password"
+                                    name="lastName"
+                                    label="LastName"
+                                    type = "lastName"
                                     />
-                                </Grid> */}
+                                </Grid>
 
-                                <Grid item xs={12}>
+                                <Grid item xs={12} sx={{ marginBottom: 2 }}>
                                    <TextAreaField
                                    name="message"
                                     label="Message"
+                                    rows= "4"
+                                    resize= 'vertical'
                                     
                                    />
                                 </Grid>
+
+
+                                {/* <Grid item xs={12}>
+                                   <SelectBox
+                                   name="country"
+                                    label="Country"
+                                    options={Countries}
+                                    
+                                   />
+                                </Grid> */}
                                 
                                 
                                 <Grid item xs={12}  justifyContent="center">
                                     <ThemeProvider theme={theme}>
                                         <ButtonWrapper  type="submit" color='neutral'> 
-                                             Login
+                                             SignUp
                                         </ButtonWrapper>
                                     </ThemeProvider>
                                 </Grid>
