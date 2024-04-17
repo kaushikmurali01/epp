@@ -12,6 +12,7 @@ import {
   CustomerSchema,
 } from "../../utils/validations/formValidation";
 import SignUpFormFields from "./SignUpFormFields";
+import CustomTab from "../FormBuilder/CustomTab";
 
 function getSteps() {
   return ["Contact Information", "Company Detail", "Verify Email"];
@@ -127,9 +128,23 @@ export default function SignUpForm() {
           onChange={handleTabChange}
           centered
           variant="fullWidth"
+          sx={{ mt: 4 }}
+          TabIndicatorProps={{
+            style: { display: "none" },
+          }}
         >
-          <Tab label="Customer" />
-          <Tab label="Aggregator" />
+          <CustomTab
+            label="Customer"
+            sx={{
+              borderRadius: "10px 0 0 10px",
+            }}
+          />
+          <CustomTab
+            label="Aggregator"
+            sx={{
+              borderRadius: "0 10px 10px 0",
+            }}
+          />
         </Tabs>
 
         <Stepper activeStep={activeStep} sx={{ mt: 4 }}>
