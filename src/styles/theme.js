@@ -20,6 +20,13 @@ const theme = createTheme({
       primary: "#2e813e",
       secondary: "#757575",
     },
+    neutral: {
+      main: '#2E813E',
+      contrastText: '#fff',
+    },
+  },
+  shape: {
+    borderRadius: 16,
   },
 });
 

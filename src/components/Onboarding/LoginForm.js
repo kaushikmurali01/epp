@@ -13,6 +13,7 @@ import InputField from '../../components/FormBuilder/InputField';
 import ButtonWrapper from '../../components/FormBuilder//Button';
 import { validationSchemaLogIn } from '../../utils/validations/formValidation';
 import InputFieldPassword from '../FormBuilder/InputFieldPassword';
+import theme from '../../styles/theme';
 
 
 
@@ -24,17 +25,17 @@ const initialValues = {
     password: "",
 };
 // Modify MUI theme
-const theme = createTheme({
-    palette: {
-        neutral: {
-            main: '#2E813E',
-            contrastText: '#fff',
-        },
-    },
-    shape: {
-        borderRadius: 16,
-    },
-});
+// const theme = createTheme({
+//     palette: {
+//         neutral: {
+//             main: '#2E813E',
+//             contrastText: '#fff',
+//         },
+//     },
+//     shape: {
+//         borderRadius: 16,
+//     },
+// });
 
 const LoginForm = () => {
 
