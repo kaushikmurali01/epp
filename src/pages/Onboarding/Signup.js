@@ -1,6 +1,6 @@
 import React from 'react';
 import {Box} from '@mui/material';
-import SignUpForm from '../../components/Onboarding/SignUpForm';
+import SignUpForm from '../../components/Signup/SignUpForm';
 
 
 const Signup = () => {
