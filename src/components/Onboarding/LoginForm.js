@@ -57,16 +57,16 @@ const LoginForm = () => {
         <React.Fragment>
             <Box component="div"
                 sx={{
-                    width: { md: '35%', xs: '100%' },
+                    width: { md: '40%', xs: '100%' },
                 }}
             >
 
                 <Card>
-                    <CardContent>
-                        <Typography variant="h5" component="h2" gutterBottom>
-                            Log In
+                    <CardContent sx={{ padding: '50px', paddingBottom: '50px !important'}}>
+                        <Typography variant="h5" component="h2" gutterBottom sx={{ color: '#54585A', fontWeight: 'bold', marginTop: '10px' }}>
+                            Login
                         </Typography>
-                        <Typography variant="h5" component="h2" gutterBottom>
+                        <Typography variant="h5" component="h2" gutterBottom sx={{ color: '#54585A', fontWeight: '400', fontSize: '16px' }}>
                             Company/Main Administrator Account
                         </Typography>
 
@@ -81,7 +81,7 @@ const LoginForm = () => {
                             >
                                 <Form>
 
-                                    <Grid container spacing={2}>
+                                    <Grid container spacing={2} sx={{ marginTop: '10px'}}>
 
                                         <Grid item xs={12}>
                                             <InputField
