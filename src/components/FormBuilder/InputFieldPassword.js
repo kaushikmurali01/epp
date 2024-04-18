@@ -43,9 +43,9 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
         : ""
     } `}>
     <FormControl>
-    <FormLabel> {label} </FormLabel>
+    <FormLabel sx={{ color: '#2E813E' }}> {label} </FormLabel>
       <div className="form-field">
-      <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      {/* <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel> */}
        <TextField {...configTextfield} type={inputType} xs={12} />
 
         {configTextfield.showeyeicon === "true" ? (

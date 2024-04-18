@@ -20,9 +20,8 @@ const InputField = ({name, label, ...otherProps}) => {
 
   return (
     <FormGroup >
-      <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      <FormLabel  sx={{ color: '#2E813E' }}>{label}</FormLabel>
       <FormControl>
-        <FormLabel> {label} </FormLabel>
         <TextField {...configTextfield} />
       </FormControl>
     </FormGroup>
