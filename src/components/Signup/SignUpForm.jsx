@@ -6,10 +6,7 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Tabs from "@mui/material/Tabs";
-import {
-  AggregatorSchema,
-  CustomerSchema,
-} from "../../utils/validations/formValidation";
+import { validationSchemaSignUp } from "../../utils/validations/formValidation";
 import SignUpFormFields from "./SignUpFormFields";
 import CustomTab from "../FormBuilder/CustomTab";
 
@@ -20,7 +17,7 @@ function getSteps() {
 export default function SignUpForm() {
   const [tabValue, setTabValue] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
-  const [customerFormData, setCustomerFormData] = useState({
+  const initialValues = {
     firstName: "",
     lastName: "",
     businessLandline: "",
@@ -44,33 +41,7 @@ export default function SignUpForm() {
     capitalProject: "",
     termsAgreement: false,
     agree: false,
-  });
-
-  const [aggregatorFormData, setAggregatorFormData] = useState({
-    firstName: "",
-    lastName: "",
-    businessLandline: "",
-    businessMobile: "",
-    address: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    howDidYouHear: "",
-    companyType: "",
-    companyName: "",
-    website: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    zipCode: "",
-    country: "",
-    facilities: "",
-    capitalProject: "",
-    termsAgreement: false,
-    agree: false,
-  });
+  };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -85,25 +56,7 @@ export default function SignUpForm() {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    if (tabValue === 0) {
-      setCustomerFormData((prevFormData) => ({
-        ...prevFormData,
-        [name]: value,
-      }));
-    } else {
-      setAggregatorFormData((prevFormData) => ({
-        ...prevFormData,
-        [name]: value,
-      }));
-    }
-  };
-
   const steps = getSteps();
-  const validationSchema = tabValue === 0 ? CustomerSchema : AggregatorSchema;
-  const initialValues = tabValue === 0 ? customerFormData : aggregatorFormData;
-
   const handleSubmit = (values) => {
     console.log(values);
   };
@@ -155,7 +108,7 @@ export default function SignUpForm() {
         <Box sx={{ mt: 3 }}>
           {tabValue === 0 && (
             <SignUpFormFields
-              validationSchema={validationSchema}
+              validationSchema={validationSchemaSignUp}
               initialValues={initialValues}
               handleSubmit={handleSubmit}
               activeStep={activeStep}
@@ -167,7 +120,7 @@ export default function SignUpForm() {
           )}
           {tabValue === 1 && (
             <SignUpFormFields
-              validationSchema={validationSchema}
+              validationSchema={validationSchemaSignUp}
               initialValues={initialValues}
               handleSubmit={handleSubmit}
               activeStep={activeStep}
