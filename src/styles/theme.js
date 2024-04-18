@@ -24,6 +24,13 @@ const theme = createTheme({
     button: {
       primary: "#2e813e",
     },
+    neutral: {
+      main: '#2E813E',
+      contrastText: '#fff',
+    },
+  },
+  shape: {
+    borderRadius: 16,
   },
 });
 
