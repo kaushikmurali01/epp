@@ -1,8 +1,7 @@
 import React from 'react';
-import { TextField,FormControl, Input, FormLabel } from '@mui/material';
-// or
-import { FormGroup } from '@mui/material';
-import { useField } from 'formik';
+import { TextField,FormControl, FormLabel } from '@mui/material';
+import { FormGroup } from "@mui/material";
+import { useField } from "formik";
 
 const InputField = ({name, label, ...otherProps}) => {
     const [field, meta] = useField(name);
@@ -11,16 +10,13 @@ const InputField = ({name, label, ...otherProps}) => {
     ...field,
     ...otherProps,
     fullWidth: true,
-    variant: 'outlined'
+    variant: "outlined",
   };
-
 
   if (meta && meta.touched && meta.error) {
     configTextfield.error = true;
     configTextfield.helperText = meta.error;
   }
-
-  console.log(configTextfield, "check formik values");
 
   return (
     <FormGroup >
