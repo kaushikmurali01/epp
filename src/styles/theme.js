@@ -1,6 +1,19 @@
 import { createTheme } from "@mui/material";
 
 const theme = createTheme({
+  components: {
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          margin: 0, // Set the margin to zero
+          position: "absolute",
+          top: "100%",
+          left: "0"
+      
+        },
+      },
+    },
+  },
   typography: {
     base: 14,
     fontFamily: `'Asap', 'Arial', sans-serif`,

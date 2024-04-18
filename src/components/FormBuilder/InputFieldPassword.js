@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { TextField,FormControl, FormGroup, List, ListItem, FormLabel } from '@mui/material';
+import { TextField,FormControl, FormGroup, List,ListItem, FormLabel } from '@mui/material';
 import { useField } from "formik";
 
-const InputFieldPassword = ({ name, type, label, showpasswordHints, ...otherProps }) => {
+const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProps }) => {
   const [pwdError, setPwdError] = useState({});
   const [field, meta] = useField(name);
   const configTextfield = {
@@ -43,8 +43,9 @@ const InputFieldPassword = ({ name, type, label, showpasswordHints, ...otherProp
         : ""
     } `}>
     <FormControl>
+    <FormLabel sx={{ color: '#2E813E' }}> {label} </FormLabel>
       <div className="form-field">
-      <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      {/* <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel> */}
        <TextField {...configTextfield} type={inputType} xs={12} />
 
         {configTextfield.showeyeicon === "true" ? (
