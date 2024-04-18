@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import InputFieldPassword from "../FormBuilder/InputFieldPassword";
 import SelectBox from "../FormBuilder/Select";
+import CustomPhoneInput from "../FormBuilder/CustomPhoneInput";
 
 const SignUpFormFields = ({
   initialValues,
@@ -36,57 +37,33 @@ const SignUpFormFields = ({
             {activeStep === 0 && (
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="firstName"
-                    label="First Name"
-                    type="text"
-                    fullWidth
-                    required
-                  />
+                  <InputField name="firstName" label="First Name" type="text" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="lastName"
-                    label="Last Name"
-                    type="text"
-                    fullWidth
-                    required
-                  />
+                  <InputField name="lastName" label="Last Name" type="text" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
+                  <CustomPhoneInput
                     name="businessLandline"
                     label="Business Landline"
-                    type="phone"
-                    fullWidth
-                    required
+                    type="number"
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
+                  <CustomPhoneInput
                     name="businessMobile"
                     label="Business Mobile"
-                    type="phone"
-                    fullWidth
-                    required
+                    type="number"
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="address"
-                    label="Address"
-                    type="text"
-                    fullWidth
-                    required
-                  />
+                  <InputField name="address" label="Address" type="text" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <InputFieldPassword
                     name="password"
                     label="Create Password"
                     type="password"
-                    fullWidth
-                    required
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -94,8 +71,6 @@ const SignUpFormFields = ({
                     name="confirmPassword"
                     label="Confirm Password"
                     type="password"
-                    fullWidth
-                    required
                   />
                 </Grid>
               </Grid>
@@ -106,111 +81,45 @@ const SignUpFormFields = ({
                   <InputField
                     name="howDidYouHear"
                     label="How did you hear about us?"
-                    fullWidth
-                    required
-                    margin="normal"
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="companyType"
-                    label="Company Type"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="companyType" label="Company Type" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="companyName"
-                    label="Company Name"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="companyName" label="Company Name" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="website"
-                    label="Website"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="website" label="Website" />
                 </Grid>
                 <Grid item xs={12}>
-                  <InputField
-                    name="addressLine1"
-                    label="Address Line 1"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="addressLine1" label="Address Line 1" />
                 </Grid>
                 <Grid item xs={12}>
-                  <InputField
-                    name="addressLine2"
-                    label="Address Line 2"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="addressLine2" label="Address Line 2" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="city"
-                    label="City"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="city" label="City" fullWidth required />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="province"
-                    label="Province/State"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="province" label="Province/State" />
                 </Grid>
                 <Grid item xs={6} sm={3}>
-                  <InputField
-                    name="postalCode"
-                    label="Postal Code"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="postalCode" label="Postal Code" />
                 </Grid>
 
                 <Grid item xs={6} sm={3}>
-                  <InputField
-                    name="zipCode"
-                    label="Zip Code"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="zipCode" label="Zip Code" />
                 </Grid>
 
                 <Grid item xs={12} sm={6}>
-                  <SelectBox
-                    name="country"
-                    label="Country"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <SelectBox name="country" label="Country" />
                 </Grid>
 
                 <Grid item xs={12}>
                   <SelectBox
                     name="facilities"
                     label="How many facilities are planning to enrol with your company account?"
-                    fullWidth
-                    required
-                    margin="normal"
                   />
                 </Grid>
 
@@ -273,22 +182,22 @@ const SignUpFormFields = ({
             {activeStep === 2 && (
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <InputField
-                    name="email"
-                    label="Email"
-                    type="email"
-                    fullWidth
-                    required
-                    margin="normal"
-                  />
+                  <InputField name="email" label="Email" type="email" />
                 </Grid>
               </Grid>
             )}
           </>
-          <Box mt={2} rowGap={4}>
-            <Button variant="contained" color="primary" onClick={handleNext}>
-              {activeStep === steps.length - 1 ? "Submit" : "Next"}
-            </Button>
+          <Box mt={4} rowGap={4}>
+            {activeStep === 0 && (
+              <Button variant="contained" color="primary" onClick={handleNext}>
+                Next
+              </Button>
+            )}
+            {activeStep === 1 && (
+              <Button variant="outlined" onClick={handleNext} sx={{ mr: 4 }}>
+                Signup
+              </Button>
+            )}
             {activeStep !== 0 && (
               <Button variant="outlined" onClick={handlePrev}>
                 Back

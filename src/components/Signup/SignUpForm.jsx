@@ -6,7 +6,6 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
 import {
   AggregatorSchema,
   CustomerSchema,
