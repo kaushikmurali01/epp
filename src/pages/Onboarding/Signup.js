@@ -15,7 +15,7 @@ const Signup = () => {
                         justifyContent:'center',
                         alignItems: 'center',
                         flexDirection: 'column',
-                        marginTop:"250px",
+                        marginTop:"100px",
                     }}
                 >
 
