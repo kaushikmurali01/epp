@@ -1,10 +1,10 @@
 import React from 'react';
-import { TextField,FormControl, Input } from '@mui/material';
+import { TextField,FormControl, Input, FormLabel } from '@mui/material';
 // or
 import { FormGroup } from '@mui/material';
 import { useField } from 'formik';
 
-const InputField = ({name,...otherProps}) => {
+const InputField = ({name, label, ...otherProps}) => {
     const [field, meta] = useField(name);
 
   const configTextfield = {
@@ -24,6 +24,7 @@ const InputField = ({name,...otherProps}) => {
 
   return (
     <FormGroup >
+      <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel>
       <FormControl>
         <TextField {...configTextfield} />
       </FormControl>

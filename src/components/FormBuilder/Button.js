@@ -2,13 +2,13 @@ import React from 'react';
 import { Button } from '@mui/material';
 import { useFormikContext } from 'formik';
 
-const ButtonWrapper = ({children, ...otherProps}) => {
+const ButtonWrapper = ({ children, width, height, ...otherProps }) => {
 
   const { submitForm } = useFormikContext();
 
   const handleSubmit = () => {
-        submitForm();
-    }
+    submitForm();
+  }
 
   const configButton = {
     ...otherProps,
@@ -20,6 +20,7 @@ const ButtonWrapper = ({children, ...otherProps}) => {
   return (
     <Button
       {...configButton}
+      sx={{ width: width, height: height }}
     >
       {children}
     </Button>
