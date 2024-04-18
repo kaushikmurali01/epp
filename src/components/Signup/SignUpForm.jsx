@@ -78,7 +78,6 @@ export default function SignUpForm() {
   };
 
   const handleNext = () => {
-    console.log("next");
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 

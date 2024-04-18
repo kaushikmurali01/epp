@@ -1,5 +1,5 @@
 import React from "react";
-import { Formik, Form, Field } from "formik";
+import { Formik, Form } from "formik";
 import InputField from "../FormBuilder/InputField";
 import {
   Box,
@@ -151,31 +151,21 @@ const SignUpFormFields = ({
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Field
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    sx={{ color: "text.secondary2" }}
                     name="termsAgreement"
-                    component={Checkbox}
-                    color="primary"
-                  >
-                    {({ field }) => (
-                      <FormControlLabel
-                        control={<Checkbox {...field} />}
-                        sx={{ color: "text.secondary2" }}
-                        label="I have read and agree to the provisions of the Portal Services Agreement, Which includes limitation on Enerva and IESO warranties and liabilities"
-                      />
-                    )}
-                  </Field>
+                    label="I have read and agree to the provisions of the Portal Services Agreement, Which includes limitation on Enerva and IESO warranties and liabilities"
+                  />
                 </Grid>
 
                 <Grid item xs={12}>
-                  <Field name="agree" component={Checkbox} color="primary">
-                    {({ field }) => (
-                      <FormControlLabel
-                        control={<Checkbox {...field} />}
-                        sx={{ color: "text.secondary2" }}
-                        label="I have read and agree to the provisions of the Portal Services Agreement, Which includes limitation on Enerva and IESO warranties and liabilities"
-                      />
-                    )}
-                  </Field>
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    sx={{ color: "text.secondary2" }}
+                    name="agree"
+                    label="I have read and agree to the provisions of the Portal Services Agreement, Which includes limitation on Enerva and IESO warranties and liabilities"
+                  />
                 </Grid>
               </Grid>
             )}
