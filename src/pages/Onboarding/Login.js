@@ -14,7 +14,7 @@ const Login = () => {
                         justifyContent:'center',
                         alignItems: 'center',
                         flexDirection: 'column',
-                        marginTop:"250px",
+                        marginTop:"30px",
                     }}
                 >
 

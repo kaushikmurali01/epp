@@ -32,7 +32,18 @@ const theme = createTheme({
     text: {
       primary: "#2e813e",
       secondary: "#757575",
+      secondary2: "#54585A",
     },
+    button: {
+      primary: "#2e813e",
+    },
+    neutral: {
+      main: '#2E813E',
+      contrastText: '#fff',
+    },
+  },
+  shape: {
+    borderRadius: 16,
   },
 });
 

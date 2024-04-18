@@ -11,18 +11,17 @@ import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
 
-
 const store = configureStore();
-  
+
 const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <Header />
-        <Footer />
         {/* <ActionComponent /> */}
         {/* <Login /> */}
-        {/* <Signup /> */}
+        <Signup />
+        <Footer />
       </ThemeProvider>
     </Provider>
   );

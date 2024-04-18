@@ -36,7 +36,6 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
     });
   }, [configTextfield.value]);
 
-  console.log(configTextfield, "configTextfield")
   return (
     <FormGroup className={`ev-password-field-group ${
       configTextfield.error
@@ -46,6 +45,7 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
     <FormControl>
     <FormLabel> {label} </FormLabel>
       <div className="form-field">
+      <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel>
        <TextField {...configTextfield} type={inputType} xs={12} />
 
         {configTextfield.showeyeicon === "true" ? (
