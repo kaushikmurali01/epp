@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "enerva",
   "version": "1.0.0",
   "description": "",
   "main": "dist/src/functions/*.js",
@@ -21,7 +21,10 @@
     "passport-azure-ad": "^4.3.5",
     "path": "^0.12.7",
     "pg": "^8.11.5",
-    "sequelize": "^6.37.3"
+    "sequelize": "^6.37.3",
+    "enerva-utils": "enerva-utils@git+ssh://git@bitbucket.org/algoworks-dev/enerva-backend.git#enerva-utils"
+
+    
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x",
