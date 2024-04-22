@@ -3,8 +3,8 @@ interface UserAttributes {
     first_name: string;
     last_name: string;
     email: string;
-    password: number;
-    landline?: string;
+    password: string;
+    landline?: number;
     phonenumber: number;
     address: string
   }
