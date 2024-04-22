@@ -1,6 +1,9 @@
 // common section top and bottom spaces
 .common-section {
     padding: 64px 0;
+    .heading-row {
+        margin-bottom: 48px;
+    }
 }
 
 // banner section UI.
@@ -53,9 +56,9 @@
 
 
 .how-it-work-section {
-    .heading-row {
-        margin-bottom: 48px;
-    }
+    // .heading-row {
+    //     margin-bottom: 48px;
+    // }
 }
 
 
@@ -141,9 +144,9 @@
 
 
 .our-client-section {
-    .heading-row {
-        margin-bottom: 48px;
-    }
+    // .heading-row {
+    //     margin-bottom: 48px;
+    // }
 
     .our-client-row {
         .MuiGrid-item {
@@ -157,12 +160,45 @@
     }
 }
 
+.news-feeds-section {
+    .glider-contain {
+        button {
+            top: -84px;
+            left: auto;
+            background-color: $color-primary;
+            color: $theme-color-white;
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 50%;
+            opacity: 1;
+            font-size: 1.75rem;
+            &.disabled {
+                background-color: $color-gray-dark;
+            }
+        }
+        .glider-prev {
+            right: calc((100vw - 66rem + 5.625rem) / 2);
+        }
+
+        .glider-next {
+            right: calc((100vw - 70rem) / 2);
+        }
+
+        .glider-track {
+            margin-left: calc((100vw - 73rem) / 2);
+            gap: 24px;
+        }
+    }
+}
+
 
 .contact-us-section {
     background: var(--grdient, linear-gradient(115deg, #F9FBF9 28.32%, #B0C2B2 172.58%), linear-gradient(115deg, #242424 28.32%, #0F3F14 172.58%), #348D3D);
-    .heading-row {
-        margin-bottom: 48px;
-    }
+
+    // .heading-row {
+    //     margin-bottom: 48px;
+    // }
+
     .form-data-list {
         display: flex;
         flex-wrap: wrap;
@@ -171,6 +207,7 @@
         li {
             width: 49%;
             margin-bottom: 2%;
+
             &.text-area-field {
                 width: 100%;
             }

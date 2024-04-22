@@ -25,6 +25,16 @@ const theme = createTheme({
         },
       },
     },
+
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+        borderColor: '#f00',
+        padding: '10px',
+        color:'red',
+        },
+      },
+    },
     
     MuiButton: {
       styleOverrides: {

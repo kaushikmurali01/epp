@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, Button, Typography, Box, Container, Grid, Avatar, List, ListItem, ListItemAvatar } from '@mui/material';
+import {  Typography, Box, Container, Grid, Avatar } from '@mui/material';
 
 const Testimonial = () => {
     return (

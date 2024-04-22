@@ -1,35 +1,86 @@
-import React from 'react';
-import { Card, CardActions, CardContent, CardMedia, Button, Typography, Box, Container, Grid } from '@mui/material';
+import React, { useRef, useState } from 'react';
+import { Typography, Box, Container, Grid, Link } from '@mui/material';
 
+import Glider from 'react-glider';
+import 'glider-js/glider.min.css';
+import BlogPost from './BlogPost';
 
 const NewsFeedList = () => {
+
+    const blogPostList = [
+        {
+            "image": "/images/newsFeeds/newsFeed_1.jpeg",
+            "id": 1,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+        {
+            "image": "/images/newsFeeds/newsFeed_2.jpeg",
+            "id": 2,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+        {
+            "image": "/images/newsFeeds/newsFeed_3.jpeg",
+            "id": 3,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+        {
+            "image": "/images/newsFeeds/newsFeed_1.jpeg",
+            "id": 4,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+        {
+            "image": "/images/newsFeeds/newsFeed_2.jpeg",
+            "id": 5,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+        {
+            "image": "/images/newsFeeds/newsFeed_3.jpeg",
+            "id": 6,
+            'link': "#",
+            "title": "Lorem ipsum is a place holder text",
+            "body": "Lorem ipsum is a place holder text"
+        },
+    ]
+    const settings = {
+        draggable: true,
+        hasArrows: true,
+        slidesToShow: 3.5,
+        slidesToScroll: 1,
+        itemWidth: 343,
+        exactWidth: 343,
+    };
     return (
         <Box component={'section'} className='news-feeds-section common-section'>
             <Container maxWidth="lg">
-                <Grid >
-                    <Card sx={{ maxWidth: 345 }}>
-                        <CardMedia
-                            sx={{ height: 190 }}
-                            image="/images/newsFeeds/newsFeed_1.jpeg"
-                            title="green iguana"
-                            alt=""
-                        />
-                        <CardContent>
-                            <Typography gutterBottom variant="h5" component="div">
-                                Lizard
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Lizards are a widespread group of squamate reptiles, with over 6,000
-                                species, ranging across all continents except Antarctica
-                            </Typography>
-                        </CardContent>
-                        <CardActions>
-                            <Button size="small">Share</Button>
-                        </CardActions>
-                    </Card>
-                   
+                <Grid container className='heading-row'>
+                    <Grid item >
+                        <Typography variant="h3" >
+                            News Feeds
+                        </Typography>
+
+                    </Grid>
+
                 </Grid>
             </Container>
+            <Glider
+                {...settings}
+            >
+                {blogPostList && blogPostList.map((post) => {
+                    return (
+                        <BlogPost key={post.id} post={post} />
+                    )
+                })}
+            </Glider>
         </Box>
     )
 }

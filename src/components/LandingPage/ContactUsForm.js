@@ -90,7 +90,7 @@ const ContactUsForm = () => {
                                 </li>
                             </ul>
 
-                            <Grid  xs={12} display="flex" justifyContent="center">
+                            <Grid  display="flex" justifyContent="center">
                                     <ButtonWrapper type="submit" color='neutral' width='165px' height='48px'>
                                         Submit
                                     </ButtonWrapper>
