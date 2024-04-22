@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { setOption, setOption2 } from "../redux/actions/simpleActions";
-// import Dashboarsection from "./DashboardSection";
-import TabsSection from '../sections/TabsSection'
+import { setOption, setOption2 } from "../../redux/actions/simpleActions";
+import TabsSection from "../../sections/Homepage/TabsSection";
+import DashboardSection from "../../sections/Homepage/DashboardSection";
 
-const ActionComponent = (props) => {
+const HomepageComponent = (props) => {
   const [option, setNewOption] = useState("");
   const [option2, setNewOption2] = useState("");
 
@@ -18,11 +18,11 @@ const ActionComponent = (props) => {
 
   return (
     <>
-    <TabsSections></TabsSections>
+    <TabsSection></TabsSection>
     <DashboardSection></DashboardSection>
-    <FacilitySection></FacilitySection>
+    {/* <FacilitySection></FacilitySection>
     <ParticipantAgreementSection></ParticipantAgreementSection>
-    <UserManagementSection></UserManagementSection>
+    <UserManagementSection></UserManagementSection> */}
     </>
     
   );
@@ -33,4 +33,4 @@ const mapDispatchToProps = (dispatch) => ({
   setOption2: (optionTwo) => dispatch(setOption2(optionTwo)),
 });
 
-export default connect(null, mapDispatchToProps)(ActionComponent);
+export default connect(null, mapDispatchToProps)(HomepageComponent);

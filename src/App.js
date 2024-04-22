@@ -10,6 +10,7 @@ import Header from "./components/CommonHeader/Header";
 import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
+import HomepageComponent from "./pages/Homepage/Homepage";
 
 const store = configureStore();
 
@@ -20,7 +21,8 @@ const App = (props) => {
         <Header />
         {/* <ActionComponent /> */}
         {/* <Login /> */}
-        <Signup />
+        {/* <Signup /> */}
+        <HomepageComponent />
         <Footer />
       </ThemeProvider>
     </Provider>
