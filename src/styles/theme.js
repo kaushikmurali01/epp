@@ -1,5 +1,8 @@
 import { createTheme } from "@mui/material";
 
+
+
+const getTheme = createTheme();
 const theme = createTheme({
   components: {
     MuiFormHelperText: {
@@ -13,6 +16,35 @@ const theme = createTheme({
         },
       },
     },
+    
+    MuiFormLabel: {
+      styleOverrides: {
+        root: {
+        color: '#2E813E'
+      
+        },
+      },
+    },
+    
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          padding: '10px',
+          borderRadius: '8px',
+          minWidth: '120px',
+          fontSize: '14px',
+          [getTheme.breakpoints.up('sm')]: {
+            fontSize: '16px',
+          minWidth: '140px',
+        },
+          [getTheme.breakpoints.up('md')]: {
+            fontSize: '18px',
+          minWidth: '165px',
+        },
+      
+        },
+      },
+    },
   },
   typography: {
     base: 14,
@@ -21,6 +53,8 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#2e813e",
+      light: "#F4FFF5",
+      thinLight: "F5F9F5",
       contrastText: "#fff",
     },
     primary_2: {
@@ -28,6 +62,10 @@ const theme = createTheme({
     },
     secondary: {
       main: "#f26d04",
+    },
+    dark : {
+      main: "#000",
+      light: "#242424"
     },
     text: {
       primary: "#2e813e",

@@ -1,0 +1,43 @@
+// all form css classes will be writen here
+
+
+// Form CSS
+.ev-password-field-group {
+    &.has-error {
+        li {
+            color: #ab003c;
+        }
+    }
+    .form-field {
+        position: relative;
+    }
+    .eye-icon {
+        position: absolute;
+        right: 10px;
+        // top: 0;
+        top: 24px;
+        bottom: 0;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    
+    }
+
+    .error-list {
+        li {
+            &.valid {
+                color: #357a38;
+            }
+            &.invalid {
+                color: #ab003c;
+            }
+        }
+    }
+}
+
+.ev-text-area-form-group {
+    textarea {
+        padding: 16px;
+    }
+}
