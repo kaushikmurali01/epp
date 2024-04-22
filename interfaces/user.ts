@@ -4,7 +4,7 @@ interface UserAttributes {
     last_name: string;
     email: string;
     password: string;
-    landline?: number;
+    landline: number | null;
     phonenumber: number;
     address: string
   }
