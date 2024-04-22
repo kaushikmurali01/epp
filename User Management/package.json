@@ -10,7 +10,9 @@
     "prestart": "npm run clean && npm run build",
     "start": "func start",
     "test": "echo \"No tests yet...\"",
-    "dev": "npm run clean && npm run build && func start"
+    "buildUtils": "cd node_modules/enerva-utils && tsc",
+    "dev": "npm run clean && npm run build && npm run buildUtils && func start"
+    
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
@@ -22,7 +24,8 @@
     "path": "^0.12.7",
     "pg": "^8.11.5",
     "sequelize": "^6.37.3",
-    "enerva-utils": "enerva-utils@git+ssh://git@bitbucket.org/algoworks-dev/enerva-backend.git#enerva-utils"
+    "enerva-utils": "bitbucket:algoworks-dev/enerva-backend#enerva-utils",
+    "jsonwebtoken": "^9.0.2"
 
     
   },

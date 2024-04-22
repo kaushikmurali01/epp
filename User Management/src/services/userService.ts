@@ -1,9 +1,9 @@
 import { User } from '../models/user';
-import { UserAttributes } from '../interfaces/user';
-import { testDatabaseConnection } from '../services/database';
-import { Response } from '../interfaces/response';
-import { message } from '../utils/message';
-import { StatusCode } from '../utils/status';
+import { UserAttributes } from 'enerva-utils/interfaces/user';
+import { testDatabaseConnection } from 'enerva-utils/utils/database';
+ import { Response } from 'enerva-utils/interfaces/response';
+ //import { RESPONSE_MESSAGES } from 'enerva-utils/utils/message';
+ import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
 
 
 class UserService {
@@ -17,12 +17,11 @@ class UserService {
  */
 static async registerUser(userDetails): Promise<Response> {
   try {
-    console.log("Details", userDetails);
     //await testDatabaseConnection();
-    const user = await User.create(userDetails, { fields: ['first_name', 'last_name', 'email', 'password', 'address'] });
-    return { status: StatusCode.Created, message: message.userCreated };
+   const user = await User.create(userDetails, { fields: ['first_name', 'last_name', 'email', 'password', 'phonenumber', 'address'] });
+    return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.singupSuccess };
   } catch (error) {
-    throw new Error(`Error registering user: ${error.message}`);
+    throw new Error(`${error.message}`);
   }
 }
 

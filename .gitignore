@@ -4,9 +4,3 @@
 */dist/
 */node_modules/
 */appsettings.json
-*/local.settings.json
-
-
-
-
-enerva-utils@git+ssh://git@bitbucket.org:algoworks-dev/enerva-backend.git#enerva-utils

@@ -13,8 +13,9 @@ class UserController {
     static async registerUser(req): Promise<any> {
         try {
             console.log("body", req.body);
-            const { first_name, last_name, email, password, address } = req as any;
-            const user = await UserService.registerUser({ first_name, last_name, email, password, address });
+            const { first_name, last_name, email, password, address, phonenumber } = req as any;
+            const user = await UserService.registerUser({ first_name, last_name, email, password, address, phonenumber });
+            console.log('3333', user);
             return user;
         } catch (error) {
             return {

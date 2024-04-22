@@ -13,11 +13,14 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
         // Parse request data
         const requestData = await request.json(); 
 
+
         // Register user
         const user = await UserController.registerUser(requestData);
-
+        console.log('1111', user);
+       
         // Prepare response body
         const responseBody = JSON.stringify(user);
+        console.log('2222', responseBody);
 
         // Return success response
         return { body: responseBody };
