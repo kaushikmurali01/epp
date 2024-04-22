@@ -1,6 +1,6 @@
-import { JwtPayload } from "jsonwebtoken";
+//import { JwtPayload } from "jsonwebtoken";
 
-export interface IUserToken extends JwtPayload {
+export interface IUserToken {
   deviceId?: string | null;
   fcmToken?: string | null;
   loginToken?: string | null;
