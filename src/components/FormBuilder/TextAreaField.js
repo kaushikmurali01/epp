@@ -50,11 +50,11 @@ const TextAreaField = ({name,label,...otherProps}) => {
   }
 
   return (
-    <FormGroup >
+    <FormGroup className='ev-text-area-form-group'>
     <FormControl>
-    <FormLabel> {label} </FormLabel>
+    {label && <FormLabel>{label}</FormLabel> }
     <textarea  {...configTextfield} />
-    <FormHelperText error={configTextfield.error} margin={0} >{configTextfield.helperText}</FormHelperText>
+    <FormHelperText error={configTextfield.error} >{configTextfield.helperText}</FormHelperText>
     </FormControl>
     </FormGroup>
   );
