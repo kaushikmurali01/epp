@@ -7,5 +7,11 @@ export const authEndpoints = {
   };
   
   export const dashboardEndpoints = {
-    Profile: '/profile',
+    profile: '/profile',
+    dashBoard: '/dashboard',
+    admin: '/admin',
+  }
+
+  export const pageSubEndspoints = {
+    index: '',
   }

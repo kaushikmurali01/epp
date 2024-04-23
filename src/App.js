@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Suspense} from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 // import "./App.css";
@@ -11,6 +11,7 @@ import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
 import LandingPage from "./pages/LandingPage";
+import RoutesComp from './routes';
 
 const store = configureStore();
 
@@ -18,12 +19,15 @@ const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <Header />
+        <Suspense fallback="Loading...">
+          <RoutesComp />
+        </Suspense>
+        {/* <Header /> */}
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* <Signup /> */}
-        <LandingPage />
-        <Footer />
+        {/* <LandingPage /> */}
+        {/* <Footer /> */}
       </ThemeProvider>
     </Provider>
   );
