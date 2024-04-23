@@ -16,53 +16,61 @@ const TabsSection = (props) => {
 
     return (
         <>
-       <Container sx={{ marginTop:"150px" }}>
-            <Tabs
-                value={tabValue}
-                onChange={handleTabChange}
-                variant="fullWidth"
-                sx={{ mt: 4 }}
-                TabIndicatorProps={{
-                    style: { display: "none" },
-                }}
-            >
-                <CustomTab
-                    label="Dashboard"
-                    pageName="Homepage"
-                    sx={{
-                        borderRadius: "10px 10px 0 0",
-                        maxWidth: '200px !important',
-                        height: '57px !important',
+            <Container sx={{ marginTop: "150px" }}>
+                <Tabs
+                    value={tabValue}
+                    onChange={handleTabChange}
+                    variant="fullWidth"
+                    sx={{ mt: 4 }}
+                    TabIndicatorProps={{
+                        style: { display: "none" },
                     }}
-                />
-                <CustomTab
-                    label="Facility List"
-                    pageName="Homepage"
-                    sx={{
-                        borderRadius: "10px 10px 0 0",
-                        maxWidth: '200px !important',
-                        height: '57px !important',
-                    }}
-                />
-                <CustomTab
-                    label="Participant Agreement"
-                    pageName="Homepage"
-                    sx={{
-                        borderRadius: "10px 10px 0 0",
-                        maxWidth: '200px !important',
-                        height: '57px !important',
-                    }}
-                />
-                <CustomTab
-                    label="User Management"
-                    pageName="Homepage"
-                    sx={{
-                        borderRadius: "10px 10px 0 0",
-                        maxWidth: '200px !important',
-                        height: '57px !important',
-                    }}
-                />
-            </Tabs>
+                >
+                    <CustomTab
+                        label="Dashboard"
+                        pageName="Homepage"
+                        sx={{
+                            borderRadius: "10px 10px 0 0",
+                            maxWidth: '221px !important',
+                            height: '57px !important',
+                            fontWeight: '700',
+                            fontSize: '16px'
+                        }}
+                    />
+                    <CustomTab
+                        label="Facility List"
+                        pageName="Homepage"
+                        sx={{
+                            borderRadius: "10px 10px 0 0",
+                            maxWidth: '221px !important',
+                            height: '57px !important',
+                            fontWeight: '700',
+                            fontSize: '16px'
+                        }}
+                    />
+                    <CustomTab
+                        label="Participant Agreement"
+                        pageName="Homepage"
+                        sx={{
+                            borderRadius: "10px 10px 0 0",
+                            maxWidth: '221px !important',
+                            height: '57px !important',
+                            fontWeight: '700',
+                            fontSize: '16px'
+                        }}
+                    />
+                    <CustomTab
+                        label="User Management"
+                        pageName="Homepage"
+                        sx={{
+                            borderRadius: "10px 10px 0 0",
+                            maxWidth: '221px !important',
+                            height: '57px !important',
+                            fontWeight: '700',
+                            fontSize: '16px'
+                        }}
+                    />
+                </Tabs>
             </Container>
         </>
 
