@@ -1,8 +1,9 @@
 // common section top and bottom spaces
 .common-section {
-    padding: 64px 0;
+    padding: 4rem 0;
+
     .heading-row {
-        margin-bottom: 48px;
+        margin-bottom: 3.875rem;
     }
 }
 
@@ -13,26 +14,16 @@
 
     .banner-info {
         position: relative;
-        padding: 100px 0;
-
-        h3 {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 40px;
-        }
-
-        .action-btn {
-            margin-top: 40px;
-        }
+        padding: 7.5rem 0;
 
         .whats-new {
             position: absolute;
             bottom: 0;
             background-color: #f00;
-            padding: 10px 16px;
+            padding: 0.625rem 1.5rem;
             color: #fff;
-            border-top-right-radius: 10px;
-            border-top-left-radius: 10px;
+            border-top-right-radius: 0.625rem;
+            border-top-left-radius: 0.625rem;
         }
     }
 
@@ -56,9 +47,16 @@
 
 
 .how-it-work-section {
-    // .heading-row {
-    //     margin-bottom: 48px;
-    // }
+    .how-it-work-row {
+        .text {
+            margin-top: 2.5rem;
+            text-align: center;
+            span {
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
+        }
+    }
 }
 
 
@@ -67,7 +65,7 @@
 
 .testimonial-section {
     .testimonial-section-row {
-        padding: 48px 100px;
+        padding: 0 100px;
         gap: 44px;
         align-items: center;
 
@@ -143,22 +141,18 @@
 }
 
 
-.our-client-section {
-    // .heading-row {
-    //     margin-bottom: 48px;
-    // }
-
-    .our-client-row {
-        .MuiGrid-item {
-            background-color: #fff;
-            width: 195px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 105px;
-        }
-    }
-}
+// .our-client-section {
+//     .our-client-row {
+//         .MuiGrid-item {
+//             background-color: #fff;
+//             width: 195px;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             height: 105px;
+//         }
+//     }
+// }
 
 .news-feeds-section {
     .glider-contain {
@@ -172,10 +166,12 @@
             border-radius: 50%;
             opacity: 1;
             font-size: 1.75rem;
+
             &.disabled {
                 background-color: $color-gray-dark;
             }
         }
+
         .glider-prev {
             right: calc((100vw - 66rem + 5.625rem) / 2);
         }
@@ -194,11 +190,6 @@
 
 .contact-us-section {
     background: var(--grdient, linear-gradient(115deg, #F9FBF9 28.32%, #B0C2B2 172.58%), linear-gradient(115deg, #242424 28.32%, #0F3F14 172.58%), #348D3D);
-
-    // .heading-row {
-    //     margin-bottom: 48px;
-    // }
-
     .form-data-list {
         display: flex;
         flex-wrap: wrap;
@@ -207,7 +198,16 @@
         li {
             width: 49%;
             margin-bottom: 2%;
-
+            .MuiInputBase-formControl {
+                background-color: $theme-color-white;
+            }
+            input {
+                font-size: 0.875rem;
+            }
+            textarea {
+                background-color: $theme-color-white;
+                font-size: 0.875rem;
+            }
             &.text-area-field {
                 width: 100%;
             }

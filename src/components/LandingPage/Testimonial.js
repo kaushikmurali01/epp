@@ -7,12 +7,12 @@ const Testimonial = () => {
 
 
             {/* How it works section  */}
-            <Box component={'section'} className='testimonial-section common-section' sx={{ bgcolor: 'primary.light' }}>
+            <Box component={'section'} className='testimonial-section common-section' sx={{ bgcolor: 'primary.thinLight' }}>
                 <Container maxWidth="lg">
                     <Grid container justifyContent="space-between" className='heading-row'>
                         <Grid container item xs={12} justifyContent="center" >
-                            <Typography variant="h4" className='ev-theme-heading'>
-                                See How Others Are Succeeding with EPP
+                            <Typography variant="h3" className='ev-theme-heading' >
+                                  See how others are succeeding with EPP
                             </Typography>
                         </Grid>
                     </Grid>
@@ -24,29 +24,29 @@ const Testimonial = () => {
 
                             <ul  className='remaining-list'>
                                 <li>
-                                    <Avatar alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
+                                    <Avatar sx={{cursor: "pointer"}} alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
                                 </li>
                                 <li>
-                                    <Avatar alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
+                                    <Avatar sx={{cursor: "pointer"}} alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
                                 </li>
                                 <li>
-                                    <Avatar alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
+                                    <Avatar sx={{cursor: "pointer"}} alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
                                 </li>
                                 <li>
-                                    <Avatar alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
+                                    <Avatar sx={{cursor: "pointer"}} alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
                                 </li>
                                 <li>
-                                    <Avatar alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
+                                    <Avatar sx={{cursor: "pointer"}} alt="Remy Sharp" src="/images/landingPage/testimonials/small_icon_1.png" />
                                 </li>
                             </ul>
 
                         </Grid>
 
                         <Grid item className='content-box'>
-                            <Typography variant="h5" >
+                            <Typography variant="h4" sx={{color:'#54585A', marginBottom: '1rem'}} >
                                 Amanda Jones
                             </Typography>
-                            <Typography variant="span">
+                            <Typography  sx={{color:'#54585A'}}>
                                 Lorem ipsum dolor sit amet consectetur. Eros auctor nunc sit proin in tempor.
                                 Tempus sollicitudin sed. Lorem ipsum dolor sit amet consectetur.
                                 Eros auctor nunc sit proin in tempor. Tempus sollicitudin sed.

@@ -8,7 +8,6 @@ import Testimonial from '../components/LandingPage/Testimonial';
 import OurClient from '../components/LandingPage/OurClient';
 
 
-
 const LandingPage = () => {
 
 
