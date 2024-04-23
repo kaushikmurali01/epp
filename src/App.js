@@ -11,6 +11,7 @@ import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
 import HomepageComponent from "./pages/Homepage/Homepage";
+import LandingPage from "./pages/LandingPage";
 
 const store = configureStore();
 
@@ -23,6 +24,7 @@ const App = (props) => {
         {/* <Login /> */}
         {/* <Signup /> */}
         <HomepageComponent />
+        {/* <LandingPage /> */}
         <Footer />
       </ThemeProvider>
     </Provider>

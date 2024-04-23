@@ -20,7 +20,7 @@ const InputField = ({name, label, ...otherProps}) => {
 
   return (
     <FormGroup >
-      <FormLabel  sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      {label && <FormLabel>{label}</FormLabel> }
       <FormControl>
         <TextField {...configTextfield} />
       </FormControl>

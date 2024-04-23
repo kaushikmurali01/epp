@@ -4,40 +4,45 @@
     box-sizing: border-box;
 }
 
+ul {
+    list-style: none;
+}
+
+// * @default {
+//     *    // extra-small
+//     *    xs: 0,
+//     *    // small
+//     *    sm: 600,
+//     *    // medium
+//     *    md: 900,
+//     *    // large
+//     *    lg: 1200,
+//     *    // extra-large
+//     *    xl: 1536,
+//     * }
 
 
-// Form CSS
 
-.ev-password-field-group {
-    &.has-error {
-        li {
-            color: #ab003c;
-        }
-    }
-    .form-field {
-        position: relative;
-    }
-    .eye-icon {
+// common layout
+
+.main-contianer {
+    margin-top: 80px;
+}
+
+// theme heading css
+
+.ev-theme-heading {
+    position: relative;
+    &:after {
+        content: '';
         position: absolute;
-        right: 10px;
-        // top: 0;
-        top: 24px;
-        bottom: 0;
+        left: 0;
+        right: 0;
         margin: auto;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    
-    }
-
-    .error-list {
-        li {
-            &.valid {
-                color: #357a38;
-            }
-            &.invalid {
-                color: #ab003c;
-            }
-        }
+        bottom: -18px;
+        height: 4px;
+        width: 70px;
+        display: inline-block;
+        background: $color-primary;
     }
 }
