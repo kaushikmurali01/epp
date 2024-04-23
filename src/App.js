@@ -23,7 +23,7 @@ const App = (props) => {
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
-        <LandingPage /> */}
+        <LandingPage />
         <Facility />
         <Footer />
       </ThemeProvider>
