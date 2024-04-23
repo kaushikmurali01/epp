@@ -20,7 +20,6 @@ const TabsSection = (props) => {
             <Tabs
                 value={tabValue}
                 onChange={handleTabChange}
-                centered
                 variant="fullWidth"
                 sx={{ mt: 4 }}
                 TabIndicatorProps={{
@@ -32,6 +31,8 @@ const TabsSection = (props) => {
                     pageName="Homepage"
                     sx={{
                         borderRadius: "10px 10px 0 0",
+                        maxWidth: '200px !important',
+                        height: '57px !important',
                     }}
                 />
                 <CustomTab
@@ -39,6 +40,8 @@ const TabsSection = (props) => {
                     pageName="Homepage"
                     sx={{
                         borderRadius: "10px 10px 0 0",
+                        maxWidth: '200px !important',
+                        height: '57px !important',
                     }}
                 />
                 <CustomTab
@@ -46,6 +49,8 @@ const TabsSection = (props) => {
                     pageName="Homepage"
                     sx={{
                         borderRadius: "10px 10px 0 0",
+                        maxWidth: '200px !important',
+                        height: '57px !important',
                     }}
                 />
                 <CustomTab
@@ -53,6 +58,8 @@ const TabsSection = (props) => {
                     pageName="Homepage"
                     sx={{
                         borderRadius: "10px 10px 0 0",
+                        maxWidth: '200px !important',
+                        height: '57px !important',
                     }}
                 />
             </Tabs>
