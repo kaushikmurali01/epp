@@ -10,6 +10,7 @@ import Header from "./components/CommonHeader/Header";
 import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
+import LandingPage from "./pages/LandingPage";
 import Facility from "./sections/Homepage/FacilitySection";
 
 const store = configureStore();
@@ -21,7 +22,8 @@ const App = (props) => {
         <Header />
         {/* <ActionComponent /> */}
         {/* <Login /> */}
-        {/* <Signup /> */}
+        {/* {/* <Signup /> */}
+        <LandingPage /> */}
         <Facility />
         <Footer />
       </ThemeProvider>
