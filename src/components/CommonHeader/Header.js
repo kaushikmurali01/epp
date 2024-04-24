@@ -11,13 +11,23 @@ import Drawer from "@mui/material/Drawer";
 import logo from "../../assets/images/logo.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { logoStyle } from "../../styles/commonStyles";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { loginRequest } from "authConfig";
 
 function Header() {
   const [open, setOpen] = React.useState(false);
+  const {instance} = useMsal();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
+  const handleRedirect=()=>{
+    instance.loginRedirect({
+      ...loginRequest,
+      prompt: 'create'
+    }).catch((error)=> console.log("error in login redirect", error))
+  }
 
   const scrollToSection = (sectionId) => {
     const sectionElement = document.getElementById(sectionId);
@@ -114,8 +124,9 @@ function Header() {
                 variant="text"
                 size="medium"
                 component="a"
-                href="/sign-in"
+                // href="/sign-in"
                 target="_blank"
+                onClick={handleRedirect}
               >
                 Sign in
               </Button>

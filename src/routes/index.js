@@ -5,9 +5,9 @@ import DashboardRoutes from './dashboard';
 // const CommonLayout = lazy(() => import('layout/dashboardLayout')); //todo
 
 const RoutesComp = () => {
-    console.log('kkkkk')
     const { pathname } = useLocation();
-    const token  = localStorage.getItem("token");
+    const token  = localStorage.getItem(`msal.${process.env.REACT_APP_AZURE_B2C_CLIENT_ID}.active-account`);
+    console.log('kkkkk, ', token); 
     return (
         token ? (
             // <CommonLayout>

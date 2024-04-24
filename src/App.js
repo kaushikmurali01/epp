@@ -13,16 +13,31 @@ import Signup from "./pages/Onboarding/Signup";
 import LandingPage from "./pages/LandingPage";
 import RoutesComp from './routes';
 
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+
 const store = configureStore();
 
 const App = (props) => {
+
+  const activeAccount = props.instance.getActiveAccount();
+
+  console.log("active account", activeAccount)
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
         <Suspense fallback="Loading...">
-          <RoutesComp />
+          <MsalProvider instance={props.instance}>
+            <UnauthenticatedTemplate>
+              <Header />
+            </UnauthenticatedTemplate>
+            <AuthenticatedTemplate>
+              {activeAccount ? 
+                <RoutesComp /> : null
+              }
+            </AuthenticatedTemplate>
+          </MsalProvider>
         </Suspense>
-        {/* <Header /> */}
+        
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* <Signup /> */}
