@@ -1,9 +1,10 @@
 import React from 'react';
-import { TextField, MenuItem,FormControl } from '@mui/material';
+import { TextField, MenuItem, FormControl, FormLabel } from '@mui/material';
 import { useField, useFormikContext } from 'formik';
 
 const SelectBox = ({
   name,
+  label,
   options,
   ...otherProps
 }) => {
@@ -31,16 +32,17 @@ const SelectBox = ({
   }
 
   return (
-    <FormControl sx={{ width:"100%" }} >
-    <TextField {...configSelect}>
-      {options && Object.keys(options).map((item, pos) => {
-        return (
-          <MenuItem key={pos} value={item}>
-            {options[item]}
-          </MenuItem>
-        )
-      })}
-    </TextField>
+    <FormControl sx={{ width: "100%" }} >
+      <FormLabel sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      <TextField {...configSelect}>
+        {options && Object.keys(options).map((item, pos) => {
+          return (
+            <MenuItem key={pos} value={item}>
+              {options[item]}
+            </MenuItem>
+          )
+        })}
+      </TextField>
     </FormControl>
   );
 };

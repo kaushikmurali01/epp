@@ -9,6 +9,7 @@ import Tabs from "@mui/material/Tabs";
 import { validationSchemaSignUp } from "../../utils/validations/formValidation";
 import SignUpFormFields from "./SignUpFormFields";
 import CustomTab from "../FormBuilder/CustomTab";
+import { Card, CardContent } from "@mui/material";
 
 function getSteps() {
   return ["Contact Information", "Company Detail", "Verify Email"];
@@ -61,77 +62,81 @@ export default function SignUpForm() {
     console.log(values);
   };
   return (
-    <Container maxWidth="sm">
-      <Box my={4}>
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{ fontWeight: "700", color: "text.secondary2" }}
-          gutterBottom
-        >
-          Sign Up
-        </Typography>
-        <Typography variant="p" component="p" sx={{ color: "text.secondary2" }}>
-          Company/Main Administrator Account
-        </Typography>
-        <Tabs
-          value={tabValue}
-          onChange={handleTabChange}
-          centered
-          variant="fullWidth"
-          sx={{ mt: 4 }}
-          TabIndicatorProps={{
-            style: { display: "none" },
-          }}
-        >
-          <CustomTab
-            label="Customer"
-            sx={{
-              borderRadius: "10px 0 0 10px",
-            }}
-          />
-          <CustomTab
-            label="Aggregator"
-            sx={{
-              borderRadius: "0 10px 10px 0",
-            }}
-          />
-        </Tabs>
+    <Card>
+      <CardContent sx={{ padding: '50px', paddingBottom: '50px !important' }}>
+        <Container maxWidth="sm">
+          <Box my={4}>
+            <Typography
+              variant="h5"
+              component="h2"
+              sx={{ fontWeight: "bold", color: "text.secondary2" }}
+              gutterBottom
+            >
+              Sign up
+            </Typography>
+            <Typography variant="h5" component="h2" sx={{ color: "text.secondary2", fontWeight: '400', fontSize: '16px' }}>
+              Company/Main Administrator Account
+            </Typography>
+            <Tabs
+              value={tabValue}
+              onChange={handleTabChange}
+              centered
+              variant="fullWidth"
+              sx={{ mt: 4 }}
+              TabIndicatorProps={{
+                style: { display: "none" },
+              }}
+            >
+              <CustomTab
+                label="Customer"
+                sx={{
+                  borderRadius: "10px 0 0 10px",
+                }}
+              />
+              <CustomTab
+                label="Aggregator"
+                sx={{
+                  borderRadius: "0 10px 10px 0",
+                }}
+              />
+            </Tabs>
 
-        <Stepper activeStep={activeStep} sx={{ mt: 4 }}>
-          {steps.map((label, index) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        <Box sx={{ mt: 3 }}>
-          {tabValue === 0 && (
-            <SignUpFormFields
-              validationSchema={validationSchemaSignUp}
-              initialValues={initialValues}
-              handleSubmit={handleSubmit}
-              activeStep={activeStep}
-              steps={steps}
-              handlePrev={handlePrev}
-              handleNext={handleNext}
-              userType={"Customer"}
-            />
-          )}
-          {tabValue === 1 && (
-            <SignUpFormFields
-              validationSchema={validationSchemaSignUp}
-              initialValues={initialValues}
-              handleSubmit={handleSubmit}
-              activeStep={activeStep}
-              steps={steps}
-              handlePrev={handlePrev}
-              handleNext={handleNext}
-              userType={"Aggregator"}
-            />
-          )}
-        </Box>
-      </Box>
-    </Container>
+            <Stepper activeStep={activeStep} sx={{ mt: 4 }}>
+              {steps.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel>{label}</StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            <Box sx={{ mt: 3 }}>
+              {tabValue === 0 && (
+                <SignUpFormFields
+                  validationSchema={validationSchemaSignUp}
+                  initialValues={initialValues}
+                  handleSubmit={handleSubmit}
+                  activeStep={activeStep}
+                  steps={steps}
+                  handlePrev={handlePrev}
+                  handleNext={handleNext}
+                  userType={"Customer"}
+                />
+              )}
+              {tabValue === 1 && (
+                <SignUpFormFields
+                  validationSchema={validationSchemaSignUp}
+                  initialValues={initialValues}
+                  handleSubmit={handleSubmit}
+                  activeStep={activeStep}
+                  steps={steps}
+                  handlePrev={handlePrev}
+                  handleNext={handleNext}
+                  userType={"Aggregator"}
+                />
+              )}
+            </Box>
+          </Box>
+        </Container>
+      </CardContent>
+    </Card>
   );
 }

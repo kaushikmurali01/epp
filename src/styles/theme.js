@@ -79,9 +79,12 @@ const theme = createTheme({
       main: '#2E813E',
       contrastText: '#fff',
     },
+    box: {
+      primary: '#2E813E1A'
+    }
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 8,
   },
 });
 

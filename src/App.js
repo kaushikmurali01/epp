@@ -10,6 +10,7 @@ import Header from "./components/CommonHeader/Header";
 import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
+import HomepageComponent from "./pages/Homepage/Homepage";
 import LandingPage from "./pages/LandingPage";
 import RoutesComp from './routes';
 
@@ -26,8 +27,9 @@ const App = (props) => {
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* <Signup /> */}
+        <HomepageComponent />
         {/* <LandingPage /> */}
-        {/* <Footer /> */}
+        <Footer />
       </ThemeProvider>
     </Provider>
   );
