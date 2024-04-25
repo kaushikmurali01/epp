@@ -1,6 +1,7 @@
 import { Tab, styled, useTheme } from "@mui/material";
 
-const CustomTab = styled(Tab)(() => {
+const CustomTab = styled(Tab)((props) => {
+  console.log(props)
   const { palette } = useTheme();
 
   return {
@@ -9,7 +10,7 @@ const CustomTab = styled(Tab)(() => {
       color: "white",
     },
     "&:not(.Mui-selected)": {
-      backgroundColor: "lightgray",
+      backgroundColor: props?.pageName == 'Homepage' ? '#ffffff' : 'lightgray',
       color: palette.text.primary,
     },
   };

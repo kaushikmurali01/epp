@@ -91,9 +91,12 @@ const theme = createTheme({
       high: "#50EE60",
       background: "#F2F2F2",
     },
+    box: {
+      primary: '#2E813E1A'
+    }
   },
   shape: {
-    borderRadius: 16,
+    borderRadius: 8,
   },
 });
 
