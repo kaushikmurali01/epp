@@ -1,5 +1,5 @@
 export class ResponseHandler {
-  public getResponse = (code: number, msg: string,  data: any = {}) => {
+  static async getResponse(code: number, msg: string,  data: any = {}) {
     try {
       let res: any;
       res = {
