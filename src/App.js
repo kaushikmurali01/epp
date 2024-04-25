@@ -1,4 +1,4 @@
-import React, {Suspense} from "react";
+import React, { Suspense } from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 // import "./App.css";
@@ -12,7 +12,9 @@ import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
 import HomepageComponent from "./pages/Homepage/Homepage";
 import LandingPage from "./pages/LandingPage";
-import RoutesComp from './routes';
+import RoutesComp from "./routes";
+import Facility from "./sections/Homepage/FacilitySection";
+import FacilityDetails from "sections/Homepage/FacilityDetails";
 
 const store = configureStore();
 
@@ -23,13 +25,15 @@ const App = (props) => {
         <Suspense fallback="Loading...">
           <RoutesComp />
         </Suspense>
-        {/* <Header /> */}
+        <Header />
         {/* <ActionComponent /> */}
-        {/* <Login /> */}
-        {/* <Signup /> */}
+        <Login />
+        {/* {/* <Signup /> */}
         <HomepageComponent />
         {/* <LandingPage /> */}
-        {/* <Footer /> */}
+        {/* <Facility /> */}
+        <FacilityDetails />
+        <Footer />
       </ThemeProvider>
     </Provider>
   );
