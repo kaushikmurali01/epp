@@ -30,7 +30,7 @@ const HeroBanner = () => {
                                 Learn More
                             </Button>
                         </Stack>
-                        {/* <Typography variant='span' className='whats-new'>What's New <img src="/images/landingpage/speak_icon.svg" /></Typography> */}
+                        {/* <Typography variant='span' className='whats-new'>What's New <img src="/images/landingPage/speak_icon.svg" /></Typography> */}
                     </Grid>
 
                     <Grid item xs={100} sm={7}>

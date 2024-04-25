@@ -38,7 +38,7 @@ function Header() {
       <AppBar
         position="fixed"
         sx={{
-          boxShadow: 0,
+          boxShadow: '0 0 8px #f1f1f1',
           bgcolor: "white",
           backgroundImage: "none",
           py: 3,
