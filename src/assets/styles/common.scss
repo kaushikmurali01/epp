@@ -10,6 +10,10 @@ ul {
     list-style: none;
 }
 
+body {
+    font-family: 'Asap', 'Arial', sans-serif,
+}
+
 // * @default {
 //     *    // extra-small
 //     *    xs: 0,
@@ -36,7 +40,7 @@ ul {
 .ev-theme-heading {
     position: relative;
     &:after {
-        content: '';
+        content: none;
         position: absolute;
         left: 0;
         right: 0;
@@ -46,6 +50,9 @@ ul {
         width: 70px;
         display: inline-block;
         background: $color-primary;
+        @include respond-to(theme_Sm){ 
+           content: '';
+        }
     }
 }
 

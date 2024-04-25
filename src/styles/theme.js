@@ -1,5 +1,4 @@
 import { createTheme } from "@mui/material";
-import { useTheme } from '@mui/material/styles';
 
 // this get theme variable is used to override the default properties
 const getTheme = createTheme();
@@ -31,10 +30,10 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          padding: '10px',
-          borderRadius: '8px',
-          minWidth: '120px',
-          fontSize: '14px',
+          padding: '0.625rem',
+          borderRadius: '0.5rem',
+          minWidth: '7.5rem',
+          fontSize: '0.875rem',
           fontWeight: '600',
           textTransform: 'inherit',
           borderWidth: '2px',
@@ -42,12 +41,12 @@ const theme = createTheme({
             borderWidth: '2px',
           },
           [getTheme.breakpoints.up('sm')]: {
-            fontSize: '16px',
-            minWidth: '140px',
+            fontSize: '1rem',
+            minWidth: '8.75rem',
           },
           [getTheme.breakpoints.up('md')]: {
-            fontSize: '18px',
-            minWidth: '165px',
+            fontSize: '1.125rem',
+            minWidth: '10.135rem',
           },
       
         },
@@ -63,7 +62,7 @@ const theme = createTheme({
       fontWeight: 600, 
       color: '#242424',
       [getTheme.breakpoints.up('sm')]: {
-        fontSize: '3rem',
+        fontSize: '2.625rem',
       },
       [getTheme.breakpoints.up('md')]: {
         fontSize: '3.5rem', // ~ 56px
@@ -77,9 +76,12 @@ const theme = createTheme({
       
     },
     h3: {
-      fontSize: '2.25rem',  // ~ 36px
+      fontSize: '1.5rem',  
       fontWeight: 600, 
       color: '#242424',   
+      [getTheme.breakpoints.up('md')]: {
+        fontSize: '2.25rem', // ~ 36px
+      },
       
     },
     h4: {
@@ -96,11 +98,11 @@ const theme = createTheme({
        fontSize: '1rem', // ~ 16px
      },
      [getTheme.breakpoints.up('md')]: {
-       fontSize: '1.125rem', // ~ 18px
+       fontSize: '1.25rem', // ~ 20px
      },  
     },
     h6: {
-      fontSize: '1rem',    // ~ 16px
+      fontSize: '1.125rem',    // ~ 18px
       fontWeight: 600,    
       color: '#242424',
       
@@ -108,7 +110,6 @@ const theme = createTheme({
     span: {
       fontSize: '0.875rem', // ~ 14px    
       lineHeight: '1.25rem',
-      fontFamily: `'Asap', 'Arial', sans-serif`,
       color: '#242424',
       [getTheme.breakpoints.up('sm')]: {
        fontSize: '1rem', // ~ 16px
@@ -123,9 +124,8 @@ const theme = createTheme({
     p: {
       fontSize: '1rem',  
       lineHeight: '1.25rem',
-      fontFamily: `'Asap', 'Arial', sans-serif`,
       color: '#242424',
-      fontSize: '400',
+      fontWeight: '400',
       [getTheme.breakpoints.up('sm')]: {
        fontSize: '1.125rem', 
        lineHeight: '1.375rem',
@@ -138,18 +138,27 @@ const theme = createTheme({
     body1: {
       fontSize: '1rem',  
       lineHeight: '1.25rem',
-      fontFamily: `'Asap', 'Arial', sans-serif`,
       color: '#242424',
-      fontSize: '400',
+      fontWeight: '400',
       [getTheme.breakpoints.up('sm')]: {
        fontSize: '1.125rem', 
        lineHeight: '1.375rem'
-
      },
      [getTheme.breakpoints.up('md')]: {
        fontSize: '1.25rem', 
        lineHeight: '1.625rem'
      },  
+    },
+
+    small: {
+      fontSize: '0.75rem',  
+      lineHeight: '1rem',
+      color: '#808080',
+      fontWeight: '400',
+      [getTheme.breakpoints.up('sm')]: {
+       fontSize: '0.875', 
+       lineHeight: '1.25rem'
+     },
     },
     
   },
@@ -163,6 +172,10 @@ const theme = createTheme({
     },
     primary_2: {
       main: "#54585a",
+      gray: '#808080'
+    },
+    blue: {
+      main: '#2C77E9',
     },
     secondary: {
       // main: "#f26d04",
@@ -187,7 +200,9 @@ const theme = createTheme({
   },
   shape: {
     borderRadius: 16,
+
   },
+  
 });
 
 export default theme;

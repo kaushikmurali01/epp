@@ -6,7 +6,7 @@ const Testimonial = () => {
         <React.Fragment>
 
 
-            {/* How it works section  */}
+            {/* success story section  */}
             <Box component={'section'} className='testimonial-section common-section' sx={{ bgcolor: 'primary.thinLight' }}>
                 <Container maxWidth="lg">
                     <Grid container justifyContent="space-between" className='heading-row'>

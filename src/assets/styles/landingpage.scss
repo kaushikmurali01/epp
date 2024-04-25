@@ -1,9 +1,21 @@
 // common section top and bottom spaces
 .common-section {
-    padding: 4rem 0;
+    padding: 2rem 0;
+    @include respond-to(theme_Sm){ 
+        padding: 3rem 0;
+    }
+    @include respond-to(theme_Md){ 
+        padding: 4rem 0;
+    }
 
     .heading-row {
-        margin-bottom: 3.875rem;
+        margin-bottom: 2.5rem;
+        @include respond-to(theme_Sm){ 
+            margin-bottom: 3rem;
+        }
+        @include respond-to(theme_Md){ 
+            margin-bottom: 3.875rem;
+        }
     }
 }
 
@@ -14,36 +26,52 @@
 
     .banner-info {
         position: relative;
-        padding: 7.5rem 0;
-
-        .whats-new {
-            position: absolute;
-            bottom: 0;
-            background-color: #f00;
-            padding: 0.625rem 1.5rem;
-            color: #fff;
-            border-top-right-radius: 0.625rem;
-            border-top-left-radius: 0.625rem;
+        padding: 1rem 0;
+        @include respond-to(theme_Sm){ 
+            padding: 4.5rem 0;
         }
+        @include respond-to(theme_Md){ 
+            padding: 7.5rem 0;
+        }
+       
+        // .whats-new {
+        //     position: absolute;
+        //     bottom: 0;
+        //     background-color: #f00;
+        //     padding: 0.625rem 1.5rem;
+        //     color: #fff;
+        //     border-top-right-radius: 0.625rem;
+        //     border-top-left-radius: 0.625rem;
+        // }
     }
 
     .banner-bg {
-        background: url(~/public/images/landingPage/header_banner.jpg) no-repeat center right/cover;
-        height: 100%;
+        background: url(~/public/images/landingPage/header_banner.jpg) no-repeat center center/cover;
+        min-height: 400px;
         display: inline-block;
-        width: 50%;
-        position: absolute;
-        right: 0;
-        bottom: 0;
+        width: 100%;
+        position: static;
+     
+        @include respond-to(theme_Sm){ 
+            width: 50%;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: 100%;
+            background-position: center right;
+        }
+        // @include respond-to(theme_Md){ 
+           
+        // }
     }
 }
 
 
 // Instructions sections
 
-.instruction-section {
-    padding: 34px 0;
-}
+// .instruction-section {
+//     padding: 34px 0;
+// }
 
 
 .how-it-work-section {
@@ -51,15 +79,23 @@
         .text {
             margin-top: 2.5rem;
             text-align: center;
-            span {
-                font-size: 1.25rem;
-                font-weight: 600;
-            }
+            // span {
+            //     font-size: 1.25rem;
+            //     font-weight: 600;
+            // }
         }
     }
 }
 
 
+.success-story-section {
+    .glider-track {
+        padding-top: 5rem;
+        @include respond-to(theme_Sm){ 
+            padding-top: 3rem;
+        }
+    }
+}
 
 // testimonial-section
 
@@ -141,24 +177,11 @@
 }
 
 
-// .our-client-section {
-//     .our-client-row {
-//         .MuiGrid-item {
-//             background-color: #fff;
-//             width: 195px;
-//             display: flex;
-//             align-items: center;
-//             justify-content: center;
-//             height: 105px;
-//         }
-//     }
-// }
-
-.news-feeds-section {
+// slider UI style
+.theme-slider-container {
     .glider-contain {
         button {
-            top: -84px;
-            left: auto;
+            top: -1rem;
             background-color: $color-primary;
             color: $theme-color-white;
             width: 3.25rem;
@@ -166,6 +189,12 @@
             border-radius: 50%;
             opacity: 1;
             font-size: 1.75rem;
+            @include respond-to(theme_Sm){ 
+                top: -5.25rem;
+            }
+            @include respond-to(theme_Md){ 
+                top: -6.5rem;
+            }
 
             &.disabled {
                 background-color: $color-gray-dark;
@@ -173,16 +202,39 @@
         }
 
         .glider-prev {
-            right: calc((100vw - 66rem + 5.625rem) / 2);
+            // right: calc((100vw - 66rem + 5.625rem) / 2);
+            right: auto;
+            left:0;
+            @include respond-to(theme_Sm){ 
+                right: 5.625rem;
+                left: auto;
+            }
         }
 
         .glider-next {
-            right: calc((100vw - 70rem) / 2);
+            // right: calc((100vw - 70rem) / 2);
+            right: 0;
         }
 
         .glider-track {
-            margin-left: calc((100vw - 73rem) / 2);
-            gap: 24px;
+            // margin-left: calc((100vw - 73rem) / 2);
+            gap: 1rem;
+            @include respond-to(theme_Sm){ 
+                gap: 1.75rem;
+            }
+            @include respond-to(theme_Md){ 
+                gap: 4.75rem;
+            }
+        }
+    }
+}
+
+
+.news-feeds-section {
+    .glider-track {
+        padding-top: 5rem;
+        @include respond-to(theme_Sm){ 
+            padding-top: 0;
         }
     }
 }
@@ -196,8 +248,13 @@
         gap: 2%;
 
         li {
-            width: 49%;
-            margin-bottom: 2%;
+            width: 100%;
+            margin-bottom: 2rem;
+           
+            @include respond-to(theme_Sm){
+                width: 49%;
+                margin-bottom: 2%;
+            }
             .MuiInputBase-formControl {
                 background-color: $theme-color-white;
             }

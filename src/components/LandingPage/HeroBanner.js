@@ -4,13 +4,13 @@ import useMediaQueries from '../../utils/mediaQueries/mediaQueries';
 
 
 const HeroBanner = () => {
-    const { theme_Xs,theme_Md, theme_Lg } = useMediaQueries();
+    const { theme_Md, theme_Sm } = useMediaQueries();
 
     return (
         <Box component={'section'} className='banner-section'>
             <Container maxWidth="lg">
-                <Grid container >
-                    <Grid item xs={5} className='banner-info'>
+                <Grid container sx={{flexDirection: theme_Sm ? "row" : 'column-reverse', padding: theme_Sm ? '0' : '1rem 0' }}>
+                    <Grid item xs={100} sm={5} className='banner-info'>
                     
                         <Typography variant="h1" gutterBottom 
                         sx={{ display:'flex', flexDirection:'column',
@@ -30,10 +30,10 @@ const HeroBanner = () => {
                                 Learn More
                             </Button>
                         </Stack>
-                        <Typography variant='span' className='whats-new'>What's New <img src="/images/landingpage/speak_icon.svg" /></Typography>
+                        {/* <Typography variant='span' className='whats-new'>What's New <img src="/images/landingpage/speak_icon.svg" /></Typography> */}
                     </Grid>
 
-                    <Grid item xs={7}>
+                    <Grid item xs={100} sm={7}>
                         <span className='banner-bg'></span>
                     </Grid>
 

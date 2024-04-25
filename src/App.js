@@ -22,12 +22,12 @@ const App = (props) => {
         <Suspense fallback="Loading...">
           <RoutesComp />
         </Suspense>
-        {/* <Header /> */}
+        <Header />
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* <Signup /> */}
-        {/* <LandingPage /> */}
-        {/* <Footer /> */}
+        <LandingPage />
+        <Footer />
       </ThemeProvider>
     </Provider>
   );
