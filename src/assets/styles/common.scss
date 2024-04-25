@@ -3,9 +3,15 @@
     padding: 0;
     box-sizing: border-box;
 }
-
+img {
+    max-width: 100%;
+}
 ul {
     list-style: none;
+}
+
+body {
+    font-family: 'Asap', 'Arial', sans-serif,
 }
 
 // * @default {
@@ -34,7 +40,7 @@ ul {
 .ev-theme-heading {
     position: relative;
     &:after {
-        content: '';
+        content: none;
         position: absolute;
         left: 0;
         right: 0;
@@ -44,5 +50,9 @@ ul {
         width: 70px;
         display: inline-block;
         background: $color-primary;
+        @include respond-to(theme_Sm){ 
+           content: '';
+        }
     }
 }
+

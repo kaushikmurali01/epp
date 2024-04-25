@@ -1,36 +1,5 @@
-// import React from 'react';
-// import { TextareaAutosize } from '@mui/base';
-// import { useField } from 'formik';
-
-// const TextAreaField = ({name,...otherProps}) => {
-//     const [field, meta] = useField(name);
-//   const configTextfield = {
-//     ...field,
-//     ...otherProps,
-//     variant: 'outlined',
-//     fullWidth: true,
-//     multiline: true,
-
-//   };
-
-
-//   if (meta && meta.touched && meta.error) {
-//     configTextfield.error = true;
-//     configTextfield.helperText = meta.error;
-//   }
-
-//   return (
-//     <TextareaAutosize {...configTextfield} xs={12} minRows={3}  placeholder="Minimum 3 rows" />
-//     // <Textarea aria-label="minimum height" minRows={3} placeholder="Minimum 3 rows" />
-//   );
-// };
-
-// export default TextAreaField;
-
-
-
 import React from 'react';
-import {Box, FormControl, FormGroup, FormLabel,FormHelperText } from '@mui/material';
+import {Box, FormControl, FormGroup, FormLabel,FormHelperText, TextareaAutosize } from '@mui/material';
 import { useField } from 'formik';
 
 const TextAreaField = ({name,label,...otherProps}) => {
@@ -50,10 +19,11 @@ const TextAreaField = ({name,label,...otherProps}) => {
   }
 
   return (
-    <FormGroup className='ev-text-area-form-group'>
+    <FormGroup className='theme-form-group text-area-form-group'>
     <FormControl>
-    {label && <FormLabel>{label}</FormLabel> }
-    <textarea  {...configTextfield} />
+    <FormLabel> {label} </FormLabel>
+    <textarea  {...configTextfield} style={{resize: 'none'}} />
+    {/* <TextareaAutosize {...configTextfield} style={{resize:'none'}} /> */}
     <FormHelperText error={configTextfield.error} >{configTextfield.helperText}</FormHelperText>
     </FormControl>
     </FormGroup>
