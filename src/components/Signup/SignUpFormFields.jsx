@@ -181,9 +181,9 @@ const SignUpFormFields = ({
           <Box mt={4} rowGap={4}>
             {activeStep === 0 && (
               <>
-                <Button variant="contained" color="primary" onClick={handleNext}>
+                {/* <Button variant="contained" color="primary" onClick={handleNext}>
                   Next
-                </Button>
+                </Button> */}
                 <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleNext}>
                   Next
                 </ButtonWrapper>
