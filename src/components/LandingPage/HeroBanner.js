@@ -21,7 +21,7 @@ const HeroBanner = () => {
                             <span>Reduce Costs. </span>
                             <span>Earn Incentives.</span>
                         </Typography>
-                        <Typography variant="span" gutterBottom>Start today, get a free baseline energy model, receive an upfront incentive and annually thereafter.</Typography>
+                        <Typography variant="span" gutterBottom>Start today with the <Typography variant="strong" component='strong'> Energy Performance Program,</Typography> get a free baseline energy model, receive an upfront incentive and annually thereafter</Typography>
                         <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem' }} className='action-btn'  >
                             <Button variant="contained" color="success">
                                 Sign up

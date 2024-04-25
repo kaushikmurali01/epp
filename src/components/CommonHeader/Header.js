@@ -8,9 +8,10 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Drawer from "@mui/material/Drawer";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
 import { logoStyle } from "../../styles/commonStyles";
+import { Link } from "@mui/material";
 
 function Header() {
   const [open, setOpen] = React.useState(false);
@@ -34,14 +35,14 @@ function Header() {
   };
 
   return (
-    <div>
       <AppBar
         position="fixed"
         sx={{
           boxShadow: 0,
           bgcolor: "white",
           backgroundImage: "none",
-          pt: 2,
+          py: 3,
+          
         }}
       >
         <Container maxWidth="lg">
@@ -55,6 +56,7 @@ function Header() {
               backdropFilter: "blur(24px)",
               maxHeight: 40,
               borderColor: "divider",
+              px: 0,
             })}
           >
             <Box
@@ -62,7 +64,7 @@ function Header() {
                 flexGrow: 1,
                 display: "flex",
                 alignItems: "center",
-                ml: "-18px",
+                // ml: "-18px",
                 px: 0,
               }}
             >
@@ -80,7 +82,7 @@ function Header() {
                   onClick={() => scrollToSection("features")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography variant="body2" component='a' href="#" sx={{textDecoration: 'none'}}  color="dark.light">
                     How it works
                   </Typography>
                 </MenuItem>
@@ -88,7 +90,7 @@ function Header() {
                   onClick={() => scrollToSection("testimonials")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography variant="body2" component='a' href="#" sx={{textDecoration: 'none'}} color="dark.light">
                     Succes stories  
                   </Typography>
                 </MenuItem>
@@ -96,7 +98,7 @@ function Header() {
                   onClick={() => scrollToSection("highlights")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography variant="body2" component='a' href="#" sx={{textDecoration: 'none'}} color="dark.light">
                     What's New
                   </Typography>
                 </MenuItem>
@@ -104,7 +106,7 @@ function Header() {
                   onClick={() => scrollToSection("highlights")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography variant="body2" component='a' href="#" sx={{textDecoration: 'none'}} color="dark.light">
                     Contact Us
                   </Typography>
                 </MenuItem>
@@ -117,24 +119,18 @@ function Header() {
                 alignItems: "center",
               }}
             >
-              <Button
+              <Link
                 color="primary"
-                variant="text"
-                size="medium"
-                component="a"
-                href="/sign-in"
-                target="_blank"
+                href="/login"
+                sx={{textDecoration: 'none', marginRight: {md: '2.25rem',}}}
               >
-                Sign in
-              </Button>
+                Login
+              </Link>
               <Button
                 color="primary"
                 variant="contained"
-                size="medium"
                 component="a"
                 href="/sign-up"
-                target="_blank"
-                sx={{ borderRadius: "0px" }}
               >
                 Sign up
               </Button>
@@ -145,9 +141,9 @@ function Header() {
                 color="primary"
                 aria-label="menu"
                 onClick={toggleDrawer(true)}
-                sx={{ minWidth: "30px", p: "4px" }}
+                sx={{ minWidth: "30px", p: "4px", justifyContent: 'flex-end' }}
               >
-                <MenuIcon />
+                <MenuIcon sx={{ color: '#fff', bgcolor: 'primary.main', width: '3rem', height:'3rem', borderRadius: '0.875rem', padding: '0.25rem'}} />
               </Button>
               <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
                 <Box
@@ -171,18 +167,6 @@ function Header() {
                   <MenuItem>
                     <Button
                       color="primary"
-                      variant="contained"
-                      component="a"
-                      href="/sign-up"
-                      sx={{ width: "100%" }}
-                      target="_blank"
-                    >
-                      Sign up
-                    </Button>
-                  </MenuItem>
-                  <MenuItem>
-                    <Button
-                      color="primary"
                       variant="outlined"
                       component="a"
                       href="/sign-in"
@@ -192,13 +176,25 @@ function Header() {
                       Sign in
                     </Button>
                   </MenuItem>
+                  <MenuItem>
+                    <Button
+                      color="primary"
+                      variant="contained"
+                      component="a"
+                      href="/sign-up"
+                      sx={{ width: "100%" }}
+                      target="_blank"
+                    >
+                      Sign up
+                    </Button>
+                  </MenuItem>
+                 
                 </Box>
               </Drawer>
             </Box>
           </Toolbar>
         </Container>
       </AppBar>
-    </div>
   );
 }
 
