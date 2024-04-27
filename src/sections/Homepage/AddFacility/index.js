@@ -33,8 +33,8 @@ const AddFacilityComponent = (props) => {
                         </Typography>
                     </Grid>
                     <Grid container item xs={2}>
-                        <Box sx={{ display: 'flex', border: '1px solid #D8FFDC', backgroundColor: '#D8FFDC', padding: '0 16px', borderRadius: '10px', width: '150px', height: '29px' }}>
-                            <Typography sx={{ color: '#54585A', fontWeight: '400', fontSize: '12px', marginTop: '5px' }}>
+                        <Box sx={{ display: 'flex', border: '1px solid #D8FFDC', backgroundColor: '#D8FFDC', padding: '0 16px', borderRadius: '10px', width: '200px', height: '38px', justifyContent: 'center', alignItems: 'center' }}>
+                            <Typography sx={{ color: '#54585A', fontWeight: '400', fontSize: '12px' }}>
                                 Status:
                             </Typography>
                             <Typography sx={{ color: '#348D3D', fontWeight: '500', fontSize: '18px', marginLeft: '5px' }}>
@@ -44,7 +44,7 @@ const AddFacilityComponent = (props) => {
                     </Grid>
                 </Grid>
 
-                <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '125px', height: '29px' }}>
+                <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '175px', height: '38px' }}>
                     Facility Details
                 </Typography>
 
@@ -86,7 +86,7 @@ const AddFacilityComponent = (props) => {
 
                             <Grid item xs={12} sm={12}>
                                 <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
-                                <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 40px', borderRadius: '8px', width: '140px', height: '40px' }}>
+                                <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }}>
                             Upload
                         </Typography>
                             </Grid>
@@ -94,7 +94,7 @@ const AddFacilityComponent = (props) => {
 
                         </Grid>
 
-                        <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '80px', height: '29px' }}>
+                        <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '100px', height: '37px' }}>
                             Address
                         </Typography>
 
