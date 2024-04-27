@@ -1,7 +1,6 @@
 import { Tab, styled, useTheme } from "@mui/material";
 
 const CustomTab = styled(Tab)((props) => {
-  console.log(props)
   const { palette } = useTheme();
 
   return {

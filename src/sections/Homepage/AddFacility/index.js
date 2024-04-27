@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { setOption, setOption2 } from "../../../redux/actions/simpleActions";
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Grid, Typography, InputLabel } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation"
@@ -34,12 +34,12 @@ const AddFacilityComponent = (props) => {
                     </Grid>
                     <Grid container item xs={2}>
                         <Box sx={{ display: 'flex', border: '1px solid #D8FFDC', backgroundColor: '#D8FFDC', padding: '0 16px', borderRadius: '10px', width: '150px', height: '29px' }}>
-                        <Typography sx={{ color: '#54585A', fontWeight: '400', fontSize: '12px', marginTop: '5px' }}>
-                            Status:
-                        </Typography>
-                        <Typography sx={{ color: '#348D3D', fontWeight: '500', fontSize: '18px', marginLeft: '5px' }}>
-                            Existing
-                        </Typography>
+                            <Typography sx={{ color: '#54585A', fontWeight: '400', fontSize: '12px', marginTop: '5px' }}>
+                                Status:
+                            </Typography>
+                            <Typography sx={{ color: '#348D3D', fontWeight: '500', fontSize: '18px', marginLeft: '5px' }}>
+                                Existing
+                            </Typography>
                         </Box>
                     </Grid>
                 </Grid>
@@ -84,11 +84,19 @@ const AddFacilityComponent = (props) => {
                                 <SelectBox name="energySavingForFacility" label="What is your target energy savings for this facility?*" />
                             </Grid>
 
+                            <Grid item xs={12} sm={12}>
+                                <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
+                                <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 40px', borderRadius: '8px', width: '140px', height: '40px' }}>
+                            Upload
+                        </Typography>
+                            </Grid>
+
+
                         </Grid>
 
                         <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '80px', height: '29px' }}>
-                    Address
-                </Typography>
+                            Address
+                        </Typography>
 
                         <Grid container spacing={2} sx={{ marginTop: '10px' }}>
 
