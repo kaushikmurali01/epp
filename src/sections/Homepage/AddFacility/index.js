@@ -12,13 +12,15 @@ const AddFacilityComponent = (props) => {
 
     const initialValues = {
         facilityConstructionStatus: "",
-        facilityName: "",
+        Facility_Name: "",
         isBuildinTarriffClass: "",
         naicCode: "",
         facilityCategory: "",
         facilityType: "",
         energySavingForFacility: "",
     };
+
+    const buildingFacilitystr = "Is . the building/facility in the tariff class GS > 50KW?*";
 
     const handleSubmit = (values) => {
     };
@@ -61,11 +63,19 @@ const AddFacilityComponent = (props) => {
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="Facility construction status*" label="Facility construction status*" />
+                                <SelectBox name="Facility construction status*" label="Facility Name*" />
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="Facility construction status*" label="Facility construction status*" />
+                                <InputLabel sx={{ color: '#2E813E' }}>{buildingFacilitystr}</InputLabel>
+                                <Box sx={{ display: 'flex' }} my={2}>
+                                    <Typography sx={{ color: '#ffffff', fontWeight: '600', fontSize: '14px', width: '57px', height: '32px', backgroundColor: '#2E813E', borderRadius: '8px 0px 0px 8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        Yes
+                                    </Typography>
+                                    <Typography sx={{ color: '#000000', fontWeight: '600', fontSize: '14px', width: '57px', height: '32px', backgroundColor: '#E9E9E9', borderRadius: '0px 8px 8px 0px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        No
+                                    </Typography>
+                                </Box>
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
@@ -87,8 +97,8 @@ const AddFacilityComponent = (props) => {
                             <Grid item xs={12} sm={12}>
                                 <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
                                 <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }}>
-                            Upload
-                        </Typography>
+                                    Upload
+                                </Typography>
                             </Grid>
 
 
