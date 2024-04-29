@@ -35,3 +35,10 @@ export const HTTP_STATUS_CODES = {
     dataUnique: "Data Should be unique",
     emailNotExist: "Please enter a registered email address",
   };
+
+  export const STATUS = {
+    NOT_ACTIVE : 0,
+    IS_ACTIVE : 1,
+    IS_BLOCKED : 2,
+    IS_DELETED : 3,
+  }

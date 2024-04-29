@@ -149,7 +149,7 @@ Facility.init(
     },
     {
         sequelize,
-        tableName: 'Facilitys', // Adjust table name as per your requirement
+        tableName: 'facility', // Adjust table name as per your requirement
         timestamps: true,
         underscored: true, // Set to true if your column names use snake_case instead of camelCase
         modelName: 'Facility', // Adjust model name as per your requirement
