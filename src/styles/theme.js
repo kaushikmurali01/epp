@@ -148,6 +148,16 @@ const theme = createTheme({
        lineHeight: '1.625rem'
      },  
     },
+    body2: {
+      fontSize: '0.875rem',  
+      lineHeight: '1.25rem',
+      fontWeight: '400',
+
+     [getTheme.breakpoints.up('md')]: {
+       fontSize: '1rem', 
+
+     },  
+    },
 
     small: {
       fontSize: '0.75rem',  
@@ -155,7 +165,7 @@ const theme = createTheme({
       color: '#808080',
       fontWeight: '400',
       [getTheme.breakpoints.up('sm')]: {
-       fontSize: '0.875', 
+       fontSize: '0.875rem', 
        lineHeight: '1.25rem'
      },
     },

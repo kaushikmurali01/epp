@@ -63,7 +63,7 @@ const HowItWorks = () => {
                     <Grid container justifyContent="space-between" className='instruction-row' sx={{ rowGap: isMd ? '2rem' : '0'  }}>
                         <Grid sx={{ ...instructionRowStyles }} alignItems="center" >
                             <figure style={{ width: isSm ? '3.125rem' : '4.25rem'  }}>
-                                <img src='/images/landingpage/icons/icon_1.svg' alt='icon_1' />
+                                <img src='/images/landingPage/icons/icon_1.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
                                 <Typography variant='span'>Save on <br /> Energy Bills</Typography>
@@ -72,7 +72,7 @@ const HowItWorks = () => {
                         </Grid>
                         <Grid sx={{ ...instructionRowStyles }} alignItems="center" >
                             <figure style={{ width: isSm ? '3.125rem' : '4.25rem'  }}>
-                                <img src='/images/landingpage/icons/icon_2.svg' alt='icon_1' />
+                                <img src='/images/landingPage/icons/icon_2.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
                                 <Typography variant='span'>Earn incentives <br /> from the IESO </Typography>
@@ -82,7 +82,7 @@ const HowItWorks = () => {
                         </Grid>
                         <Grid sx={{ ...instructionRowStyles }} alignItems="center">
                             <figure style={{ width: isSm ? '3.125rem' : '4.25rem'  }}>
-                                <img src='/images/landingpage/icons/icon_3.svg' alt='icon_1' />
+                                <img src='/images/landingPage/icons/icon_3.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
                                 <Typography variant='span'>Receive recognition<br /> for your efforts </Typography>
@@ -92,7 +92,7 @@ const HowItWorks = () => {
                         </Grid>
                         <Grid sx={{ ...instructionRowStyles }} alignItems="center">
                             <figure style={{ width: isSm ? '3.125rem' : '4.25rem'  }}>
-                                <img src='/images/landingpage/icons/icon_4.svg' alt='icon_1' />
+                                <img src='/images/landingPage/icons/icon_4.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
                                 <Typography variant='span'> Access to technical <br /> support and resources</Typography>
@@ -120,7 +120,7 @@ const HowItWorks = () => {
                     >
                         <Grid sx={{ ...howItWorksItemStyles }} item >
                             <figure>
-                                <img src='/images/landingpage/icons/howItWorks/image_1.svg' alt='image_1' />
+                                <img src='/images/landingPage/icons/howItWorks/image_1.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
                                 <Typography  sx={{fontWeight: '600'}}>Create an account, add your team, and sign Participant Agreement</Typography>
@@ -129,7 +129,7 @@ const HowItWorks = () => {
                         </Grid>
                         <Grid sx={{ ...howItWorksItemStyles }} item >
                             <figure>
-                                <img src='/images/landingpage/icons/howItWorks/image_2.svg' alt='image_1' />
+                                <img src='/images/landingPage/icons/howItWorks/image_2.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
                                 <Typography  sx={{fontWeight: '600'}}>Add your facility details and receive your baseline energy model</Typography>
@@ -138,7 +138,7 @@ const HowItWorks = () => {
                         </Grid>
                         <Grid sx={{ ...howItWorksItemStyles }} item >
                             <figure>
-                                <img src='/images/landingpage/icons/howItWorks/image_3.svg' alt='image_1' />
+                                <img src='/images/landingPage/icons/howItWorks/image_3.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
                                 <Typography  sx={{fontWeight: '600'}}>Start saving energy and earning incentives</Typography>

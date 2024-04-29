@@ -50,35 +50,35 @@ const OurClient = () => {
                 <Grid container  className='our-client-row' sx={{ ...clientRowGridStyle}} >
                     <Grid item  sx={{...clientGridBoxStyle}} >
                         <figure>
-                            <img src='/images/landingpage/ourClient/manila.svg' alt='manila' />
+                            <img src='/images/landingPage/ourClient/manila.svg' alt='manila' />
                         </figure>
 
 
                     </Grid>
                     <Grid item sx={{...clientGridBoxStyle}}>
                         <figure>
-                            <img src='/images/landingpage/ourClient/golden_view.svg' alt='golden_view' />
+                            <img src='/images/landingPage/ourClient/golden_view.svg' alt='golden_view' />
                         </figure>
 
 
                     </Grid>
                     <Grid item sx={{...clientGridBoxStyle}}>
                         <figure>
-                            <img src='/images/landingpage/ourClient/rubicon_point.svg' alt='rubicon_point' />
+                            <img src='/images/landingPage/ourClient/rubicon_point.svg' alt='rubicon_point' />
                         </figure>
 
 
                     </Grid>
                     <Grid item sx={{...clientGridBoxStyle}}>
                         <figure>
-                            <img src='/images/landingpage/ourClient/swig_company.svg' alt='swig_company' />
+                            <img src='/images/landingPage/ourClient/swig_company.svg' alt='swig_company' />
                         </figure>
 
 
                     </Grid>
                     <Grid item sx={{...clientGridBoxStyle}}>
                         <figure>
-                            <img src='/images/landingpage/ourClient/douglas_emmett.svg' alt='douglas_emmett' />
+                            <img src='/images/landingPage/ourClient/douglas_emmett.svg' alt='douglas_emmett' />
                         </figure>
 
 
