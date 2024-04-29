@@ -15,6 +15,7 @@ import LandingPage from "./pages/LandingPage";
 import RoutesComp from "./routes";
 import Facility from "./sections/Homepage/FacilitySection";
 import FacilityDetails from "sections/Homepage/FacilityDetails";
+import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection";
 
 const store = configureStore();
 
@@ -27,12 +28,13 @@ const App = (props) => {
         </Suspense>
         <Header />
         {/* <ActionComponent /> */}
-        <Login />
+        {/* <Login /> */}
         {/* {/* <Signup /> */}
-        <HomepageComponent />
+        {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
         {/* <Facility /> */}
-        <FacilityDetails />
+        {/* <FacilityDetails /> */}
+        <ParticipantAgreement />
         <Footer />
       </ThemeProvider>
     </Provider>
