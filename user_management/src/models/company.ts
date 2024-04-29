@@ -14,8 +14,8 @@ interface CompanyAttributes {
   postal_code: string;
   country: string;
   total_facility: number;
-  portal_agreement_accepted: boolean;
-  information_commercial_accepted: boolean;
+  portal_agreement_accepted: number;
+  information_commercial_accepted: number;
 }
 
 interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> {}
@@ -33,8 +33,8 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public postal_code!: string;
   public country!: string;
   public total_facility!: number;
-  public portal_agreement_accepted!: boolean;
-  public information_commercial_accepted!: boolean;
+  public portal_agreement_accepted!: number;
+  public information_commercial_accepted!: number;
 }
 
 Company.init(
@@ -139,7 +139,7 @@ Company.init(
       },
     },
     portal_agreement_accepted: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isBoolean: {
@@ -148,7 +148,7 @@ Company.init(
       },
     },
     information_commercial_accepted: {
-      type: DataTypes.BOOLEAN,
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isBoolean: {
