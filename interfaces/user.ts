@@ -6,6 +6,8 @@ interface UserAttributes {
     password: string;
     landline: number | null;
     phonenumber: number;
-    address: string
+    address: string;
+    type: string;
+    facility_name: string;
   }
 export { UserAttributes };
