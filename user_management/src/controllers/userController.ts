@@ -1,5 +1,7 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
 import { UserService } from '../services/userService';
+import { UserInvitationService } from '../services/user-invitation-service'; // Assuming the correct import path
+
 
 class UserController {
 
@@ -13,8 +15,8 @@ class UserController {
     static async registerUser(req): Promise<any> {
         try {
             console.log("body", req.body);
-            const { first_name, last_name, email, password, address, phonenumber } = req as any;
-            const user = await UserService.registerUser({ first_name, last_name, email, password, address, phonenumber });
+            const { first_name, last_name, email, password, address, phonenumber, landline } = req as any;
+            const user = await UserService.registerUser({ first_name, last_name, email, password, address, phonenumber, landline });
             console.log('3333', user);
             return user;
         } catch (error) {
@@ -62,9 +64,9 @@ class UserController {
    * @returns Promise<any> - A promise resolving to an HTTP response.
    * @description Handles the retrieval of all users by invoking the UserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
    */
-  static async getAllUsers(): Promise<any> {
+  static async getAllUsers(offset, limit): Promise<any> {
     try {
-      const users = await UserService.getAllUsers();
+      const users = await UserService.getAllUsers(offset, limit);
       return {
         status: 200, // OK status code
         body: { users }
@@ -137,6 +139,28 @@ class UserController {
       };
     }
   }
+
+    /**
+   * Retrieves all user invitations along with associated user data.
+   * 
+   * @param req - The HTTP request object.
+   * @returns Promise<HttpResponse> - A promise resolving to an HTTP response.
+   * @description Handles the retrieval of all user invitations along with associated user data by calling the UserInvitationService and returning an HTTP response with the fetched data.
+   */
+    static async getAllInvitationsWithUserData(offset, limit): Promise<Object> {
+      try {
+        const invitations = await UserInvitationService.getAllInvitationsWithUserData(offset, limit);
+        return {
+          status: 200,
+          body: invitations
+        };
+      } catch (error) {
+        return {
+          status: 500,
+          body: { error: error.message }
+        };
+      }
+    }
 }
 
 export { UserController };

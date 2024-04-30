@@ -25,7 +25,8 @@
     "pg": "^8.11.5",
     "sequelize": "^6.37.3",
     "enerva-utils": "bitbucket:algoworks-dev/enerva-backend#enerva-utils",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "@azure/communication-email": "^1.0.0"
 
     
   },

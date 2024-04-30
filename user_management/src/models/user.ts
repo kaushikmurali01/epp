@@ -1,11 +1,22 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
-import { UserAttributes } from 'enerva-utils/interfaces/user';
+//import { UserAttributes } from 'enerva-utils/interfaces/user';
 import { isStrongPassword } from 'validator'; // Importing validator library for password complexity check
+
+interface UserAttributes {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  landline: number | null;
+  phonenumber: number;
+  address: string;
+}
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class User extends Model<UserCreationAttributes>{
   public id!: number;
   public first_name!: string;
   public last_name!: string;
@@ -14,6 +25,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public landline!: number | null;
   public phonenumber!: number;
   public address!: string;
+ 
 }
 
 User.init(
@@ -56,23 +68,8 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Password is required.',
-        },
-        len: {
-          args: [8, 255],
-          msg: 'Password must be between 8 and 255 characters long.',
-        },
-        isStrongPassword(value: string) {
-          if (!isStrongPassword(value, { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })) {
-            throw new Error('Password must have at least one uppercase, one lowercase, one number, and one special character.');
-          } else {
-            return true;
-          }
-        },
-      },
+      allowNull: true,
+      
     },
     landline: {
       type: DataTypes.INTEGER,
@@ -104,7 +101,8 @@ User.init(
           msg: 'Address is required.',
         },
       },
-    },
+    }
+    
   },
   {
     sequelize,

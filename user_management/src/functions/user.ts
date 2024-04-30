@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { UserController } from '../controllers/userController';
+
 /**
  * Registers a new user based on the provided request data.
  * 
@@ -63,8 +64,11 @@ export async function UserUpdate(request: HttpRequest, context: InvocationContex
  */
 export async function GetAllUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
+
+        const { offset, limit } = request.params;
+
         // Get all users
-        const users = await UserController.getAllUsers();
+        const users = await UserController.getAllUsers(offset, limit);
        
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -132,10 +136,47 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
 }
 
 
+/**
+ * Azure Function to retrieve the list of user invitations.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the list of user invitations.
+ */
+export async function GetUserInvitationList(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const { offset, limit } = request.params;
+
+        // Get the list of user invitations
+        const invitationList = await UserController.getAllInvitationsWithUserData(offset, limit);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(invitationList);
+
+       
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return {
+            status: 500, // Internal Server Error status code
+            body: `${error.message}`
+        };
+    }
+}
+
+
 // HTTP trigger handlers
+app.http('GetUserInvitationList', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'v1/invitations/{offset}/{limit}',
+    handler: GetUserInvitationList
+});
 app.http('UserRegister', {
     methods: ['POST'],
     authLevel: 'anonymous',
+    route: 'v1/users',
     handler: UserRegister
 });
 
@@ -148,13 +189,14 @@ app.http('UserUpdate', {
 app.http('GetAllUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
+    route: 'v1/users/{offset}/{limit}',
     handler: GetAllUsers
 });
 
 app.http('GetUserById', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'users/{id}',
+    route: 'user/{id}',
     handler: GetUserById
 });
 

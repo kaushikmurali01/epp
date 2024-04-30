@@ -1,6 +1,6 @@
 import { User } from '../models/user';
-import { UserAttributes } from 'enerva-utils/interfaces/user';
-import { testDatabaseConnection } from 'enerva-utils/utils/database';
+//import { UserAttributes } from 'enerva-utils/interfaces/user';
+//import { testDatabaseConnection } from 'enerva-utils/utils/database';
  import { Response } from 'enerva-utils/interfaces/response';
  //import { RESPONSE_MESSAGES } from 'enerva-utils/utils/message';
  import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
@@ -18,7 +18,7 @@ class UserService {
 static async registerUser(userDetails): Promise<Response> {
   try {
     //await testDatabaseConnection();
-   const user = await User.create(userDetails, { fields: ['first_name', 'last_name', 'email', 'password', 'phonenumber', 'address'] });
+   const user = await User.create(userDetails, { fields: ['first_name', 'last_name', 'email', 'password', 'phonenumber', 'address', 'landline'] });
     return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.singupSuccess };
   } catch (error) {
     throw new Error(`${error.message}`);
@@ -52,9 +52,15 @@ static async registerUser(userDetails): Promise<Response> {
    * @returns Promise<User[]> - A promise resolving to an array of all users.
    * @description Retrieves all user records from the database.
    */
-  static async getAllUsers(): Promise<User[]> {
+  static async getAllUsers(offset, limit): Promise<User[]> {
     try {
-      return await User.findAll();
+      console.log('Testing');
+      console.log(offset, limit);
+     // return await User.findAll();
+      return await User.findAll({
+        offset: offset,
+        limit: limit,
+    });
     } catch (error) {
       throw new Error(`Failed to fetch users: ${error.message}`);
     }
