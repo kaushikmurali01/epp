@@ -15,22 +15,17 @@ const ParticipantAgreement = () => {
     <Container sx={{ mt: 15 }}>
       <Box>
         <Typography
-          vari20ant="h4"
+          variant="h4"
           sx={{
-            fontSize: "1.5rem",
-            color: "text.secondary2",
             fontWeight: "700",
           }}
         >
           Participant Agreement
         </Typography>
         <Typography
-          variant="h5"
-          component="h2"
+          variant="h4"
           sx={{
-            color: "text.secondary2",
             fontWeight: "400",
-            fontSize: "1.125rem",
           }}
         >
           Read and E-Sign the participant Agreement to enrol your facility

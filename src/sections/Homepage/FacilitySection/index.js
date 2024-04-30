@@ -76,7 +76,7 @@ const Facility = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography
-            vari20ant="h4"
+            variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
             Facility List
