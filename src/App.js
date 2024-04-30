@@ -29,10 +29,18 @@ const App = (props) => {
           <MsalProvider instance={props.instance}>
             <UnauthenticatedTemplate>
               <Header />
+                <LandingPage />
+              <Footer/>
+
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
               {activeAccount ? 
-                <RoutesComp /> : null
+              <>
+                {/* <Header /> */}
+                  <RoutesComp />
+                {/* <Footer /> */}
+              </>
+                : null
               }
             </AuthenticatedTemplate>
           </MsalProvider>
