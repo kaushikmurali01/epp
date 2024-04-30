@@ -6,9 +6,9 @@ dotenv.config({ path: envFilePath });
 
 class Email {
     static async send(to:string, subject:string, body:string) {
-      const connectionString = process.env['COMMUNICATION_SERVICES_CONNECTION_STRING'];
+      const connectionString:any = process.env['COMMUNICATION_SERVICES_CONNECTION_STRING'];
       const client = new EmailClient(connectionString);
-      const emailMessage = {
+      const emailMessage:any = {
         senderAddress: process.env["EMAIL_SENDER"],
         content: {
             subject: subject,

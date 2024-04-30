@@ -7,7 +7,5 @@ interface UserAttributes {
     landline: number | null;
     phonenumber: number;
     address: string;
-    type: string;
-    facility_name: string;
   }
 export { UserAttributes };
