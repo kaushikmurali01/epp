@@ -1,9 +1,17 @@
 import axios from "axios";
-import { authEndpoints } from "constants/endPoints.constant";
+import { authEndpoints } from "constants/endPoints";
 
 const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
+});
+
+const AxiosInstance = axios.create({
+  // baseURL: base_url,
+  headers: {
+    'Content-Type': 'application/json',
+     Accept: "application/json",
+  },
 });
 
 //request interceptor
@@ -35,3 +43,5 @@ axiosInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export default AxiosInstance;

@@ -1,3 +1,4 @@
+
 export const authEndpoints = {
     login: '/login',
     signup: '/sign-up',
@@ -10,7 +11,11 @@ export const authEndpoints = {
     profile: '/profile',
     dashBoard: '/dashboard',
     admin: '/admin',
-  }
+  };
+
+  export const facilityEndPoints = {
+    ADD_FACILITY: '/facility',
+}
 
   export const pageSubEndspoints = {
     index: '',

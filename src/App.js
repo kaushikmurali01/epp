@@ -28,13 +28,13 @@ const App = (props) => {
         </Suspense>
         <Header />
         {/* <ActionComponent /> */}
-        {/* <Login /> */}
+        <Login />
         {/* {/* <Signup /> */}
-        {/* <HomepageComponent /> */}
+        <HomepageComponent />
         {/* <LandingPage /> */}
         {/* <Facility /> */}
         {/* <FacilityDetails /> */}
-        <ParticipantAgreement />
+        {/* <ParticipantAgreement /> */}
         <Footer />
       </ThemeProvider>
     </Provider>
