@@ -15,7 +15,7 @@ const ParticipantAgreement = () => {
     <Container>
       <Box>
         <Typography
-          vari20ant="h4"
+          variant="h4"
           sx={{
             textAlign: `${isSmallScreen ? "center" : ""}`,
             fontSize: "1.5rem",
@@ -27,13 +27,11 @@ const ParticipantAgreement = () => {
           Participant Agreement
         </Typography>
         <Typography
-          variant="h5"
-          component="h2"
+          variant="h4"
           sx={{
             textAlign: `${isSmallScreen ? "center" : ""}`,  
             color: "text.secondary2",
             fontWeight: "400",
-            fontSize: "1.125rem",
           }}
         >
           Read and E-Sign the participant Agreement to enrol your facility
