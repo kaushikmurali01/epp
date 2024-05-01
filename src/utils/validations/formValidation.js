@@ -59,3 +59,17 @@ export const validationSchemaAddFacility = Yup.object().shape({
   country: Yup.string().required("Country is required"),
   postalcode: Yup.string().required("Postal Code is required"),
 });
+
+
+export const validationSchemaLandingPageForm = Yup.object({
+  name: Yup.string()
+  .required('Please enter name'),
+  company: Yup.string()
+  .required('Please enter company name'),
+  message: Yup.string()
+  .required('Please enter message'),
+  email: Yup.string()
+    .required("Please enter email")
+    .matches(emailRegExp, "Entered email is incorrect"),
+  
+});

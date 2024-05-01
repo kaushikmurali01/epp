@@ -10,13 +10,13 @@ const axiosInstance = axios.create({
   },
 });
 
-const AxiosInstance = axios.create({
-  // baseURL: base_url,
-  headers: {
-    'Content-Type': 'application/json',
-     Accept: "application/json",
-  },
-});
+// const AxiosInstance = axios.create({
+//   // baseURL: base_url,
+//   headers: {
+//     'Content-Type': 'application/json',
+//      Accept: "application/json",
+//   },
+// });
 
 //request interceptor
 axiosInstance.interceptors.request.use(

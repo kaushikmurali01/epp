@@ -20,3 +20,8 @@ export const authEndpoints = {
   export const pageSubEndspoints = {
     index: '',
   }
+
+  export const landingPageEndPoints = {
+    getNews : '/news',
+    constUsForm: '/contact'
+  }

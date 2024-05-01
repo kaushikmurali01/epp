@@ -22,7 +22,7 @@ const BlogPost = ({ post }) => {
             boxShadow: 'none',
           }}>
             <CardMedia
-                sx={{ height: 190 }}
+                sx={{ height: 190, backgroundSize: 'contain' }}
                 image={post.image}
                 // title={post.title}
                 alt={post.title}
@@ -32,11 +32,11 @@ const BlogPost = ({ post }) => {
                     {post.title}
                 </Typography>
                 <Typography variant="span" color="text.secondary2">
-                    {post.body}
+                    {post.description}
                 </Typography>
             </CardContent>
             <CardActions sx={{...linkStyle, padding: '0', marginTop: theme_Md ? '1.5rem' : '1rem'}}>
-                <Link href="#" >Lear more</Link>
+                <Link href={post.link} >Lear more</Link>
             </CardActions>
         </Card>
     )

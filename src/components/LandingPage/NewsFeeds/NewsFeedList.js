@@ -1,57 +1,39 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Box, Container, Grid } from '@mui/material';
 
 import Glider from 'react-glider';
 import 'glider-js/glider.min.css';
 import BlogPost from './BlogPost';
 import useMediaQueries from 'utils/mediaQueries/mediaQueries';
+import { landingPageEndPoints } from 'constants/endPoints';
+import { GET_REQUEST } from 'utils/HTTPRequests';
 
 const NewsFeedList = () => {
     const { theme_Md, theme_Sm } = useMediaQueries();
-    const blogPostList = [
-        {
-            "image": "/images/newsFeeds/newsFeed_1.jpeg",
-            "id": 1,
-            'link': "#",
-            "title": "Lorem ipsum is a place holder text",
-            "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        },
-        {
-            "image": "/images/newsFeeds/newsFeed_2.jpeg",
-            "id": 2,
-            'link': "#",
-            "title": "Lorem ipsum is a place holder text",
-            "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        },
-        {
-            "image": "/images/newsFeeds/newsFeed_3.jpeg",
-            "id": 3,
-            'link': "#",
-            "title": "Lorem ipsum is a place holder text",
-            "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        },
-        // {
-        //     "image": "/images/newsFeeds/newsFeed_1.jpeg",
-        //     "id": 4,
-        //     'link': "#",
-        //     "title": "Lorem ipsum is a place holder text",
-        //     "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        // },
-        // {
-        //     "image": "/images/newsFeeds/newsFeed_2.jpeg",
-        //     "id": 5,
-        //     'link': "#",
-        //     "title": "Lorem ipsum is a place holder text",
-        //     "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        // },
-        // {
-        //     "image": "/images/newsFeeds/newsFeed_3.jpeg",
-        //     "id": 6,
-        //     'link': "#",
-        //     "title": "Lorem ipsum is a place holder text",
-        //     "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-        // },
-    ]
+    const [blogPostList, setBlogPostList] = useState([]);
+    // const blogPostList = [
+    //     {
+    //         "image": "/images/newsFeeds/newsFeed_1.jpeg",
+    //         "id": 1,
+    //         'link': "#",
+    //         "title": "Lorem ipsum is a place holder text",
+    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
+    //     },
+    //     {
+    //         "image": "/images/newsFeeds/newsFeed_2.jpeg",
+    //         "id": 2,
+    //         'link': "#",
+    //         "title": "Lorem ipsum is a place holder text",
+    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
+    //     },
+    //     {
+    //         "image": "/images/newsFeeds/newsFeed_3.jpeg",
+    //         "id": 3,
+    //         'link': "#",
+    //         "title": "Lorem ipsum is a place holder text",
+    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
+    //     },
+    // ]
     const settings = {
         draggable: true,
         hasArrows: true,
@@ -59,22 +41,39 @@ const NewsFeedList = () => {
         slidesToScroll: 1,
         responsive: [
             {
-              breakpoint: 600,
-              settings: {
-                slidesToShow: 3,
-                slidesToScroll: 1,
-              }
+                breakpoint: 600,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                }
             }]
     };
+
+    const getLatestNews = () => {
+        // const apiURL = landingPageEndPoints.getNews;
+        const apiURL = 'https://enervauser.azurewebsites.net/api/v1/news'
+        GET_REQUEST(apiURL)
+            .then((res) => {
+                console.log(res, "get result")
+                setBlogPostList(res.data?.body?.news)
+            }).catch((error) => {
+                console.log(error)
+            });
+    }
+
+    useEffect(() => {
+        getLatestNews();
+
+    }, [])
 
 
     return (
         <Box component={'section'} className='news-feeds-section  common-section'>
             <Container maxWidth="lg">
-                <Grid container className='heading-row' sx={{justifyContent: theme_Sm ? 'flex-start' : 'center'}}>
+                <Grid container className='heading-row' sx={{ justifyContent: theme_Sm ? 'flex-start' : 'center' }}>
                     <Grid item >
                         <Typography variant="h3" >
-                          What’s New
+                            What’s New
                         </Typography>
 
                     </Grid>

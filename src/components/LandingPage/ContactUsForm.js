@@ -4,6 +4,9 @@ import InputField from '../FormBuilder/InputField';
 import ButtonWrapper from '../FormBuilder/Button';
 import { Form, Formik } from 'formik';
 import TextAreaField from '../FormBuilder/TextAreaField';
+import { POST_REQUEST } from 'utils/HTTPRequests';
+import { landingPageEndPoints } from 'constants/endPoints';
+import { validationSchemaLandingPageForm } from 'utils/validations/formValidation';
 
 
 
@@ -12,7 +15,7 @@ const ContactUsForm = () => {
 
     const initialValues = {
         name: "",
-        city: "",
+        company: "",
         email: "",
         phone: "",
         message: "",
@@ -22,8 +25,28 @@ const ContactUsForm = () => {
         // event.preventDefault();        
         // On form submit need to check all fields are valid
 
-
+        // const apiURL = 'https://enervauser.azurewebsites.net/api/v1/contact';
+        const apiURL = landingPageEndPoints.constUsForm;
         console.log(data, "on submit function");
+        const requestBody = {
+            name: data.name,
+            company: data.company,
+            email: data.email,
+            message: data.message,
+            phone: data.phone,
+
+        }
+
+        POST_REQUEST(apiURL, requestBody)
+        .then((response) => {
+            console.log(response, "response")
+
+        })
+        .catch((error) => {
+            console.log(error, 'error')
+            
+
+        })
 
 
     }
@@ -46,9 +69,10 @@ const ContactUsForm = () => {
                         initialValues={{
                             ...initialValues
                         }}
-                        // validationSchema={validationSchemaLogIn}
+                        validationSchema={validationSchemaLandingPageForm}
                         onSubmit={contactUsSubmit}
                     >
+                        {(props) => (
                         <Form>
                             <ul className='form-data-list' >
 
@@ -61,8 +85,8 @@ const ContactUsForm = () => {
                                 </li>
                                 <li  >
                                     <InputField
-                                        name="city"
-                                        placeholder="City"
+                                        name="company"
+                                        placeholder="Company"
                                         type="text"
                                     />
                                 </li>
@@ -93,12 +117,13 @@ const ContactUsForm = () => {
                             </ul>
 
                             <Grid display="flex" justifyContent="center">
-                                <ButtonWrapper type="submit" variant="contained">
+                                <ButtonWrapper type="submit" variant="contained" >
                                     Submit
                                 </ButtonWrapper>
 
                             </Grid>
                         </Form>
+                     )}
                     </Formik>
                 </Box>
 
