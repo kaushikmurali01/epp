@@ -25,7 +25,7 @@ const theme = createTheme({
         },
       },
     },
-    
+   
     MuiButton: {
       styleOverrides: {
         root: {
@@ -177,6 +177,7 @@ const theme = createTheme({
       main: "#2e813e",
       light: "#F4FFF5",
       thinLight: "#F5F9F5",
+      thinGrayLight: '#F7F7F5',
       contrastText: "#fff",
     },
     primary_2: {
@@ -189,6 +190,9 @@ const theme = createTheme({
     secondary: {
       // main: "#f26d04",
       main: "#2E813E",
+    },
+    danger: {
+      main: '#FF5858',
     },
     dark : {
       main: "#000",
