@@ -46,7 +46,6 @@ const AddFacilityComponent = (props) => {
 
     const handleSubmit = (values) => {
         console.log(values)
-        console.log(facilityEndPoints.ADD_FACILITY)
 
         POST_REQUEST(facilityEndPoints.ADD_FACILITY, values)
         .then((response) => {

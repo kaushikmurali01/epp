@@ -6,10 +6,10 @@ const CustomTab = styled(Tab)((props) => {
   return {
     "&.Mui-selected": {
       backgroundColor: palette.button.primary,
-      color: "white",
+      color: "#F7F7F5",
     },
     "&:not(.Mui-selected)": {
-      backgroundColor: props?.pageName == 'Homepage' ? '#ffffff' : 'lightgray',
+      backgroundColor: props?.pageName == "Homepage" ? "#ffffff" : "lightgray",
       color: palette.text.primary,
     },
   };
