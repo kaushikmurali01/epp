@@ -1,11 +1,45 @@
 import { Typography, Box, styled } from "@mui/material";
+import useMediaQueries from "utils/mediaQueries/mediaQueries";
 
-const StyledContentWrapper = styled(Box)(({ theme }) => ({
-  maxHeight: "50vh",
-  overflowY: "auto",
-  padding: theme.spacing(2),
-  background: "#F5FFF7",
-}));
+const StyledContentWrapper = styled(Box)(() => {
+  const { getTheme } = useMediaQueries();
+
+  return {
+    position: "relative",
+    maxHeight: "100%", // Set your desired max height for scrollable content
+    padding: "1rem",
+    background: "#F5FFF7",
+    borderRadius: "1.25rem",
+    borderTop: "1px solid #2E813E",
+    borderRight: "1px solid #2E813E",
+    borderLeft: "1px solid #2E813E",
+    borderBottom: "1px solid #2E813E",
+    [getTheme.breakpoints.up("md")]: {
+      maxHeight: "50dvh",
+      borderRadius: "1.25rem 1.25rem 0rem 0rem",
+      borderBottom: "none",
+      padding: "1.47rem 1.84rem",
+    },
+    overflowY: "scroll",
+    "&::-webkit-scrollbar": {
+      width: "5px",
+    },
+    "&::-webkit-scrollbar-track": {
+      backgroundColor: "transparent",
+    },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "#348D3D60",
+      borderRadius: "1.375rem",
+      "&:hover": {
+        backgroundColor: "#348D3D",
+      },
+    },
+    "&:hover ::-webkit-scrollbar": {
+      display: "block",
+    },
+  };
+});
+
 
 const ParticipantAgreementContent = () => {
   return (
@@ -60,7 +94,7 @@ const ParticipantAgreementContent = () => {
           <Typography variant="inherit" sx={{ fontWeight: 600 }}>
             b.
           </Typography>
-          <Typography variant="inherit" sx={{ pl: 1 }}>
+          <Typography variant="inherit" sx={{ pl: 1, wordBreak: "break-word" }}>
             AdditionalFacilitiesmaybeincludedforparticipationintheProgramfromtimetotimeduring
             the Term by the Participant submitting the required Facility
             information via the EPP Portal and accepting the Baseline Energy
