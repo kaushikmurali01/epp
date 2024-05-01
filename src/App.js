@@ -32,13 +32,14 @@ const App = (props) => {
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
-        {/* <HomepageComponent /> */}
+        <HomepageComponent />
         {/* <LandingPage /> */}
         {/* <Facility /> */}
         {/* <FacilityDetails /> */}
-        <TabsSection />
         {/* <ParticipantAgreement /> */}
-        <DashboardSection />
+        {/* <TabsSection /> */}
+        {/* <ParticipantAgreement /> */}
+        {/* <DashboardSection /> */}
         <Footer />
       </ThemeProvider>
     </Provider>

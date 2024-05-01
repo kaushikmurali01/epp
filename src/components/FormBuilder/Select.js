@@ -1,5 +1,5 @@
 import React from 'react';
-import { TextField, MenuItem, FormControl, FormLabel } from '@mui/material';
+import { TextField, MenuItem, FormControl, FormLabel, FormGroup } from '@mui/material';
 import { useField, useFormikContext } from 'formik';
 
 const SelectBox = ({
@@ -32,18 +32,20 @@ const SelectBox = ({
   }
 
   return (
+    <FormGroup className='theme-form-group' key={name}>
     <FormControl sx={{ width: "100%" }} >
       <FormLabel sx={{ color: '#2E813E' }}>{label}</FormLabel>
       <TextField {...configSelect}>
-        {options && Object.keys(options).map((item, pos) => {
+        {options && (options).map((item) => {
           return (
-            <MenuItem key={pos} value={item}>
-              {options[item]}
+            <MenuItem key={item?.id} value={item?.name}>
+              {item?.name}
             </MenuItem>
           )
         })}
       </TextField>
     </FormControl>
+    </FormGroup>
   );
 };
 
