@@ -12,12 +12,16 @@ const ParticipantAgreement = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   return (
-    <Container sx={{ mt: 15 }}>
+    <Container>
       <Box>
         <Typography
           variant="h4"
           sx={{
+            textAlign: `${isSmallScreen ? "center" : ""}`,
+            fontSize: "1.5rem",
+            color: "text.secondary2",
             fontWeight: "700",
+            marginBottom: "0.75rem",
           }}
         >
           Participant Agreement
@@ -25,6 +29,8 @@ const ParticipantAgreement = () => {
         <Typography
           variant="h4"
           sx={{
+            textAlign: `${isSmallScreen ? "center" : ""}`,  
+            color: "text.secondary2",
             fontWeight: "400",
           }}
         >
@@ -36,8 +42,9 @@ const ParticipantAgreement = () => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          mt: 2,
+          mt: "2rem",
           flexDirection: `${isSmallScreen ? "column" : "row"}`,
+          alignItems: "center",
         }}
       >
         <Button
