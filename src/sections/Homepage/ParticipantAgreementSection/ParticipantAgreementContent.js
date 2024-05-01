@@ -1,7 +1,7 @@
 import { Typography, Box, styled } from "@mui/material";
 
 const StyledContentWrapper = styled(Box)(({ theme }) => ({
-  maxHeight: "50vh", // Set your desired max height for scrollable content
+  maxHeight: "50vh",
   overflowY: "auto",
   padding: theme.spacing(2),
   background: "#F5FFF7",
@@ -18,7 +18,7 @@ const ParticipantAgreementContent = () => {
       }}
     >
       <StyledContentWrapper>
-        <Typography sx={{ fontSize: "0.875rem" }}>
+        <Typography variant="inherit" sx={{ fontSize: "0.875rem" }}>
           The Participant (being the “Applicant” in the Application) has applied
           for Performance Incentives, in respect of electricity savings achieved
           at one or more Facilities through operational and maintenance energy
@@ -32,7 +32,10 @@ const ParticipantAgreementContent = () => {
           which are hereby acknowledged, the Participant agrees to the following
           terms and conditions:
         </Typography>
-        <Typography sx={{ mt: 2, fontWeight: 600, fontSize: "1rem" }}>
+        <Typography
+          variant="inherit"
+          sx={{ mt: 2, fontWeight: 600, fontSize: "1rem" }}
+        >
           1. BASELINE ENERGY MODEL AND PRE-PROJECT INCENTIVE
         </Typography>
         <Box sx={{ display: "flex", fontSize: "0.875rem", mt: 2 }}>
@@ -81,7 +84,10 @@ const ParticipantAgreementContent = () => {
             IESO shall govern.
           </Typography>
         </Box>
-        <Typography sx={{ mt: 2, fontWeight: 600, fontSize: "1rem" }}>
+        <Typography
+          variant="inherit"
+          sx={{ mt: 2, fontWeight: 600, fontSize: "1rem" }}
+        >
           2. PARTICIPANT OBLIGATIONS, ELIGIBLE MEASURES AND SAVINGS SUBMISSION
         </Typography>
         <Box sx={{ display: "flex", fontSize: "0.875rem", mt: 2 }}>
@@ -96,7 +102,7 @@ const ParticipantAgreementContent = () => {
             Agreement, (including any dispute as to whether an issue is
             arbitrable) will be resolved by arbitration before a single
             arbitrator (the{" "}
-            <Typography variant="span" sx={{ fontWeight: 600 }}>
+            <Typography variant="span2" sx={{ fontWeight: 600 }}>
               “Arbitrator”
             </Typography>
             ) pursuant to the Arbitration Act, 1991 (Ontario) and otherwise in
@@ -111,7 +117,7 @@ const ParticipantAgreementContent = () => {
             A Party desiring arbitration hereunder will give written notice of
             arbitration to the other Party containing a concise description of
             the matter submitted for arbitration ({" "}
-            <Typography variant="span" sx={{ fontWeight: 600 }}>
+            <Typography variant="span2" sx={{ fontWeight: 600 }}>
               “Notice of Arbitration”
             </Typography>
             ). If the Parties fail to jointly appoint an Arbitrator within 20
