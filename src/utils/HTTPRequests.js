@@ -1,40 +1,34 @@
-import AxiosInstance from "./interceptor.js";
-const API_URL = 'https://companyfacility.azurewebsites.net/api';
+import axiosInstance from "./interceptor.js";
 
 export const GET_REQUEST = (url,canObj) => {
-  return AxiosInstance({
+  return axiosInstance({
     method: "get",
     url: url,
   });
 };
 export const POST_REQUEST = (url, data, isImage = false, headers) => {
-  console.log(url)
- const apiURL = API_URL + url;
- console.log(apiURL)
-
- debugger
-  return AxiosInstance({
+  return axiosInstance({
     method: "post",
-    apiURL,
+    url,
     data,
     headers,
   });
 };
 export const PATCH_REQUEST = (url,data) =>{
-   return AxiosInstance({
+   return axiosInstance({
     method:"patch",
     url,
     data
    })
 }
 export const DELETE_REQUEST = (url) => {
-  return AxiosInstance({
+  return axiosInstance({
     method: "delete",
     url,
   });
 };
 export const DELETE_REQUEST_BY_KEY = (url,data) => {
-  return AxiosInstance({
+  return axiosInstance({
     method: "delete",
     url,
     data
@@ -44,13 +38,13 @@ export const DELETE_REQUEST_BY_KEY = (url,data) => {
 export const PUT_REQUEST = (url, data, isImage = false,headers) => {
   if (isImage) {
     headers['Content-Type'] = 'multipart/form-data';
-    return AxiosInstance({
+    return axiosInstance({
       method: "put",
       url,
     data,
     });
   }
-  return AxiosInstance({
+  return axiosInstance({
     method: "put",
     url,
     data,
