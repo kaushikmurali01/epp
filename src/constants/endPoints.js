@@ -8,8 +8,6 @@ export const authEndpoints = {
   };
   
   export const dashboardEndpoints = {
-    profile: '/profile',
-    dashBoard: '/dashboard',
     admin: '/admin',
   };
 
@@ -19,4 +17,6 @@ export const authEndpoints = {
 
   export const pageSubEndspoints = {
     index: '',
+    dashboard: 'dashboard',
+    profile: 'profile',
   }
