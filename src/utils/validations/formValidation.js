@@ -58,3 +58,23 @@ export const validationSchemaAddFacility = Yup.object().shape({
   postalCode: Yup.string().required("Postal Code is required"),
   country: Yup.string().required("Country is required"),
 });
+
+
+export const validationSchemaFacilitySummary = Yup.object().shape({
+  yearOfConstruction: Yup.string().required("Year of construction is required"),
+  grossFloorArea: Yup.string().required("Gross floor area is required"),
+  numberOfStoreys: Yup.string().required("Number of storeys is required"),
+  occupancy: Yup.string().required("Occupancy is  required"),
+  numberOfBuildings: Yup.string().required("Physical buildings count is required"),
+  company: Yup.string().required("Company is  required"),
+  facilityName: Yup.string().required("Facility Name is required"),
+  unitNumber: Yup.string().required("Unit Number is required"),
+  streetNumber: Yup.string().required("Street Number is required"),
+  streetName: Yup.string().required("Street Name is required"),
+  city: Yup.string().required("City is required"),
+  province: Yup.string().required("Province is required"),
+  postalCode: Yup.string().required("Postal Code is required"),
+  facilityCategory: Yup.string().required("Facility Category is required"),
+  facilityType: Yup.string().required("Facility Type is required"),
+  naicCode: Yup.string().required("NAIC Code is required"),
+});

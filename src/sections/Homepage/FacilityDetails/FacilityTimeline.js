@@ -5,6 +5,7 @@ import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import {
   StepConnector,
+  Typography,
   stepConnectorClasses,
   styled,
   useMediaQuery,
@@ -16,7 +17,7 @@ const steps = [
   "Enter Facility Data",
   "Submit Facility",
   "Accept Baseline Model",
-  "Enroll",
+  "Program Start",
 ];
 
 const DashedConnector = styled(StepConnector)(({ theme }) => ({
@@ -64,11 +65,6 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
         top: -90,
       },
       [theme.breakpoints.down("sm")]: {
-        // position: "relative",
-        // width: "100px",
-        // top: -75,
-        // transform: "translateX(-10%)",
-        // position: "relative",
         width: "100px",
         top: -30,
         transform: "translateX(30%)",
@@ -95,7 +91,7 @@ export default function FacilityTimeline() {
         {steps.map((label, index) => (
           <Step key={label}>
             <CustomStepLabel active={activeSteps.includes(index)}>
-              {label}
+              <Typography variant="small2">{label}</Typography>
               {activeSteps.includes(index) && (
                 <CheckCircleIcon
                   sx={{ position: "absolute", top: -10, right: -10 }}
