@@ -229,6 +229,28 @@
     }
 }
 
+.our-client-section {
+    .our-client-row {
+        .glider-track {
+            // margin-left: calc((100vw - 73rem) / 2);
+            gap: 1rem;
+            margin-left: calc((100vw - 22rem) / 2);
+           
+            @include respond-to(theme_Sm){ 
+                gap: 1.5rem;
+                margin-left: calc((100vw - 45rem) / 2);
+            }
+            @include respond-to(theme_Md){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 60rem) / 2);
+            }
+            @include respond-to(theme_Lg){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 73rem) / 2);
+            }
+        }
+    }
+}
 
 .news-feeds-section {
     .glider-track {

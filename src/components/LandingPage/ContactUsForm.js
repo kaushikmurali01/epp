@@ -11,7 +11,7 @@ import { validationSchemaLandingPageForm } from 'utils/validations/formValidatio
 
 
 const ContactUsForm = () => {
-    
+
 
     const initialValues = {
         name: "",
@@ -25,8 +25,8 @@ const ContactUsForm = () => {
         // event.preventDefault();        
         // On form submit need to check all fields are valid
 
-        // const apiURL = 'https://enervauser.azurewebsites.net/api/v1/contact';
-        const apiURL = landingPageEndPoints.constUsForm;
+        const apiURL = 'https://enervauser.azurewebsites.net/api/v1/contact';
+        // const apiURL = landingPageEndPoints.constUsForm;
         console.log(data, "on submit function");
         const requestBody = {
             name: data.name,
@@ -38,15 +38,15 @@ const ContactUsForm = () => {
         }
 
         POST_REQUEST(apiURL, requestBody)
-        .then((response) => {
-            console.log(response, "response")
+            .then((response) => {
+                console.log(response, "response")
 
-        })
-        .catch((error) => {
-            console.log(error, 'error')
-            
+            })
+            .catch((error) => {
+                console.log(error, 'error')
 
-        })
+
+            })
 
 
     }
@@ -58,73 +58,77 @@ const ContactUsForm = () => {
 
 
                 <Box component={'div'} >
-                    <Grid container className='heading-row'>
-                        <Grid container item xs={12} justifyContent="center" >
-                            <Typography variant="h3" className='ev-theme-heading'>
+                    <Grid container >
+                        <Grid  item xs={12} md={3} className='heading-row' sx={{ paddingRight: {md: '2rem', xs: '1rem'}}} >
+                            <Typography variant="h3" sx={{marginBottom: '1.5rem'}} >
                                 Contact Us
                             </Typography>
+                            <Typography variant="span">
+                                 Contact us if you want to learn more about EPP
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={12} md={9}>
+                            <Formik
+                                initialValues={{
+                                    ...initialValues
+                                }}
+                                validationSchema={validationSchemaLandingPageForm}
+                                onSubmit={contactUsSubmit}
+                            >
+                                    <Form>
+                                        <ul className='form-data-list' >
+
+                                            <li >
+                                                <InputField
+                                                    name="name"
+                                                    placeholder="Name"
+                                                    type="text"
+                                                />
+                                            </li>
+                                            <li  >
+                                                <InputField
+                                                    name="company"
+                                                    placeholder="Company"
+                                                    type="text"
+                                                />
+                                            </li>
+                                            <li  >
+                                                <InputField
+                                                    name="email"
+                                                    placeholder="Email"
+                                                    type="email"
+                                                />
+                                            </li>
+
+                                            <li  >
+                                                <InputField
+                                                    name="phone"
+                                                    placeholder="Phone"
+                                                    type="phone"
+                                                />
+                                            </li>
+
+                                            <li className='text-area-field'>
+                                                <TextAreaField
+                                                    name="message"
+                                                    placeholder="Message"
+                                                    type="text"
+                                                    rows={8}
+                                                />
+                                            </li>
+                                        </ul>
+
+                                        <Grid display="flex">
+                                            <ButtonWrapper type="submit" variant="contained" >
+                                                Submit
+                                            </ButtonWrapper>
+
+                                        </Grid>
+                                    </Form>
+                            </Formik>
                         </Grid>
                     </Grid>
-                    <Formik
-                        initialValues={{
-                            ...initialValues
-                        }}
-                        validationSchema={validationSchemaLandingPageForm}
-                        onSubmit={contactUsSubmit}
-                    >
-                        {(props) => (
-                        <Form>
-                            <ul className='form-data-list' >
 
-                                <li >
-                                    <InputField
-                                        name="name"
-                                        placeholder="Name"
-                                        type="text"
-                                    />
-                                </li>
-                                <li  >
-                                    <InputField
-                                        name="company"
-                                        placeholder="Company"
-                                        type="text"
-                                    />
-                                </li>
-                                <li  >
-                                    <InputField
-                                        name="email"
-                                        placeholder="Email"
-                                        type="email"
-                                    />
-                                </li>
-
-                                <li  >
-                                    <InputField
-                                        name="phone"
-                                        placeholder="Phone"
-                                        type="phone"
-                                    />
-                                </li>
-
-                                <li className='text-area-field'>
-                                    <TextAreaField
-                                        name="message"
-                                        placeholder="Message"
-                                        type="text"
-                                        rows={8}
-                                    />
-                                </li>
-                            </ul>
-
-                            <Grid display="flex" justifyContent="center">
-                                <ButtonWrapper type="submit" variant="contained" >
-                                    Submit
-                                </ButtonWrapper>
-
-                            </Grid>
-                        </Form>
-                     )}
-                    </Formik>
                 </Box>
 
             </Container>
