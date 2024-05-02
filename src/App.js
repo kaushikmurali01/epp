@@ -32,10 +32,10 @@ const App = (props) => {
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
-        {/* <HomepageComponent /> */}
+        <HomepageComponent />
         {/* <LandingPage /> */}
         {/* <Facility /> */}
-        {/* <FacilityDetails /> */}
+        {/* {/* <FacilityDetails /> */}
         {/* <ParticipantAgreement />
         <Footer /> */}
       </ThemeProvider>
