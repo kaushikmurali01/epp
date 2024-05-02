@@ -75,6 +75,7 @@ function Header() {
 
                 justifyContent: "center",
                 alignItems: "center",
+                gap: '1rem'
               }}
             >
               <MenuItem

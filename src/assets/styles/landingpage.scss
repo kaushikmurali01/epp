@@ -267,15 +267,15 @@
     .form-data-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 2%;
+        gap: 3%;
 
         li {
             width: 100%;
             margin-bottom: 2rem;
            
             @include respond-to(theme_Sm){
-                width: 49%;
-                margin-bottom: 2%;
+                width: 48%;
+                margin-bottom: 4%;
             }
             .MuiInputBase-formControl {
                 background-color: $theme-color-white;

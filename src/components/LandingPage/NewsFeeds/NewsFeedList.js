@@ -54,7 +54,6 @@ const NewsFeedList = () => {
         const apiURL = 'https://enervauser.azurewebsites.net/api/v1/news'
         GET_REQUEST(apiURL)
             .then((res) => {
-                console.log(res, "get result")
                 setBlogPostList(res.data?.body?.news)
             }).catch((error) => {
                 console.log(error)
