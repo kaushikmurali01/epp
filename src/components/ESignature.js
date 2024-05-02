@@ -46,10 +46,10 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
             mt: 2,
           }}
         >
-          <Typography variant="h6" sx={{ color: "text.primary" }}>
+          <Typography variant="h6" sx={{ color: "text.secondary2" }}>
             Draw Signature
           </Typography>
-          <Typography variant="small2" sx={{ color: "text.primary" }}>
+          <Typography variant="small2" sx={{ color: "text.secondary2" }}>
             Use the cursor to draw your signature.
           </Typography>
         </Box>
