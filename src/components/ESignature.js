@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  Modal,
-  Typography,
-  useMediaQuery,
-} from "@mui/material";
+import { Box, Button, Modal, Typography, useMediaQuery } from "@mui/material";
 import React, { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
@@ -42,13 +36,23 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
           p: 4,
         }}
       >
-        <Typography
-          id="modal-modal-title"
-          variant="h6"
-          sx={{ color: "text.primary" }}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+            mt: 2,
+          }}
         >
-          Sign here
-        </Typography>
+          <Typography variant="h6" sx={{ color: "text.primary" }}>
+            Draw Signature
+          </Typography>
+          <Typography variant="small2" sx={{ color: "text.primary" }}>
+            Use the cursor to draw your signature.
+          </Typography>
+        </Box>
 
         <SignatureCanvas
           ref={signatureRef}
@@ -69,8 +73,7 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
           }}
         >
           <Button
-            variant="contained"
-            color="error"
+            variant="outlined"
             onClick={clearSignature}
             style={{
               padding: "0.2rem 1rem",
