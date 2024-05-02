@@ -36,9 +36,7 @@ const App = (props) => {
             <AuthenticatedTemplate>
               {activeAccount ? 
               <>
-                {/* <Header /> */}
                   <RoutesComp />
-                {/* <Footer /> */}
               </>
                 : null
               }

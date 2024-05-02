@@ -23,11 +23,21 @@ function Header() {
   };
 
   const handleRedirect=()=>{
+    console.log('redirecting',)
     instance.loginRedirect({
       ...loginRequest,
-      prompt: 'create'
+      // prompt: 'create'
     }).catch((error)=> console.log("error in login redirect", error))
   }
+
+//   const handleRedirect = () => {
+//     instance
+//         .loginPopup({
+//             ...loginRequest,
+//             redirectUri: '/',
+//         })
+//         .catch((error) => console.log('error in login',error));
+// };
 
   const scrollToSection = (sectionId) => {
     const sectionElement = document.getElementById(sectionId);
@@ -125,7 +135,6 @@ function Header() {
                 size="medium"
                 component="a"
                 // href="/sign-in"
-                target="_blank"
                 onClick={handleRedirect}
               >
                 Sign in
