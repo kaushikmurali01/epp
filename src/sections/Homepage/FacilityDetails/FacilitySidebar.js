@@ -1,38 +1,62 @@
 import * as React from "react";
-import List from "@mui/material/List";
-import ListItemButton from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import { Box, ListItem } from "@mui/material";
+import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
 
-function FacilitySidebar() {
+export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const menuItems = [
-    { label: "Performance summary", component: "performanceSummary" },
-    { label: "Facility user access", component: "facilityUserAccess" },
-    { label: "Address and type", component: "addressAndType" },
-    { label: "Charcteristics", component: "charcteristics" },
-    { label: "Operating Parameter", component: "operatingParameter" },
-    { label: "Electricty Consumption", component: "electrictyConsumption" },
+    { label: "Summary", id: 0 },
+    { label: "Details", id: 1 },
+    { label: "Energy and Water", id: 2 },
+    { label: "Weather & Independent Variables", id: 3 },
+    { label: "Reports and Studies", id: 4 },
+    { label: "Baseline Model", id: 5 },
+    { label: "Performance", id: 6 },
   ];
+
+  const handleTabChange = (event, newValue) => {
+    setSelectedTab(newValue);
+  };
 
   return (
     <Box
       sx={{
-        width: "11rem",
-        border: "1px solid #2E813E",
-        borderRadius: "0.75rem",
+        flexGrow: 1,
+        display: "flex",
+        width: isSmallScreen ? "100%" : "13rem",
+        borderRight: !isSmallScreen && "1px solid #89AD90",
+        borderBottom: isSmallScreen && "1px solid #89ad90",
+        height: "50%",
       }}
     >
-      <List>
-        {menuItems?.map((item) => (
-          <ListItem disablePadding>
-            <ListItemButton key={item.id} dense>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
-          </ListItem>
+      <Tabs
+        orientation={isSmallScreen ? "horizontal" : "vertical"}
+        onChange={handleTabChange}
+        value={selectedTab}
+        TabIndicatorProps={{
+          style: { display: "none" },
+        }}
+        variant={isSmallScreen ? "scrollable" : "fullWidth"}
+      >
+        {menuItems?.map((item, index) => (
+          <Tab
+            key={item.label}
+            label={item.label}
+            value={item.id}
+            sx={{
+              borderRadius: isSmallScreen
+                ? ".625rem .625rem 0 0"
+                : "0.625rem 0 0 0.625rem",
+              "&.Mui-selected": {
+                backgroundColor: "button.primary",
+                color: "white",
+              },
+              textTransform: "inherit",
+              fontSize: ".875rem",
+              color: "#242424",
+            }}
+          />
         ))}
-      </List>
+      </Tabs>
     </Box>
   );
 }
-
-export default FacilitySidebar;

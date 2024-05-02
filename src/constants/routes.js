@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { dashboardEndpoints } from "constants/endPoints";
+import { dashboardEndpoints, pageSubEndspoints } from "constants/endPoints";
 import { adminRoutes } from "../routes/admin";
 
 export const ALL_LINKS = [

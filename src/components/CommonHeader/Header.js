@@ -13,7 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { logoStyle } from "../../styles/commonStyles";
 import { Link } from "@mui/material";
 
-function Header() {
+function Header(props) {
   const [open, setOpen] = React.useState(false);
 
   const toggleDrawer = (newOpen) => () => {
@@ -55,7 +55,7 @@ function Header() {
             backdropFilter: "blur(24px)",
             maxHeight: 40,
             borderColor: "divider",
-            px: {xs: "0"},
+            px: { xs: "0" },
           }}
         >
           <Box
@@ -68,162 +68,178 @@ function Header() {
             }}
           >
             <img src={logo} style={logoStyle} alt="logo" />
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                flexGrow: 1,
-
-                justifyContent: "center",
-                alignItems: "center",
-                gap: '1rem'
-              }}
-            >
-              <MenuItem
-                onClick={() => scrollToSection("features")}
-                sx={{ py: "6px", px: "12px" }}
-              >
-                <Typography
-                  variant="body2"
-                  component="a"
-                  href="#"
-                  sx={{ textDecoration: "none" }}
-                  color="dark.light"
-                >
-                  How it works
-                </Typography>
-              </MenuItem>
-              <MenuItem
-                onClick={() => scrollToSection("testimonials")}
-                sx={{ py: "6px", px: "12px" }}
-              >
-                <Typography
-                  variant="body2"
-                  component="a"
-                  href="#"
-                  sx={{ textDecoration: "none" }}
-                  color="dark.light"
-                >
-                  Succes stories
-                </Typography>
-              </MenuItem>
-              <MenuItem
-                onClick={() => scrollToSection("highlights")}
-                sx={{ py: "6px", px: "12px" }}
-              >
-                <Typography
-                  variant="body2"
-                  component="a"
-                  href="#"
-                  sx={{ textDecoration: "none" }}
-                  color="dark.light"
-                >
-                  What's New
-                </Typography>
-              </MenuItem>
-              <MenuItem
-                onClick={() => scrollToSection("highlights")}
-                sx={{ py: "6px", px: "12px" }}
-              >
-                <Typography
-                  variant="body2"
-                  component="a"
-                  href="#"
-                  sx={{ textDecoration: "none" }}
-                  color="dark.light"
-                >
-                  Contact Us
-                </Typography>
-              </MenuItem>
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              display: { xs: "none", md: "flex" },
-              gap: 0.5,
-              alignItems: "center",
-            }}
-          >
-            <Link
-              color="primary"
-              href="/login"
-              sx={{ textDecoration: "none", marginRight: { md: "2.25rem" } }}
-            >
-              Login
-            </Link>
-            <Button
-              color="primary"
-              variant="contained"
-              component="a"
-              href="/sign-up"
-            >
-              Sign up
-            </Button>
-          </Box>
-          <Box sx={{ display: { sm: "", md: "none" } }}>
-            <Button
-              variant="text"
-              color="primary"
-              aria-label="menu"
-              onClick={toggleDrawer(true)}
-              sx={{ minWidth:{ xs: "fit-content", md:"30px"}, p: "4px", justifyContent: "flex-end"}}
-            >
-              <MenuIcon
-                sx={{
-                  color: "#fff",
-                  bgcolor: "primary.main",
-                  width: "3rem",
-                  height: "3rem",
-                  borderRadius: "0.875rem",
-                  padding: "0.25rem",
-                }}
-              />
-            </Button>
-            <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
+            {!(props.page == "authenticated") && (
               <Box
                 sx={{
-                  minWidth: "60dvw",
-                  p: 2,
-                  backgroundColor: "background.paper",
+                  display: { xs: "none", md: "flex" },
                   flexGrow: 1,
+
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <MenuItem onClick={() => scrollToSection("features")}>
-                  How it works
-                </MenuItem>
-                <MenuItem onClick={() => scrollToSection("testimonials")}>
-                  News Feed
-                </MenuItem>
-                <MenuItem onClick={() => scrollToSection("highlights")}>
-                  Contact Us
-                </MenuItem>
-                <Divider />
-                <MenuItem>
-                  <Button
-                    color="primary"
-                    variant="outlined"
+                <MenuItem
+                  onClick={() => scrollToSection("features")}
+                  sx={{ py: "6px", px: "12px" }}
+                >
+                  <Typography
+                    variant="body2"
                     component="a"
-                    href="/sign-in"
-                    target="_blank"
-                    sx={{ width: "100%" }}
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
                   >
-                    Sign in
-                  </Button>
+                    How it works
+                  </Typography>
                 </MenuItem>
-                <MenuItem>
-                  <Button
-                    color="primary"
-                    variant="contained"
+                <MenuItem
+                  onClick={() => scrollToSection("testimonials")}
+                  sx={{ py: "6px", px: "12px" }}
+                >
+                  <Typography
+                    variant="body2"
                     component="a"
-                    href="/sign-up"
-                    sx={{ width: "100%" }}
-                    target="_blank"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
                   >
-                    Sign up
-                  </Button>
+                    Succes stories
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => scrollToSection("highlights")}
+                  sx={{ py: "6px", px: "12px" }}
+                >
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    What's New
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => scrollToSection("highlights")}
+                  sx={{ py: "6px", px: "12px" }}
+                >
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    Contact Us
+                  </Typography>
                 </MenuItem>
               </Box>
-            </Drawer>
+            )}
           </Box>
+          {!(props.page == "authenticated") && (
+            <>
+              <Box
+                sx={{
+                  display: { xs: "none", md: "flex" },
+                  gap: 0.5,
+                  alignItems: "center",
+                }}
+              >
+                <Link
+                  color="primary"
+                  href="/login"
+                  sx={{
+                    textDecoration: "none",
+                    marginRight: { md: "2.25rem" },
+                  }}
+                >
+                  Login
+                </Link>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  component="a"
+                  href="/sign-up"
+                >
+                  Sign up
+                </Button>
+              </Box>
+              <Box sx={{ display: { sm: "", md: "none" } }}>
+                <Button
+                  variant="text"
+                  color="primary"
+                  aria-label="menu"
+                  onClick={toggleDrawer(true)}
+                  sx={{
+                    minWidth: { xs: "fit-content", md: "30px" },
+                    p: "4px",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <MenuIcon
+                    sx={{
+                      color: "#fff",
+                      bgcolor: "primary.main",
+                      width: "3rem",
+                      height: "3rem",
+                      borderRadius: "0.875rem",
+                      padding: "0.25rem",
+                    }}
+                  />
+                </Button>
+                <Drawer
+                  anchor="right"
+                  open={open}
+                  onClose={toggleDrawer(false)}
+                >
+                  <Box
+                    sx={{
+                      minWidth: "60dvw",
+                      p: 2,
+                      backgroundColor: "background.paper",
+                      flexGrow: 1,
+                    }}
+                  >
+                    <MenuItem onClick={() => scrollToSection("features")}>
+                      How it works
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("testimonials")}>
+                      News Feed
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("highlights")}>
+                      Contact Us
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem>
+                      <Button
+                        color="primary"
+                        variant="outlined"
+                        component="a"
+                        href="/sign-in"
+                        target="_blank"
+                        sx={{ width: "100%" }}
+                      >
+                        Sign in
+                      </Button>
+                    </MenuItem>
+                    <MenuItem>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        component="a"
+                        href="/sign-up"
+                        sx={{ width: "100%" }}
+                        target="_blank"
+                      >
+                        Sign up
+                      </Button>
+                    </MenuItem>
+                  </Box>
+                </Drawer>
+              </Box>
+            </>
+          )}
         </Toolbar>
       </Container>
     </AppBar>

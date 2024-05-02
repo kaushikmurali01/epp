@@ -172,6 +172,15 @@ const theme = createTheme({
         lineHeight: "1.25rem",
       },
     },
+    small2: {
+      fontSize: "0.75rem",
+      lineHeight: "1rem",
+      fontWeight: "400",
+      [getTheme.breakpoints.up("sm")]: {
+        fontSize: "0.875rem",
+        lineHeight: "1.25rem",
+      },
+    },
   },
 
   palette: {

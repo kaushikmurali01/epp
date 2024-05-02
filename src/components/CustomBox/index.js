@@ -1,43 +1,49 @@
-import { Box, Grid, Typography } from '@mui/material';
-import React from 'react';
+import { Box, Grid, Typography } from "@mui/material";
+import React from "react";
 
-const CustomBox = ({
-    heading,
-    label,
-    color,
-    border,
-    image,
-    count,
-    ...otherProps
-}) => {
+const CustomBox = ({ heading1, heading2, count, ...otherProps }) => {
+  const isWideScreen = window.innerWidth > 600;
 
-    return (
-        <>
-            <Grid item xs={6}>
-                <Grid container>
-                {count == '3' || count == '4' ? <Grid item xs={1}></Grid> : null }
-                    <Grid item xs={1} sx={{ marginTop: '40px' }}>
-                        <Box sx={{ backgroundColor: count == 1 ? color : '#2E813E1A', color: count == 1 ? '#ffffff' : '#54585A', fontWeight: '600', fontSize: '18px', maxWidth: '40px !important', height: '40px', borderRadius: '9px', display: 'flex', justifyContent: 'center', alignItems: 'center'  }}>{count}</Box>
-                    </Grid>
-                    <Grid item xs={count == '3' || count == '4' ? 10 : 11}>
-                        <Grid container sx={{ border: border, padding: '1rem !important', maxWidth: '544px !important', height: '100px', borderRadius: '9px', margin: '10px' }}>
-                            <Grid item xs={2}>
-                                <img src={image} alt='account-info' />
-                            </Grid>
-                            <Grid item xs={10}>
-                                <Typography variant="h5" component="h2" gutterBottom sx={{ color: color, fontWeight: '600', fontSize: '18px' }}>
-                                    {heading}
-                                </Typography>
-                                <Typography variant="h5" component="h2" gutterBottom sx={{ color: color, fontWeight: '400', fontSize: '16px' }}>
-                                    {label}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Grid>
-            </Grid>
-        </>
-    );
+  return (
+    <Box
+      display="flex"
+      justifyContent="center"
+      alignItems="center"
+      gap="0.75rem"
+    >
+      <Box
+        sx={{
+          backgroundColor: "#2E813E",
+          color: "#ffffff",
+          fontWeight: "500",
+          fontSize: "0.75rem",
+          fontStyle: "italic",
+          maxWidth: "1.32025rem",
+          height: "1.32025rem",
+          aspectRatio: "1",
+          borderRadius: "3.84625rem",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {count}
+      </Box>
+      <Typography
+        variant="h5"
+        sx={{
+          color: "#2E813E",
+          fontWeight: "500",
+          fontSize: "1.125rem !important",
+          fontStyle: "italic",
+          lineHeight: "106.815%",
+          letterSpacing: "-0.01125rem",
+        }}
+      >
+        {heading1}<br/>{heading2}
+      </Typography>
+    </Box>
+  );
 };
 
 export default CustomBox;

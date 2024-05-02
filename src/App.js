@@ -28,18 +28,15 @@ const App = (props) => {
         <Suspense fallback="Loading...">
           <RoutesComp />
         </Suspense>
-        <Header />
+        {/* <Header /> */}
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
-        <HomepageComponent />
+        {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
         {/* <Facility /> */}
-        {/* <FacilityDetails /> */}
-        {/* <ParticipantAgreement /> */}
-        {/* <TabsSection /> */}
-        {/* <ParticipantAgreement /> */}
-        {/* <DashboardSection /> */}
+        {/* {/* <FacilityDetails /> */}
+        <ParticipantAgreement />
         <Footer />
       </ThemeProvider>
     </Provider>
