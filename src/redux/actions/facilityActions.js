@@ -1,4 +1,4 @@
-import { facilityEndPoints } from "constants/endPoints";
+import { facilityEndPoints } from "constants/apiEndPoints";
 import {
   fetchFacilityListFailure,
   fetchFacilityListRequest,
