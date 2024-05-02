@@ -7,12 +7,14 @@ import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation"
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
+import { POST_REQUEST } from "utils/HTTPRequests";
+import { facilityEndPoints } from "constants/endPoints";
 
 const AddFacilityComponent = (props) => {
 
     const initialValues = {
         facilityConstructionStatus: "",
-        Facility_Name: "",
+        facility_name: "",
         isBuildinTarriffClass: "",
         naicCode: "",
         facilityCategory: "",
@@ -22,7 +24,34 @@ const AddFacilityComponent = (props) => {
 
     const buildingFacilitystr = "Is . the building/facility in the tariff class GS > 50KW?*";
 
+    const FacilityConstructionStatusArray = [
+        { id: 1, name: 'Construction Status 1', label: 'Construction Status 1', value: 'Construction Status 1'},
+        { id: 2, name: 'Construction Status 2', label: 'Construction Status 2', value: 'Construction Status 2'}
+    ];
+
+    const FacilityTypeArray = [
+        { id: 1, name: 'Customer', label: 'Customer', value: 'Customer'},
+        { id: 2, name: 'Aggregator', label: 'Aggregator', value: 'Aggregator'}
+    ];
+
+    const FacilityCategoryArray = [
+        { id: 1, name: 'Category 1', label: 'Category 1', value: 'Category 1'},
+        { id: 2, name: 'Category 2', label: 'Category 2', value: 'Category 2'}
+    ];
+
+    const FacilityEnergySavingArray = [
+        { id: 1, name: 'Saving 1', label: 'Saving 1', value: 'Saving 1'},
+        { id: 2, name: 'Saving 2', label: 'Saving 2', value: 'Saving 2'}
+    ];
+
     const handleSubmit = (values) => {
+        console.log(values)
+
+        POST_REQUEST(facilityEndPoints.ADD_FACILITY, values)
+        .then((response) => {
+        })
+        .catch((error) => {
+        });
     };
 
     return (
@@ -59,14 +88,14 @@ const AddFacilityComponent = (props) => {
                         <Grid container spacing={2}>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="facilityConstructionStatus" label="Facility construction status*" />
+                                <SelectBox name="facilityConstructionStatus" label="Facility construction status*" options={FacilityConstructionStatusArray} />
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="Facility construction status*" label="Facility Name*" />
+                                <InputField name="facility_name" label="Facility Name*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
+                            <Grid item xs={12} sm={12} my={2}>
                                 <InputLabel sx={{ color: '#2E813E' }}>{buildingFacilitystr}</InputLabel>
                                 <Box sx={{ display: 'flex' }} my={2}>
                                     <Typography sx={{ color: '#ffffff', fontWeight: '600', fontSize: '14px', width: '57px', height: '32px', backgroundColor: '#2E813E', borderRadius: '8px 0px 0px 8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -79,19 +108,19 @@ const AddFacilityComponent = (props) => {
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="naicCode" label="NAIC’s Code" />
+                                <InputField name="naicCode" label="NAIC’s Code" type="text" />
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="facilityCategory" label="Facility Category*" />
+                                <SelectBox name="facilityCategory" label="Facility Category*" options={FacilityCategoryArray} />
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="facilityType" label="Facility Type*" />
+                                <SelectBox name="facility_type" label="Facility Type*" options={FacilityTypeArray} />
                             </Grid>
 
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="energySavingForFacility" label="What is your target energy savings for this facility?*" />
+                                <SelectBox name="energySavingForFacility" label="What is your target energy savings for this facility?*" options={FacilityEnergySavingArray} />
                             </Grid>
 
                             <Grid item xs={12} sm={12}>
@@ -110,34 +139,34 @@ const AddFacilityComponent = (props) => {
 
                         <Grid container spacing={2} sx={{ marginTop: '10px' }}>
 
-                            <Grid item xs={12} sm={4}>
-                                <InputField name="streetNumber" label="Street Number*" type="text" />
+                            <Grid item xs={12} sm={8}>
+                                <InputField name="address" label="Address line 1*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
-                                <InputField name="streetName" label="Street Name*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
+                        <Grid container spacing={2} sx={{ marginTop: '10px' }}>
+
+                            <Grid item xs={12} sm={3}>
                                 <InputField name="city" label="City*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
-                                <SelectBox name="provinceState" label="Province/State*" />
+                            <Grid item xs={12} sm={3}>
+                                <InputField name="province" label="Province/State*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
-                                <InputField name="postalCode" label="Postal Code*" type="text" />
+                            <Grid item xs={12} sm={3}>
+                                <InputField name="country" label="Country*" type="text" />
                             </Grid>
 
-                            <Grid item xs={12} sm={4}>
-                                <SelectBox name="country" label="Country*" />
+                            <Grid item xs={12} sm={3}>
+                                <InputField name="postalcode" label="Zip code/Postal code*" type="text" />
                             </Grid>
 
                         </Grid>
 
                         <Box mt={4} rowGap={4}>
-                            <ButtonWrapper type="submit" color='neutral' width='165px' height='48px'>
+                            <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleSubmit}>
                                 Add Facility
                             </ButtonWrapper>
                         </Box>

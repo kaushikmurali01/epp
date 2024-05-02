@@ -16,6 +16,8 @@ import RoutesComp from "./routes";
 import Facility from "./sections/Homepage/FacilitySection";
 import FacilityDetails from "sections/Homepage/FacilityDetails";
 import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection";
+import TabsSection from "sections/Homepage/TabsSection";
+import DashboardSection from "sections/Homepage/DashboardSection";
 
 const store = configureStore();
 
@@ -26,14 +28,14 @@ const App = (props) => {
         <Suspense fallback="Loading...">
           <RoutesComp />
         </Suspense>
-        <Header />
+        {/* <Header /> */}
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
         {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
         {/* <Facility /> */}
-        {/* <FacilityDetails /> */}
+        {/* {/* <FacilityDetails /> */}
         <ParticipantAgreement />
         <Footer />
       </ThemeProvider>
