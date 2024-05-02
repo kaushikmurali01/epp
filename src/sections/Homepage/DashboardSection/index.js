@@ -1,33 +1,24 @@
-import React, { useState, useEffect } from "react";
 import { Box, Container, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import CustomBox from "../../../components/CustomBox";
 import "../UserManagementSection/styles.css";
 import useMediaQueries from "utils/mediaQueries/mediaQueries";
 
-const DashboardSection = (props) => {
-  const [tabValue, setTabValue] = useState(0);
-  const [activeStep, setActiveStep] = useState(0);
-
-  const handleTabChange = (event, newValue) => {
-    setTabValue(newValue);
-    setActiveStep(0);
-  };
-
-  const { isMd, isSm, isLg } = useMediaQueries();
-
- const DashboardArrow = () => {
+const DashboardArrow = () => {
   return (
-  <Box
-    sx={{
-      rotate: { xs: "90deg", lg: "none" },
-      marginLeft: { xs: "5px", lg: "0" },
-    }}
-  >
-    <img src="images/dashboard-arrow.svg" alt="arrow" />
+    <Box
+      sx={{
+        rotate: { xs: "90deg", lg: "none" },
+        marginLeft: { xs: "5px", lg: "0" },
+      }}
+    >
+      <img src="images/dashboard-arrow.svg" alt="arrow" />
     </Box>
-  )
+  );
 };
+
+const DashboardSection = (props) => {
+  const { isLg } = useMediaQueries();
 
   return (
     <Container>
@@ -56,12 +47,12 @@ const DashboardSection = (props) => {
         <Grid
           container
           sx={{
-            alignItems: {xs: "flex-start", lg: "center"},
+            alignItems: { xs: "flex-start", lg: "center" },
             flexWrap: { xs: "nowrap", lg: "wrap" },
             flexDirection: { xs: "column", lg: "row" },
-            justifyContent: {xs: "flex-start", lg: "center"},
+            justifyContent: { xs: "flex-start", lg: "center" },
             gap: "0.69rem",
-            padding: {xs: "1.12rem 2rem", lg:"1.16rem 1.29rem"},
+            padding: { xs: "1.12rem 2rem", lg: "1.16rem 1.29rem" },
             marginTop: "1.88rem",
             borderRadius: "0.75rem",
             background: "#EBFFEF",
@@ -117,6 +108,7 @@ const DashboardSection = (props) => {
           variant="h6"
           gutterBottom
           sx={{
+            textAlign: { xs: "center", sm: "start" },
             fontWeight: "400",
             fontSize: "0.75rem",
             fontStyle: "italic",
@@ -137,7 +129,7 @@ const DashboardSection = (props) => {
         gap="1.44rem"
         marginTop="6.9rem"
       >
-        <Typography variant="h4">
+        <Typography variant="h4" textAlign="center">
           Add facility details and start saving
         </Typography>
         <Button
