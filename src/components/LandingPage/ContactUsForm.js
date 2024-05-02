@@ -53,7 +53,7 @@ const ContactUsForm = () => {
             })
             .catch((error) => {
                 console.log(error, 'error')
-                showSnackbar(error.message, 'error', { vertical: 'top', horizontal: 'right' });
+                showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
 
 
             })
