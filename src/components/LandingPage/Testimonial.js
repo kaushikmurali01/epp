@@ -11,7 +11,7 @@ const Testimonial = () => {
                 <Container maxWidth="lg">
                     <Grid container justifyContent="space-between" className='heading-row'>
                         <Grid container item xs={12} justifyContent="center" >
-                            <Typography variant="h3" className='ev-theme-heading' >
+                            <Typography variant="h3"  >
                                   See how others are succeeding with EPP
                             </Typography>
                         </Grid>

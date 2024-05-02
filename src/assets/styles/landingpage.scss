@@ -229,6 +229,28 @@
     }
 }
 
+.our-client-section {
+    .our-client-row {
+        .glider-track {
+            // margin-left: calc((100vw - 73rem) / 2);
+            gap: 1rem;
+            margin-left: calc((100vw - 22rem) / 2);
+           
+            @include respond-to(theme_Sm){ 
+                gap: 1.5rem;
+                margin-left: calc((100vw - 45rem) / 2);
+            }
+            @include respond-to(theme_Md){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 60rem) / 2);
+            }
+            @include respond-to(theme_Lg){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 73rem) / 2);
+            }
+        }
+    }
+}
 
 .news-feeds-section {
     .glider-track {
@@ -245,15 +267,15 @@
     .form-data-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 2%;
+        gap: 3%;
 
         li {
             width: 100%;
             margin-bottom: 2rem;
            
             @include respond-to(theme_Sm){
-                width: 49%;
-                margin-bottom: 2%;
+                width: 48%;
+                margin-bottom: 4%;
             }
             .MuiInputBase-formControl {
                 background-color: $theme-color-white;
