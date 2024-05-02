@@ -59,12 +59,14 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
 app.http('CreateCompany', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    handler: CreateCompany
+    handler: CreateCompany,
+    route: 'company'
 });
 app.http('UpdateCompany', {
-    methods: ['POST'],
+    methods: ['PUT'],
     authLevel: 'anonymous',
-    handler: UpdateCompany
+    handler: UpdateCompany,
+    route: 'company'
 });
 
 

@@ -132,7 +132,7 @@ export async function DeleteNews(request: HttpRequest, context: InvocationContex
 app.http('news', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'v1/news',
+    route: 'news',
     handler: GetAllNews
 });
 // app.http('CreateNews', {

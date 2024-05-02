@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { UserController } from '../controllers/userController';
+import { UserInvitationService } from "../services/user-invitation-service";
 
 /**
  * Registers a new user based on the provided request data.
@@ -165,14 +166,39 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
     }
 }
 
+export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData = await request.json(); 
+        const data = await UserInvitationService.sendInvitation(requestData);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(data);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 
 // HTTP trigger handlers
 app.http('GetUserInvitationList', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'v1/invitations/{offset}/{limit}',
+    route: 'invitations/{offset}/{limit}',
     handler: GetUserInvitationList
 });
+
+app.http('SendAdminInvitation', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'invitations',
+    handler: SendAdminInvitation
+});
+
 app.http('UserRegister', {
     methods: ['POST'],
     authLevel: 'anonymous',
@@ -189,7 +215,7 @@ app.http('UserUpdate', {
 app.http('GetAllUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'v1/users/{offset}/{limit}',
+    route: 'users/{offset}/{limit}',
     handler: GetAllUsers
 });
 

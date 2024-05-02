@@ -12,42 +12,24 @@ class UserInvitationService {
    */
   static async getAllInvitationsWithUserData(offset, limit): Promise<Object> {
     try {
-      // const invitations = await UserInvitation.findAll({
-      //   include: [
-      //     {
-      //       model: User,
-      //       as: 'createdByUser',
-      //       attributes: ['invited_by_email'] 
-      //     }
-      //   ]
-      // });
-
       return await UserInvitation.findAll({
         offset: offset,
         limit: limit,
     });
-
-      // const invitations = await UserInvitation.findAll({
-      //   offset: offset, 
-      //   limit: limit,   
-      //   include: [
-      //     {
-      //       model: User,
-      //       as: 'createdByUser',
-      //       attributes: ['email as invitedByEmail'] 
-      //     }
-      //   ]
-      // });
-
-      // return {
-      //   status: HTTP_STATUS_CODES.SUCCESS,
-      //   message: RESPONSE_MESSAGES.Success,
-      //   data: invitations
-      // };
     } catch (error) {
       throw new Error(`Failed to fetch user invitations: ${error.message}`);
     }
   }
+  static async sendInvitation(details:any): Promise<Response> {
+    try {
+        const invitation = await UserInvitation.create(details);
+        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    } catch (error) {
+        throw new Error(`${error.message}`);
+    }
 }
+}
+
+
 
 export { UserInvitationService };

@@ -5,7 +5,7 @@ import { User } from './user';
 interface UserInvitationAttributes {
   id: number;
   email: string;
-  role: string;
+  role: number;
   invitation_sent_date: Date;
   invitation_sent_time: string;
   created_by: number;
@@ -13,6 +13,7 @@ interface UserInvitationAttributes {
   //updated_at: Date;
   //created_at: Date;
   status: string;
+  company: number
 }
 
 interface UserInvitationCreationAttributes extends Optional<UserInvitationAttributes, 'id'> {}
@@ -20,7 +21,7 @@ interface UserInvitationCreationAttributes extends Optional<UserInvitationAttrib
 class UserInvitation extends Model<UserInvitationAttributes, UserInvitationCreationAttributes> implements UserInvitationAttributes {
   public id!: number;
   public email!: string;
-  public role!: string;
+  public role!: number;
   public invitation_sent_date!: Date;
   public invitation_sent_time!: string;
   public created_by!: number;
@@ -28,6 +29,7 @@ class UserInvitation extends Model<UserInvitationAttributes, UserInvitationCreat
  // public updated_at!: Date;
 //  public created_at!: Date;
   public status!: string;
+  public company!: number;
 }
 
 UserInvitation.init(
@@ -42,8 +44,11 @@ UserInvitation.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.INTEGER,
     },
+    company: {
+        type: DataTypes.INTEGER,
+      },
     invitation_sent_date: {
       type: DataTypes.DATE,
     },

@@ -100,7 +100,7 @@ export async function DeleteContactMessage(id): Promise<object> {
 app.http('SaveContactMessage', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    route: 'v1/contact',
+    route: 'contact',
     handler: SaveContactMessage
 });
 
