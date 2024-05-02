@@ -10,13 +10,13 @@ const axiosInstance = axios.create({
   },
 });
 
-const AxiosInstance = axios.create({
-  // baseURL: base_url,
-  headers: {
-    'Content-Type': 'application/json',
-     Accept: "application/json",
-  },
-});
+// const AxiosInstance = axios.create({
+//   // baseURL: base_url,
+//   headers: {
+//     'Content-Type': 'application/json',
+//      Accept: "application/json",
+//   },
+// });
 
 //request interceptor
 axiosInstance.interceptors.request.use(
@@ -40,7 +40,7 @@ axiosInstance.interceptors.response.use(
   },
   function (error) {
     const originalRequest = error.config;
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       localStorage.clear();
       window.location.href = authEndpoints.login;
     }

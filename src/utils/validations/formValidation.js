@@ -60,6 +60,18 @@ export const validationSchemaAddFacility = Yup.object().shape({
   postalcode: Yup.string().required("Postal Code is required"),
 });
 
+export const validationSchemaLandingPageForm = Yup.object({
+  name: Yup.string()
+  .required('Please enter name'),
+  company: Yup.string()
+  .required('Please enter company name'),
+  message: Yup.string()
+  .required('Please enter message'),
+  email: Yup.string()
+    .required("Please enter email")
+    .matches(emailRegExp, "Entered email is incorrect"),
+  
+});
 
 export const validationSchemaFacilitySummary = Yup.object().shape({
   yearOfConstruction: Yup.string().required("Year of construction is required"),

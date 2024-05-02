@@ -38,6 +38,10 @@ const theme = createTheme({
           "&:hover": {
             borderWidth: "2px",
           },
+          "&:disabled": {
+            backgroundColor: "#9E9D9D",
+            color: '#fff'
+          },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
             minWidth: "8.75rem",
