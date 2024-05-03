@@ -21,10 +21,9 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 
 msalInstance.addEventCallback((event) => {
   if (
-      (event.eventType === EventType.LOGIN_SUCCESS 
-        // ||
-          // event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS ||
-          // event.eventType === EventType.SSO_SILENT_SUCCESS) 
+      ((event.eventType === EventType.LOGIN_SUCCESS ||
+          event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS ||
+          event.eventType === EventType.SSO_SILENT_SUCCESS) 
           &&
       event.payload.account)
   ) {

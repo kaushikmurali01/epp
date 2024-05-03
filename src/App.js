@@ -25,7 +25,7 @@ const store = configureStore();
 
 const App = (props) => {
 
-  const activeAccount = props.instance.getActiveAccount();
+  const activeAccount = useMsal();
 
   console.log("active account", activeAccount)
   return (

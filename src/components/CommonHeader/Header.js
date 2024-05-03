@@ -31,15 +31,6 @@ function Header(props) {
     }).catch((error)=> console.log("error in login redirect", error))
   }
 
-//   const handleRedirect = () => {
-//     instance
-//         .loginPopup({
-//             ...loginRequest,
-//             redirectUri: '/',
-//         })
-//         .catch((error) => console.log('error in login',error));
-// };
-
   const scrollToSection = (sectionId) => {
     const sectionElement = document.getElementById(sectionId);
     const offset = 128;
@@ -88,7 +79,7 @@ function Header(props) {
             }}
           >
             <img src={logo} style={logoStyle} alt="logo" />
-            {!props.page == "authenticated" && (
+            {!(props?.page == "authenticated") && (
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
@@ -157,7 +148,7 @@ function Header(props) {
               </Box>
             )}
           </Box>
-          {!props.page == "authenticated" && (
+          {!(props?.page == "authenticated") && (
             <>
               <Box
                 sx={{
@@ -166,21 +157,19 @@ function Header(props) {
                   alignItems: "center",
                 }}
               >
-                <Link
+                <Button
                   color="primary"
-                  href="/login"
-                  sx={{
-                    textDecoration: "none",
-                    marginRight: { md: "2.25rem" },
-                  }}
+                  variant="outlined"
+                  component="a"
+                  onClick={handleRedirect}
                 >
                   Login
-                </Link>
+                </Button>
                 <Button
                   color="primary"
                   variant="contained"
                   component="a"
-                  href="/sign-up"
+                  onClick={handleRedirect}
                 >
                   Sign up
                 </Button>
@@ -236,8 +225,7 @@ function Header(props) {
                         color="primary"
                         variant="outlined"
                         component="a"
-                        href="/sign-in"
-                        target="_blank"
+                        onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
                         Sign in
@@ -248,9 +236,8 @@ function Header(props) {
                         color="primary"
                         variant="contained"
                         component="a"
-                        href="/sign-up"
                         sx={{ width: "100%" }}
-                        target="_blank"
+                        onClick={handleRedirect}
                       >
                         Sign up
                       </Button>
