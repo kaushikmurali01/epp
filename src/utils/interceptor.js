@@ -1,7 +1,7 @@
 import axios from "axios";
 import { authEndpoints } from "constants/endPoints";
 
-const BASE_URL = 'https://companyfacility.azurewebsites.net/api';
+const BASE_URL = 'https://ams-enerva-dev.azure-api.net';
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   headers: {

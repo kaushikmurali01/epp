@@ -17,6 +17,10 @@ export const authEndpoints = {
     ADD_FACILITY: '/facility',
 }
 
+export const uploadFileEndPoints = {
+  UPLOAD_FILE: '/company-facility/v1/upload',
+}
+
   export const pageSubEndspoints = {
     index: '',
   }
