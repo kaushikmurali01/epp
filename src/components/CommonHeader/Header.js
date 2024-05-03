@@ -159,8 +159,8 @@ function Header(props) {
                 <Button
                   color="primary"
                   variant="contained"
-                  component="a"
-                  href="/sign-up"
+                  // component="a"
+                  // href="/sign-up"
                 >
                   Sign up
                 </Button>

@@ -35,15 +35,30 @@ export const USER_MANAGEMENT_COLUMN = [
         accessor: "RoleType",
     },
     {
-        Header: "Action",
+        Header: "Status",
         accessor: (item) => (
-            <Box gap={1} sx={{ display: "flex" }}>
+            <Box >
+                  <Typography variant="span" sx={{...buttonStyle, background: 'rgba(46, 129, 62, 0.20)', color: 'primary.main', marginRight: '1rem'}}>
+                   Accept
+                </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, background: 'rgba(255, 88, 88, 0.20)', color: 'danger.main' }} >
                     Delete
                 </Typography>
-                <Typography variant="span" sx={{...buttonStyle, background: 'rgba(46, 129, 62, 0.20)', color: 'primary.main'}}>
-                    Manage Permission
+              
+            </Box>
+        ),
+    },
+    {
+        Header: "Action",
+        accessor: (item) => (
+            <Box gap={1}>
+                  <Typography variant="span" sx={{...buttonStyle,  color: 'blue.main'}}>
+                  Manage permission
                 </Typography>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} >
+                    Delete
+                </Typography>
+              
             </Box>
         ),
     },

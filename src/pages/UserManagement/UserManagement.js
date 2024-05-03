@@ -64,109 +64,59 @@ const UserManagement = () => {
 
   return (
     <Box component="section">
-      <Grid>
-        <Container maxWidth="lg">
-          <Grid container sx={{ paddingTop: '1.5rem' }}>
-            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='h4'>User Management</Typography>
-              <Button variant="contained" color="success">
-                Invite User
-              </Button>
 
-            </Grid>
-            <Grid item xs={12} sx={{marginTop: '1rem'}}>
-              <Tabs
-                className='theme-tabs-list'
-                value={tabValue}
-                onChange={handleChange}
-                textColor="dark.main"
-              // indicatorColor="secondary"
-              >
-                <Tab value="allUsers" label="All Users" sx={{ minWidth: '16rem' }} />
-                <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '16rem' }} variant />
-              </Tabs>
-            </Grid>
-
+      <Container maxWidth="lg">
+        <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
+          <Grid item xs={12} md={4} >
+            <Typography variant='h4'>User Management</Typography>
           </Grid>
-        </Container>
-      </Grid>
-
-      <Grid sx={{ marginTop: '2rem', backgroundColor: 'primary.thinGrayLight', padding: '1.5rem 0' }}>
-        <Container maxWidth="lg">
-          <Grid container >
-            <Grid item xs={12} md={8} sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography variant="h6" gutterBottom>
-                Filter By:
-              </Typography>
-              <Grid sx={{ display: 'flex', alignItems: 'center', marginLeft: '3rem', gap: '2rem' }} >
-                <Grid item>
-                  <FormGroup className='theme-form-group'>
-
-
-                    <FormControl fullWidth >
-                      <Select
-                        value=""
-                        displayEmpty
-                        renderValue={(value) => (value ? value : 'Facility')}
-                        sx={{ bgcolor: '#fff' }}
-                      >
-                        <MenuItem value="">Facility</MenuItem>
-                        <MenuItem value="facility1">Facility 1</MenuItem>
-                        <MenuItem value="facility2">Facility 2</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </FormGroup>
-                </Grid>
-                <Grid item>
-                  <FormGroup className='theme-form-group'>
-                    <FormControl>
-                      <Select
-                        value=""
-                        displayEmpty
-                        renderValue={(value) => (value ? value : 'Role')}
-                        sx={{ bgcolor: '#fff' }}
-                      >
-                        <MenuItem value="">Role</MenuItem>
-                        <MenuItem value="role1">Role 1</MenuItem>
-                        <MenuItem value="role2">Role 2</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </FormGroup>
-                </Grid>
-                <Grid item>
-                  <Typography variant='span' sx={{ color: 'primary.main' }}>
-                    Clear Filter
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+            <FormGroup sx={{ flexGrow: '1' }}>
               <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
-                <InputBase
-                  placeholder="Search by name and email"
-                  inputProps={{ style: { color: '#242424' } }}
-                  startAdornment={
-                    <IconButton>
-                      <SearchIcon />
-                    </IconButton>
-                  }
+                <TextField
+                  placeholder="Search"
+                  inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
                 />
               </FormControl>
-            </Grid>
+            </FormGroup>
+
+            <Button
+              color="primary"
+              variant="contained"
+              sx={{ alignSelf: 'center' }}
+
+            >
+              Invite User
+            </Button>
           </Grid>
-        </Container>
-      </Grid>
 
-      <Grid>
-        <Container maxWidth="lg">
-          <Grid container>
-            <Table columns={columns} data={data} />
+        </Grid>
+
+        <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
+          <Grid item xs={12} md={8} >
+            <Tabs
+              // className='theme-tabs-list'
+              value={tabValue}
+              onChange={handleChange}
+            // textColor="dark.main"
+            // indicatorColor="secondary"
+            >
+              <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
+              <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
+              <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} />
+            </Tabs>
           </Grid>
-        </Container>
-      </Grid>
+          <Grid item sx={{ justifySelf: 'flex-end' }}>
+            <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }}>
+              Request to join other company
+            </Typography>
+          </Grid>
+        </Grid>
 
-
-
+        <Grid container>
+          <Table columns={columns} data={data} headbgColor="#D9D9D9"/>
+        </Grid>
+      </Container>
     </Box >
   )
 }

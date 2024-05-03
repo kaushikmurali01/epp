@@ -204,6 +204,10 @@ const theme = createTheme({
     dark: {
       main: "#000",
       light: "#242424",
+      lightGray: "#D9D9D9"
+    },
+    danger: {
+      main: '#FF5858',
     },
     text: {
       primary: "#2e813e",
