@@ -1,9 +1,12 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { USER_MANAGEMENT_COLUMN } from '../../utils/tableColumn/userManagementColumn';
 import Table from 'components/Table';
-import { Box, Button, Container, FormControl, FormGroup, Grid, IconButton, InputBase, MenuItem, Select, Tab, Tabs, TextField, Typography } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Button, Container, FormControl, FormGroup, Grid, Tab, Tabs, TextField, Typography } from '@mui/material';
+
+
 const UserManagement = () => {
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = React.useState('allUsers');
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN, []);
   const data = [
@@ -84,7 +87,7 @@ const UserManagement = () => {
               color="primary"
               variant="contained"
               sx={{ alignSelf: 'center' }}
-
+              onClick={()=> navigate('usermanagement/invite')}
             >
               Invite User
             </Button>

@@ -20,7 +20,7 @@ const theme = createTheme({
     MuiFormLabel: {
       styleOverrides: {
         root: {
-          color: "#2E813E",
+          // color: "#2E813E",
         },
       },
     },
@@ -209,6 +209,7 @@ const theme = createTheme({
     danger: {
       main: '#FF5858',
     },
+
     text: {
       primary: "#2e813e",
       primary2: "#242424",
