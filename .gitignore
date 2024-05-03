@@ -4,3 +4,7 @@
 */dist/
 */node_modules/
 */appsettings.json
+*/*.sql
+*.sql
+facility_additional_details.sql
+facility.sql
