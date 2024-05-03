@@ -27,6 +27,7 @@ const credential = new AzureKeyCredential(subscriptionKey);
 
 // Use the credential to create a client
 const client = MapsSearch(credential);
+import ButtonWrapper from "../FormBuilder/Button";
 
 const SignUpFormFields = ({
   initialValues,
@@ -208,19 +209,34 @@ const SignUpFormFields = ({
           </>
           <Box mt={4} rowGap={4}>
             {activeStep === 0 && (
-              <Button variant="contained" color="primary" onClick={handleSearch}>
-                Next
-              </Button>
+              <>
+                {/* <Button variant="contained" color="primary" onClick={handleNext}>
+                  Next
+                </Button> */}
+                <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleNext}>
+                  Next
+                </ButtonWrapper>
+              </>
             )}
             {activeStep === 1 && (
-              <Button variant="outlined" onClick={handleNext} sx={{ mr: 4 }}>
-                Signup
-              </Button>
+              <>
+                {/* <Button variant="outlined" onClick={handleNext} sx={{ mr: 4 }}>
+                  Sign up
+                </Button> */}
+                <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleNext}>
+                  Sign up
+                </ButtonWrapper>
+              </>
             )}
             {activeStep !== 0 && (
-              <Button variant="outlined" onClick={handlePrev}>
-                Back
-              </Button>
+              <>
+                {/* <Button variant="outlined" onClick={handlePrev}>
+                  Back
+                </Button> */}
+                <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handlePrev}>
+                  Verify
+                </ButtonWrapper>
+              </>
             )}
           </Box>
         </Form>

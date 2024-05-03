@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography, TextField, Button, Grid, Paper, Box, Container } from '@mui/material';
+import { Typography, Grid, Box, Container } from '@mui/material';
 import InputField from '../FormBuilder/InputField';
 import ButtonWrapper from '../FormBuilder/Button';
 import { Form, Formik } from 'formik';
@@ -8,6 +8,7 @@ import TextAreaField from '../FormBuilder/TextAreaField';
 
 
 const ContactUsForm = () => {
+    
 
     const initialValues = {
         name: "",
@@ -30,16 +31,17 @@ const ContactUsForm = () => {
     return (
         <Box component={'section'} className='contact-us-section common-section' >
             <Container maxWidth="lg">
-                <Grid container className='heading-row'>
-                    <Grid container item xs={12} justifyContent="center" >
-                        <Typography variant="h4" className='ev-theme-heading'>
-                            Contact Us
-                        </Typography>
-                    </Grid>
-                </Grid>
+
 
 
                 <Box component={'div'} >
+                    <Grid container className='heading-row'>
+                        <Grid container item xs={12} justifyContent="center" >
+                            <Typography variant="h3" className='ev-theme-heading'>
+                                Contact Us
+                            </Typography>
+                        </Grid>
+                    </Grid>
                     <Formik
                         initialValues={{
                             ...initialValues
@@ -75,7 +77,7 @@ const ContactUsForm = () => {
                                 <li  >
                                     <InputField
                                         name="phone"
-                                        placeholder="phone"
+                                        placeholder="Phone"
                                         type="phone"
                                     />
                                 </li>
@@ -90,12 +92,12 @@ const ContactUsForm = () => {
                                 </li>
                             </ul>
 
-                            <Grid  xs={12} display="flex" justifyContent="center">
-                                    <ButtonWrapper type="submit" color='neutral' width='165px' height='48px'>
-                                        Submit
-                                    </ButtonWrapper>
+                            <Grid display="flex" justifyContent="center">
+                                <ButtonWrapper type="submit" variant="contained">
+                                    Submit
+                                </ButtonWrapper>
 
-                                </Grid>
+                            </Grid>
                         </Form>
                     </Formik>
                 </Box>

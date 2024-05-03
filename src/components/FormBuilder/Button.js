@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '@mui/material';
 import { useFormikContext } from 'formik';
 
-const ButtonWrapper = ({ children, width, height, ...otherProps }) => {
+const ButtonWrapper = ({ children, variant, width, height, ...otherProps }) => {
 
   const { submitForm } = useFormikContext();
 
@@ -12,8 +12,7 @@ const ButtonWrapper = ({ children, width, height, ...otherProps }) => {
 
   const configButton = {
     ...otherProps,
-    variant: 'contained',
-    fullWidth: true,
+    variant: variant || 'contained',
     onClick: handleSubmit
   }
 
@@ -28,3 +27,6 @@ const ButtonWrapper = ({ children, width, height, ...otherProps }) => {
 };
 
 export default ButtonWrapper;
+
+
+// variant props value = "outlined", "contained"

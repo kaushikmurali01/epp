@@ -2,7 +2,7 @@ import React, { lazy } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import DashboardRoutes from './dashboard';
 
-// const CommonLayout = lazy(() => import('layout/dashboardLayout')); //todo
+const CommonLayout = lazy(() => import('layout/dashboardLayout')); //todo
 
 const RoutesComp = () => {
     const { pathname } = useLocation();
@@ -10,9 +10,9 @@ const RoutesComp = () => {
     console.log('kkkkk, ', token); 
     return (
         token ? (
-            // <CommonLayout>
+            <CommonLayout>
                 <DashboardRoutes />
-            // </CommonLayout >
+            </CommonLayout >
         ) : null
     )
 }

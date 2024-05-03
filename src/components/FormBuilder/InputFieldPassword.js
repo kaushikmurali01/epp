@@ -37,7 +37,7 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
   }, [configTextfield.value]);
 
   return (
-    <FormGroup className={`ev-password-field-group ${
+    <FormGroup className={`theme-form-group password-field-group ${
       configTextfield.error
         ? "has-error"
         : ""

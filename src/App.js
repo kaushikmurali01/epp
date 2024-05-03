@@ -1,4 +1,4 @@
-import React, {Suspense} from "react";
+import React, { Suspense } from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 import "./App.css";
@@ -10,8 +10,14 @@ import Header from "./components/CommonHeader/Header";
 import Footer from "./components/CommonFooter/Footer";
 import Login from "./pages/Onboarding/Login";
 import Signup from "./pages/Onboarding/Signup";
+import HomepageComponent from "./pages/Homepage/Homepage";
 import LandingPage from "./pages/LandingPage";
-import RoutesComp from './routes';
+import RoutesComp from "./routes";
+import Facility from "./sections/Homepage/FacilitySection";
+import FacilityDetails from "sections/Homepage/FacilityDetails";
+import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection";
+import TabsSection from "sections/Homepage/TabsSection";
+import DashboardSection from "sections/Homepage/DashboardSection";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 
@@ -46,9 +52,13 @@ const App = (props) => {
         
         {/* <ActionComponent /> */}
         {/* <Login /> */}
-        {/* <Signup /> */}
+        {/* {/* <Signup /> */}
+        {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
-        {/* <Footer /> */}
+        {/* <Facility /> */}
+        {/* <FacilityDetails /> */}
+        {/* <ParticipantAgreement />
+        <Footer /> */}
       </ThemeProvider>
     </Provider>
   );

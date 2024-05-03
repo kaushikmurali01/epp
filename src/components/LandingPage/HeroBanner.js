@@ -1,31 +1,39 @@
 import React from 'react';
 import { Stack, Button, Typography, Box, Container, Grid } from '@mui/material';
+import useMediaQueries from '../../utils/mediaQueries/mediaQueries';
 
 
 const HeroBanner = () => {
+    const { theme_Md, theme_Sm } = useMediaQueries();
+
     return (
         <Box component={'section'} className='banner-section'>
             <Container maxWidth="lg">
-                <Grid container >
-                    <Grid item xs={4} className='banner-info'>
-                        <Typography variant="h3" gutterBottom>
+                <Grid container sx={{flexDirection: theme_Sm ? "row" : 'column-reverse', padding: theme_Sm ? '0' : '1rem 0' }}>
+                    <Grid item xs={100} sm={5} className='banner-info'>
+                    
+                        <Typography variant="h1" gutterBottom 
+                        sx={{ display:'flex', flexDirection:'column',
+                            marginBottom: theme_Md ? '2.625rem' : '1.875rem'
+                        }}
+                        >
                             <span>Save Energy. </span>
                             <span>Reduce Costs. </span>
                             <span>Earn Incentives.</span>
                         </Typography>
-                        <Typography variant="span" gutterBottom>Enter your facility information for a free baseline estimate, and earn incentive.</Typography>
-                        <Stack direction="row" sx={{ gap: 3 }} className='action-btn'>
+                        <Typography variant="span" gutterBottom>Start today with the <Typography variant="strong" component='strong'> Energy Performance Program,</Typography> get a free baseline energy model, receive an upfront incentive and annually thereafter</Typography>
+                        <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem' }} className='action-btn'  >
                             <Button variant="contained" color="success">
-                                SignUp
+                                Sign up
                             </Button>
-                            <Button variant="outlined" color="error">
+                            <Button variant="outlined" color="secondary">
                                 Learn More
                             </Button>
                         </Stack>
-                        <span className='whats-new'>What's New <img src="/images/landingpage/speak_icon.svg" /></span>
+                        {/* <Typography variant='span' className='whats-new'>What's New <img src="/images/landingPage/speak_icon.svg" /></Typography> */}
                     </Grid>
 
-                    <Grid item xs={8}>
+                    <Grid item xs={100} sm={7}>
                         <span className='banner-bg'></span>
                     </Grid>
 

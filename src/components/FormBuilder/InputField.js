@@ -19,9 +19,9 @@ const InputField = ({name, label, ...otherProps}) => {
   }
 
   return (
-    <FormGroup >
+    <FormGroup className='theme-form-group'>
       {label && <FormLabel>{label}</FormLabel> }
-      <FormControl>
+      <FormControl className='theme-form-control'>
         <TextField {...configTextfield} />
       </FormControl>
     </FormGroup>

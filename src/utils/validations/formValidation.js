@@ -42,3 +42,40 @@ export const validationSchemaSignUp = Yup.object().shape({
     .oneOf([true], "You must agree to the agreement")
     .required("You must agree to the agreement"),
 });
+
+export const validationSchemaAddFacility = Yup.object().shape({
+  facilityConstructionStatus: Yup.string().required("Facility Construction Status is required"),
+  facility_name: Yup.string().required("Facility Name is required"),
+  // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
+  naicCode: Yup.string().required("NAIC Code is required"),
+  facilityCategory: Yup.string().required("Facility Category is required"),
+  facility_type: Yup.string().required("Facility Type is required"),
+  energySavingForFacility: Yup.string().required("Energy Saving For Facility is required"),
+  // streetNumber: Yup.string().required("Street Number is required"),
+  // streetName: Yup.string().required("Street Name is required"),
+  address: Yup.string().required("Address is required"),
+  city: Yup.string().required("City is required"),
+  province: Yup.string().required("Province/State is required"),
+  country: Yup.string().required("Country is required"),
+  postalcode: Yup.string().required("Postal Code is required"),
+});
+
+
+export const validationSchemaFacilitySummary = Yup.object().shape({
+  yearOfConstruction: Yup.string().required("Year of construction is required"),
+  grossFloorArea: Yup.string().required("Gross floor area is required"),
+  numberOfStoreys: Yup.string().required("Number of storeys is required"),
+  occupancy: Yup.string().required("Occupancy is  required"),
+  numberOfBuildings: Yup.string().required("Physical buildings count is required"),
+  company: Yup.string().required("Company is  required"),
+  facilityName: Yup.string().required("Facility Name is required"),
+  unitNumber: Yup.string().required("Unit Number is required"),
+  streetNumber: Yup.string().required("Street Number is required"),
+  streetName: Yup.string().required("Street Name is required"),
+  city: Yup.string().required("City is required"),
+  province: Yup.string().required("Province is required"),
+  postalCode: Yup.string().required("Postal Code is required"),
+  facilityCategory: Yup.string().required("Facility Category is required"),
+  facilityType: Yup.string().required("Facility Type is required"),
+  naicCode: Yup.string().required("NAIC Code is required"),
+});
