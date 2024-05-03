@@ -7,6 +7,18 @@ export const GET_REQUEST = (url,canObj) => {
   });
 };
 export const POST_REQUEST = (url, data, isImage = false, headers) => {
+  if (isImage) {
+    if (!headers) {
+      headers = {};
+    }
+    headers['Content-Type'] = 'multipart/form-data';
+    return axiosInstance({
+      method: "post",
+      url,
+    data,
+    headers,
+    });
+  }
   return axiosInstance({
     method: "post",
     url,
