@@ -26,18 +26,42 @@ const AddFacilityComponent = (props) => {
     const buildingFacilitystr = "Is . the building/facility in the tariff class GS > 50KW?*";
 
     const FacilityConstructionStatusArray = [
-        { id: 1, name: 'Construction Status 1', label: 'Construction Status 1', value: 'Construction Status 1' },
-        { id: 2, name: 'Construction Status 2', label: 'Construction Status 2', value: 'Construction Status 2' }
+        { id: 1, name: 'Existing', label: 'Exsting', value: 'Exsting' },
+        { id: 2, name: 'New', label: 'New', value: 'New' }
     ];
 
     const FacilityTypeArray = [
-        { id: 1, name: 'Customer', label: 'Customer', value: 'Customer' },
-        { id: 2, name: 'Aggregator', label: 'Aggregator', value: 'Aggregator' }
+        { id: 1, name: 'Multi-Residential - Apartment', label: 'Multi-Residential - Apartment', value: 'Multi-Residential - Apartment' },
+        { id: 2, name: 'Multi-Residential – Condominium', label: 'Multi-Residential – Condominium', value: 'Multi-Residential – Condominium' },
+        { id: 1, name: 'Multi-Residential – Other', label: 'Multi-Residential – Other', value: 'Multi-Residential – Other' },
+        { id: 2, name: 'Commercial – Food Retail/Grocery', label: 'Commercial – Food Retail/Grocery', value: 'Commercial – Food Retail/Grocery' },
+        { id: 1, name: 'Commercial – Non-Food Retail', label: 'Commercial – Non-Food Retail', value: 'Commercial – Non-Food Retail' },
+        { id: 2, name: 'Commercial – Office', label: 'Commercial – Office', value: 'Commercial – Office' },
+        { id: 1, name: 'Commercial - Hotel', label: 'Commercial - Hotel', value: 'Commercial - Hotel' },
+        { id: 2, name: 'Commercial – Accommodation', label: 'Commercial – Accommodation', value: 'Commercial – Accommodation' },
+        { id: 1, name: 'Commercial – Hospitality', label: 'Commercial – Hospitality', value: 'Commercial – Hospitality' },
+        { id: 2, name: 'Commercial – Entertainment', label: 'Commercial – Entertainment', value: 'Commercial – Entertainment' },
+        { id: 2, name: 'Commercial – Long Term Care', label: 'Commercial – Long Term Care', value: 'Commercial – Long Term Care' },
+        { id: 2, name: 'Commercial – Other', label: 'Commercial – Other', value: 'Commercial – Other' },
+        { id: 2, name: 'Institutional – School', label: 'Institutional – School', value: 'Institutional – School' },
+        { id: 2, name: 'Institutional – University', label: 'Institutional – University', value: 'Institutional – University' },
+        { id: 2, name: 'Institutional – Hospital', label: 'Institutional – Hospital', value: 'Institutional – Hospital' },
+        { id: 2, name: 'Institutional – Municipal Office/Library', label: 'Institutional – Municipal Office/Library', value: 'Institutional – Municipal Office/Library' },
+        { id: 2, name: 'Institutional – Recreational/Community Centre', label: 'Institutional – Recreational/Community Centre', value: 'Institutional – Recreational/Community Centre' },
+        { id: 2, name: 'Institutional - Other', label: 'Institutional - Other', value: 'Institutional - Other' },
+        { id: 2, name: 'Industrial – Manufacturing/Assembly', label: 'Industrial – Manufacturing/Assembly', value: 'Industrial – Manufacturing/Assembly' },
+        { id: 2, name: 'Industrial - Chemical Processing', label: 'Industrial - Chemical Processing', value: 'Industrial - Chemical Processing' },
+        { id: 2, name: 'Industrial – Forestry', label: 'Industrial – Forestry', value: 'Industrial – Forestry' },
+        { id: 2, name: 'Industrial – Raw Material Refining', label: 'Industrial – Raw Material Refining', value: 'Industrial – Raw Material Refining' },
+        { id: 2, name: 'Industrial – Mining', label: 'Industrial – Mining', value: 'Industrial – Mining' },
+        { id: 2, name: 'Industrial - Other', label: 'Industrial - Other', value: 'Industrial - Other' },
     ];
 
     const FacilityCategoryArray = [
-        { id: 1, name: 'Category 1', label: 'Category 1', value: 'Category 1' },
-        { id: 2, name: 'Category 2', label: 'Category 2', value: 'Category 2' }
+        { id: 1, name: 'Commercial', label: 'Commercial', value: 'Commercial' },
+        { id: 2, name: 'Institutional', label: 'Institutional', value: 'Institutional' },
+        { id: 3, name: 'Multi-Family', label: 'Multi-Family', value: 'Multi-Family' },
+        { id: 4, name: 'Industrial', label: 'Industrial', value: 'Industrial' }
     ];
 
     const FacilityEnergySavingArray = [
@@ -159,7 +183,7 @@ const AddFacilityComponent = (props) => {
 
                         <Grid container spacing={2} sx={{ marginTop: '10px' }}>
                             <Grid item xs={12} sm={4}>
-                                <SelectBox name="target_saving" label="What is your target energy savings for this facility?*" options={FacilityEnergySavingArray} />
+                                <InputField name="target_saving" label="What is your target energy savings for this facility?*" type="text" />
                             </Grid>
                         </Grid>
 

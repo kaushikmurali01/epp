@@ -21,6 +21,7 @@ export const pageSubEndspoints = {
 }
 
 export const facilityEndPoints = {
-  ADD_FACILITY: "/facility",
+  mainPage: "main-page",
+  addFacility: "add-facility",
   facilityList: "facility-list",
 };
