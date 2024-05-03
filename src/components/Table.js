@@ -41,13 +41,6 @@ const Table = ({ columns, data, headbgColor }) => {
               {headerGroup.headers.map((column) => (
                 <TableCell
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  sx={{
-                    color: "text.secondary2",
-                    textAlign: "center",
-                    fontWeight: "400",
-                    fontSize: "0.75rem",
-                    bgcolor: headbgColor,
-                  }}
                 >
                   {column.render("Header")}
                 </TableCell>
@@ -64,15 +57,6 @@ const Table = ({ columns, data, headbgColor }) => {
                   return (
                     <TableCell
                       {...cell.getCellProps()}
-                      sx={{
-                        color: "text.primary2",
-                        textAlign: "center",
-                        fontSize: "0.875rem",
-                        padding: '1.5rem 0.5rem',
-                        "&:first-of-type": {
-                          fontWeight: 600,
-                        },
-                      }}
                     >
                       {cell.render("Cell")}
                     </TableCell>

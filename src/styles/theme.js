@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material";
+import { colors, createTheme } from "@mui/material";
 
 // this get theme variable is used to override the default properties
 const getTheme = createTheme();
@@ -21,6 +21,32 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           // color: "#2E813E",
+        },
+      },
+    },
+    
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          ".MuiTableHead-root": {
+            th: {
+              color: '#54585A',
+              fontSize: '0.75rem'
+            }
+          },
+          ".MuiTableBody-root": {
+            color: '#54585A'
+          },
+          // ".MuiTableRow-root": {
+           
+          // },
+          ".MuiTableCell-root": {
+            color: '#54585A',
+            fontSize: '0.875rem',
+            "&:first-of-type": {
+              fontWeight: 600,
+            },
+          },
         },
       },
     },

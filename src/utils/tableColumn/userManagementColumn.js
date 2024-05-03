@@ -4,17 +4,20 @@ import {
     Button,
     Typography,
 } from "@mui/material";
-
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 
 const buttonStyle = {
-    padding: '0.4375rem 0.625rem',
-    borderRadius: '0.125rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.25rem',
+    padding: '0.4375rem 1rem',
+    borderRadius: '1.5rem',
     fontWeight: '500',
-    fontSize:  {sm: '0.875rem'}
-
+    fontSize:  {sm: '0.875rem'},
+    cursor: 'pointer',
     
-
 }
 
 export const USER_MANAGEMENT_COLUMN = [
@@ -38,11 +41,11 @@ export const USER_MANAGEMENT_COLUMN = [
         Header: "Status",
         accessor: (item) => (
             <Box >
-                  <Typography variant="span" sx={{...buttonStyle, background: 'rgba(46, 129, 62, 0.20)', color: 'primary.main', marginRight: '1rem'}}>
-                   Accept
+                  <Typography variant="span" sx={{...buttonStyle, border: '1px solid #2e813e',  color: 'primary.main', marginRight: '1rem'}}>
+                    <CheckCircleIcon /> Accept
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, background: 'rgba(255, 88, 88, 0.20)', color: 'danger.main' }} >
-                    Delete
+                <Typography variant="span" sx={{ ...buttonStyle,  color: 'danger.main' }} >
+                   <CancelIcon /> Accept
                 </Typography>
               
             </Box>

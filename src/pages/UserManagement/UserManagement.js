@@ -98,11 +98,12 @@ const UserManagement = () => {
         <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
           <Grid item xs={12} md={8} >
             <Tabs
-              // className='theme-tabs-list'
+              className='theme-tabs-list'
               value={tabValue}
               onChange={handleChange}
-            // textColor="dark.main"
-            // indicatorColor="secondary"
+              sx={{display: 'inline-flex'}}
+              
+
             >
               <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
               <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
