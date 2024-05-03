@@ -20,11 +20,10 @@ const theme = createTheme({
     MuiFormLabel: {
       styleOverrides: {
         root: {
-          color: "#2E813E",
+          // color: "#2E813E",
         },
       },
     },
-
     MuiButton: {
       styleOverrides: {
         root: {
@@ -188,6 +187,7 @@ const theme = createTheme({
       main: "#2e813e",
       light: "#F4FFF5",
       thinLight: "#F5F9F5",
+      thinGrayLight: '#F7F7F5',
       contrastText: "#fff",
     },
     primary_2: {
@@ -204,7 +204,12 @@ const theme = createTheme({
     dark: {
       main: "#000",
       light: "#242424",
+      lightGray: "#D9D9D9"
     },
+    danger: {
+      main: '#FF5858',
+    },
+
     text: {
       primary: "#2e813e",
       primary2: "#242424",
