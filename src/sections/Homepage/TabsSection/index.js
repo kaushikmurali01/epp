@@ -70,6 +70,7 @@ const TabsSection = (props) => {
             label="User Management"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/user-management')}
           />
         </Tabs>
       </Container>

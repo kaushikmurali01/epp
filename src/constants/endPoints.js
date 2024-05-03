@@ -24,4 +24,9 @@ export const facilityEndPoints = {
   facilityDashboard: "facility-dashboard",
   addFacility: "add-facility",
   facilityList: "facility-list",
+  userManagement: "user-management",
+};
+
+export const userManagementEndPoints = {
+  userManagement: "user-management",
 };
