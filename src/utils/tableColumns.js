@@ -88,3 +88,30 @@ export const FACILITY_COLUMNS = [
     ),
   },
 ];
+
+export const METER_LIST_COLUMNS = [
+  {
+    Header: "Meter name",
+    accessor: "meter_name",
+  },
+  {
+    Header: "Meter type",
+    accessor: "meter_type",
+  },
+  {
+    Header: "Meter ID",
+    accessor: "meter_id",
+  },
+  {
+    Header: "Status",
+    accessor: "status",
+  },
+  {
+    Header: "Most recent update",
+    accessor: "most_recent_update",
+  },
+  {
+    Header: "In use(inactive date)",
+    accessor: (item) => <FacilityStatus>{item.facility_status}</FacilityStatus>,
+  },
+];

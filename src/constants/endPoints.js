@@ -15,6 +15,7 @@ export const dashboardEndpoints = {
 export const facilityEndPoints = {
   ADD_FACILITY: "/facility",
   facilityList: "facility-list",
+  participantAgreement: "participant-agreement",
 };
 
 export const pageSubEndspoints = {
