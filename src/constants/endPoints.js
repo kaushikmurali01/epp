@@ -14,7 +14,7 @@ export const dashboardEndpoints = {
 
 export const facilityEndPoints = {
   ADD_FACILITY: "/facility",
-  FACILITY_LIST: "/facility-listing",
+  facilityList: "facility-list",
 };
 
 export const pageSubEndspoints = {
