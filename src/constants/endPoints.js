@@ -30,3 +30,7 @@ export const facilityEndPoints = {
 export const userManagementEndPoints = {
   userManagement: "user-management",
 };
+
+export const participantAgreementEndPoints = {
+  participantAgreement: "participant-agreement",
+};

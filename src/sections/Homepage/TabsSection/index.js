@@ -65,6 +65,7 @@ const TabsSection = (props) => {
             label="Participant Agreement"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/participant-agreement')}
           />
           <CustomTab
             label="User Management"
