@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Avatar,
-  AvatarGroup,
-  Box,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import BorderColorOutlinedIcon from "@mui/icons-material/BorderColorOutlined";
-import ReplyOutlinedIcon from "@mui/icons-material/ReplyOutlined";
+import { Box, Button, Link, Typography } from "@mui/material";
 import FacilityStatus from "../components/FacilityStatus";
 import CustomSlider from "../components/CustomSlider";
 
@@ -18,27 +10,24 @@ export const FACILITY_COLUMNS = [
       <Box
         sx={{
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
+          textWrap: "nowrap",
+          alignItems: "flex-start",
         }}
         gap={2}
       >
-        <Typography>{item.name}</Typography>
-        <AvatarGroup>
-          {item?.adminList?.map((elements) => (
-            <Avatar
-              alt={elements.name}
-              src={elements.image}
-              key={elements.name}
-              sx={{ width: "1.75rem", height: "1.75rem" }}
-            />
-          ))}
-        </AvatarGroup>
+        <Typography>{item.facility_name}</Typography>
+        <Button variant="contained">Submit for approval</Button>
+        <Link
+          href="#"
+          variant="small"
+          sx={{ color: "#2C77E9", cursor: "pointer" }}
+          underline="none"
+        >
+          Update energy savings calculation
+        </Link>
       </Box>
     ),
-  },
-  {
-    Header: "Facility Id",
-    accessor: "facility_id",
   },
   {
     Header: "Total Electicity Savings",
@@ -60,8 +49,8 @@ export const FACILITY_COLUMNS = [
     ),
   },
   {
-    Header: "Total Enetitative Earned",
-    accessor: "total_enetitative_earned",
+    Header: "Total Incentive Earned",
+    accessor: "total_Incentive_earned",
   },
   {
     Header: "Benchmarking EUI",
@@ -74,19 +63,27 @@ export const FACILITY_COLUMNS = [
   {
     Header: "View/Edit",
     accessor: (item) => (
-      <Box gap={1} sx={{ display: "flex" }}>
-        <IconButton>
-          <ReplyOutlinedIcon
-            sx={{
-              color: "text.secondary2",
-              WebkitTransform: "scaleX(-1)",
-              transform: "scaleX(-1)",
-            }}
-          />
-        </IconButton>
-        <IconButton>
-          <BorderColorOutlinedIcon sx={{ color: "text.secondary2" }} />
-        </IconButton>
+      <Box display="flex">
+        <Button
+          style={{
+            backgroundColor: "transparent",
+            padding: 0,
+            minWidth: "unset",
+          }}
+        >
+          Edit
+        </Button>
+        <Button
+          color="error"
+          style={{
+            backgroundColor: "transparent",
+            padding: 0,
+            minWidth: "unset",
+            marginLeft: "1rem",
+          }}
+        >
+          Delete
+        </Button>
       </Box>
     ),
   },

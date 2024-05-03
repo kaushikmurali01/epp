@@ -66,10 +66,10 @@ const AddFacilityComponent = (props) => {
         // .catch((error) => {
         // });
         axios.post('https://ams-enerva-dev.azure-api.net/company-facility/v1/upload', formData, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-}).then(({data}) => console.log(data));
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }).then(({ data }) => console.log(data));
     };
 
     const handleSubmit = (values) => {
@@ -117,7 +117,7 @@ const AddFacilityComponent = (props) => {
                     onSubmit={handleSubmit}
                 >
                     <Form>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={2} sx={{ marginTop: '10px' }}>
 
                             <Grid item xs={12} sm={4}>
                                 <SelectBox name="facility_construction_status" label="Facility construction status*" options={FacilityConstructionStatusArray} />
@@ -127,7 +127,9 @@ const AddFacilityComponent = (props) => {
                                 <InputField name="facility_name" label="Facility Name*" type="text" />
                             </Grid>
 
-                            {/* <Grid item xs={12} sm={12} my={2}>
+                        </Grid>
+
+                        {/* <Grid item xs={12} sm={12} my={2}>
                                 <InputLabel sx={{ color: '#2E813E' }}>{buildingFacilitystr}</InputLabel>
                                 <Box sx={{ display: 'flex' }} my={2}>
                                     <Typography sx={{ color: '#ffffff', fontWeight: '600', fontSize: '14px', width: '57px', height: '32px', backgroundColor: '#2E813E', borderRadius: '8px 0px 0px 8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -138,6 +140,8 @@ const AddFacilityComponent = (props) => {
                                     </Typography>
                                 </Box>
                             </Grid> */}
+
+                        <Grid container spacing={2} sx={{ marginTop: '10px' }}>
 
                             <Grid item xs={12} sm={4}>
                                 <InputField name="naic_code" label="NAIC’s Code" type="text" />
@@ -151,45 +155,49 @@ const AddFacilityComponent = (props) => {
                                 <SelectBox name="facility_type" label="Facility Type*" options={FacilityTypeArray} />
                             </Grid>
 
+                        </Grid>
+
+                        <Grid container spacing={2} sx={{ marginTop: '10px' }}>
                             <Grid item xs={12} sm={4}>
                                 <SelectBox name="target_saving" label="What is your target energy savings for this facility?*" options={FacilityEnergySavingArray} />
                             </Grid>
+                        </Grid>
 
-                            <Grid item xs={12} sm={12}>
-                                <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
-                                {!selectedFile ?
-                                    <>
-                                        <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }} onClick={handleButtonClick}>
-                                            Upload
+                        <Grid item xs={12} sm={12} sx={{ marginTop: '10px' }}>
+                            <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
+                            {!selectedFile ?
+                                <>
+                                    <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }} onClick={handleButtonClick}>
+                                        Upload
+                                    </Typography>
+                                    <input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        style={{ display: 'none' }}
+                                        onChange={handleFileChange} /></> :
+                                <div style={{ display: 'flex' }}>
+                                    <div>
+                                        <img src={selectedFile} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                                    </div>
+                                    <div style={{ marginLeft: '20px' }}>
+                                        <Typography my={1} sx={{ color: '#2C77E9', fontWeight: '500', fontSize: '16px !important' }} onClick={handleButtonClick}>
+                                            Change Picture
                                         </Typography>
                                         <input
                                             type="file"
                                             ref={fileInputRef}
                                             style={{ display: 'none' }}
-                                            onChange={handleFileChange} /></> :
-                                    <div style={{ display: 'flex' }}>
-                                        <div>
-                                            <img src={selectedFile} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
-                                        </div>
-                                        <div style={{ marginLeft: '20px' }}>
-                                            <Typography my={1} sx={{ color: '#2C77E9', fontWeight: '500', fontSize: '16px !important' }} onClick={handleButtonClick}>
-                                                Change Picture
-                                            </Typography>
-                                            <input
-                                            type="file"
-                                            ref={fileInputRef}
-                                            style={{ display: 'none' }}
                                             onChange={handleFileChange} />
-                                            <Typography my={1} sx={{ color: '#FF5858', fontWeight: '500', fontSize: '16px !important' }} onClick={deletePicture}>
-                                                Delete Picture
-                                            </Typography>
-                                        </div>
+                                        <Typography my={1} sx={{ color: '#FF5858', fontWeight: '500', fontSize: '16px !important' }} onClick={deletePicture}>
+                                            Delete Picture
+                                        </Typography>
                                     </div>
-                                }
-                            </Grid>
-
-
+                                </div>
+                            }
                         </Grid>
+
+
+                        {/* </Grid> */}
 
                         <Typography my={4} sx={{ color: '#696969', fontWeight: '500', fontSize: '14px', border: '1px solid #D0D0D0', backgroundColor: '#EBEBEB', padding: '4px 16px', borderRadius: '10px', width: '100px', height: '37px' }}>
                             Address

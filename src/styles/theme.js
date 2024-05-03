@@ -38,6 +38,10 @@ const theme = createTheme({
           "&:hover": {
             borderWidth: "2px",
           },
+          "&:disabled": {
+            backgroundColor: "#9E9D9D",
+            color: '#fff'
+          },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
             minWidth: "8.75rem",
@@ -162,6 +166,15 @@ const theme = createTheme({
       fontSize: "0.75rem",
       lineHeight: "1rem",
       color: "#808080",
+      fontWeight: "400",
+      [getTheme.breakpoints.up("sm")]: {
+        fontSize: "0.875rem",
+        lineHeight: "1.25rem",
+      },
+    },
+    small2: {
+      fontSize: "0.75rem",
+      lineHeight: "1rem",
       fontWeight: "400",
       [getTheme.breakpoints.up("sm")]: {
         fontSize: "0.875rem",
