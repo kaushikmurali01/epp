@@ -22,7 +22,7 @@ const footerContentRow = {
 
 export default function Footer() {
   return (
-    <Box component='footer'>
+    <Box component='footer' sx={{borderTop: '1px solid #ccc'}}>
       {/* Blank div for white space */}
       {/* <Stack direction='row' sx={{ minHeight: {xs: '4rem', lg: '6rem'}, backgroundColor: '#fff', borderBottom: '1px solid #ccc'}}>
       </Stack> */}
