@@ -11,7 +11,9 @@ ul {
 }
 
 body {
-    font-family: 'Asap', 'Arial', sans-serif,
+    font-family: 'Asap', 'Arial', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 // * @default {
