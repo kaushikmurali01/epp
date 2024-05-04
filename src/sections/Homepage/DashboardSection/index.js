@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import CustomBox from "../../../components/CustomBox";
 import "../UserManagementSection/styles.css";
 import useMediaQueries from "utils/mediaQueries/mediaQueries";
+import { useNavigate } from "react-router-dom";
 
 const DashboardArrow = () => {
   return (
@@ -19,6 +20,7 @@ const DashboardArrow = () => {
 
 const DashboardSection = (props) => {
   const { isLg } = useMediaQueries();
+  const navigate = useNavigate();
 
   return (
     <Container>
@@ -136,7 +138,7 @@ const DashboardSection = (props) => {
           color="primary"
           variant="contained"
           component="a"
-          href="/add-facility"
+          onClick={() => navigate('/admin/add-facility')}
         >
           Add Facility
         </Button>

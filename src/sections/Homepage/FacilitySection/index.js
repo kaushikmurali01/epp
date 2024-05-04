@@ -13,10 +13,12 @@ import { FACILITY_COLUMNS } from "../../../utils/tableColumns";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFacilityListing } from "./../../../redux/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useNavigate } from "react-router-dom";
 
 const Facility = () => {
   const columns = useMemo(() => FACILITY_COLUMNS, []);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const facilityListData = useSelector(
     (state) => state.facilityReducer.facilityList.data || []
   );
@@ -92,6 +94,7 @@ const Facility = () => {
                 }}
               />
             }
+            onClick={() => navigate('/admin/add-facility')}
           >
             Add Facility
           </Button>

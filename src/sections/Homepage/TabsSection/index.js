@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import CustomTab from "../../../components/FormBuilder/CustomTab";
 import { Box, Container } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const TabsSection = (props) => {
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -51,21 +53,25 @@ const TabsSection = (props) => {
             label="Dashboard"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/facility-dashboard')}
           />
           <CustomTab
             label="Facility List"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/facility-list')}
           />
           <CustomTab
             label="Participant Agreement"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/participant-agreement')}
           />
           <CustomTab
             label="User Management"
             pageName="Homepage"
             sx={customTabStyle}
+            onClick={() => navigate('/admin/user-management')}
           />
         </Tabs>
       </Container>
