@@ -7,21 +7,29 @@ import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation"
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { POST_REQUEST } from "utils/HTTPRequests";
-import { facilityEndPoints, uploadFileEndPoints } from "constants/endPoints";
+import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
+import { facilityEndPoints } from "constants/apiEndPoints";
+import { useLocation } from "react-router-dom";
 
 const AddFacilityComponent = (props) => {
 
-    const initialValues = {
-        facilityConstructionStatus: "",
+    const [initialValues, setInitialValues] = useState({
+        facility_construction_status: "",
         facility_name: "",
-        isBuildinTarriffClass: "",
-        naicCode: "",
-        facilityCategory: "",
-        facilityType: "",
-        energySavingForFacility: "",
-    };
+        naic_code: "",
+        facility_category: "",
+        facility_type: "",
+        target_saving: "",
+        unit_number: "",
+        street_number: "",
+        street_name: "",
+        city: "",
+        province: "",
+        country: "",
+        postal_code: "",
+    });
 
     const buildingFacilitystr = "Is . the building/facility in the tariff class GS > 50KW?*";
 
@@ -71,6 +79,33 @@ const AddFacilityComponent = (props) => {
 
     const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState();
+    const location = useLocation();
+
+    useEffect(() => {
+        location?.state?.id && getFacilityDetailsaById();
+    }, [])
+
+    const getFacilityDetailsaById = () => {
+        GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/1')
+            .then((response) => {
+                console.log(response)
+                if (response.data.statusCode == 200) {
+                    if (response.data.data.facility_construction_status == 1) {
+                        response.data.data.facility_construction_status = 'Existing';
+                    } else if (response.data.data.facility_construction_status == 2) {
+                        response.data.data.facility_construction_status = 'New';
+                    }
+                    setInitialValues(prevValues => {
+                        return {
+                            ...prevValues,
+                            ...response.data.data
+                        };
+                    });
+                }
+            })
+            .catch((error) => {
+            });
+    }
 
     const handleButtonClick = () => {
         // Trigger the click event on the hidden file input element
@@ -98,12 +133,23 @@ const AddFacilityComponent = (props) => {
 
     const handleSubmit = (values) => {
         console.log(values)
+        if (values.facility_construction_status == 'Existing') {
+            values.facility_construction_status = 1;
+        } else if (values.facility_construction_status == 'New') {
+            values.facility_construction_status = 2;
+        }
 
-        POST_REQUEST(facilityEndPoints.ADD_FACILITY, values)
+        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, values)
             .then((response) => {
             })
             .catch((error) => {
             });
+
+        // PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/1', values)
+        //     .then((response) => {
+        //     })
+        //     .catch((error) => {
+        //     });
     };
 
     const deletePicture = () => {
@@ -116,7 +162,7 @@ const AddFacilityComponent = (props) => {
                 <Grid container className='heading-row'>
                     <Grid container item xs={10} >
                         <Typography sx={{ fontWeight: '600', fontSize: '24px' }}>
-                            Add Facility
+                            {location?.state?.id ? 'Edit Facility' : 'Add Facility'}
                         </Typography>
                     </Grid>
                     <Grid container item xs={2}>
@@ -138,6 +184,7 @@ const AddFacilityComponent = (props) => {
                 <Formik
                     initialValues={{ ...initialValues }}
                     validationSchema={validationSchemaAddFacility}
+                    enableReinitialize={true}
                     onSubmit={handleSubmit}
                 >
                     <Form>
@@ -273,7 +320,7 @@ const AddFacilityComponent = (props) => {
 
                         <Box mt={4} rowGap={4}>
                             <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleSubmit}>
-                                Add Facility
+                            {location?.state?.id ? 'Edit Facility' : 'Add Facility'}
                             </ButtonWrapper>
                         </Box>
                     </Form>
