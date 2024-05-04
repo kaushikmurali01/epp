@@ -44,22 +44,35 @@ export const validationSchemaSignUp = Yup.object().shape({
 });
 
 export const validationSchemaAddFacility = Yup.object().shape({
-  facilityConstructionStatus: Yup.string().required("Facility Construction Status is required"),
+  facility_construction_status: Yup.string().required("Facility Construction Status is required"),
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
-  naicCode: Yup.string().required("NAIC Code is required"),
-  facilityCategory: Yup.string().required("Facility Category is required"),
+  naic_code: Yup.string().required("NAIC Code is required"),
+  facility_category: Yup.string().required("Facility Category is required"),
   facility_type: Yup.string().required("Facility Type is required"),
-  energySavingForFacility: Yup.string().required("Energy Saving For Facility is required"),
-  // streetNumber: Yup.string().required("Street Number is required"),
-  // streetName: Yup.string().required("Street Name is required"),
-  address: Yup.string().required("Address is required"),
+  target_saving: Yup.string().required("Energy Saving For Facility is required"),
+  unit_number: Yup.string().required("Unit Number is required"),
+  street_number: Yup.string().required("Street Number is required"),
+  street_name: Yup.string().required("Street Name is required"),
+  // address: Yup.string().required("Address is required"),
   city: Yup.string().required("City is required"),
   province: Yup.string().required("Province/State is required"),
   country: Yup.string().required("Country is required"),
-  postalcode: Yup.string().required("Postal Code is required"),
+  postal_code: Yup.string().required("Postal Code is required"),
 });
 
+export const validationSchemaLandingPageForm = Yup.object({
+  name: Yup.string()
+  .required('Please enter name'),
+  company: Yup.string()
+  .required('Please enter company name'),
+  message: Yup.string()
+  .required('Please enter message'),
+  email: Yup.string()
+    .required("Please enter email")
+    .matches(emailRegExp, "Entered email is incorrect"),
+  
+});
 
 export const validationSchemaFacilitySummary = Yup.object().shape({
   yearOfConstruction: Yup.string().required("Year of construction is required"),

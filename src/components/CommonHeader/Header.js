@@ -79,7 +79,7 @@ function Header(props) {
             }}
           >
             <img src={logo} style={logoStyle} alt="logo" />
-            {!(props?.page == "authenticated") && (
+            {!(props.page == "authenticated") && (
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
@@ -148,7 +148,7 @@ function Header(props) {
               </Box>
             )}
           </Box>
-          {!(props?.page == "authenticated") && (
+          {!(props.page == "authenticated") && (
             <>
               <Box
                 sx={{

@@ -3,9 +3,10 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {PublicClientApplication, EventType} from '@azure/msal-browser'
+import { PublicClientApplication, EventType } from '@azure/msal-browser'
 import { BrowserRouter } from "react-router-dom";
 import { msalConfig } from "./authConfig.js";
+import { SnackbarProvider } from 'utils/notification/SnackbarProvider';
 
 /**
 * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
@@ -21,13 +22,12 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 
 msalInstance.addEventCallback((event) => {
   if (
-      ((event.eventType === EventType.LOGIN_SUCCESS ||
-          event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS ||
-          event.eventType === EventType.SSO_SILENT_SUCCESS) 
-          &&
-      event.payload.account)
+    (event.eventType === EventType.LOGIN_SUCCESS ||
+      event.eventType === EventType.ACQUIRE_TOKEN_SUCCESS ||
+      event.eventType === EventType.SSO_SILENT_SUCCESS) &&
+    event.payload.account
   ) {
-      msalInstance.setActiveAccount(event.payload.account);
+    msalInstance.setActiveAccount(event.payload.account);
   }
 });
 
@@ -36,11 +36,13 @@ console.log('ssss', msalInstance)
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
-  <React.StrictMode>
-      <BrowserRouter>
-          <App instance={msalInstance} />
-      </BrowserRouter>
-  </React.StrictMode>
+  // <React.StrictMode>
+    <BrowserRouter>
+      <SnackbarProvider>
+        <App instance={msalInstance} />
+      </SnackbarProvider>
+    </BrowserRouter>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

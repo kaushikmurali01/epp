@@ -108,9 +108,9 @@ const HowItWorks = () => {
             {/* How it works section  */}
             <Box component={'section'} className='how-it-work-section common-section'>
                 <Container maxWidth="lg">
-                    <Grid container justifyContent="center" className='heading-row'>
+                    <Grid container  className='heading-row'>
                         <Grid item >
-                            <Typography variant="h3" className='ev-theme-heading'>
+                            <Typography variant="h3" >
                                 How it works
                             </Typography>
                         </Grid>
@@ -147,7 +147,7 @@ const HowItWorks = () => {
                         </Grid>
 
                     </Grid>
-                    <Grid container>
+                    <Grid container justifyContent= "center">
                         <Grid item>
                             <Typography variant='small' component='small'>
                                  *You can sign the <Link href="#"  variant='a' sx={{color: 'blue.main', textDecoration: 'none'}}>Participant Agreement </Link> anytime, but it’s mandatory before you enrol your first facility into the program
