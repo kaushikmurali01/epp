@@ -21,6 +21,34 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           // color: "#2E813E",
+          // fontSize: '0.875rem'
+          [getTheme.breakpoints.up("sm")]: {
+            fontSize: '0.875rem'
+          },
+          // '&.MuiFormLabel-root': {
+          //   fontSize: '0.875rem'
+          // },
+        },
+      },
+    },
+
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+
+          '.MuiInputBase-root': {
+            fontSize: '1.125rem'
+          },
+        },
+      },
+    },
+
+    MuiModal: {
+      styleOverrides: {
+        root: {
+          ".MuiDialog-paper": {
+            padding: "1.5rem",
+          },
         },
       },
     },

@@ -15,15 +15,15 @@ const buttonStyle = {
     padding: '0.4375rem 1rem',
     borderRadius: '1.5rem',
     fontWeight: '500',
-    fontSize:  {sm: '0.875rem'},
+    fontSize: { sm: '0.875rem' },
     cursor: 'pointer',
-    
+
 }
 
 export const USER_MANAGEMENT_COLUMN = [
     {
         Header: "Name",
-        accessor: 'name'
+        accessor: (item) => `${item?.first_name} ${item?.last_name}`
     },
     {
         Header: "Email ID",
@@ -31,37 +31,42 @@ export const USER_MANAGEMENT_COLUMN = [
     },
     {
         Header: "Facility",
-        accessor: "Facility",
+        accessor: "facility",
     },
     {
         Header: "Role Type",
-        accessor: "RoleType",
+        accessor: "rolename",
     },
     {
         Header: "Status",
-        accessor: (item) => (
-            <Box >
-                  <Typography variant="span" sx={{...buttonStyle, border: '1px solid #2e813e',  color: 'primary.main', marginRight: '1rem'}}>
-                    <CheckCircleIcon /> Accept
-                </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle,  color: 'danger.main' }} >
-                   <CancelIcon /> Accept
-                </Typography>
-              
-            </Box>
-        ),
+        accessor: (item) => {
+            if (item.status === 'pending') {
+                return (
+                    <Box>
+                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }}>
+                            <CheckCircleIcon /> Accept
+                        </Typography>
+                        <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} >
+                            <CancelIcon /> Reject
+                        </Typography>
+                    </Box>
+                );
+            } else {
+                return item.status; // Display status text for other status types
+            }
+        }
     },
     {
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                  <Typography variant="span" sx={{...buttonStyle,  color: 'blue.main'}}>
-                  Manage permission
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }}>
+                    Manage permission
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} >
                     Delete
                 </Typography>
-              
+
             </Box>
         ),
     },

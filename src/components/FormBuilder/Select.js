@@ -6,6 +6,8 @@ const SelectBox = ({
   name,
   label,
   options,
+  valueKey,
+  labelKey,
   ...otherProps
 }) => {
 
@@ -23,6 +25,7 @@ const SelectBox = ({
     select: true,
     variant: 'outlined',
     fullWidth: true,
+    value: field.value || '', // Initialize value prop with an empty string if undefined
     onChange: handleChange,
   };
 
@@ -34,19 +37,22 @@ const SelectBox = ({
   return (
     <FormGroup className='theme-form-group' key={name}>
     <FormControl sx={{ width: "100%" }} >
-      <FormLabel sx={{ color: '#2E813E' }}>{label}</FormLabel>
+      <FormLabel >{label}</FormLabel>
       <TextField {...configSelect}>
-        {options && (options).map((item) => {
-          return (
-            <MenuItem key={item?.id} value={item?.name}>
-              {item?.name}
-            </MenuItem>
-          )
-        })}
+        {options && options.map((item) => (
+          <MenuItem key={item[valueKey]} value={item[valueKey]}>
+            {item[labelKey]}
+          </MenuItem>
+        ))}
       </TextField>
     </FormControl>
     </FormGroup>
   );
+};
+
+SelectBox.defaultProps = {
+  valueKey: 'id', // default value key
+  labelKey: 'name', // default label key
 };
 
 export default SelectBox;
