@@ -41,13 +41,6 @@ const Table = ({ columns, data, headbgColor, onClick }) => {
               {headerGroup.headers.map((column) => (
                 <TableCell
                   {...column.getHeaderProps(column.getSortByToggleProps())}
-                  sx={{
-                    color: "text.secondary2",
-                    textAlign: "center",
-                    fontWeight: "400",
-                    fontSize: "0.75rem",
-                    bgcolor: headbgColor,
-                  }}
                 >
                   {column.render("Header")}
                 </TableCell>
@@ -70,16 +63,16 @@ const Table = ({ columns, data, headbgColor, onClick }) => {
                           onClick(id, row?.original);
                         }
                       }}
-                      sx={{
-                        // cursor: "pointer",
-                        color: "text.primary2",
-                        textAlign: "center",
-                        fontSize: "0.875rem",
-                        padding: "1.5rem 0.5rem",
-                        "&:first-of-type": {
-                          fontWeight: 600,
-                        },
-                      }}
+                      // sx={{
+                      //   // cursor: "pointer",
+                      //   color: "text.primary2",
+                      //   textAlign: "center",
+                      //   fontSize: "0.875rem",
+                      //   padding: "1.5rem 0.5rem",
+                      //   "&:first-of-type": {
+                      //     fontWeight: 600,
+                      //   },
+                      // }}
                     >
                       {cell.render("Cell")}
                     </TableCell>
