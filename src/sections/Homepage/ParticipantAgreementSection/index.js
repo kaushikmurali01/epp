@@ -10,8 +10,7 @@ import React, { useState } from "react";
 import ParticipantAgreementContent from "./ParticipantAgreementContent";
 import ESignature from "components/ESignature";
 import { FileUploader } from "react-drag-drop-files";
-// import UploadIcon from "@mui/icons-material/Upload";
-import UploadIcon from "./../../../assets/images/document-upload.svg";
+import UploadIcon from "@mui/icons-material/Upload";
 
 const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
 
@@ -33,7 +32,6 @@ const ParticipantAgreement = () => {
   };
 
   const handleSubmitSignature = (signatureData) => {
-    // Handle submission of signature data
     console.log("Signature Data:", signatureData);
   };
 
@@ -104,6 +102,35 @@ const ParticipantAgreement = () => {
             label=" Click to Upload Signed Document or drag and drop"
             maxSize={25}
             multiple={false}
+            children={
+              <Button
+                sx={{
+                  border: "2px dashed rgb(108, 110, 112)",
+                  outline: "none",
+                  decoration: "none",
+                }}
+                startIcon={
+                  <UploadIcon
+                    style={{
+                      color: "#111",
+                      fontSize: "2rem",
+                    }}
+                  />
+                }
+              >
+                <Typography
+                  variant="small"
+                  sx={{ color: "#2C77E9", textAlign: "left", padding: "2px" }}
+                >
+                  Click to Upload Signed Document{" "}
+                  <Typography variant="span2">or drag and drop</Typography>
+                  <br />
+                  <Typography variant="span2">
+                    (Max. File size: 25 MB)
+                  </Typography>
+                </Typography>
+              </Button>
+            }
           />
         </Box>
         <Button

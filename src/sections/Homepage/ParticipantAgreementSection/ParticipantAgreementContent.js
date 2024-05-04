@@ -45,12 +45,16 @@ const ParticipantAgreementContent = ({ onScrollToBottom }) => {
       }
     };
 
-    contentRef.current.addEventListener("scroll", handleScroll);
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      contentElement.addEventListener("scroll", handleScroll);
 
-    return () => {
-      contentRef.current.removeEventListener("scroll", handleScroll);
-    };
+      return () => {
+        contentElement.removeEventListener("scroll", handleScroll);
+      };
+    }
   }, [onScrollToBottom]);
+
   return (
     <Box
       sx={{
