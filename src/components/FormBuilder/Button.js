@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import { useFormikContext } from 'formik';
 
-const ButtonWrapper = ({ children, variant, width, height, ...otherProps }) => {
+const ButtonWrapper = ({ children, variant, width, height, edit, ...otherProps }) => {
   const [buttonState, setButtonState] = useState(false);
   const { submitForm } = useFormikContext();
   const formikProps = useFormikContext();
