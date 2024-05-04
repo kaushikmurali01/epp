@@ -5,35 +5,12 @@ import Glider from 'react-glider';
 import 'glider-js/glider.min.css';
 import BlogPost from './BlogPost';
 import useMediaQueries from 'utils/mediaQueries/mediaQueries';
-import { landingPageEndPoints } from 'constants/endPoints';
 import { GET_REQUEST } from 'utils/HTTPRequests';
+import { LANDING_PAGE } from 'constants/apiEndPoints';
 
 const NewsFeedList = () => {
     const { theme_Md, theme_Sm } = useMediaQueries();
     const [blogPostList, setBlogPostList] = useState([]);
-    // const blogPostList = [
-    //     {
-    //         "image": "/images/newsFeeds/newsFeed_1.jpeg",
-    //         "id": 1,
-    //         'link': "#",
-    //         "title": "Lorem ipsum is a place holder text",
-    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-    //     },
-    //     {
-    //         "image": "/images/newsFeeds/newsFeed_2.jpeg",
-    //         "id": 2,
-    //         'link': "#",
-    //         "title": "Lorem ipsum is a place holder text",
-    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-    //     },
-    //     {
-    //         "image": "/images/newsFeeds/newsFeed_3.jpeg",
-    //         "id": 3,
-    //         'link': "#",
-    //         "title": "Lorem ipsum is a place holder text",
-    //         "body": "Lorem ipsum dolor sit amet consectetur. Dictumst elementum."
-    //     },
-    // ]
     const settings = {
         draggable: true,
         hasArrows: true,
@@ -50,8 +27,8 @@ const NewsFeedList = () => {
     };
 
     const getLatestNews = () => {
-        // const apiURL = landingPageEndPoints.getNews;
-        const apiURL = 'https://enervauser.azurewebsites.net/api/v1/news'
+        const apiURL = LANDING_PAGE.GET_NEWS;
+        // const apiURL = 'https://enervauser.azurewebsites.net/api/v1/news'
         GET_REQUEST(apiURL)
             .then((res) => {
                 setBlogPostList(res.data?.body?.news)

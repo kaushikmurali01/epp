@@ -96,9 +96,10 @@ const Facility = () => {
               padding: 0,
               minWidth: "unset",
             }}
-            onClick={() =>
-              navigate("/admin/add-facility", { state: { id: item.id } })
-            }
+            // onClick={() =>
+            //   navigate(`/admin/add-facility${id}` })
+            // }
+            onClick={(id) => navigate(`/admin/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
