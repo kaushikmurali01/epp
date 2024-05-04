@@ -24,13 +24,12 @@ const Facility = () => {
   );
   const loading = useSelector((state) => state.facilityReducer.loading);
   const error = useSelector((state) => state.facilityReducer.error);
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: "" });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   useEffect(() => {
-    dispatch(fetchFacilityListing());
+    dispatch(fetchFacilityListing(pageInfo));
   }, [dispatch, pageInfo]);
 
-  console.log(facilityListData);
   return (
     <Container sx={{ mt: 20 }}>
       <Grid container spacing={2}>
@@ -94,7 +93,7 @@ const Facility = () => {
                 }}
               />
             }
-            onClick={() => navigate('/admin/add-facility')}
+            onClick={() => navigate("/admin/add-facility")}
           >
             Add Facility
           </Button>
@@ -106,6 +105,7 @@ const Facility = () => {
           data={facilityListData}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
+          onClick={(id) => navigate(`/admin/facility-details/${id}`)}
         />
       </Box>
     </Container>

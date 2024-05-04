@@ -6,11 +6,14 @@ import {
 } from "./../actionCreators";
 import { GET_REQUEST } from "utils/HTTPRequests";
 
-export const fetchFacilityListing = () => {
+export const fetchFacilityListing = (pageInfo) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
-      const response = await GET_REQUEST(facilityEndPoints.FACILITY_LIST);
+      const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
+        (pageInfo.page - 1) * pageInfo.pageSize
+      }/${pageInfo.pageSize}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));
     } catch (error) {
