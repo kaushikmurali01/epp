@@ -30,7 +30,7 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: isSmallScreen ? "200" : "500",
+          width: isSmallScreen ? 200 : 500,
           borderRadius: "2rem",
           bgcolor: "#fff",
           p: 4,

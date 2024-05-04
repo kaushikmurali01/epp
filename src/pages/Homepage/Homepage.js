@@ -23,7 +23,7 @@ const HomepageComponent = (props) => {
       <TabsSection></TabsSection>
       {/* <DashboardSection></DashboardSection> */}
       <AddFacilityComponent></AddFacilityComponent>
-      <Facility />
+      {/* <Facility /> */}
       {/*<ParticipantAgreementSection></ParticipantAgreementSection>
     <UserManagementSection></UserManagementSection> */}
     </>

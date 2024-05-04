@@ -1,6 +1,7 @@
 export const facilityEndPoints = {
-  ADD_FACILITY: "/facility",
-  FACILITY_LIST: "/facility-listing",
+  ADD_EDIT_FACILITY: "/company-facility/v1/facility",
+  FACILITY_LIST: "/company-facility/v1/facility-listing",
+  GET_FACILITY_BY_ID: "/company-facility/v1/facility-details",
 };
 
 export const USER_MANAGEMENT = {
@@ -19,3 +20,7 @@ export const LANDING_PAGE = {
   CONTACT_US_FORM: "/api/v1/contact",
   GET_NEWS: "/api/v1/news"
 }
+export const meterEndPoints = {
+  ADD_METER: "/company-facility/v1/facility-meter",
+  METER_LIST: "/company-facility/v1/facility-meter-listing",
+};

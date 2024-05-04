@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Table from "../../../components/Table";
 import {
   Box,
@@ -9,26 +9,119 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { FACILITY_COLUMNS } from "../../../utils/tableColumns";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchFacilityListing } from "./../../../redux/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useNavigate } from "react-router-dom";
+import FacilityStatus from "components/FacilityStatus";
+import CustomSlider from "components/CustomSlider";
 
 const Facility = () => {
-  const columns = useMemo(() => FACILITY_COLUMNS, []);
+  const columns = [
+    {
+      Header: "Name/Nick Name",
+      accessor: (item) => (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            textWrap: "nowrap",
+            alignItems: "flex-start",
+          }}
+          gap={2}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Typography>{item.facility_name}</Typography>
+          <Button variant="contained">Submit for approval</Button>
+          <Link
+            href="#"
+            variant="small"
+            sx={{ color: "#2C77E9", cursor: "pointer" }}
+            underline="none"
+          >
+            Update energy savings calculation
+          </Link>
+        </Box>
+      ),
+    },
+    {
+      Header: "Total Electicity Savings",
+      accessor: "total_electicity_savings",
+    },
+    {
+      Header: "% Energy Savings",
+      accessor: (item) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography>{item.energy_savings}%</Typography>
+          <CustomSlider value={item.energy_savings} />
+        </Box>
+      ),
+    },
+    {
+      Header: "Total Incentive Earned",
+      accessor: "total_Incentive_earned",
+    },
+    {
+      Header: "Benchmarking EUI",
+      accessor: "benchmarking_eui",
+    },
+    {
+      Header: "Facility Status",
+      accessor: (item) => (
+        <FacilityStatus>{item.facility_status}</FacilityStatus>
+      ),
+    },
+    {
+      Header: "View/Edit",
+      accessor: (item) => (
+        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+            }}
+            // onClick={() =>
+            //   navigate(`/admin/add-facility${id}` })
+            // }
+            onClick={(id) => navigate(`/admin/edit-facility/${item?.id}`)}
+          >
+            Edit
+          </Button>
+          <Button
+            color="error"
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
+  ];
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const facilityListData = useSelector(
     (state) => state.facilityReducer.facilityList.data || []
   );
   const loading = useSelector((state) => state.facilityReducer.loading);
   const error = useSelector((state) => state.facilityReducer.error);
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: "" });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   useEffect(() => {
-    dispatch(fetchFacilityListing());
+    dispatch(fetchFacilityListing(pageInfo));
   }, [dispatch, pageInfo]);
 
-  console.log(facilityListData);
   return (
     <Container sx={{ mt: 20 }}>
       <Grid container spacing={2}>
@@ -92,6 +185,7 @@ const Facility = () => {
                 }}
               />
             }
+            onClick={() => navigate("/admin/add-facility")}
           >
             Add Facility
           </Button>
@@ -103,6 +197,7 @@ const Facility = () => {
           data={facilityListData}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
+          onClick={(id) => navigate(`/admin/facility-details/${id}`)}
         />
       </Box>
     </Container>
