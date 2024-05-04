@@ -1,5 +1,5 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import FacilityTimeline from "./FacilityTimeline";
 import FacilitySidebar from "./FacilitySidebar";
 import FacilityHeader from "./FacilityHeader";
@@ -10,10 +10,19 @@ import EnergyAndWater from "./EnergyAndWater";
 import Performance from "./Performance";
 import ReportsAndStudies from "./ReportsAndStudies";
 import Weather from "./Weather";
+import { fetchFacilityDetails } from "../../../redux/actions/facilityActions";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const FacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [selectedTab, setSelectedTab] = useState(0);
+  const dispatch = useDispatch();
+  const { id } = useParams();
+
+  useEffect(() => {
+    dispatch(fetchFacilityDetails(id));
+  }, [dispatch, id]);
   const renderComponent = (componentName) => {
     switch (componentName) {
       case 0:

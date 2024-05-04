@@ -5,12 +5,12 @@ import {
   } from "./../actionTypes";
   
   const initialState = {
-    MeterList: [],
+    meterList: [],
     loading: false,
     error: null,
   };
   
-  const MeterReducer = (state = initialState, action) => {
+  const meterReducer = (state = initialState, action) => {
     switch (action.type) {
       case FETCH_METER_LIST_REQUEST:
         return {
@@ -22,7 +22,7 @@ import {
         return {
           ...state,
           loading: false,
-          MeterList: action.payload,
+          meterList: action.payload,
           error: null,
         };
       case FETCH_METER_LIST_FAILURE:
@@ -36,5 +36,5 @@ import {
     }
   };
   
-  export default MeterReducer;
+  export default meterReducer;
   
