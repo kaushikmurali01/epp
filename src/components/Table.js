@@ -71,7 +71,7 @@ const Table = ({ columns, data, headbgColor, onClick }) => {
                         }
                       }}
                       sx={{
-                        cursor: "pointer",
+                        // cursor: "pointer",
                         color: "text.primary2",
                         textAlign: "center",
                         fontSize: "0.875rem",
