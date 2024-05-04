@@ -9,11 +9,11 @@ const RoutesComp = () => {
     const { pathname } = useLocation();
     const token  = localStorage.getItem("token");
     return (
-        token ? (
+        // token ? (
             <CommonLayout>
                 <DashboardRoutes />
             </CommonLayout >
-        ) : null
+        // ) : null
     )
 }
 

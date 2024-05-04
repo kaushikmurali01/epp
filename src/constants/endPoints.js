@@ -23,6 +23,7 @@ export const pageSubEndspoints = {
 export const facilityEndPoints = {
   facilityDashboard: "facility-dashboard",
   addFacility: "add-facility",
+  editFacility: "edit-facility/:id",
   facilityList: "facility-list",
   userManagement: "user-management",
   facilityDetails: "facility-details/:id",

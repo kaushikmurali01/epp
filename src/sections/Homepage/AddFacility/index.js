@@ -11,7 +11,7 @@ import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
 import { facilityEndPoints } from "constants/apiEndPoints";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const AddFacilityComponent = (props) => {
 
@@ -80,15 +80,15 @@ const AddFacilityComponent = (props) => {
     const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState();
     const location = useLocation();
+    const { id } = useParams();
 
     useEffect(() => {
-        location?.state?.id && getFacilityDetailsaById();
+        id && getFacilityDetailsaById();
     }, [])
 
     const getFacilityDetailsaById = () => {
         GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/1')
             .then((response) => {
-                console.log(response)
                 if (response.data.statusCode == 200) {
                     if (response.data.data.facility_construction_status == 1) {
                         response.data.data.facility_construction_status = 'Existing';
@@ -101,6 +101,7 @@ const AddFacilityComponent = (props) => {
                             ...response.data.data
                         };
                     });
+                    setSelectedFile(response.data.data.display_pic_url);
                 }
             })
             .catch((error) => {
@@ -115,7 +116,6 @@ const AddFacilityComponent = (props) => {
     const handleFileChange = (event) => {
         // Handle the file selection here
         const selectedFile = event.target.files[0];
-        console.log('Selected file:', selectedFile);
         setSelectedFile(URL.createObjectURL(selectedFile));
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -132,24 +132,26 @@ const AddFacilityComponent = (props) => {
     };
 
     const handleSubmit = (values) => {
-        console.log(values)
         if (values.facility_construction_status == 'Existing') {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == 'New') {
             values.facility_construction_status = 2;
         }
 
-        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, values)
-            .then((response) => {
-            })
-            .catch((error) => {
-            });
+        if (!id) {
 
-        // PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/1', values)
-        //     .then((response) => {
-        //     })
-        //     .catch((error) => {
-        //     });
+            POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, values)
+                .then((response) => {
+                })
+                .catch((error) => {
+                });
+        } else {
+            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/1', values)
+                .then((response) => {
+                })
+                .catch((error) => {
+                });
+        }
     };
 
     const deletePicture = () => {
@@ -162,7 +164,7 @@ const AddFacilityComponent = (props) => {
                 <Grid container className='heading-row'>
                     <Grid container item xs={10} >
                         <Typography sx={{ fontWeight: '600', fontSize: '24px' }}>
-                            {location?.state?.id ? 'Edit Facility' : 'Add Facility'}
+                            {id ? 'Edit Facility' : 'Add Facility'}
                         </Typography>
                     </Grid>
                     <Grid container item xs={2}>
@@ -320,7 +322,7 @@ const AddFacilityComponent = (props) => {
 
                         <Box mt={4} rowGap={4}>
                             <ButtonWrapper type="submit" color='neutral' width='165px' height='48px' onClick={handleSubmit}>
-                            {location?.state?.id ? 'Edit Facility' : 'Add Facility'}
+                                {id ? 'Edit Facility' : 'Add Facility'}
                             </ButtonWrapper>
                         </Box>
                     </Form>
