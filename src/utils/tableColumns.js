@@ -15,6 +15,7 @@ export const FACILITY_COLUMNS = [
           alignItems: "flex-start",
         }}
         gap={2}
+        onClick={(e) => e.stopPropagation()}
       >
         <Typography>{item.facility_name}</Typography>
         <Button variant="contained">Submit for approval</Button>
@@ -63,7 +64,7 @@ export const FACILITY_COLUMNS = [
   {
     Header: "View/Edit",
     accessor: (item) => (
-      <Box display="flex">
+      <Box display="flex" onClick={(e) => e.stopPropagation()}>
         <Button
           style={{
             backgroundColor: "transparent",

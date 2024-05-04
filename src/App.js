@@ -34,8 +34,8 @@ const App = (props) => {
         {/* {/* <Signup /> */}
         {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
-        {/* <Facility /> */}
-        {/* {/* <FacilityDetails /> */}
+        <Facility />
+        {/* <FacilityDetails /> */}
         {/* <ParticipantAgreement /> */}
         {/* <Footer /> */}
       </ThemeProvider>

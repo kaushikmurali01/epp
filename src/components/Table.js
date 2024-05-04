@@ -17,7 +17,7 @@ import { useTable, useSortBy } from "react-table";
 import ArrowCircleLeftIcon from "@mui/icons-material/ArrowCircleLeft";
 import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 
-const Table = ({ columns, data, headbgColor }) => {
+const Table = ({ columns, data, headbgColor, onClick }) => {
   const {
     getTableProps,
     getTableBodyProps,
@@ -31,7 +31,7 @@ const Table = ({ columns, data, headbgColor }) => {
     gotoPage,
     pageCount,
   } = useTable({ columns, data }, useSortBy);
-  console.log(headbgColor, "headbgColor")
+
   return (
     <TableContainer>
       <MUITable {...getTableProps()}>
@@ -58,17 +58,24 @@ const Table = ({ columns, data, headbgColor }) => {
         <TableBody {...getTableBodyProps()}>
           {rows.map((row) => {
             prepareRow(row);
+            const { id } = row.original;
             return (
               <TableRow {...row.getRowProps()}>
                 {row.cells.map((cell) => {
                   return (
                     <TableCell
                       {...cell.getCellProps()}
+                      onClick={() => {
+                        if (onClick) {
+                          onClick(id, row?.original);
+                        }
+                      }}
                       sx={{
+                        cursor: "pointer",
                         color: "text.primary2",
                         textAlign: "center",
                         fontSize: "0.875rem",
-                        padding: '1.5rem 0.5rem',
+                        padding: "1.5rem 0.5rem",
                         "&:first-of-type": {
                           fontWeight: 600,
                         },
