@@ -11,19 +11,46 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import React, { useEffect, useMemo, useState } from "react";
-import { METER_LIST_COLUMNS } from "../../../utils/tableColumns";
+import React, { useEffect, useState } from "react";
 import Table from "components/Table";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeterListing } from "./../../../redux/actions/metersActions";
+import FacilityStatus from "components/FacilityStatus";
 
 const MeterListing = ({ onAddButtonClick }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const columns = useMemo(() => METER_LIST_COLUMNS, []);
+  const columns = [
+    {
+      Header: "Meter name",
+      accessor: "meter_name",
+    },
+    {
+      Header: "Meter type",
+      accessor: "meter_type",
+    },
+    {
+      Header: "Meter ID",
+      accessor: "meter_id",
+    },
+    {
+      Header: "Status",
+      accessor: "status",
+    },
+    {
+      Header: "Most recent update",
+      accessor: "most_recent_update",
+    },
+    {
+      Header: "In use(inactive date)",
+      accessor: (item) => (
+        <FacilityStatus>{item.facility_status}</FacilityStatus>
+      ),
+    },
+  ];
   const meterData = [
     { meterType: "Electricity", currentEnergyDate: "05/01/2024", value: 1 },
     { meterType: "Natural Gas", currentEnergyDate: "05/01/2024", value: 1 },
