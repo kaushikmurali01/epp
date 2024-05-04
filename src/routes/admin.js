@@ -6,6 +6,7 @@ import Homepage from 'pages/Homepage/Homepage';
 import DashboardSectionComponent from 'pages/Facility/FacilityDashboard';
 import UserManagement from 'pages/UserManagement/UserManagement';
 import ParticipantAgreementComponent from 'pages/ParticipantAgreement';
+import FacilityDetailsPage from 'pages/Facility/FacilityDetails';
 // import Facility from 'sections/Homepage/FacilitySection';
 
 // const Homepage = lazy(() => import("pages/Homepage/Homepage"));
@@ -17,4 +18,6 @@ export const adminRoutes = [
   { key: 'addFacility', name: 'AddFacility', path: facilityEndPoints.addFacility, component: <AddFacilityComponent /> },
   { key: 'participantAgreement', name: 'participantAgreement', path: participantAgreementEndPoints.participantAgreement, component: <ParticipantAgreementComponent /> },
   { key: 'userManagement', name: 'userManagement', path: userManagementEndPoints.userManagement, component: <UserManagement /> },
+  { key: 'facilityDetails', name: 'facilityDetails', path: facilityEndPoints.facilityDetails, component: <FacilityDetailsPage /> },
+
 ];

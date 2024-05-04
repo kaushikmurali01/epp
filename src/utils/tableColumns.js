@@ -15,6 +15,7 @@ export const FACILITY_COLUMNS = [
           alignItems: "flex-start",
         }}
         gap={2}
+        onClick={(e) => e.stopPropagation()}
       >
         <Typography>{item.facility_name}</Typography>
         <Button variant="contained">Submit for approval</Button>
@@ -63,7 +64,7 @@ export const FACILITY_COLUMNS = [
   {
     Header: "View/Edit",
     accessor: (item) => (
-      <Box display="flex">
+      <Box display="flex" onClick={(e) => e.stopPropagation()}>
         <Button
           style={{
             backgroundColor: "transparent",
@@ -86,5 +87,32 @@ export const FACILITY_COLUMNS = [
         </Button>
       </Box>
     ),
+  },
+];
+
+export const METER_LIST_COLUMNS = [
+  {
+    Header: "Meter name",
+    accessor: "meter_name",
+  },
+  {
+    Header: "Meter type",
+    accessor: "meter_type",
+  },
+  {
+    Header: "Meter ID",
+    accessor: "meter_id",
+  },
+  {
+    Header: "Status",
+    accessor: "status",
+  },
+  {
+    Header: "Most recent update",
+    accessor: "most_recent_update",
+  },
+  {
+    Header: "In use(inactive date)",
+    accessor: (item) => <FacilityStatus>{item.facility_status}</FacilityStatus>,
   },
 ];

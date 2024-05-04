@@ -13,8 +13,8 @@ export const dashboardEndpoints = {
 };
 
 export const uploadFileEndPoints = {
-  UPLOAD_FILE: '/company-facility/v1/upload',
-}
+  UPLOAD_FILE: "/company-facility/v1/upload",
+};
 
 export const pageSubEndspoints = {
   index: '',
@@ -26,6 +26,7 @@ export const facilityEndPoints = {
   addFacility: "add-facility",
   facilityList: "facility-list",
   userManagement: "user-management",
+  facilityDetails: "facility-details/:id",
 };
 
 export const userManagementEndPoints = {
