@@ -17,8 +17,8 @@ export const USER_MANAGEMENT = {
 }
 
 export const LANDING_PAGE = {
-  CONTACT_US_FORM: "/api/v1/contact",
-  GET_NEWS: "/api/v1/news"
+  CONTACT_US_FORM: "/enerva-user/v1/contact",
+  GET_NEWS: "/enerva-user/v1/news"
 }
 export const meterEndPoints = {
   ADD_METER: "/company-facility/v1/facility-meter",
