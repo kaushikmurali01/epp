@@ -3,7 +3,7 @@ import {
   fetchFacilityListFailure,
   fetchFacilityListRequest,
   fetchFacilityListSuccess,
-} from "./../actionCreators";
+} from "../actionCreators/facililityActionCreators";
 import { GET_REQUEST } from "utils/HTTPRequests";
 
 export const fetchFacilityListing = (pageInfo) => {
