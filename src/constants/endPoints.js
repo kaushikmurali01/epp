@@ -24,7 +24,6 @@ export const facilityEndPoints = {
   facilityDashboard: "facility-dashboard",
   addFacility: "add-facility",
   facilityList: "facility-list",
-  participantAgreement: "participant-agreement",
   userManagement: "user-management",
 };
 
