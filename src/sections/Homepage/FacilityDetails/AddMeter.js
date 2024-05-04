@@ -134,6 +134,12 @@ const AddMeter = () => {
                 <Typography>Upload the most recent utility bill</Typography>
                 <Button variant="contained">Upload</Button>
               </Grid>
+
+              <Grid item xs={12} sm={5}>
+                <Button variant="contained" type="submit">
+                  Add Meter
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Form>
