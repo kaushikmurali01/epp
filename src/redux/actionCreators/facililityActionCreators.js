@@ -2,7 +2,7 @@ import {
   FETCH_FACILITY_LIST_FAILURE,
   FETCH_FACILITY_LIST_REQUEST,
   FETCH_FACILITY_LIST_SUCCESS,
-} from "./actionTypes";
+} from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
   type: FETCH_FACILITY_LIST_REQUEST,

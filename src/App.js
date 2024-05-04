@@ -34,7 +34,7 @@ const App = (props) => {
         {/* {/* <Signup /> */}
         {/* <HomepageComponent /> */}
         {/* <LandingPage /> */}
-        <Facility />
+        {/* <Facility /> */}
         {/* <FacilityDetails /> */}
         {/* <ParticipantAgreement /> */}
         {/* <Footer /> */}
