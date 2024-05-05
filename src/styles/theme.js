@@ -1,4 +1,4 @@
-import { createTheme } from "@mui/material";
+import { colors, createTheme } from "@mui/material";
 
 // this get theme variable is used to override the default properties
 const getTheme = createTheme();
@@ -21,6 +21,60 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           // color: "#2E813E",
+          // fontSize: '0.875rem'
+          [getTheme.breakpoints.up("sm")]: {
+            fontSize: '0.875rem'
+          },
+          // '&.MuiFormLabel-root': {
+          //   fontSize: '0.875rem'
+          // },
+        },
+      },
+    },
+
+    MuiFormControl: {
+      styleOverrides: {
+        root: {
+
+          '.MuiInputBase-root': {
+            fontSize: '1.125rem'
+          },
+        },
+      },
+    },
+
+    MuiModal: {
+      styleOverrides: {
+        root: {
+          ".MuiDialog-paper": {
+            padding: "1.5rem",
+          },
+        },
+      },
+    },
+    
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          ".MuiTableHead-root": {
+            th: {
+              color: '#54585A',
+              fontSize: '0.75rem'
+            }
+          },
+          ".MuiTableBody-root": {
+            color: '#54585A'
+          },
+          // ".MuiTableRow-root": {
+           
+          // },
+          ".MuiTableCell-root": {
+            color: '#54585A',
+            fontSize: '0.875rem',
+            "&:first-of-type": {
+              fontWeight: 600,
+            },
+          },
         },
       },
     },
