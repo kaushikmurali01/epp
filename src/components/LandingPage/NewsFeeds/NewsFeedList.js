@@ -38,7 +38,7 @@ const NewsFeedList = () => {
     }
 
     useEffect(() => {
-        getLatestNews();
+        // getLatestNews();
 
     }, [])
 

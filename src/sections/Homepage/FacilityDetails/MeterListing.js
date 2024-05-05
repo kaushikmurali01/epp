@@ -13,17 +13,18 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useEffect, useState } from "react";
 import Table from "components/Table";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeterListing } from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 
-const MeterListing = ({ onAddButtonClick }) => {
+const MeterListing = ({ onAddButtonClick, onEntriesListClick }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { id } = useParams();
   const columns = [
     {
       Header: "Meter name",
@@ -60,11 +61,16 @@ const MeterListing = ({ onAddButtonClick }) => {
     (state) => state?.meterReducer?.meterList?.data?.rows || []
   );
   useEffect(() => {
-    dispatch(fetchMeterListing(pageInfo));
+    dispatch(fetchMeterListing(pageInfo, id));
   }, [dispatch, pageInfo]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
+  };
+
+  const handleEntriesListClick = (id) => {
+    console.log(id)
+    onEntriesListClick(id);
   };
   return (
     <>
@@ -153,6 +159,7 @@ const MeterListing = ({ onAddButtonClick }) => {
           data={meterListingData}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
+          onClick={(id) => handleEntriesListClick(id)}
         />
       </Box>
     </>
