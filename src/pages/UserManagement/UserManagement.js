@@ -21,7 +21,13 @@ const UserManagement = () => {
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN, []);
+
+  // need to call this function before USER_MANAGEMENT_COLUMN
+  const handleAPISuccessCallBack = () => {
+    // Call the API to get all user data
+    getUserManagementData();
+};
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack), []);
 
   const initialValues = {
     company: '',
@@ -53,24 +59,26 @@ const UserManagement = () => {
     modalBodyContent: "",
   });
 
-  const companyListItem = [
-      {
-        "id": '1',
-        "company_type": "Customer",
-        "email": "test@test.com",
-        "superAdmin": "Test Admin",
-        "status": "Active",
-        "company_name": "ABC Corporation"
-      },
-      {
-        "id": '2',
-        "company_type": "Customer",
-        "email": "test@test.com",
-        "superAdmin": "Test Admin",
-        "status": "Active",
-        "company_name": "XYZ Corporation"
-      }
-    ]
+  // const companyListItem = [
+  //     {
+  //       "id": '1',
+  //       "company_type": "Customer",
+  //       "email": "test@test.com",
+  //       "superAdmin": "Test Admin",
+  //       "status": "Active",
+  //       "company_name": "ABC Corporation"
+  //     },
+  //     {
+  //       "id": '2',
+  //       "company_type": "Customer",
+  //       "email": "test@test.com",
+  //       "superAdmin": "Test Admin",
+  //       "status": "Active",
+  //       "company_name": "XYZ Corporation"
+  //     }
+  //   ]
+
+ 
   
 
   const handleChange = (event, newValue) => {
@@ -116,7 +124,7 @@ const UserManagement = () => {
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={companyListItem} valueKey="id" labelKey="company_name" />
+            <SelectBox name="company" label="Company name" options={getCompanyList} valueKey="id" labelKey="company_name" />
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
@@ -145,10 +153,11 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/50/1';
+    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/5/1"
+    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
     GET_REQUEST(apiURL)
         .then((res) => {
-          setAllUser(res.data?.body?.data?.users)
+          setAllUser(res.data?.body)
         }).catch((error) => {
             console.log(error)
         });
@@ -237,7 +246,7 @@ useEffect(() => {
               </Grid>
 
               <Grid container>
-                <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" />
+               {getAllUser &&  <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" /> }
               </Grid>
             </Container>
 

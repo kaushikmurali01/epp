@@ -6,6 +6,8 @@ import { PublicClientApplication, EventType } from '@azure/msal-browser'
 import { BrowserRouter } from "react-router-dom";
 import { msalConfig } from "./authConfig.js";
 import { SnackbarProvider } from 'utils/notification/SnackbarProvider';
+import { ToastContainer } from "react-toastify";
+import "./assets/styles/styles.scss";
 
 /**
 * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
@@ -40,6 +42,7 @@ root.render(
       <SnackbarProvider>
         <App instance={msalInstance} />
       </SnackbarProvider>
+      <ToastContainer />
     </BrowserRouter>
   // </React.StrictMode>
 );

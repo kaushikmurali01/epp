@@ -76,3 +76,13 @@ body {
         height: 3.5px;
     }
 }
+
+
+//   Notification variable color modification
+
+:root {
+    --toastify-color-success: #2e813e;
+    --toastify-color-warning: #eb9719;
+    --toastify-color-error: #bd362f;
+  }
+  

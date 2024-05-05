@@ -8,6 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
+import NotificationsTost from "utils/notification/NotificationsTost";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
@@ -23,83 +24,9 @@ const buttonStyle = {
 
 }
 
-const handelAccept = (item) => {
-    // const { showSnackbar } = useContext(SnackbarContext);
-    console.log("accept",item);
-    const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
-    const requestBody = {
-        "user_id" : "1",
-        "company_id": item.id
-    }
-
-    console.log("requestBody",requestBody);
-
-    return;
-    POST_REQUEST(apiURL, requestBody)
-    .then((response) => {
-        alert('Accept User successfully')
-        // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-        
-    })
-    .catch((error) => {
-        console.log(error, 'error')
-        // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
 
 
-    })
-}
-
-const handelReject = (item) => {
-    
-    // const { showSnackbar } = useContext(SnackbarContext);
-    console.log("reject",item);
-    const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
-    const requestBody = {
-        "user_id" : "1",
-        "company_id": item.id
-    }
-    console.log("requestBody",requestBody);
-    return;
-    POST_REQUEST(apiURL, requestBody)
-    .then((response) => {
-        alert('Rejected User successfully')
-        // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-        
-    })
-    .catch((error) => {
-        console.log(error, 'error')
-        // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
-
-    })
-}
-
-const handelDelete = (item) => {
-    
-    // const { showSnackbar } = useContext(SnackbarContext);
-    console.log("delete",item);
-    const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
-    const requestBody = {
-        "user_id" : "1",
-        "company_id": item.id
-    }
-    console.log("requestBody",requestBody);
-    return;
-    // POST_REQUEST(apiURL, requestBody)
-    // .then((response) => {
-    //     alert('Rejected User successfully')
-    //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-        
-    // })
-    // .catch((error) => {
-    //     console.log(error, 'error')
-    //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
-
-    // })
-}
-
-export const USER_MANAGEMENT_COLUMN = [
+export const USER_MANAGEMENT_COLUMN = (handleAPISuccessCallBack) => [
     {
         Header: "Name",
         accessor: (item) => `${item?.first_name} ${item?.last_name}`
@@ -122,10 +49,10 @@ export const USER_MANAGEMENT_COLUMN = [
             if (item.status === 'Initiated') {
                 return (
                     <Box>
-                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={()=> handelAccept(item)} >
+                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={()=> handelAccept(item,handleAPISuccessCallBack)} >
                             <CheckCircleIcon /> Accept
                         </Typography>
-                        <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={()=> handelReject(item)} >
+                        <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={()=> handelReject(item, handleAPISuccessCallBack)} >
                             <CancelIcon /> Reject
                         </Typography>
                     </Box>
@@ -153,3 +80,80 @@ export const USER_MANAGEMENT_COLUMN = [
         ),
     },
 ];
+
+
+const handelAccept = (item, handleSuccessCallback) => {
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("accept",item);
+    const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
+    const requestBody = {
+        "user_id" : item.id,
+        "company_id": item.company_id
+    }
+
+    console.log("requestBody",requestBody);
+
+    POST_REQUEST(apiURL, requestBody)
+    .then((response) => {
+        NotificationsTost({ message: "You have accepted the request!", type: "success" });
+        handleSuccessCallback();
+        // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        
+    })
+    .catch((error) => {
+        console.log(error, 'error')
+        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+
+
+    })
+}
+
+const handelReject = (item, handleSuccessCallback) => {
+    
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("reject",item);
+    const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
+    const requestBody = {
+        "user_id" : item.id,
+        "company_id": item.company_id
+    }
+    console.log("requestBody",requestBody);
+
+    POST_REQUEST(apiURL, requestBody)
+    .then((response) => {
+        NotificationsTost({ message: "You have rejected the request!", type: "success" });
+        handleSuccessCallback();
+        
+    })
+    .catch((error) => {
+        console.log(error, 'error')
+        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+    })
+}
+
+const handelDelete = (item) => {
+    
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("delete",item);
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST;
+    const requestBody = {
+        "user_id" : "1",
+        "company_id": item.id
+    }
+    console.log("requestBody",requestBody);
+    return;
+    // POST_REQUEST(apiURL, requestBody)
+    // .then((response) => {
+    //     alert('Rejected User successfully')
+    //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        
+    // })
+    // .catch((error) => {
+    //     console.log(error, 'error')
+    //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+
+
+    // })
+}

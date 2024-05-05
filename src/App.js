@@ -2,7 +2,6 @@ import React, { Suspense } from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 import "./App.css";
-import "./assets/styles/styles.scss";
 import configureStore from "./redux/store";
 import { ThemeProvider } from "@mui/material";
 import theme from "./styles/theme";
