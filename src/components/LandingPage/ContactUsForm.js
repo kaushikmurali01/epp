@@ -5,10 +5,11 @@ import ButtonWrapper from '../FormBuilder/Button';
 import { Form, Formik, useFormikContext } from 'formik';
 import TextAreaField from '../FormBuilder/TextAreaField';
 import { POST_REQUEST } from 'utils/HTTPRequests';
-import { landingPageEndPoints } from 'constants/endPoints';
+
 import { validationSchemaLandingPageForm } from 'utils/validations/formValidation';
 
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
+import { LANDING_PAGE } from 'constants/apiEndPoints';
 
 
 const ContactUsForm = () => {
@@ -26,11 +27,7 @@ const ContactUsForm = () => {
 
     const contactUsSubmit = (data) => {
         // event.preventDefault();        
-        // On form submit need to check all fields are valid
-
-        const apiURL = 'https://enervauser.azurewebsites.net/api/v1/contact';
-        // const apiURL = landingPageEndPoints.constUsForm;
-        console.log(data, "on submit function");
+        const apiURL = LANDING_PAGE.CONTACT_US_FORM;
         const requestBody = {
             name: data.name,
             company: data.company,

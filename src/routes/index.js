@@ -9,11 +9,11 @@ const RoutesComp = () => {
     const token  = localStorage.getItem(`msal.${process.env.REACT_APP_AZURE_B2C_CLIENT_ID}.active-account`);
     console.log('kkkkk, ', token); 
     return (
-        token ? (
+        // token ? (
             <CommonLayout>
                 <DashboardRoutes />
             </CommonLayout >
-        ) : null
+        // ) : null
     )
 }
 

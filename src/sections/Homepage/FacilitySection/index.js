@@ -10,7 +10,10 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFacilityListing } from "./../../../redux/actions/facilityActions";
+import {
+  fetchFacilityListing,
+  submitFacilityForApproval,
+} from "./../../../redux/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
 import FacilityStatus from "components/FacilityStatus";
@@ -32,7 +35,13 @@ const Facility = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <Typography>{item.facility_name}</Typography>
-          <Button variant="contained">Submit for approval</Button>
+          <Button
+            variant="contained"
+            sx={{ display: item.is_approved && "none" }}
+            onClick={() => submitForApprovalHandler(item.id)}
+          >
+            Submit for approval
+          </Button>
           <Link
             href="#"
             variant="small"
@@ -46,14 +55,14 @@ const Facility = () => {
     },
     {
       Header: "Total Electicity Savings",
-      accessor: "total_electicity_savings",
+      accessor: "total_electricity_savings",
     },
     {
       Header: "% Energy Savings",
       accessor: (item) => (
         <Box
           sx={{
-            display: "flex",
+            display: item.energy_savings ? "flex" : "none",
             alignItems: "center",
             justifyContent: "space-between",
           }}
@@ -65,7 +74,7 @@ const Facility = () => {
     },
     {
       Header: "Total Incentive Earned",
-      accessor: "total_Incentive_earned",
+      accessor: "total_incentive_earned",
     },
     {
       Header: "Benchmarking EUI",
@@ -74,7 +83,7 @@ const Facility = () => {
     {
       Header: "Facility Status",
       accessor: (item) => (
-        <FacilityStatus>{item.facility_status}</FacilityStatus>
+        <FacilityStatus>{item.facility_id_submission_status}</FacilityStatus>
       ),
     },
     {
@@ -87,9 +96,10 @@ const Facility = () => {
               padding: 0,
               minWidth: "unset",
             }}
-            onClick={() =>
-              navigate("/admin/add-facility", { state: { id: item.id } })
-            }
+            // onClick={() =>
+            //   navigate(`/admin/add-facility${id}` })
+            // }
+            onClick={(id) => navigate(`/admin/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
@@ -111,7 +121,7 @@ const Facility = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const facilityListData = useSelector(
-    (state) => state.facilityReducer.facilityList.data || []
+    (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
   const loading = useSelector((state) => state.facilityReducer.loading);
   const error = useSelector((state) => state.facilityReducer.error);
@@ -120,6 +130,16 @@ const Facility = () => {
   useEffect(() => {
     dispatch(fetchFacilityListing(pageInfo));
   }, [dispatch, pageInfo]);
+
+  const submitForApprovalHandler = (facilityId) => {
+    dispatch(submitFacilityForApproval(facilityId))
+      .then(() => {
+        dispatch(fetchFacilityListing(pageInfo));
+      })
+      .catch((error) => {
+        console.error("Error submitting for approval:", error);
+      });
+  };
 
   return (
     <Container sx={{ mt: 20 }}>

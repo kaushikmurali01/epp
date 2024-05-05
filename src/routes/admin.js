@@ -15,6 +15,7 @@ export const adminRoutes = [
   { key: 'homepage', name: 'Homepage', path: pageSubEndspoints.facilityDashboard, component:  <DashboardSectionComponent /> },
   { key: 'facilityDashboard', name: 'facilityDashboard', path: facilityEndPoints.facilityDashboard, component: <DashboardSectionComponent /> },
   { key: 'facilityList', name: 'facilityList', path: facilityEndPoints.facilityList, component: <FacilityList /> },
+  { key: 'editFacility', name: 'EditFacility', path: facilityEndPoints.editFacility, component: <AddFacilityComponent /> },
   { key: 'addFacility', name: 'AddFacility', path: facilityEndPoints.addFacility, component: <AddFacilityComponent /> },
   { key: 'participantAgreement', name: 'participantAgreement', path: participantAgreementEndPoints.participantAgreement, component: <ParticipantAgreementComponent /> },
   { key: 'userManagement', name: 'userManagement', path: userManagementEndPoints.userManagement, component: <UserManagement /> },
