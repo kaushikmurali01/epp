@@ -14,6 +14,7 @@ import { facilityEndPoints, imageUploadEndPoints } from "constants/apiEndPoints"
 import { useLocation, useParams } from "react-router-dom";
 
 const AddFacilityComponent = (props) => {
+    const [imgUrl, setImgUrl] = useState("");
 
     const [initialValues, setInitialValues] = useState({
         facility_construction_status: "",
@@ -131,10 +132,11 @@ const AddFacilityComponent = (props) => {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
-        }).then(({ data }) => console.log(data));
+        }).then(({ data }) => setImgUrl(data?.sasTokenUrl));
     };
 
     const handleSubmit = (values) => {
+        const newValues={...values, display_pic_url:imgUrl}
         if (values.facility_construction_status == 'Existing') {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == 'New') {
@@ -143,13 +145,13 @@ const AddFacilityComponent = (props) => {
 
         if (!id) {
 
-            POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, values)
+            POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
                 .then((response) => {
                 })
                 .catch((error) => {
                 });
         } else {
-            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, values)
+            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
                 .then((response) => {
                 })
                 .catch((error) => {

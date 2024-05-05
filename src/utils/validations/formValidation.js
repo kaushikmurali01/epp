@@ -92,3 +92,22 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
   facilityType: Yup.string().required("Facility Type is required"),
   naicCode: Yup.string().required("NAIC Code is required"),
 });
+
+
+export const validationSchemaAddMeter = Yup.object().shape({
+  meter_name: Yup.string().required("Meter name is required"),
+  meter_type: Yup.string().required("Meter Type is required"),
+  purchased_from_the_grid: Yup.string().required(
+    "Purchased from the Grid is required"
+  ),
+  meter_id: Yup.string(),
+  meter_active: Yup.date().required("Date meter became active is required"),
+  meter_inactive: Yup.date().required("Date meter became inactive is required"),
+  stil_in_use: Yup.boolean(),
+  is_rg_meter: Yup.string().required(
+    "Is this an revenue-grade meter is required"
+  ),
+  // meter_specification_url: Yup.string(),
+});
+
+export default validationSchemaAddMeter;
