@@ -34,7 +34,7 @@ export const SnackbarProvider = ({
       <Snackbar
         anchorOrigin={position}
         open={open}
-        autoHideDuration= "5000"
+        autoHideDuration= {5000}
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity={type}>

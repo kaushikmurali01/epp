@@ -13,7 +13,10 @@ export const USER_MANAGEMENT = {
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
-  JOIN_REQUEST: "/enerva-user/v1/createrequest"
+  JOIN_REQUEST: "/enerva-user/v1/createrequest",
+  ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
+  REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
+  // DELETE REQUEST
 }
 
 export const LANDING_PAGE = {

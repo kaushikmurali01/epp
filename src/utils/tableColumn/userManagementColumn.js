@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
     Box,
     Button,
@@ -6,6 +6,9 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { POST_REQUEST } from "utils/HTTPRequests";
+import { USER_MANAGEMENT } from "constants/apiEndPoints";
+// import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
 const buttonStyle = {
@@ -18,6 +21,82 @@ const buttonStyle = {
     fontSize: { sm: '0.875rem' },
     cursor: 'pointer',
 
+}
+
+const handelAccept = (item) => {
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("accept",item);
+    const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
+    const requestBody = {
+        "user_id" : "1",
+        "company_id": item.id
+    }
+
+    console.log("requestBody",requestBody);
+
+    return;
+    POST_REQUEST(apiURL, requestBody)
+    .then((response) => {
+        alert('Accept User successfully')
+        // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        
+    })
+    .catch((error) => {
+        console.log(error, 'error')
+        // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+
+
+    })
+}
+
+const handelReject = (item) => {
+    
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("reject",item);
+    const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
+    const requestBody = {
+        "user_id" : "1",
+        "company_id": item.id
+    }
+    console.log("requestBody",requestBody);
+    return;
+    POST_REQUEST(apiURL, requestBody)
+    .then((response) => {
+        alert('Rejected User successfully')
+        // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        
+    })
+    .catch((error) => {
+        console.log(error, 'error')
+        // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+
+
+    })
+}
+
+const handelDelete = (item) => {
+    
+    // const { showSnackbar } = useContext(SnackbarContext);
+    console.log("delete",item);
+    const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
+    const requestBody = {
+        "user_id" : "1",
+        "company_id": item.id
+    }
+    console.log("requestBody",requestBody);
+    return;
+    // POST_REQUEST(apiURL, requestBody)
+    // .then((response) => {
+    //     alert('Rejected User successfully')
+    //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        
+    // })
+    // .catch((error) => {
+    //     console.log(error, 'error')
+    //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+
+
+    // })
 }
 
 export const USER_MANAGEMENT_COLUMN = [
@@ -40,18 +119,21 @@ export const USER_MANAGEMENT_COLUMN = [
     {
         Header: "Status",
         accessor: (item) => {
-            if (item.status === 'pending') {
+            if (item.status === 'Initiated') {
                 return (
                     <Box>
-                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }}>
+                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={()=> handelAccept(item)} >
                             <CheckCircleIcon /> Accept
                         </Typography>
-                        <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} >
+                        <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={()=> handelReject(item)} >
                             <CancelIcon /> Reject
                         </Typography>
                     </Box>
                 );
-            } else {
+            } else if (item.status === 'pending') {
+                return 'Request sent'
+            } 
+            else{
                 return item.status; // Display status text for other status types
             }
         }
@@ -63,7 +145,7 @@ export const USER_MANAGEMENT_COLUMN = [
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }}>
                     Manage permission
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} >
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
                     Delete
                 </Typography>
 

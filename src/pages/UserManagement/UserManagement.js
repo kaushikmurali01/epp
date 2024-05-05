@@ -10,6 +10,7 @@ import ButtonWrapper from 'components/FormBuilder/Button';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
+import InviteUser from './InviteUser';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const UserManagement = () => {
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
+  const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN, []);
@@ -143,7 +145,7 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/10/1/1';
+    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/50/1';
     GET_REQUEST(apiURL)
         .then((res) => {
           setAllUser(res.data?.body?.data?.users)
@@ -180,64 +182,70 @@ useEffect(() => {
 
 
   return (
-    <Box component="section">
+    <React.Fragment>
+      {isVisibleInvitePage ? 
+        <InviteUser /> : 
+        
+          <Box component="section">
+            <Container maxWidth="lg">
+              <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
+                <Grid item xs={12} md={4} >
+                  <Typography variant='h4'>User Management</Typography>
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+                  <FormGroup sx={{ flexGrow: '1' }}>
+                    <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                      <TextField
+                        placeholder="Search"
+                        inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      />
+                    </FormControl>
+                  </FormGroup>
 
-      <Container maxWidth="lg">
-        <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
-          <Grid item xs={12} md={4} >
-            <Typography variant='h4'>User Management</Typography>
-          </Grid>
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
-            <FormGroup sx={{ flexGrow: '1' }}>
-              <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
-                <TextField
-                  placeholder="Search"
-                  inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
-                />
-              </FormControl>
-            </FormGroup>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    sx={{ alignSelf: 'center' }}
+                    onClick={() => setVisibleInvitePage(true)}
+                  >
+                    Invite User
+                  </Button>
+                </Grid>
 
-            <Button
-              color="primary"
-              variant="contained"
-              sx={{ alignSelf: 'center' }}
-              onClick={() => navigate('usermanagement/invite')}
-            >
-              Invite User
-            </Button>
-          </Grid>
+              </Grid>
 
-        </Grid>
-
-        <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
-          <Grid item xs={12} md={8} >
-            <Tabs
-              className='theme-tabs-list'
-              value={tabValue}
-              onChange={handleChange}
-              sx={{ display: 'inline-flex' }}
+              <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
+                <Grid item xs={12} md={8} >
+                  <Tabs
+                    className='theme-tabs-list'
+                    value={tabValue}
+                    onChange={handleChange}
+                    sx={{ display: 'inline-flex' }}
 
 
-            >
-              <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
-              {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
-              <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
-            </Tabs>
-          </Grid>
-          <Grid item sx={{ justifySelf: 'flex-end' }}>
-            <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-              Request to join other company
-            </Typography>
-          </Grid>
-        </Grid>
+                  >
+                    <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
+                    {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
+                    <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
+                  </Tabs>
+                </Grid>
+                <Grid item sx={{ justifySelf: 'flex-end' }}>
+                  <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
+                    Request to join other company
+                  </Typography>
+                </Grid>
+              </Grid>
 
-        <Grid container>
-          <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" />
-        </Grid>
-      </Container>
+              <Grid container>
+                <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" />
+              </Grid>
+            </Container>
 
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-    </Box >
+            <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+          </Box >
+      }
+    
+     </React.Fragment>
   )
 }
 
