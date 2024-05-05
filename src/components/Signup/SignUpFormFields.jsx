@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { Formik, Form } from "formik";
 import InputField from "../FormBuilder/InputField";
 import {
@@ -15,7 +15,20 @@ import {
 import InputFieldPassword from "../FormBuilder/InputFieldPassword";
 import SelectBox from "../FormBuilder/Select";
 import CustomPhoneInput from "../FormBuilder/CustomPhoneInput";
+
+import MapsSearch from "@azure-rest/maps-search";
+import { AzureKeyCredential } from "@azure/core-auth";
 import ButtonWrapper from "../FormBuilder/Button";
+
+// Get an Azure Maps key at https://azure.com/maps.
+const subscriptionKey = process.env.REACT_APP_AZURE_MAPS_SECRET_KEY;
+
+// Use AzureKeyCredential with a subscription key.
+const credential = new AzureKeyCredential(subscriptionKey);
+
+// Use the credential to create a client
+const client = MapsSearch(credential);
+
 
 const SignUpFormFields = ({
   initialValues,
@@ -26,6 +39,21 @@ const SignUpFormFields = ({
   handlePrev,
   handleNext,
 }) => {
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handleSearch = async () => {
+    try {
+      const response = await client
+      .path("/search/address/{format}", "json")
+      .get({ queryParameters: { query: searchQuery }, typeahead:true});
+      console.log("daaddd", response)
+        setSearchResults(response.results);
+    } catch (error) {
+        console.error('Error searching:', error);
+    }
+  };
   return (
     <>
       <Formik
@@ -58,7 +86,9 @@ const SignUpFormFields = ({
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <InputField name="address" label="Address" type="text" />
+                  <InputField name="address" label="Address" type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)} />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <InputFieldPassword

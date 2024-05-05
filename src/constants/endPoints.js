@@ -17,8 +17,9 @@ export const uploadFileEndPoints = {
 };
 
 export const pageSubEndspoints = {
-  index: "",
-};
+  index: '',
+  dashboard: 'dashboard'
+}
 
 export const facilityEndPoints = {
   facilityDashboard: "facility-dashboard",

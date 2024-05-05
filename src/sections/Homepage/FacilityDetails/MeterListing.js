@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeterListing } from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
+import { format } from "date-fns";
 
 const MeterListing = ({ onAddButtonClick }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -38,17 +39,15 @@ const MeterListing = ({ onAddButtonClick }) => {
     },
     {
       Header: "Status",
-      accessor: "status",
+      accessor: (item) => <>{item.stil_in_use ? "Active" : "Inactive"}</>,
     },
     {
       Header: "Most recent update",
-      accessor: "most_recent_update",
+      accessor: (item) => <>{format(item.updated_at, "MM/dd/yyyy")}</>,
     },
     {
       Header: "In use(inactive date)",
-      accessor: (item) => (
-        <FacilityStatus>{item.facility_status}</FacilityStatus>
-      ),
+      accessor: (item) => <>{format(item.meter_inactive, "MM/dd/yyyy")}</>,
     },
   ];
   const meterData = [
@@ -58,7 +57,7 @@ const MeterListing = ({ onAddButtonClick }) => {
   ];
 
   const meterListingData = useSelector(
-    (state) => state?.meterReducer?.meterList?.data || []
+    (state) => state?.meterReducer?.meterList?.data?.rows || []
   );
   useEffect(() => {
     dispatch(fetchMeterListing(pageInfo));

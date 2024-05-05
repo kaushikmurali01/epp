@@ -11,14 +11,25 @@ import Drawer from "@mui/material/Drawer";
 import logo from "../../assets/images/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
 import { logoStyle } from "../../styles/commonStyles";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { loginRequest } from "authConfig";
 import { Link } from "@mui/material";
 
 function Header(props) {
   const [open, setOpen] = React.useState(false);
+  const {instance} = useMsal();
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
+  const handleRedirect=()=>{
+    console.log('redirecting',)
+    instance.loginRedirect({
+      ...loginRequest,
+      // prompt: 'create'
+    }).catch((error)=> console.log("error in login redirect", error))
+  }
 
   const scrollToSection = (sectionId) => {
     const sectionElement = document.getElementById(sectionId);
@@ -146,21 +157,19 @@ function Header(props) {
                   alignItems: "center",
                 }}
               >
-                <Link
+                <Button
                   color="primary"
-                  href="/login"
-                  sx={{
-                    textDecoration: "none",
-                    marginRight: { md: "2.25rem" },
-                  }}
+                  variant="outlined"
+                  component="a"
+                  onClick={handleRedirect}
                 >
                   Login
-                </Link>
+                </Button>
                 <Button
                   color="primary"
                   variant="contained"
-                  // component="a"
-                  // href="/sign-up"
+                  component="a"
+                  onClick={handleRedirect}
                 >
                   Sign up
                 </Button>
@@ -216,8 +225,7 @@ function Header(props) {
                         color="primary"
                         variant="outlined"
                         component="a"
-                        href="/sign-in"
-                        target="_blank"
+                        onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
                         Sign in
@@ -228,9 +236,8 @@ function Header(props) {
                         color="primary"
                         variant="contained"
                         component="a"
-                        href="/sign-up"
                         sx={{ width: "100%" }}
-                        target="_blank"
+                        onClick={handleRedirect}
                       >
                         Sign up
                       </Button>

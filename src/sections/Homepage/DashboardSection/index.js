@@ -13,7 +13,7 @@ const DashboardArrow = () => {
         marginLeft: { xs: "5px", lg: "0" },
       }}
     >
-      <img src="images/dashboard-arrow.svg" alt="arrow" />
+      <img src="/images/dashboard-arrow.svg" alt="arrow" />
     </Box>
   );
 };

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure-rest/maps-search": "^1.0.0-beta.3",
+    "@azure/core-auth": "^1.7.2",
     "@azure/msal-browser": "^3.13.0",
     "@azure/msal-react": "^2.0.15",
     "@emotion/react": "^11.11.4",
@@ -12,8 +14,11 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "azure-maps-rest": "^2.1.1",
     "axios": "^1.6.8",
+    "date-fns": "^3.6.0",
     "formik": "^2.4.5",
+    "powerbi-client-react": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-drag-drop-files": "^2.3.10",
@@ -26,6 +31,7 @@
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
     "sass": "^1.75.0",
+    "serve": "^14.2.3",
     "web-vitals": "^2.1.4",
     "yup": "^1.4.0"
   },
@@ -33,7 +39,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "serve": "serve -s build"
   },
   "eslintConfig": {
     "extends": [

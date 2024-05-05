@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import FacilityStatus from "components/FacilityStatus";
 import React from "react";
+import { useSelector } from "react-redux";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -21,7 +22,10 @@ const BoxCard = styled(Box)(({ theme }) => {
 
 const FacilityHeader = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-
+  const facilityDetails = useSelector(
+    (state) => state?.facilityReducer?.facilityDetails?.data
+  );
+  console.log(facilityDetails);
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2}>
@@ -36,9 +40,9 @@ const FacilityHeader = () => {
               }}
             >
               <img
-                src=""
+                src={facilityDetails?.display_pic_url}
                 alt="FacilityImage"
-                sx={{
+                style={{
                   borderRadius: "50%",
                   height: "7.5rem",
                   width: "7.5rem",
@@ -52,12 +56,17 @@ const FacilityHeader = () => {
               sx={{ width: "100%" }}
               alignItems={isSmallScreen ? "center" : "start"}
             >
-              <Typography variant="h5">Walmart 3</Typography>
+              <Typography variant="h5">
+                {facilityDetails?.facility_name}
+              </Typography>
               <Typography variant="small2" gutterBottom>
-                3121, Dummy Address, Ontario.
+                {facilityDetails?.address}, {facilityDetails?.city},{" "}
+                {facilityDetails?.country}
               </Typography>
               <Box>
-                <FacilityStatus>In First P4P</FacilityStatus>
+                <FacilityStatus>
+                  {facilityDetails?.facility_id_submission_status}
+                </FacilityStatus>
               </Box>
               <Box>
                 <Button
@@ -96,7 +105,7 @@ const FacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Facility ID</Typography>
-              <Typography variant="h6">48567425</Typography>
+              <Typography variant="h6">{facilityDetails?.id}</Typography>
             </BoxCard>
           </Grid>
           <Grid item xs={6}>
