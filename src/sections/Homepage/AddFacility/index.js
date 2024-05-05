@@ -10,7 +10,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
-import { facilityEndPoints } from "constants/apiEndPoints";
+import { facilityEndPoints, imageUploadEndPoints } from "constants/apiEndPoints";
 import { useLocation, useParams } from "react-router-dom";
 
 const AddFacilityComponent = (props) => {
@@ -88,14 +88,17 @@ const AddFacilityComponent = (props) => {
     }, [])
 
     const getFacilityDetailsaById = () => {
-        GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/1')
+        GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/' + id)
             .then((response) => {
                 if (response.data.statusCode == 200) {
-                    if (response.data.data.facility_construction_status == 1) {
-                        response.data.data.facility_construction_status = 'Existing';
-                    } else if (response.data.data.facility_construction_status == 2) {
-                        response.data.data.facility_construction_status = 'New';
-                    }
+                    // if (response.data.data.facility_construction_status == 1) {
+                    //     console.log(response.data.data.facility_construction_status)
+                    //     response.data.data.facility_construction_status = 'Existing';
+                    //     console.log(response.data.data.facility_construction_status)
+
+                    // } else if (response.data.data.facility_construction_status == 2) {
+                    //     response.data.data.facility_construction_status = 'New';
+                    // }
                     setInitialValues(prevValues => {
                         return {
                             ...prevValues,
@@ -125,7 +128,7 @@ const AddFacilityComponent = (props) => {
         // })
         // .catch((error) => {
         // });
-        axios.post('https://ams-enerva-dev.azure-api.net/company-facility/v1/upload', formData, {
+        axios.post(process.env.REACT_APP_API_BASE_URL + imageUploadEndPoints.IMAGE_UPLOAD, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -148,7 +151,7 @@ const AddFacilityComponent = (props) => {
                 .catch((error) => {
                 });
         } else {
-            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/1', newValues)
+            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
                 .then((response) => {
                 })
                 .catch((error) => {
@@ -249,7 +252,9 @@ const AddFacilityComponent = (props) => {
                                         type="file"
                                         ref={fileInputRef}
                                         style={{ display: 'none' }}
-                                        onChange={handleFileChange} /></> :
+                                        onChange={handleFileChange}
+                                        accept="image/jpg, image/jpeg, image/png"
+                                    /></> :
                                 <div style={{ display: 'flex' }}>
                                     <div>
                                         <img src={selectedFile} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
@@ -262,7 +267,9 @@ const AddFacilityComponent = (props) => {
                                             type="file"
                                             ref={fileInputRef}
                                             style={{ display: 'none' }}
-                                            onChange={handleFileChange} />
+                                            onChange={handleFileChange}
+                                            accept="image/jpg, image/jpeg, image/png"
+                                        />
                                         <Typography my={1} sx={{ color: '#FF5858', fontWeight: '500', fontSize: '16px !important' }} onClick={deletePicture}>
                                             Delete Picture
                                         </Typography>

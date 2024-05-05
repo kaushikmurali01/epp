@@ -28,6 +28,7 @@ export const facilityEndPoints = {
   facilityList: "facility-list",
   userManagement: "user-management",
   facilityDetails: "facility-details/:id",
+  entriesDetails: "entries-details/:id",
 };
 
 export const userManagementEndPoints = {

@@ -28,3 +28,11 @@ export const meterEndPoints = {
   ADD_METER: "/company-facility/v1/facility-meter",
   METER_LIST: "/company-facility/v1/facility-meter-listing",
 };
+
+export const imageUploadEndPoints = {
+  IMAGE_UPLOAD: "/company-facility/v1/upload",
+};
+
+export const entriesEndPoints = {
+  ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
+};
