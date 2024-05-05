@@ -20,21 +20,26 @@ import InputField from "components/FormBuilder/InputField";
 import RadioWrapper from "components/FormBuilder/Radio";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import { addMeter } from "./../../../redux/actions/metersActions";
 import validationSchemaAddMeter from "utils/validations/formValidation";
 
-const AddMeter = () => {
+const AddMeter = ({ onAddMeterSuccess }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const { id } = useParams();
+  const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState();
   const [showPurchasedFromGrid, setShowPurchasedFromGrid] = useState(true);
-  const [alignment, setAlignment] = useState("electricty");
+  const [meterAlignment, setMeterAlignment] = useState(1);
+  const [revenueAlignment, setRevenueAlignment] = useState("no");
+  const [imgUrl, setImgUrl] = useState("");
 
   const initialValues = {
     meter_name: "",
-    meter_type: "",
-    purchased_from_grid: true,
+    meter_type: 1,
+    purchased_from_the_grid: true,
     meter_id: "",
     meter_active: "",
     meter_inactive: "",
@@ -53,11 +58,14 @@ const AddMeter = () => {
         formData,
         {
           headers: {
+            Authorization:
+              "Bearer " +
+              "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJ2ZXIiOiIxLjAiLCJpc3MiOiJodHRwczovL2VuZXJ2YWRldi5iMmNsb2dpbi5jb20vODM2Y2M2YjctMTQ1Zi00ZTlkLWE3MmEtODBmNTAzOWU4NmEzL3YyLjAvIiwic3ViIjoiZTNjZmM1ODQtNDFiYy00NzEyLThjOTctNTM2MWRlZDU5NzE1IiwiYXVkIjoiNmNlNzYzZjQtYTBhNi00NzRkLTk1MmItM2JjN2ViNTk4ZDI1IiwiZXhwIjoxNzE0OTg3MTQzLCJub25jZSI6ImRlZmF1bHROb25jZSIsImlhdCI6MTcxNDkwMDc0MywiYXV0aF90aW1lIjoxNzE0OTAwNzQzLCJvaWQiOiJlM2NmYzU4NC00MWJjLTQ3MTItOGM5Ny01MzYxZGVkNTk3MTUiLCJuYW1lIjoidW5rbm93biIsImdpdmVuX25hbWUiOiJUZXN0IE5hcmVzaCIsImVtYWlscyI6WyJuYXJlc2hAeW9wbWFpbC5jb20iXSwidGZwIjoiQjJDXzFfU2lnblVwU2lnbkluIiwibmJmIjoxNzE0OTAwNzQzfQ.c25wX7o4Kzeo7zOrmYmEwgcrP-dWyPsjO-VD8RCmVefkxU7-FdnmAIQz-hQGgYUhmgTprAvMwA12OPgwC5G6htA4uAxOz-_5gs7MxOMUgCUglni4L-CTSWcYnzkbgJfN78PUICLEy7E9aES3JyDI8He3cbAHueN5FG2EHJ_IMavo2u4RYVmkcp_HyyP9ynf1h7CF0STNveeOsl8_tcFx93_gnRKi76YZ2K8uR-fc_rwiziwRAV53jsmT1t8er2PkxdDUQLG9Mi0Vf9SeV2NGYqLIoPiMX-35Uj5cC9msmdVp0zmgs7I7Q9I1XC_4XEy9qhJuJxLvmrwT1oS_KVkLZw",
             "Content-Type": "multipart/form-data",
           },
         }
       )
-      .then(({ data }) => console.log(data));
+      .then(({ data }) => setImgUrl(data?.sasTokenUrl));
   };
 
   const handleButtonClick = () => {
@@ -69,12 +77,33 @@ const AddMeter = () => {
   };
 
   const handleSubmit = (values) => {
-    console.log(values);
+    const newValues = {
+      ...values,
+      meter_specification_url: imgUrl,
+      facility_id: +id,
+      is_rg_meter: values?.is_rg_meter === "yes" ? true : false,
+    };
+    if (values.meter_type === 2) {
+      delete newValues.purchased_from_the_grid;
+    }
+    dispatch(addMeter(newValues))
+      .then(() => {
+        onAddMeterSuccess();
+      })
+      .catch((error) => {
+        console.error("Error adding meter:", error);
+      });
   };
 
-  const handleMeterTypeChange = (event, newAlignment) => {
-    // setAlignment(newAlignment);
+  const handleMeterTypeChange = (event, newAlignment, form) => {
+    setMeterAlignment(newAlignment);
     setShowPurchasedFromGrid(event.target.value === "electricty");
+    form.setFieldValue("meter_type", newAlignment);
+  };
+
+  const handleRevenueTypeChange = (event, newAlignment, form) => {
+    setRevenueAlignment(newAlignment);
+    form.setFieldValue("is_rg_meter", newAlignment);
   };
 
   return (
@@ -95,48 +124,54 @@ const AddMeter = () => {
             <Grid container spacing={4}>
               <Grid item>
                 <InputLabel htmlFor="meter_type">Meter Type*</InputLabel>
-                <FormControl>
-                  <Field name="meter_type">
-                    {({ field }) => (
-                      <ToggleButtonGroup
-                        id="meter_type"
-                        // value={alignment}
-                        {...field}
-                        onChange={handleMeterTypeChange}
-                      >
-                        <ToggleButton value="electricty">
-                          Electricty
-                        </ToggleButton>
-                        <ToggleButton value="naturalGas">
-                          Natural Gas
-                        </ToggleButton>
-                        <ToggleButton value="water">Water</ToggleButton>
-                      </ToggleButtonGroup>
-                    )}
-                  </Field>
-                </FormControl>
+                <Field name="meter_type">
+                  {({ field, form }) => (
+                    <ToggleButtonGroup
+                      name="meter_type"
+                      value={meterAlignment}
+                      exclusive
+                      onChange={(event, newAlignment) => {
+                        handleMeterTypeChange(event, newAlignment, form);
+                      }}
+                    >
+                      <ToggleButton value={1}>Electricty</ToggleButton>
+                      <ToggleButton value={2}>Natural Gas</ToggleButton>
+                      <ToggleButton value={3}>Water</ToggleButton>
+                    </ToggleButtonGroup>
+                  )}
+                </Field>
               </Grid>
             </Grid>
             {showPurchasedFromGrid && (
               <Grid item spacing={4}>
-                <FormControl>
-                  <RadioGroup
-                    aria-labelledby="purchased_from_grid"
-                    name="purchased_from_grid"
-                    row={true}
-                    sx={{ color: "text.secondary2" }}
-                  >
-                    <FormControlLabel
-                      control={<Radio />}
-                      label="Purchased from the Grid"
-                    />
-
-                    <FormControlLabel
-                      control={<Radio />}
-                      label="Behind-the-Meter Generation"
-                    />
-                  </RadioGroup>
-                </FormControl>
+                <Field name="purchased_from_the_grid">
+                  {({ field, form }) => (
+                    <RadioGroup
+                      row={true}
+                      sx={{ color: "text.secondary2" }}
+                      value={field.value ? "true" : "false"}
+                      onChange={(event) => {
+                        form.setFieldValue(
+                          "purchased_from_the_grid",
+                          event.target.value === "true"
+                        );
+                      }}
+                    >
+                      <FormControlLabel
+                        value="true"
+                        control={<Radio />}
+                        label="Purchased from the Grid"
+                        name="purchased_from_the_grid"
+                      />
+                      <FormControlLabel
+                        value="false"
+                        control={<Radio />}
+                        label="Behind-the-Meter Generation"
+                        name="purchased_from_the_grid"
+                      />
+                    </RadioGroup>
+                  )}
+                </Field>
               </Grid>
             )}
             <Grid container spacing={4}>
@@ -144,7 +179,7 @@ const AddMeter = () => {
                 <InputField name="meter_name" label="Meter name*" type="text" />
               </Grid>
               <Grid item xs={12} sm={4}>
-                <InputField name="meter_id" label="Meter ID" type="text" />
+                <InputField name="meter_id" label="Meter ID" type="number" />
               </Grid>
             </Grid>
             <Grid container spacing={4}>
@@ -166,9 +201,18 @@ const AddMeter = () => {
             <Grid container spacing={4}>
               <Grid item xs={12} sm={4}>
                 <FormControlLabel
-                  control={<Checkbox />}
-                  sx={{ color: "text.secondary2" }}
-                  name="stil_in_use"
+                  control={
+                    <Field name="stil_in_use">
+                      {({ field }) => (
+                        <Checkbox
+                          {...field}
+                          sx={{ color: "text.secondary2" }}
+                          name="stil_in_use"
+                          label="Still in use"
+                        />
+                      )}
+                    </Field>
+                  }
                   label="Still in use"
                 />
               </Grid>
@@ -180,8 +224,15 @@ const AddMeter = () => {
                 </InputLabel>
                 <FormControl>
                   <Field name="is_rg_meter">
-                    {({ field }) => (
-                      <ToggleButtonGroup id="is_rg_meter" {...field}>
+                    {({ field, form }) => (
+                      <ToggleButtonGroup
+                        id="is_rg_meter"
+                        value={revenueAlignment}
+                        exclusive
+                        onChange={(event, newAlignment) => {
+                          handleRevenueTypeChange(event, newAlignment, form);
+                        }}
+                      >
                         <ToggleButton value="yes" sx={{ fontSize: "0.875rem" }}>
                           Yes
                         </ToggleButton>

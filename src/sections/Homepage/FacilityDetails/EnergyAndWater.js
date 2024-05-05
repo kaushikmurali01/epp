@@ -11,13 +11,15 @@ const EnergyAndWater = () => {
   const handleAddButtonClick = () => {
     setActiveTab("addMeter");
   };
-
+  const handleAddMeterSuccess = () => {
+    setActiveTab("meterListing");
+  };
   const renderTabContent = () => {
     switch (activeTab) {
       case "meterListing":
         return <MeterListing onAddButtonClick={handleAddButtonClick} />;
       case "addMeter":
-        return <AddMeter />;
+        return <AddMeter onAddMeterSuccess={handleAddMeterSuccess} />;
       default:
         return <div>Default Content</div>;
     }

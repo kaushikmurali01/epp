@@ -97,7 +97,7 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
-  purchased_from_grid: Yup.string().required(
+  purchased_from_the_grid: Yup.string().required(
     "Purchased from the Grid is required"
   ),
   meter_id: Yup.string(),
@@ -107,7 +107,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
   is_rg_meter: Yup.string().required(
     "Is this an revenue-grade meter is required"
   ),
-  meter_specification_url: Yup.string(),
+  // meter_specification_url: Yup.string(),
 });
 
 export default validationSchemaAddMeter;
