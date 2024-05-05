@@ -1,9 +1,9 @@
 import React, { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import { ALL_LINKS } from '../constants/routes';
-import { dashboardEndpoints, pageSubEndspoints } from '../constants/endPoints';
+import { dashboardEndpoints, pageSubEndspoints, facilityEndPoints } from '../constants/endPoints';
 
-// const Error404 = lazy(() => import('pages/error/error404'));
+const Error404 = lazy(() => import('pages/Error/Error404'));
 
 const DashboardRoutes = () => {
 
@@ -24,10 +24,10 @@ const DashboardRoutes = () => {
     return (
         <Suspense fallback={'loading spinner....'}>
             <Routes>
-                <Route path='/' element={<Navigate to={dashboardEndpoints.admin+`/`+pageSubEndspoints.dashboard} replace />} />
-                <Route path='/admin/' element={<Navigate to={dashboardEndpoints.admin+`/`+pageSubEndspoints.dashboard} replace />} />
+                <Route path='/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />
+                <Route path='/admin/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />
                 {ALL_LINKS.map((route) => route?.children ? renderRoutes(route) : <Route key={route.key} path={route.path} element={route.component} />)}
-                {/* <Route path='*' element={<Error404 />} /> */}
+                <Route path='*' element={<Error404 />} />
             </Routes>
         </Suspense>
     )

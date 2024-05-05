@@ -20,7 +20,7 @@ const HomepageComponent = (props) => {
 
   return (
     <>
-      <TabsSection></TabsSection>
+      {/* <TabsSection></TabsSection> */}
       {/* <DashboardSection></DashboardSection> */}
       <AddFacilityComponent></AddFacilityComponent>
       {/* <Facility /> */}
