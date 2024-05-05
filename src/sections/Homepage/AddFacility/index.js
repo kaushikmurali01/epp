@@ -87,14 +87,17 @@ const AddFacilityComponent = (props) => {
     }, [])
 
     const getFacilityDetailsaById = () => {
-        GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/1')
+        GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/' + id)
             .then((response) => {
                 if (response.data.statusCode == 200) {
-                    if (response.data.data.facility_construction_status == 1) {
-                        response.data.data.facility_construction_status = 'Existing';
-                    } else if (response.data.data.facility_construction_status == 2) {
-                        response.data.data.facility_construction_status = 'New';
-                    }
+                    // if (response.data.data.facility_construction_status == 1) {
+                    //     console.log(response.data.data.facility_construction_status)
+                    //     response.data.data.facility_construction_status = 'Existing';
+                    //     console.log(response.data.data.facility_construction_status)
+
+                    // } else if (response.data.data.facility_construction_status == 2) {
+                    //     response.data.data.facility_construction_status = 'New';
+                    // }
                     setInitialValues(prevValues => {
                         return {
                             ...prevValues,
@@ -146,7 +149,7 @@ const AddFacilityComponent = (props) => {
                 .catch((error) => {
                 });
         } else {
-            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/1', values)
+            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, values)
                 .then((response) => {
                 })
                 .catch((error) => {
