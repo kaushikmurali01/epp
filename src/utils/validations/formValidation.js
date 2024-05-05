@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { emailRegExp } from "../../config/regex";
+import { emailRegExp, phoneUSFormatRegExp } from "../../config/regex";
 
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
@@ -71,6 +71,9 @@ export const validationSchemaLandingPageForm = Yup.object({
   email: Yup.string()
     .required("Please enter email")
     .matches(emailRegExp, "Entered email is incorrect"),
+    phone: Yup.string()
+    .required("Please enter phone number")
+    .matches(phoneUSFormatRegExp , "Invalid Phone Number"),
   
 });
 

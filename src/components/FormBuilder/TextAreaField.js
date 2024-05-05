@@ -19,7 +19,7 @@ const TextAreaField = ({name,label,...otherProps}) => {
   }
 
   return (
-    <FormGroup className='theme-form-group text-area-form-group'>
+    <FormGroup className={`theme-form-group text-area-form-group ${configTextfield.error ? 'has-error' : ''} `}>
     <FormControl>
     <FormLabel> {label} </FormLabel>
     <textarea  {...configTextfield} style={{resize: 'none'}} />
