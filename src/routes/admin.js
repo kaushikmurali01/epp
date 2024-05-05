@@ -12,7 +12,7 @@ import FacilityDetailsPage from 'pages/Facility/FacilityDetails';
 // const Homepage = lazy(() => import("pages/Homepage/Homepage"));
 
 export const adminRoutes = [
-  { key: 'homepage', name: 'Homepage', path: pageSubEndspoints.dashboard, component: <Homepage /> },
+  { key: 'homepage', name: 'Homepage', path: pageSubEndspoints.facilityDashboard, component:  <DashboardSectionComponent /> },
   { key: 'facilityDashboard', name: 'facilityDashboard', path: facilityEndPoints.facilityDashboard, component: <DashboardSectionComponent /> },
   { key: 'facilityList', name: 'facilityList', path: facilityEndPoints.facilityList, component: <FacilityList /> },
   { key: 'editFacility', name: 'EditFacility', path: facilityEndPoints.editFacility, component: <AddFacilityComponent /> },
