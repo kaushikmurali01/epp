@@ -5,7 +5,6 @@ export const facilityEndPoints = {
   SUBMIT_FACILITY_FOR_APPROVAL: "/company-facility/v1/facility-submission",
   GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
   ADD_METER: "/company-facility/v1/facility-meter",
-  UPDATE_METER: "/company-facility/v1/facility-meter",
 };
 
 export const USER_MANAGEMENT = {
@@ -27,6 +26,8 @@ export const LANDING_PAGE = {
 export const meterEndPoints = {
   ADD_METER: "/company-facility/v1/facility-meter",
   METER_LIST: "/company-facility/v1/facility-meter-listing",
+  GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
+  UPDATE_METER: "/company-facility/v1/facility-meter",
 };
 
 export const imageUploadEndPoints = {

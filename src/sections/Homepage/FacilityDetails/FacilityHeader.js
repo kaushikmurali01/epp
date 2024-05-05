@@ -25,7 +25,7 @@ const FacilityHeader = () => {
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-  console.log(facilityDetails);
+  
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2}>
