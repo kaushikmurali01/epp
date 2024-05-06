@@ -21,10 +21,10 @@ const axiosInstance = axios.create({
 //request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
-    // if (token) {
-    //   config.headers["Authorization"] = "Bearer " + token;
-    // }
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      config.headers["Authorization"] = "Bearer " + token;
+    }
     config.headers["Content-Type"] = "application/json";
     return config;
   },
@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     if (error?.response?.status === 401) {
       localStorage.clear();
-      window.location.href = authEndpoints.login;
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }

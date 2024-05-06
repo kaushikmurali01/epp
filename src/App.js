@@ -19,15 +19,12 @@ import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection"
 import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
 
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider } from "@azure/msal-react";
 
 const store = configureStore();
 
 const App = (props) => {
 
-  const activeAccount = useMsal();
-
-  console.log("active account", activeAccount)
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -40,12 +37,9 @@ const App = (props) => {
 
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
-              {activeAccount ? 
               <>
                   <RoutesComp />
               </>
-                : null
-              }
             </AuthenticatedTemplate>
           </MsalProvider>
         </Suspense>
