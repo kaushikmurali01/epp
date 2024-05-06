@@ -1,6 +1,6 @@
 import axiosInstance from "./interceptor.js";
 
-export const GET_REQUEST = (url,canObj) => {
+export const GET_REQUEST = (url, canObj) => {
   return axiosInstance({
     method: "get",
     url: url,
@@ -11,12 +11,12 @@ export const POST_REQUEST = (url, data, isImage = false, headers) => {
     if (!headers) {
       headers = {};
     }
-    headers['Content-Type'] = 'multipart/form-data';
+    headers["Content-Type"] = "multipart/form-data";
     return axiosInstance({
       method: "post",
       url,
-    data,
-    headers,
+      data,
+      headers,
     });
   }
   return axiosInstance({
@@ -26,34 +26,34 @@ export const POST_REQUEST = (url, data, isImage = false, headers) => {
     headers,
   });
 };
-export const PATCH_REQUEST = (url,data) =>{
-   return axiosInstance({
-    method:"patch",
+export const PATCH_REQUEST = (url, data) => {
+  return axiosInstance({
+    method: "patch",
     url,
-    data
-   })
-}
+    data,
+  });
+};
 export const DELETE_REQUEST = (url) => {
   return axiosInstance({
     method: "delete",
     url,
   });
 };
-export const DELETE_REQUEST_BY_KEY = (url,data) => {
+export const DELETE_REQUEST_BY_KEY = (url, data) => {
   return axiosInstance({
     method: "delete",
     url,
-    data
+    data,
   });
 };
 
-export const PUT_REQUEST = (url, data, isImage = false,headers) => {
+export const PUT_REQUEST = (url, data, isImage = false, headers) => {
   if (isImage) {
-    headers['Content-Type'] = 'multipart/form-data';
+    headers["Content-Type"] = "multipart/form-data";
     return axiosInstance({
       method: "put",
       url,
-    data,
+      data,
     });
   }
   return axiosInstance({

@@ -8,6 +8,9 @@ import {
   UPDATE_METER_REQUEST,
   UPDATE_METER_SUCCESS,
   UPDATE_METER_FAILURE,
+  FETCH_METER_DETAILS_REQUEST,
+  FETCH_METER_DETAILS_SUCCESS,
+  FETCH_METER_DETAILS_FAILURE,
 } from "../actionTypes";
 
 export const fetchMeterListRequest = () => ({
@@ -49,5 +52,19 @@ export const updateMeterSuccess = (data) => ({
 
 export const updateMeterFailure = (error) => ({
   type: UPDATE_METER_FAILURE,
+  payload: error,
+});
+
+export const fetchMeterDetailsRequest = () => ({
+  type: FETCH_METER_DETAILS_REQUEST,
+});
+
+export const fetchMeterDetailsSuccess = (data) => ({
+  type: FETCH_METER_DETAILS_SUCCESS,
+  payload: data,
+});
+
+export const fetchMeterDetailsFailure = (error) => ({
+  type: FETCH_METER_DETAILS_FAILURE,
   payload: error,
 });

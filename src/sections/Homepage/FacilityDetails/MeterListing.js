@@ -19,7 +19,11 @@ import { fetchMeterListing } from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 
-const MeterListing = ({ onAddButtonClick, onEntriesListClick }) => {
+const MeterListing = ({
+  onAddButtonClick,
+  onEntriesListClick,
+  OnEditMeterButton,
+}) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const navigate = useNavigate();
@@ -50,6 +54,23 @@ const MeterListing = ({ onAddButtonClick, onEntriesListClick }) => {
       Header: "In use(inactive date)",
       accessor: (item) => <>{format(item.meter_inactive, "MM/dd/yyyy")}</>,
     },
+    {
+      Header: "Action",
+      accessor: (item) => (
+        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+            }}
+            onClick={() => handleEditButtonClick(item.id)}
+          >
+            Edit
+          </Button>
+        </Box>
+      ),
+    },
   ];
   const meterData = [
     { meterType: "Electricity", currentEnergyDate: "05/01/2024", value: 1 },
@@ -62,7 +83,7 @@ const MeterListing = ({ onAddButtonClick, onEntriesListClick }) => {
   );
   useEffect(() => {
     dispatch(fetchMeterListing(pageInfo, id));
-  }, [dispatch, pageInfo]);
+  }, [dispatch, pageInfo, id]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
@@ -72,6 +93,11 @@ const MeterListing = ({ onAddButtonClick, onEntriesListClick }) => {
     console.log(id, meter_id)
     onEntriesListClick(id, meter_id);
   };
+
+  const handleEditButtonClick = (id) => {
+    OnEditMeterButton(id);
+  };
+
   return (
     <>
       <Box

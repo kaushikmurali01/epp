@@ -10,6 +10,8 @@ import ButtonWrapper from 'components/FormBuilder/Button';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
+import InviteUser from './InviteUser';
+import NotificationsTost from 'utils/notification/NotificationsTost';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -17,9 +19,16 @@ const UserManagement = () => {
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
+  const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN, []);
+
+  // need to call this function before USER_MANAGEMENT_COLUMN
+  const handleAPISuccessCallBack = () => {
+    // Call the API to get all user data
+    getUserManagementData();
+};
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage), []);
 
   const initialValues = {
     company: '',
@@ -51,24 +60,26 @@ const UserManagement = () => {
     modalBodyContent: "",
   });
 
-  const companyListItem = [
-      {
-        "id": '1',
-        "company_type": "Customer",
-        "email": "test@test.com",
-        "superAdmin": "Test Admin",
-        "status": "Active",
-        "company_name": "ABC Corporation"
-      },
-      {
-        "id": '2',
-        "company_type": "Customer",
-        "email": "test@test.com",
-        "superAdmin": "Test Admin",
-        "status": "Active",
-        "company_name": "XYZ Corporation"
-      }
-    ]
+  // const companyListItem = [
+  //     {
+  //       "id": '1',
+  //       "company_type": "Customer",
+  //       "email": "test@test.com",
+  //       "superAdmin": "Test Admin",
+  //       "status": "Active",
+  //       "company_name": "ABC Corporation"
+  //     },
+  //     {
+  //       "id": '2',
+  //       "company_type": "Customer",
+  //       "email": "test@test.com",
+  //       "superAdmin": "Test Admin",
+  //       "status": "Active",
+  //       "company_name": "XYZ Corporation"
+  //     }
+  //   ]
+
+ 
   
 
   const handleChange = (event, newValue) => {
@@ -84,9 +95,11 @@ const UserManagement = () => {
         "user_id": "1"
     }
 
+    console.log(requestBody, "request");
+   
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
-        showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        NotificationsTost({ message: "Your form has been submitted!", type: "success" });
         setModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -96,8 +109,8 @@ const UserManagement = () => {
     })
     .catch((error) => {
         console.log(error, 'error')
-        showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
+        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+       
 
     })
 
@@ -114,7 +127,7 @@ const UserManagement = () => {
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={companyListItem} valueKey="id" labelKey="company_name" />
+            <SelectBox name="company" label="Company name" options={getCompanyList} valueKey="id" labelKey="company_name" />
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
@@ -143,10 +156,11 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/10/1/1';
+    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
+    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
     GET_REQUEST(apiURL)
         .then((res) => {
-          setAllUser(res.data?.body?.data?.users)
+          setAllUser(res.data?.body)
         }).catch((error) => {
             console.log(error)
         });
@@ -180,64 +194,70 @@ useEffect(() => {
 
 
   return (
-    <Box component="section">
+    <React.Fragment>
+      {isVisibleInvitePage ? 
+        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} /> : 
+        
+          <Box component="section">
+            <Container maxWidth="lg">
+              <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
+                <Grid item xs={12} md={4} >
+                  <Typography variant='h4'>User Management</Typography>
+                </Grid>
+                <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+                  <FormGroup sx={{ flexGrow: '1' }}>
+                    <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                      <TextField
+                        placeholder="Search"
+                        inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      />
+                    </FormControl>
+                  </FormGroup>
 
-      <Container maxWidth="lg">
-        <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
-          <Grid item xs={12} md={4} >
-            <Typography variant='h4'>User Management</Typography>
-          </Grid>
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
-            <FormGroup sx={{ flexGrow: '1' }}>
-              <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
-                <TextField
-                  placeholder="Search"
-                  inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
-                />
-              </FormControl>
-            </FormGroup>
+                  <Button
+                    color="primary"
+                    variant="contained"
+                    sx={{ alignSelf: 'center' }}
+                    onClick={() => setVisibleInvitePage(true)}
+                  >
+                    Invite User
+                  </Button>
+                </Grid>
 
-            <Button
-              color="primary"
-              variant="contained"
-              sx={{ alignSelf: 'center' }}
-              onClick={() => navigate('usermanagement/invite')}
-            >
-              Invite User
-            </Button>
-          </Grid>
+              </Grid>
 
-        </Grid>
-
-        <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
-          <Grid item xs={12} md={8} >
-            <Tabs
-              className='theme-tabs-list'
-              value={tabValue}
-              onChange={handleChange}
-              sx={{ display: 'inline-flex' }}
+              <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
+                <Grid item xs={12} md={8} >
+                  <Tabs
+                    className='theme-tabs-list'
+                    value={tabValue}
+                    onChange={handleChange}
+                    sx={{ display: 'inline-flex' }}
 
 
-            >
-              <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
-              {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
-              <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
-            </Tabs>
-          </Grid>
-          <Grid item sx={{ justifySelf: 'flex-end' }}>
-            <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-              Request to join other company
-            </Typography>
-          </Grid>
-        </Grid>
+                  >
+                    <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
+                    {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
+                    <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
+                  </Tabs>
+                </Grid>
+                <Grid item sx={{ justifySelf: 'flex-end' }}>
+                  <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
+                    Request to join other company
+                  </Typography>
+                </Grid>
+              </Grid>
 
-        <Grid container>
-          <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" />
-        </Grid>
-      </Container>
+              <Grid container>
+               {getAllUser &&  <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" /> }
+              </Grid>
+            </Container>
 
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-    </Box >
+            <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+          </Box >
+      }
+    
+     </React.Fragment>
   )
 }
 

@@ -17,26 +17,54 @@ import {
 import axios from "axios";
 import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
-import RadioWrapper from "components/FormBuilder/Radio";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import { addMeter } from "./../../../redux/actions/metersActions";
+import {
+  addMeter,
+  fetchMeterDetails,
+  updateMeter,
+} from "./../../../redux/actions/metersActions";
 import validationSchemaAddMeter from "utils/validations/formValidation";
+import { format } from "date-fns";
 
-const AddMeter = ({ onAddMeterSuccess }) => {
+const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const { id } = useParams();
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState();
-  const [showPurchasedFromGrid, setShowPurchasedFromGrid] = useState(true);
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState("no");
   const [imgUrl, setImgUrl] = useState("");
 
-  const initialValues = {
+  useEffect(() => {
+    if (meterId2) {
+      dispatch(fetchMeterDetails(meterId2))
+        .then((response) => {
+          const meterDetails = response?.data;
+          setInitialValues({
+            ...initialValues,
+            ...meterDetails,
+            meter_active: meterDetails?.meter_active
+              ? format(new Date(meterDetails.meter_active), "yyyy-MM-dd")
+              : "",
+            meter_inactive: meterDetails?.meter_inactive
+              ? format(new Date(meterDetails.meter_inactive), "yyyy-MM-dd")
+              : "",
+          });
+          setMeterAlignment(meterDetails?.meter_type);
+          setRevenueAlignment(meterDetails?.is_rg_meter ? "yes" : "no");
+          setSelectedFile(meterDetails?.meter_specification_url);
+        })
+        .catch((error) => {
+          console.error("Error fetching meter details:", error);
+        });
+    }
+  }, [dispatch]);
+
+  const [initialValues, setInitialValues] = useState({
     meter_name: "",
     meter_type: 1,
     purchased_from_the_grid: true,
@@ -45,7 +73,9 @@ const AddMeter = ({ onAddMeterSuccess }) => {
     meter_inactive: "",
     stil_in_use: false,
     is_rg_meter: "",
-  };
+  });
+
+  console.log(initialValues);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -77,6 +107,7 @@ const AddMeter = ({ onAddMeterSuccess }) => {
   };
 
   const handleSubmit = (values) => {
+    console.log(values);
     const newValues = {
       ...values,
       meter_specification_url: imgUrl,
@@ -86,18 +117,27 @@ const AddMeter = ({ onAddMeterSuccess }) => {
     if (values.meter_type === 2) {
       delete newValues.purchased_from_the_grid;
     }
-    dispatch(addMeter(newValues))
-      .then(() => {
-        onAddMeterSuccess();
-      })
-      .catch((error) => {
-        console.error("Error adding meter:", error);
-      });
+    if (meterId2) {
+      dispatch(updateMeter(meterId2, newValues))
+        .then(() => {
+          onAddMeterSuccess();
+        })
+        .catch((error) => {
+          console.error("Error updating meter:", error);
+        });
+    } else {
+      dispatch(addMeter(newValues))
+        .then(() => {
+          onAddMeterSuccess();
+        })
+        .catch((error) => {
+          console.error("Error adding meter:", error);
+        });
+    }
   };
 
   const handleMeterTypeChange = (event, newAlignment, form) => {
     setMeterAlignment(newAlignment);
-    setShowPurchasedFromGrid(event.target.value === "electricty");
     form.setFieldValue("meter_type", newAlignment);
   };
 
@@ -118,6 +158,7 @@ const AddMeter = ({ onAddMeterSuccess }) => {
         initialValues={{ ...initialValues }}
         validationSchema={validationSchemaAddMeter}
         onSubmit={handleSubmit}
+        enableReinitialize={true}
       >
         <Form>
           <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
@@ -142,7 +183,7 @@ const AddMeter = ({ onAddMeterSuccess }) => {
                 </Field>
               </Grid>
             </Grid>
-            {showPurchasedFromGrid && (
+            {meterAlignment === 1 && (
               <Grid item spacing={4}>
                 <Field name="purchased_from_the_grid">
                   {({ field, form }) => (
@@ -206,8 +247,10 @@ const AddMeter = ({ onAddMeterSuccess }) => {
                       {({ field }) => (
                         <Checkbox
                           {...field}
+                          ye
                           sx={{ color: "text.secondary2" }}
                           name="stil_in_use"
+                          checked={field.value}
                           label="Still in use"
                         />
                       )}
