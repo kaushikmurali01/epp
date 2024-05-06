@@ -11,6 +11,15 @@ import {
   DELETE_FACILITY_REQUEST,
   DELETE_FACILITY_SUCCESS,
   DELETE_FACILITY_FAILURE,
+  ADD_FACILITY_CHARACTERISTIC_REQUEST,
+  ADD_FACILITY_CHARACTERISTIC_SUCCESS,
+  ADD_FACILITY_CHARACTERISTIC_FAILURE,
+  FETCH_FACILITY_CHARACTERISTICS_REQUEST,
+  FETCH_FACILITY_CHARACTERISTICS_SUCCESS,
+  FETCH_FACILITY_CHARACTERISTICS_FAILURE,
+  UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
+  UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
+  UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -66,5 +75,47 @@ export const deleteFacilitySuccess = (data) => ({
 
 export const deleteFacilityFailure = (error) => ({
   type: DELETE_FACILITY_FAILURE,
+  payload: error,
+});
+
+export const addFacilityCharacteristicRequest = () => ({
+  type: ADD_FACILITY_CHARACTERISTIC_REQUEST,
+});
+
+export const addFacilityCharacteristicSuccess = (data) => ({
+  type: ADD_FACILITY_CHARACTERISTIC_SUCCESS,
+  payload: data,
+});
+
+export const addFacilityCharacteristicFailure = (error) => ({
+  type: ADD_FACILITY_CHARACTERISTIC_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityCharacteristicsRequest = () => ({
+  type: FETCH_FACILITY_CHARACTERISTICS_REQUEST,
+});
+
+export const fetchFacilityCharacteristicsSuccess = (data) => ({
+  type: FETCH_FACILITY_CHARACTERISTICS_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityCharacteristicsFailure = (error) => ({
+  type: FETCH_FACILITY_CHARACTERISTICS_FAILURE,
+  payload: error,
+});
+
+export const updateFacilityCharacteristicRequest = () => ({
+  type: UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
+});
+
+export const updateFacilityCharacteristicSuccess = (data) => ({
+  type: UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
+  payload: data,
+});
+
+export const updateFacilityCharacteristicFailure = (error) => ({
+  type: UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
   payload: error,
 });

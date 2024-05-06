@@ -1,4 +1,3 @@
-
 export const facilityEndPoints = {
   ADD_EDIT_FACILITY: "/company-facility/v1/facility",
   FACILITY_LIST: "/company-facility/v1/facility-listing",
@@ -7,6 +6,9 @@ export const facilityEndPoints = {
   GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
   ADD_METER: "/company-facility/v1/facility-meter",
   DELETE_FACILITY: "/company-facility/v1/facility",
+  ADD_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+  GET_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+  UPDATE_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
 };
 
 export const USER_MANAGEMENT = {
@@ -22,8 +24,8 @@ export const USER_MANAGEMENT = {
   ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
   REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
   // DELETE REQUEST
-  DELETE_USER_REQUEST : ''
-}
+  DELETE_USER_REQUEST: "",
+};
 
 export const LANDING_PAGE = {
   CONTACT_US_FORM: "/public-api/v1/contact",
@@ -44,6 +46,6 @@ export const entriesEndPoints = {
   ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
 };
 
-export const fileUploadEndPoints={
-  FILE_UPLOAD:"company-facility/v1/upload"
-}
+export const fileUploadEndPoints = {
+  FILE_UPLOAD: "company-facility/v1/upload",
+};
