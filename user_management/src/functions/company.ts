@@ -56,6 +56,36 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
     }
 }
 
+/**
+ * Retrieves all companies.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all companies.
+ */
+export async function ListCompanies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const { offset, limit } = request.params;
+
+        // Get all companies
+        const companies = await CompanyController.listCompanies(offset, limit);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(companies);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+app.http('ListCompanies', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: ListCompanies,
+    route: 'companies'
+});
 app.http('CreateCompany', {
     methods: ['POST'],
     authLevel: 'anonymous',
@@ -68,6 +98,7 @@ app.http('UpdateCompany', {
     handler: UpdateCompany,
     route: 'company'
 });
+
 
 
 

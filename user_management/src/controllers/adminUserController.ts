@@ -1,36 +1,21 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
-import { UserService } from '../services/userService';
+import { AdminUserService } from '../services/adminUserService';
 import { UserInvitationService } from '../services/user-invitation-service'; // Assuming the correct import path
 import { UserRequestService } from "../services/userRequestService";
-import { CompanyService } from "../services/companyService";
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "enerva-utils/utils/status";
-import { UserCompanyRole } from "../models/user-company-role";
 
-class UserController {
+class AdminUserController {
 
     /**
      * Registers a new user.
      * 
      * @param req - The HTTP request object containing user data.
      * @returns Promise<HttpResponse>
-     * @description Handles the registration of a new user by extracting necessary data from the request body, invoking the UserService to register the user, and returning an HTTP response with appropriate status and JSON data.
+     * @description Handles the registration of a new user by extracting necessary data from the request body, invoking the AdminUserService to register the user, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async registerUser(user:any, company:any): Promise<any> {
-      try {
-        let companyData = null;
-        let company_id = null;
-          const userData = await UserService.registerUser(user);
-          if(userData.type == 2) {
-            companyData = await CompanyService.createCompany(company);
-            company_id = companyData.id;
-          }
-          const data = {
-            "company_id": company_id,
-            "role_id": 1,
-            "user_id": userData.id
-        };
-       await UserCompanyRole.create(data);
-          return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
+    static async registerAdminUser(requestData): Promise<any> {
+        try {
+          const company = await AdminUserService.registerUser(requestData);
+          return company;
       } catch (error) {
           return { status: 500, body: { error: error.message } };
       }
@@ -41,13 +26,13 @@ class UserController {
    * 
    * @param req - The HTTP request object containing user data.
    * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the updating of an existing user by extracting necessary data from the request body, invoking the UserService to update the user, and returning an HTTP response with appropriate status and JSON data.
+   * @description Handles the updating of an existing user by extracting necessary data from the request body, invoking the AdminUserService to update the user, and returning an HTTP response with appropriate status and JSON data.
    */
   static async updateUser(req): Promise<any> {
     try {
       const { id } = req.params;
       const { first_name, last_name, email, password, address, phonenumber } = req.body;
-      const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
+      const updatedUser = await AdminUserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
       if (updatedUser) {
         return {
           status: 200, // OK status code
@@ -71,11 +56,11 @@ class UserController {
    * Retrieves all users.
    * 
    * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the retrieval of all users by invoking the UserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
+   * @description Handles the retrieval of all users by invoking the AdminUserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
    */
-  static async getAllUsers(offset, limit): Promise<any> {
+  static async GetEnervaUsers(offset, limit): Promise<any> {
     try {
-      const users = await UserService.getEnervaUsers(offset, limit);
+      const users = await AdminUserService.getEnervaUsers(offset, limit);
       return {
         status: 200, // OK status code
         body: { users }
@@ -90,7 +75,7 @@ class UserController {
 
   static async getIESOUsers(offset, limit): Promise<any> {
     try {
-      const users = await UserService.getIESOUsers(offset, limit);
+      const users = await AdminUserService.getIESOUsers(offset, limit);
       return {
         status: 200, // OK status code
         body: { users }
@@ -103,18 +88,12 @@ class UserController {
     }
   }
 
-   /**
-   * Retrieves all combined users.
-   * 
-   * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the retrieval of all users by invoking the UserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
-   */
-   static async getCombinedUsers(offset, limit, company): Promise<any> {
+  static async getCustomerUsers(offset, limit): Promise<any> {
     try {
-      const data = await UserService.getCombinedUsers(offset, limit, company);
+      const users = await AdminUserService.getCustomerUsers(offset, limit);
       return {
         status: 200, // OK status code
-        body: data 
+        body: { users }
       };
     } catch (error) {
       return {
@@ -124,21 +103,23 @@ class UserController {
     }
   }
 
+   
+
   /**
    * Retrieves a user by ID.
    * 
    * @param req - The HTTP request object containing user ID.
    * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the retrieval of a user by ID by extracting the ID from the request parameters, invoking the UserService to fetch the user, and returning an HTTP response with appropriate status and JSON data.
+   * @description Handles the retrieval of a user by ID by extracting the ID from the request parameters, invoking the AdminUserService to fetch the user, and returning an HTTP response with appropriate status and JSON data.
    */
-  static async getUserById(tokenData): Promise<any> {
+  static async getUserById(id): Promise<any> {
     try {
-     // const { id } = req.params;
-     let id = tokenData.id;
-      const user = await UserService.getUserById(parseInt(id));
-      //console.log('user1000', user);
+      const user = await AdminUserService.getUserById(parseInt(id));
       if (user) {
-        return user;
+        return {
+          status: 200, // OK status code
+          body: { user }
+        };
       } else {
         return {
           status: 404, // Not Found status code
@@ -158,12 +139,12 @@ class UserController {
    * 
    * @param req - The HTTP request object containing user ID.
    * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the deletion of a user by ID by extracting the ID from the request parameters, invoking the UserService to delete the user, and returning an HTTP response with appropriate status and JSON data.
+   * @description Handles the deletion of a user by ID by extracting the ID from the request parameters, invoking the AdminUserService to delete the user, and returning an HTTP response with appropriate status and JSON data.
    */
   static async deleteUser(req): Promise<any> {
     try {
       const { id } = req.params;
-      const deleted = await UserService.deleteUser(parseInt(id));
+      const deleted = await AdminUserService.deleteUser(parseInt(id));
       if (deleted) {
         return {
           status: 204, // No Content status code (successful deletion)
@@ -216,7 +197,7 @@ class UserController {
 
   static async acceptInvitation(requestData): Promise<any> {
     try {
-      const data = await UserService.acceptInvitation(requestData);
+      const data = await AdminUserService.acceptInvitation(requestData);
       return data;
   } catch (error) {
       return { status: 500, body: { error: error.message } };
@@ -224,4 +205,4 @@ class UserController {
 }
 }
 
-export { UserController };
+export { AdminUserController };

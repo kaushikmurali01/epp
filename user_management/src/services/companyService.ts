@@ -12,11 +12,13 @@ class CompanyService {
      * @returns Promise<Response> - A promise resolving to a response indicating the status of company creation.
      * @description Creates a new company by creating a company record in the database with specified company details. Returns a response indicating the success or failure of the creation process.
      */
-    static async createCompany(companyDetails): Promise<Response> {
+    static async createCompany(companyDetails): Promise<any> {
         try {
             //await testDatabaseConnection();
+            console.log("companyDetails", companyDetails)
             const company = await Company.create(companyDetails);
-            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+            return company;
+         //   return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -91,10 +93,22 @@ class CompanyService {
      * @returns Promise<Response>
      * @description Retrieves a list of companies from the database.
      */
-        static async listCompanies(): Promise<any[]> {
+        static async listCompanies(offset, limit): Promise<any[]> {
             try {
-                const companies = await Company.findAll();
-                return companies;
+                const companies = await Company.findAll(
+                   { offset: offset,
+                    limit: limit,
+                    attributes: ['company_name', 'id']
+                   }
+                );
+                const data = companies.map(user => ({
+                    company_type: 'Customer',
+                    email: "test@test.com",
+                    superAdmin: "Test Admin",
+                    status: "Active",
+                    ...user.toJSON()
+                }));
+                return data;
             } catch (error) {
                 throw error;
             }

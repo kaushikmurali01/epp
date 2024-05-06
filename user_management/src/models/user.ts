@@ -2,6 +2,9 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
 //import { UserAttributes } from 'enerva-utils/interfaces/user';
 import { isStrongPassword } from 'validator'; // Importing validator library for password complexity check
+import { Status } from './status';
+import { UserCompanyRole } from './user-company-role';
+
 
 interface UserAttributes {
   id: number;
@@ -12,6 +15,9 @@ interface UserAttributes {
   landline: number | null;
   phonenumber: number;
   address: string;
+  status: string;
+  type: number;
+  is_active: number;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -22,9 +28,12 @@ class User extends Model<UserCreationAttributes>{
   public last_name!: string;
   public email!: string;
   public password!: string;
-  public landline!: number | null;
+  public landline: string | null;
   public phonenumber!: number;
-  public address!: string;
+  public address: string;
+  public status!: string;
+  public type!: number;
+  public is_active!: number;
  
 }
 
@@ -69,38 +78,39 @@ User.init(
     password: {
       type: DataTypes.STRING,
       allowNull: true,
-      
     },
     landline: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        isNumeric: {
-          msg: 'Landline must be a number.',
-        },
-      },
+      type: DataTypes.STRING,
+      allowNull: true
     },
     phonenumber: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        isNumeric: {
-          msg: 'Phone number must be numeric.',
-        },
-        len: {
-          args: [10, 15],
-          msg: 'Phone number must be between 10 and 15 digits.',
-        },
-      },
+      // validate: {
+      //   isNumeric: {
+      //     msg: 'Phone number must be numeric.',
+      //   },
+      //   len: {
+      //     args: [10, 15],
+      //     msg: 'Phone number must be between 10 and 15 digits.',
+      //   },
+      // },
     },
     address: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Address is required.',
-        },
-      },
+      allowNull: true
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    type: {
+      type: DataTypes.NUMBER,
+      allowNull: false
+    },
+    is_active: {
+      type: DataTypes.NUMBER,
+      allowNull: true
     }
     
   },
@@ -111,3 +121,6 @@ User.init(
 );
 
 export { User };
+
+
+

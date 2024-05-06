@@ -1,13 +1,9 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { UserController } from '../controllers/userController';
+import { AdminUserController } from '../controllers/adminUserController';
 import { UserInvitationService } from "../services/user-invitation-service";
 import { UserService } from "../services/userService";
-import { decodeTokenMiddleware } from "../middleware/authMiddleware";
-import { User } from "../models/user";
-import { UserInvitation } from "../models/user-invitation";
-import { UserRequest } from "../models/user-request";
-import { UserCompanyRole } from "../models/user-company-role";
-import { sequelize } from "../services/database";
+import { RolePermissionService } from "../services/rolePermissionService";
+import { RoleController } from "../controllers/roleController";
 
 /**
  * Registers a new user based on the provided request data.
@@ -16,37 +12,17 @@ import { sequelize } from "../services/database";
  * @param context The invocation context of the Azure Function.
  * @returns A promise resolving to an HTTP response containing user registration status.
  */
-export async function UserRegister(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function AdminUserRegister(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const data:any = await request.json();
-       // const data = JSON.parse(requestData.rawBody); 
-        const userData = {
-            first_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_FirstName,
-            last_name:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
-            email: data.email,
-            phonenumber: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessMobile,
-            landline: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessLandline,
-            type: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_UserType,
-            display_name: data.displayName
-        }
-        const companyData = {
-            company_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_CompanyName,
-            company_description:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
-            address1: data.streetAddress,
-            city: data.city,
-            state: data.state,
-            source_of_discovery: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_Howdoyouhearaboutus,
-            website: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_WebsiteURL,
-            postal_code: data.postalCode,
-            country: data.country
-        }
+        const requestData = await request.json(); 
+
 
         // Register user
-         const user = await UserController.registerUser(userData, companyData);
+        const user = await AdminUserController.registerAdminUser(requestData);
        
         // Prepare response body
-         const responseBody = JSON.stringify(user);
+        const responseBody = JSON.stringify(user);
 
         // Return success response
         return { body: responseBody };
@@ -64,13 +40,13 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
  * @param context The invocation context of the Azure Function.
  * @returns A promise resolving to an HTTP response containing user update status.
  */
-export async function UserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function AdminUserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
         const requestData = await request.json(); 
 
         // Update user
-        const user = await UserController.updateUser(requestData);
+        const user = await AdminUserController.updateUser(requestData);
        
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -84,7 +60,7 @@ export async function UserUpdate(request: HttpRequest, context: InvocationContex
 }
 
 /**
- * Retrieves all users.
+ * Retrieves Enerva users.
  * 
  * @param request The HTTP request object.
  * @param context The invocation context of the Azure Function.
@@ -96,7 +72,7 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
         const { offset, limit } = request.params;
 
         // Get all users
-        const users = await UserController.getAllUsers(offset, limit);
+        const users = await AdminUserController.GetEnervaUsers(offset, limit);
        
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -108,6 +84,14 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
         return { status: 500, body: `${error.message}` };
     }
 }
+
+/**
+ * Retrieves Enerva users.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all users.
+ */
 
 export async function GetIESOUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
@@ -115,7 +99,7 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
         const { offset, limit } = request.params;
 
         // Get all users
-        const users = await UserController.getIESOUsers(offset, limit);
+        const users = await AdminUserController.getIESOUsers(offset, limit);
        
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -128,28 +112,32 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
     }
 }
 
-export async function AcceptInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+/**
+ * Retrieves Customer users.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all users.
+ */
+
+export async function GetCustomerUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const requestData = await request.json(); 
-        const data = await UserController.acceptInvitation(requestData);
-        const responseBody = JSON.stringify(data);
+
+        const { offset, limit } = request.params;
+
+        // Get all users
+        const users = await AdminUserController.getCustomerUsers(offset, limit);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(users);
+
+        // Return success response
         return { body: responseBody };
     } catch (error) {
+        // Return error response
         return { status: 500, body: `${error.message}` };
     }
 }
-
-export async function RejectInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    try {
-        const requestData = await request.json(); 
-        const data = await UserService.rejectInvitation(requestData);
-        const responseBody = JSON.stringify(data);
-        return { body: responseBody };
-    } catch (error) {
-        return { status: 500, body: `${error.message}` };
-    }
-}
-
 
 /**
  * Retrieves a user by ID.
@@ -158,18 +146,14 @@ export async function RejectInvitation(request: HttpRequest, context: Invocation
  * @param context The invocation context of the Azure Function.
  * @returns A promise resolving to an HTTP response containing the user with the specified ID.
  */
-export async function GetUserById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function GetAdminUserById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-
-        // Middleware
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        context.log("middlewareResponse",resp);
         
         // Extract user ID from request
         const { id } = request.params;
 
         // Get user by ID
-        const user = await UserController.getUserById(resp);
+        const user = await AdminUserController.getUserById(id);
        
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -189,26 +173,13 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
  * @param context The invocation context of the Azure Function.
  * @returns A promise resolving to an HTTP response indicating the status of user deletion.
  */
-export async function DeleteUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function DeleteAdminUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        User.hasMany(UserCompanyRole, { onDelete: 'CASCADE' });
         // Extract user ID from request
         const userId = request.params.id;
-        const type = request.params.type;
-        if(type === 'user') {
-            await User.update({ is_active: 0 }, { where: { id: userId } });
-
-        } else if(type === 'invitation') {
-           // await UserInvitation.destroy({ where: { id: userId } });
-            await UserInvitation.update({ is_active: 0 }, { where: { id: userId } });
-        } else if(type === 'request') {
-            //await UserRequest.destroy({ where: { id: userId } });
-            await UserRequest.update({ is_active: 0 }, { where: { id: userId } });
-        }
-        return { status: 200, body: `Deleted Successfully.` };
 
         // Delete user by ID
-        const deleted = await UserController.deleteUser(userId);
+        const deleted = await AdminUserController.deleteUser(userId);
        
         // Prepare response body
         const responseBody = JSON.stringify({ deleted });
@@ -234,7 +205,7 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
         const { offset, limit } = request.params;
 
         // Get the list of user invitations
-        const invitationList = await UserController.getAllInvitationsWithUserData(offset, limit);
+        const invitationList = await AdminUserController.getAllInvitationsWithUserData(offset, limit);
 
         // Prepare response body
         const responseBody = JSON.stringify(invitationList);
@@ -251,7 +222,7 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
     }
 }
 
-export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function SendEnervaInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
         const requestData = await request.json(); 
@@ -269,121 +240,101 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
 }
 
 /**
- * Retrieves all users.
+ * Retrieves permissions associated with a role by its ID.
  * 
- * @param request The HTTP request object.
+ * @param request The HTTP request object containing role ID.
  * @param context The invocation context of the Azure Function.
- * @returns A promise resolving to an HTTP response containing all users.
+ * @returns A promise resolving to an HTTP response containing permissions data.
  */
-export async function GetCombinedUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function GetAdmnPermissionsByRoleId(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
+        // Extract role ID from request
+        const roleId = parseInt(request.params.id);
 
-        const { offset, limit, company} = request.params;
+        // Get permissions by role ID
+        const permissions = await RolePermissionService.getPermissionsByRoleId(roleId);
 
-        // Get all users
-        const users = await UserController.getCombinedUsers(offset, limit, company);
-       
         // Prepare response body
-        const responseBody = JSON.stringify(users);
+        const responseBody = JSON.stringify(permissions);
 
         // Return success response
-        return { body: responseBody };
+        return { body: responseBody, status: 200 };
     } catch (error) {
         // Return error response
         return { status: 500, body: `${error.message}` };
     }
 }
 
-export async function CreateUserRequest(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function AdAssignPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
         const requestData = await request.json(); 
-        const data = await UserController.createUserRequest(requestData);
+
+        // Create role
+        const role = await RoleController.assignPermissions(requestData);
        
         // Prepare response body
-        const responseBody = JSON.stringify(data);
+        const responseBody = JSON.stringify(role);
 
         // Return success response
-        return { body: responseBody };
+        return { body: responseBody, status: 200 };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+        return { status: 500, body: `Error: ${error.message}` };
     }
 }
 
-// Register middleware before each Azure Function
-//app.use(decodeTokenMiddleware);
-//export default middleware([validation(schema)], functionHandler, []);
-
-
-
-
-
-app.http('CreateUserRequest', {
+app.http('SendEnervaInvitation', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    route: 'createrequest',
-    handler: CreateUserRequest
+    route: 'send',
+    handler: SendEnervaInvitation
 });
 
-app.http('GetCombinedUsers', {
+app.http('GetEnervaUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'combinedusers/{offset}/{limit}/{company}',
-    handler: GetCombinedUsers
+    route: 'enerva/{offset}/{limit}',
+    handler: GetEnervaUsers
 });
-
-app.http('GetUserInvitationList', {
+app.http('GetIESOUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'invitations/{offset}/{limit}',
-    handler: GetUserInvitationList
+    route: 'ieso/{offset}/{limit}',
+    handler: GetIESOUsers
 });
-
-app.http('SendAdminInvitation', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    route: 'invitations',
-    handler: SendAdminInvitation
-});
-
-app.http('UserRegister', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    route: 'v1/users',
-    handler: UserRegister
-});
-
-app.http('UserUpdate', {
-    methods: ['PUT'],
-    authLevel: 'anonymous',
-    handler: UserUpdate
-});
-
-app.http('GetUserById', {
+app.http('GetCustomerUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'user',
-    handler: GetUserById
+    route: 'customer/{offset}/{limit}',
+    handler: GetCustomerUsers
 });
 
-app.http('DeleteUser', {
+
+app.http('GetAdminUserById', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'usr/{id}',
+    handler: GetAdminUserById
+});
+
+app.http('DeleteAdminUser', {
     methods: ['DELETE'],
     authLevel: 'anonymous',
-    route: 'users/{id}/{type}',
-    handler: DeleteUser
+    route: 'usr/{id}',
+    handler: DeleteAdminUser
+});
+app.http('AdAssignPermissions', {
+    methods: ['POST'],
+    route: 'adassign',
+    authLevel: 'anonymous',
+    handler: AdAssignPermissions
+});
+app.http('GetAdmnPermissionsByRoleId', {
+    route: 'adrolepermission/{id}',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetAdmnPermissionsByRoleId
 });
 
-app.http('AcceptInvitation', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    route: 'acceptinvite',
-    handler: AcceptInvitation
-});
 
-app.http('RejectInvitation', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    route: 'rejectinvite',
-    handler: RejectInvitation
-});

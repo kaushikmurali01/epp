@@ -1,10 +1,8 @@
 import { Contact } from '../models/contact-us';
 import { Response } from 'enerva-utils/interfaces/response';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
-//import { Email } from './email';
-//import { EmailTemplate } from './emailTemplate';
 import { Email } from 'enerva-utils/common/email';
-import { EmailTemplate } from 'enerva-utils/common/emailTemplate';
+import { EmailTemplate } from '../utils/emailTemplate';
 
 class ContactUsService {
 

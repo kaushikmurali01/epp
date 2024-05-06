@@ -1,6 +1,8 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { RoleController } from '../controllers/roleController';
 import { RolePermissionService } from "../services/rolePermissionService";
+import { Permission } from "../models/permission";
+import { decodeTokenMiddleware } from "../middleware/authMiddleware";
 /**
  * Creates a new role based on the provided request data.
  * 
@@ -151,10 +153,63 @@ export async function GetPermissionsByRoleId(request: HttpRequest, context: Invo
     }
 }
 
+export async function AssignPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData = await request.json(); 
+
+        // Create role
+        const role = await RoleController.assignPermissions(requestData);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(role);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+export async function GetUserPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+       // const requestData = await request.json();
+       // const user = parseInt(request.params.user);
+        //const company = parseInt(request.params.company);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+
+
+        // Create role
+      //  const role = await RoleController.assignPermissions(requestData);
+
+        const permissions = await Permission.findAll();
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(permissions);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+//const permissions = await Permission.findAll();
+
 app.http('CreateRole', {
     methods: ['POST'],
     authLevel: 'anonymous',
     handler: CreateRole
+});
+app.http('AssignPermissions', {
+    methods: ['POST'],
+    route: 'assign',
+    authLevel: 'anonymous',
+    handler: AssignPermissions
 });
 
 app.http('GetRole', {
@@ -162,6 +217,13 @@ app.http('GetRole', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetRole
+});
+
+app.http('GetUserPermissions', {
+    route: 'userpermissions',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetUserPermissions
 });
 
 app.http('ListRoles', {

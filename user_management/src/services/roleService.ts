@@ -2,6 +2,8 @@ import { Role } from '../models/role';
 import { Response } from 'enerva-utils/interfaces/response';
 import { testDatabaseConnection } from 'enerva-utils/utils/database';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
+import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
+import { User } from '../models/user';
 
 class RoleService {
 
@@ -99,6 +101,53 @@ class RoleService {
                 throw error;
             }
         }
+
+    /**
+     * Creates a new role with provided details.
+     * 
+     * @param roleDetails - Object containing role details such as rolename, description, is_active, created_by, updated_by, etc.
+     * @returns Promise<Response> - A promise resolving to a response indicating the status of role creation.
+     * @description Creates a new role by creating a role record in the database with specified role details. Returns a response indicating the success or failure of the creation process.
+    */
+    static async assignPermissions(data): Promise<any> {
+        try {
+            let email = data.email;
+            const user = await User.findOne({ where: { email } });
+            console.log("user",user.id);
+            await this.deletePermissions(user.id, data.company_id);
+            for (const permissionId of data.permissions) {
+              // Create a new record for each permission
+             await UserCompanyRolePermission.create({
+                role_id: data.role_id,
+                permission_id: permissionId,
+                user_id: user.id,
+                company_id: data.company_id, 
+                is_active: 1,  
+              });
+            }
+            console.log('Permissions inserted successfully.');
+            //return perm;
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+          } catch (error) {
+            console.error('Error inserting permissions:', error);
+          }
+    }
+
+    static async deletePermissions(userId: number, companyId:number): Promise<number> {
+        try {
+            // Delete permissions based on user_id and company_id
+           const resp = await UserCompanyRolePermission.destroy({
+              where: {
+                user_id: userId,
+                company_id: companyId,
+              },
+            });
+            return resp;
+            console.log('Permissions deleted successfully.');
+          } catch (error) {
+            console.error('Error deleting permissions:', error);
+          }
+    }
     
 }
 

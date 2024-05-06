@@ -1,5 +1,6 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
 import { RoleService } from '../services/roleService';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 
 class RoleController {
 
@@ -15,6 +16,17 @@ class RoleController {
           //  const requestData = req.body;
             const role = await RoleService.createRole(requestData);
             return { status: 201, body: role };
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+
+    static async assignPermissions(requestData): Promise<Object> {
+        try {
+          //  const requestData = req.body;
+            const perm = await RoleService.assignPermissions(requestData);
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success};
+
         } catch (error) {
             return { status: 500, body: { error: error.message } };
         }

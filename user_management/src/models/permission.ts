@@ -7,8 +7,6 @@ interface PermissionAttributes {
   permission_type: string;
   permission_description: string;
   is_active: number;
-  created_at: Date;
-  updated_at: Date;
   created_by: number;
   updated_by: number;
 }
@@ -21,8 +19,6 @@ class Permission extends Model<PermissionAttributes, PermissionCreationAttribute
   public permission_type!: string;
   public permission_description!: string;
   public is_active!: number;
-  public created_at!: Date;
-  public updated_at!: Date;
   public created_by!: number;
   public updated_by!: number;
 }
@@ -70,16 +66,7 @@ Permission.init(
         },
       },
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
+   
     created_by: {
       type: DataTypes.INTEGER,
       allowNull: false,

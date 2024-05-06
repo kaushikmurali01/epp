@@ -17,4 +17,13 @@ export class EmailTemplate {
         
         
     }
+    static async getCommonTemplate() {
+        return`<div class="container">
+             #content#
+             #link#
+            </div>
+             `;
+        
+        
+    }
 }

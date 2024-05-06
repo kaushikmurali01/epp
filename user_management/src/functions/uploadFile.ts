@@ -15,7 +15,7 @@ const blobId = uuidv4(); // Generates a UUID
 export async function FileUpload2(req: HttpRequest, context: InvocationContext): Promise<any> {
     try {
     context.log('Javascript HTTP trigger function processed a request');
-    var bodyBuffer = Buffer.from(req.body.data.toString());
+    var bodyBuffer = req.formData();
     console.log("bodyBuffer009",req.headers['content-type']);
     var boundary = multipart.getBoundary(req.headers['content-type']);
 

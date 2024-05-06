@@ -45,9 +45,9 @@ class CompanyController {
  * @returns Promise<Response>
  * @description Handles the retrieval of a list of companies, invoking the CompanyService to retrieve the companies, and returning an HTTP response with appropriate status and JSON data.
  */
-static async listCompanies(req: Request, res: Response): Promise<any> {
+static async listCompanies(offset, limit): Promise<any> {
     try {
-        const companies = await CompanyService.listCompanies();
+        const companies = await CompanyService.listCompanies(offset, limit);
         return companies;
     } catch (error) {
         return { status: 500, body: { error: error.message } };

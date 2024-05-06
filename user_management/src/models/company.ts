@@ -23,7 +23,7 @@ interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> {}
 class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implements CompanyAttributes {
   public id!: number;
   public source_of_discovery!: string;
-  public company_type!: number;
+  public company_type: number;
   public company_name!: string;
   public website!: string;
   public address1!: string;
@@ -33,8 +33,8 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public postal_code!: string;
   public country!: string;
   public total_facility!: number;
-  public portal_agreement_accepted!: number;
-  public information_commercial_accepted!: number;
+  public portal_agreement_accepted: number;
+  public information_commercial_accepted: number;
 }
 
 Company.init(
@@ -55,12 +55,7 @@ Company.init(
     },
     company_type: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: {
-          msg: 'Company type must be a valid integer.',
-        },
-      },
+      allowNull: true
     },
     company_name: {
       type: DataTypes.STRING,
@@ -73,12 +68,12 @@ Company.init(
     },
     website: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        isUrl: {
-          msg: 'Website must be a valid URL.',
-        },
-      },
+      allowNull: false
+      // validate: {
+      //   isUrl: {
+      //     msg: 'Website must be a valid URL.',
+      //   },
+      // },
     },
     address1: {
       type: DataTypes.STRING,
@@ -131,30 +126,15 @@ Company.init(
     },
     total_facility: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: {
-          msg: 'Enrolled facilities count must be a valid integer.',
-        },
-      },
+      allowNull: true
     },
     portal_agreement_accepted: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isBoolean: {
-          msg: 'Portal agreement accepted must be a boolean value.',
-        },
-      },
+      allowNull: true
     },
     information_commercial_accepted: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isBoolean: {
-          msg: 'Information commercial accepted must be a boolean value.',
-        },
-      },
+      allowNull: true
     },
   },
   {
