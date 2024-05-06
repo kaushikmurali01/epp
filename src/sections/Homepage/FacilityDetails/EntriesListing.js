@@ -24,7 +24,7 @@ import { fetchEntriesListing } from "./../../../redux/actions/entriesAction";
 import FacilityStatus from "components/FacilityStatus";
 import { format, getYear } from "date-fns";
 import { entriesEndPoints } from "constants/apiEndPoints";
-import { POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { SnackbarContext } from "utils/notification/SnackbarProvider";
 import EvModal from "utils/modal/EvModal";
 import InputField from "components/FormBuilder/InputField";
@@ -34,8 +34,9 @@ import { validationSchemaEntry } from "utils/validations/formValidation";
 
 const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
   const [tabValue, setTabValue] = useState('monthlyEntries');
+  const [entryToDelete, setEntryToDelete] = useState('');
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -60,6 +61,52 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
     headerText: "Add Entry",
     headerSubText: 'Please enter the following details to add a new entry for this meter',
     modalBodyContent: "",
+  });
+
+  const handleDeleteEntry = (id) => {
+    if (id) {
+      DELETE_REQUEST(entriesEndPoints.DELETE_ENTRY + '/' + id)
+        .then((response) => {
+          dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+          setDeleteModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+
+        })
+        .catch((error) => {
+          console.error("Error deleting entry:", error);
+        })
+    }
+  };
+
+  const [deletModalConfig, setDeleteModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete entry",
+    headerSubText: "Are you sure you want to delete this entry?",
+    modalBodyContent: "",
+    saveButtonAction: handleDeleteEntry,
   });
 
   const initialValues = {
@@ -101,6 +148,35 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
       Header: "Last updated",
       accessor: (item) => <>{format(item.updated_at, "MM/dd/yyyy")}</>,
     },
+    {
+      Header: "Actions",
+      accessor: (item) => (
+        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+            }}
+          onClick={openRequestModal}
+          >
+            Edit
+          </Button>
+          <Button
+            color="error"
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+          onClick={() => openDeleteModal(item?.id)}
+          >
+            Delete
+          </Button>
+        </Box>
+      ),
+    },
   ];
 
   const enteriesListingData = useSelector(
@@ -120,7 +196,6 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
-      console.log(data)
       const apiURL = entriesEndPoints.ADD_ENTRY;
       const requestBody = {
         facility_id: parseInt(id),
@@ -212,6 +287,14 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
       ...prevState,
       modalVisible: true,
       modalBodyContent: <RequestToJoinForm />
+    }));
+  };
+
+  const openDeleteModal = (entryId) => {
+    setEntryToDelete(entryId);
+    setDeleteModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
     }));
   };
 
@@ -308,12 +391,12 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
           </Tabs>
         </Grid>
         <Grid item sx={{ justifySelf: 'flex-end' }}>
-          <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }}>
+          {/* <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }}>
             Downlod in excel
           </Typography>
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
-          </Typography>
+          </Typography> */}
           <Button variant="contained" sx={{ marginLeft: "2rem" }} onClick={openRequestModal}>
             Add Entry
           </Button>
@@ -330,6 +413,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
       </Box>
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete}/>
 
     </>
   );
