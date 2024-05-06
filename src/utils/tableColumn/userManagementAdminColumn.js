@@ -9,6 +9,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsTost from "utils/notification/NotificationsTost";
+import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
@@ -26,23 +27,26 @@ const buttonStyle = {
 
 
 
-export const USER_MANAGEMENT_COLUMN = (handleAPISuccessCallBack) => [
+export const USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack) => [
     {
-        Header: "Name",
-        // accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
-        accessor: (item) => `${item?.company_name}`
+        Header: "User ID",
+        accessor: 'id',
     },
     {
-        Header: "Email ID",
+        Header: "User Full Name",
+        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+    },
+    {
+        Header: "Business Email",
         accessor: "email",
-    },
-    {
-        Header: "Facility",
-        accessor: "facility",
     },
     {
         Header: "Role Type",
         accessor: "rolename",
+    },
+    {
+        Header: "Created on (Date)",
+        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`
     },
     {
         Header: "Status",

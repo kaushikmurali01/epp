@@ -35,6 +35,10 @@ export const userManagementEndPoints = {
   userManagement: "user-management",
 };
 
+export const evUserManagementEndPoints = {
+  evUserManagement: "ev-user-management",
+};
+
 export const participantAgreementEndPoints = {
   participantAgreement: "participant-agreement",
 };
