@@ -7,7 +7,7 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsTost from 'utils/notification/NotificationsTost';
 
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage }) => {
+const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack }) => {
     const navigate = useNavigate();
 
     const [alignment, setAlignment] = useState('yes');
@@ -71,90 +71,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage }) => {
 
     }
 
-    // const permissions = [
-    //     {
-    //         "permission_id": 1,
-    //         "desc": "Adding other users on the website",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 2,
-    //         "desc": "Grant/Revoke Access to/from other users",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 3,
-    //         "desc": "Profile Information Update and Password Reset",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 4,
-    //         "desc": "Bind the Company",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 5,
-    //         "desc": "Account Portfolio and Data Visualizations",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 6,
-    //         "desc": "Building/Facility",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 7,
-    //         "desc": "Doing Building Facility Data",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 8,
-    //         "desc": "Building/Facility Data Visualizations",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 9,
-    //         "desc": "Baseline Energy Modelling",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 10,
-    //         "desc": "Energy Savings Calculations",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 11,
-    //         "desc": "Viewing Incentive Payment Calculations",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 12,
-    //         "desc": "Viewing In-Situ Benchmarking",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 13,
-    //         "desc": "Energy Start Benchmarking",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 14,
-    //         "desc": "Viewing and Exporting EWRB Report",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 15,
-    //         "desc": "Green Button Data Integration",
-    //         "is_assigned": false
-    //     },
-    //     {
-    //         "permission_id": 16,
-    //         "desc": "Financial Details",
-    //         "is_assigned": false
-    //     }
-    // ]
-
-
     const [permissionStates, setPermissionStates] = useState(
         permissions.map(() => false)
     );
@@ -177,6 +93,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage }) => {
                 console.log(response, "response")
                 NotificationsTost({ message: "Your form has been submitted!", type: "success" });
                 setVisibleInvitePage(false);
+                handleAPISuccessCallBack();
             })
             .catch((error) => {
                 console.log(error, 'error')

@@ -22,7 +22,7 @@ const BlogPost = ({ post }) => {
             boxShadow: 'none',
           }}>
             <CardMedia
-                sx={{ height: 190, backgroundSize: 'contain' }}
+                sx={{ height: 190, backgroundSize: 'cover' }}
                 image={post.image}
                 // title={post.title}
                 alt={post.title}
