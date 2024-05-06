@@ -89,9 +89,9 @@ const MeterListing = ({
     onAddButtonClick();
   };
 
-  const handleEntriesListClick = (id) => {
-    console.log(id);
-    onEntriesListClick(id);
+  const handleEntriesListClick = (id, meter_id) => {
+    console.log(id, meter_id)
+    onEntriesListClick(id, meter_id);
   };
 
   const handleEditButtonClick = (id) => {
@@ -185,7 +185,7 @@ const MeterListing = ({
           data={meterListingData}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
-          onClick={(id) => handleEntriesListClick(id)}
+          onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
         />
       </Box>
     </>
