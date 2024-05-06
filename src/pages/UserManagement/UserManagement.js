@@ -99,6 +99,7 @@ const UserManagement = () => {
    
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
+      handleAPISuccessCallBack();
         NotificationsTost({ message: "Your form has been submitted!", type: "success" });
         setModalConfig((prevState) => ({
           ...prevState,
@@ -196,7 +197,7 @@ useEffect(() => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ? 
-        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} /> : 
+        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} handleAPISuccessCallBack={handleAPISuccessCallBack} /> : 
         
           <Box component="section">
             <Container maxWidth="lg">

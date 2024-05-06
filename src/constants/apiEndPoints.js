@@ -25,6 +25,10 @@ export const USER_MANAGEMENT = {
   DELETE_USER_REQUEST : ''
 }
 
+export const ENERVA_USER_MANAGEMENT = {
+  GET_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/adrolepermission",
+}
+
 export const LANDING_PAGE = {
   CONTACT_US_FORM: "/public-api/v1/contact",
   GET_NEWS: "/public-api/v1/news",
