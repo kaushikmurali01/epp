@@ -34,7 +34,6 @@ const Details = () => {
   const [facilityImgUrl, setFacilityImgUrl] = useState("");
 
   const initialValues = {};
-  console.log(values);
 
   const NUMBER_OF_ARRAY = [
     { id: 1, value: 1, name: 1, label: 1 },
