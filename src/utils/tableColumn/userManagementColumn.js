@@ -69,10 +69,10 @@ export const USER_MANAGEMENT_COLUMN = (handleAPISuccessCallBack) => [
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }}>
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item)}>
                     Manage permission
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
                     Delete
                 </Typography>
 
@@ -131,6 +131,10 @@ const handelReject = (item, handleSuccessCallback) => {
         NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
     })
+}
+
+const handelManagePermission = (item) => {
+    // setVisibleInvitePage(true);
 }
 
 const handelDelete = (item) => {

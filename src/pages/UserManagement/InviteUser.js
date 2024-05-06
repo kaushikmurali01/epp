@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
-import { GET_REQUEST } from 'utils/HTTPRequests';
+import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
+import NotificationsTost from 'utils/notification/NotificationsTost';
 
 
-const InviteUser = ({ getUserRole }) => {
+const InviteUser = ({ getUserRole, setVisibleInvitePage }) => {
     const navigate = useNavigate();
 
     const [alignment, setAlignment] = useState('yes');
@@ -14,7 +15,7 @@ const InviteUser = ({ getUserRole }) => {
     const [selectRoleType, setSelectRoleType] = useState('');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
-
+    const [selectedPermissions, setSelectedPermissions] = useState([]);
 
 
 
@@ -27,13 +28,35 @@ const InviteUser = ({ getUserRole }) => {
 
 
 
+    // const handleAlignment = (event, index) => {
+    //     setPermissionStates((prevStates) => {
+    //         const newStates = [...prevStates];
+    //         newStates[index] = !newStates[index];
+    //         return newStates;
+    //     });
+    // };
     const handleAlignment = (event, index) => {
         setPermissionStates((prevStates) => {
-            const newStates = [...prevStates];
-            newStates[index] = !newStates[index];
-            return newStates;
+          const newStates = [...prevStates];
+          newStates[index] = !newStates[index];
+      
+          // Update selectedPermissions based on the new state
+          if (newStates[index]) {
+            setSelectedPermissions((prevSelectedPermissions) => [
+              ...prevSelectedPermissions,
+              permissions[index],
+            ]);
+          } else {
+            setSelectedPermissions((prevSelectedPermissions) =>
+              prevSelectedPermissions.filter(
+                (permission) => permission.permission_id !== permissions[index].permission_id
+              )
+            );
+          }
+      
+          return newStates;
         });
-    };
+      };
 
     const getPermissionList = (permission_id) => {
         const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
@@ -41,6 +64,7 @@ const InviteUser = ({ getUserRole }) => {
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
+                setPermissionStates(res.data.map((permission) => permission.is_assigned));
             }).catch((error) => {
                 console.log(error)
             });
@@ -135,19 +159,52 @@ const InviteUser = ({ getUserRole }) => {
         permissions.map(() => false)
     );
 
+    const handelInviteSubmit = ()=> {
+        const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        const permissionIds = selectedPermissions.map(permission => permission.permission_id);
+        const requestBody = {
+            "email": userEmail,
+            "role": selectRoleType,
+            "company": "1", // comapnay id is static right now.
+            "permissions": permissionIds
+        }
+
+
+        console.log(requestBody, apiURL, "requestBody");
+
+        POST_REQUEST(apiURL, requestBody)
+            .then((response) => {
+                console.log(response, "response")
+                NotificationsTost({ message: "Your form has been submitted!", type: "success" });
+                setVisibleInvitePage(false);
+            })
+            .catch((error) => {
+                console.log(error, 'error')
+                NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+            })
+    }
+
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
         setIsFormValid(isValidEmail && selectRoleType !== '')
         console.log(isValidEmail)
     }, [userEmail, selectRoleType])
 
-    useEffect(() => {
-        if (selectRoleType) {
-            getPermissionList(selectRoleType)
-        }
-    }, [selectRoleType])
 
-    console.log(selectRoleType, userEmail, isFormValid, "selectRoleType")
+  useEffect(() => {
+    if (selectRoleType) {
+        setPermissionStates([]); // Reset permissionStates
+        setSelectedPermissions([]); // Reset selectedPermissions
+        getPermissionList(selectRoleType);
+    }
+}, [selectRoleType]);
+
+    // console.log(selectRoleType, userEmail, isFormValid, "selectRoleType")
+    console.log('Selected Permissions:', selectedPermissions);
+    console.log("permissions:", permissions)
+
+
     return (
         <Box component="section" sx={{ padding: { xs: '1rem', md: '4rem' } }}>
 
@@ -196,7 +253,7 @@ const InviteUser = ({ getUserRole }) => {
                             color="primary"
                             variant="contained"
                             sx={{ alignSelf: 'center' }}
-                            onClick={() => navigate('usermanagement/invite')}
+                            onClick={() => handelInviteSubmit()}
                             disabled={!isFormValid}
                         >
                             Send Invite
@@ -217,8 +274,8 @@ const InviteUser = ({ getUserRole }) => {
                         <Stack>
                             {permissions && permissions.map((permission, index) => {
                                 return (
-                                    <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item key={permission.permission_id}>
+                                    <Grid key={permission.permission_id} container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                        <Grid item >
                                             <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>
@@ -246,9 +303,9 @@ const InviteUser = ({ getUserRole }) => {
                     </Box>
                     :
                     <Box component='div' >
-                        <Grid container md={12} sx={{ justifyContent: 'center', marginTop: '2rem' }}>
+                        <Grid container md={12} sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
-                            <Typography variant='span'> Please select role type </Typography>
+                            <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
                             </Grid>
                         </Grid>
                     </Box>
