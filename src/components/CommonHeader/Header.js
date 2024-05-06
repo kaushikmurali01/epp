@@ -10,14 +10,31 @@ import MenuItem from "@mui/material/MenuItem";
 import Drawer from "@mui/material/Drawer";
 import logo from "../../assets/images/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import Avatar from "@mui/material/Avatar";
+import Tooltip from "@mui/material/Tooltip";
+import AdbIcon from "@mui/icons-material/Adb";
 import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
 import { Link } from "@mui/material";
 
+const settings = ["Profile", "Logout"];
+
 function Header(props) {
   const [open, setOpen] = React.useState(false);
   const {instance} = useMsal();
+
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -44,6 +61,13 @@ function Header(props) {
       setOpen(false);
     }
   };
+
+  const clickSetting =(setting) => {
+    if(setting == 'Logout'){
+      //logout from the application with msal instance
+      instance.logoutRedirect()
+    }
+  }
 
   return (
     <AppBar
@@ -148,6 +172,35 @@ function Header(props) {
               </Box>
             )}
           </Box>
+          {(props.page == "authenticated") ? <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, gap: '1.5rem', alignItems: "center", }} >
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt="Ben Martin" src="/static/images/avatar/23.jpg" />
+              </IconButton>
+            </Tooltip>
+            <Menu
+              sx={{ mt: "45px" }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
+            >
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={() => clickSetting(setting)}>
+                  <Typography textAlign="center">{setting}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box> : null}
           {!(props.page == "authenticated") && (
             <>
               <Box
