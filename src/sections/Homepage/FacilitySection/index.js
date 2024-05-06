@@ -22,6 +22,7 @@ import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
 
 const Facility = () => {
+  const [facilityToDelete, setFacilityToDelete] = useState('');
   const columns = [
     {
       Header: "Name/Nick Name",
@@ -128,9 +129,8 @@ const Facility = () => {
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const [facilityToDelete, setFacilityToDelete] = useState();
-
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
     setModalConfig((prevState) => ({
@@ -140,7 +140,6 @@ const Facility = () => {
   };
 
   const handleDeleteFacility = (id) => {
-    console.log(id)
     if (id) {
       dispatch(deleteFacility(id))
         .then(() => {
@@ -182,7 +181,7 @@ const Facility = () => {
     headerText: "Delete facility",
     headerSubText: "Are you sure you want to delete this facility?",
     modalBodyContent: "",
-    saveButtonAction: () => handleDeleteFacility(facilityToDelete),
+    saveButtonAction: handleDeleteFacility,
   });
 
   useEffect(() => {
@@ -277,7 +276,7 @@ const Facility = () => {
           onClick={(id) => navigate(`/admin/facility-details/${id}`)}
         />
       </Box>
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} actionButtonData={facilityToDelete}/>
     </Container>
   );
 };

@@ -153,7 +153,7 @@ function Header(props) {
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
-                  gap: 0.5,
+                  gap: '1.5rem',
                   alignItems: "center",
                 }}
               >

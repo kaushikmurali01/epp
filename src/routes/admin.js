@@ -1,5 +1,5 @@
 import React, { lazy } from 'react';
-import { facilityEndPoints, pageSubEndspoints, participantAgreementEndPoints, userManagementEndPoints } from 'constants/endPoints';
+import { evUserManagementEndPoints, facilityEndPoints, pageSubEndspoints, participantAgreementEndPoints, userManagementEndPoints } from 'constants/endPoints';
 import FacilityList from 'pages/Facility/FacilityList';
 import AddFacilityComponent from 'pages/Facility/AddFacility';
 import Homepage from 'pages/Homepage/Homepage';
@@ -8,6 +8,7 @@ import UserManagement from 'pages/UserManagement/UserManagement';
 import ParticipantAgreementComponent from 'pages/ParticipantAgreement';
 import FacilityDetailsPage from 'pages/Facility/FacilityDetails';
 import EntriesListing from 'sections/Homepage/FacilityDetails/EntriesListing';
+import UserManagementAdmin from 'pages/UserManagementAdmin/UserManagementAdmin';
 // import Facility from 'sections/Homepage/FacilitySection';
 
 // const Homepage = lazy(() => import("pages/Homepage/Homepage"));
@@ -22,4 +23,8 @@ export const adminRoutes = [
   { key: 'userManagement', name: 'userManagement', path: userManagementEndPoints.userManagement, component: <UserManagement /> },
   { key: 'facilityDetails', name: 'facilityDetails', path: facilityEndPoints.facilityDetails, component: <FacilityDetailsPage /> },
   { key: 'entriesDetails', name: 'entriesDetails', path: facilityEndPoints.entriesDetails, component: <EntriesListing /> },
+
+  // enevera admin routes
+  { key: 'evUserManagement', name: 'evUserManagement', path: evUserManagementEndPoints.evUserManagement, component: <UserManagementAdmin /> },
+
 ];

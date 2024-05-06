@@ -9,6 +9,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsTost from "utils/notification/NotificationsTost";
+import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
@@ -26,22 +27,26 @@ const buttonStyle = {
 
 
 
-export const USER_MANAGEMENT_COLUMN = (handleAPISuccessCallBack) => [
+export const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack) => [
     {
-        Header: "Name",
-        accessor: (item) => `${item?.first_name} ${item?.last_name}`
+        Header: "User ID",
+        accessor: 'id',
     },
     {
-        Header: "Email ID",
+        Header: "User Full Name",
+        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+    },
+    {
+        Header: "Business Email",
         accessor: "email",
-    },
-    {
-        Header: "Facility",
-        accessor: "facility",
     },
     {
         Header: "Role Type",
         accessor: "rolename",
+    },
+    {
+        Header: "Created on (Date)",
+        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`
     },
     {
         Header: "Status",
@@ -69,10 +74,10 @@ export const USER_MANAGEMENT_COLUMN = (handleAPISuccessCallBack) => [
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }}>
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item)}>
                     Manage permission
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
                     Delete
                 </Typography>
 
@@ -131,6 +136,10 @@ const handelReject = (item, handleSuccessCallback) => {
         NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
     })
+}
+
+const handelManagePermission = (item) => {
+    // setVisibleInvitePage(true);
 }
 
 const handelDelete = (item) => {
