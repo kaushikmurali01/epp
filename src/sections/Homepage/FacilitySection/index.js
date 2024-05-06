@@ -129,7 +129,7 @@ const Facility = () => {
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
   
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);

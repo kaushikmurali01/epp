@@ -25,7 +25,7 @@ const MeterListing = ({
   OnEditMeterButton,
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
