@@ -32,7 +32,7 @@ export default function EvModal(props) {
     cancelButtonAction
   } = props.modalConfig;
 
-  const { setModalConfig } = props;
+  const { setModalConfig, actionButtonData } = props;
 
   const handleClose = () => {
     setModalConfig((prevState) => ({
@@ -76,7 +76,7 @@ export default function EvModal(props) {
         { (buttonsUI?.saveButton || buttonsUI?.cancelButton) &&
           <DialogActions sx={{}}>
             {buttonsUI?.saveButton && 
-            <Button  onClick={(id)=>saveButtonAction(id)}>
+            <Button  onClick={() => {actionButtonData ? saveButtonAction(actionButtonData) : saveButtonAction()}}>
              {buttonsUI?.saveButtonName || "Yes"}
             </Button>
             }
