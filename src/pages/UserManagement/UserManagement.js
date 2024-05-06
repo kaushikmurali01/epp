@@ -1,6 +1,6 @@
 import React, { useEffect,useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_MANAGEMENT_COLUMN } from '../../utils/tableColumn/userManagementColumn';
+import { USER_MANAGEMENT_COLUMN } from '../../utils/tableColumn/useerManagement/userManagementColumn';
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, Grid, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import EvModal from 'utils/modal/EvModal';
