@@ -4,17 +4,12 @@ import { useFormikContext } from 'formik';
 
 const ButtonWrapper = ({ children, variant, width, height, edit, ...otherProps }) => {
   const [buttonState, setButtonState] = useState(false);
-  const { submitForm } = useFormikContext();
   const formikProps = useFormikContext();
 
-  const handleSubmit = () => {
-    submitForm();
-  }
 
   const configButton = {
     ...otherProps,
     variant: variant || 'contained',
-    onClick: handleSubmit
   }
 
   useEffect(() => {
@@ -30,6 +25,7 @@ const ButtonWrapper = ({ children, variant, width, height, edit, ...otherProps }
       {...configButton}
       sx={{ width: width, height: height }}
       disabled={!buttonState}
+      onClick={()=> formikProps.submitForm}
     >
       {children}
     </Button>

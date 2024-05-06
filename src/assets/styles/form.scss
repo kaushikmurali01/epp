@@ -121,6 +121,12 @@
                 opacity: 1;
               }
         }
+
+        &.has-error {
+            textarea {
+              border-color: #d32f2f;
+            }
+        }
     }
 }
 

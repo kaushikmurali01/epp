@@ -1,3 +1,4 @@
+
 export const facilityEndPoints = {
   ADD_EDIT_FACILITY: "/company-facility/v1/facility",
   FACILITY_LIST: "/company-facility/v1/facility-listing",
@@ -17,7 +18,11 @@ export const USER_MANAGEMENT = {
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
-};
+  ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
+  REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
+  // DELETE REQUEST
+  DELETE_USER_REQUEST : ''
+}
 
 export const LANDING_PAGE = {
   CONTACT_US_FORM: "/enerva-user/v1/contact",

@@ -35,7 +35,7 @@ const Table = ({ columns, data, headbgColor, onClick }) => {
   return (
     <TableContainer>
       <MUITable {...getTableProps()}>
-        <TableHead>
+        <TableHead sx={{backgroundColor:headbgColor || '#D9D9D9'}}>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
