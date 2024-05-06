@@ -30,9 +30,41 @@ const UserManagementColumn = () => {
 
     }
 
+    const UserRole = [
+        {
+          "id": 1,
+          "rolename": "Super-Admin",
+          "description": "Super Administrator Role",
+          "is_active": 1,
+        },
+        {
+          "id": 2,
+          "rolename": "Sub-Admin",
+          "description": "Sub Administrator Role",
+          "is_active": 1,
+        },
+        {
+          "id": 3,
+          "rolename": "Employee",
+          "description": "Employee Role",
+          "is_active": 1,
+        },
+        {
+          "id": 4,
+          "rolename": "Consultant",
+          "description": "Consultant Role",
+          "is_active": 1,
+        },
+        {
+          "id": 5,
+          "rolename": "Account Manager",
+          "description": "Account Manager Role",
+          "is_active": 1,
+        }
+      ]
 
 
-     const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack) => [
+     const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow) => [
         {
             Header: "Name",
             // accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
@@ -76,7 +108,7 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item)}>
+                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow)}>
                         Manage permission
                     </Typography>
                     <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
@@ -90,42 +122,32 @@ const UserManagementColumn = () => {
 
 
     const handelAccept = (item, handleSuccessCallback) => {
-        // const { showSnackbar } = useContext(SnackbarContext);
-        console.log("accept", item);
+
         const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
         const requestBody = {
             "user_id": item.id,
             "company_id": item.company_id
         }
 
-        console.log("requestBody", requestBody);
-
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
                 NotificationsTost({ message: "You have accepted the request!", type: "success" });
                 handleSuccessCallback();
-                // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
 
             })
             .catch((error) => {
                 console.log(error, 'error')
                 NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-                // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
 
             })
     }
 
     const handelReject = (item, handleSuccessCallback) => {
-
-        // const { showSnackbar } = useContext(SnackbarContext);
-        console.log("reject", item);
         const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
         const requestBody = {
             "user_id": item.id,
             "company_id": item.company_id
         }
-        console.log("requestBody", requestBody);
 
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
@@ -140,14 +162,15 @@ const UserManagementColumn = () => {
             })
     }
 
-    const handelManagePermission = (item) => {
-        // setVisibleInvitePage(true);
+    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow) => {
+        const roleNameToFilter = item.rolename;
+        const filteredRoles = UserRole.filter(role => role.rolename === roleNameToFilter);
+        const filteredRoleObject = filteredRoles.length > 0 ? filteredRoles[0] : null;
+        setVisibleInvitePage(true);
+        setSelectTableRow({...filteredRoleObject, email : item.email})
     }
 
     const handelDelete = (item) => {
-
-        // const { showSnackbar } = useContext(SnackbarContext);
-        console.log("delete", item);
         const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST;
         const requestBody = {
             "user_id": "1",
@@ -169,7 +192,7 @@ const UserManagementColumn = () => {
         // })
     }
 
-    return { USER_MANAGEMENT_COLUMN_ACTION }
+    return { USER_MANAGEMENT_COLUMN_ACTION, handelManagePermission }
 }
 
 export default UserManagementColumn;

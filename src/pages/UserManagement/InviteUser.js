@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsTost from 'utils/notification/NotificationsTost';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack }) => {
+const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTaleRow }) => {
     const navigate = useNavigate();
 
     const [alignment, setAlignment] = useState('yes');
-    const [userEmail, setUserEmail] = useState('');
-    const [selectRoleType, setSelectRoleType] = useState('');
+    const [userEmail, setUserEmail] = useState(selectTaleRow?.email || '');
+    const [selectRoleType, setSelectRoleType] = useState(selectTaleRow?.id || '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -37,30 +37,29 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     // };
     const handleAlignment = (event, index) => {
         setPermissionStates((prevStates) => {
-          const newStates = [...prevStates];
-          newStates[index] = !newStates[index];
-      
-          // Update selectedPermissions based on the new state
-          if (newStates[index]) {
-            setSelectedPermissions((prevSelectedPermissions) => [
-              ...prevSelectedPermissions,
-              permissions[index],
-            ]);
-          } else {
-            setSelectedPermissions((prevSelectedPermissions) =>
-              prevSelectedPermissions.filter(
-                (permission) => permission.permission_id !== permissions[index].permission_id
-              )
-            );
-          }
-      
-          return newStates;
+            const newStates = [...prevStates];
+            newStates[index] = !newStates[index];
+
+            // Update selectedPermissions based on the new state
+            if (newStates[index]) {
+                setSelectedPermissions((prevSelectedPermissions) => [
+                    ...prevSelectedPermissions,
+                    permissions[index],
+                ]);
+            } else {
+                setSelectedPermissions((prevSelectedPermissions) =>
+                    prevSelectedPermissions.filter(
+                        (permission) => permission.permission_id !== permissions[index].permission_id
+                    )
+                );
+            }
+
+            return newStates;
         });
-      };
+    };
 
     const getPermissionList = (permission_id) => {
         const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
-        console.log(apiURL, "getPermissionList")
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -75,7 +74,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         permissions.map(() => false)
     );
 
-    const handelInviteSubmit = ()=> {
+    const handelInviteSubmit = () => {
         const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
         const requestBody = {
@@ -86,11 +85,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         }
 
 
-        console.log(requestBody, apiURL, "requestBody");
-
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
-                console.log(response, "response")
                 NotificationsTost({ message: "Your form has been submitted!", type: "success" });
                 setVisibleInvitePage(false);
                 handleAPISuccessCallBack();
@@ -105,30 +101,48 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
         setIsFormValid(isValidEmail && selectRoleType !== '')
-        console.log(isValidEmail)
     }, [userEmail, selectRoleType])
 
 
-  useEffect(() => {
-    if (selectRoleType) {
-        setPermissionStates([]); // Reset permissionStates
-        setSelectedPermissions([]); // Reset selectedPermissions
-        getPermissionList(selectRoleType);
-    }
-}, [selectRoleType]);
+    useEffect(() => {
+        if (selectRoleType) {
+            setPermissionStates([]); // Reset permissionStates
+            setSelectedPermissions([]); // Reset selectedPermissions
+            getPermissionList(selectRoleType);
+        }
+    }, [selectRoleType]);
 
-    // console.log(selectRoleType, userEmail, isFormValid, "selectRoleType")
-    console.log('Selected Permissions:', selectedPermissions);
-    console.log("permissions:", permissions)
 
+    console.log(selectTaleRow, 'selectTaleRow')
 
     return (
-        <Box component="section" sx={{ padding: { xs: '1rem', md: '4rem' } }}>
+        <Box component="section">
 
             <Container maxWidth="lg">
-                <Grid container sx={{ justifyContent: 'space-between', marginBottom: '2rem' }} >
-                    <Grid item xs={12} >
+                <Grid container sx={{ justifyContent: 'space-between', marginBottom: '2rem', gap: '1rem' }} >
+
+                    <Grid item >
                         <Typography variant='h4'>Invite user and set permissions</Typography>
+                    </Grid>
+                    <Grid item sx={{ marginBottom: '1rem' }}>
+                        <Button
+                            color="primary"
+                            variant="contained"
+                            sx={{ minWidth: { xs: '8rem' }, padding: { xs: '0.5rem 0' } }}
+                            onClick={() => setVisibleInvitePage(false)}
+
+                        >
+                            <IconButton>
+                                <ArrowBackIcon
+                                    sx={{
+                                        color: "#fff",
+                                        fontSize: "1.25rem",
+                                    }}
+                                />
+                            </IconButton>
+                            Back
+                        </Button>
+
                     </Grid>
                 </Grid>
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
@@ -139,6 +153,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 <TextField
                                     placeholder="Business Email"
                                     onChange={(e) => handelEmailSelectChange(e)}
+                                    value={userEmail}
                                 />
                             </FormControl>
                         </FormGroup>
@@ -222,7 +237,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     <Box component='div' >
                         <Grid container md={12} sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
-                            <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
+                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
                             </Grid>
                         </Grid>
                     </Box>

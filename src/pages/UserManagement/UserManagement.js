@@ -25,13 +25,15 @@ const UserManagement = () => {
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
+  const [selectTaleRow, setSelectTableRow] = useState({});
+  
 
   // need to call this function before USER_MANAGEMENT_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow), []);
 
   const initialValues = {
     company: '',
@@ -63,25 +65,6 @@ const UserManagement = () => {
     modalBodyContent: "",
   });
 
-  // const companyListItem = [
-  //     {
-  //       "id": '1',
-  //       "company_type": "Customer",
-  //       "email": "test@test.com",
-  //       "superAdmin": "Test Admin",
-  //       "status": "Active",
-  //       "company_name": "ABC Corporation"
-  //     },
-  //     {
-  //       "id": '2',
-  //       "company_type": "Customer",
-  //       "email": "test@test.com",
-  //       "superAdmin": "Test Admin",
-  //       "status": "Active",
-  //       "company_name": "XYZ Corporation"
-  //     }
-  //   ]
-
  
   
 
@@ -98,7 +81,6 @@ const UserManagement = () => {
         "user_id": "1"
     }
 
-    console.log(requestBody, "request");
    
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
@@ -201,7 +183,12 @@ useEffect(() => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ? 
-        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} handleAPISuccessCallBack={handleAPISuccessCallBack} /> : 
+        <InviteUser 
+        getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
+        isVisibleInvitePage={isVisibleInvitePage}
+        handleAPISuccessCallBack={handleAPISuccessCallBack} 
+        selectTaleRow={selectTaleRow}
+        /> : 
         
           <Box component="section">
             <Container maxWidth="lg">
@@ -223,7 +210,7 @@ useEffect(() => {
                     color="primary"
                     variant="contained"
                     sx={{ alignSelf: 'center' }}
-                    onClick={() => setVisibleInvitePage(true)}
+                    onClick={() => {setVisibleInvitePage(true); setSelectTableRow({}); }}
                   >
                     Invite User
                   </Button>
