@@ -1,6 +1,6 @@
 import React, { useEffect,useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_MANAGEMENT_COLUMN } from '../../utils/tableColumn/useerManagement/userManagementColumn';
+
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, Grid, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import EvModal from 'utils/modal/EvModal';
@@ -12,10 +12,13 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
 import NotificationsTost from 'utils/notification/NotificationsTost';
+import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 
 const UserManagement = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useContext(SnackbarContext);
+  // pull functions from user management..
+  const {USER_MANAGEMENT_COLUMN_ACTION} = UserManagementColumn()
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
@@ -28,7 +31,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage), []);
 
   const initialValues = {
     company: '',
@@ -192,7 +195,8 @@ useEffect(() => {
   getUserRoleData()
   getComapanyListData()
 }, [])
-
+  
+  
 
   return (
     <React.Fragment>
@@ -201,7 +205,7 @@ useEffect(() => {
         
           <Box component="section">
             <Container maxWidth="lg">
-              <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
+              <Grid container sx={{ justifyContent: 'space-between' }} >
                 <Grid item xs={12} md={4} >
                   <Typography variant='h4'>User Management</Typography>
                 </Grid>

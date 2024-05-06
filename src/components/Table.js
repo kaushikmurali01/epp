@@ -84,7 +84,7 @@ const Table = ({ columns, data, headbgColor, onClick }) => {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell colSpan={columns.length} sx={{ textAlign: "center" }}>
+            <TableCell colSpan={columns.length} sx={{ textAlign: "center", borderBottom: 'none' }}>
               <ButtonGroup variant="outlined">
                 <IconButton
                   onClick={() => previousPage()}

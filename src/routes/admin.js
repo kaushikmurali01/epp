@@ -27,4 +27,4 @@ export const adminRoutes = [
   // enevera admin routes
   { key: 'evUserManagement', name: 'evUserManagement', path: evUserManagementEndPoints.evUserManagement, component: <UserManagementAdmin /> },
 
-];
+];  

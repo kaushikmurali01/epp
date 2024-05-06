@@ -213,7 +213,7 @@ const UserManagementAdmin = () => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ?
-        <InviteUserAdmin getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} invitePageInfo={invitePageInfo} /> :
+        <InviteUserAdmin getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} invitePageInfo={invitePageInfo} handleAPISuccessCallBack={handleAPISuccessCallBack} /> :
 
         <Box component="section">
           <Container maxWidth="lg">

@@ -2,10 +2,21 @@ import React from 'react';
 import { Stack, Button, Typography, Box, Container, Grid } from '@mui/material';
 import useMediaQueries from '../../utils/mediaQueries/mediaQueries';
 
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { loginRequest } from "authConfig";
+
 
 const HeroBanner = () => {
     const { theme_Md, theme_Sm } = useMediaQueries();
+    const {instance} = useMsal();
 
+    const handleRedirect=()=>{
+        console.log('redirecting',)
+        instance.loginRedirect({
+          ...loginRequest,
+          // prompt: 'create'
+        }).catch((error)=> console.log("error in login redirect", error))
+      }
     return (
         <Box component={'section'} className='banner-section'>
             <Container maxWidth="lg">
@@ -23,7 +34,7 @@ const HeroBanner = () => {
                         </Typography>
                         <Typography variant="span" gutterBottom>Start today with the <Typography variant="strong" component='strong'> Energy Performance Program,</Typography> get a free baseline energy model, receive an upfront incentive and annually thereafter</Typography>
                         <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem' }} className='action-btn'  >
-                            <Button variant="contained" color="success">
+                            <Button variant="contained" color="success" onClick={handleRedirect}>
                                 Sign up
                             </Button>
                             <Button variant="outlined" color="secondary">
