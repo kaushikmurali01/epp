@@ -43,3 +43,7 @@ export const imageUploadEndPoints = {
 export const entriesEndPoints = {
   ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
 };
+
+export const fileUploadEndPoints={
+  FILE_UPLOAD:"company-facility/v1/upload"
+}
