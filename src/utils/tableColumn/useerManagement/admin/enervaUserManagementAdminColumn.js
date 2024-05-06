@@ -27,7 +27,7 @@ const buttonStyle = {
 
 
 
-export const USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack) => [
+export const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack) => [
     {
         Header: "User ID",
         accessor: 'id',
