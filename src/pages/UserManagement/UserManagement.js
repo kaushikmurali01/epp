@@ -11,6 +11,7 @@ import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
+import NotificationsTost from 'utils/notification/NotificationsTost';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage), []);
 
   const initialValues = {
     company: '',
@@ -94,9 +95,11 @@ const UserManagement = () => {
         "user_id": "1"
     }
 
+    console.log(requestBody, "request");
+   
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
-        showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+        NotificationsTost({ message: "Your form has been submitted!", type: "success" });
         setModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -106,8 +109,8 @@ const UserManagement = () => {
     })
     .catch((error) => {
         console.log(error, 'error')
-        showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
+        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+       
 
     })
 
@@ -153,7 +156,7 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/5/1"
+    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
     // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
     GET_REQUEST(apiURL)
         .then((res) => {
@@ -193,7 +196,7 @@ useEffect(() => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ? 
-        <InviteUser getUserRole={getUserRole} /> : 
+        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} /> : 
         
           <Box component="section">
             <Container maxWidth="lg">

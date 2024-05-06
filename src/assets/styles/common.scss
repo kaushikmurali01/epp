@@ -86,3 +86,12 @@ body {
     --toastify-color-error: #bd362f;
   }
   
+
+//   disabled mui typgraphy
+.MuiTypography-root {
+    &[disabled]  {
+    pointer-events: none;
+    opacity: 0.75;
+    cursor: text;
+   }
+}
