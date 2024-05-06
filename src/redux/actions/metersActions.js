@@ -9,11 +9,14 @@ import {
   updateMeterRequest,
   updateMeterSuccess,
   updateMeterFailure,
+  fetchMeterDetailsRequest,
+  fetchMeterDetailsSuccess,
+  fetchMeterDetailsFailure,
 } from "../actionCreators/meterActionCreators";
 
 import { GET_REQUEST, POST_REQUEST, PATCH_REQUEST } from "utils/HTTPRequests";
 
-export const fetchMeterListing = (pageInfo,id) => {
+export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {
     try {
       dispatch(fetchMeterListRequest());
@@ -44,7 +47,6 @@ export const addMeter = (meterData) => {
   };
 };
 
-
 export const updateMeter = (meterId, meterData) => {
   return async (dispatch) => {
     try {
@@ -56,6 +58,22 @@ export const updateMeter = (meterId, meterData) => {
     } catch (error) {
       console.error(error);
       dispatch(updateMeterFailure(error));
+    }
+  };
+};
+
+export const fetchMeterDetails = (meterId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchMeterDetailsRequest());
+      const endpointWithParams = `${meterEndPoints.GET_METER_DETAILS}/${meterId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchMeterDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchMeterDetailsFailure(error));
     }
   };
 };

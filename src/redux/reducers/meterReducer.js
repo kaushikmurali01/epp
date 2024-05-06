@@ -8,10 +8,14 @@ import {
   UPDATE_METER_REQUEST,
   UPDATE_METER_SUCCESS,
   UPDATE_METER_FAILURE,
+  FETCH_METER_DETAILS_REQUEST,
+  FETCH_METER_DETAILS_SUCCESS,
+  FETCH_METER_DETAILS_FAILURE,
 } from "./../actionTypes";
 
 const initialState = {
   meterList: [],
+  meterDetails: null,
   loading: false,
   error: null,
 };
@@ -68,6 +72,25 @@ const meterReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_METER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_METER_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_METER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        meterDetails: action.payload,
+        error: null,
+      };
+    case FETCH_METER_DETAILS_FAILURE:
       return {
         ...state,
         loading: false,
