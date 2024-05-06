@@ -78,6 +78,36 @@ const theme = createTheme({
         },
       },
     },
+    MuiToggleButtonGroup:{
+      styleOverrides: {
+        root: {
+
+          ".MuiToggleButtonGroup-grouped": {
+            backgroundColor: '#F7F7F5',
+            minWidth: '4rem'
+
+          },
+          ".Mui-selected": {
+            "&.theme-toggle-yes" : {
+              backgroundColor: '#2E813E',
+              color: '#fff',
+              "&:hover": {
+                backgroundColor: '#2E813E',
+              },
+            },
+            "&.theme-toggle-no" : {
+                backgroundColor: '#54585A',
+                color: '#fff',
+                "&:hover": {
+                  backgroundColor: '#54585A',
+                },
+            },
+          } 
+         
+        }
+      }
+    },
+
     MuiButton: {
       styleOverrides: {
         root: {

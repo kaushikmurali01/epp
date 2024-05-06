@@ -193,7 +193,7 @@ useEffect(() => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ? 
-        <InviteUser /> : 
+        <InviteUser getUserRole={getUserRole} /> : 
         
           <Box component="section">
             <Container maxWidth="lg">
