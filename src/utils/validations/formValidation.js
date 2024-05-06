@@ -110,4 +110,12 @@ export const validationSchemaAddMeter = Yup.object().shape({
   // meter_specification_url: Yup.string(),
 });
 
+export const validationSchemaEntry = Yup.object().shape({
+  start_date: Yup.string().required("Start Date is required"),
+  end_date: Yup.string().required("End Date is required"),
+  usage: Yup.string().required("Usage is required"),
+  demand: Yup.string().required("Demand is required"),
+  total_cost: Yup.date().required("Total cost is required"),
+});
+
 export default validationSchemaAddMeter;
