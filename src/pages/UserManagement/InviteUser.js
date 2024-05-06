@@ -1,116 +1,155 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { emailRegExp } from 'config/regex';
+import { GET_REQUEST } from 'utils/HTTPRequests';
+import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 
 
-const InviteUser = () => {
+const InviteUser = ({ getUserRole }) => {
     const navigate = useNavigate();
 
-    const [alignment, setAlignment] = useState('left');
+    const [alignment, setAlignment] = useState('yes');
+    const [userEmail, setUserEmail] = useState('');
+    const [selectRoleType, setSelectRoleType] = useState('');
+    const [isFormValid, setIsFormValid] = useState(false);
+    const [permissions, setPermission] = useState([])
 
-    const handleAlignment = (event, newAlignment) => {
-        setAlignment(newAlignment);
+
+
+
+    const handleSelectChange = (event) => {
+        setSelectRoleType(event.target.value);
+    };
+    const handelEmailSelectChange = (event) => {
+        setUserEmail(event.target.value)
+    }
+
+
+
+    const handleAlignment = (event, index) => {
+        setPermissionStates((prevStates) => {
+            const newStates = [...prevStates];
+            newStates[index] = !newStates[index];
+            return newStates;
+        });
     };
 
-    const roleType = [
-        {
-            permissionRoleType: 'Super Admin',
-            key: '1',
-        },
-        {
-            permissionRoleType: 'Sub-Admin',
-            key: '2',
-        },
-        {
-            permissionRoleType: 'Employee',
-            key: '3',
-        },
-        {
-            permissionRoleType: 'Consultant',
-            key: '4',
-        },
-        {
-            permissionRoleType: 'Account Manager',
-            key: '5',
-        },
-    ]
+    const getPermissionList = (permission_id) => {
+        const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+        console.log(apiURL, "getPermissionList")
+        GET_REQUEST(apiURL)
+            .then((res) => {
+                setPermission(res.data)
+            }).catch((error) => {
+                console.log(error)
+            });
 
-    const permissions = [
-        {
-            key: '1',
-            title: 'Adding Other Users on the website ',
-            status: true
+    }
 
-        },
-        {
-            key: '2',
-            title: 'Grant/Revoke access to/from other users ',
-            status: false
+    // const permissions = [
+    //     {
+    //         "permission_id": 1,
+    //         "desc": "Adding other users on the website",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 2,
+    //         "desc": "Grant/Revoke Access to/from other users",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 3,
+    //         "desc": "Profile Information Update and Password Reset",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 4,
+    //         "desc": "Bind the Company",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 5,
+    //         "desc": "Account Portfolio and Data Visualizations",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 6,
+    //         "desc": "Building/Facility",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 7,
+    //         "desc": "Doing Building Facility Data",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 8,
+    //         "desc": "Building/Facility Data Visualizations",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 9,
+    //         "desc": "Baseline Energy Modelling",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 10,
+    //         "desc": "Energy Savings Calculations",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 11,
+    //         "desc": "Viewing Incentive Payment Calculations",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 12,
+    //         "desc": "Viewing In-Situ Benchmarking",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 13,
+    //         "desc": "Energy Start Benchmarking",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 14,
+    //         "desc": "Viewing and Exporting EWRB Report",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 15,
+    //         "desc": "Green Button Data Integration",
+    //         "is_assigned": false
+    //     },
+    //     {
+    //         "permission_id": 16,
+    //         "desc": "Financial Details",
+    //         "is_assigned": false
+    //     }
+    // ]
 
-        }, {
-            key: '3',
-            title: 'Profile Information Update and Password Reset ',
-            status: true
 
-        }, {
-            key: '4',
-            title: 'Bind the company ',
-            status: false
+    const [permissionStates, setPermissionStates] = useState(
+        permissions.map(() => false)
+    );
 
-        }, {
-            key: '5',
-            title: 'Account/Portfolio Data Visualizations',
-            status: true
+    useEffect(() => {
+        const isValidEmail = emailRegExp.test(userEmail)
+        setIsFormValid(isValidEmail && selectRoleType !== '')
+        console.log(isValidEmail)
+    }, [userEmail, selectRoleType])
 
-        }, {
-            key: '6',
-            title: 'Building/Facility ',
-            status: true
+    useEffect(() => {
+        if (selectRoleType) {
+            getPermissionList(selectRoleType)
+        }
+    }, [selectRoleType])
 
-        }, {
-            key: '7',
-            title: 'Doing Building/Facility Data  ',
-            status: false
-
-        }, {
-            key: '8',
-            title: 'Building/Facility Data Visualizations ',
-            status: false
-
-        }, {
-            key: '9',
-            title: 'Baseline Energy Modelling ',
-            status: false
-
-        }, {
-            key: '10',
-            title: 'Energy Savings Calculation ',
-            status: false
-
-        }, {
-            key: '11',
-            title: 'Viewing Incentive Payment Calculation',
-            status: false
-
-        }, {
-            key: '12',
-            title: 'Viewing In-Situ Benchmarking ',
-            status: true
-
-        }, {
-            key: '13',
-            title: 'ENERGY STAR Benchmarking',
-            status: true
-
-        }, {
-            key: '14',
-            title: 'Viewing and Exporting EWRB Report ',
-            status: true
-
-        },
-    ]
+    console.log(selectRoleType, userEmail, isFormValid, "selectRoleType")
     return (
-        <Box component="section" sx={{ padding: {xs: '1rem', md: '4rem'}}}>
+        <Box component="section" sx={{ padding: { xs: '1rem', md: '4rem' } }}>
 
             <Container maxWidth="lg">
                 <Grid container sx={{ justifyContent: 'space-between', marginBottom: '2rem' }} >
@@ -121,43 +160,35 @@ const InviteUser = () => {
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
                     <Grid item xs={12} md={6} sx={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                         <FormGroup className='theme-form-group'>
-                            <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Business Email* </FormLabel>
+                            <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem', minWidth: '12rem' }}> Business Email* </FormLabel>
                             <FormControl className='theme-form-control'>
                                 <TextField
                                     placeholder="Business Email"
+                                    onChange={(e) => handelEmailSelectChange(e)}
                                 />
                             </FormControl>
                         </FormGroup>
                         <FormGroup className='theme-form-group'>
-                            <FormControl sx={{ width: "100%", }} >
-                                <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}>Role Type</FormLabel>
-                                {/* <TextField >
-                                    {roleType && (roleType).map((item) => {
-                                        console.log(item, "check role")
-                                        return (
-                                            <MenuItem key={item?.key} value={item?.permissionRoleType}>
-                                                {item?.permissionRoleType}
-                                            </MenuItem>
-                                        )
-                                    })}
-                                </TextField> */}
+                            <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Role Type* </FormLabel>
+                            <FormControl sx={{ minWidth: '12rem' }} >
                                 <Select
-                                    // value={age}
-                                    label="Age"
-                                    sx={{ minHeight: '3.85rem', minWidth: '12rem' }}
-
-                                // onChange={handleChange}
+                                    value={selectRoleType}
+                                    onChange={(e) => handleSelectChange(e)}
+                                    displayEmpty={true}
                                 >
-                                    {roleType && (roleType).map((item) => {
-                                        console.log(item, "check role")
+                                    <MenuItem value="">
+                                        Select
+                                    </MenuItem>
+                                    {getUserRole && (getUserRole).map((item) => {
                                         return (
-                                            <MenuItem key={item?.key} value={item?.permissionRoleType}  >
-                                                {item?.permissionRoleType}
-                                            </MenuItem>
+                                            <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )
                                     })}
+
                                 </Select>
+
                             </FormControl>
+
                         </FormGroup>
                     </Grid>
                     <Grid item >
@@ -166,52 +197,62 @@ const InviteUser = () => {
                             variant="contained"
                             sx={{ alignSelf: 'center' }}
                             onClick={() => navigate('usermanagement/invite')}
+                            disabled={!isFormValid}
                         >
                             Send Invite
                         </Button>
                     </Grid>
                 </Grid>
 
-                <Box component='div' >
-                    <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                        <Grid item>
-                            <Typography variant='small'>List of Permissions</Typography>
+                {permissions?.length > 0 ?
+                    <Box component='div' >
+                        <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                            <Grid item>
+                                <Typography variant='small'>List of Permissions</Typography>
+                            </Grid>
+                            <Grid item>
+                                <Typography variant='small'>Toggle to grant</Typography>
+                            </Grid>
                         </Grid>
-                        <Grid item>
-                            <Typography variant='small'>Toggle to grant</Typography>
-                        </Grid>
-                    </Grid>
-
-                    <Stack>
-                        {permissions && permissions.map((permission) => {
-                            return (
-                                <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item key={permission.key}>
-                                            <Typography variant='body2'>{permission.title} </Typography>
+                        <Stack>
+                            {permissions && permissions.map((permission, index) => {
+                                return (
+                                    <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                        <Grid item key={permission.permission_id}>
+                                            <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>
                                             <ToggleButtonGroup
-                                                value={alignment}
-                                                exclusive
-                                                onChange={handleAlignment}
-                                                aria-label="text alignment"
 
+                                                value={permissionStates[index] ? 'yes' : 'no'}
+                                                exclusive
+                                                onChange={(event) => handleAlignment(event, index)}
+                                                aria-label="text alignment"
+                                                key={permission.permission_id}
                                             >
-                                                <ToggleButton value="left"  sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton value="center" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
                                                     No
                                                 </ToggleButton>
-
                                             </ToggleButtonGroup>
 
                                         </Grid>
-                                </Grid>
-                            )
-                        })}
-                    </Stack>
-                </Box>
+                                    </Grid>
+                                )
+                            })}
+                        </Stack>
+                    </Box>
+                    :
+                    <Box component='div' >
+                        <Grid container md={12} sx={{ justifyContent: 'center', marginTop: '2rem' }}>
+                            <Grid item>
+                            <Typography variant='span'> Please select role type </Typography>
+                            </Grid>
+                        </Grid>
+                    </Box>
+                }
 
             </Container >
         </Box >

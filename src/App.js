@@ -2,7 +2,6 @@ import React, { Suspense } from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 import "./App.css";
-import "./assets/styles/styles.scss";
 import configureStore from "./redux/store";
 import { ThemeProvider } from "@mui/material";
 import theme from "./styles/theme";
@@ -19,15 +18,12 @@ import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection"
 import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
 
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider } from "@azure/msal-react";
 
 const store = configureStore();
 
 const App = (props) => {
 
-  const activeAccount = useMsal();
-
-  console.log("active account", activeAccount)
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -40,12 +36,9 @@ const App = (props) => {
 
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
-              {activeAccount ? 
               <>
                   <RoutesComp />
               </>
-                : null
-              }
             </AuthenticatedTemplate>
           </MsalProvider>
         </Suspense>

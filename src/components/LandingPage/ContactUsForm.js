@@ -10,6 +10,7 @@ import { validationSchemaLandingPageForm } from 'utils/validations/formValidatio
 
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import { LANDING_PAGE } from 'constants/apiEndPoints';
+import NotificationsTost from 'utils/notification/NotificationsTost';
 
 
 const ContactUsForm = () => {
@@ -41,7 +42,8 @@ const ContactUsForm = () => {
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
                 console.log(response, "response")
-                showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+                NotificationsTost({ message: "Your form has been submitted!", type: "success" });
+                // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
                 // Reset the form after successful submission
                 setTimeout(() => {
                     contactUsFormRef.current.reset();
@@ -50,7 +52,8 @@ const ContactUsForm = () => {
             })
             .catch((error) => {
                 console.log(error, 'error')
-                showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+                NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
 
 
             })
