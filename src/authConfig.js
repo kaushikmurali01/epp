@@ -36,12 +36,13 @@ export const b2cPolicies = {
  * For a full list of MSAL.js configuration parameters, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
+console.log("process.env 06th May 2024, 09:00 PM", process.env.REACT_APP_REDIRECT_URI)
 export const msalConfig = {
     auth: {
         clientId: process.env.REACT_APP_AZURE_B2C_CLIENT_ID, // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Choose SUSI as your default authority.
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
-        redirectUri: '/admin', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        redirectUri: window.location.origin, // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
