@@ -1,3 +1,4 @@
+import { Assessment } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -11,16 +12,42 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
+import axios from "axios";
+import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
-import React from "react";
+import React, { useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
 
 const Details = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const dispatch = useDispatch();
+  const fileAssemblyInputRef = useRef(null);
+  const [selectedAssemblyFile, setSelectedAssemblyFile] = useState();
+  const [assemblyImgUrl, setAssemblyImgUrl] = useState("");
+  console.log(assemblyImgUrl);
   const initialValues = {};
 
   const handleSubmit = (values) => {};
+
+  const handleAssemblyFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setSelectedAssemblyFile(URL.createObjectURL(selectedFile));
+    dispatch(fileUploadAction(selectedFile));
+    // .then(({ data }) =>
+    //   setAssemblyImgUrl(data?.sasTokenUrl)
+    // );
+  };
+
+  const handleAssemblyButtonClick = () => {
+    fileAssemblyInputRef.current.click();
+  };
+
+  const deleteAssemblyPicture = () => {
+    setSelectedAssemblyFile("");
+  };
 
   return (
     <Box
@@ -80,22 +107,114 @@ const Details = () => {
                   </Typography>
                 </Typography>
               </Box>
-              <Button variant="contained" sx={{ marginLeft: "2rem" }}>
-                Save
-              </Button>
+              <ButtonWrapper
+                type="submit"
+                color="neutral"
+                width="165px"
+                height="48px"
+                onClick={handleSubmit}
+                style={{ marginLeft: "2rem" }}
+              >
+                save
+              </ButtonWrapper>
             </Box>
           </Box>
           <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
             <Grid container spacing={4}>
-              <Grid item xs={12} sm={8}>
+              <Grid item xs={12} sm={4}>
                 <InputField
-                  name="uniqueFeatures"
-                  label="Are there unique features of your facility that may impact energy usage? *"
+                  name="operational_hours"
+                  label="Operational Hours"
+                  type="text"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="year_of_construction"
+                  label="Year of construction"
                   type="text"
                 />
               </Grid>
             </Grid>
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="gross_floor_area"
+                  label="Gross Floor Area"
+                  type="text"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="number_of_storeys"
+                  label="Number of Storeys"
+                  type="text"
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={4}>
+                <SelectBox
+                  name="conditioned_gross_floor"
+                  label="Conditioned gross floor area including common area"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <SelectBox
+                  name="unconditioned_gross_floor"
+                  label="Unconditioned gross floor area such as parking lots"
+                />
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={4}>
+                <InputLabel htmlFor="unique_features">
+                  Are there unique features of your facility that may impact
+                  energy usage?*
+                </InputLabel>
+                <FormControl>
+                  <Field name="unique_features">
+                    {({ field }) => (
+                      <ToggleButtonGroup id="unique_features" {...field}>
+                        <ToggleButton value="yes" sx={{ fontSize: "0.875rem" }}>
+                          Yes
+                        </ToggleButton>
+                        <ToggleButton value="no" sx={{ fontSize: "0.875rem" }}>
+                          No
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    )}
+                  </Field>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="describe_unique_features"
+                  label="Describe unique features of your facility that may impact energy usage"
+                  type="text"
+                />
+              </Grid>
+            </Grid>
+
             <Grid container spacing={4} mt={1}>
+              <Grid item xs={12} sm={4}>
+                <SelectBox
+                  name="spaceCoolingFuelSource"
+                  label="Space Cooling Fuel Source *"
+                />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="ifOther1"
+                  label="If other, describe *"
+                  type="text"
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={4}>
               <Grid item xs={12} sm={4}>
                 <SelectBox
                   name="spaceCoolingFuelSource"
@@ -170,18 +289,6 @@ const Details = () => {
                 />
               </Grid>
             </Grid>
-            <Grid container spacing={4} mt={2}>
-              <Grid item xs={12} sm={4}>
-                <Typography>Facility Site Layout</Typography>
-                <Button variant="contained">Upload</Button>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography>
-                  Facility Wall Assembly and Ceiling Assembly
-                </Typography>
-                <Button variant="contained">Upload</Button>
-              </Grid>
-            </Grid>
             <Grid container spacing={4} mt={1}>
               <Grid item xs={12}>
                 <InputLabel>
@@ -190,7 +297,7 @@ const Details = () => {
                 </InputLabel>
               </Grid>
             </Grid>
-            <Grid container spacing={2} mt={1}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormControlLabel
                   control={<Checkbox />}
@@ -480,13 +587,6 @@ const Details = () => {
 
             <Grid container spacing={4}>
               <Grid item xs={12} sm={4}>
-                <InputField
-                  name="operationalHours"
-                  label="Operational Hours"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
                 <InputLabel htmlFor="isLightingControlledForOccupancy">
                   Is Space Heating Controlled for Occupancy?
                 </InputLabel>
@@ -508,8 +608,6 @@ const Details = () => {
                   </Field>
                 </FormControl>
               </Grid>
-            </Grid>
-            <Grid container spacing={4}>
               <Grid item xs={12} sm={4}>
                 <InputLabel htmlFor="isSpaceHeatingControlledforOccupancy">
                   Is Space Heating Controlled for Occupancy?
@@ -553,6 +651,98 @@ const Details = () => {
                     )}
                   </Field>
                 </FormControl>
+              </Grid>
+            </Grid>
+            <Grid container spacing={4} mt={2}>
+              <Grid item xs={12} sm={4}>
+                <Typography>Facility Site Layout</Typography>
+                <Button variant="contained">Upload</Button>
+              </Grid>
+              <Grid item xs={12} sm={5}>
+                <InputLabel>
+                  Facility Wall Assembly and Ceiling Assembly
+                </InputLabel>
+                {!selectedAssemblyFile ? (
+                  <>
+                    <Typography
+                      my={1}
+                      sx={{
+                        color: "#696969",
+                        fontWeight: "500",
+                        fontSize: "18px",
+                        border: "1px solid #D0D0D0",
+                        backgroundColor: "#D1FFDA",
+                        padding: "6px 34px",
+                        borderRadius: "8px",
+                        width: "140px",
+                        height: "40px",
+                      }}
+                      onClick={handleAssemblyButtonClick}
+                    >
+                      Upload
+                    </Typography>
+                    <input
+                      type="file"
+                      ref={fileAssemblyInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleAssemblyFileChange}
+                    />
+                  </>
+                ) : (
+                  <div style={{ display: "flex" }}>
+                    <div>
+                      <img
+                        src={selectedAssemblyFile}
+                        alt="Preview"
+                        style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                    </div>
+                    <div style={{ marginLeft: "20px" }}>
+                      <Typography
+                        my={1}
+                        sx={{
+                          color: "#2C77E9",
+                          fontWeight: "500",
+                          fontSize: "16px !important",
+                        }}
+                        onClick={handleAssemblyButtonClick}
+                      >
+                        Change Picture
+                      </Typography>
+                      <input
+                        type="file"
+                        ref={fileAssemblyInputRef}
+                        style={{ display: "none" }}
+                        onChange={handleAssemblyFileChange}
+                      />
+                      <Typography
+                        my={1}
+                        sx={{
+                          color: "#FF5858",
+                          fontWeight: "500",
+                          fontSize: "16px !important",
+                        }}
+                        onClick={deleteAssemblyPicture}
+                      >
+                        Delete Picture
+                      </Typography>
+                    </div>
+                  </div>
+                )}
+              </Grid>
+            </Grid>
+
+            <Grid container spacing={4} mt={2}>
+              <Grid item xs={12} sm={4}>
+                <ButtonWrapper
+                  type="submit"
+                  color="neutral"
+                  width="165px"
+                  height="48px"
+                  onClick={handleSubmit}
+                >
+                  save
+                </ButtonWrapper>
               </Grid>
             </Grid>
           </Grid>
