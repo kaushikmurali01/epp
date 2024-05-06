@@ -76,7 +76,7 @@ export default function EvModal(props) {
         { (buttonsUI?.saveButton || buttonsUI?.cancelButton) &&
           <DialogActions sx={{}}>
             {buttonsUI?.saveButton && 
-            <Button  onClick={saveButtonAction}>
+            <Button  onClick={(id)=>saveButtonAction(id)}>
              {buttonsUI?.saveButtonName || "Yes"}
             </Button>
             }

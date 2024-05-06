@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  deleteFacility,
   fetchFacilityListing,
   submitFacilityForApproval,
 } from "./../../../redux/actions/facilityActions";
@@ -18,6 +19,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
 import FacilityStatus from "components/FacilityStatus";
 import CustomSlider from "components/CustomSlider";
+import EvModal from "utils/modal/EvModal";
 
 const Facility = () => {
   const columns = [
@@ -99,7 +101,7 @@ const Facility = () => {
             // onClick={() =>
             //   navigate(`/admin/add-facility${id}` })
             // }
-            onClick={(id) => navigate(`/admin/edit-facility/${item?.id}`)}
+            onClick={() => navigate(`/admin/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
@@ -110,6 +112,9 @@ const Facility = () => {
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+            }}
+            onClick={() => {
+              openDeleteFacilityModal(item?.id);
             }}
           >
             Delete
@@ -123,9 +128,62 @@ const Facility = () => {
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
-  const loading = useSelector((state) => state.facilityReducer.loading);
-  const error = useSelector((state) => state.facilityReducer.error);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [facilityToDelete, setFacilityToDelete] = useState();
+
+  const openDeleteFacilityModal = (facilityId) => {
+    setFacilityToDelete(facilityId);
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    }));
+  };
+
+  const handleDeleteFacility = (id) => {
+    console.log(id)
+    if (id) {
+      dispatch(deleteFacility(id))
+        .then(() => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(fetchFacilityListing(pageInfo));
+        })
+        .catch((error) => {
+          console.error("Error deleting facility:", error);
+        });
+    }
+  };
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete facility",
+    headerSubText: "Are you sure you want to delete this facility?",
+    modalBodyContent: "",
+    saveButtonAction: () => handleDeleteFacility(facilityToDelete),
+  });
 
   useEffect(() => {
     dispatch(fetchFacilityListing(pageInfo));
@@ -219,6 +277,7 @@ const Facility = () => {
           onClick={(id) => navigate(`/admin/facility-details/${id}`)}
         />
       </Box>
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </Container>
   );
 };

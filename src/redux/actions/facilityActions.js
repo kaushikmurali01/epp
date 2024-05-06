@@ -9,8 +9,11 @@ import {
   fetchFacilityDetailsRequest,
   fetchFacilityDetailsSuccess,
   fetchFacilityDetailsFailure,
+  deleteFacilityRequest,
+  deleteFacilitySuccess,
+  deleteFacilityFailure,
 } from "../actionCreators/facililityActionCreators";
-import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 
 export const fetchFacilityListing = (pageInfo) => {
   return async (dispatch) => {
@@ -55,6 +58,21 @@ export const fetchFacilityDetails = (facilityId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilityDetailsFailure(error));
+    }
+  };
+};
+
+export const deleteFacility = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteFacilityRequest());
+      const endpointWithParams = `${facilityEndPoints.DELETE_FACILITY}/${facilityId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteFacilitySuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteFacilityFailure(error));
     }
   };
 };

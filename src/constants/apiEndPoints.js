@@ -6,6 +6,7 @@ export const facilityEndPoints = {
   SUBMIT_FACILITY_FOR_APPROVAL: "/company-facility/v1/facility-submission",
   GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
   ADD_METER: "/company-facility/v1/facility-meter",
+  DELETE_FACILITY: "/company-facility/v1/facility",
 };
 
 export const USER_MANAGEMENT = {
