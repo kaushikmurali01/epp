@@ -27,11 +27,11 @@ const RoutesComp = () => {
     }, [account]);
 
     return (
-        // token ? (
+        true ? (
             <CommonLayout>
                 <DashboardRoutes />
             </CommonLayout >
-        // ) : null
+        ) : null
     )
 }
 

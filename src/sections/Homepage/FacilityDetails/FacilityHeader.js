@@ -25,7 +25,7 @@ const FacilityHeader = () => {
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-  console.log(facilityDetails);
+  
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2}>
@@ -111,19 +111,21 @@ const FacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Total Incentive Paid</Typography>
-              <Typography variant="h6">$246</Typography>
+              <Typography variant="h6">{facilityDetails?.total_incentive_earned}</Typography>
             </BoxCard>
           </Grid>
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Electricity Consumptions</Typography>
-              <Typography variant="h6">455</Typography>
+              <Typography variant="h6">{facilityDetails?.total_electricty_consumptions}</Typography>
             </BoxCard>
           </Grid>
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Benchmarking EUI</Typography>
-              <Typography variant="h6">5436</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.benchmarking_eui}
+              </Typography>
             </BoxCard>
           </Grid>
         </Grid>

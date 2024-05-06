@@ -13,17 +13,22 @@ import {
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useEffect, useState } from "react";
 import Table from "components/Table";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMeterListing } from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 
-const MeterListing = ({ onAddButtonClick }) => {
+const MeterListing = ({
+  onAddButtonClick,
+  onEntriesListClick,
+  OnEditMeterButton,
+}) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { id } = useParams();
   const columns = [
     {
       Header: "Meter name",
@@ -49,6 +54,23 @@ const MeterListing = ({ onAddButtonClick }) => {
       Header: "In use(inactive date)",
       accessor: (item) => <>{format(item.meter_inactive, "MM/dd/yyyy")}</>,
     },
+    {
+      Header: "Action",
+      accessor: (item) => (
+        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+            }}
+            onClick={() => handleEditButtonClick(item.id)}
+          >
+            Edit
+          </Button>
+        </Box>
+      ),
+    },
   ];
   const meterData = [
     { meterType: "Electricity", currentEnergyDate: "05/01/2024", value: 1 },
@@ -60,12 +82,22 @@ const MeterListing = ({ onAddButtonClick }) => {
     (state) => state?.meterReducer?.meterList?.data?.rows || []
   );
   useEffect(() => {
-    dispatch(fetchMeterListing(pageInfo));
-  }, [dispatch, pageInfo]);
+    dispatch(fetchMeterListing(pageInfo, id));
+  }, [dispatch, pageInfo, id]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
   };
+
+  const handleEntriesListClick = (id) => {
+    console.log(id);
+    onEntriesListClick(id);
+  };
+
+  const handleEditButtonClick = (id) => {
+    OnEditMeterButton(id);
+  };
+
   return (
     <>
       <Box
@@ -153,6 +185,7 @@ const MeterListing = ({ onAddButtonClick }) => {
           data={meterListingData}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
+          onClick={(id) => handleEntriesListClick(id)}
         />
       </Box>
     </>

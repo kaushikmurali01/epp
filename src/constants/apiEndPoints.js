@@ -4,6 +4,7 @@ export const facilityEndPoints = {
   GET_FACILITY_BY_ID: "/company-facility/v1/facility-details",
   SUBMIT_FACILITY_FOR_APPROVAL: "/company-facility/v1/facility-submission",
   GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
+  ADD_METER: "/company-facility/v1/facility-meter",
 };
 
 export const USER_MANAGEMENT = {
@@ -15,14 +16,24 @@ export const USER_MANAGEMENT = {
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
-  JOIN_REQUEST: "/enerva-user/v1/createrequest"
-}
+  JOIN_REQUEST: "/enerva-user/v1/createrequest",
+};
 
 export const LANDING_PAGE = {
   CONTACT_US_FORM: "/enerva-user/v1/contact",
-  GET_NEWS: "/enerva-user/v1/news"
-}
+  GET_NEWS: "/enerva-user/v1/news",
+};
 export const meterEndPoints = {
   ADD_METER: "/company-facility/v1/facility-meter",
   METER_LIST: "/company-facility/v1/facility-meter-listing",
+  GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
+  UPDATE_METER: "/company-facility/v1/facility-meter",
+};
+
+export const imageUploadEndPoints = {
+  IMAGE_UPLOAD: "/company-facility/v1/upload",
+};
+
+export const entriesEndPoints = {
+  ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
 };
