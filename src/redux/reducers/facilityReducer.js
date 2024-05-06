@@ -8,6 +8,9 @@ import {
   FETCH_FACILITY_DETAILS_REQUEST,
   FETCH_FACILITY_DETAILS_SUCCESS,
   FETCH_FACILITY_DETAILS_FAILURE,
+  DELETE_FACILITY_REQUEST,
+  DELETE_FACILITY_SUCCESS,
+  DELETE_FACILITY_FAILURE,
 } from "./../actionTypes";
 
 const initialState = {
@@ -19,6 +22,8 @@ const initialState = {
   facilityDetails: null,
   detailsLoading: false,
   detailsError: null,
+  deleting: false,
+  deleteError: null,
 };
 
 const facilityReducer = (state = initialState, action) => {
@@ -78,6 +83,24 @@ const facilityReducer = (state = initialState, action) => {
         ...state,
         detailsLoading: false,
         detailsError: action.payload,
+      };
+    case DELETE_FACILITY_REQUEST:
+      return {
+        ...state,
+        deleting: true,
+        deleteError: null,
+      };
+    case DELETE_FACILITY_SUCCESS:
+      return {
+        ...state,
+        deleting: false,
+        deleteError: null,
+      };
+    case DELETE_FACILITY_FAILURE:
+      return {
+        ...state,
+        deleting: false,
+        deleteError: action.payload,
       };
     default:
       return state;

@@ -8,6 +8,9 @@ import {
   FETCH_FACILITY_DETAILS_REQUEST,
   FETCH_FACILITY_DETAILS_SUCCESS,
   FETCH_FACILITY_DETAILS_FAILURE,
+  DELETE_FACILITY_REQUEST,
+  DELETE_FACILITY_SUCCESS,
+  DELETE_FACILITY_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -49,5 +52,19 @@ export const fetchFacilityDetailsSuccess = (data) => ({
 
 export const fetchFacilityDetailsFailure = (error) => ({
   type: FETCH_FACILITY_DETAILS_FAILURE,
+  payload: error,
+});
+
+export const deleteFacilityRequest = () => ({
+  type: DELETE_FACILITY_REQUEST,
+});
+
+export const deleteFacilitySuccess = (data) => ({
+  type: DELETE_FACILITY_SUCCESS,
+  payload: data,
+});
+
+export const deleteFacilityFailure = (error) => ({
+  type: DELETE_FACILITY_FAILURE,
   payload: error,
 });
