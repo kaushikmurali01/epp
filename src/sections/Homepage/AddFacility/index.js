@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { setOption, setOption2 } from "../../../redux/actions/simpleActions";
 import { Box, Container, Grid, Typography, InputLabel } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
@@ -12,6 +12,7 @@ import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
 import { facilityEndPoints, imageUploadEndPoints } from "constants/apiEndPoints";
 import { useLocation, useParams } from "react-router-dom";
+import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
 
 const AddFacilityComponent = (props) => {
     const [imgUrl, setImgUrl] = useState("");
@@ -81,6 +82,7 @@ const AddFacilityComponent = (props) => {
     const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState();
     const location = useLocation();
+  const dispatch = useDispatch();
     const { id } = useParams();
 
     useEffect(() => {
@@ -121,22 +123,16 @@ const AddFacilityComponent = (props) => {
         // Handle the file selection here
         const selectedFile = event.target.files[0];
         setSelectedFile(URL.createObjectURL(selectedFile));
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-        // POST_REQUEST(uploadFileEndPoints.UPLOAD_FILE, formData, true)
-        // .then((response) => {
-        // })
-        // .catch((error) => {
-        // });
-        axios.post(process.env.REACT_APP_API_BASE_URL + imageUploadEndPoints.IMAGE_UPLOAD, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        }).then(({ data }) => setImgUrl(data?.sasTokenUrl));
+        dispatch(fileUploadAction(selectedFile))
+        .then(( data ) => setImgUrl(data?.sasTokenUrl))
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
     };
 
     const handleSubmit = (values) => {
         const newValues={...values, display_pic_url:imgUrl}
+        console.log(newValues)
         if (values.facility_construction_status == 'Existing') {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == 'New') {
