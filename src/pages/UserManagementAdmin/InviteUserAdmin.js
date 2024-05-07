@@ -4,7 +4,7 @@ import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuIt
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
-import NotificationsTost from 'utils/notification/NotificationsTost';
+import NotificationsToast from 'utils/notification/NotificationsToast';
 
 
 const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo, handleAPISuccessCallBack }) => {
@@ -95,13 +95,13 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo, ha
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
                 console.log(response, "response")
-                NotificationsTost({ message: response?.data?.message, type: "success" });
+                NotificationsToast({ message: response?.data?.message, type: "success" });
                 setVisibleInvitePage(false);
                 handleAPISuccessCallBack();
             })
             .catch((error) => {
                 console.log(error, 'error')
-                NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
             })
     }

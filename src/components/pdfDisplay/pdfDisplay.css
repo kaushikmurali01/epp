@@ -1,0 +1,5 @@
+.canvas-override > canvas{
+        height: initial !important;
+        margin-inline: 9.5% !important;
+        width: 81% !important;
+}
