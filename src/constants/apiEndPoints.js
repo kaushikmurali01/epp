@@ -11,6 +11,12 @@ export const facilityEndPoints = {
   UPDATE_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
 };
 
+export const PA_MANAGEMENT ={
+  GET_PA_DATA: '/company-facility/v1/pa-details',
+  CREATE_PA: '/company-facility/v1/pa-details',
+  SIGN_PA: 'company-facility/v1/sign-pa'
+}
+
 export const USER_MANAGEMENT = {
   // GET REQUEST
   GET_USER_LIST: "/enerva-user/v1/combinedusers",
