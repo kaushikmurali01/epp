@@ -7,7 +7,7 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import NotificationsTost from 'utils/notification/NotificationsTost';
 
 
-const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo }) => {
+const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo, handleAPISuccessCallBack }) => {
     const navigate = useNavigate();
 
     const [alignment, setAlignment] = useState('yes');
@@ -97,6 +97,7 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo }) 
                 console.log(response, "response")
                 NotificationsTost({ message: response?.data?.message, type: "success" });
                 setVisibleInvitePage(false);
+                handleAPISuccessCallBack();
             })
             .catch((error) => {
                 console.log(error, 'error')

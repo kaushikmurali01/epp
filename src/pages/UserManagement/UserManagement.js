@@ -1,6 +1,6 @@
 import React, { useEffect,useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { USER_MANAGEMENT_COLUMN } from '../../utils/tableColumn/useerManagement/userManagementColumn';
+
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, Grid, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import EvModal from 'utils/modal/EvModal';
@@ -12,23 +12,28 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
 import NotificationsTost from 'utils/notification/NotificationsTost';
+import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 
 const UserManagement = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useContext(SnackbarContext);
+  // pull functions from user management..
+  const {USER_MANAGEMENT_COLUMN_ACTION} = UserManagementColumn()
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
+  const [selectTaleRow, setSelectTableRow] = useState({});
+  
 
   // need to call this function before USER_MANAGEMENT_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow), []);
 
   const initialValues = {
     company: '',
@@ -60,25 +65,6 @@ const UserManagement = () => {
     modalBodyContent: "",
   });
 
-  // const companyListItem = [
-  //     {
-  //       "id": '1',
-  //       "company_type": "Customer",
-  //       "email": "test@test.com",
-  //       "superAdmin": "Test Admin",
-  //       "status": "Active",
-  //       "company_name": "ABC Corporation"
-  //     },
-  //     {
-  //       "id": '2',
-  //       "company_type": "Customer",
-  //       "email": "test@test.com",
-  //       "superAdmin": "Test Admin",
-  //       "status": "Active",
-  //       "company_name": "XYZ Corporation"
-  //     }
-  //   ]
-
  
   
 
@@ -95,7 +81,6 @@ const UserManagement = () => {
         "user_id": "1"
     }
 
-    console.log(requestBody, "request");
    
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
@@ -192,16 +177,22 @@ useEffect(() => {
   getUserRoleData()
   getComapanyListData()
 }, [])
-
+  
+  
 
   return (
     <React.Fragment>
       {isVisibleInvitePage ? 
-        <InviteUser getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} handleAPISuccessCallBack={handleAPISuccessCallBack} /> : 
+        <InviteUser 
+        getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
+        isVisibleInvitePage={isVisibleInvitePage}
+        handleAPISuccessCallBack={handleAPISuccessCallBack} 
+        selectTaleRow={selectTaleRow}
+        /> : 
         
           <Box component="section">
             <Container maxWidth="lg">
-              <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between' }} >
+              <Grid container sx={{ justifyContent: 'space-between' }} >
                 <Grid item xs={12} md={4} >
                   <Typography variant='h4'>User Management</Typography>
                 </Grid>
@@ -219,7 +210,7 @@ useEffect(() => {
                     color="primary"
                     variant="contained"
                     sx={{ alignSelf: 'center' }}
-                    onClick={() => setVisibleInvitePage(true)}
+                    onClick={() => {setVisibleInvitePage(true); setSelectTableRow({}); }}
                   >
                     Invite User
                   </Button>

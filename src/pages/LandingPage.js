@@ -11,7 +11,7 @@ const LandingPage = () => {
 
 
     return (
-        <main className='main-contianer'>
+        <main>
             <HeroBanner />
             <HowItWorks />
             <StoryList />
