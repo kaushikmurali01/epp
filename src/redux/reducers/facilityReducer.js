@@ -36,8 +36,6 @@ const initialState = {
   characteristics: [],
   characteristicsLoading: false,
   characteristicsError: null,
-  updatingCharacteristicLoading: false,
-  updateCharacteristicError: null,
 };
 
 const facilityReducer = (state = initialState, action) => {
@@ -119,20 +117,20 @@ const facilityReducer = (state = initialState, action) => {
     case ADD_FACILITY_CHARACTERISTIC_REQUEST:
       return {
         ...state,
-        addingCharacteristic: true,
-        addCharacteristicError: null,
+        characteristicsLoading: true,
+        characteristicsError: null,
       };
     case ADD_FACILITY_CHARACTERISTIC_SUCCESS:
       return {
         ...state,
-        addingCharacteristic: false,
-        addCharacteristicError: null,
+        characteristicsLoading: false,
+        characteristicsError: null,
       };
     case ADD_FACILITY_CHARACTERISTIC_FAILURE:
       return {
         ...state,
-        addingCharacteristic: false,
-        addCharacteristicError: action.payload,
+        characteristicsLoading: false,
+        characteristicsError: action.payload,
       };
     case FETCH_FACILITY_CHARACTERISTICS_REQUEST:
       return {
@@ -156,20 +154,20 @@ const facilityReducer = (state = initialState, action) => {
     case UPDATE_FACILITY_CHARACTERISTIC_REQUEST:
       return {
         ...state,
-        updatingCharacteristicLoading: true,
-        updateCharacteristicError: null,
+        characteristicsLoading: true,
+        characteristicsError: null,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_SUCCESS:
       return {
         ...state,
-        updatingCharacteristicLoading: false,
-        updateCharacteristicError: null,
+        characteristicsLoading: false,
+        characteristicsError: null,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_FAILURE:
       return {
         ...state,
-        updatingCharacteristicLoading: false,
-        updateCharacteristicError: action.payload,
+        characteristicsLoading: false,
+        characteristicsError: action.payload,
       };
     default:
       return state;

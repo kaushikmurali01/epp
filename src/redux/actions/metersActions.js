@@ -15,6 +15,7 @@ import {
 } from "../actionCreators/meterActionCreators";
 
 import { GET_REQUEST, POST_REQUEST, PATCH_REQUEST } from "utils/HTTPRequests";
+import NotificationsTost from "utils/notification/NotificationsTost";
 
 export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {
@@ -29,6 +30,10 @@ export const fetchMeterListing = (pageInfo, id) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterListFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };
@@ -40,9 +45,17 @@ export const addMeter = (meterData) => {
       const response = await POST_REQUEST(meterEndPoints.ADD_METER, meterData);
       const data = response.data;
       dispatch(addMeterSuccess(data));
+      NotificationsTost({
+        message: "Meter added successfully!",
+        type: "success",
+      });
     } catch (error) {
       console.error(error);
       dispatch(addMeterFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };
@@ -55,9 +68,17 @@ export const updateMeter = (meterId, meterData) => {
       const response = await PATCH_REQUEST(endpointWithParams, meterData);
       const data = response.data;
       dispatch(updateMeterSuccess(data));
+      NotificationsTost({
+        message: "Meter details updated successfully!",
+        type: "success",
+      });
     } catch (error) {
       console.error(error);
       dispatch(updateMeterFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };
@@ -74,6 +95,10 @@ export const fetchMeterDetails = (meterId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterDetailsFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };

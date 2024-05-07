@@ -28,6 +28,7 @@ import {
 } from "./../../../redux/actions/metersActions";
 import validationSchemaAddMeter from "utils/validations/formValidation";
 import { format } from "date-fns";
+import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -75,27 +76,14 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     is_rg_meter: "",
   });
 
-  console.log(initialValues);
-
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setSelectedFile(URL.createObjectURL(selectedFile));
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-    axios
-      .post(
-        "https://ams-enerva-dev.azure-api.net/company-facility/v1/upload",
-        formData,
-        {
-          headers: {
-            Authorization:
-              "Bearer " +
-              "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJ2ZXIiOiIxLjAiLCJpc3MiOiJodHRwczovL2VuZXJ2YWRldi5iMmNsb2dpbi5jb20vODM2Y2M2YjctMTQ1Zi00ZTlkLWE3MmEtODBmNTAzOWU4NmEzL3YyLjAvIiwic3ViIjoiZTNjZmM1ODQtNDFiYy00NzEyLThjOTctNTM2MWRlZDU5NzE1IiwiYXVkIjoiNmNlNzYzZjQtYTBhNi00NzRkLTk1MmItM2JjN2ViNTk4ZDI1IiwiZXhwIjoxNzE0OTg3MTQzLCJub25jZSI6ImRlZmF1bHROb25jZSIsImlhdCI6MTcxNDkwMDc0MywiYXV0aF90aW1lIjoxNzE0OTAwNzQzLCJvaWQiOiJlM2NmYzU4NC00MWJjLTQ3MTItOGM5Ny01MzYxZGVkNTk3MTUiLCJuYW1lIjoidW5rbm93biIsImdpdmVuX25hbWUiOiJUZXN0IE5hcmVzaCIsImVtYWlscyI6WyJuYXJlc2hAeW9wbWFpbC5jb20iXSwidGZwIjoiQjJDXzFfU2lnblVwU2lnbkluIiwibmJmIjoxNzE0OTAwNzQzfQ.c25wX7o4Kzeo7zOrmYmEwgcrP-dWyPsjO-VD8RCmVefkxU7-FdnmAIQz-hQGgYUhmgTprAvMwA12OPgwC5G6htA4uAxOz-_5gs7MxOMUgCUglni4L-CTSWcYnzkbgJfN78PUICLEy7E9aES3JyDI8He3cbAHueN5FG2EHJ_IMavo2u4RYVmkcp_HyyP9ynf1h7CF0STNveeOsl8_tcFx93_gnRKi76YZ2K8uR-fc_rwiziwRAV53jsmT1t8er2PkxdDUQLG9Mi0Vf9SeV2NGYqLIoPiMX-35Uj5cC9msmdVp0zmgs7I7Q9I1XC_4XEy9qhJuJxLvmrwT1oS_KVkLZw",
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      )
-      .then(({ data }) => setImgUrl(data?.sasTokenUrl));
+    dispatch(fileUploadAction(selectedFile))
+      .then(({ data }) => setImgUrl(data?.sasTokenUrl))
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
   };
 
   const handleButtonClick = () => {
