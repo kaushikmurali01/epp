@@ -22,21 +22,21 @@ const BlogPost = ({ post }) => {
             boxShadow: 'none',
           }}>
             <CardMedia
-                sx={{ height: 190, backgroundSize: 'contain' }}
-                image={post.image}
+                sx={{ height: 250, backgroundSize: 'cover' }}
+                image={post?.image}
                 // title={post.title}
-                alt={post.title}
+                alt={post?.title}
             />
             <CardContent sx={{padding: theme_Md ? '0 10% 0 0' : '0', marginTop: theme_Md ? '1.25rem' : '1rem'}}>
                 <Typography gutterBottom variant="h4" sx={{...headingStyle }} >
-                    {post.title}
+                    {post?.title}
                 </Typography>
                 <Typography variant="span" color="text.secondary2">
-                    {post.description}
+                    {post?.description}
                 </Typography>
             </CardContent>
             <CardActions sx={{...linkStyle, padding: '0', marginTop: theme_Md ? '1.5rem' : '1rem'}}>
-                <Link href={post.link} >Lear more</Link>
+                <Link href={post?.link} >Learn more</Link>
             </CardActions>
         </Card>
     )

@@ -6,10 +6,10 @@ const Footer = lazy(() => import("components/CommonFooter/Footer"));
 
 const DashboardLayout = ({ children }) => {
   return (
-    <div className="flex flex-col overflow-hidden h-screen">
+    <div className="site-container">
       <Header page={"authenticated"}/>
       <TabsSection />
-      <div className="overflow-auto flex-1">{children}</div>
+      <div className="main-inner-contianer">{children}</div>
       <Footer/>
     </div>
   );

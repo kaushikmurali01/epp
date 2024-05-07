@@ -24,7 +24,7 @@ export const adminRoutes = [
   { key: 'facilityDetails', name: 'facilityDetails', path: facilityEndPoints.facilityDetails, component: <FacilityDetailsPage /> },
   { key: 'entriesDetails', name: 'entriesDetails', path: facilityEndPoints.entriesDetails, component: <EntriesListing /> },
 
-  // envera admin routes
+  // enevera admin routes
   { key: 'evUserManagement', name: 'evUserManagement', path: evUserManagementEndPoints.evUserManagement, component: <UserManagementAdmin /> },
 
-];
+];  

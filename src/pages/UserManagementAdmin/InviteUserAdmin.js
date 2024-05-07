@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
-import { USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsTost from 'utils/notification/NotificationsTost';
 
 
-const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage }) => {
+const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo, handleAPISuccessCallBack }) => {
     const navigate = useNavigate();
 
     const [alignment, setAlignment] = useState('yes');
@@ -59,7 +59,7 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage }) => {
       };
 
     const getPermissionList = (permission_id) => {
-        const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+        const apiURL = ENERVA_USER_MANAGEMENT.GET_PERMISSIONS_BY_ROLE_ID+ '/' + permission_id;
         console.log(apiURL, "getPermissionList")
         GET_REQUEST(apiURL)
             .then((res) => {
@@ -77,23 +77,27 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage }) => {
     );
 
     const handelInviteSubmit = ()=> {
-        const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        // const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        const apiURL = 'https://enervauser.azurewebsites.net/api/send';
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
         const requestBody = {
             "email": userEmail,
             "role": selectRoleType,
             "company": "1", // comapnay id is static right now.
-            "permissions": permissionIds
+            "permissions": permissionIds,
+            "type": invitePageInfo.type
         }
 
 
         console.log(requestBody, apiURL, "requestBody");
+        // return;
 
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
                 console.log(response, "response")
-                NotificationsTost({ message: "Your form has been submitted!", type: "success" });
+                NotificationsTost({ message: response?.data?.message, type: "success" });
                 setVisibleInvitePage(false);
+                handleAPISuccessCallBack();
             })
             .catch((error) => {
                 console.log(error, 'error')
@@ -128,7 +132,7 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage }) => {
             <Container maxWidth="lg">
                 <Grid container sx={{ justifyContent: 'space-between', marginBottom: '2rem' }} >
                     <Grid item xs={12} >
-                        <Typography variant='h4'>Invite user and set permissions</Typography>
+                        <Typography variant='h4'>{invitePageInfo.title}</Typography>
                         
                     </Grid>
                 </Grid>

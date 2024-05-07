@@ -9,7 +9,7 @@ import { GET_REQUEST } from 'utils/HTTPRequests';
 import { LANDING_PAGE } from 'constants/apiEndPoints';
 
 const NewsFeedList = () => {
-    const { theme_Md, theme_Sm } = useMediaQueries();
+    const { theme_Md,theme_Lg, theme_Sm } = useMediaQueries();
     const [blogPostList, setBlogPostList] = useState([]);
     const settings = {
         draggable: true,
@@ -67,7 +67,7 @@ const NewsFeedList = () => {
                             })}
                         </Glider>
                         :
-                        <Grid container spacing={theme_Md ? 9 : 3} className='news-feed-list'>
+                        <Grid container spacing={theme_Lg ? 9 : 3} className='news-feed-list'>
                             {
                                 blogPostList && blogPostList.map((post) => {
                                     return (

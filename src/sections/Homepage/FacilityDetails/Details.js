@@ -17,23 +17,110 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
 import { useFormikContext } from "formik";
+import {
+  addFacilityCharacteristic,
+  fetchFacilityCharacteristics,
+  updateFacilityCharacteristic,
+} from "../../../redux/actions/facilityActions";
+import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Details = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const dispatch = useDispatch();
-  const { values } = useFormikContext();
+  const { id } = useParams();
   const fileAssemblyInputRef = useRef(null);
   const fileFacilityInputRef = useRef(null);
   const [selectedAssemblyFile, setSelectedAssemblyFile] = useState();
   const [assemblyImgUrl, setAssemblyImgUrl] = useState("");
   const [selectedFacilityFile, setSelectedFacilityFile] = useState();
   const [facilityImgUrl, setFacilityImgUrl] = useState("");
+  const facilityCharacterstics = useSelector(
+    (state) => state?.facilityReducer?.characteristics?.data
+  );
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchFacilityCharacteristics(id))
+        .then((response) => {
+          const charactersticsDetails = response?.data;
+          setInitialValues({
+            ...initialValues,
+            ...charactersticsDetails,
+          });
+        })
+        .catch((error) => {
+          console.error("Error fetching meter details:", error);
+        });
+    }
+  }, [dispatch, id]);
 
-  const initialValues = {};
+  const [initialValues, setInitialValues] = useState({
+    operational_hours: "",
+    year_of_construction: "",
+    gross_floor_area: "",
+    number_of_storeys: "",
+    conditioned_gross_floor_area_including_common_area: "",
+    unonditioned_gross_floor_area: "",
+    unique_features_that_impact_energy_usage: "",
+    unique_features_of_facility: "",
+    space_cooling_fuel_source: "",
+    ifOther1: "",
+    space_cooling_technology: "",
+    ifOther2: "",
+    space_heating_fuel_source: "",
+    ifOther3: "",
+    space_heating_technology: "",
+    ifOther4: "",
+    water_heating_fuel_source: "",
+    ifOther5: "",
+    water_heating_technology: "",
+    ifOther6: "",
+    space_cooling_technology_description: "",
+    space_cooling_technology_age: "",
+    space_cooling_technology_capacity: "",
+    space_cooling_efficiency: "",
+    space_heating_technology_description: "",
+    space_heating_technology_age: "",
+    space_heating_technology_capacity: "",
+    space_heating_efficiency: "",
+    water_heating_technology_description: "",
+    water_heating_technology_age: "",
+    water_heating_technology_capacity: "",
+    water_heating_efficiency: "",
+    maximum_number_of_occupants: "",
+    average_number_of_occupants: "",
+    year_round_or_seasonal: "",
+    not_standard_hvac_equipment: {
+      industrial_Process: false,
+      refrigeration: false,
+      compressed_air: false,
+      commercial_kitchen: false,
+      swimming_pool: false,
+      other: false,
+      none: false,
+    },
+    occupants_months_detail: {
+      jan: false,
+      feb: false,
+      march: false,
+      april: false,
+      may: false,
+      june: false,
+      july: false,
+      aug: false,
+      sep: false,
+      oct: false,
+      nov: false,
+      dec: false,
+    },
+    is_lighting_controlled_for_occupancy: "",
+    is_space_heating_controlled_for_occupancy: "",
+    is_space_cooling_controlled_for_occupancy: "",
+  });
 
   const NUMBER_OF_ARRAY = [
     { id: 1, value: 1, name: 1, label: 1 },
@@ -59,15 +146,23 @@ const Details = () => {
     { id: 21, value: "others", name: "others", label: "others" },
   ];
 
-  const handleSubmit = (values) => {};
+  const handleSubmit = (values) => {
+    console.log(values);
+    if (facilityCharacterstics) {
+      dispatch(updateFacilityCharacteristic(id, values));
+    } else {
+      dispatch(addFacilityCharacteristic(id, values));
+    }
+  };
 
   const handleAssemblyFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setSelectedAssemblyFile(URL.createObjectURL(selectedFile));
-    dispatch(fileUploadAction(selectedFile));
-    // .then(({ data }) =>
-    //   setAssemblyImgUrl(data?.sasTokenUrl)
-    // );
+    dispatch(fileUploadAction(selectedFile))
+      .then(({ data }) => setAssemblyImgUrl(data?.sasTokenUrl))
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
   };
 
   const handleAssemblyButtonClick = () => {
@@ -81,10 +176,11 @@ const Details = () => {
   const handleFacilityFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setSelectedFacilityFile(URL.createObjectURL(selectedFile));
-    dispatch(fileUploadAction(selectedFile));
-    // .then(({ data }) =>
-    //   setFacilityImgUrl(data?.sasTokenUrl)
-    // );
+    dispatch(fileUploadAction(selectedFile))
+      .then(({ data }) => setFacilityImgUrl(data?.sasTokenUrl))
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+      });
   };
 
   const handleFacilityButtonClick = () => {
@@ -258,11 +354,13 @@ const Details = () => {
                   options={NUMBER_OF_ARRAY}
                 />
               </Grid>
-              <InputField
-                name="ifOther1"
-                label="If other, describe *"
-                type="text"
-              />
+              <Grid item xs={12} sm={4}>
+                <InputField
+                  name="ifOther1"
+                  label="If other, describe *"
+                  type="text"
+                />
+              </Grid>
             </Grid>
             <Grid container spacing={4}>
               <Grid item xs={12} sm={4}>
@@ -355,15 +453,27 @@ const Details = () => {
             <Grid container spacing={2}>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.industrial_Process"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
-                  name="industrial/Process"
+                  name="industrial_Process"
                   label="Industrial/Process"
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.refrigeration"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="refrigeration"
                   label="Refrigeration"
@@ -371,31 +481,55 @@ const Details = () => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.compressed_air"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
-                  name="compressedAir"
+                  name="compressed_air"
                   label="Compressed Air"
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.commercial_kitchen"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
-                  name="commercialKitchen"
+                  name="commercial_kitchen"
                   label="Commercial Kitchen"
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.swimming_pool"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
-                  name="swimmingPool"
+                  name="swimming_pool"
                   label="Swimming Pool"
                 />
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.other"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="other"
                   label="Other"
@@ -403,7 +537,13 @@ const Details = () => {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="not_standard_hvac_equipment.none"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="none"
                   label="None"
@@ -544,7 +684,13 @@ const Details = () => {
             <Grid container spacing={2} mt={1}>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.jan"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="jan"
                   label="Jan"
@@ -552,7 +698,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.feb"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="feb"
                   label="Feb"
@@ -560,7 +712,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.march"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="march"
                   label="March"
@@ -568,7 +726,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.april"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="april"
                   label="April"
@@ -576,7 +740,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.may"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="may"
                   label="May"
@@ -584,7 +754,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.june"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="june"
                   label="June"
@@ -592,7 +768,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.july"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="july"
                   label="July"
@@ -600,7 +782,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.aug"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="aug"
                   label="Aug"
@@ -608,7 +796,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.sep"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="sep"
                   label="Sep"
@@ -616,7 +810,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.oct"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="oct"
                   label="Oct"
@@ -624,7 +824,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.nov"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="nov"
                   label="Nov"
@@ -632,7 +838,13 @@ const Details = () => {
               </Grid>
               <Grid item>
                 <FormControlLabel
-                  control={<Checkbox />}
+                  control={
+                    <Field
+                      name="occupants_months_detail.dec"
+                      type="checkbox"
+                      as={Checkbox}
+                    />
+                  }
                   sx={{ color: "text.secondary2" }}
                   name="dec"
                   label="Dec"
