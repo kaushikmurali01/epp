@@ -84,10 +84,10 @@ const AddFacilityComponent = (props) => {
     const { id } = useParams();
 
     useEffect(() => {
-        id && getFacilityDetailsaById();
+        id && getFacilityDetailsById();
     }, [])
 
-    const getFacilityDetailsaById = () => {
+    const getFacilityDetailsById = () => {
         GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + '/' + id)
             .then((response) => {
                 if (response.data.statusCode == 200) {

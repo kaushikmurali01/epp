@@ -42,7 +42,7 @@ export const imageUploadEndPoints = {
 
 export const entriesEndPoints = {
   ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
-  ADD_ENTRY: "/company-facility/v1/facility-meter-entry",
+  ADD_EDIT_ENTRY: "/company-facility/v1/facility-meter-entry",
   DELETE_ENTRY: "/company-facility/v1/facility-meter-entry",
 };
 
