@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const NotificationsTost = ({ message, type, position }) => {
+const NotificationsToast = ({ message, type, position }) => {
  
   switch (type) {
     case "info":
@@ -71,4 +71,4 @@ const NotificationsTost = ({ message, type, position }) => {
   }
 };
 
-export default NotificationsTost;
+export default NotificationsToast;

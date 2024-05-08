@@ -9,8 +9,11 @@ import {
   styled,
 } from "@mui/material";
 import FacilityStatus from "components/FacilityStatus";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { deleteFacility } from "../../../redux/actions/facilityActions";
+import EvModal from "utils/modal/EvModal";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -25,7 +28,62 @@ const FacilityHeader = () => {
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-  
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const dispatch = useDispatch();
+
+  const handleDeleteFacility = () => {
+    if (id) {
+      dispatch(deleteFacility(id))
+        .then(() => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          navigate("/admin/facility-list");
+        })
+        .catch((error) => {
+          console.error("Error deleting facility:", error);
+        });
+    }
+  };
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete facility",
+    headerSubText: "Are you sure you want to delete this facility?",
+    modalBodyContent: "",
+    saveButtonAction: handleDeleteFacility,
+  });
+
+  const openDeleteFacilityModal = () => {
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    }));
+  };
+
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2}>
@@ -60,8 +118,11 @@ const FacilityHeader = () => {
                 {facilityDetails?.facility_name}
               </Typography>
               <Typography variant="small2" gutterBottom>
-                {facilityDetails?.address}, {facilityDetails?.city},{" "}
-                {facilityDetails?.country}
+                {facilityDetails?.address}, {facilityDetails?.sector}
+                <br />
+                {facilityDetails?.city}, {facilityDetails?.country}
+                <br />
+                {facilityDetails?.province}, {facilityDetails?.postal_code},
               </Typography>
               <Box>
                 <FacilityStatus>
@@ -75,6 +136,7 @@ const FacilityHeader = () => {
                     padding: 0,
                     minWidth: "unset",
                   }}
+                  onClick={() => navigate(`/admin/edit-facility/${id}`)}
                 >
                   Edit
                 </Button>
@@ -86,6 +148,7 @@ const FacilityHeader = () => {
                     minWidth: "unset",
                     marginLeft: "1rem",
                   }}
+                  onClick={openDeleteFacilityModal}
                 >
                   Delete
                 </Button>
@@ -111,13 +174,17 @@ const FacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Total Incentive Paid</Typography>
-              <Typography variant="h6">{facilityDetails?.total_incentive_earned}</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.total_incentive_earned}
+              </Typography>
             </BoxCard>
           </Grid>
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Electricity Consumptions</Typography>
-              <Typography variant="h6">{facilityDetails?.total_electricty_consumptions}</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.total_electricty_consumptions}
+              </Typography>
             </BoxCard>
           </Grid>
           <Grid item xs={6}>
@@ -130,6 +197,7 @@ const FacilityHeader = () => {
           </Grid>
         </Grid>
       </Grid>
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </Container>
   );
 };

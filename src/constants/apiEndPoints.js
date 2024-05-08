@@ -8,7 +8,14 @@ export const facilityEndPoints = {
   DELETE_FACILITY: "/company-facility/v1/facility",
   ADD_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
   GET_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
-  UPDATE_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+  UPDATE_FACILITY_CHARACTERISTIC:
+    "/company-facility/v1/facility-characteristics",
+};
+
+export const PA_MANAGEMENT = {
+  GET_PA_DATA: "/company-facility/v1/pa-details",
+  CREATE_PA: "/company-facility/v1/pa-details",
+  SIGN_PA: "company-facility/v1/sign-pa",
 };
 
 export const USER_MANAGEMENT = {
@@ -54,6 +61,7 @@ export const meterEndPoints = {
   METER_LIST: "/company-facility/v1/facility-meter-listing",
   GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
   UPDATE_METER: "/company-facility/v1/facility-meter",
+  DELETE_METER: "/company-facility/v1/facility-meter",
 };
 
 export const imageUploadEndPoints = {
@@ -62,7 +70,7 @@ export const imageUploadEndPoints = {
 
 export const entriesEndPoints = {
   ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
-  ADD_ENTRY: "/company-facility/v1/facility-meter-entry",
+  ADD_EDIT_ENTRY: "/company-facility/v1/facility-meter-entry",
   DELETE_ENTRY: "/company-facility/v1/facility-meter-entry",
 };
 

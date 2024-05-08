@@ -11,6 +11,9 @@ import {
   FETCH_METER_DETAILS_REQUEST,
   FETCH_METER_DETAILS_SUCCESS,
   FETCH_METER_DETAILS_FAILURE,
+  DELETE_METER_REQUEST,
+  DELETE_METER_SUCCESS,
+  DELETE_METER_FAILURE,
 } from "./../actionTypes";
 
 const initialState = {
@@ -91,6 +94,24 @@ const meterReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_METER_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_METER_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_METER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_METER_FAILURE:
       return {
         ...state,
         loading: false,

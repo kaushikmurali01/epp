@@ -24,7 +24,7 @@ import { fetchEntriesListing } from "./../../../redux/actions/entriesAction";
 import FacilityStatus from "components/FacilityStatus";
 import { format, getYear } from "date-fns";
 import { entriesEndPoints } from "constants/apiEndPoints";
-import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { SnackbarContext } from "utils/notification/SnackbarProvider";
 import EvModal from "utils/modal/EvModal";
 import InputField from "components/FormBuilder/InputField";
@@ -109,13 +109,13 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
     saveButtonAction: handleDeleteEntry,
   });
 
-  const initialValues = {
+  const [initialValues, setInitialValues] = useState({
     start_date: '',
     end_date: '',
     usage: '',
     demand: '',
     total_cost: '',
-  };
+  })
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -158,7 +158,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
               padding: 0,
               minWidth: "unset",
             }}
-          onClick={openRequestModal}
+            onClick={() => openRequestModal(true, item)}
           >
             Edit
           </Button>
@@ -170,7 +170,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-          onClick={() => openDeleteModal(item?.id)}
+            onClick={() => openDeleteModal(item?.id)}
           >
             Delete
           </Button>
@@ -194,9 +194,9 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
     setTabValue(newValue);
   };
 
-  const RequestToJoinForm = () => {
+  const AddEditEntry = ({ isEdit, data }) => {
     const formSubmit = (data) => {
-      const apiURL = entriesEndPoints.ADD_ENTRY;
+      const apiURL = entriesEndPoints.ADD_EDIT_ENTRY;
       const requestBody = {
         facility_id: parseInt(id),
         facility_meter_detail_id: parseInt(facilityMeterDetailId),
@@ -209,27 +209,44 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
         total_cost: parseInt(data.total_cost),
       }
 
-      POST_REQUEST(apiURL, requestBody)
-        .then((response) => {
-          showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-          dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
-          setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-            modalBodyContent: ''
-          }));
+      if (!isEdit) {
+        POST_REQUEST(apiURL, requestBody)
+          .then((response) => {
+            showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+            dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+              modalBodyContent: ''
+            }));
 
-        })
-        .catch((error) => {
-          console.log(error, 'error')
-          showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-        })
+          })
+          .catch((error) => {
+            showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+          })
+      } else {
+        PATCH_REQUEST(apiURL + '/' + data?.id, requestBody)
+          .then((response) => {
+            showSnackbar('Your form has been updated!', 'success', { vertical: 'top', horizontal: 'right' });
+            dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+              modalBodyContent: ''
+            }));
+
+          })
+          .catch((error) => {
+            showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+          })
+      }
     }
     return (
       <>
         <Formik
           initialValues={{ ...initialValues }}
           validationSchema={validationSchemaEntry}
+          enableReinitialize={true}
           onSubmit={formSubmit}
         >
           <Form>
@@ -282,12 +299,37 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
     )
   }
 
-  const openRequestModal = () => {
+  const openRequestModal = (isEdit, data) => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <RequestToJoinForm />
+      headerText: !isEdit ? "Add Entry" : "Edit Entry",
+      headerSubText: !isEdit ? 'Please enter the following details to add a new entry for this meter' : 'Please edit the following details to update the entry for this meter',
+      modalBodyContent: ""
     }));
+    if (isEdit) {
+      setInitialValues(prevValues => {
+        return {
+          ...prevValues,
+          ...data,
+          start_date: data?.start_date
+            ? format(new Date(data.start_date), "yyyy-MM-dd")
+            : "",
+          end_date: data?.end_date
+            ? format(new Date(data.end_date), "yyyy-MM-dd")
+            : "",
+        };
+      });
+    }
+    setTimeout(() => {
+      setModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        headerText: !isEdit ? "Add Entry" : "Edit Entry",
+        headerSubText: !isEdit ? 'Please enter the following details to add a new entry for this meter' : 'Please edit the following details to update the entry for this meter',
+        modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />
+      }));
+    }, 10);
   };
 
   const openDeleteModal = (entryId) => {
@@ -397,7 +439,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button variant="contained" sx={{ marginLeft: "2rem" }} onClick={openRequestModal}>
+          <Button variant="contained" sx={{ marginLeft: "2rem" }} onClick={() => openRequestModal(false)}>
             Add Entry
           </Button>
         </Grid>
@@ -413,7 +455,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
       </Box>
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-      <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete}/>
+      <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete} />
 
     </>
   );

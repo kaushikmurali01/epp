@@ -4,7 +4,7 @@ import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconBu
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
-import NotificationsTost from 'utils/notification/NotificationsTost';
+import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTaleRow }) => {
