@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsTost from "utils/notification/NotificationsTost";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
@@ -111,7 +111,7 @@ const UserManagementColumn = () => {
                     <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow)}>
                         Manage permission
                     </Typography>
-                    <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
+                    <Typography  variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item, handleAPISuccessCallBack)} >
                         Delete
                     </Typography>
 
@@ -163,33 +163,32 @@ const UserManagementColumn = () => {
     }
 
     const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow) => {
-        const roleNameToFilter = item.rolename;
-        const filteredRoles = UserRole.filter(role => role.rolename === roleNameToFilter);
-        const filteredRoleObject = filteredRoles.length > 0 ? filteredRoles[0] : null;
+        // const roleNameToFilter = item.rolename;
+        // const filteredRoles = UserRole.filter(role => role.rolename === roleNameToFilter);
+        // const filteredRoleObject = filteredRoles.length > 0 ? filteredRoles[0] : null;
         setVisibleInvitePage(true);
-        setSelectTableRow({...filteredRoleObject, email : item.email})
+        setSelectTableRow(item)
+
+        console.log(item,"checked")
     }
 
-    const handelDelete = (item) => {
-        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST;
-        const requestBody = {
-            "user_id": "1",
-            "company_id": item.id
-        }
-        console.log("requestBody", requestBody);
-        return;
-        // POST_REQUEST(apiURL, requestBody)
-        // .then((response) => {
-        //     alert('Rejected User successfully')
-        //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+    const handelDelete = (item, handleSuccessCallback) => {
+        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST+'/'+item.id+'/'+item.company_id;
+        console.log("apiURL", apiURL);
+        // return;
+        DELETE_REQUEST(apiURL)
+        .then((_response) => {
+            console.log(_response, "response");
+                NotificationsTost({ message: "The user has been deleted successfully.", type: "success" });
+                handleSuccessCallback();
 
-        // })
-        // .catch((error) => {
-        //     console.log(error, 'error')
-        //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+        })
+        .catch((error) => {
+            console.log(error, 'error')
 
+            NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
-        // })
+        })
     }
 
     return { USER_MANAGEMENT_COLUMN_ACTION, handelManagePermission }

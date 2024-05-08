@@ -2,22 +2,22 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
-import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
+import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsTost from 'utils/notification/NotificationsTost';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTaleRow }) => {
     const navigate = useNavigate();
-
+    const isEdited = Object.keys(selectTaleRow).length > 0;
     const [alignment, setAlignment] = useState('yes');
     const [userEmail, setUserEmail] = useState(selectTaleRow?.email || '');
-    const [selectRoleType, setSelectRoleType] = useState(selectTaleRow?.id || '');
+    const [selectRoleType, setSelectRoleType] = useState(selectTaleRow?.role_id || '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-
+    const [permissionStates, setPermissionStates] = useState([]);
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -27,33 +27,55 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
 
-
     // const handleAlignment = (event, index) => {
     //     setPermissionStates((prevStates) => {
     //         const newStates = [...prevStates];
-    //         newStates[index] = !newStates[index];
+    //         const isSelected = !newStates.includes(permissions[index].permission_id);
+
+    //         if (isSelected) {
+    //             newStates.push(permissions[index].permission_id);
+    //             setSelectedPermissions((prevSelectedPermissions) => [
+    //                 ...prevSelectedPermissions,
+    //                 permissions[index],
+    //             ]);
+    //         } else {
+    //             const updatedStates = newStates.filter(
+    //                 (permissionId) => permissionId !== permissions[index].permission_id
+    //             );
+    //             setSelectedPermissions((prevSelectedPermissions) =>
+    //                 prevSelectedPermissions.filter(
+    //                     (permission) => permission.permission_id !== permissions[index].permission_id
+    //                 )
+    //             );
+    //             return updatedStates;
+    //         }
+
     //         return newStates;
     //     });
     // };
+
     const handleAlignment = (event, index) => {
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
-            newStates[index] = !newStates[index];
-
-            // Update selectedPermissions based on the new state
-            if (newStates[index]) {
+            const permissionId = permissions[index].permission_id;
+            const isSelected = !newStates.includes(permissionId);
+    
+            if (isSelected) {
+                newStates.push(permissionId);
                 setSelectedPermissions((prevSelectedPermissions) => [
                     ...prevSelectedPermissions,
                     permissions[index],
                 ]);
             } else {
+                const updatedStates = newStates.filter((id) => id !== permissionId);
                 setSelectedPermissions((prevSelectedPermissions) =>
                     prevSelectedPermissions.filter(
-                        (permission) => permission.permission_id !== permissions[index].permission_id
+                        (permission) => permission.permission_id !== permissionId
                     )
                 );
+                return updatedStates;
             }
-
+    
             return newStates;
         });
     };
@@ -63,40 +85,107 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
-                setPermissionStates(res.data.map((permission) => permission.is_assigned));
             }).catch((error) => {
                 console.log(error)
             });
 
     }
 
-    const [permissionStates, setPermissionStates] = useState(
-        permissions.map(() => false)
-    );
+    // const getUserPermissionListAPI = (item) => {
+    //     console.log(item);
+    //     const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
+    //     GET_REQUEST(apiURL)
+    //         .then((res) => {
+    //             const userPermissions = res.data[0]?.permissions; // Assuming permissions is an array of permission IDs
+    //             console.log(userPermissions, "user permissions")
+    //             setPermissionStates(userPermissions)
+    //         })
+    //         .catch((error) => {
+    //             console.log(error);
+    //         });
+    // };
+
+
 
     const handelInviteSubmit = () => {
-        const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        
+        const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
-        const requestBody = {
-            "email": userEmail,
-            "role": selectRoleType,
-            "company": "1", // comapnay id is static right now.
-            "permissions": permissionIds
+
+
+        console.log(Object.keys(selectTaleRow).length,selectTaleRow, selectedPermissions, permissionIds, "Object.keys(selectTaleRow).length")
+        // return;
+        if (isEdited) {
+            const requestBody = {
+                "email": userEmail,
+                "role_id": selectRoleType,
+                "company_id": selectTaleRow.company_id, // comapnay id is static right now.
+                "permissions": permissionIds
+            }
+            POST_REQUEST(apiURL, requestBody)
+                .then((response) => {
+
+                    NotificationsTost({ message: 'The Invite has been updated', type: "success" });
+                    setVisibleInvitePage(false);
+                    handleAPISuccessCallBack();
+                })
+                .catch((error) => {
+                    console.log(error, 'error')
+                    NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                });
+        } else {
+            const requestBody = {
+                "email": userEmail,
+                "role": selectRoleType,
+                "company": "1", // comapnay id is static right now.
+                "permissions": permissionIds
+            }
+
+            POST_REQUEST(apiURL, requestBody)
+                .then((response) => {
+                    console.log(response, "check res")
+                    if (response.data.status === 200) {
+                        NotificationsTost({ message: 'The Invite has been sent', type: "success" });
+                        setVisibleInvitePage(false);
+                        handleAPISuccessCallBack();
+                    } else if (response.data.status === 500) {
+                        NotificationsTost({ message: response.data.message, type: "error" });
+                    }
+                })
+                .catch((error) => {
+                    console.log(error, 'error')
+                    NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+                })
         }
 
+    }
 
-        POST_REQUEST(apiURL, requestBody)
-            .then((response) => {
-                NotificationsTost({ message: "Your form has been submitted!", type: "success" });
-                setVisibleInvitePage(false);
-                handleAPISuccessCallBack();
+    const getUserPermissionListAPI = (item) => {
+        console.log(item);
+        const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
+        GET_REQUEST(apiURL)
+            .then((res) => {
+                const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
+                console.log(userPermissions, "user permissions");
+                const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
+                setPermissionStates(userPermissions);
+                setSelectedPermissions(userPermissionObjects);
             })
             .catch((error) => {
-                console.log(error, 'error')
-                NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
-            })
-    }
+                console.log(error);
+            });
+    };
+    
+    useEffect(() => {
+        if (Object.keys(selectTaleRow).length !== 0) {
+            console.log(selectTaleRow, 'select table row on use effect');
+            getUserPermissionListAPI(selectTaleRow);
+        } else {
+            setPermissionStates([]);
+            setSelectedPermissions([]);
+        }
+    }, [selectTaleRow, permissions]);
 
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
@@ -110,39 +199,44 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             setSelectedPermissions([]); // Reset selectedPermissions
             getPermissionList(selectRoleType);
         }
-    }, [selectRoleType]);
+
+    }, [selectRoleType,]);
 
 
-    console.log(selectTaleRow, 'selectTaleRow')
+    // useEffect(() => {
+    //     if (Object.keys(selectTaleRow).length !== 0) {
+    //         console.log(selectTaleRow, 'select table row on use effect')
+    //         getUserPermissionListAPI(selectTaleRow)
+    //     }
+    // }, [selectTaleRow]);
+
+
+    // console.log(permissionStates, "permissionStates")
+    // console.log(permissions, 'get default permissions')
+    console.log(selectedPermissions, "selectedPermissions")
+    // console.log(selectTaleRow, "selectTaleRow")
 
     return (
         <Box component="section">
 
             <Container maxWidth="lg">
                 <Grid container sx={{ justifyContent: 'space-between', marginBottom: '2rem', gap: '1rem' }} >
-
-                    <Grid item >
-                        <Typography variant='h4'>Invite user and set permissions</Typography>
-                    </Grid>
-                    <Grid item sx={{ marginBottom: '1rem' }}>
-                        <Button
-                            color="primary"
-                            variant="contained"
-                            sx={{ minWidth: { xs: '8rem' }, padding: { xs: '0.5rem 0' } }}
-                            onClick={() => setVisibleInvitePage(false)}
-
-                        >
-                            <IconButton>
-                                <ArrowBackIcon
-                                    sx={{
-                                        color: "#fff",
-                                        fontSize: "1.25rem",
-                                    }}
-                                />
-                            </IconButton>
-                            Back
-                        </Button>
-
+                    <Grid item sx={{ display: 'flex', }}>
+                        <IconButton onClick={() => setVisibleInvitePage(false)} sx={{
+                            backgroundColor: 'primary.main',
+                            '&:hover': {
+                                backgroundColor: 'primary.main',
+                            },
+                            marginRight: '1rem'
+                        }} >
+                            <ArrowBackIcon
+                                sx={{
+                                    color: "#fff",
+                                    fontSize: "1.25rem",
+                                }}
+                            />
+                        </IconButton>
+                        <Typography variant='h4'> {isEdited ? 'Manage permission' : 'Invite user and set permissions'}</Typography>
                     </Grid>
                 </Grid>
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
@@ -188,14 +282,15 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             onClick={() => handelInviteSubmit()}
                             disabled={!isFormValid}
                         >
-                            Send Invite
+                            {isEdited ? 'Update Invite' : ' Send Invite'}
+                           
                         </Button>
                     </Grid>
                 </Grid>
 
                 {permissions?.length > 0 ?
-                    <Box component='div' >
-                        <Grid container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                    <Box component='div' sx={{ width: { xs: '100%', sm: '75%' } }} >
+                        <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                             <Grid item>
                                 <Typography variant='small'>List of Permissions</Typography>
                             </Grid>
@@ -203,17 +298,19 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 <Typography variant='small'>Toggle to grant</Typography>
                             </Grid>
                         </Grid>
-                        <Stack>
+                        <Stack >
                             {permissions && permissions.map((permission, index) => {
+                                const isPermissionSelected = permissionStates?.includes(permission.permission_id);
+                                // console.log(permission, permissionStates, "check permissions data");
                                 return (
-                                    <Grid key={permission.permission_id} container md={8} sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                    <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                                         <Grid item >
                                             <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>
                                             <ToggleButtonGroup
 
-                                                value={permissionStates[index] ? 'yes' : 'no'}
+                                                value={isPermissionSelected ? 'yes' : 'no'}
                                                 exclusive
                                                 onChange={(event) => handleAlignment(event, index)}
                                                 aria-label="text alignment"
@@ -235,7 +332,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     </Box>
                     :
                     <Box component='div' >
-                        <Grid container md={12} sx={{ justifyContent: 'center', padding: '5rem 0' }}>
+                        <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
                                 <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
                             </Grid>

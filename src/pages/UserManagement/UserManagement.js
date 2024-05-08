@@ -142,8 +142,8 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
+    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
     GET_REQUEST(apiURL)
         .then((res) => {
           setAllUser(res.data?.body)
