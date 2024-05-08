@@ -91,29 +91,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }
 
-    // const getUserPermissionListAPI = (item) => {
-    //     console.log(item);
-    //     const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
-    //     GET_REQUEST(apiURL)
-    //         .then((res) => {
-    //             const userPermissions = res.data[0]?.permissions; // Assuming permissions is an array of permission IDs
-    //             console.log(userPermissions, "user permissions")
-    //             setPermissionStates(userPermissions)
-    //         })
-    //         .catch((error) => {
-    //             console.log(error);
-    //         });
-    // };
-
 
 
     const handelInviteSubmit = () => {
         
         const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
-
-
-        console.log(Object.keys(selectTaleRow).length,selectTaleRow, selectedPermissions, permissionIds, "Object.keys(selectTaleRow).length")
         // return;
         if (isEdited) {
             const requestBody = {
@@ -125,13 +108,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
 
-                    NotificationsTost({ message: 'The Invite has been updated', type: "success" });
+                    NotificationsToast({ message: 'The Invite has been updated', type: "success" });
                     setVisibleInvitePage(false);
                     handleAPISuccessCallBack();
                 })
                 .catch((error) => {
                     console.log(error, 'error')
-                    NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                    NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
                 });
         } else {
             const requestBody = {
@@ -143,18 +126,17 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
-                    console.log(response, "check res")
                     if (response.data.status === 200) {
-                        NotificationsTost({ message: 'The Invite has been sent', type: "success" });
+                        NotificationsToast({ message: 'The Invite has been sent', type: "success" });
                         setVisibleInvitePage(false);
                         handleAPISuccessCallBack();
                     } else if (response.data.status === 500) {
-                        NotificationsTost({ message: response.data.message, type: "error" });
+                        NotificationsToast({ message: response.data.message, type: "error" });
                     }
                 })
                 .catch((error) => {
                     console.log(error, 'error')
-                    NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                    NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
                 })
         }
@@ -162,12 +144,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        console.log(item);
         const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
-                console.log(userPermissions, "user permissions");
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
                 setSelectedPermissions(userPermissionObjects);
@@ -179,7 +159,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     
     useEffect(() => {
         if (Object.keys(selectTaleRow).length !== 0) {
-            console.log(selectTaleRow, 'select table row on use effect');
             getUserPermissionListAPI(selectTaleRow);
         } else {
             setPermissionStates([]);
@@ -202,19 +181,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType,]);
 
-
-    // useEffect(() => {
-    //     if (Object.keys(selectTaleRow).length !== 0) {
-    //         console.log(selectTaleRow, 'select table row on use effect')
-    //         getUserPermissionListAPI(selectTaleRow)
-    //     }
-    // }, [selectTaleRow]);
-
-
-    // console.log(permissionStates, "permissionStates")
-    // console.log(permissions, 'get default permissions')
-    console.log(selectedPermissions, "selectedPermissions")
-    // console.log(selectTaleRow, "selectTaleRow")
 
     return (
         <Box component="section">
@@ -301,7 +267,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                         <Stack >
                             {permissions && permissions.map((permission, index) => {
                                 const isPermissionSelected = permissionStates?.includes(permission.permission_id);
-                                // console.log(permission, permissionStates, "check permissions data");
                                 return (
                                     <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                                         <Grid item >

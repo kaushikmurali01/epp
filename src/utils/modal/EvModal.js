@@ -48,40 +48,47 @@ export default function EvModal(props) {
         open={modalVisible}
         className={`theme-modal ${modalUI.modalClass}`}
       >
-        <Stack sx={{ p: 2 }}>
-          <DialogTitle variant='h4' sx={{...modalUI?.headerTextStyle, p: 0 }}>
-            {headerText}
-          </DialogTitle >
-          <Typography variant='small' sx={{...modalUI.headerSubTextStyle}}>
-            {headerSubText}
-          </Typography>
-          {modalUI?.crossIcon &&
-            <IconButton
-              aria-label="close"
-              onClick={handleClose}
-              sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
+        {modalUI?.showHeader && 
+          <Stack sx={{ p: 2 }}>
+            {headerText && 
+              <DialogTitle variant='h4' sx={{...modalUI?.headerTextStyle, p: 0 }}>
+                {headerText}
+              </DialogTitle >
+            }
+            {headerSubText && 
+            <Typography variant='small' sx={{...modalUI.headerSubTextStyle}}>
+              {headerSubText}
+            </Typography>
+            }
+
+            {modalUI?.crossIcon &&
+              <IconButton
+                aria-label="close"
+                onClick={handleClose}
+                sx={{
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            }
+          </Stack>
           }
-        </Stack>
         <DialogContent sx={{...modalUI?.modalBodyContentStyle}}>
          {modalBodyContent}
         </DialogContent>
         { (buttonsUI?.saveButton || buttonsUI?.cancelButton) &&
-          <DialogActions sx={{}}>
+          <DialogActions sx={{...modalUI?.fotterActionStyle}}>
             {buttonsUI?.saveButton && 
-            <Button  onClick={() => {actionButtonData ? saveButtonAction(actionButtonData) : saveButtonAction()}}>
+            <Button sx={{...buttonsUI?.successButtonStyle}} onClick={() => {actionButtonData ? saveButtonAction(actionButtonData) : saveButtonAction()}}>
              {buttonsUI?.saveButtonName || "Yes"}
             </Button>
             }
               {buttonsUI?.cancelButton && 
-            <Button  onClick={handleClose}>
+            <Button sx={{...buttonsUI?.cancelButtonStyle}}  onClick={handleClose}>
              {buttonsUI?.cancelButtonName || "No"}
             </Button>
             }
