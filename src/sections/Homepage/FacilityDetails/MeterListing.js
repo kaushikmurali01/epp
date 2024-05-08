@@ -45,9 +45,9 @@ const MeterListing = ({
     return foundType ? foundType.value : null;
   };
 
-  const handleDeleteMeter = () => {
-    if (id) {
-      dispatch(deleteMeter(id))
+  const handleDeleteMeter = (mId) => {
+    if (mId) {
+      dispatch(deleteMeter(mId))
         .then(() => {
           setModalConfig((prevState) => ({
             ...prevState,
