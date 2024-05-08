@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Container,
   Typography,
@@ -10,6 +10,11 @@ import {
   ListItemText
 } from "@mui/material";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import InputField from "components/FormBuilder/InputField";
+import { Form, Formik } from "formik";
+import ButtonWrapper from "components/FormBuilder/Button";
+import { validationSchemaProfileDetails } from "utils/validations/formValidation";
 
 
 const ProfilePage = () => {
@@ -57,6 +62,85 @@ const ProfilePage = () => {
   };
 
   
+  const [showEditPage, setShowEditPage] = useState(false);
+  const [imgUrl, setImgUrl] = useState("");
+
+  const [profilePicture, setProfilePicture] = useState("/images/landingPage/header_banner.jpg");
+
+  // Function to handle file input change
+  const handleFileInputChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      setProfilePicture(e.target.result);
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  // Function to delete the picture
+  const deletePicture = () => {
+    setProfilePicture("/images/landingPage/header_banner.jpg");
+  };
+
+  const [initialValues, setInitialValues] = useState({
+    first_name: "",
+    last_name: "",
+    phonenumber: "",
+    email: "",
+    company_name: "",
+    website: "",
+    unit_number: "",
+    street_number: "",
+    street_name: "",
+    city: "",
+    province: "",
+    country: "",
+    postal_code: "",
+  });
+
+   const [userProfileData, setUserProfileData] = useState();
+   const getUserProfileData = () => {
+     const apiURL = "https://ams-enerva-dev.azure-api.net/enerva-user/v1/user";
+     GET_REQUEST(apiURL)
+       .then((res) => {
+         setUserProfileData(res?.data);
+         setInitialValues((prevValues) => {
+           return {
+             ...prevValues,
+             first_name: res?.data?.user?.first_name,
+             last_name: res?.data?.user?.last_name,
+             phonenumber: res?.data?.user?.phonenumber,
+             email: res?.data?.user?.email,
+             company_name: res?.data?.company?.company_name,
+             website: res?.data?.company?.website,
+             unit_number: res?.data?.company?.unit_number,
+             street_number: res?.data?.company?.street_number,
+             street_name: res?.data?.company?.street_name,
+             city: res?.data?.company?.city,
+             province: res?.data?.company?.state,
+             country: res?.data?.company?.country,
+             postal_code: res?.data?.company?.postal_code,
+           };
+         });
+       })
+       .catch((error) => {
+         console.log(error);
+       });
+   };
+
+   useEffect(() => {
+     getUserProfileData();
+   }, []);
+
+  const handleSubmit = (values) => {
+    const newValues = { ...values }
+  console.log(newValues, "newvalues");
+    
+  }
+  
+  console.log(initialValues, "initi");
 
   return (
     <Container>
@@ -70,7 +154,7 @@ const ProfilePage = () => {
         wrap="nowrap"
         sx={{
           flexDirection: { xs: "column", md: "row" },
-          justifyContent: "flex-start",
+          justifyContent: { xs: "center", md: "flex-start" },
           alignItems: { xs: "center", md: "flex-start" },
         }}
       >
@@ -78,183 +162,406 @@ const ProfilePage = () => {
           container
           item
           sx={{
-            width: { xs: "8.5rem", md: "12.5rem" },
+            // width: { xs: "8.5rem", md: "12.5rem" },
+            width: "auto",
             flex: "none", // Ensure it doesn't flex
+            gap: "1.25rem",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <figure>
-            <img
-              style={{
-                maxWidth: "100%",
-                width: "100%",
-                height: "100%",
-                flexShrink: "0",
-                aspectRatio: 1,
-                borderRadius: "100%",
-              }}
-              src="/images/landingPage/header_banner.jpg"
-              alt="profile"
-            />
-          </figure>
+          <img
+            style={{
+              width: "12.5rem",
+              height: "12.5rem",
+              maxWidth: "100%",
+              aspectRatio: 1,
+              borderRadius: "100%",
+            }}
+            src={profilePicture}
+            alt="profile"
+          />
+          {showEditPage && (
+            <Box
+              display={"flex"}
+              flexDirection={"column"}
+              gap={"1.25rem"}
+              sx={{ justifyContent: { xs: "center", md: "flex-start" } }}
+            >
+              <input
+                type="file"
+                id="profilePhotoChange"
+                style={{ display: "none" }}
+                onChange={handleFileInputChange}
+              />
+              <Button
+                sx={profileButtonStyle}
+                onClick={() =>
+                  document.getElementById("profilePhotoChange").click()
+                }
+              >
+                Change Picture
+              </Button>
+              <Button sx={profileButtonStyle} onClick={deletePicture}>
+                Delete Picture
+              </Button>
+            </Box>
+          )}
         </Grid>
 
-        <Grid container item sx={{ flex: "1", gap: "1.5rem" }}>
-          <Grid
-            container
-            columnGap={"1rem"}
-            direction="row"
-            justifyContent="space-between"
-            alignItems="flex-start"
-            alignContent="stretch"
-            wrap="nowrap"
-          >
-            <Grid item>
-              <Typography variant="h3">Ben Miller</Typography>
-              <Typography variant="h6">Role: Super Admin</Typography>
-            </Grid>
+        {!showEditPage && (
+          <Grid container item sx={{ flex: "1", gap: "1.5rem" }}>
             <Grid
               container
-              item
-              width={"auto"}
-              direction="column"
-              justify="flex-start"
-              alignItems="flex-end"
+              columnGap={"1rem"}
+              direction="row"
+              justifyContent="space-between"
+              alignItems="flex-start"
               alignContent="stretch"
               wrap="nowrap"
-              gap="1.25rem"
             >
-              <Button sx={profileButtonStyle}>Change Password</Button>
-              <Button sx={profileButtonStyle}>Edit Profile</Button>
-              <Button sx={profileButtonStyle}>
-                Change Super administrator
-              </Button>
+              <Grid item>
+                <Typography variant="h3">{`${userProfileData?.user?.first_name} ${userProfileData?.user?.last_name}`}</Typography>
+                <Typography variant="h6">
+                  Role: {userProfileData?.user?.rolename}
+                </Typography>
+              </Grid>
+              <Grid
+                container
+                item
+                width={"auto"}
+                direction="column"
+                justify="flex-start"
+                alignItems="flex-end"
+                alignContent="stretch"
+                wrap="nowrap"
+                gap="1.25rem"
+              >
+                <Button sx={profileButtonStyle}>Change Password</Button>
+                <Button
+                  sx={profileButtonStyle}
+                  onClick={() => setShowEditPage(true)}
+                >
+                  Edit Profile
+                </Button>
+                <Button sx={profileButtonStyle}>
+                  Change Super administrator
+                </Button>
+              </Grid>
             </Grid>
-          </Grid>
 
-          <Box display={"flex"} flexDirection={"column"} gap={"3.25rem"}>
-            <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-              <Typography variant="h6" sx={tabStyle}>
-                Contact information
-              </Typography>
-              <List
-                disablePadding
-                sx={{
-                  display: "flex",
-                  width: "auto",
-                  flexWrap: "wrap",
-                  gap: "1.44rem",
-                }}
-                className="profileLists"
-              >
-                
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-              </List>
-            </Box>
-
-            <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-              <Typography variant="h6" sx={tabStyle}>
-                Company details
-              </Typography>
-              <Box>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    color: "#242424)",
-                    fontSize: "1.125rem !important",
-                    fontWeight: 600,
-                    lineHeight: "normal",
-                  }}
-                >
-                  Wallmart
+            <Box display={"flex"} flexDirection={"column"} gap={"3.25rem"}>
+              <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+                <Typography variant="h6" sx={tabStyle}>
+                  Contact information
                 </Typography>
-                <Typography
-                  variant="h6"
+                <List
+                  disablePadding
                   sx={{
-                    color: "#242424)",
-                    fontSize: "0.875rem !important",
-                    fontWeight: 400,
-                    lineHeight: "normal",
+                    display: "flex",
+                    width: "auto",
+                    flexWrap: "wrap",
+                    gap: "1.44rem",
                   }}
+                  className="profileLists"
                 >
-                  www.wallmartdummy.com
-                </Typography>
+                  {userProfileData?.user?.phonenumber && (
+                    <MicroStyledListItemComponent
+                      primary="Phone Number"
+                      secondary={userProfileData?.user?.phonenumber}
+                    />
+                  )}
+                  {userProfileData?.user?.landline && (
+                    <MicroStyledListItemComponent
+                      primary="Phone Number"
+                      secondary={userProfileData?.user?.landline}
+                    />
+                  )}
+                  {userProfileData?.user?.email && (
+                    <MicroStyledListItemComponent
+                      primary="Email Address"
+                      secondary={userProfileData?.user?.email}
+                    />
+                  )}
+                  {userProfileData?.company?.company_name && (
+                    <MicroStyledListItemComponent
+                      primary="Company Name"
+                      secondary={userProfileData?.company?.company_name}
+                    />
+                  )}
+                </List>
               </Box>
-              <List
-                disablePadding
-                sx={{
-                  display: "flex",
-                  width: "auto",
-                  flexWrap: "wrap",
-                  gap: "1.44rem",
-                }}
-                className="profileLists"
-              >
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-                <MicroStyledListItemComponent
-                  primary="primary"
-                  secondary="secondary"
-                />
-              </List>
+
+              <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+                <Typography variant="h6" sx={tabStyle}>
+                  Company details
+                </Typography>
+                <Box>
+                  {userProfileData?.company?.company_name && (
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        color: "#242424)",
+                        fontSize: "1.125rem !important",
+                        fontWeight: 600,
+                        lineHeight: "normal",
+                      }}
+                    >
+                      {userProfileData?.company?.company_name}
+                    </Typography>
+                  )}
+                  {userProfileData?.company?.website && (
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#242424)",
+                        fontSize: "0.875rem !important",
+                        fontWeight: 400,
+                        lineHeight: "normal",
+                      }}
+                    >
+                      {userProfileData?.company?.website}
+                    </Typography>
+                  )}
+                </Box>
+                <List
+                  disablePadding
+                  sx={{
+                    display: "flex",
+                    width: "auto",
+                    flexWrap: "wrap",
+                    gap: "1.44rem",
+                  }}
+                  className="profileLists"
+                >
+                  {userProfileData?.company?.unit_number && (
+                    <MicroStyledListItemComponent
+                      primary="Unit number"
+                      secondary={userProfileData?.company?.unit_number}
+                    />
+                  )}
+                  {userProfileData?.company?.street_number && (
+                    <MicroStyledListItemComponent
+                      primary="Street number"
+                      secondary={userProfileData?.company?.street_number}
+                    />
+                  )}
+                  {userProfileData?.company?.street_name && (
+                    <MicroStyledListItemComponent
+                      primary="Street name"
+                      secondary={userProfileData?.company?.street_name}
+                    />
+                  )}
+                  {userProfileData?.company?.city && (
+                    <MicroStyledListItemComponent
+                      primary="City"
+                      secondary={userProfileData?.company?.city}
+                    />
+                  )}
+                  {userProfileData?.company?.state && (
+                    <MicroStyledListItemComponent
+                      primary="Province/State"
+                      secondary={userProfileData?.company?.state}
+                    />
+                  )}
+                  {userProfileData?.company?.country && (
+                    <MicroStyledListItemComponent
+                      primary="Country"
+                      secondary={userProfileData?.company?.country}
+                    />
+                  )}
+                  {userProfileData?.company?.postal_code && (
+                    <MicroStyledListItemComponent
+                      primary="Zip code/Postal code"
+                      secondary={userProfileData?.company?.postal_code}
+                    />
+                  )}
+                </List>
+              </Box>
+
+              <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+                <Typography variant="h6" sx={tabStyle}>
+                  Also part of:
+                </Typography>
+
+                <List
+                  disablePadding
+                  sx={{
+                    display: "flex",
+                    width: "auto",
+                    flexWrap: "wrap",
+                    gap: "0.5rem",
+                    flexDirection: "row",
+                  }}
+                >
+                  <ListItem disablePadding>
+                    <ListItemText
+                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                      primary="Company name"
+                      secondary="Role"
+                      primaryTypographyProps={otherInfoHeaderStyle}
+                      secondaryTypographyProps={otherInfoHeaderStyle}
+                    />
+                  </ListItem>
+
+                  {/* loop over below ListItem */}
+                  <ListItem disablePadding>
+                    <ListItemText
+                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                      primary="test"
+                      secondary="hsiuhiuhuwduoicjnwd"
+                      primaryTypographyProps={otherInfoStyleContentStyle}
+                      secondaryTypographyProps={otherInfoStyleContentStyle}
+                    />
+                  </ListItem>
+                </List>
+              </Box>
             </Box>
-
-            <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-              <Typography variant="h6" sx={tabStyle}>
-                Also part of:
-              </Typography>
-
-              <List
-                disablePadding
-                sx={{
-                  display: "flex",
-                  width: "auto",
-                  flexWrap: "wrap",
-                  gap: "0.5rem",
-                  flexDirection: "row",
-                }}
-              >
-                <ListItem disablePadding>
-                  <ListItemText
-                    sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                    primary="test"
-                    secondary="12432rf"
-                    primaryTypographyProps={otherInfoHeaderStyle}
-                    secondaryTypographyProps={otherInfoHeaderStyle}
-                  />
-                </ListItem>
-
-                {/* loop over below ListItem */}
-                <ListItem disablePadding>
-                  <ListItemText
-                    sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                    primary="test"
-                    secondary="hsiuhiuhuwduoicjnwd"
-                    primaryTypographyProps={otherInfoStyleContentStyle}
-                    secondaryTypographyProps={otherInfoStyleContentStyle}
-                  />
-                </ListItem>
-              </List>
-            </Box>
-          </Box>
-        </Grid>
+          </Grid>
+        )}
       </Grid>
+
+      {showEditPage && (
+        <Grid marginBlockStart={"3.25rem"} gap={"3.25rem"}>
+          <Formik
+            initialValues={{ ...initialValues }}
+            validationSchema={validationSchemaProfileDetails}
+            enableReinitialize={true}
+            onSubmit={handleSubmit}
+          >
+            <Form>
+              <Grid mb={"3.25rem"}>
+                <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
+                  Contact information
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="first_name"
+                      label="First name*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="last_name"
+                      label="Last name*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="phonenumber"
+                      label="Business Mobile*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="email"
+                      label="Email Address*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid>
+                <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
+                  Company details
+                </Typography>
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="company_name"
+                      label="Company name*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="website"
+                      label="Website URL*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="unit_number"
+                      label="Unit number*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="street_number"
+                      label="Street number*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="street_name"
+                      label="Street name*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+
+                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                  <Grid item xs={12} sm={3}>
+                    <InputField name="city" label="City*" type="text" />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <InputField
+                      name="province"
+                      label="Province/State*"
+                      type="text"
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <InputField name="country" label="Country*" type="text" />
+                  </Grid>
+
+                  <Grid item xs={12} sm={3}>
+                    <InputField
+                      name="postal_code"
+                      label="Zip code/Postal code*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Box mt={6} rowGap={4}>
+                <ButtonWrapper
+                  type="submit"
+                  color="neutral"
+                  width="165px"
+                  height="48px"
+                  onClick={handleSubmit}
+                >
+                  Save
+                </ButtonWrapper>
+              </Box>
+            </Form>
+          </Formik>
+        </Grid>
+      )}
     </Container>
   );
 };
