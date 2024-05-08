@@ -291,7 +291,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                 </Grid>
                 <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
                   <InputLabel>
-                    Meter specification as per Measurement Canada S-E-04
+                    {values.meter_type === 3
+                      ? "Upload the most recent utility bill"
+                      : "Meter specification as per Measurement Canada S-E-04"}
                   </InputLabel>
                   {!selectedFile ? (
                     <>
@@ -371,7 +373,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       height="48px"
                       onClick={handleSubmit}
                     >
-                      Add Meter
+                      {meterId2 ? "Save" : "Add Meter"}
                     </ButtonWrapper>
                   </Box>
                 </Grid>

@@ -20,6 +20,12 @@ import {
   UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
   UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
   UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
+  FETCH_FACILITY_STATUS_REQUEST,
+  FETCH_FACILITY_STATUS_SUCCESS,
+  FETCH_FACILITY_STATUS_FAILURE,
+  UPDATE_FACILITY_STATUS_REQUEST,
+  UPDATE_FACILITY_STATUS_SUCCESS,
+  UPDATE_FACILITY_STATUS_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -117,5 +123,33 @@ export const updateFacilityCharacteristicSuccess = (data) => ({
 
 export const updateFacilityCharacteristicFailure = (error) => ({
   type: UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityStatusRequest = () => ({
+  type: FETCH_FACILITY_STATUS_REQUEST,
+});
+
+export const fetchFacilityStatusSuccess = (data) => ({
+  type: FETCH_FACILITY_STATUS_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityStatusFailure = (error) => ({
+  type: FETCH_FACILITY_STATUS_FAILURE,
+  payload: error,
+});
+
+export const updateFacilityStatusRequest = () => ({
+  type: UPDATE_FACILITY_STATUS_REQUEST,
+});
+
+export const updateFacilityStatusSuccess = (data) => ({
+  type: UPDATE_FACILITY_STATUS_SUCCESS,
+  payload: data,
+});
+
+export const updateFacilityStatusFailure = (error) => ({
+  type: UPDATE_FACILITY_STATUS_FAILURE,
   payload: error,
 });

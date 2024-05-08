@@ -118,11 +118,16 @@ const FacilityHeader = () => {
                 {facilityDetails?.facility_name}
               </Typography>
               <Typography variant="small2" gutterBottom>
-                {facilityDetails?.address}, {facilityDetails?.sector}
+                {facilityDetails?.address && `${facilityDetails?.address} ,`}{" "}
+                {facilityDetails?.sector && `${facilityDetails?.sector}`}
                 <br />
-                {facilityDetails?.city}, {facilityDetails?.country}
+                {facilityDetails?.city && `${facilityDetails?.city} ,`}{" "}
+                {facilityDetails?.country && `${facilityDetails?.country}`}
                 <br />
-                {facilityDetails?.province}, {facilityDetails?.postal_code},
+                {facilityDetails?.province &&
+                  `${facilityDetails?.province} ,`}{" "}
+                {facilityDetails?.postal_code &&
+                  `${facilityDetails?.postal_code} `}
               </Typography>
               <Box>
                 <FacilityStatus>

@@ -10,6 +10,8 @@ export const facilityEndPoints = {
   GET_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
   UPDATE_FACILITY_CHARACTERISTIC:
     "/company-facility/v1/facility-characteristics",
+  GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
 };
 
 export const PA_MANAGEMENT = {

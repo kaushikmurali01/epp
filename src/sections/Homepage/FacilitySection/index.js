@@ -22,7 +22,7 @@ import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
 
 const Facility = () => {
-  const [facilityToDelete, setFacilityToDelete] = useState('');
+  const [facilityToDelete, setFacilityToDelete] = useState("");
   const columns = [
     {
       Header: "Name/Nick Name",
@@ -38,13 +38,15 @@ const Facility = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <Typography>{item.facility_name}</Typography>
-          <Button
-            variant="contained"
-            sx={{ display: item.is_approved && "none" }}
-            onClick={() => submitForApprovalHandler(item.id)}
-          >
-            Submit for approval
-          </Button>
+          {item?.facility_id_submission_status === 1 && (
+            <Button
+              variant="contained"
+              sx={{ display: item.is_approved && "none" }}
+              onClick={() => submitForApprovalHandler(item.id)}
+            >
+              Submit for approval
+            </Button>
+          )}
           <Link
             href="#"
             variant="small"
@@ -130,7 +132,7 @@ const Facility = () => {
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
-  
+
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
     setModalConfig((prevState) => ({
@@ -199,7 +201,7 @@ const Facility = () => {
   };
 
   return (
-    <Container >
+    <Container>
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography
@@ -276,7 +278,11 @@ const Facility = () => {
           onClick={(id) => navigate(`/admin/facility-details/${id}`)}
         />
       </Box>
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} actionButtonData={facilityToDelete}/>
+      <EvModal
+        modalConfig={modalConfig}
+        setModalConfig={setModalConfig}
+        actionButtonData={facilityToDelete}
+      />
     </Container>
   );
 };
