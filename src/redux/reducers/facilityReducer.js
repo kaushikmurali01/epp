@@ -20,11 +20,18 @@ import {
   UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
   UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
   UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
+  FETCH_FACILITY_STATUS_REQUEST,
+  FETCH_FACILITY_STATUS_SUCCESS,
+  FETCH_FACILITY_STATUS_FAILURE,
+  UPDATE_FACILITY_STATUS_REQUEST,
+  UPDATE_FACILITY_STATUS_SUCCESS,
+  UPDATE_FACILITY_STATUS_FAILURE,
 } from "./../actionTypes";
 
 const initialState = {
   facilityList: [],
   characteristics: [],
+  facilityStatus: [],
   loading: false,
   error: null,
 };
@@ -155,6 +162,43 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityStatus: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_FACILITY_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_FACILITY_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_FACILITY_STATUS_FAILURE:
       return {
         ...state,
         loading: false,
