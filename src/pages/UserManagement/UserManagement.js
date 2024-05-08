@@ -11,7 +11,7 @@ import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
-import NotificationsTost from 'utils/notification/NotificationsTost';
+import NotificationsToast from 'utils/notification/NotificationsToast';
 import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 
 const UserManagement = () => {
@@ -85,7 +85,7 @@ const UserManagement = () => {
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
       handleAPISuccessCallBack();
-        NotificationsTost({ message: "Your form has been submitted!", type: "success" });
+        NotificationsToast({ message: "Your form has been submitted!", type: "success" });
         setModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -95,7 +95,7 @@ const UserManagement = () => {
     })
     .catch((error) => {
         console.log(error, 'error')
-        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
        
 
     })

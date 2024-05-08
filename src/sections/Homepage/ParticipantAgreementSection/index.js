@@ -12,9 +12,10 @@ import ESignature from "components/ESignature";
 import { FileUploader } from "react-drag-drop-files";
 import UploadIcon from "@mui/icons-material/Upload";
 
-const fileTypes = ["JPG", "PNG", "GIF", "PDF"];
+const fileTypes = ["PDF"];
 
-const ParticipantAgreement = () => {
+const ParticipantAgreement = (props) => {
+  const {onDownloadUnsignedPA, onUploadSignature, isSigned, onDownloadSignedPA, uploadSignedPA, pdfUrl} = props
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [file, setFile] = useState(null);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
@@ -33,12 +34,16 @@ const ParticipantAgreement = () => {
 
   const handleSubmitSignature = (signatureData) => {
     console.log("Signature Data:", signatureData);
+    onUploadSignature(signatureData);
   };
 
   const handleChange = (file) => {
     setFile(file);
+    uploadSignedPA(file)
   };
+
   return (
+   
     <Container>
       <Box>
         <Typography
@@ -61,10 +66,10 @@ const ParticipantAgreement = () => {
             fontWeight: "400",
           }}
         >
-          Read and E-Sign the participant Agreement to enrol your facility
+          {isSigned ? 'You have successfully signed the participant agreement.' : 'Read and sign the participant agreement to enrol your facilities.'}
         </Typography>
       </Box>
-      <ParticipantAgreementContent onScrollToBottom={handleScrollToBottom} />
+      <ParticipantAgreementContent onScrollToBottom={handleScrollToBottom} pdfUrl={pdfUrl} />
       <Box
         sx={{
           display: "flex",
@@ -74,7 +79,7 @@ const ParticipantAgreement = () => {
           alignItems: "center",
         }}
       >
-        <Box
+        {!isSigned && <Box
           sx={{
             display: "flex",
             gap: 1,
@@ -132,12 +137,13 @@ const ParticipantAgreement = () => {
               </Button>
             }
           />
-        </Box>
+        </Box>}
         <Button
           sx={{ fontSize: "1rem", marginTop: isSmallScreen ? 2 : 0 }}
-          disabled={!scrolledToBottom}
+          disabled={!isSigned && !scrolledToBottom}
+          onClick={!isSigned ? onDownloadUnsignedPA : onDownloadSignedPA}
         >
-          Download as PDF
+          {isSigned ? 'Download signed participant agreement' : 'Download as PDF'}
         </Button>
       </Box>
       <ESignature

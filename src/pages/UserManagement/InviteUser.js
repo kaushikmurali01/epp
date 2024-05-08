@@ -4,7 +4,7 @@ import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconBu
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { USER_MANAGEMENT } from 'constants/apiEndPoints';
-import NotificationsTost from 'utils/notification/NotificationsTost';
+import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTaleRow }) => {
@@ -87,13 +87,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
-                NotificationsTost({ message: "Your form has been submitted!", type: "success" });
+                NotificationsToast({ message: "Your form has been submitted!", type: "success" });
                 setVisibleInvitePage(false);
                 handleAPISuccessCallBack();
             })
             .catch((error) => {
                 console.log(error, 'error')
-                NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
             })
     }
