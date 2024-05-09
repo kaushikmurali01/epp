@@ -11,8 +11,9 @@ import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
 import { facilityEndPoints, imageUploadEndPoints } from "constants/apiEndPoints";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const AddFacilityComponent = (props) => {
     const [imgUrl, setImgUrl] = useState("");
@@ -36,8 +37,9 @@ const AddFacilityComponent = (props) => {
     const buildingFacilitystr = "Is . the building/facility in the tariff class GS > 50KW?*";
 
     const FacilityConstructionStatusArray = [
-        { id: 1, name: 'Existing', label: 'Exsting', value: 'Exsting' },
-        { id: 2, name: 'New', label: 'New', value: 'New' }
+        { id: 1, name: 'Existing', label: 'Existing', value: 'Existing' },
+        { id: 2, name: 'New Construction', label: 'New Construction', value: 'New Construction' },
+        { id: 3, name: 'Test Facility', label: 'Test Facility', value: 'Test Facility' },
     ];
 
     const FacilityTypeArray = [
@@ -82,7 +84,8 @@ const AddFacilityComponent = (props) => {
     const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState();
     const location = useLocation();
-  const dispatch = useDispatch();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { id } = useParams();
 
     useEffect(() => {
@@ -124,31 +127,44 @@ const AddFacilityComponent = (props) => {
         const selectedFile = event.target.files[0];
         setSelectedFile(URL.createObjectURL(selectedFile));
         dispatch(fileUploadAction(selectedFile))
-        .then(( data ) => setImgUrl(data?.sasTokenUrl))
-        .catch((error) => {
-          console.error("Error uploading image:", error);
-        });
+            .then((data) => setImgUrl(data?.sasTokenUrl))
+            .catch((error) => {
+                console.error("Error uploading image:", error);
+            });
     };
 
     const handleSubmit = (values) => {
-        const newValues={...values, display_pic_url:imgUrl}
+        const newValues = { ...values, display_pic_url: imgUrl }
         console.log(newValues)
         if (values.facility_construction_status == 'Existing') {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == 'New') {
             values.facility_construction_status = 2;
+        } else if (values.facility_construction_status == 'Test Facility') {
+            values.facility_construction_status = 3;
         }
 
         if (!id) {
 
             POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
                 .then((response) => {
+                    console.log(response)
+                    NotificationsToast({
+                        message: "Facility added successfully!",
+                        type: "success",
+                    });
+                    navigate(`/admin/facility-details/${response?.data?.data?.id}`)
                 })
                 .catch((error) => {
                 });
         } else {
             PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
                 .then((response) => {
+                    NotificationsToast({
+                        message: "Facility updated successfully!",
+                        type: "success",
+                    });
+                    navigate(`/admin/facility-details/${id}`)
                 })
                 .catch((error) => {
                 });
