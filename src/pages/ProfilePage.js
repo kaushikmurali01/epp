@@ -15,6 +15,7 @@ import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaProfileDetails } from "utils/validations/formValidation";
+import EditProfileComponent from "components/ProfilePageComponents/EditProfileComponent";
 
 
 const ProfilePage = () => {
@@ -136,7 +137,7 @@ const ProfilePage = () => {
 
   const handleSubmit = (values) => {
     const newValues = { ...values }
-  console.log(newValues, "newvalues");
+    console.log(newValues, "newvalues");
     
   }
   
@@ -421,147 +422,7 @@ const ProfilePage = () => {
         )}
       </Grid>
 
-      {showEditPage && (
-        <Grid marginBlockStart={"3.25rem"} gap={"3.25rem"}>
-          <Formik
-            initialValues={{ ...initialValues }}
-            validationSchema={validationSchemaProfileDetails}
-            enableReinitialize={true}
-            onSubmit={handleSubmit}
-          >
-            <Form>
-              <Grid mb={"3.25rem"}>
-                <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
-                  Contact information
-                </Typography>
-
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="first_name"
-                      label="First name*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="last_name"
-                      label="Last name*"
-                      type="text"
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="phonenumber"
-                      label="Business Mobile*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="email"
-                      label="Email Address*"
-                      type="text"
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid>
-                <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
-                  Company details
-                </Typography>
-
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="company_name"
-                      label="Company name*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="website"
-                      label="Website URL*"
-                      type="text"
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="unit_number"
-                      label="Unit number*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="street_number"
-                      label="Street number*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="street_name"
-                      label="Street name*"
-                      type="text"
-                    />
-                  </Grid>
-                </Grid>
-
-                <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-                  <Grid item xs={12} sm={3}>
-                    <InputField name="city" label="City*" type="text" />
-                  </Grid>
-
-                  <Grid item xs={12} sm={3}>
-                    <InputField
-                      name="province"
-                      label="Province/State*"
-                      type="text"
-                    />
-                  </Grid>
-
-                  <Grid item xs={12} sm={3}>
-                    <InputField name="country" label="Country*" type="text" />
-                  </Grid>
-
-                  <Grid item xs={12} sm={3}>
-                    <InputField
-                      name="postal_code"
-                      label="Zip code/Postal code*"
-                      type="text"
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Box mt={6} rowGap={4}>
-                <ButtonWrapper
-                  type="submit"
-                  color="neutral"
-                  width="165px"
-                  height="48px"
-                  onClick={handleSubmit}
-                >
-                  Save
-                </ButtonWrapper>
-              </Box>
-            </Form>
-          </Formik>
-        </Grid>
-      )}
+      {showEditPage && <EditProfileComponent tabStyle={tabStyle} initialValues={initialValues} handleSubmit={handleSubmit} />}
     </Container>
   );
 };
