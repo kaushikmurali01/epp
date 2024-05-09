@@ -14,7 +14,7 @@ const CommonLayout = lazy(() => import("layout/dashboardLayout")); //todo
 
 const RoutesComp = () => {
   const { pathname } = useLocation();
-  const [showNewUserPopup, setNewUserPopUp] = useState(true);
+  const [showNewUserPopup, setNewUserPopUp] = useState(false);
   const token = localStorage.getItem(
     `msal.${process.env.REACT_APP_AZURE_B2C_CLIENT_ID}.active-account`
   );
@@ -33,6 +33,7 @@ const RoutesComp = () => {
           scopes: [],
         })
         .then((response) => {
+          console.log("response.", response)
           localStorage.setItem("accessToken", response?.idToken);
           if (response?.idTokenClaims?.newUser) {
             setNewUserPopUp(true);
