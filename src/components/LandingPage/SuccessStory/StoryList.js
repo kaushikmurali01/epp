@@ -75,7 +75,7 @@ const StoryList = () => {
             }]
     };
     return (
-        <Box component={'section'} className='success-story-section common-section' sx={{ bgcolor: 'primary.thinLight' }}>
+        <Box id='userStorySection' component={'section'} className='success-story-section common-section' sx={{ bgcolor: 'primary.thinLight' }}>
             <Container maxWidth="lg">
                 <Grid container className='heading-row' sx={{justifyContent: theme_Sm ? 'flex-start' : 'center', textAlign : theme_Sm ? 'left': 'center'}}>
                     <Grid item >

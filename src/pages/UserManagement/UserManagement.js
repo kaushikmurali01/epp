@@ -25,7 +25,8 @@ const UserManagement = () => {
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
-  const [selectTaleRow, setSelectTableRow] = useState({});
+  const [selectTableRow, setSelectTableRow] = useState({});
+  const [invitePageInfo, setInvitePageInfo] = useState({});
   
 
   const [modalConfig, setModalConfig] = useState({
@@ -60,7 +61,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo), []);
 
   const initialValues = {
     company: '',
@@ -193,8 +194,9 @@ useEffect(() => {
         <InviteUser 
         getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
         isVisibleInvitePage={isVisibleInvitePage}
+        invitePageInfo={invitePageInfo} 
         handleAPISuccessCallBack={handleAPISuccessCallBack} 
-        selectTaleRow={selectTaleRow}
+        selectTableRow={selectTableRow}
         /> : 
         
           <Box component="section">
@@ -217,7 +219,7 @@ useEffect(() => {
                     color="primary"
                     variant="contained"
                     sx={{ alignSelf: 'center' }}
-                    onClick={() => {setVisibleInvitePage(true); setSelectTableRow({}); }}
+                    onClick={() => {setVisibleInvitePage(true); setSelectTableRow({}); setInvitePageInfo({title:'Invite user and set permissions', type: null }) }}
                   >
                     Invite User
                   </Button>
@@ -225,8 +227,8 @@ useEffect(() => {
 
               </Grid>
 
-              <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
-                <Grid item xs={12} md={8} >
+              <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
+                <Grid item xs={6}  >
                   <Tabs
                     className='theme-tabs-list'
                     value={tabValue}
