@@ -51,9 +51,10 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
             meter_active: meterDetails?.meter_active
               ? format(new Date(meterDetails.meter_active), "yyyy-MM-dd")
               : "",
-            meter_inactive: meterDetails?.meter_inactive
-              ? format(new Date(meterDetails.meter_inactive), "yyyy-MM-dd")
-              : "",
+            meter_inactive:
+              !meterDetails?.stil_in_Use && meterDetails?.meter_inactive
+                ? format(new Date(meterDetails.meter_inactive), "yyyy-MM-dd")
+                : "",
           });
           setMeterAlignment(meterDetails?.meter_type);
           setRevenueAlignment(meterDetails?.is_rg_meter ? "yes" : "no");
@@ -102,7 +103,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       facility_id: +id,
       is_rg_meter: values?.is_rg_meter === "yes" ? true : false,
       meter_inactive: values?.stil_in_use
-        ? ""
+        ? null
         : new Date(values?.meter_inactive),
       meter_active: new Date(values?.meter_active),
     };

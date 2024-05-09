@@ -119,11 +119,13 @@ const MeterListing = ({
     },
     {
       Header: "Most recent update",
-      accessor: (item) => <>{format(item.updated_at, "MM/dd/yyyy")}</>,
+      accessor: (item) => <>{format(item?.updated_at, "MM/dd/yyyy")}</>,
     },
     {
       Header: "In use(inactive date)",
-      accessor: (item) => <>{format(item.meter_inactive, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{!item.stil_in_use && format(item?.meter_inactive, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "Action",
