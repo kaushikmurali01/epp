@@ -26,7 +26,6 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
             }],
             attributes: ['id', 'email', 'type',[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
         });
-        context.log("User",user.dataValues);
         if (!decodedToken) {
             return { status: 401, body: 'Unauthorized: Invalid token' };
         }
