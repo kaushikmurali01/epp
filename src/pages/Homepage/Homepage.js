@@ -4,7 +4,7 @@ import { setOption, setOption2 } from "../../redux/actions/simpleActions";
 import TabsSection from "../../sections/Homepage/TabsSection";
 import DashboardSection from "../../sections/Homepage/DashboardSection";
 import AddFacilityComponent from "../../sections/Homepage/AddFacility";
-import Facility from "sections/Homepage/FacilitySection";
+// import Facility from "sections/Homepage/FacilitySection";
 
 const HomepageComponent = (props) => {
   const [option, setNewOption] = useState("");
@@ -22,7 +22,7 @@ const HomepageComponent = (props) => {
     <>
       {/* <TabsSection></TabsSection> */}
       {/* <DashboardSection></DashboardSection> */}
-      <AddFacilityComponent></AddFacilityComponent>
+      {/* <AddFacilityComponent></AddFacilityComponent> */}
       {/* <Facility /> */}
       {/*<ParticipantAgreementSection></ParticipantAgreementSection>
     <UserManagementSection></UserManagementSection> */}

@@ -8,7 +8,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
-import NotificationsTost from "utils/notification/NotificationsTost";
+import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
@@ -100,14 +100,14 @@ const handelAccept = (item, handleSuccessCallback) => {
 
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
-        NotificationsTost({ message: "You have accepted the request!", type: "success" });
+        NotificationsToast({ message: "You have accepted the request!", type: "success" });
         handleSuccessCallback();
         // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
         
     })
     .catch((error) => {
         console.log(error, 'error')
-        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
         // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
 
 
@@ -127,13 +127,13 @@ const handelReject = (item, handleSuccessCallback) => {
 
     POST_REQUEST(apiURL, requestBody)
     .then((response) => {
-        NotificationsTost({ message: "You have rejected the request!", type: "success" });
+        NotificationsToast({ message: "You have rejected the request!", type: "success" });
         handleSuccessCallback();
         
     })
     .catch((error) => {
         console.log(error, 'error')
-        NotificationsTost({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
     })
 }

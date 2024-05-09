@@ -11,16 +11,11 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFacilityStatus } from "../../../redux/actions/facilityActions";
+import { useParams } from "react-router-dom";
 
-const steps = [
-  "Create Facility",
-  "Enter Facility Data",
-  "Submit Facility",
-  "Accept Baseline Model",
-  "Program Start",
-];
-
-const DashedConnector = styled(StepConnector)(({ theme }) => ({
+const DashedConnector = styled(StepConnector)(({ theme, active }) => ({
   [`& .${stepConnectorClasses.line}`]: {
     border: "dashed 0.073rem #2e813e",
     [theme.breakpoints.down("sm")]: {
@@ -35,6 +30,7 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
     position: "relative",
     "& .MuiStepIcon-root": {
       width: 8,
+      color: active ? "#2E813E" : "#D4D4D4",
     },
     "& .MuiStepIcon-text": {
       display: "none",
@@ -42,7 +38,8 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
     "& .MuiStepLabel-label": {
       position: "relative",
       borderRadius: "12px 12px 12px 0",
-      backgroundColor: active ? "#B8FFBF" : "#474747",
+      backgroundColor: active ? "#B8FFBF" : "#D4D4D4",
+      color: "#242424",
       padding: "8px 4px",
       width: "80%",
       [theme.breakpoints.down("sm")]: {
@@ -74,27 +71,63 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
 });
 
 export default function FacilityTimeline() {
-  const [activeSteps, setActiveSteps] = React.useState([0]);
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
-  const handleStepChange = (newActiveStep) => {
-    setActiveSteps([...activeSteps, newActiveStep]);
-  };
+  const dispatch = useDispatch();
+  const { id } = useParams();
+
+  React.useEffect(() => {
+    dispatch(fetchFacilityStatus(id));
+  }, [dispatch, id]);
+
+  const facility_status = useSelector(
+    (state) => state?.facilityReducer?.facilityStatus?.data
+  );
+
+  const steps = [
+    {
+      step: 1,
+      label: "Create Facility",
+    },
+    {
+      step: 2,
+      label: "Enter Facility Data",
+    },
+    {
+      step: 3,
+      label: "Submit Facility",
+    },
+    {
+      step: 4,
+      label: "Accept Baseline Model",
+    },
+    {
+      step: 5,
+      label: "Program Start",
+    },
+  ];
 
   return (
     <Box sx={{ width: "90%" }}>
       <Stepper
         alternativeLabel
         connector={<DashedConnector />}
-        onStepChange={handleStepChange}
         orientation={isSmallScreen ? "vertical" : "horizontal"}
+        // sx={{ overflowY: isSmallScreen ? "auto" : "none" }}
       >
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <CustomStepLabel active={activeSteps.includes(index)}>
-              <Typography variant="small2">{label}</Typography>
-              {activeSteps.includes(index) && (
+        {steps.map((step) => (
+          <Step key={step.step}>
+            <CustomStepLabel
+              active={step.step <= facility_status?.facility_id_general_status}
+            >
+              <Typography variant="small2">{step.label}</Typography>
+              {step.step <= facility_status?.facility_id_general_status && (
                 <CheckCircleIcon
-                  sx={{ position: "absolute", top: -10, right: -10 }}
+                  sx={{
+                    position: "absolute",
+                    top: -10,
+                    right: -10,
+                    color: "#2E813E",
+                  }}
                 />
               )}
             </CustomStepLabel>

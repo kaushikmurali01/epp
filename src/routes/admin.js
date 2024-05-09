@@ -83,4 +83,11 @@ export const adminRoutes = [
     path: evUserManagementEndPoints.evUserManagement,
     component: <UserManagementAdmin />,
   },
+
+  {
+    key: "evUserManagement",
+    name: "evUserManagement",
+    path: evUserManagementEndPoints.evUserManagement,
+    component: <UserManagementAdmin />,
+  },
 ];

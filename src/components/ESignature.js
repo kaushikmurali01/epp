@@ -1,5 +1,5 @@
 import { Box, Button, Modal, Typography, useMediaQuery } from "@mui/material";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 const ESignature = ({ isOpen, onClose, onSubmit }) => {
@@ -91,7 +91,7 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
               marginLeft: "1rem",
             }}
           >
-            Submit
+            Sign the PA with your sign
           </Button>
         </Box>
       </Box>

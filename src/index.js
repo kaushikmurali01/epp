@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { PublicClientApplication, EventType } from '@azure/msal-browser'
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter as Router, BrowserRouter } from "react-router-dom";
 import { msalConfig } from "./authConfig.js";
 import { SnackbarProvider } from 'utils/notification/SnackbarProvider';
 import { ToastContainer } from "react-toastify";
@@ -38,12 +38,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   // <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <SnackbarProvider>
         <App instance={msalInstance} />
       </SnackbarProvider>
       <ToastContainer />
-    </BrowserRouter>
+    </Router>
   // </React.StrictMode>
 );
 
