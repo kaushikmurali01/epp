@@ -1,19 +1,18 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
     Box,
-    Button,
+    Checkbox,
+    FormControlLabel,
+    FormGroup,
+    FormLabel,
+    Grid,
     Typography,
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
-// import { SnackbarContext } from "utils/notification/SnackbarProvider";
-
-
-
-
 
 
 const UserManagementColumn = () => {
@@ -30,45 +29,36 @@ const UserManagementColumn = () => {
 
     }
 
-    const UserRole = [
-        {
-          "id": 1,
-          "rolename": "Super-Admin",
-          "description": "Super Administrator Role",
-          "is_active": 1,
-        },
-        {
-          "id": 2,
-          "rolename": "Sub-Admin",
-          "description": "Sub Administrator Role",
-          "is_active": 1,
-        },
-        {
-          "id": 3,
-          "rolename": "Employee",
-          "description": "Employee Role",
-          "is_active": 1,
-        },
-        {
-          "id": 4,
-          "rolename": "Consultant",
-          "description": "Consultant Role",
-          "is_active": 1,
-        },
-        {
-          "id": 5,
-          "rolename": "Account Manager",
-          "description": "Account Manager Role",
-          "is_active": 1,
-        }
-      ]
+    const DeleteModelContent = () => {
+        return (
+            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+                <Grid item sx={{textAlign:'center'}}>
+                    <figure>
+                        <img src="/images/icons/deleteIcon.svg" alt="" />
+                    </figure>
+                </Grid>
+                <Grid item>
+                    <Typography variant="h4">
+                        Are you sure you would like to Delete
+                        the Enerva user Details
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                     <Checkbox id="receiveCopy" />
+                    <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                    </FormGroup>
+                </Grid>
+            </Grid>
+        )
+    }
 
 
-     const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow) => [
+    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig) => [
         {
             Header: "Name",
-            // accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
-            accessor: (item) => `${item?.company_name}`
+            accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+            // accessor: (item) => `${item?.company_name}`
         },
         {
             Header: "Email ID",
@@ -76,7 +66,7 @@ const UserManagementColumn = () => {
         },
         {
             Header: "Facility",
-            accessor: "facility",
+            accessor: "first_name",
         },
         {
             Header: "Role Type",
@@ -111,7 +101,7 @@ const UserManagementColumn = () => {
                     <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow)}>
                         Manage permission
                     </Typography>
-                    <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDelete(item)} >
+                    <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
                     </Typography>
 
@@ -163,36 +153,65 @@ const UserManagementColumn = () => {
     }
 
     const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow) => {
-        const roleNameToFilter = item.rolename;
-        const filteredRoles = UserRole.filter(role => role.rolename === roleNameToFilter);
-        const filteredRoleObject = filteredRoles.length > 0 ? filteredRoles[0] : null;
         setVisibleInvitePage(true);
-        setSelectTableRow({...filteredRoleObject, email : item.email})
+        setSelectTableRow(item)
     }
 
-    const handelDelete = (item) => {
-        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST;
-        const requestBody = {
-            "user_id": "1",
-            "company_id": item.id
-        }
-        console.log("requestBody", requestBody);
-        return;
-        // POST_REQUEST(apiURL, requestBody)
-        // .then((response) => {
-        //     alert('Rejected User successfully')
-        //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-
-        // })
-        // .catch((error) => {
-        //     console.log(error, 'error')
-        //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-
-
-        // })
+    const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
+        setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: true,
+            modalUI: {
+                ...prevState.modalUI,
+                showHeader: true,
+                crossIcon: true,
+                fotterActionStyle: {justifyContent: "center", gap: '1rem'}
+              },
+              buttonsUI: {
+                ...prevState.buttonsUI,
+                saveButton: true,
+                cancelButton: true,
+                successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+                cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
+                saveButtonName: "Yes,Delete!",
+                cancelButtonName: "No,Cancel",          
+              },
+              headerText: "",
+              headerSubText: "",
+            modalBodyContent: <DeleteModelContent />,
+            saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
+        }));
+        // handelDelete(item, handleAPISuccessCallBack)
     }
 
-    return { USER_MANAGEMENT_COLUMN_ACTION, handelManagePermission }
+    const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
+        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.type;
+        // return;
+        DELETE_REQUEST(apiURL)
+            .then((_response) => {
+                NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+                handleSuccessCallback();
+                // close the modal
+                setModalConfig((prevState) => ({
+                    ...prevState,
+                    modalVisible: false,
+                }));
+
+            })
+            .catch((error) => {
+                console.log(error, 'error')
+
+                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                 // close the modal
+                 setModalConfig((prevState) => ({
+                    ...prevState,
+                    modalVisible: false,
+                }));
+
+            })
+    }
+
+    return { USER_MANAGEMENT_COLUMN_ACTION }
 }
 
 export default UserManagementColumn;

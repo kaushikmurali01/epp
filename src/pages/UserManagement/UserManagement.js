@@ -28,18 +28,6 @@ const UserManagement = () => {
   const [selectTaleRow, setSelectTableRow] = useState({});
   
 
-  // need to call this function before USER_MANAGEMENT_COLUMN
-  const handleAPISuccessCallBack = () => {
-    // Call the API to get all user data
-    getUserManagementData();
-};
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow), []);
-
-  const initialValues = {
-    company: '',
-    role: '',
-  };
-
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -47,7 +35,7 @@ const UserManagement = () => {
       crossIcon: false,
       modalClass: "",
       headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
-      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' } },
+      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
       fotterActionStyle: "",
       modalBodyContentStyle: ''
     },
@@ -56,6 +44,8 @@ const UserManagement = () => {
       cancelButton: false,
       saveButtonName: "Sent Request",
       cancelButtonName: "Cancel",
+      successButtonStyle: {},
+      cancelButtonStyle: {},
       saveButtonClass: "",
       cancelButtonClass: "",
 
@@ -64,6 +54,21 @@ const UserManagement = () => {
     headerSubText: 'Please enter the following details to send request to join other company',
     modalBodyContent: "",
   });
+
+  // need to call this function before USER_MANAGEMENT_COLUMN
+  const handleAPISuccessCallBack = () => {
+    // Call the API to get all user data
+    getUserManagementData();
+};
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig), []);
+
+  const initialValues = {
+    company: '',
+    role: '',
+  };
+
+
+
 
  
   
@@ -142,8 +147,8 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
+    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
     GET_REQUEST(apiURL)
         .then((res) => {
           setAllUser(res.data?.body)
