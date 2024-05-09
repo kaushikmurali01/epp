@@ -29,7 +29,7 @@ const MeterListing = ({
   OnEditMeterButton,
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -164,9 +164,12 @@ const MeterListing = ({
   const meterListingData = useSelector(
     (state) => state?.meterReducer?.meterList?.data?.rows || []
   );
+  const meterCount = useSelector(
+    (state) => state?.meterReducer?.meterList?.data?.count || []
+  );
   useEffect(() => {
     dispatch(fetchMeterListing(pageInfo, id));
-  }, [dispatch, pageInfo, id]);
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
@@ -266,6 +269,7 @@ const MeterListing = ({
         <Table
           columns={columns}
           data={meterListingData}
+          count={meterCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
