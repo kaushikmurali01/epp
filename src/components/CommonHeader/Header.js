@@ -211,21 +211,21 @@ function Header(props) {
                   alignItems: "center",
                 }}
               >
-                <Button
+                {/* <Button
                   color="primary"
                   variant="outlined"
                   component="a"
                   onClick={handleRedirect}
                 >
                   Login
-                </Button>
+                </Button> */}
                 <Button
                   color="primary"
                   variant="contained"
                   component="a"
                   onClick={handleRedirect}
                 >
-                  Sign up
+                  Login/Sign up
                 </Button>
               </Box>
               <Box sx={{ display: { sm: "", md: "none" } }}>
@@ -285,10 +285,10 @@ function Header(props) {
                         onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
-                        Sign in
+                        Login/Sign up
                       </Button>
                     </MenuItem>
-                    <MenuItem>
+                    {/* <MenuItem>
                       <Button
                         color="primary"
                         variant="contained"
@@ -298,7 +298,7 @@ function Header(props) {
                       >
                         Sign up
                       </Button>
-                    </MenuItem>
+                    </MenuItem> */}
                   </Box>
                 </Drawer>
               </Box>

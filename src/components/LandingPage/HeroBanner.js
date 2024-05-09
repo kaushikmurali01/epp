@@ -35,9 +35,9 @@ const HeroBanner = () => {
                         <Typography variant="span" gutterBottom>Start today with the <Typography variant="strong" component='strong'> Energy Performance Program,</Typography> get a free baseline energy model, receive an upfront incentive and annually thereafter</Typography>
                         <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem' }} className='action-btn'  >
                             <Button variant="contained" color="success" onClick={handleRedirect}>
-                                Sign up
+                                Login/Sign up
                             </Button>
-                            <Button variant="outlined" color="secondary">
+                            <Button variant="outlined" color="secondary" onClick={() => window.open("https://saveonenergy.ca/For-Business-and-Industry/Programs-and-incentives/Energy-Performance-Program", "_blank")}>
                                 Learn More
                             </Button>
                         </Stack>
