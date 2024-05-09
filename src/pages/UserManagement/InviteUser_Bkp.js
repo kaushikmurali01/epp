@@ -7,9 +7,10 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo }) => {
-    console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
+const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow }) => {
+    const navigate = useNavigate();
     const isEdited = Object.keys(selectTableRow).length > 0;
+    const [alignment, setAlignment] = useState('yes');
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
     const [isFormValid, setIsFormValid] = useState(false);
@@ -69,8 +70,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         
         const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
-
-        console.log(apiURL, permissionIds, "checked data");
         // return;
         if (isEdited) {
             const requestBody = {
@@ -155,7 +154,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType,]);
 
-    console.log(getUserRole, 'getUserRole')
 
     return (
         <Box component="section">
@@ -177,10 +175,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 }}
                             />
                         </IconButton>
-                        <Typography variant='h4'> 
-                        {/* {isEdited ? 'Manage permission' : 'Invite user and set permissions'} */}
-                        {invitePageInfo?.title}
-                        </Typography>
+                        <Typography variant='h4'> {isEdited ? 'Manage permission' : 'Invite user and set permissions'}</Typography>
                     </Grid>
                 </Grid>
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
@@ -203,19 +198,16 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     onChange={(e) => handleSelectChange(e)}
                                     displayEmpty={true}
                                 >
-                                     <MenuItem value="" disabled>
-                                            <em>Select</em>
-                                        </MenuItem>
+                                    <MenuItem value="">
+                                        Select
+                                    </MenuItem>
                                     {getUserRole && (getUserRole).map((item) => {
-                                        // console.log(item, "Role Type");
-
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )
                                     })}
 
                                 </Select>
-                              
 
                             </FormControl>
 

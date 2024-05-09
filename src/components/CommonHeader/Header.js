@@ -62,6 +62,7 @@ function Header(props) {
     }
   };
 
+
   const clickSetting =(setting) => {
     if(setting == 'Logout'){
       //logout from the application with msal instance
@@ -114,7 +115,7 @@ function Header(props) {
                 }}
               >
                 <MenuItem
-                  onClick={() => scrollToSection("features")}
+                  onClick={() => scrollToSection("howItWorksSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -128,7 +129,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("testimonials")}
+                  onClick={() => scrollToSection("userStorySection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -142,7 +143,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("highlights")}
+                  onClick={() => scrollToSection("whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -156,7 +157,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("highlights")}
+                  onClick={() => scrollToSection("contactUsFormSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -263,13 +264,16 @@ function Header(props) {
                       flexGrow: 1,
                     }}
                   >
-                    <MenuItem onClick={() => scrollToSection("features")}>
+                    <MenuItem onClick={() => scrollToSection("howItWorksSection")}>
                       How it works
                     </MenuItem>
-                    <MenuItem onClick={() => scrollToSection("testimonials")}>
-                      News Feed
+                    <MenuItem onClick={() => scrollToSection("userStorySection")} >
+                        Succes stories
                     </MenuItem>
-                    <MenuItem onClick={() => scrollToSection("highlights")}>
+                    <MenuItem onClick={() => scrollToSection("whatsNewSection")}>
+                       What's New
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("contactUsFormSection")}>
                       Contact Us
                     </MenuItem>
                     <Divider />

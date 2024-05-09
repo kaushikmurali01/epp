@@ -44,7 +44,7 @@ const NewsFeedList = () => {
 
 
     return (
-        <Box component={'section'} className='news-feeds-section  common-section'>
+        <Box id='whatsNewSection' component={'section'} className='news-feeds-section  common-section'>
             <Container maxWidth="lg">
                 <Grid container className='heading-row' sx={{ justifyContent: theme_Sm ? 'flex-start' : 'center' }}>
                     <Grid item >
