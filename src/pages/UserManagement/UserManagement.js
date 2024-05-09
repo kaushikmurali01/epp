@@ -151,7 +151,9 @@ const UserManagement = () => {
     const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
     GET_REQUEST(apiURL)
         .then((res) => {
-          setAllUser(res.data?.body)
+          if(res?.data?.body instanceof Array){
+            setAllUser(res.data?.body)
+          }
         }).catch((error) => {
             console.log(error)
         });
@@ -246,7 +248,7 @@ useEffect(() => {
               </Grid>
 
               <Grid container>
-               {getAllUser &&  <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" /> }
+               {getAllUser &&  <Table columns={columns} data={getAllUser || []} headbgColor="#D9D9D9" /> }
               </Grid>
             </Container>
 
