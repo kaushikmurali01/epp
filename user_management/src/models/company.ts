@@ -16,6 +16,9 @@ interface CompanyAttributes {
   total_facility: number;
   portal_agreement_accepted: number;
   information_commercial_accepted: number;
+  unit_number: string;
+  street_number: string;
+  street_name: string;
 }
 
 interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> {}
@@ -35,6 +38,10 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public total_facility!: number;
   public portal_agreement_accepted: number;
   public information_commercial_accepted: number;
+  public unit_number: string;
+  public street_number: string;
+  public street_name: string;
+ 
 }
 
 Company.init(
@@ -136,11 +143,24 @@ Company.init(
       type: DataTypes.INTEGER,
       allowNull: true
     },
+    unit_number: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    street_number: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    street_name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
   },
   {
     sequelize,
     tableName: 'company',
   }
 );
+
 
 export { Company };

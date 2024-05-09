@@ -4,6 +4,10 @@ import { testDatabaseConnection } from 'enerva-utils/utils/database';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { User } from '../models/user';
+import { UserInvitation } from '../models/user-invitation';
+import { sequelize } from './database';
+import { Op } from 'sequelize';
+
 
 class RoleService {
 
@@ -95,7 +99,15 @@ class RoleService {
      */
         static async listRoles(): Promise<any[]> {
             try {
-                const roles = await Role.findAll();
+               // const roles = await Role.findAll();
+               const roles = await Role.findAll({
+                where: {
+                  id: {
+                    [Op.ne]: 1 // Op.ne means "not equal to"
+                  }
+                }
+              });
+              
                 return roles;
             } catch (error) {
                 throw error;
@@ -112,8 +124,9 @@ class RoleService {
     static async assignPermissions(data): Promise<any> {
         try {
             let email = data.email;
+            let permissions = data.permissions;
             const user = await User.findOne({ where: { email } });
-            console.log("user",user.id);
+            if(user) {
             await this.deletePermissions(user.id, data.company_id);
             for (const permissionId of data.permissions) {
               // Create a new record for each permission
@@ -125,6 +138,9 @@ class RoleService {
                 is_active: 1,  
               });
             }
+         } else {
+            await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });
+         }
             console.log('Permissions inserted successfully.');
             //return perm;
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };

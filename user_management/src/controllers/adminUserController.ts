@@ -186,14 +186,14 @@ class AdminUserController {
       }
     }
 
-    static async createUserRequest(requestData): Promise<any> {
-      try {
-        const data = await UserRequestService.createUserRequest(requestData)
-        return data;
-    } catch (error) {
-        return { status: 500, body: { error: error.message } };
-    }
-  }
+  //   static async createUserRequest(requestData): Promise<any> {
+  //     try {
+  //       const data = await UserRequestService.createUserRequest(requestData)
+  //       return data;
+  //   } catch (error) {
+  //       return { status: 500, body: { error: error.message } };
+  //   }
+  // }
 
   static async acceptInvitation(requestData): Promise<any> {
     try {

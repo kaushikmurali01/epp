@@ -29,13 +29,6 @@ static async registerUser(userDetails): Promise<any> {
   try {
     const user = await User.create(userDetails);
     return user;
-  //   const data = {
-  //     "company_id": 1,
-  //     "role_id": 1,
-  //     "user_id": user.id
-  // };
-  //   await UserCompanyRole.create(data);
-   // return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: user };
 } catch (error) {
     throw new Error(`${error.message}`);
 }
@@ -44,7 +37,6 @@ static async registerUser(userDetails): Promise<any> {
 static async acceptInvitation(data): Promise<Response> {
   try {
      const result = UserRequest.update({ status: "Active"}, {where:{id: data.user_id, company_id: data.company_id}});
-     //await UserRequest.destroy({ where: { user_id: data.user_id } });
      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
   } catch (error) {
      throw new Error(`${error.message}`);
@@ -89,11 +81,7 @@ static async rejectInvitation(data): Promise<Response> {
    */
   static async getEnervaUsers(offset, limit): Promise<User[]> {
     try {
-      console.log('Testing');
-      console.log(offset, limit);
-     // return await User.findAll();
-     
-      return await User.findAll({
+        return await User.findAll({
         include: [{
           model: UserCompanyRole,
           attributes: [],
@@ -105,7 +93,7 @@ static async rejectInvitation(data): Promise<Response> {
         offset: offset,
         limit: limit,
         where: {
-          type: 2, // 2 is enerva type user
+          type: 2, 
         },
         attributes: ["id","status", "email", "first_name", "last_name", "createdAt", "type",
         [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 
@@ -119,11 +107,7 @@ static async rejectInvitation(data): Promise<Response> {
 
   static async getIESOUsers(offset, limit): Promise<User[]> {
     try {
-      console.log('Testing');
-      console.log(offset, limit);
-     // return await User.findAll();
-     
-      return await User.findAll({
+        return await User.findAll({
         include: [{
           model: UserCompanyRole,
           attributes: [],
@@ -135,7 +119,7 @@ static async rejectInvitation(data): Promise<Response> {
         offset: offset,
         limit: limit,
         where: {
-          type: 3, // 3 is ieso type user
+          type: 3, 
         },
         attributes: ["id","status", "email", "first_name", "last_name", "createdAt", "type",
         [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 
@@ -191,7 +175,9 @@ static async rejectInvitation(data): Promise<Response> {
             },
             attributes: ["id", "email", "first_name", "last_name",
                 [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
-                [sequelize.col('UserCompanyRole.status'), 'status']
+                [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                [sequelize.col('UserCompanyRole.status'), 'status'],
+                [sequelize.col('UserCompanyRole.company_id'), 'company_id']
             ],
         }),
         UserInvitation.findAll({
@@ -203,7 +189,9 @@ static async rejectInvitation(data): Promise<Response> {
             },
             attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status',
                 [sequelize.col('Role.rolename'), 'rolename'],
-                [sequelize.col('Company.company_name'), 'company_name']
+                [sequelize.col('Role.id'), 'role_id'],
+                [sequelize.col('Company.company_name'), 'company_name'],
+                [sequelize.col('Company.id'), 'company_id']
             ],
             include: [{
                     model: Role,
@@ -224,6 +212,7 @@ static async rejectInvitation(data): Promise<Response> {
             },
             attributes: ['id','date_of_request_sent', 'time_of_request_sent', 'status',
                 [sequelize.col('Role.rolename'), 'rolename'],
+                [sequelize.col('Role.id'), 'role_id'],
                 [sequelize.col('Company.company_name'), 'company_name'],
                 [sequelize.col('Company.id'), 'company_id']
             ],
@@ -239,102 +228,32 @@ static async rejectInvitation(data): Promise<Response> {
         })
     ]);
     
-    // Merge the results
     const users = usersResult.map(user => ({
-        type: 'user',
+        type: 1,
         facility: "Sample Facility",
         ...user.toJSON()
     }));
     
     const invitations = invitationsResult.map(invitation => ({
-        type: 'invitation',
+        type: 2,
+        facility: "",
+        first_name: "",
+        last_name: "",
         ...invitation.toJSON()
     }));
     
     const requests = requestsResult.map(request => ({
-        type: 'request',
+        type: 3,
+        facility: "Sample",
+        first_name: "Test",
+        last_name: "Test",
         ...request.toJSON()
     }));
     
     // Combine all results into one array
     const allData = [...users, ...invitations, ...requests];
     return allData;
-    //return {users: allData};
     
-    //   const [users, invitations, requests] = await Promise.all([
-    //       // User.findAll({
-    //       //     offset: offset,
-    //       //     limit: limit,
-    //       //     attributes: ["id","status", "email", "first_name", "last_name"]
-    //       // }),
-    //        User.findAll({
-    //         include: [{
-    //           model: UserCompanyRole,
-    //           attributes: [],
-    //           where: {
-    //               company_id: company
-    //           },
-    //           include: [{
-    //             model: Role,
-    //             attributes: []
-    //         }]
-    //       }],
-    //         offset: offset,
-    //         limit: limit,
-    //         type: type,
-    //         attributes: ["id","status", "email", "first_name", "last_name",
-    //         [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 
-      
-    //         ],
-    //     }),
-    //       UserInvitation.findAll({
-    //           offset: offset,
-    //           limit: limit,
-    //           attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status',
-    //           [sequelize.col('Role.rolename'), 'rolename'], 
-    //           [sequelize.col('Company.company_name'), 'company_name'] 
-        
-    //           ],
-    //           include: [
-    //             {
-    //                 model: Role,
-    //                 attributes: [] 
-    //             },
-    //             {
-    //               model: Company,
-    //               attributes: [] 
-    //            }
-    //         ]
-    //       }),
-    //       UserRequest.findAll({
-    //           offset: offset,
-    //           limit: limit,
-    //           attributes: ['date_of_request_sent', 'time_of_request_sent','status',
-    //           [sequelize.col('Role.rolename'), 'rolename'], 
-    //           [sequelize.col('Company.company_name'), 'company_name'] 
-    //           ],
-              
-    //           include: [
-    //             {
-    //                 model: Role,
-    //                 attributes: [] 
-    //             },
-    //             {
-    //               model: Company,
-    //               attributes: [] 
-    //           }
-    //           ]
-    //       })
-    //   ]);
-
-    //   const data = users.map(user => ({
-    //     ...user.toJSON(), 
-    //     facility: "Sample Facility",
-    //     role: "Sub-Admin"
-    // }));
-
-    //   // Combine the results and return
-    //   return { users: data, invitationSent: invitations, requests: requests };
   } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -354,9 +273,7 @@ static async rejectInvitation(data): Promise<Response> {
     
 
     try {
-      // Extract user ID from request
-    //  const userId = request.params.id;
-
+     
       // Find user by primary key
       const user:any = await User.findByPk(id, {
           include: [
@@ -372,27 +289,19 @@ static async rejectInvitation(data): Promise<Response> {
                   ]
               }
           ],
-          attributes: ["id", "email", "first_name", "last_name",
+          attributes: ["id", "email", "first_name", "last_name", "phonenumber", "landline", "type", "profile_pic",
               [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
               [sequelize.col('UserCompanyRole.status'), 'status'],
               [sequelize.col('UserCompanyRole.company_id'), 'company_id']
           ],
       });
       let company = null;
+      let companyData = null;
      const companyId = user.dataValues?.company_id;
-if(companyId) {     company = await Company.findByPk(companyId);}
-
-
-    //  const permissions = await UserCompanyRolePermission.findAll({
-    //   where: {
-    //       user_id: id,
-    //       company_id: companyId
-    //   }
-    //  });
-
-    //const permissions = await Permission.findAll();
-
-
+     if (companyId) {
+       company = await Company.findByPk(companyId);
+  }
+  
       if (!user) {
           return {
               status: 404,

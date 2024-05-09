@@ -20,6 +20,9 @@ export const EmailContent = {
  invitationEmailForNewUser : {
     content: 'Your are invited to join company',
     title: 'Invited to join company'
- }
+ },
+ alertEmail : {
+   title: 'Alert from admin'
+}
 
 }
