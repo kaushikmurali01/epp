@@ -6,13 +6,14 @@ import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuI
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { GET_REQUEST } from 'utils/HTTPRequests';
-import { USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUserAdmin from './InviteUserAdmin';
 
 import { IESO_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
 import { CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
+import InviteUser from 'pages/UserManagement/InviteUser';
 
 const UserManagementAdmin = () => {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ const UserManagementAdmin = () => {
   const [tabValue, setTabValue] = useState('enervaUsers');
   const [selectRoleType, setSelectRoleType] = useState('');
   const [invitePageInfo, setInvitePageInfo] = useState({});
+  const [selectTableRow, setSelectTableRow] = useState({});
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
@@ -131,42 +133,46 @@ const UserManagementAdmin = () => {
 
 
   const getEnervaUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
+    // const apiURL = "https://ams-enerva-dev.azure-api.net/enerva-user/v1/enerva/0/10"
+    const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
-        setEnervaUser(res.data?.body?.users)
+        console.log(res, "Enerva user management");
+        setEnervaUser(res.data)
       }).catch((error) => {
         console.log(error)
       });
   }
   const getIESOUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/ieso/0/100"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/ieso/0/100"
+    const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
-        setIesoUser(res.data?.body?.users)
+       
+        setIesoUser(res.data)
       }).catch((error) => {
         console.log(error)
       });
   }
   const getCustomerUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/customer/0/100"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/customer/0/100"
+    const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
-        setCustomerUser(res.data?.body?.users)
+        // console.log(res, 'getIESOUserManagementData');
+        setCustomerUser(res.data)
       }).catch((error) => {
         console.log(error)
       });
   }
 
   const getAggregatorUserManagementData = () => {
-    const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/1/10/1';
+    // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
+    const apiURL = ENERVA_USER_MANAGEMENT.GET_AGGREGATOR_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
-        setAggregatorUser(res.data?.body?.users)
+        setAggregatorUser(res.data)
       }).catch((error) => {
         console.log(error)
       });
@@ -197,7 +203,7 @@ const UserManagementAdmin = () => {
     getEnervaUserManagementData();
     getIESOUserManagementData();
     getCustomerUserManagementData();
-    getAggregatorUserManagementData();
+    // getAggregatorUserManagementData();
 
     // other get values functions
     getUserRoleData()
@@ -211,7 +217,12 @@ const UserManagementAdmin = () => {
   return (
     <React.Fragment>
       {isVisibleInvitePage ?
-        <InviteUserAdmin getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} invitePageInfo={invitePageInfo} handleAPISuccessCallBack={handleAPISuccessCallBack} /> :
+        <InviteUser 
+        getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
+        invitePageInfo={invitePageInfo} 
+        handleAPISuccessCallBack={handleAPISuccessCallBack}
+        selectTableRow={selectTableRow}
+        /> :
 
         <Box component="section">
           <Container maxWidth="lg">
@@ -283,7 +294,7 @@ const UserManagementAdmin = () => {
                   </Typography>
                 </Grid>
                 <Grid item sx={{ justifySelf: 'flex-end' }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() => handleAddUser()} >
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() => {handleAddUser(); setSelectTableRow({});} } >
                     Add User
                     <IconButton>
 

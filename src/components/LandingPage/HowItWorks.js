@@ -57,7 +57,7 @@ const HowItWorks = () => {
 
     return (
         <React.Fragment>
-            <Box component={'section'} className='instruction-section ' sx={{ ...instructionSection }} >
+            <Box id='howItWorksSection' component={'section'} className='instruction-section ' sx={{ ...instructionSection }} >
                 <Container maxWidth="lg">
 
                     <Grid container justifyContent="space-between" className='instruction-row' sx={{ rowGap: isMd ? '2rem' : '0'  }}>

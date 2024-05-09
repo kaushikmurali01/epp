@@ -40,7 +40,7 @@ const UserManagementColumn = () => {
                 <Grid item>
                     <Typography variant="h4">
                         Are you sure you would like to Delete
-                        the Enerva user Details
+                        the user Details
                     </Typography>
                 </Grid>
                 <Grid item>
@@ -54,7 +54,7 @@ const UserManagementColumn = () => {
     }
 
 
-    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig) => [
+    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo) => [
         {
             Header: "Name",
             accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
@@ -98,7 +98,7 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow)}>
+                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo)}>
                         Manage permission
                     </Typography>
                     <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
@@ -152,9 +152,10 @@ const UserManagementColumn = () => {
             })
     }
 
-    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow) => {
+    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo) => {
         setVisibleInvitePage(true);
         setSelectTableRow(item)
+        setInvitePageInfo({title:'Manage permission', type: null })
     }
 
     const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {

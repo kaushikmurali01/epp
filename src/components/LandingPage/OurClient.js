@@ -105,7 +105,7 @@ const OurClient = () => {
     };
 
     return (
-        <Box component={'section'} className='our-client-section common-section' sx={{ bgcolor: 'primary_2.main' }}>
+        <Box id='ourClientSection' component={'section'} className='our-client-section common-section' sx={{ bgcolor: 'primary_2.main' }}>
             <Container maxWidth="lg" >
                 <Grid container className='heading-row' >
                     <Grid item sx={{ paddingLeft: '0' }} >
