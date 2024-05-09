@@ -49,9 +49,10 @@ const EnergyAndWater = () => {
           />
         );
       case "entriesListing":
-        return <EntriesListing 
-        facilityMeterDetailId={facilityMeterDetailId} 
-        meterId={meterId} />;
+        return <EntriesListing
+        OnEditMeterButton={handleEditButtonClick}
+          facilityMeterDetailId={facilityMeterDetailId}
+          meterId={meterId} />;
       default:
         return <div>Default Content</div>;
     }

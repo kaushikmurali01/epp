@@ -15,7 +15,7 @@ import {
 } from "../actionCreators/meterActionCreators";
 
 import { GET_REQUEST, POST_REQUEST, PATCH_REQUEST } from "utils/HTTPRequests";
-import NotificationsTost from "utils/notification/NotificationsTost";
+import NotificationsTost from "../../utils/notification/NotificationsToast.js";
 
 export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {

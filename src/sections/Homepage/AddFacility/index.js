@@ -241,7 +241,7 @@ const AddFacilityComponent = (props) => {
                             <InputLabel sx={{ color: '#2E813E' }}>Facility photo</InputLabel>
                             {!selectedFile ?
                                 <>
-                                    <Typography my={1} sx={{ color: '#696969', fontWeight: '500', fontSize: '18px', border: '1px solid #D0D0D0', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }} onClick={handleButtonClick}>
+                                    <Typography my={1} sx={{ color: '#2E813E', fontWeight: '500', fontSize: '18px', backgroundColor: '#D1FFDA', padding: '6px 34px', borderRadius: '8px', width: '140px', height: '40px' }} onClick={handleButtonClick}>
                                         Upload
                                     </Typography>
                                     <input

@@ -28,7 +28,7 @@ import {
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
-import NotificationsTost from "utils/notification/NotificationsTost";
+import NotificationsTost from "../../utils/notification/NotificationsToast.js";
 
 export const fetchFacilityListing = (pageInfo) => {
   return async (dispatch) => {

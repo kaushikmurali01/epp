@@ -16,7 +16,7 @@ import {
   Stack,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -31,9 +31,11 @@ import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
+import { fetchMeterDetails } from "./../../../redux/actions/metersActions";
 
-const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) => {
+const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
   const [tabValue, setTabValue] = useState('monthlyEntries');
   const [entryToDelete, setEntryToDelete] = useState('');
@@ -182,12 +184,18 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
+
+  const meterData = useSelector(
+    (state) => state?.meterReducer?.meterDetails?.data || {}
+  );
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+    dispatch(fetchMeterDetails(facilityMeterDetailId))
   }, [dispatch, pageInfo]);
 
-  const handleAddButtonClick = () => {
-    onAddButtonClick();
+  const handleAddButtonClick = (id) => {
+    console.log(id)
+    OnEditMeterButton(id);
   };
 
   const handleChange = (event, newValue) => {
@@ -340,6 +348,22 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
     }));
   };
 
+  const handleButtonClick = () => {
+    // Trigger the click event on the hidden file input element
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (event) => {
+    // // Handle the file selection here
+    // const selectedFile = event.target.files[0];
+    // setSelectedFile(URL.createObjectURL(selectedFile));
+    // dispatch(fileUploadAction(selectedFile))
+    // .then(( data ) => setImgUrl(data?.sasTokenUrl))
+    // .catch((error) => {
+    //   console.error("Error uploading image:", error);
+    // });
+};
+
   return (
     <>
       <Box
@@ -359,7 +383,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
             Meter Name
           </Typography>
           <Typography variant="h6" gutterBottom>
-            Meter name 1
+            {meterData?.meter_name}
           </Typography>
         </Box>
 
@@ -371,7 +395,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
             Meter ID
           </Typography>
           <Typography variant="h6" gutterBottom>
-            345634756
+          {meterData?.meter_id}
           </Typography>
         </Box>
 
@@ -383,7 +407,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
             Meter type
           </Typography>
           <Typography variant="h6" gutterBottom>
-            Electricity
+          {meterData?.meter_type == 1 ? 'Electricty' : meterData?.meter_type == 2 ? 'Natural Gas' : meterData?.meter_type == 3 ? 'Water' : '' }
           </Typography>
         </Box>
 
@@ -395,7 +419,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
             Date meter became active
           </Typography>
           <Typography variant="h6" gutterBottom>
-            05/01/2024
+          {/* {format(new Date(meterData?.meter_active), "yyyy-MM-dd")} */}
           </Typography>
         </Box>
 
@@ -410,7 +434,7 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
         <Box sx={{
           padding: '5px 0 0 20px',
         }}>
-          <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }}>
+          <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={() => handleAddButtonClick(facilityMeterDetailId)}>
             Edit
           </Typography>
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
@@ -445,14 +469,36 @@ const EntriesListing = ({ onAddButtonClick, facilityMeterDetailId, meterId }) =>
         </Grid>
       </Grid>
 
-      <Box sx={{ marginTop: "2rem" }}>
-        <Table
-          columns={columns}
-          data={enteriesListingData}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-        />
-      </Box>
+      {tabValue == 'monthlyEntries' ?
+        <Box sx={{ marginTop: "2rem" }}>
+          <Table
+            columns={columns}
+            data={enteriesListingData}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+          />
+        </Box> :
+        <Box>
+          <Typography variant="h5">
+            Upload data in bulk for this meter
+          </Typography>
+          <Typography variant="small2" gutterBottom>
+            Upload the excel file, and refer to single meter spreadsheet for the formatting details.
+          </Typography>
+          <Typography my={1} sx={{ color: '#2E813E', fontWeight: '500', fontSize: '18px', backgroundColor: '#D1FFDA', padding: '7px 33px', borderRadius: '8px', width: '170px', height: '40px', marginTop: '20px' }} onClick={handleButtonClick}>
+            Choose File
+          </Typography>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileChange}
+            accept=".xlsx"
+          />
+          <Button type="button" color='neutral' sx={{ marginTop: '20px', width: '165px', height: '48px', color: '#ffffff', backgroundColor: '#2E813E' }}>
+            Upload
+          </Button>
+        </Box>}
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete} />
