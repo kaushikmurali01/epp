@@ -50,7 +50,8 @@ const EnergyAndWater = () => {
         );
       case "entriesListing":
         return <EntriesListing
-        OnEditMeterButton={handleEditButtonClick}
+          onAddMeterSuccess={handleAddMeterSuccess}
+          OnEditMeterButton={handleEditButtonClick}
           facilityMeterDetailId={facilityMeterDetailId}
           meterId={meterId} />;
       default:

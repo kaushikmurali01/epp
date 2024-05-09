@@ -31,9 +31,9 @@ import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
-import { fetchMeterDetails } from "./../../../redux/actions/metersActions";
+import { deleteMeter, fetchMeterDetails } from "./../../../redux/actions/metersActions";
 
-const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) => {
+const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDetailId, meterId }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
@@ -181,6 +181,50 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
     },
   ];
 
+  const handleDeleteMeter = () => {
+    dispatch(deleteMeter(facilityMeterDetailId))
+      .then(() => {
+        setDeleteMeterModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+        onAddMeterSuccess();
+      })
+      .catch((error) => {
+        console.error("Error deleting facility:", error);
+      });
+  };
+
+  const [deleteMeterModalConfig, setDeleteMeterModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete Meter",
+    headerSubText: "Are you sure you want to delete this meter?",
+    modalBodyContent: "",
+    saveButtonAction: handleDeleteMeter,
+  });
+
+
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
@@ -307,6 +351,13 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
     )
   }
 
+  const openDeleteMeterModal = () => {
+    setDeleteMeterModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    }));
+  };
+
   const openRequestModal = (isEdit, data) => {
     setModalConfig((prevState) => ({
       ...prevState,
@@ -362,7 +413,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
     // .catch((error) => {
     //   console.error("Error uploading image:", error);
     // });
-};
+  };
 
   return (
     <>
@@ -395,7 +446,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
             Meter ID
           </Typography>
           <Typography variant="h6" gutterBottom>
-          {meterData?.meter_id}
+            {meterData?.meter_id}
           </Typography>
         </Box>
 
@@ -407,7 +458,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
             Meter type
           </Typography>
           <Typography variant="h6" gutterBottom>
-          {meterData?.meter_type == 1 ? 'Electricty' : meterData?.meter_type == 2 ? 'Natural Gas' : meterData?.meter_type == 3 ? 'Water' : '' }
+            {meterData?.meter_type == 1 ? 'Electricty' : meterData?.meter_type == 2 ? 'Natural Gas' : meterData?.meter_type == 3 ? 'Water' : ''}
           </Typography>
         </Box>
 
@@ -419,7 +470,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
             Date meter became active
           </Typography>
           <Typography variant="h6" gutterBottom>
-          {/* {format(new Date(meterData?.meter_active), "yyyy-MM-dd")} */}
+            {format(new Date(meterData?.meter_active ? meterData?.meter_active : null), "yyyy-MM-dd")}
           </Typography>
         </Box>
 
@@ -437,7 +488,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
           <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={() => handleAddButtonClick(facilityMeterDetailId)}>
             Edit
           </Typography>
-          <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
+          <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }} onClick={() => openDeleteMeterModal()}>
             Delete
           </Typography>
         </Box>
@@ -502,6 +553,7 @@ const EntriesListing = ({ OnEditMeterButton, facilityMeterDetailId, meterId }) =
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete} />
+      <EvModal modalConfig={deleteMeterModalConfig} setModalConfig={setDeleteMeterModalConfig} />
 
     </>
   );
