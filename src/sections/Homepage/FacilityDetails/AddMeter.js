@@ -101,6 +101,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       meter_specification_url: imgUrl,
       facility_id: +id,
       is_rg_meter: values?.is_rg_meter === "yes" ? true : false,
+      meter_inactive: values?.stil_in_use ? "" : values?.meter_inactive,
     };
     if (values.meter_type === 2) {
       delete newValues.purchased_from_the_grid;
@@ -148,183 +149,170 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
-        <Form>
-          <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
-            <Grid container spacing={4}>
-              <Grid item>
-                <InputLabel htmlFor="meter_type">Meter Type*</InputLabel>
-                <Field name="meter_type">
-                  {({ field, form }) => (
-                    <ToggleButtonGroup
-                      name="meter_type"
-                      value={meterAlignment}
-                      exclusive
-                      onChange={(event, newAlignment) => {
-                        handleMeterTypeChange(event, newAlignment, form);
-                      }}
-                    >
-                      <ToggleButton value={1}>Electricty</ToggleButton>
-                      <ToggleButton value={2}>Natural Gas</ToggleButton>
-                      <ToggleButton value={3}>Water</ToggleButton>
-                    </ToggleButtonGroup>
-                  )}
-                </Field>
-              </Grid>
-            </Grid>
-            {meterAlignment === 1 && (
-              <Grid item spacing={4}>
-                <Field name="purchased_from_the_grid">
-                  {({ field, form }) => (
-                    <RadioGroup
-                      row={true}
-                      sx={{ color: "text.secondary2" }}
-                      value={field.value ? "true" : "false"}
-                      onChange={(event) => {
-                        form.setFieldValue(
-                          "purchased_from_the_grid",
-                          event.target.value === "true"
-                        );
-                      }}
-                    >
-                      <FormControlLabel
-                        value="true"
-                        control={<Radio />}
-                        label="Purchased from the Grid"
-                        name="purchased_from_the_grid"
-                      />
-                      <FormControlLabel
-                        value="false"
-                        control={<Radio />}
-                        label="Behind-the-Meter Generation"
-                        name="purchased_from_the_grid"
-                      />
-                    </RadioGroup>
-                  )}
-                </Field>
-              </Grid>
-            )}
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <InputField name="meter_name" label="Meter name*" type="text" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField name="meter_id" label="Meter ID" type="number" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="meter_active"
-                  type="date"
-                  label="Date meter became active*"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="meter_inactive"
-                  type="date"
-                  label=" Date meter became inactive"
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <FormControlLabel
-                  control={
-                    <Field name="stil_in_use">
-                      {({ field }) => (
-                        <Checkbox
-                          {...field}
-                          ye
-                          sx={{ color: "text.secondary2" }}
-                          name="stil_in_use"
-                          checked={field.value}
-                          label="Still in use"
-                        />
-                      )}
-                    </Field>
-                  }
-                  label="Still in use"
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <InputLabel htmlFor="is_rg_meter">
-                  Is this an revenue-grade meter
-                </InputLabel>
-                <FormControl>
-                  <Field name="is_rg_meter">
+        {({ values, setFieldValue }) => (
+          <Form>
+            <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
+              <Grid container spacing={4}>
+                <Grid item>
+                  <InputLabel htmlFor="meter_type">Meter Type*</InputLabel>
+                  <Field name="meter_type">
                     {({ field, form }) => (
                       <ToggleButtonGroup
-                        id="is_rg_meter"
-                        value={revenueAlignment}
+                        name="meter_type"
+                        value={meterAlignment}
                         exclusive
                         onChange={(event, newAlignment) => {
-                          handleRevenueTypeChange(event, newAlignment, form);
+                          handleMeterTypeChange(event, newAlignment, form);
                         }}
                       >
-                        <ToggleButton value="yes" sx={{ fontSize: "0.875rem" }}>
-                          Yes
-                        </ToggleButton>
-                        <ToggleButton value="no" sx={{ fontSize: "0.875rem" }}>
-                          No
-                        </ToggleButton>
+                        <ToggleButton value={1}>Electricty</ToggleButton>
+                        <ToggleButton value={2}>Natural Gas</ToggleButton>
+                        <ToggleButton value={3}>Water</ToggleButton>
                       </ToggleButtonGroup>
                     )}
                   </Field>
-                </FormControl>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
-                <InputLabel>
-                  Meter specification as per Measurement Canada S-E-04
-                </InputLabel>
-                {!selectedFile ? (
-                  <>
-                    <Typography
-                      my={1}
-                      sx={{
-                        color: "#696969",
-                        fontWeight: "500",
-                        fontSize: "18px",
-                        border: "1px solid #D0D0D0",
-                        backgroundColor: "#D1FFDA",
-                        padding: "6px 34px",
-                        borderRadius: "8px",
-                        width: "140px",
-                        height: "40px",
-                      }}
-                      onClick={handleButtonClick}
-                    >
-                      Upload
-                    </Typography>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      style={{ display: "none" }}
-                      onChange={handleFileChange}
+              {meterAlignment === 1 && (
+                <Grid item spacing={4}>
+                  <Field name="purchased_from_the_grid">
+                    {({ field, form }) => (
+                      <RadioGroup
+                        row={true}
+                        sx={{ color: "text.secondary2" }}
+                        value={field.value ? "true" : "false"}
+                        onChange={(event) => {
+                          form.setFieldValue(
+                            "purchased_from_the_grid",
+                            event.target.value === "true"
+                          );
+                        }}
+                      >
+                        <FormControlLabel
+                          value="true"
+                          control={<Radio />}
+                          label="Purchased from the Grid"
+                          name="purchased_from_the_grid"
+                        />
+                        <FormControlLabel
+                          value="false"
+                          control={<Radio />}
+                          label="Behind-the-Meter Generation"
+                          name="purchased_from_the_grid"
+                        />
+                      </RadioGroup>
+                    )}
+                  </Field>
+                </Grid>
+              )}
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="meter_name"
+                    label="Meter name*"
+                    type="text"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <InputField name="meter_id" label="Meter ID" type="number" />
+                </Grid>
+              </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="meter_active"
+                    type="date"
+                    label="Date meter became active*"
+                  />
+                </Grid>
+                {!values.stil_in_use && (
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="meter_inactive"
+                      type="date"
+                      label=" Date meter became inactive"
                     />
-                  </>
-                ) : (
-                  <div style={{ display: "flex" }}>
-                    <div>
-                      <img
-                        src={selectedFile}
-                        alt="Preview"
-                        style={{ maxWidth: "100%", maxHeight: "200px" }}
-                      />
-                    </div>
-                    <div style={{ marginLeft: "20px" }}>
+                  </Grid>
+                )}
+              </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <FormControlLabel
+                    control={
+                      <Field name="stil_in_use">
+                        {({ field }) => (
+                          <Checkbox
+                            {...field}
+                            ye
+                            sx={{ color: "text.secondary2" }}
+                            name="stil_in_use"
+                            checked={field.value}
+                            label="Still in use"
+                          />
+                        )}
+                      </Field>
+                    }
+                    label="Still in use"
+                  />
+                </Grid>
+              </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <InputLabel htmlFor="is_rg_meter">
+                    Is this an revenue-grade meter
+                  </InputLabel>
+                  <FormControl>
+                    <Field name="is_rg_meter">
+                      {({ field, form }) => (
+                        <ToggleButtonGroup
+                          id="is_rg_meter"
+                          value={revenueAlignment}
+                          exclusive
+                          onChange={(event, newAlignment) => {
+                            handleRevenueTypeChange(event, newAlignment, form);
+                          }}
+                        >
+                          <ToggleButton
+                            value="yes"
+                            sx={{ fontSize: "0.875rem" }}
+                          >
+                            Yes
+                          </ToggleButton>
+                          <ToggleButton
+                            value="no"
+                            sx={{ fontSize: "0.875rem" }}
+                          >
+                            No
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      )}
+                    </Field>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
+                  <InputLabel>
+                    {values.meter_type === 3
+                      ? "Upload the most recent utility bill"
+                      : "Meter specification as per Measurement Canada S-E-04"}
+                  </InputLabel>
+                  {!selectedFile ? (
+                    <>
                       <Typography
                         my={1}
                         sx={{
-                          color: "#2C77E9",
+                          color: "#696969",
                           fontWeight: "500",
-                          fontSize: "16px !important",
+                          fontSize: "18px",
+                          border: "1px solid #D0D0D0",
+                          backgroundColor: "#D1FFDA",
+                          padding: "6px 34px",
+                          borderRadius: "8px",
+                          width: "140px",
+                          height: "40px",
                         }}
                         onClick={handleButtonClick}
                       >
-                        Change Picture
+                        Upload
                       </Typography>
                       <input
                         type="file"
@@ -332,38 +320,67 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         style={{ display: "none" }}
                         onChange={handleFileChange}
                       />
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#FF5858",
-                          fontWeight: "500",
-                          fontSize: "16px !important",
-                        }}
-                        onClick={deletePicture}
-                      >
-                        Delete Picture
-                      </Typography>
+                    </>
+                  ) : (
+                    <div style={{ display: "flex" }}>
+                      <div>
+                        <img
+                          src={selectedFile}
+                          alt="Preview"
+                          style={{ maxWidth: "100%", maxHeight: "200px" }}
+                        />
+                      </div>
+                      <div style={{ marginLeft: "20px" }}>
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#2C77E9",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                          }}
+                          onClick={handleButtonClick}
+                        >
+                          Change Picture
+                        </Typography>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleFileChange}
+                        />
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#FF5858",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                          }}
+                          onClick={deletePicture}
+                        >
+                          Delete Picture
+                        </Typography>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </Grid>
+                  )}
+                </Grid>
 
-              <Grid item xs={12} sm={5}>
-                <Box mt={4} rowGap={4}>
-                  <ButtonWrapper
-                    type="submit"
-                    color="neutral"
-                    width="165px"
-                    height="48px"
-                    onClick={handleSubmit}
-                  >
-                    Add Meter
-                  </ButtonWrapper>
-                </Box>
+                <Grid item xs={12} sm={5}>
+                  <Box mt={4} rowGap={4}>
+                    <ButtonWrapper
+                      type="submit"
+                      color="neutral"
+                      width="165px"
+                      height="48px"
+                      onClick={handleSubmit}
+                    >
+                      {meterId2 ? "Save" : "Add Meter"}
+                    </ButtonWrapper>
+                  </Box>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </Form>
+          </Form>
+        )}
       </Formik>
     </Box>
   );

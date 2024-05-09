@@ -20,22 +20,20 @@ import {
   UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
   UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
   UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
+  FETCH_FACILITY_STATUS_REQUEST,
+  FETCH_FACILITY_STATUS_SUCCESS,
+  FETCH_FACILITY_STATUS_FAILURE,
+  UPDATE_FACILITY_STATUS_REQUEST,
+  UPDATE_FACILITY_STATUS_SUCCESS,
+  UPDATE_FACILITY_STATUS_FAILURE,
 } from "./../actionTypes";
 
 const initialState = {
   facilityList: [],
+  characteristics: [],
+  facilityStatus: [],
   loading: false,
   error: null,
-  approvalLoading: false,
-  approvalError: null,
-  facilityDetails: null,
-  detailsLoading: false,
-  detailsError: null,
-  deleting: false,
-  deleteError: null,
-  characteristics: [],
-  characteristicsLoading: false,
-  characteristicsError: null,
 };
 
 const facilityReducer = (state = initialState, action) => {
@@ -62,112 +60,149 @@ const facilityReducer = (state = initialState, action) => {
     case SUBMIT_FACILITY_FOR_APPROVAL_REQUEST:
       return {
         ...state,
-        approvalLoading: true,
-        approvalError: null,
+        loading: true,
+        error: null,
       };
     case SUBMIT_FACILITY_FOR_APPROVAL_SUCCESS:
       return {
         ...state,
-        approvalLoading: false,
-        approvalError: null,
+        loading: false,
+        error: null,
       };
     case SUBMIT_FACILITY_FOR_APPROVAL_FAILURE:
       return {
         ...state,
-        approvalLoading: false,
-        approvalError: action.payload,
+        loading: false,
+        error: action.payload,
       };
     case FETCH_FACILITY_DETAILS_REQUEST:
       return {
         ...state,
-        detailsLoading: true,
-        detailsError: null,
+        loading: true,
+        error: null,
       };
     case FETCH_FACILITY_DETAILS_SUCCESS:
       return {
         ...state,
-        detailsLoading: false,
         facilityDetails: action.payload,
-        detailsError: null,
+        loading: false,
+        error: null,
       };
     case FETCH_FACILITY_DETAILS_FAILURE:
       return {
         ...state,
-        detailsLoading: false,
-        detailsError: action.payload,
+        loading: false,
+        error: action.payload,
       };
     case DELETE_FACILITY_REQUEST:
       return {
         ...state,
-        deleting: true,
-        deleteError: null,
+        loading: true,
+        error: null,
       };
     case DELETE_FACILITY_SUCCESS:
       return {
         ...state,
-        deleting: false,
-        deleteError: null,
+        loading: false,
+        error: null,
       };
     case DELETE_FACILITY_FAILURE:
       return {
         ...state,
-        deleting: false,
-        deleteError: action.payload,
+        loading: false,
+        error: action.payload,
       };
     case ADD_FACILITY_CHARACTERISTIC_REQUEST:
       return {
         ...state,
-        characteristicsLoading: true,
-        characteristicsError: null,
+        loading: true,
+        error: null,
       };
     case ADD_FACILITY_CHARACTERISTIC_SUCCESS:
       return {
         ...state,
-        characteristicsLoading: false,
-        characteristicsError: null,
+        loading: false,
+        error: null,
       };
     case ADD_FACILITY_CHARACTERISTIC_FAILURE:
       return {
         ...state,
-        characteristicsLoading: false,
-        characteristicsError: action.payload,
+        loading: false,
+        error: action.payload,
       };
     case FETCH_FACILITY_CHARACTERISTICS_REQUEST:
       return {
         ...state,
-        characteristicsLoading: true,
-        characteristicsError: null,
+        loading: true,
+        error: null,
       };
     case FETCH_FACILITY_CHARACTERISTICS_SUCCESS:
       return {
         ...state,
-        characteristicsLoading: false,
         characteristics: action.payload,
-        characteristicsError: null,
+        loading: false,
+        error: null,
       };
     case FETCH_FACILITY_CHARACTERISTICS_FAILURE:
       return {
         ...state,
-        characteristicsLoading: false,
-        characteristicsError: action.payload,
+        loading: false,
+        error: action.payload,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_REQUEST:
       return {
         ...state,
-        characteristicsLoading: true,
-        characteristicsError: null,
+        loading: true,
+        error: null,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_SUCCESS:
       return {
         ...state,
-        characteristicsLoading: false,
-        characteristicsError: null,
+        loading: false,
+        error: null,
       };
     case UPDATE_FACILITY_CHARACTERISTIC_FAILURE:
       return {
         ...state,
-        characteristicsLoading: false,
-        characteristicsError: action.payload,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityStatus: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_FACILITY_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_FACILITY_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_FACILITY_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
       };
     default:
       return state;

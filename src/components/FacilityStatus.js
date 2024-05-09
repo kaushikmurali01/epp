@@ -5,39 +5,38 @@ const FacilityStatus = ({ children }) => {
   const getColor = (text) => {
     switch (text) {
       case 0:
-        return palette.status.draft;
+        return "#E9E9E9";
       case 1:
-        return palette.status.submit;
+        return "#FFBB6C";
       case 3:
-        return palette.status.approved;
+        return "#DCFF88";
       case 4:
-        return palette.status.approved;
+        return "#CFEEFF";
       case 5:
-        return palette.status.approved;
+        return "#CFEEFF";
+      case 6:
+        return "#CFEEFF";
       default:
         return palette.status.default;
     }
   };
 
-  //   INITIAL : 0,
-  // SUBMITTED: 1,
-  // IN_REVIEW: 2,
-  // BASELINE_APPROVED : 3,
-  // APPROVED: 4,
-  const showStatus = (status) => {
+  const showSubmissionStatus = (status) => {
     switch (status) {
       case 0:
-        return "Initial";
+        return "Draft";
       case 1:
-        return "Submitted";
+        return "Ready for submission";
       case 3:
-        return "In review";
+        return "Submitted";
       case 4:
-        return "Baseline approved";
+        return "In review";
       case 5:
+        return "Baseline approved";
+      case 6:
         return "approved";
       default:
-        return "";
+        return "NA";
     }
   };
 
@@ -53,7 +52,7 @@ const FacilityStatus = ({ children }) => {
         }}
         variant="contained"
       >
-        {showStatus(children)}
+        {showSubmissionStatus(children)}
       </Box>
     </Box>
   );

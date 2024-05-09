@@ -21,6 +21,12 @@ import {
   updateFacilityCharacteristicRequest,
   updateFacilityCharacteristicSuccess,
   updateFacilityCharacteristicFailure,
+  fetchFacilityStatusRequest,
+  fetchFacilityStatusSuccess,
+  fetchFacilityStatusFailure,
+  updateFacilityStatusRequest,
+  updateFacilityStatusSuccess,
+  updateFacilityStatusFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -174,6 +180,49 @@ export const updateFacilityCharacteristic = (facilityId, characteristic) => {
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityCharacteristicFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilityStatus = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityStatusRequest());
+      const endpointWithParams = `${facilityEndPoints.GET_FACILITY_STATUS}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilityStatusSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityStatusFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateFacilityStatus = (facilityId, status) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateFacilityStatusRequest());
+      const endpointWithParams = `${facilityEndPoints.UPDATE_FACILITY_STATUS}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, status);
+      const data = response.data;
+      dispatch(updateFacilityStatusSuccess(data));
+      NotificationsTost({
+        message: "Facility status updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateFacilityStatusFailure(error));
       NotificationsTost({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

@@ -44,7 +44,7 @@ const FacilityDetails = () => {
     }
   };
   return (
-    <Container sx={{ mt: 20 }}>
+    <Container sx={{ mt: 12 }}>
       <FacilityTimeline />
       <FacilityHeader />
       <Box

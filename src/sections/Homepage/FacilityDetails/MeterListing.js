@@ -15,9 +15,13 @@ import React, { useEffect, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMeterListing } from "./../../../redux/actions/metersActions";
+import {
+  deleteMeter,
+  fetchMeterListing,
+} from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
+import EvModal from "utils/modal/EvModal";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -29,6 +33,71 @@ const MeterListing = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
+  const [meterToDelete, setMeterToDelete] = useState("");
+
+  const METER_TYPE_ARRAY = [
+    { id: 1, value: "Electricity" },
+    { id: 2, value: "Natural Gas" },
+    { id: 3, value: "Water" },
+  ];
+  const getMeterTypeValue = (array, meter_type) => {
+    const foundType = array.find((type) => type.id === meter_type);
+    return foundType ? foundType.value : null;
+  };
+
+  const handleDeleteMeter = (mId) => {
+    if (mId) {
+      dispatch(deleteMeter(mId))
+        .then(() => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(fetchMeterListing(pageInfo, id));
+        })
+        .catch((error) => {
+          console.error("Error deleting facility:", error);
+        });
+    }
+  };
+
+  const openDeleteMeterModal = (meterId) => {
+    setMeterToDelete(meterId);
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    }));
+  };
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete Meter",
+    headerSubText: "Are you sure you want to delete this meter?",
+    modalBodyContent: "",
+    saveButtonAction: handleDeleteMeter,
+  });
+
   const columns = [
     {
       Header: "Meter name",
@@ -36,7 +105,9 @@ const MeterListing = ({
     },
     {
       Header: "Meter type",
-      accessor: "meter_type",
+      accessor: (item) => {
+        return getMeterTypeValue(METER_TYPE_ARRAY, item?.meter_type);
+      },
     },
     {
       Header: "Meter ID",
@@ -68,6 +139,18 @@ const MeterListing = ({
           >
             Edit
           </Button>
+          <Button
+            color="error"
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+            onClick={() => openDeleteMeterModal(item.id)}
+          >
+            Delete
+          </Button>
         </Box>
       ),
     },
@@ -90,7 +173,7 @@ const MeterListing = ({
   };
 
   const handleEntriesListClick = (id, meter_id) => {
-    console.log(id, meter_id)
+    console.log(id, meter_id);
     onEntriesListClick(id, meter_id);
   };
 
@@ -188,6 +271,11 @@ const MeterListing = ({
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
         />
       </Box>
+      <EvModal
+        modalConfig={modalConfig}
+        setModalConfig={setModalConfig}
+        actionButtonData={meterToDelete}
+      />
     </>
   );
 };

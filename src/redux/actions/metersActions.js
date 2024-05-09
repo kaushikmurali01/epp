@@ -12,9 +12,16 @@ import {
   fetchMeterDetailsRequest,
   fetchMeterDetailsSuccess,
   fetchMeterDetailsFailure,
+  deleteMeterRequest,
+  deleteMeterSuccess,
+  deleteMeterFailure,
 } from "../actionCreators/meterActionCreators";
-
-import { GET_REQUEST, POST_REQUEST, PATCH_REQUEST } from "utils/HTTPRequests";
+import {
+  GET_REQUEST,
+  POST_REQUEST,
+  PATCH_REQUEST,
+  DELETE_REQUEST,
+} from "utils/HTTPRequests";
 import NotificationsTost from "../../utils/notification/NotificationsToast.js";
 
 export const fetchMeterListing = (pageInfo, id) => {
@@ -95,6 +102,29 @@ export const fetchMeterDetails = (meterId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterDetailsFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteMeter = (meterId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteMeterRequest(meterId));
+      const endpointWithParams = `${meterEndPoints.DELETE_METER}/${meterId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteMeterSuccess(data));
+      NotificationsTost({
+        message: "Meter deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteMeterFailure(error));
       NotificationsTost({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
