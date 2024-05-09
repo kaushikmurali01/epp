@@ -36,18 +36,19 @@ class UserInvitationService {
       throw new Error(`Failed to fetch user invitations: ${error.message}`);
     }
   }
-  static async sendInvitation(details:any): Promise<Response> {
+  static async sendInvitation(details:any, resp:any): Promise<Response> {
     try {
         const email = details.email;
+        details.company = resp.company_id;
         const invitation = await UserInvitation.create(details);
         const template = await EmailTemplate.getCommonTemplate();
         const existingUser = await User.findOne({ where: { email } });
-        console.log("user001", existingUser.first_name);
+       // console.log("user001", existingUser.first_name);
         let body:string;
-       const emailCOntent =  EmailContent.invitationEmailForExistingUser.content
-       .replace('#user#', existingUser.first_name)
-       .replace('#admin#', "Test Admin");
         if(existingUser) {
+          const emailCOntent =  EmailContent.invitationEmailForExistingUser.content
+           .replace('#user#', existingUser.first_name)
+          .replace('#admin#', "Test Admin");
            body = template.replace('#content#', emailCOntent);
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, body);
         } else {

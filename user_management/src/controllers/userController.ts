@@ -142,7 +142,7 @@ class UserController {
     // const { id } = req.params;
     let id = tokenData.id;
       const user = await UserService.getUserById(parseInt(id));
-      //console.log('user1000', user);
+      console.log('user1000', user);
       if (user) {
         return user;
       } else {
@@ -211,9 +211,9 @@ class UserController {
       }
     }
 
-    static async createUserRequest(requestData): Promise<any> {
+    static async createUserRequest(requestData, resp): Promise<any> {
       try {
-        const data = await UserRequestService.createUserRequest(requestData)
+        const data = await UserRequestService.createUserRequest(requestData, resp)
         return data;
     } catch (error) {
         return { status: 500, body: { error: error.message } };

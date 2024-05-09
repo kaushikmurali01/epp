@@ -9,22 +9,19 @@ import { sequelize } from "../services/database";
 export async function decodeTokenMiddleware(req: HttpRequest, context: InvocationContext, next: () => Promise<HttpResponseInit>): Promise<any> {
     try {
         const token = req.headers.get('Authorization');
-        if (!token) {
-            return { status: 401, body: 'Unauthorized: Token missing' };
-        }
-
-        // Decode token
-        const decodedToken:any = await Token.getDataFromToken(token);
-        console.log("DecodedToken", decodedToken.emails[0]);
+        if (!token) return { status: 401, body: 'Unauthorized: Token missing' };
+        const tokenValue = token.substring('Bearer '.length); // Extracting token part without 'Bearer '
+        const decodedToken:any = await Token.getDataFromToken(tokenValue);
         const user = await User.findOne({
             where: {
                 email: decodedToken.emails[0]
             },
             include: [{
                 model: UserCompanyRole,
-                attributes: []
+                attributes: [],
+                required: false
             }],
-            attributes: ['id', 'email', 'type',[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
+            attributes: ['id', 'email', 'type',[sequelize.col('UserCompanyRole.role_id'), 'role_id'],[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
         });
         if (!decodedToken) {
             return { status: 401, body: 'Unauthorized: Invalid token' };

@@ -3,6 +3,9 @@ import { RoleController } from '../controllers/roleController';
 import { RolePermissionService } from "../services/rolePermissionService";
 import { Permission } from "../models/permission";
 import { decodeTokenMiddleware } from "../middleware/authMiddleware";
+import { UserInvitation } from "../models/user-invitation";
+import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
+import { sequelize } from "../services/database";
 /**
  * Creates a new role based on the provided request data.
  * 
@@ -156,8 +159,11 @@ export async function GetPermissionsByRoleId(request: HttpRequest, context: Invo
 export async function AssignPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData:any = await request.json(); 
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
+        requestData.company_id = resp.company_id;
+        console.log("requestedData", requestData);
         // Create role
         const role = await RoleController.assignPermissions(requestData);
        
@@ -174,27 +180,88 @@ export async function AssignPermissions(request: HttpRequest, context: Invocatio
 
 export async function GetUserPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        // Parse request data
-       // const requestData = await request.json();
-       // const user = parseInt(request.params.user);
-        //const company = parseInt(request.params.company);
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-
-
-
-        // Create role
-      //  const role = await RoleController.assignPermissions(requestData);
-
-        const permissions = await Permission.findAll();
        
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        console.log("Resp", resp);
+        
+        const user_id = resp.id;
+        const company_id = resp.company_id;
+
+       let userPermissions = null;
+       if(resp.role_id === 1 || resp.role_id === 2) {
+         userPermissions = await Permission.findAll(
+            {
+                attributes: ['id', 'permission', 'permission_type']
+            }
+         );
+       }
+       else if(resp.type === 2) {
+           userPermissions = await UserCompanyRolePermission.findAll({
+            where: {
+              user_id: user_id,
+              company_id: company_id,
+            },
+            include: [{
+              model: Permission,
+              required: true,
+              
+            }],
+            attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
+          });
+        } else {
+            userPermissions = await UserCompanyRolePermission.findAll({
+                where: {
+                  user_id: user_id
+                },
+                include: [{
+                  model: Permission,
+                  required: true,
+                  
+                }],
+                attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
+              });
+        }
+
         // Prepare response body
-        const responseBody = JSON.stringify(permissions);
+        const responseBody = JSON.stringify(userPermissions);
 
         // Return success response
         return { body: responseBody, status: 200 };
     } catch (error) {
         // Return error response
         return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+/**
+ * Retrieves permissions associated with a role by its ID.
+ * 
+ * @param request The HTTP request object containing role ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing permissions data.
+ */
+export async function GetPermissionsByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Extract role ID from request
+        const user_id = parseInt(request.params.user_id);
+        const company_id = parseInt(request.params.company_id);
+
+        // Get permissions by role ID
+        const userInvitations = await UserInvitation.findAll({
+            where: {
+              company: company_id,
+              id: user_id
+            }
+        });
+
+        // Prepare response body
+        const responseBody = JSON.stringify(userInvitations);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
     }
 }
 
@@ -217,6 +284,12 @@ app.http('GetRole', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetRole
+});
+app.http('GetPermissionsByUser', {
+    route: 'user/permissions/{user_id}/{company_id}',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetPermissionsByUser
 });
 
 app.http('GetUserPermissions', {

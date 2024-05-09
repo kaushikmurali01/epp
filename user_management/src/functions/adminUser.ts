@@ -4,6 +4,12 @@ import { UserInvitationService } from "../services/user-invitation-service";
 import { UserService } from "../services/userService";
 import { RolePermissionService } from "../services/rolePermissionService";
 import { RoleController } from "../controllers/roleController";
+import { decodeTokenMiddleware } from "../middleware/authMiddleware";
+import { User } from "../models/user";
+import { UserCompanyRole } from "../models/user-company-role";
+import { Role } from "../models/role";
+import { sequelize } from "../services/database";
+import { UserInvitation } from "../models/user-invitation";
 
 /**
  * Registers a new user based on the provided request data.
@@ -67,21 +73,93 @@ export async function AdminUserUpdate(request: HttpRequest, context: InvocationC
  * @returns A promise resolving to an HTTP response containing all users.
  */
 export async function GetEnervaUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    try {
+    // try {
 
-        const { offset, limit } = request.params;
+    //     const { offset, limit } = request.params;
 
-        // Get all users
-        const users = await AdminUserController.GetEnervaUsers(offset, limit);
+    //     // Get all users
+    //     const users = await AdminUserController.GetEnervaUsers(offset, limit);
        
-        // Prepare response body
-        const responseBody = JSON.stringify(users);
+    //     // Prepare response body
+    //     const responseBody = JSON.stringify(users);
 
-        // Return success response
-        return { body: responseBody };
+    //     // Return success response
+    //     return { body: responseBody };
+    // } catch (error) {
+    //     // Return error response
+    //     return { status: 500, body: `${error.message}` };
+    // }
+
+    try {
+        const { pageOffset, pageLimit } = request.params;
+        const [usersResult, invitationsResult] = await Promise.all([
+          User.findAll({
+              include: [{
+                  model: UserCompanyRole,
+                  attributes: [],
+                  where: {
+                    is_active: 1
+                  },
+                  include: [{
+                      model: Role,
+                      attributes: []
+                  }]
+              }],
+              offset: parseInt(pageOffset),
+              limit: parseInt(pageLimit),
+              where: {
+                type: 1,
+                is_active: 1 
+              },
+              attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                  [sequelize.col('UserCompanyRole.status'), 'status']
+              ],
+          }),
+          UserInvitation.findAll({
+            offset: parseInt(pageOffset),
+            limit: parseInt(pageLimit),
+              where: {
+                is_active: 1,
+                type: 1
+              },
+              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                  [sequelize.col('Role.rolename'), 'rolename'],
+                  [sequelize.col('Role.id'), 'role_id']
+              ],
+              include: [{
+                      model: Role,
+                      attributes: []
+                  }
+              ]
+          })
+          
+      ]);
+      
+      const users = usersResult.map(user => ({
+          entry_type: 1,
+          ...user.toJSON()
+      }));
+      
+      const invitations = invitationsResult.map(invitation => ({
+          entry_type: 2,
+          first_name: "",
+          last_name: "",
+          ...invitation.toJSON()
+      }));
+      
+      
+      
+      // Combine all results into one array
+      const allData = [...users, ...invitations];
+      const responseBody = JSON.stringify(allData);
+
+      return { body: responseBody };
+      
     } catch (error) {
-        // Return error response
-        return { status: 500, body: `${error.message}` };
+        console.error('Error fetching data:', error);
+        throw error;
     }
 }
 
@@ -94,21 +172,93 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
  */
 
 export async function GetIESOUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    try {
+    // try {
 
-        const { offset, limit } = request.params;
+    //     const { offset, limit } = request.params;
 
-        // Get all users
-        const users = await AdminUserController.getIESOUsers(offset, limit);
+    //     // Get all users
+    //     const users = await AdminUserController.getIESOUsers(offset, limit);
        
-        // Prepare response body
-        const responseBody = JSON.stringify(users);
+    //     // Prepare response body
+    //     const responseBody = JSON.stringify(users);
 
-        // Return success response
-        return { body: responseBody };
+    //     // Return success response
+    //     return { body: responseBody };
+    // } catch (error) {
+    //     // Return error response
+    //     return { status: 500, body: `${error.message}` };
+    // }
+
+    try {
+        const { pageOffset, pageLimit } = request.params;
+        const [usersResult, invitationsResult] = await Promise.all([
+          User.findAll({
+              include: [{
+                  model: UserCompanyRole,
+                  attributes: [],
+                  where: {
+                    is_active: 1
+                  },
+                  include: [{
+                      model: Role,
+                      attributes: []
+                  }]
+              }],
+              offset: parseInt(pageOffset),
+              limit: parseInt(pageLimit),
+              where: {
+                type: 4,
+                is_active: 1 
+              },
+              attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                  [sequelize.col('UserCompanyRole.status'), 'status']
+              ],
+          }),
+          UserInvitation.findAll({
+            offset: parseInt(pageOffset),
+            limit: parseInt(pageLimit),
+              where: {
+                is_active: 1,
+                type: 4
+              },
+              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                  [sequelize.col('Role.rolename'), 'rolename'],
+                  [sequelize.col('Role.id'), 'role_id']
+              ],
+              include: [{
+                      model: Role,
+                      attributes: []
+                  }
+              ]
+          })
+          
+      ]);
+      
+      const users = usersResult.map(user => ({
+          entry_type: 1,
+          ...user.toJSON()
+      }));
+      
+      const invitations = invitationsResult.map(invitation => ({
+          entry_type: 2,
+          first_name: "",
+          last_name: "",
+          ...invitation.toJSON()
+      }));
+      
+      
+      
+      // Combine all results into one array
+      const allData = [...users, ...invitations];
+      const responseBody = JSON.stringify(allData);
+
+      return { body: responseBody };
+      
     } catch (error) {
-        // Return error response
-        return { status: 500, body: `${error.message}` };
+        console.error('Error fetching data:', error);
+        throw error;
     }
 }
 
@@ -121,21 +271,93 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
  */
 
 export async function GetCustomerUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    try {
+    // try {
 
-        const { offset, limit } = request.params;
+    //     const { offset, limit } = request.params;
 
-        // Get all users
-        const users = await AdminUserController.getCustomerUsers(offset, limit);
+    //     // Get all users
+    //     const users = await AdminUserController.getCustomerUsers(offset, limit);
        
-        // Prepare response body
-        const responseBody = JSON.stringify(users);
+    //     // Prepare response body
+    //     const responseBody = JSON.stringify(users);
 
-        // Return success response
-        return { body: responseBody };
+    //     // Return success response
+    //     return { body: responseBody };
+    // } catch (error) {
+    //     // Return error response
+    //     return { status: 500, body: `${error.message}` };
+    // }
+
+    try {
+        const { pageOffset, pageLimit } = request.params;
+        const [usersResult, invitationsResult] = await Promise.all([
+          User.findAll({
+              include: [{
+                  model: UserCompanyRole,
+                  attributes: [],
+                  where: {
+                    is_active: 1
+                  },
+                  include: [{
+                      model: Role,
+                      attributes: []
+                  }]
+              }],
+              offset: parseInt(pageOffset),
+              limit: parseInt(pageLimit),
+              where: {
+                type: 2,
+                is_active: 1 
+              },
+              attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                  [sequelize.col('UserCompanyRole.status'), 'status']
+              ],
+          }),
+          UserInvitation.findAll({
+            offset: parseInt(pageOffset),
+            limit: parseInt(pageLimit),
+              where: {
+                is_active: 1,
+                type: 2
+              },
+              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                  [sequelize.col('Role.rolename'), 'rolename'],
+                  [sequelize.col('Role.id'), 'role_id']
+              ],
+              include: [{
+                      model: Role,
+                      attributes: []
+                  }
+              ]
+          })
+          
+      ]);
+      
+      const users = usersResult.map(user => ({
+          entry_type: 1,
+          ...user.toJSON()
+      }));
+      
+      const invitations = invitationsResult.map(invitation => ({
+          entry_type: 2,
+          first_name: "",
+          last_name: "",
+          ...invitation.toJSON()
+      }));
+      
+      
+      
+      // Combine all results into one array
+      const allData = [...users, ...invitations];
+      const responseBody = JSON.stringify(allData);
+
+      return { body: responseBody };
+      
     } catch (error) {
-        // Return error response
-        return { status: 500, body: `${error.message}` };
+        console.error('Error fetching data:', error);
+        throw error;
     }
 }
 
@@ -223,10 +445,29 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 }
 
 export async function SendEnervaInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    // try {
+    //     // Parse request data
+    //     const requestData = await request.json(); 
+    //     const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+    //     const data = await UserInvitationService.sendInvitation(requestData, resp);
+       
+    //     // Prepare response body
+    //     const responseBody = JSON.stringify(data);
+
+    //     // Return success response
+    //     return { body: responseBody };
+    // } catch (error) {
+    //     // Return error response
+    //     return { status: 500, body: `${error.message}` };
+    // }
+
     try {
         // Parse request data
         const requestData = await request.json(); 
-        const data = await UserInvitationService.sendInvitation(requestData);
+        console.log('requestData', requestData);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const data = await UserInvitationService.sendInvitation(requestData, resp);
        
         // Prepare response body
         const responseBody = JSON.stringify(data);
@@ -284,29 +525,61 @@ export async function AdAssignPermissions(request: HttpRequest, context: Invocat
     }
 }
 
+/**
+ * Retrieves permissions associated with a role by its ID.
+ * 
+ * @param request The HTTP request object containing role ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing permissions data.
+ */
+export async function GetPermissionsByUserAdmin(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Extract role ID from request
+        const user_id = parseInt(request.params.user_id);
+      //  const company_id = parseInt(request.params.company_id);
+
+        // Get permissions by role ID
+        const userInvitations = await UserInvitation.findAll({
+            where: {
+              type: 1,
+              id: user_id
+            }
+        });
+
+        // Prepare response body
+        const responseBody = JSON.stringify(userInvitations);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 app.http('SendEnervaInvitation', {
     methods: ['POST'],
     authLevel: 'anonymous',
-    route: 'send',
+    route: 'program/send',
     handler: SendEnervaInvitation
 });
 
 app.http('GetEnervaUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'enerva/{offset}/{limit}',
+    route: 'enerva/{pageOffset}/{pageLimit}',
     handler: GetEnervaUsers
 });
 app.http('GetIESOUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'ieso/{offset}/{limit}',
+    route: 'ieso/{pageOffset}/{pageLimit}',
     handler: GetIESOUsers
 });
 app.http('GetCustomerUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'customer/{offset}/{limit}',
+    route: 'customer/{pageOffset}/{pageLimit}',
     handler: GetCustomerUsers
 });
 
@@ -331,10 +604,17 @@ app.http('AdAssignPermissions', {
     handler: AdAssignPermissions
 });
 app.http('GetAdmnPermissionsByRoleId', {
-    route: 'adrolepermission/{id}',
+    route: 'program/rolepermission/{id}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetAdmnPermissionsByRoleId
+});
+
+app.http('GetPermissionsByUserAdmin', {
+    route: 'program/user/permissions/{user_id}',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetPermissionsByUserAdmin
 });
 
 

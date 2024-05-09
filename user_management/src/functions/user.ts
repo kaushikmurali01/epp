@@ -8,6 +8,11 @@ import { UserInvitation } from "../models/user-invitation";
 import { UserRequest } from "../models/user-request";
 import { UserCompanyRole } from "../models/user-company-role";
 import { sequelize } from "../services/database";
+import { Permission } from "../models/permission";
+import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
+import { Email } from "../services/email";
+import { EmailContent } from "../utils/emailContent";
+import { EmailTemplate } from "../utils/emailTemplate";
 
 /**
  * Registers a new user based on the provided request data.
@@ -151,7 +156,7 @@ export async function RejectInvitation(request: HttpRequest, context: Invocation
 
 
 /**
- * Retrieves a user by ID.
+ * Retrieves data of current user.
  * 
  * @param request The HTTP request object containing user ID.
  * @param context The invocation context of the Azure Function.
@@ -169,7 +174,85 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
         // Get user by ID
         const user = await UserController.getUserById(resp);
-       
+
+        // Get User Permissions start
+        const user_id = resp.id;
+        const company_id = resp.company_id;
+
+       let userPermissions = null;
+       if(resp.role_id === 1 || resp.role_id === 2) {
+         userPermissions = await Permission.findAll(
+            {
+                attributes: ['id', 'permission', 'permission_type']
+            }
+         );
+       }
+       else if(resp.type === 2) {
+           userPermissions = await UserCompanyRolePermission.findAll({
+            where: {
+              user_id: user_id,
+              company_id: company_id,
+            },
+            include: [{
+              model: Permission,
+              required: true,
+              
+            }],
+            attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
+          });
+        } else {
+            userPermissions = await UserCompanyRolePermission.findAll({
+                where: {
+                  user_id: user_id
+                },
+                include: [{
+                  model: Permission,
+                  required: true,
+                  
+                }],
+                attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
+              });
+        }
+
+        user.permissions = userPermissions;
+
+        // Prepare response body
+        const responseBody = JSON.stringify(user);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+
+
+/**
+ * Retrieves a user by ID.
+ * 
+ * @param request The HTTP request object containing user ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the user with the specified ID.
+ */
+export async function GetUserDetailById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        console.log("Testing");
+
+        // Middleware
+       // const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       // context.log("middlewareResponse",resp);
+        
+        // Extract user ID from request
+       // const { id } = request.params;
+       console.log("params009",request.params);
+
+        // Get user by ID
+        const user = await UserController.getUserById(request.params);
+
+        
         // Prepare response body
         const responseBody = JSON.stringify(user);
 
@@ -190,32 +273,17 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
  */
 export async function DeleteUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        User.hasMany(UserCompanyRole, { onDelete: 'CASCADE' });
-        // Extract user ID from request
-        const userId = request.params.id;
-        const type = request.params.type;
-        if(type === 'user') {
+        const userId:any = request.params.id;
+        const type:any = request.params.type;
+        if(type == 1) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
-
-        } else if(type === 'invitation') {
-           // await UserInvitation.destroy({ where: { id: userId } });
+        } else if(type == 2) {
             await UserInvitation.update({ is_active: 0 }, { where: { id: userId } });
-        } else if(type === 'request') {
-            //await UserRequest.destroy({ where: { id: userId } });
+        } else if(type == 3) {
             await UserRequest.update({ is_active: 0 }, { where: { id: userId } });
         }
-        return { status: 200, body: `Deleted Successfully.` };
-
-        // Delete user by ID
-        const deleted = await UserController.deleteUser(userId);
-       
-        // Prepare response body
-        const responseBody = JSON.stringify({ deleted });
-
-        // Return success response
-        return { body: responseBody };
+        return {body: JSON.stringify ({status: 200, body: `Deleted Successfully.` })};
     } catch (error) {
-        // Return error response
         return { status: 500, body: `${error.message}` };
     }
 }
@@ -254,7 +322,9 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
     try {
         // Parse request data
         const requestData = await request.json(); 
-        const data = await UserInvitationService.sendInvitation(requestData);
+        console.log('requestData', requestData);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const data = await UserInvitationService.sendInvitation(requestData, resp);
        
         // Prepare response body
         const responseBody = JSON.stringify(data);
@@ -278,9 +348,10 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
     try {
 
         const { offset, limit, company} = request.params;
-
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
-        const users = await UserController.getCombinedUsers(offset, limit, company);
+        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id);
        
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -297,10 +368,36 @@ export async function CreateUserRequest(request: HttpRequest, context: Invocatio
     try {
         // Parse request data
         const requestData = await request.json(); 
-        const data = await UserController.createUserRequest(requestData);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const data = await UserController.createUserRequest(requestData, resp);
        
         // Prepare response body
         const responseBody = JSON.stringify(data);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function AlertUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData:any = await request.json(); 
+        let template = await EmailTemplate.getEmailTemplate();
+        let logo:any = EmailTemplate.getLogo();
+        if(!requestData.first_name) requestData.first_name = '';
+        template = template.replace('#heading#', 'Alert from admin')
+        .replace('#content#', requestData.comment)
+        .replace('#name#', requestData.first_name)
+        .replace('#logo#', logo);
+        
+        Email.send(requestData.email, EmailContent.alertEmail.title, template);
+        const resp = { status: 200, body: 'Alert Sent successfully' };
+        // Prepare response body
+        const responseBody = JSON.stringify(resp);
 
         // Return success response
         return { body: responseBody };
@@ -316,7 +413,12 @@ export async function CreateUserRequest(request: HttpRequest, context: Invocatio
 
 
 
-
+app.http('AlertUser', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'alert/send',
+    handler: AlertUser
+});
 
 app.http('CreateUserRequest', {
     methods: ['POST'],
@@ -365,6 +467,13 @@ app.http('GetUserById', {
     authLevel: 'anonymous',
     route: 'user',
     handler: GetUserById
+});
+
+app.http('GetUserDetailById', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'userdetail/{id}',
+    handler: GetUserDetailById
 });
 
 app.http('DeleteUser', {

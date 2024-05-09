@@ -1,5 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
+import { Company } from './company';
+import { Permission } from './permission';
+import { User } from './user';
 
 // Define the attributes interface
 interface UserCompanyRolePermissionAttributes {
@@ -110,6 +113,10 @@ UserCompanyRolePermission.init(
     tableName: 'user_company_role_permission',
   }
 );
+
+UserCompanyRolePermission.belongsTo(Permission, { foreignKey: 'permission_id' }); // Define the role_id foreign key association
+UserCompanyRolePermission.belongsTo(Company, { foreignKey: 'company_id' }); // Define the permission_id foreign key association
+UserCompanyRolePermission.belongsTo(User, { foreignKey: 'user_id' });
 
 // Export the model
 export { UserCompanyRolePermission };
