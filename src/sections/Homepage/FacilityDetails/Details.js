@@ -24,6 +24,7 @@ import {
 } from "../../../redux/actions/facilityActions";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { validationSchemaFacilityDetails } from "utils/validations/formValidation";
 
 const Details = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -65,9 +66,7 @@ const Details = () => {
     if (id) {
       dispatch(fetchFacilityCharacteristics(id))
         .then((response) => {
-          console.log(response);
           const charactersticsDetails = response?.data;
-          console.log(response);
           setInitialValues({
             ...initialValues,
             ...charactersticsDetails,
@@ -454,7 +453,7 @@ const Details = () => {
   const handleLightingTypeChange = (event, newAlignment, form) => {
     setLightingAlignment(newAlignment);
     form.setFieldValue(
-      " unique_features_that_impact_energy_usage;",
+      "unique_features_that_impact_energy_usage",
       newAlignment
     );
   };
@@ -483,7 +482,7 @@ const Details = () => {
     >
       <Formik
         initialValues={{ ...initialValues }}
-        // validationSchema={validationSchemaFacilityDetails}
+        validationSchema={validationSchemaFacilityDetails}
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
@@ -643,16 +642,16 @@ const Details = () => {
                     </Field>
                   </FormControl>
                 </Grid>
-
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="unique_features_of_facility"
-                    label="Describe unique features of your facility that may impact energy usage"
-                    type="text"
-                    style={{ textWrap: "nowrap" }}
-                    disabled={energyUsageAlignment !== "yes"}
-                  />
-                </Grid>
+                {energyUsageAlignment === "yes" && (
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="unique_features_of_facility"
+                      label="Describe unique features of your facility that may impact energy usage"
+                      type="text"
+                      style={{ textWrap: "nowrap" }}
+                    />
+                  </Grid>
+                )}
               </Grid>
 
               <Grid container spacing={4} mt={1}>
