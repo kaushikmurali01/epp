@@ -64,8 +64,8 @@ static async listCompanies(offset, limit): Promise<any> {
      */
     static async updateCompany(req): Promise<any> {
         try {
-            const companyId = parseInt(req.params.id);
-            const updatedData = req.body;
+            const companyId = parseInt(req.id);
+            const updatedData = req;
             const updatedCompany = await CompanyService.updateCompany(companyId, updatedData);
             return updatedCompany;
         } catch (error) {

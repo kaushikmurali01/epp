@@ -71,17 +71,16 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
  */
 export async function UserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
+        let userData;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        context.log("middlewareResponse", resp);
         // Parse request data
-        const requestData = await request.json(); 
-
+        const requestData = await request.json();
         // Update user
-        const user = await UserController.updateUser(requestData);
-       
-        // Prepare response body
-        const responseBody = JSON.stringify(user);
+        userData = await UserController.updateUser(requestData, resp.id);
 
         // Return success response
-        return { body: responseBody };
+        return { body: JSON.stringify(userData) };
     } catch (error) {
         // Return error response
         return { status: 500, body: `${error.message}` };
@@ -459,6 +458,7 @@ app.http('UserRegister', {
 app.http('UserUpdate', {
     methods: ['PUT'],
     authLevel: 'anonymous',
+    route: 'users',
     handler: UserUpdate
 });
 

@@ -17,8 +17,7 @@ class CompanyService {
             //await testDatabaseConnection();
             console.log("companyDetails", companyDetails)
             const company = await Company.create(companyDetails);
-            return company;
-         //   return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+           return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -52,15 +51,15 @@ class CompanyService {
      * @returns Promise<Response> - A promise resolving to a response indicating the status of company update.
      * @description Updates an existing company in the database with new details. Returns a response indicating the success or failure of the update process.
      */
-    static async updateCompany(companyId: number, updatedDetails): Promise<Response> {
+    static async updateCompany(companyId: number, updatedDetails): Promise<any> {
         try {
             //await testDatabaseConnection();
             const company = await Company.findByPk(companyId);
             if (!company) {
                 throw new Error(RESPONSE_MESSAGES.notFound404);
             }
-            await company.update(updatedDetails);
-            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+            let result = await company.update(updatedDetails);
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, company: result };
         } catch (error) {
             throw new Error(`${error.message}`);
         }

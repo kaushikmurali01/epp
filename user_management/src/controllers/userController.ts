@@ -5,6 +5,7 @@ import { UserRequestService } from "../services/userRequestService";
 import { CompanyService } from "../services/companyService";
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { UserCompanyRole } from "../models/user-company-role";
+import { CompanyController } from "./companyController";
 
 class UserController {
 
@@ -15,14 +16,14 @@ class UserController {
      * @returns Promise<HttpResponse>
      * @description Handles the registration of a new user by extracting necessary data from the request body, invoking the UserService to register the user, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async registerUser(user:any, company:any): Promise<any> {
+    static async registerUser(user: any, company: any): Promise<any> {
       try {
         let companyData = null;
         let company_id = null;
-          const userData = await UserService.registerUser(user);
-          if(userData.type == 2) {
-            companyData = await CompanyService.createCompany(company);
-            company_id = companyData.id;
+        const userData = await UserService.registerUser(user);
+        if(userData.type === 2) {
+          companyData = await CompanyService.createCompany(company);
+          company_id = companyData.id;
           }
           const data = {
             "company_id": company_id,
@@ -30,29 +31,34 @@ class UserController {
             "user_id": userData.id
         };
        await UserCompanyRole.create(data);
-          return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
+      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user: userData, company: companyData };
       } catch (error) {
           return { status: 500, body: { error: error.message } };
       }
     }
 
-      /**
-   * Updates an existing user.
-   * 
-   * @param req - The HTTP request object containing user data.
-   * @returns Promise<any> - A promise resolving to an HTTP response.
-   * @description Handles the updating of an existing user by extracting necessary data from the request body, invoking the UserService to update the user, and returning an HTTP response with appropriate status and JSON data.
-   */
-  static async updateUser(req): Promise<any> {
+  /**
+* Updates an existing user.
+* 
+* @param req - The HTTP request object containing user data.
+* @returns Promise<any> - A promise resolving to an HTTP response.
+* @description Handles the updating of an existing user by extracting necessary data from the request body, invoking the UserService to update the user, and returning an HTTP response with appropriate status and JSON data.
+*/
+  static async updateUser(req, userId): Promise<any> {
+    console.log('user ttowijefasjd', req);
     try {
-      const { id } = req.params;
-      const { first_name, last_name, email, password, address, phonenumber } = req.body;
-      const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
-      if (updatedUser) {
-        return {
-          status: 200, // OK status code
-          body: { user: updatedUser }
-        };
+      let companyData;
+      let userData;
+      const id = userId;
+      const { first_name, last_name, email, password, address, phonenumber } = req.user;
+      userData = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
+      
+      if (req.user.type === 2) {
+        // Update company
+        companyData = await CompanyController.updateCompany(req.company);
+      }
+      if (userData) {
+        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user: userData, company: companyData };
       } else {
         return {
           status: 404, // Not Found status code
@@ -133,8 +139,8 @@ class UserController {
    */
   static async getUserById(tokenData): Promise<any> {
     try {
-     // const { id } = req.params;
-     let id = tokenData.id;
+    // const { id } = req.params;
+    let id = tokenData.id;
       const user = await UserService.getUserById(parseInt(id));
       console.log('user1000', user);
       if (user) {
