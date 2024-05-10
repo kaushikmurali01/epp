@@ -42,3 +42,7 @@ export const evUserManagementEndPoints = {
 export const participantAgreementEndPoints = {
   participantAgreement: "participant-agreement",
 };
+
+export const profilePageEndPoints = {
+  profilePage: "profile",
+};
