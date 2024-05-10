@@ -30,7 +30,7 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
     position: "relative",
     "& .MuiStepIcon-root": {
       width: 8,
-      color: active ? "#2E813E" : "#D4D4D4",
+      color: active ? "#2E813E!important" : "#D4D4D4!important",
     },
     "& .MuiStepIcon-text": {
       display: "none",
