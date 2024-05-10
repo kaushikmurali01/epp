@@ -7,8 +7,10 @@ import {
   Button,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  IconButton
 } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { GET_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
@@ -59,7 +61,13 @@ const ProfilePage = () => {
     fontStyle: "normal",
     fontWeight: 500,
     lineHeight: "1 !important",
-    marginBlockEnd: "0.5rem",
+    marginBlockEnd: "0.75rem",
+    width: "83.07px",
+  };
+
+  const roleInfoStyleContentStyle = {
+    ...otherInfoStyleContentStyle,
+    width: "auto",
   };
 
   
@@ -145,8 +153,31 @@ const ProfilePage = () => {
 
   return (
     <Container>
-      <Typography variant="h4" fontWeight={"700"} marginBlockEnd={"3rem"}>
-        My profile
+      <Typography variant="h4" fontWeight={"700"} marginBlockEnd={"3rem"} display={"flex"} alignItems={"center"}>
+        {showEditPage ? (
+          <>
+            <IconButton
+              onClick={() => setShowEditPage(false)}
+              sx={{
+                backgroundColor: "primary.main",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                },
+                marginRight: "1rem",
+              }}
+            >
+              <ArrowBackIcon
+                sx={{
+                  color: "#fff",
+                  fontSize: "1.25rem",
+                }}
+              />
+            </IconButton>
+            Back to Profile{" "}
+          </>
+        ) : (
+          "My profile"
+        )}
       </Typography>
 
       <Grid
@@ -406,13 +437,23 @@ const ProfilePage = () => {
                   </ListItem>
 
                   {/* loop over below ListItem */}
-                  <ListItem disablePadding>
+                  <ListItem
+                    disablePadding
+                    sx={{ flexDirection: "column", alignItems: "flex-start" }}
+                  >
+                    <ListItemText
+                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                      primary="testing technologies pvt ltd"
+                      secondary="hsiuh iuhuw duoicjnwd"
+                      primaryTypographyProps={otherInfoStyleContentStyle}
+                      secondaryTypographyProps={otherInfoStyleContentStyle}
+                    />
                     <ListItemText
                       sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
                       primary="test"
-                      secondary="hsiuhiuhuwduoicjnwd"
+                      secondary="super-admin super duper"
                       primaryTypographyProps={otherInfoStyleContentStyle}
-                      secondaryTypographyProps={otherInfoStyleContentStyle}
+                      secondaryTypographyProps={roleInfoStyleContentStyle}
                     />
                   </ListItem>
                 </List>
@@ -422,7 +463,13 @@ const ProfilePage = () => {
         )}
       </Grid>
 
-      {showEditPage && <EditProfileComponent tabStyle={tabStyle} initialValues={initialValues} handleSubmit={handleSubmit} />}
+      {showEditPage && (
+        <EditProfileComponent
+          tabStyle={tabStyle}
+          initialValues={initialValues}
+          handleSubmit={handleSubmit}
+        />
+      )}
     </Container>
   );
 };
