@@ -267,7 +267,7 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisi
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
@@ -305,7 +305,7 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.type;
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
     // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {

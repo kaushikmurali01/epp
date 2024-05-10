@@ -10,23 +10,20 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUserAdmin from './InviteUserAdmin';
 
-// import { ENERVA_USER_MANAGEMENT_ADMIN_COLUMN } from '../../utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
-import { IESO_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
-// import { CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
+
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
 import InviteUser from 'pages/UserManagement/InviteUser';
 import EvModal from 'utils/modal/EvModal';
 
 import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
 import CustomerUserManagementColumn from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
-// import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
+import IESOUserManagementColumn from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
 
 const UserManagementAdmin = () => {
-  const navigate = useNavigate();
-  const { showSnackbar } = useContext(SnackbarContext);
 
   const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
   const {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN} = CustomerUserManagementColumn();
+  const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
 
   // tabs table data
   const [getEnervaUser, setEnervaUser] = useState([]);
@@ -42,6 +39,7 @@ const UserManagementAdmin = () => {
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
+
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
@@ -236,15 +234,15 @@ const UserManagementAdmin = () => {
       });
   }
 
-  const getComapanyListData = () => {
-    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
-    GET_REQUEST(apiURL)
-      .then((res) => {
-        setCompanyList(res.data)
-      }).catch((error) => {
-        console.log(error)
-      });
-  }
+  // const getComapanyListData = () => {
+  //   const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
+  //   GET_REQUEST(apiURL)
+  //     .then((res) => {
+  //       setCompanyList(res.data)
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     });
+  // }
 
   useEffect(() => {
     // load all default function on page load
@@ -255,7 +253,7 @@ const UserManagementAdmin = () => {
 
     // other get values functions
     getUserRoleData()
-    getComapanyListData()
+    // getComapanyListData()
   }, [])
 
 

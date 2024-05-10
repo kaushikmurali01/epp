@@ -1,20 +1,16 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
     Box,
-    Button,
     Checkbox,
     FormGroup,
     FormLabel,
     Grid,
     Typography,
 } from "@mui/material";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
-// import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
 const EnvervaUserManagementColumn = () => {
@@ -98,7 +94,7 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibl
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
