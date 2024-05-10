@@ -36,7 +36,10 @@ export const USER_MANAGEMENT = {
   // DELETE REQUEST
   DELETE_USER_REQUEST: "enerva-user/v1/users",
   // EDIT REQUEST
-  EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign"
+  EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign",
+  GET_USER_DETAILS: 'enerva-user/v1/user',
+  EDIT_PROFILE: 'enerva-user/v1/users'
+
 };
 
 export const ENERVA_USER_MANAGEMENT = {
