@@ -288,10 +288,14 @@ const theme = createTheme({
     dark: {
       main: "#000",
       light: "#242424",
-      lightGray: "#D9D9D9"
+      lightGray: "#D9D9D9",
+      colorSmoke: "#9E9D9D",
+      colorSilver: '#a8a7a7',
     },
     danger: {
       main: '#FF5858',
+      scarlet: '#FF5858',
+      colorCrimson: '#e54949'
     },
 
     text: {

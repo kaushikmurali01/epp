@@ -77,7 +77,7 @@ const InviteUserAdmin = ({ getUserRole, setVisibleInvitePage, invitePageInfo, ha
     );
 
     const handelInviteSubmit = ()=> {
-        // const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        // const apiURL = ENERVA_USER_MANAGEMENT;
         const apiURL = 'https://enervauser.azurewebsites.net/api/send';
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
         const requestBody = {

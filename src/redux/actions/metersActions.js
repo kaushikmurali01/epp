@@ -16,14 +16,13 @@ import {
   deleteMeterSuccess,
   deleteMeterFailure,
 } from "../actionCreators/meterActionCreators";
-
 import {
   GET_REQUEST,
   POST_REQUEST,
   PATCH_REQUEST,
   DELETE_REQUEST,
 } from "utils/HTTPRequests";
-import NotificationsTost from "../../utils/notification/NotificationsToast";
+import NotificationsTost from "../../utils/notification/NotificationsToast.js";
 
 export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {

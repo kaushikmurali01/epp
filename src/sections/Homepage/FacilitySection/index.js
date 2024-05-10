@@ -131,7 +131,10 @@ const Facility = () => {
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  const facilityCount = useSelector(
+    (state) => state?.facilityReducer?.facilityList?.data?.count || []
+  );
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
@@ -188,7 +191,7 @@ const Facility = () => {
 
   useEffect(() => {
     dispatch(fetchFacilityListing(pageInfo));
-  }, [dispatch, pageInfo]);
+  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
@@ -273,6 +276,7 @@ const Facility = () => {
         <Table
           columns={columns}
           data={facilityListData}
+          count={facilityCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/admin/facility-details/${id}`)}

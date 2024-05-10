@@ -44,13 +44,17 @@ export const validationSchemaSignUp = Yup.object().shape({
 });
 
 export const validationSchemaAddFacility = Yup.object().shape({
-  facility_construction_status: Yup.string().required("Facility Construction Status is required"),
+  facility_construction_status: Yup.string().required(
+    "Facility Construction Status is required"
+  ),
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
-  naic_code: Yup.string().required("NAIC Code is required"),
+  naic_code: Yup.string().required("NAIC's Code is required"),
   facility_category: Yup.string().required("Facility Category is required"),
   facility_type: Yup.string().required("Facility Type is required"),
-  target_saving: Yup.string().required("Energy Saving For Facility is required"),
+  target_saving: Yup.string().required(
+    "Energy Saving For Facility is required"
+  ),
   unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
   street_name: Yup.string().required("Street Name is required"),
@@ -62,19 +66,15 @@ export const validationSchemaAddFacility = Yup.object().shape({
 });
 
 export const validationSchemaLandingPageForm = Yup.object({
-  name: Yup.string()
-  .required('Please enter name'),
-  company: Yup.string()
-  .required('Please enter company name'),
-  message: Yup.string()
-  .required('Please enter message'),
+  name: Yup.string().required("Please enter name"),
+  company: Yup.string().required("Please enter company name"),
+  message: Yup.string().required("Please enter message"),
   email: Yup.string()
     .required("Please enter email")
     .matches(emailRegExp, "Entered email is incorrect"),
-    phone: Yup.string()
+  phone: Yup.string()
     .required("Please enter phone number")
-    .matches(phoneUSFormatRegExp , "Invalid Phone Number"),
-  
+    .matches(phoneUSFormatRegExp, "Invalid Phone Number"),
 });
 
 export const validationSchemaFacilitySummary = Yup.object().shape({
@@ -82,7 +82,9 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
   grossFloorArea: Yup.string().required("Gross floor area is required"),
   numberOfStoreys: Yup.string().required("Number of storeys is required"),
   occupancy: Yup.string().required("Occupancy is  required"),
-  numberOfBuildings: Yup.string().required("Physical buildings count is required"),
+  numberOfBuildings: Yup.string().required(
+    "Physical buildings count is required"
+  ),
   company: Yup.string().required("Company is  required"),
   facilityName: Yup.string().required("Facility Name is required"),
   unitNumber: Yup.string().required("Unit Number is required"),
@@ -96,21 +98,9 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
   naicCode: Yup.string().required("NAIC Code is required"),
 });
 
-
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
-  purchased_from_the_grid: Yup.string().required(
-    "Purchased from the Grid is required"
-  ),
-  meter_id: Yup.string(),
-  meter_active: Yup.date().required("Date meter became active is required"),
-  meter_inactive: Yup.date().required("Date meter became inactive is required"),
-  stil_in_use: Yup.boolean(),
-  is_rg_meter: Yup.string().required(
-    "Is this an revenue-grade meter is required"
-  ),
-  // meter_specification_url: Yup.string(),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -141,4 +131,27 @@ export const validationSchemaProfileDetails = Yup.object().shape({
   province: Yup.string().required("Province/State is required"),
   postal_code: Yup.string().required("Postal Code/Zip Code is required"),
   country: Yup.string().required("Country is required"),
+});
+export const validationSchemaFacilityDetails = Yup.object().shape({
+  unique_features_that_impact_energy_usage: Yup.string().required(
+    "Unique features that impact energy usage is required"
+  ),
+  space_cooling_fuel_source: Yup.string().required(
+    "Space cooling fuel source is required"
+  ),
+  space_cooling_technology: Yup.string().required(
+    "Space cooling technology is required"
+  ),
+  space_heating_fuel_source: Yup.string().required(
+    "Space heating fuel source is required"
+  ),
+  space_heating_technology: Yup.string().required(
+    "Space heating technology is required"
+  ),
+  water_heating_fuel_source: Yup.string().required(
+    "Water heating fuel source is required"
+  ),
+  water_heating_technology: Yup.string().required(
+    "Water heating technology is required"
+  ),
 });

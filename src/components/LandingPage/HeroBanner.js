@@ -18,7 +18,7 @@ const HeroBanner = () => {
         }).catch((error)=> console.log("error in login redirect", error))
       }
     return (
-        <Box component={'section'} className='banner-section'>
+        <Box id='heroBanner' component={'section'} className='banner-section'>
             <Container maxWidth="lg">
                 <Grid container sx={{flexDirection: theme_Sm ? "row" : 'column-reverse', padding: theme_Sm ? '0' : '1rem 0' }}>
                     <Grid item xs={100} sm={5} className='banner-info'>
