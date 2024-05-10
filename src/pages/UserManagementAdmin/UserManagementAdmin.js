@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ENERVA_USER_MANAGEMENT_ADMIN_COLUMN } from '../../utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
+
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 
@@ -10,14 +10,23 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUserAdmin from './InviteUserAdmin';
 
+// import { ENERVA_USER_MANAGEMENT_ADMIN_COLUMN } from '../../utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
 import { IESO_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
-import { CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
+// import { CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
 import InviteUser from 'pages/UserManagement/InviteUser';
+import EvModal from 'utils/modal/EvModal';
+
+import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
+import CustomerUserManagementColumn from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
+// import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
 
 const UserManagementAdmin = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useContext(SnackbarContext);
+
+  const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
+  const {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN} = CustomerUserManagementColumn();
 
   // tabs table data
   const [getEnervaUser, setEnervaUser] = useState([]);
@@ -32,24 +41,52 @@ const UserManagementAdmin = () => {
   const [selectRoleType, setSelectRoleType] = useState('');
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
+  const [inviteAPIURL, setInviteAPIURL] = useState('');
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
     getEnervaUserManagementData();
     getIESOUserManagementData();
     getCustomerUserManagementData();
-    getAggregatorUserManagementData();
+    // getAggregatorUserManagementData();
   };
-  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage), []);
-  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage), []);
-  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage), []);
-  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage), []);
-
   const initialValues = {
     company: '',
     role: '',
   };
 
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "",
+      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
+      fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+      modalBodyContentStyle: ''
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonClass: "",
+      cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
+      saveButtonName: "Yes,Delete!",
+      cancelButtonName: "No,Cancel",  
+
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+  });
+
+
+  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
 
 
@@ -167,6 +204,17 @@ const UserManagementAdmin = () => {
       });
   }
 
+  const handelInviteUserAdmin = () => {
+    const apiURL = ENERVA_USER_MANAGEMENT.SEND_EV_INVITATION_BY_ADMIN
+    setVisibleInvitePage(true); 
+    setSelectTableRow({}); 
+    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: invitePageInfo.type }) 
+    setInviteAPIURL(apiURL)
+
+    handleAddUser(); 
+    setSelectTableRow({});
+  }
+
   const getAggregatorUserManagementData = () => {
     // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
     const apiURL = ENERVA_USER_MANAGEMENT.GET_AGGREGATOR_USER_LIST+'/0/100';
@@ -218,10 +266,12 @@ const UserManagementAdmin = () => {
     <React.Fragment>
       {isVisibleInvitePage ?
         <InviteUser 
-        getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
+        getUserRole={getUserRole} 
+        setVisibleInvitePage={setVisibleInvitePage} 
         invitePageInfo={invitePageInfo} 
         handleAPISuccessCallBack={handleAPISuccessCallBack}
         selectTableRow={selectTableRow}
+        inviteAPIURL={inviteAPIURL}
         /> :
 
         <Box component="section">
@@ -294,7 +344,7 @@ const UserManagementAdmin = () => {
                   </Typography>
                 </Grid>
                 <Grid item sx={{ justifySelf: 'flex-end' }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() => {handleAddUser(); setSelectTableRow({});} } >
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
                     Add User
                     <IconButton>
 
@@ -320,6 +370,7 @@ const UserManagementAdmin = () => {
         </Box >
       }
 
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </React.Fragment>
   )
 }
