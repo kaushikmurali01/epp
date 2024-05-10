@@ -23,6 +23,7 @@ import {
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
+import { array } from "yup";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -166,11 +167,6 @@ const MeterListing = ({
       ),
     },
   ];
-  const meterData = [
-    { meterType: "Electricity", currentEnergyDate: "05/01/2024", value: 1 },
-    { meterType: "Natural Gas", currentEnergyDate: "05/01/2024", value: 1 },
-    { meterType: "Water", currentEnergyDate: "05/01/2024", value: 1 },
-  ];
 
   const meterListingData = useSelector(
     (state) => state?.meterReducer?.meterList?.data?.rows || []
@@ -221,14 +217,15 @@ const MeterListing = ({
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                     Meter Type
                   </TableCell>
-                  {meterStatistics.map((type, index) => (
-                    <TableCell
-                      key={type.meterType}
-                      sx={{ color: "#111", fontStyle: "italic" }}
-                    >
-                      {type?.["Meter type"]}
-                    </TableCell>
-                  ))}
+                  {Array.isArray(meterStatistics) &&
+                    meterStatistics?.map((type, index) => (
+                      <TableCell
+                        key={type.meterType}
+                        sx={{ color: "#111", fontStyle: "italic" }}
+                      >
+                        {type?.["Meter type"]}
+                      </TableCell>
+                    ))}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -236,24 +233,26 @@ const MeterListing = ({
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                     Total meters
                   </TableCell>
-                  {meterStatistics.map((count, index) => (
-                    <TableCell key={index} sx={{ color: "#111" }}>
-                      {count?.["Total meters"]}
-                    </TableCell>
-                  ))}
+                  {Array.isArray(meterStatistics) &&
+                    meterStatistics?.map((count, index) => (
+                      <TableCell key={index} sx={{ color: "#111" }}>
+                        {count?.["Total meters"]}
+                      </TableCell>
+                    ))}
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                     Current enegy date
                   </TableCell>
-                  {meterStatistics.map((date, index) => (
-                    <TableCell key={index} sx={{ color: "#111" }}>
-                      {format(
-                        new Date(date?.["Current energy date"]),
-                        "yyyy-MM-dd"
-                      )}
-                    </TableCell>
-                  ))}
+                  {Array.isArray(meterStatistics) &&
+                    meterStatistics?.map((date, index) => (
+                      <TableCell key={index} sx={{ color: "#111" }}>
+                        {format(
+                          new Date(date?.["Current energy date"]),
+                          "yyyy-MM-dd"
+                        )}
+                      </TableCell>
+                    ))}
                 </TableRow>
               </TableBody>
             </MuiTable>
