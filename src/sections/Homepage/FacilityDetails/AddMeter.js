@@ -32,13 +32,13 @@ import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [imgUrl, setImgUrl] = useState("");
   const { id } = useParams();
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState();
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState("no");
-  const [imgUrl, setImgUrl] = useState("");
 
   useEffect(() => {
     if (meterId2) {
@@ -81,7 +81,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     const selectedFile = event.target.files[0];
     setSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then(({ data }) => setImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -96,7 +98,6 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleSubmit = (values) => {
-    console.log(values);
     const newValues = {
       ...values,
       meter_specification_url: imgUrl,
@@ -218,7 +219,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <InputField name="meter_id" label="Meter ID" type="number" />
+                  <InputField name="meter_id" label="Meter ID*" type="number" />
                 </Grid>
               </Grid>
               <Grid container spacing={4}>

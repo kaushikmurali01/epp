@@ -36,10 +36,10 @@ const Details = () => {
   const [assemblyImgUrl, setAssemblyImgUrl] = useState("");
   const [selectedFacilityFile, setSelectedFacilityFile] = useState();
   const [facilityImgUrl, setFacilityImgUrl] = useState("");
-  const [energyUsageAlignment, setEnergyUsageAlignment] = useState("no");
-  const [lightingAlignment, setLightingAlignment] = useState("no");
-  const [heatingAlignment, setHeatingAlignment] = useState("no");
-  const [coolingAlignment, setCoolingAlignment] = useState("no");
+  const [energyUsageAlignment, setEnergyUsageAlignment] = useState(false);
+  const [lightingAlignment, setLightingAlignment] = useState(false);
+  const [heatingAlignment, setHeatingAlignment] = useState(false);
+  const [coolingAlignment, setCoolingAlignment] = useState(false);
   const facilityCharacterstics = useSelector(
     (state) => state?.facilityReducer?.characteristics?.data
   );
@@ -131,28 +131,26 @@ const Details = () => {
           setSelectedFacilityFile(
             charactersticsDetails?.facility_site_layout_media_url
           );
+          setFacilityImgUrl(
+            charactersticsDetails?.facility_site_layout_media_url
+          );
+          setAssemblyImgUrl(
+            charactersticsDetails?.facility_wall_assembly_and_ceiling_assembly_media_url
+          );
           setSelectedAssemblyFile(
             charactersticsDetails?.facility_wall_assembly_and_ceiling_assembly_media_url
           );
           setEnergyUsageAlignment(
             charactersticsDetails?.unique_features_that_impact_energy_usage
-              ? "yes"
-              : "no"
           );
           setLightingAlignment(
             charactersticsDetails?.is_lighting_controlled_for_occupancy
-              ? "yes"
-              : "no"
           );
           setHeatingAlignment(
             charactersticsDetails?.is_space_heating_controlled_for_occupancy
-              ? "yes"
-              : "no"
           );
           setCoolingAlignment(
             charactersticsDetails?.is_space_cooling_controlled_for_occupancy
-              ? "yes"
-              : "no"
           );
         })
         .catch((error) => {
@@ -168,7 +166,7 @@ const Details = () => {
     number_of_storeys: "",
     conditioned_gross_floor_area_including_common_area: "",
     unonditioned_gross_floor_area: "",
-    unique_features_that_impact_energy_usage: "no",
+    unique_features_that_impact_energy_usage: false,
     unique_features_of_facility: "",
     space_cooling_fuel_source: "",
     space_cooling_fuel_source_other: "",
@@ -220,9 +218,9 @@ const Details = () => {
       nov: false,
       dec: false,
     },
-    is_lighting_controlled_for_occupancy: "no",
-    is_space_heating_controlled_for_occupancy: "no",
-    is_space_cooling_controlled_for_occupancy: "no",
+    is_lighting_controlled_for_occupancy: false,
+    is_space_heating_controlled_for_occupancy: false,
+    is_space_cooling_controlled_for_occupancy: false,
   });
 
   const NUMBER_OF_ARRAY = [
@@ -350,6 +348,7 @@ const Details = () => {
   ];
 
   const handleSubmit = (values) => {
+    console.log(values);
     const newValues = {
       ...values,
       space_cooling_fuel_source:
@@ -359,7 +358,7 @@ const Details = () => {
       space_cooling_technology:
         values.space_cooling_technology === "other"
           ? values.space_cooling_technology_other
-          : values.space_cooling_technologyu,
+          : values.space_cooling_technology,
       space_heating_fuel_source:
         values.space_heating_fuel_source === "other"
           ? values.space_heating_fuel_source_other
@@ -377,30 +376,16 @@ const Details = () => {
           ? values.water_heating_technology_other
           : values.water_heating_technology,
       unique_features_of_facility:
-        energyUsageAlignment === "yes"
+        values.unique_features_that_impact_energy_usage
           ? values.unique_features_of_facility
           : "",
       facility_id: +id,
-      unique_features_that_impact_energy_usage:
-        values?.unique_features_that_impact_energy_usage === "yes"
-          ? true
-          : false,
-      is_lighting_controlled_for_occupancy:
-        values?.is_lighting_controlled_for_occupancy === "yes" ? true : false,
-      is_space_heating_controlled_for_occupancy:
-        values?.is_space_heating_controlled_for_occupancy === "yes"
-          ? true
-          : false,
-      is_space_cooling_controlled_for_occupancy:
-        values?.unique_features_that_impact_energy_usage === "yes"
-          ? true
-          : false,
       not_standard_hvac_equipment: JSON.stringify(
         values.not_standard_hvac_equipment
       ),
       occupants_months_detail: JSON.stringify(values.occupants_months_detail),
-      facility_site_layout_media_url: facilityImgUrl,
       facility_wall_assembly_and_ceiling_assembly_media_url: assemblyImgUrl,
+      facility_site_layout_media_url: facilityImgUrl,
     };
     if (facilityCharacterstics) {
       dispatch(updateFacilityCharacteristic(id, newValues));
@@ -431,7 +416,7 @@ const Details = () => {
     const selectedFile = event.target.files[0];
     setSelectedFacilityFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then(({ data }) => setFacilityImgUrl(data?.sasTokenUrl))
+      .then((data) => setFacilityImgUrl(data?.sasTokenUrl))
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -447,15 +432,15 @@ const Details = () => {
 
   const handleEnergyUsageTypeChange = (event, newAlignment, form) => {
     setEnergyUsageAlignment(newAlignment);
-    form.setFieldValue("is_lighting_controlled_for_occupancy", newAlignment);
-  };
-
-  const handleLightingTypeChange = (event, newAlignment, form) => {
-    setLightingAlignment(newAlignment);
     form.setFieldValue(
       "unique_features_that_impact_energy_usage",
       newAlignment
     );
+  };
+
+  const handleLightingTypeChange = (event, newAlignment, form) => {
+    setLightingAlignment(newAlignment);
+    form.setFieldValue("is_lighting_controlled_for_occupancy", newAlignment);
   };
   const handleHeatingTypeChange = (event, newAlignment, form) => {
     setHeatingAlignment(newAlignment);
@@ -540,7 +525,7 @@ const Details = () => {
                   onClick={handleSubmit}
                   style={{ marginLeft: "2rem" }}
                 >
-                  save
+                  Save
                 </ButtonWrapper>
               </Box>
             </Box>
@@ -626,13 +611,13 @@ const Details = () => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No
@@ -642,7 +627,7 @@ const Details = () => {
                     </Field>
                   </FormControl>
                 </Grid>
-                {energyUsageAlignment === "yes" && (
+                {energyUsageAlignment && (
                   <Grid item xs={12} sm={4}>
                     <InputField
                       name="unique_features_of_facility"
@@ -1217,13 +1202,13 @@ const Details = () => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No
@@ -1249,13 +1234,13 @@ const Details = () => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No
@@ -1281,13 +1266,13 @@ const Details = () => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No
@@ -1452,7 +1437,7 @@ const Details = () => {
                     height="48px"
                     onClick={handleSubmit}
                   >
-                    save
+                    Save
                   </ButtonWrapper>
                 </Grid>
               </Grid>

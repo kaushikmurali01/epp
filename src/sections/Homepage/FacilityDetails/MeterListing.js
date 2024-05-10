@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteMeter,
   fetchMeterListing,
+  fetchMeterStatistics,
 } from "./../../../redux/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
@@ -34,6 +35,14 @@ const MeterListing = ({
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
+
+  useEffect(() => {
+    dispatch(fetchMeterStatistics());
+  }, [dispatch]);
+
+  const meterStatistics = useSelector(
+    (state) => state?.meterReducer?.meterStatistics?.data
+  );
 
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
@@ -169,6 +178,7 @@ const MeterListing = ({
   const meterCount = useSelector(
     (state) => state?.meterReducer?.meterList?.data?.count || []
   );
+
   useEffect(() => {
     dispatch(fetchMeterListing(pageInfo, id));
   }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
@@ -211,12 +221,12 @@ const MeterListing = ({
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                     Meter Type
                   </TableCell>
-                  {meterData.map((type, index) => (
+                  {meterStatistics.map((type, index) => (
                     <TableCell
                       key={type.meterType}
                       sx={{ color: "#111", fontStyle: "italic" }}
                     >
-                      {type.meterType}
+                      {type?.["Meter type"]}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -224,21 +234,24 @@ const MeterListing = ({
               <TableBody>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Total Meter
+                    Total meters
                   </TableCell>
-                  {meterData.map((count, index) => (
+                  {meterStatistics.map((count, index) => (
                     <TableCell key={index} sx={{ color: "#111" }}>
-                      {count.value}
+                      {count?.["Total meters"]}
                     </TableCell>
                   ))}
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current Date
+                    Current enegy date
                   </TableCell>
-                  {meterData.map((date, index) => (
+                  {meterStatistics.map((date, index) => (
                     <TableCell key={index} sx={{ color: "#111" }}>
-                      {date.currentEnergyDate}
+                      {format(
+                        new Date(date?.["Current energy date"]),
+                        "yyyy-MM-dd"
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
