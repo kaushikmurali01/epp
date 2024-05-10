@@ -1,31 +1,23 @@
 export class EmailTemplate {
     static async getContactUsTemplate(data) {
         return`<div class="container">
-        <h2>New Contact Form Submission</h2>
-        <p class="field">Name:</p>
-        <p>${data.name}</p>
-        <p class="field">Company:</p>
-        <p>${data.company}</p>
-        <p class="field">Email:</p>
-        <p>${data.email}</p>
-        <p class="field">Phone:</p>
-        <p>${data.phone}</p>
-        <p class="field">Message:</p>
-        <p>${data.message}</p>
+        <h4>New Contact Form Submission</h4>
+        <p class="field">Name: ${data.name}</p>
+        
+        <p class="field">Company: ${data.company}</p>
+        
+        <p class="field">Email: ${data.email}</p>
+        
+        <p class="field">Phone: ${data.phone}</p>
+        
+        <p class="field">Message: ${data.message}</p>
+        
     </div>
      `;
         
         
     }
-    static async getCommonTemplate() {
-        return`<div class="container">
-             #content#
-             #link#
-            </div>
-             `;
-        
-        
-    }
+    
 
     static async getLogo() {
         return '';
@@ -100,7 +92,7 @@ export class EmailTemplate {
                         <tr>
                           <td style="width: 1.5rem;"></td>
                           <td>
-                            <img src="#logo#" alt="mailer-bg" class="mail-bg" style="display: block; max-width:100%" />
+                            <img src="https://eppdevstorage.blob.core.windows.net/assets/logo.svg" alt="mailer-bg" class="mail-bg" style="display: block; max-width:100%" />
                             
                           </td>
                           <td style="width: 1.5rem;"></td>

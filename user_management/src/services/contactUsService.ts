@@ -15,10 +15,14 @@ class ContactUsService {
    */
   static async saveContactMessage(contactDetails): Promise<Response> {
     try {
-      
+      //console.log('testing');
       const contact = await Contact.create(contactDetails, { fields: ['name', 'company', 'email', 'phone', 'message'] });
       const body = await EmailTemplate.getContactUsTemplate(contactDetails);
-      Email.send(process.env["CONTACT_EMAIL_TO"], "Enerva Contact Us", body);
+      let template = await EmailTemplate.getEmailTemplate();
+      template = template.replace('#content#', body).
+      replace('#name#', '').replace('#heading#', 'Contact Us details');
+      //console.log('testing2', template);
+      Email.send(process.env["CONTACT_EMAIL_TO"], "Enerva Contact Us", template);
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
     } catch (error) {
       throw new Error(`Failed to save contact message: ${error.message}`);

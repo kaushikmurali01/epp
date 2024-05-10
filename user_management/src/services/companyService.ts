@@ -2,6 +2,10 @@ import { Company } from '../models/company';
 import { Response } from 'enerva-utils/interfaces/response';
 import { testDatabaseConnection } from 'enerva-utils/utils/database';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
+import { User } from '../models/user';
+import { UserCompanyRole } from '../models/user-company-role';
+import { Role } from '../models/role';
+import { sequelize } from './database';
 
 class CompanyService {
 
@@ -30,14 +34,46 @@ class CompanyService {
      * @returns Promise<Response> - A promise resolving to a response containing the retrieved company data.
      * @description Retrieves a company from the database by its ID. Returns a response containing the retrieved company data.
      */
-    static async getCompanyById(companyId: number): Promise<any> {
+    static async getCompanyAdmin(companyId: number): Promise<any> {
         try {
             //await testDatabaseConnection();
-            const company = await Company.findByPk(companyId);
-            if (!company) {
-                throw new Error(RESPONSE_MESSAGES.Success);
-            }
-            return { status: HTTP_STATUS_CODES.SUCCESS, data: company };
+            // const company = await Company.findByPk(companyId);
+
+
+            // if (!company) {
+            //     throw new Error(RESPONSE_MESSAGES.Success);
+            // }
+            // return { status: HTTP_STATUS_CODES.SUCCESS, data: company };
+
+            const adminUsers = await User.findOne({
+                include: [
+                  {
+                    model: UserCompanyRole,
+                    where: { company_id: companyId, role_id: 1 },
+                    attributes: [],
+                   
+                    include: [
+                      {
+                        model: Role,
+                        where: { id: 1 },
+                        attributes: []
+                      },
+                      {
+                        model: Company,
+                        where: { id: companyId },
+                        attributes: [] 
+                      }
+                    ]
+                  }
+                ],
+                attributes: ['first_name', 'last_name', 'id', 'email',
+                [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
+                [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
+                [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
+                ]
+              });
+             // return adminUsers.dataValues;
+              return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers.dataValues };
         } catch (error) {
             throw new Error(`${error.message}`);
         }

@@ -71,17 +71,21 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
  */
 export async function UserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        let userData;
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        context.log("middlewareResponse", resp);
+        let userData:any;
+
+        const resp:any = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       // context.log("middlewareResponse", resp);
+
         // Parse request data
         const requestData = await request.json();
+
         // Update user
         userData = await UserController.updateUser(requestData, resp.id);
 
         // Return success response
         return { body: JSON.stringify(userData) };
     } catch (error) {
+        
         // Return error response
         return { status: 500, body: `${error.message}` };
     }

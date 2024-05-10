@@ -1,5 +1,6 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { CompanyController } from '../controllers/companyController';
+import { decodeTokenMiddleware } from "../middleware/authMiddleware";
 
 
 
@@ -80,11 +81,44 @@ export async function ListCompanies(request: HttpRequest, context: InvocationCon
         return { status: 500, body: `${error.message}` };
     }
 }
+
+/**
+ * Get Company Detail.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all companies.
+ */
+export async function GetCompanyAdmin(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const { id } = request.params;
+
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+        // Get all companies
+        const company = await CompanyController.getCompanyAdmin(id);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(company);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
 app.http('ListCompanies', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: ListCompanies,
     route: 'companies'
+});
+app.http('GetCompanyAdmin', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetCompanyAdmin,
+    route: 'fetch/company/{id}'
 });
 app.http('CreateCompany', {
     methods: ['POST'],

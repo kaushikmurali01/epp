@@ -7,6 +7,7 @@ import { Company } from '../models/company';
 import { Email } from './email';
 import { EmailTemplate } from '../utils/emailTemplate';
 import { EmailContent } from '../utils/emailContent';
+import { CompanyService } from './companyService';
 
 class UserInvitationService {
   /**
@@ -41,19 +42,25 @@ class UserInvitationService {
         const email = details.email;
         details.company = resp.company_id;
         const invitation = await UserInvitation.create(details);
-        const template = await EmailTemplate.getCommonTemplate();
+        const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
-       // console.log("user001", existingUser.first_name);
-        let body:string;
+        await CompanyService.getCompanyAdmin(resp.company_id);
+        let body:string, emailContent:string;
+        let inviteEmailContent = EmailContent.invitationEmailForExistingUser.content
+        .replace('#company#', "company name")
+        .replace('#admin#', 'Admin name');
         if(existingUser) {
-          const emailCOntent =  EmailContent.invitationEmailForExistingUser.content
-           .replace('#user#', existingUser.first_name)
-          .replace('#admin#', "Test Admin");
-           body = template.replace('#content#', emailCOntent);
-           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, body);
+            emailContent =  template
+           .replace('#name#', existingUser.first_name)
+           .replace('#admin#', "Test Admin")
+           .replace('#content#', EmailContent.invitationEmailForExistingUser.content);
+           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
         } else {
-          body = template.replace('#content#', EmailContent.invitationEmailForExistingUser.content);
-          Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, body);
+           emailContent =  template
+          .replace('#name#', "")
+          .replace('#admin#', "Test Admin")
+          .replace('#content#', EmailContent.invitationEmailForExistingUser.content);
+          Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
         }
        
         return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };

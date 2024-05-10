@@ -229,13 +229,13 @@ static async rejectInvitation(data): Promise<Response> {
     ]);
     
     const users = usersResult.map(user => ({
-        type: 1,
+        entry_type: 1,
         facility: "Sample Facility",
         ...user.toJSON()
     }));
     
     const invitations = invitationsResult.map(invitation => ({
-        type: 2,
+        entry_type: 2,
         facility: "",
         first_name: "",
         last_name: "",
@@ -243,7 +243,7 @@ static async rejectInvitation(data): Promise<Response> {
     }));
     
     const requests = requestsResult.map(request => ({
-        type: 3,
+        entry_type: 3,
         facility: "Sample",
         first_name: "Test",
         last_name: "Test",

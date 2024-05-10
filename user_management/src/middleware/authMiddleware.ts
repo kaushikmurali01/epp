@@ -12,6 +12,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
         if (!token) return { status: 401, body: 'Unauthorized: Token missing' };
         const tokenValue = token.substring('Bearer '.length); // Extracting token part without 'Bearer '
         const decodedToken:any = await Token.getDataFromToken(tokenValue);
+        console.log("DecodedToken", decodedToken);
         const user = await User.findOne({
             where: {
                 email: decodedToken.emails[0]
@@ -27,8 +28,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
             return { status: 401, body: 'Unauthorized: Invalid token' };
         }
 
-        // Make decoded token available for subsequent functions
-       // req['decodedToken'] = user.dataValues;
+        console.log("values", user.dataValues)
 
         // Call the next function
         return user.dataValues;

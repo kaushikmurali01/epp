@@ -6,6 +6,9 @@ import { decodeTokenMiddleware } from "../middleware/authMiddleware";
 import { UserInvitation } from "../models/user-invitation";
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { sequelize } from "../services/database";
+import { User } from "../models/user";
+import { Company } from "../models/company";
+import { Model } from "sequelize";
 /**
  * Creates a new role based on the provided request data.
  * 
@@ -163,7 +166,6 @@ export async function AssignPermissions(request: HttpRequest, context: Invocatio
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         requestData.company_id = resp.company_id;
-        console.log("requestedData", requestData);
         // Create role
         const role = await RoleController.assignPermissions(requestData);
        
@@ -245,14 +247,54 @@ export async function GetPermissionsByUser(request: HttpRequest, context: Invoca
         // Extract role ID from request
         const user_id = parseInt(request.params.user_id);
         const company_id = parseInt(request.params.company_id);
+        let entry_type = parseInt(request.params.entry_type);
+        let userInvitations;
+        if(entry_type == 1) {
 
+            const userPermissions:any = await UserCompanyRolePermission.findAll({
+                where: {
+                  user_id: user_id,
+                  company_id: company_id
+                },
+                include:[
+                    {
+                        model:User,
+                        attributes: ['email']
+                    }
+                ]
+              });
+          
+              // Aggregate permissions into an array
+              const permissionsArray = userPermissions.map(permission => permission.permission_id);
+          
+              // Return a single object
+              let permissions =  {
+                id: user_id,
+                email: userPermissions.length > 0 ? userPermissions[0].User.email : null,
+                role: userPermissions.length > 0 ? userPermissions[0].role_id : null,
+                company: company_id,
+                permissions: permissionsArray
+              };
+
+             // console.log("Obj",  obj);
+              const responseBody = JSON.stringify(permissions);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+            
+          
+
+        }
+        else {
         // Get permissions by role ID
-        const userInvitations = await UserInvitation.findAll({
+        userInvitations = await UserInvitation.findAll({
             where: {
               company: company_id,
               id: user_id
             }
         });
+    }
+   // console.log("Invitations",userInvitations);
 
         // Prepare response body
         const responseBody = JSON.stringify(userInvitations);
@@ -286,7 +328,7 @@ app.http('GetRole', {
     handler: GetRole
 });
 app.http('GetPermissionsByUser', {
-    route: 'user/permissions/{user_id}/{company_id}',
+    route: 'user/permissions/{user_id}/{company_id}/{entry-type}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetPermissionsByUser

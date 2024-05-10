@@ -125,8 +125,8 @@ class RoleService {
         try {
             let email = data.email;
             let permissions = data.permissions;
-            const user = await User.findOne({ where: { email } });
-            if(user) {
+             const user = await User.findOne({ where: { email } });
+            if(data.entry_type == 1) {
             await this.deletePermissions(user.id, data.company_id);
             for (const permissionId of data.permissions) {
               // Create a new record for each permission

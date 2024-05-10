@@ -28,10 +28,10 @@ class CompanyController {
      * @returns Promise<HttpResponse>
      * @description Handles the retrieval of a company by its ID by extracting the company ID from the request parameters, invoking the CompanyService to get the company, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async getCompany(req): Promise<any> {
+    static async getCompanyAdmin(companyId): Promise<any> {
         try {
-            const companyId  = parseInt(req.params.id);
-            const company = await CompanyService.getCompanyById(companyId);
+           // const companyId  = parseInt(req.params.id);
+            const company = await CompanyService.getCompanyAdmin(companyId);
             return company;
         } catch (error) {
             return { status: 404, body: { error: error.message } };
