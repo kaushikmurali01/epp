@@ -12,11 +12,13 @@ import {
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
-import { GET_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaProfileDetails } from "utils/validations/formValidation";
+import { USER_MANAGEMENT, fileUploadEndPoints } from "constants/apiEndPoints";
+import { POST_REQUEST } from "utils/HTTPRequests";
 import EditProfileComponent from "components/ProfilePageComponents/EditProfileComponent";
 
 
@@ -74,7 +76,7 @@ const ProfilePage = () => {
   const [showEditPage, setShowEditPage] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
 
-  const [profilePicture, setProfilePicture] = useState("/images/landingPage/header_banner.jpg");
+  const [profilePicture, setProfilePicture] = useState('');
 
   // Function to handle file input change
   const handleFileInputChange = (event) => {
@@ -84,13 +86,23 @@ const ProfilePage = () => {
     reader.onload = function (e) {
       setProfilePicture(e.target.result);
     };
+    uploadFile(file);
+  };
 
-    reader.readAsDataURL(file);
+  const uploadFile = (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const endpoint = fileUploadEndPoints.FILE_UPLOAD;
+    POST_REQUEST(endpoint, formData, true, "").then((response) => {
+      if (response?.data?.sasTokenUrl) {
+        setProfilePicture(response?.data?.sasTokenUrl)
+      }
+    });
   };
 
   // Function to delete the picture
   const deletePicture = () => {
-    setProfilePicture("/images/landingPage/header_banner.jpg");
+    setProfilePicture("");
   };
 
   const [initialValues, setInitialValues] = useState({
@@ -115,6 +127,7 @@ const ProfilePage = () => {
      GET_REQUEST(apiURL)
        .then((res) => {
          setUserProfileData(res?.data);
+         setProfilePicture(res?.data?.user?.profile_pic || "/images/landingPage/generic_profile.png")
          setInitialValues((prevValues) => {
            return {
              ...prevValues,
@@ -145,8 +158,39 @@ const ProfilePage = () => {
 
   const handleSubmit = (values) => {
     const newValues = { ...values }
-    console.log(newValues, "newvalues");
-    
+    const body ={
+      "user": {
+        "first_name": newValues.first_name,
+        "last_name": newValues.last_name,
+        "phonenumber": newValues.phonenumber,
+        "email": newValues.email,
+        profile_pic: profilePicture || '',
+      },
+    }
+
+    //check if role is super-admin
+    if(userProfileData?.user?.rolename == "Super-Admin" && userProfileData?.user?.type == '2'){ // type 2 is for customer
+      body.company = {
+        "company_name": newValues.company_name,
+        "website": newValues.website,
+        "city": newValues.city,
+        "state": newValues.state,
+        "postal_code": newValues.postal_code,
+
+        "country": newValues.country,
+        "unit_number": newValues.unit_number,
+        "street_number":newValues.street_number,
+        "street_name": newValues.street_name,
+      }
+    }
+
+    console.log("data after refactorung", body)
+
+    const endpoint = USER_MANAGEMENT.EDIT_PROFILE;
+    PUT_REQUEST(endpoint, body).then((response) => {
+      console.log('response after UIIII', response)
+      window.location.reload();
+    });
   }
   
   console.log(initialValues, "initi");
@@ -225,6 +269,7 @@ const ProfilePage = () => {
                 id="profilePhotoChange"
                 style={{ display: "none" }}
                 onChange={handleFileInputChange}
+                accept="image/png, image/gif, image/jpeg, image/jpg" 
               />
               <Button
                 sx={profileButtonStyle}
@@ -303,12 +348,12 @@ const ProfilePage = () => {
                       secondary={userProfileData?.user?.phonenumber}
                     />
                   )}
-                  {userProfileData?.user?.landline && (
+                  {/* {userProfileData?.user?.landline && (
                     <MicroStyledListItemComponent
                       primary="Phone Number"
                       secondary={userProfileData?.user?.landline}
                     />
-                  )}
+                  )} */}
                   {userProfileData?.user?.email && (
                     <MicroStyledListItemComponent
                       primary="Email Address"
@@ -411,7 +456,7 @@ const ProfilePage = () => {
                 </List>
               </Box>
 
-              <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+              {/* <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
                 <Typography variant="h6" sx={tabStyle}>
                   Also part of:
                 </Typography>
@@ -436,7 +481,6 @@ const ProfilePage = () => {
                     />
                   </ListItem>
 
-                  {/* loop over below ListItem */}
                   <ListItem
                     disablePadding
                     sx={{ flexDirection: "column", alignItems: "flex-start" }}
@@ -457,7 +501,7 @@ const ProfilePage = () => {
                     />
                   </ListItem>
                 </List>
-              </Box>
+              </Box> */}
             </Box>
           </Grid>
         )}
