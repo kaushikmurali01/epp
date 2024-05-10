@@ -273,6 +273,7 @@ const theme = createTheme({
       thinLight: "#F5F9F5",
       thinGrayLight: '#F7F7F5',
       contrastText: "#fff",
+      pistachio: '#DCFF88'
     },
     primary_2: {
       main: "#54585a",

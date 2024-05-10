@@ -49,7 +49,7 @@ const Table = ({
   const handleNextPage = () => {
     const totalPages = Math.ceil(count / pageInfo?.pageSize);
     if (pageInfo?.page < totalPages) {
-      setPageInfo({ ...pageInfo, page: pageInfo.page + 1 });
+      setPageInfo({ ...pageInfo, page: pageInfo?.page + 1 });
     }
   };
 
@@ -72,13 +72,13 @@ const Table = ({
 
   const totalPages = Math.ceil(count / pageInfo?.pageSize);
   const pageButtons = [];
-  let startPage = Math.max(1, pageInfo.page - 2);
+  let startPage = Math.max(1, pageInfo?.page - 2);
   let endPage = Math.min(totalPages, startPage + 4);
 
-  if (pageInfo.page > 3 && pageInfo.page + 2 <= totalPages) {
-    startPage = pageInfo.page - 2;
-    endPage = pageInfo.page + 2;
-  } else if (pageInfo.page > 3 && pageInfo.page + 2 > totalPages) {
+  if (pageInfo?.page > 3 && pageInfo?.page + 2 <= totalPages) {
+    startPage = pageInfo?.page - 2;
+    endPage = pageInfo?.page + 2;
+  } else if (pageInfo?.page > 3 && pageInfo?.page + 2 > totalPages) {
     startPage = totalPages - 4;
     endPage = totalPages;
   }
@@ -97,6 +97,7 @@ const Table = ({
     );
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
+
 
   return (
     <TableContainer>
@@ -186,7 +187,7 @@ const Table = ({
                     Rows per Page:{" "}
                   </Typography>
                   <Select
-                    value={pageInfo.pageSize}
+                    value={pageInfo?.pageSize}
                     onChange={handleRowsPerPageChange}
                     variant="outlined"
                     size="small"
@@ -210,7 +211,7 @@ const Table = ({
                       marginLeft: "1rem",
                     }}
                   >
-                    Page {pageInfo.page} of {totalPages}
+                    Page {pageInfo?.page} of {totalPages}
                   </Typography>
                 </Box>
                 <ButtonGroup

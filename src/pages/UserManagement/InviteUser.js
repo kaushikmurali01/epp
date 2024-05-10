@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
-import { USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo }) => {
+const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo,inviteAPIURL }) => {
     console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
@@ -53,7 +53,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
     const getPermissionList = (permission_id) => {
-        const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+        // if(invitePageInfo?.type !== null) {
+        //     requestBody.type = invitePageInfo?.type;
+        // }
+        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -67,7 +70,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     const handelInviteSubmit = () => {
         
-        const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
         console.log(apiURL, permissionIds, "checked data");
@@ -77,7 +81,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 "email": userEmail,
                 "role_id": selectRoleType,
                 "company_id": selectTableRow.company_id, // comapnay id is static right now.
-                "permissions": permissionIds
+                "permissions": permissionIds,
+                "entry_type": selectTableRow.entry_type
             }
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
@@ -94,8 +99,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             const requestBody = {
                 "email": userEmail,
                 "role": selectRoleType,
-                "company": "1", // comapnay id is static right now.
+                // "company": "1", // comapnay id is static right now.
                 "permissions": permissionIds
+            }
+            //  for enverva admin types
+            if(invitePageInfo?.type !== null) {
+                requestBody.type = invitePageInfo?.type;
             }
 
             POST_REQUEST(apiURL, requestBody)
@@ -118,7 +127,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
+        const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
