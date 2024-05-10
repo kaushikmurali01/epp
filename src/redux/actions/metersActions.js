@@ -15,6 +15,9 @@ import {
   deleteMeterRequest,
   deleteMeterSuccess,
   deleteMeterFailure,
+  fetchMeterStatisticsRequest,
+  fetchMeterStatisticsSuccess,
+  fetchMeterStatisticsFailure,
 } from "../actionCreators/meterActionCreators";
 import {
   GET_REQUEST,
@@ -125,6 +128,24 @@ export const deleteMeter = (meterId) => {
     } catch (error) {
       console.error(error);
       dispatch(deleteMeterFailure(error));
+      NotificationsTost({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchMeterStatistics = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchMeterStatisticsRequest());
+      const response = await GET_REQUEST(meterEndPoints.METER_STATISTICS);
+      const data = response.data;
+      dispatch(fetchMeterStatisticsSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchMeterStatisticsFailure(error));
       NotificationsTost({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

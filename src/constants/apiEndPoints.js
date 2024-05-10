@@ -84,3 +84,4 @@ export const entriesEndPoints = {
 export const fileUploadEndPoints = {
   FILE_UPLOAD: "company-facility/v1/upload",
 };
+
