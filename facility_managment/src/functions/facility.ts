@@ -1,39 +1,54 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { FacilityController } from "../controller";
+import { FacilityController } from "../facility_user/controller";
 
 
 import { uploadBlob } from "../lib/azure-storage";
+import { FacilityEnervaController } from "../facility_enerva/controller";
+import { FacilityMeterController } from "../facility_meter/controller";
+import { FacilityMeterEntriesController } from "../facility_meter_entries/controller";
+import { FacilityCharacteristicsController } from "../facility_characteristics/controller";
+import { AdminFacilityController } from "../admin-facility/controller";
+import { FACILITY_ID_SUBMISSION_STATUS } from "../enerva-utils/utils/facility_status";
+import { object } from "yup";
+import { decodeToken } from "../lib/authantication";
 
-// class AzureFunction {
+// Facility User CRUD
 
-export async function getAllFacility(request: any, context: any): Promise<HttpResponseInit>  {
+  export async function getAllFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
-            // Get all users
+          // Fetch params
+          const colName = request.query.get('col_name') || 'id';
+          const order = request.query.get('order') || 'ASC';
+          const searchPromt = request.query.get('search' || "");
+          const {offset, limit} = request.params
 
-            const {offset, limit} = request.params
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-
-            const users = await FacilityController.getFacility(offset, limit);
+          const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt): "");
            
-            // Prepare response body
-            const responseBody = JSON.stringify(users);
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
 
-            // Return success response
-            return { body: responseBody };
+          // Return success response
+          return { body: responseBody };
         } catch (error) {
             // Return error response
             return { status: 500, body: `${error.message}` };
         }
     }
 
-    export async function  getFacilityById(request: any, context: any) : Promise<HttpResponseInit>  {
+  export async function  getFacilityById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
         try {
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
             
             // Get facility by Id
-            const users = await FacilityController.getFacilityById(request);
+
+            const result = await FacilityController.getFacilityById(decodedToken, request);
            
             // Prepare response body
-            const responseBody = JSON.stringify(users);
+            const responseBody = JSON.stringify(result);
 
             // Return success response
             return { body: responseBody };
@@ -43,32 +58,35 @@ export async function getAllFacility(request: any, context: any): Promise<HttpRe
         }
     }
 
-    export async function  editFacilityDetailsById(request: any, context: any): Promise<HttpResponseInit>  {
+  export async function  editFacilityDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
             
-            const requestData = await request.json(); 
-
-            // Get all users
-            const users = await FacilityController.editFacilityDetailsById(request, requestData);
+          // Get all result
+          const result = await FacilityController.editFacilityDetailsById(decodedToken, request);
            
-            // Prepare response body
-            const responseBody = JSON.stringify(users);
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
 
-            // Return success response
-            return { body: responseBody };
+          // Return success response
+          return { body: responseBody };
         } catch (error) {
             // Return error response
             return { status: 500, body: `${error.message}` };
         }
     }
 
-    export async function  removeFacility(request: any, context: any): Promise<HttpResponseInit>  {
+  export async function  removeFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
-            // Get all users
-            const users = await FacilityController.deleteFacility(request);
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+            // Get all result
+            const result = await FacilityController.deleteFacility(decodedToken, request);
            
             // Prepare response body
-            const responseBody = JSON.stringify(users);
+            const responseBody = JSON.stringify(result);
 
             // Return success response
             return { body: responseBody };
@@ -78,16 +96,18 @@ export async function getAllFacility(request: any, context: any): Promise<HttpRe
         }
     }
 
-    export async function  createNewFacility(request: any, context: any): Promise<HttpResponseInit>  {
+  export async function  createNewFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
+          const requestData = await request.json(); 
 
-            const requestData = await request.json(); 
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-            // Get all users
-            const users = await FacilityController.createNewFacility(requestData);
+            // Get all result
+            const result = await FacilityController.createNewFacility(decodedToken, request, Object(requestData));
            
             // Prepare response body
-            const responseBody = JSON.stringify(users);
+            const responseBody = JSON.stringify(result);
 
             // Return success response
             return { body: responseBody };
@@ -97,23 +117,7 @@ export async function getAllFacility(request: any, context: any): Promise<HttpRe
         }
     }
 
-    export async function  approveFacilityDetails(request: any, context: any) : Promise<HttpResponseInit> {
-        try {
-            // Get all users
-            const users = await FacilityController.approveFacilityDetails(request);
-           
-            // Prepare response body
-            const responseBody = JSON.stringify(users);
-
-            // Return success response
-            return { body: responseBody };
-        } catch (error) {
-            // Return error response
-            return { status: 500, body: `${error.message}` };
-        }
-    }
-
-    export async function postUploadAnyFile(
+  export async function postUploadAnyFile(
         request: HttpRequest,
         context: InvocationContext
       ): Promise<HttpResponseInit> {
@@ -151,67 +155,845 @@ export async function getAllFacility(request: any, context: any): Promise<HttpRe
             sasTokenUrl
           }
         };
-      }
-      
-      
+    }
 
+  export async function  submitForApprovalByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          // Get all result
+          const result = await FacilityController.submitForApproval(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+    }
+
+  export async function  getCurrentStatusByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+        // Get all result
+        const result = await FacilityController.getCurrentStatus(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+  export async function  editFacilityStatusById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          // Get all result
+          const result = await FacilityController.editFacilityStatusById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+    
+      
+// Facility Enerva
+
+    export async function  approveFacilityDetails(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit> {
+    try {
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+        // Get all result
+        const result = await FacilityEnervaController.approveFacilityDetails(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+// Facility Meter
+
+    export async function getFacilityMeterListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+        const {offset, limit} = request.params
+        const colName = request.query.get('col_name') || 'id';
+        const order = request.query.get('order') || 'ASC';
+        const facilityId = request.query.get('facility_id');
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        const result = await FacilityMeterController.getFacilityMeters(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityId));
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+    export async function  getFacilityMeterById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+        
+        // Get facility by Id
+        const result = await FacilityMeterController.getFacilityMeterById(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+    export async function  editFacilityMeterDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+        
+        const requestData = await request.json(); 
+
+        // Get all result
+        const result = await FacilityMeterController.editFacilityMeterDetailsById(decodedToken, request, Object(requestData));
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+    export async function  removeFacilityMeter(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        // Get all result
+        const result = await FacilityMeterController.deleteFacilityMeter(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+    export async function  addNewMeterFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        const requestData = await request.json(); 
+
+        // Get all result
+        const result = await FacilityMeterController.addNewMeter(decodedToken, request, Object(requestData));
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+    }
+
+    export async function getFacilityMeterStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+          const facilityId = request.query.get('facility_id');
+  
+          // Fetch values from decoded token
+          const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+  
+          const result = await FacilityMeterController.getMeterStatistics(decodedToken, request,  Number(facilityId));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+      }
+
+
+    // Facility Meter Entries
+
+    export async function getFacilityMeterEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+          const {offset, limit} = request.params
+          const colName = request.query.get('col_name') || 'id';
+          const order = request.query.get('order') || 'ASC';
+          const facilityMeterId = request.query.get('facility_meter_detail_id');
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+  
+  
+          const result = await FacilityMeterEntriesController.getFacilityMetersEntries(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityMeterId));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+    }
+  
+    export async function  editFacilityMeterEntryDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          const requestData = await request.json(); 
+  
+          // Get all result
+          const result = await FacilityMeterEntriesController.editFacilityMeterEntryById(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+    }
+  
+    export async function  removeFacilityMeterEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+          // Get all result
+          const result = await FacilityMeterEntriesController.deleteFacilityMeterEntry(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+    }
+  
+    export async function  addNewMeterEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+  
+          const requestData = await request.json(); 
+  
+          // Get all result
+          const result = await FacilityMeterEntriesController.addNewEntry(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+    }
+
+
+    // Facility Characteristics
+
+
+  export async function  getFacilityCharacteristicsById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          // Get facility by Id
+          const result = await FacilityCharacteristicsController.getFacilityCharacteristicsById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+  
+  export async function  editFacilityCharacteristicsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+          // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+          const requestData = await request.json(); 
+  
+          // Get all result
+          const result = await FacilityCharacteristicsController.editFacilityDetailsById(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+  
+  export async function  addNewMCharacteristics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+  
+          const requestData = await request.json(); 
+  
+          // Get all result
+          const result = await FacilityCharacteristicsController.addFacilityCharacteristics(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+
+    // ADMIN Facility
+
+  export async function adminGetAllFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        const colName = request.query.get('col_name') || 'id';
+        const order = request.query.get('order') || 'ASC';
+        const status = request.query.get('status') || FACILITY_ID_SUBMISSION_STATUS.DRAFT;
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+          const {offset, limit} = request.params
+
+
+          const result = await AdminFacilityController.getFacility(decodedToken, Number(offset), Number(limit), Number(status), String(colName), String(order));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminGetFacilityById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+      try {
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          // Get facility by Id
+          const result = await AdminFacilityController.getFacilityById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminEditFacilityDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          // Get all result
+          const facility = await AdminFacilityController.editFacilityDetailsById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(facility);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminRemoveFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+          // Get all result
+          const result = await AdminFacilityController.deleteFacility(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminCreateNewFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        const requestData = await request.json(); 
+
+          // Get all result
+          const result = await AdminFacilityController.createNewFacility(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminFacilityStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+  try {
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+      // Get all result
+      const result = await AdminFacilityController.getCurrentStats(decodedToken, request);
+     
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+  } catch (error) {
+      // Return error response
+      return { status: 500, body: `${error.message}` };
+  }
+  }
+  
+
+  export async function  adminDashboradStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        // Get all result
+        const result = await AdminFacilityController.getDashboardStats(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+  
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+  }
+  
+  export async function  adminGetPaById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+          
+          // Get facility by Id
+          const result = await AdminFacilityController.getPaDataById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+
+  export async function  adminCreatePa(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        const requestData = await request.json(); 
+          
+          // Get facility by Id
+          const result = await AdminFacilityController.getPaData(decodedToken, request, Object(requestData));
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+  
+  export async function  adminEditPaById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+  
+          // Get all result
+          const result = await AdminFacilityController.signPaById(decodedToken, request);
+         
+          // Prepare response body
+          const responseBody = JSON.stringify(result);
+  
+          // Return success response
+          return { body: responseBody };
+      } catch (error) {
+          // Return error response
+          return { status: 500, body: `${error.message}` };
+      }
+  }
+  
 
 
 
 
 app.http(`facility-listing`, {
-    methods: ['GET'],
-    route: 'facility-listing/{offset}/{limit}',
-    authLevel: 'anonymous',
-    handler: getAllFacility
+  methods: ["GET"],
+  route: "facility-listing/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getAllFacility,
+});
+
+app.http("facility-details", {
+  methods: ["GET"],
+  route: "facility-details/{id}",
+  authLevel: "anonymous",
+  handler: getFacilityById,
+});
+
+app.http("edit-facility", {
+  methods: ["PATCH"],
+  route: "facility/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityDetailsById,
+});
+
+app.http("remove-facility", {
+  methods: ["DELETE"],
+  route: "facility/{id}",
+  authLevel: "anonymous",
+  handler: removeFacility,
+});
+
+app.http("facility", {
+  methods: ["POST"],
+  route: "facility",
+  authLevel: "anonymous",
+  handler: createNewFacility,
+});
+
+app.http("upload", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: postUploadAnyFile,
+});
+
+app.http("facility-submission", {
+  methods: ["POST"],
+  route: "facility-submission/{id}",
+  authLevel: "anonymous",
+  handler: submitForApprovalByUser,
+});
+
+app.http("facility-status", {
+  methods: ["GET"],
+  route: "facility-status/{id}",
+  authLevel: "anonymous",
+  handler: getCurrentStatusByUser,
+});
+
+app.http("edit-facility-status", {
+  methods: ["PATCH"],
+  route: "facility-status/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityStatusById,
+});
+
+// Facility Enerva
+
+app.http("approve-facility", {
+  methods: ["PATCH"],
+  route: "approve-facility/{id}",
+  authLevel: "anonymous",
+  handler: approveFacilityDetails,
+});
+
+// Facility Meter
+
+app.http(`facility-meter-listing`, {
+  methods: ["GET"],
+  route: "facility-meter-listing/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getFacilityMeterListing,
+});
+
+app.http("facility-meter-details", {
+  methods: ["GET"],
+  route: "facility-meter-details/{id}",
+  authLevel: "anonymous",
+  handler: getFacilityMeterById,
+});
+
+app.http("edit-facility-meter-details", {
+  methods: ["PATCH"],
+  route: "facility-meter/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityMeterDetailsById,
+});
+
+app.http("remove-facility-meter", {
+  methods: ["DELETE"],
+  route: "facility-meter/{id}",
+  authLevel: "anonymous",
+  handler: removeFacilityMeter,
+});
+
+app.http("facility-meter", {
+  methods: ["POST"],
+  route: "facility-meter",
+  authLevel: "anonymous",
+  handler: addNewMeterFacility,
+});
+
+app.http(`facility-meter-statistics`, {
+  methods: ["GET"],
+  route: "facility-meter-statistics",
+  authLevel: "anonymous",
+  handler: getFacilityMeterStatistics,
 });
 
 
-app.http('facility-details', {
-    methods: ['GET'],
-    route: 'facility-details/{id}',
-    authLevel: 'anonymous',
-    handler: getFacilityById
+
+// Facility Meter entries
+
+app.http(`facility-meter-entry-listing`, {
+  methods: ["GET"],
+  route: "facility-meter-entries/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getFacilityMeterEntriesListing,
 });
 
 
+app.http("edit-facility-meter-entries", {
+  methods: ["PATCH"],
+  route: "facility-meter-entry/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityMeterEntryDetailsById,
+});
 
-app.http('edit-facility', {
-    methods: ['PATCH'],
-    route: 'facility/{id}',
-    authLevel: 'anonymous',
-    handler: editFacilityDetailsById
+app.http("remove-facility-meter-entries", {
+  methods: ["DELETE"],
+  route: "facility-meter-entry/{id}",
+  authLevel: "anonymous",
+  handler: removeFacilityMeterEntry,
+});
+
+app.http("facility-meter-entry", {
+  methods: ["POST"],
+  route: "facility-meter-entry",
+  authLevel: "anonymous",
+  handler:  addNewMeterEntry,
 });
 
 
-app.http('remove-facility', {
-    methods: ['DELETE'],
-    route: 'facility/{id}',
-    authLevel: 'anonymous',
-    handler: removeFacility
+// Facility Charateristicks
+
+
+
+app.http("facility-characteristics-details", {
+  methods: ["GET"],
+  route: "facility-characteristics/{id}",
+  authLevel: "anonymous",
+  handler: getFacilityCharacteristicsById,
+});
+
+app.http("edit-facility-characteristics", {
+  methods: ["PATCH"],
+  route: "facility-characteristics/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityCharacteristicsById,
 });
 
 
-app.http('facility', {
-    methods: ['POST'],
-    route: 'facility',
-    authLevel: 'anonymous',
-    handler: createNewFacility
+app.http("facility-characteristics", {
+  methods: ["POST"],
+  route: "facility-characteristics",
+  authLevel: "anonymous",
+  handler: addNewMCharacteristics,
 });
 
 
-app.http('approve-facility', {
-    methods: ['PATCH'],
-    route: 'approve-facility/{id}',
-    authLevel: 'anonymous',
-    handler: approveFacilityDetails
+// Admin 
+
+app.http(`admin-facility-listing`, {
+  methods: ["GET"],
+  route: "program/facility-listing/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: adminGetAllFacility,
 });
 
-app.http('upload', {
-    methods: ['POST'],
-    authLevel: 'anonymous',
-    handler: postUploadAnyFile
-  });
+app.http("admin-facility-details", {
+  methods: ["GET"],
+  route: "program/facility-details/{id}",
+  authLevel: "anonymous",
+  handler: adminGetFacilityById,
+});
+
+app.http("admin-edit-facility", {
+  methods: ["PATCH"],
+  route: "program/facility/{id}",
+  authLevel: "anonymous",
+  handler: adminEditFacilityDetailsById,
+});
+
+app.http("admin-remove-facility", {
+  methods: ["DELETE"],
+  route: "program/facility/{id}",
+  authLevel: "anonymous",
+  handler: adminRemoveFacility,
+});
+
+app.http("admin-facility-creation", {
+  methods: ["POST"],
+  route: "program/facility",
+  authLevel: "anonymous",
+  handler: adminCreateNewFacility,
+});
+
+app.http("admin-facility-statistics", {
+  methods: ["GET"],
+  route: "program/facility-statistics",
+  authLevel: "anonymous",
+  handler: adminFacilityStatistics,
+});
+
+// pA
 
 
+app.http("create-pa-by", {
+  methods: ["POST"],
+  route: "pa-details",
+  authLevel: "anonymous",
+  handler: adminCreatePa,
+});
 
+app.http("get-pa-by-id", {
+  methods: ["GET"],
+  route: "pa-details/{id}",
+  authLevel: "anonymous",
+  handler: adminGetPaById,
+});
+
+app.http("sign-pa-by-id", {
+  methods: ["PATCH"],
+  route: "sign-pa/{id}",
+  authLevel: "anonymous",
+  handler: adminEditPaById,
+});
+
+app.http("admin-dashboard-statistics", {
+  methods: ["GET"],
+  route: "dashboard/statistics",
+  authLevel: "anonymous",
+  handler: adminDashboradStatistics,
+});
+
+app.http("admin-dashboard-statistics-1", {
+  methods: ["GET"],
+  route: "dashboard/statistics1",
+  authLevel: "anonymous",
+  handler: adminDashboradStatistics,
+});

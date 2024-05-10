@@ -1,19 +1,46 @@
 export const FACILITY_ID_GENERAL_STATUS = {
-   INITIAL : 0,
-   APPROVED: 1
+   DRAFT : 0,
+   CREATE_FACILIY: 1,
+   ENETR_FACILITY_DATA:2,
+   SUBMIT_FACILITY:3,
+   ACCEPT_BASELINE_MODEL:4,
+   PROGRAM_START:5
 };
 
 export const FACILITY_ID_SUBMISSION_STATUS = {
-    INITIAL : 0,
-    APPROVED: 1
+   DRAFT : 0,
+   READY_FOR_SUBMISSION: 1,
+   SUBMITTED: 2,
+   IN_REVIEW: 3,
+   BASELINE_APPROVED : 4,
+   APPROVED: 5,
+   REJECTED: 6
  };
 
  export const FACILITY_APPROVAL_STATUS = {
-    INITIAL : true,
-    APPROVED: false
+    INITIAL : false,
+    APPROVED: true,
  };
 
  export const FACILITY_TYPE = {
     CUSTOMER : 1,
     AGGREGATOR : 2
  };
+
+ export const FACILITY_CONSTRUCTION_STATUS = {
+   EXISTING : 1,
+   NEW_CONSTRUCTION : 2,
+   TEST_FACILITy : 3,
+ }
+
+ export const FACILITY_METER_TYPE = {
+   ELECTRICITY : 1,
+   WATER : 2,
+   NATURAL_GAS : 3,
+ }
+
+ export const FACILITY_METER_TYPE_TEXT = {
+   ELECTRICITY : "Electricity",
+   WATER : "Water",
+   NATURAL_GAS : "Natural Gas",
+ }

@@ -1,21 +1,40 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../utils/database';
-import { UserAttributes } from '../interfaces/user';
+//import { UserAttributes } from 'enerva-utils/interfaces/user';
 import { isStrongPassword } from 'validator'; // Importing validator library for password complexity check
-
+ 
+ 
+interface UserAttributes {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  landline: number | null;
+  phonenumber: number;
+  address: string;
+  status: string;
+  type: number;
+  is_active: number;
+}
+ 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
-
-class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+ 
+class User extends Model<UserCreationAttributes>{
   public id!: number;
   public first_name!: string;
   public last_name!: string;
   public email!: string;
   public password!: string;
-  public landline!: number | null;
+  public landline: string | null;
   public phonenumber!: number;
-  public address!: string;
+  public address: string;
+  public status!: string;
+  public type!: number;
+  public is_active!: number;
+ 
 }
-
+ 
 User.init(
   {
     id: {
@@ -56,60 +75,47 @@ User.init(
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Password is required.',
-        },
-        len: {
-          args: [8, 255],
-          msg: 'Password must be between 8 and 255 characters long.',
-        },
-        isStrongPassword(value: string) {
-          if (!isStrongPassword(value, { minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })) {
-            throw new Error('Password must have at least one uppercase, one lowercase, one number, and one special character.');
-          } else {
-            return true;
-          }
-        },
-      },
+      allowNull: true,
     },
     landline: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      validate: {
-        isNumeric: {
-          msg: 'Landline must be a number.',
-        },
-      },
+      type: DataTypes.STRING,
+      allowNull: true
     },
     phonenumber: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: {
-        isNumeric: {
-          msg: 'Phone number must be numeric.',
-        },
-        len: {
-          args: [10, 15],
-          msg: 'Phone number must be between 10 and 15 digits.',
-        },
-      },
+      // validate: {
+      //   isNumeric: {
+      //     msg: 'Phone number must be numeric.',
+      //   },
+      //   len: {
+      //     args: [10, 15],
+      //     msg: 'Phone number must be between 10 and 15 digits.',
+      //   },
+      // },
     },
     address: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Address is required.',
-        },
-      },
+      allowNull: true
     },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    type: {
+      type: DataTypes.NUMBER,
+      allowNull: false
+    },
+    is_active: {
+      type: DataTypes.NUMBER,
+      allowNull: true
+    }
+   
   },
   {
     sequelize,
     tableName: 'users',
   }
 );
-
+ 
 export { User };

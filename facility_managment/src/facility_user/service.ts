@@ -1,18 +1,44 @@
-import { IUserToken } from './enerva-utils/interfaces/usertoken.interface';
-import { ResponseHandler } from './enerva-utils/utils/responseHandler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from './enerva-utils/utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from './enerva-utils/utils/facility_status';
-import { Facility } from './enerva-utils/models/facility.model';
+import { IUserToken } from '../enerva-utils/interfaces/usertoken.interface';
+import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../enerva-utils/utils/status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../enerva-utils/utils/facility_status';
+import { Facility } from '../enerva-utils/models/facility.model';
+import { IBaseInterface } from '../enerva-utils/interfaces/baseline.interface';
+import { Op } from 'sequelize';
 
 
 export class FacilityService {
 
 
-  static async getFacilities(userToken: IUserToken, offset:number, limit:number): Promise<Facility[]> {
+  static async getFacility(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string): Promise<Facility[]> {
+
     try {
-      const result = await Facility.findAll({offset:offset, limit:limit})    
+    // const result = await Facility.findAndCountAll({where:{is_active:STATUS.IS_ACTIVE},offset:offset, limit:limit, order: [[colName, order]]})  
+    const result = await Facility.findAndCountAll({
+      where: {
+          created_by: userToken.id,
+          is_active: STATUS.IS_ACTIVE,
+          [Op.or]: [
+              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { city: { [Op.iLike]: `%${searchPromt}%` } },
+              { country: { [Op.iLike]: `%${searchPromt}%` } }
+          ]
+      },
+      offset: offset,
+      limit: limit,
+      order: [[colName, order]]
+  });  
+
+  if(result){
     const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
     return resp;
+  }else{
+    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
+    return resp;
+  }
+   
       
     } catch (error) {
       throw error;
@@ -21,7 +47,7 @@ export class FacilityService {
     
   }
 
-  static async getFacilitieById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+  static async getFacilityById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
     try {
       const result = await Facility.findOne({where:{id:facilityId, is_active: STATUS.IS_ACTIVE}})
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
@@ -34,7 +60,7 @@ export class FacilityService {
    
   }
 
-  static async createFacilitie(userToken: IUserToken, body:any): Promise<Facility[]> {
+  static async createFacility(userToken: IUserToken, body:IBaseInterface): Promise<Facility[]> {
     try {
       const obj = {
         facility_construction_status: body.facility_construction_status,
@@ -59,8 +85,8 @@ export class FacilityService {
         occupancy: body.occupancy,
         number_of_building: body.number_of_building,
         company_id: body.company_id,
-        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.INITIAL),
-        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.INITIAL),
+        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
+        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION),
         ng_distribution_company: body.ng_distribution_company,
         ng_distribution_company_data_extraction:body.ng_distribution_company_data_extraction,
         longitude: body.longitude,
@@ -69,49 +95,18 @@ export class FacilityService {
         facility_bas_connectivity: body.facility_bas_connectivity,
         is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
         is_active: STATUS.IS_ACTIVE,
-        created_by: userToken.userId,
-        updated_by: userToken.userId
-  
-        // facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.INITIAL),
-        // facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.INITIAL),
-        // facility_name: body.facility_name,
-        // address: body.address,
-        // city: body.city,
-        // postal_code: body.postalcode,
-        // province: body.province,
-        // sector: body.sector,
-        // ng_distribution_company: body.ng_distribution_company,
-        // ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
-        // primary_facility_type: body.facility_type,
-        // all_facility_types: body.all_facility_types,
-        // year_built: body.year_built,
-        // floor_count: body.floor_count,
-        // facility_gfa: body.facility_gfa,
-        // facility_occupied_gfa: body.facility_occupied_gfa,
-        // facility_unoccupied_gfa: body.facility_unoccupied_gfa,
-        // longitude: body.longitude,
-        // latitude: body.latitude,
-        // facility_bas: body.facility_bas,
-        // facility_bas_connectivity: body.facility_bas_connectivity,
-        // is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
-        // is_active: STATUS.IS_ACTIVE,
-        // created_by: userToken.userId,
-        // updated_by: userToken.userId
+        created_by: userToken.id,
+        updated_by: userToken.id
       };
-  
-      
-   
       const result = await Facility.create(obj);
       return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
-  
-      
     } catch (error) {
       throw error;
     }
 
   }
 
-  static async editFacilitie(userToken: IUserToken, body:any, facilityId:number): Promise<Facility[]> {
+  static async editFacility(userToken: IUserToken, body:IBaseInterface, facilityId:number): Promise<Facility[]> {
     try {
       const obj = {
         facility_construction_status: body.facility_construction_status,
@@ -136,8 +131,8 @@ export class FacilityService {
         occupancy: body.occupancy,
         number_of_building: body.number_of_building,
         company_id: body.company_id,
-        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.INITIAL),
-        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.INITIAL),
+        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
+        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
         ng_distribution_company: body.ng_distribution_company,
         ng_distribution_company_data_extraction:body.ng_distribution_company_data_extraction,
         longitude: body.longitude,
@@ -146,7 +141,7 @@ export class FacilityService {
         facility_bas_connectivity: body.facility_bas_connectivity,
         is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
         is_active: STATUS.IS_ACTIVE,
-        updated_by: userToken.userId,
+        updated_by: userToken.id,
         updated_at : new Date()
         };
       const result = await Facility.update(obj,{where:{id:facilityId}})
@@ -161,9 +156,9 @@ export class FacilityService {
    
   }
 
-  static async deleteFacilitie(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+  static async deleteFacility(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
     try {
-      const result = await Facility.update({is_active:0} ,{where:{id:facilityId}})
+      const result = await Facility.update({is_active:STATUS.IS_DELETED} ,{where:{id:facilityId}})
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
       
@@ -173,15 +168,14 @@ export class FacilityService {
     }
    
   }
-
-  static async enervaApproveFacilitieById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+  
+  static async submitForapprovalByUser(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
     try {
       
       const obj = {
-        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.APPROVED, 
+        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.SUBMITTED, 
         is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
         is_active: Number(STATUS.IS_ACTIVE),
-        approved_by: userToken.userId, 
       }
       const result = await Facility.update(obj,{where:{id:facilityId}})
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
@@ -193,6 +187,37 @@ export class FacilityService {
    
   }
 
+  static async getCurrentStatusOfFacility(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+    try {
+      
+      const result = await Facility.findOne({where:{id:facilityId}, attributes: ['id', 'naic_code', 'facility_id_general_status']})
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      return resp;
+    } catch (error) {
+      throw error;
+      
+    }
+  }
 
+  static async editStatusOfFacility(userToken: IUserToken, body:IBaseInterface, facilityId:number): Promise<Facility[]> {
+    try {
+      const obj = {
+        facility_id_general_status: Number(body.facility_id_general_status),
+        updated_by: userToken.id,
+        updated_at : new Date()
+        };
+      const result =  await Facility.update(obj,{where:{id:facilityId}} )
+  
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      return resp;
+      
+    } catch (error) {
+      throw error;
+    }
+   
+  }
+
+
+ 
   
 }

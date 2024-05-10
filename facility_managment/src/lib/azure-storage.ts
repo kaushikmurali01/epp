@@ -6,6 +6,7 @@ import {
     SASProtocol,
     StorageSharedKeyCredential
   } from '@azure/storage-blob';
+import { PDFDocument } from 'pdf-lib';
 
   
   
@@ -67,3 +68,5 @@ import {
   
     return accountSasTokenUrl;
   }
+
+ 

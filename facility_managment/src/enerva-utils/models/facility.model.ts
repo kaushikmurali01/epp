@@ -1,10 +1,11 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../utils/database';
+import { IFacilityAttributes } from '../interfaces/facility.interface';
 
 
-interface FacilityCreationAttributes extends Optional<any, 'id'> {}
+interface FacilityCreationAttributes extends Optional<IFacilityAttributes, 'id'> {}
 
-class Facility extends Model<any, FacilityCreationAttributes> implements FacilityCreationAttributes  {
+class Facility extends Model<IFacilityAttributes, FacilityCreationAttributes> implements IFacilityAttributes  {
     public id!: number;
     public facility_construction_status!:number
     public facility_name!: string;
@@ -43,6 +44,12 @@ class Facility extends Model<any, FacilityCreationAttributes> implements Facilit
 	public updated_at!: Date;
 	public created_by!: number;
 	public updated_by!: number;
+
+    public total_electricity_savings!: number;
+    public energy_savings!: number;
+    public total_incentive_earned!: number;
+    public benchmarking_eui!: number;
+    public facility_nickname!: string;
 
 
 
@@ -204,7 +211,24 @@ Facility.init(
         },
         updated_by: {
             type: DataTypes.INTEGER,
+        },
+
+        total_electricity_savings: {
+            type: DataTypes.INTEGER,
+        },
+        energy_savings: {
+            type: DataTypes.INTEGER,
+        },
+        total_incentive_earned: {
+            type: DataTypes.INTEGER,
+        },
+        benchmarking_eui: {
+            type: DataTypes.INTEGER,
+        },
+        facility_nickname: {
+            type: DataTypes.STRING(255)
         }
+
     },
     {
         sequelize,
