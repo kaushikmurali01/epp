@@ -38,7 +38,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState();
   const [meterAlignment, setMeterAlignment] = useState(1);
-  const [revenueAlignment, setRevenueAlignment] = useState("no");
+  const [revenueAlignment, setRevenueAlignment] = useState(false);
 
   useEffect(() => {
     if (meterId2) {
@@ -57,7 +57,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                 : "",
           });
           setMeterAlignment(meterDetails?.meter_type);
-          setRevenueAlignment(meterDetails?.is_rg_meter ? "yes" : "no");
+          setRevenueAlignment(meterDetails?.is_rg_meter);
           setSelectedFile(meterDetails?.meter_specification_url);
         })
         .catch((error) => {
@@ -102,7 +102,6 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       ...values,
       meter_specification_url: imgUrl,
       facility_id: +id,
-      is_rg_meter: values?.is_rg_meter === "yes" ? true : false,
       meter_inactive: values?.stil_in_use
         ? null
         : new Date(values?.meter_inactive),
@@ -278,13 +277,13 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No
