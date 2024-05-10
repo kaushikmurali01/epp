@@ -1,32 +1,20 @@
-import { Box, Button, Grid, Typography, useMediaQuery } from "@mui/material";
-import InputField from "components/FormBuilder/InputField";
-import SelectBox from "components/FormBuilder/Select";
-import { Form, Formik } from "formik";
-import React from "react";
-import { validationSchemaFacilitySummary } from "utils/validations/formValidation";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
+import { PowerBIEmbed } from "powerbi-client-react";
+import { models } from "powerbi-client";
+import { useSelector } from "react-redux";
 
 const Summary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const initialValues = {
-    yearOfConstruction: "",
-    grossFloorArea: "",
-    numberOfStoreys: "",
-    occupancy: "",
-    numberOfBuildings: "",
-    company: "",
-    facilityName: "",
-    unitNumber: "",
-    streetNumber: "",
-    streetName: "",
-    city: "",
-    province: "",
-    postalCode: "",
-    facilityCategory: "",
-    facilityType: "",
-    naicCode: "",
-  };
-
-  const handleSubmit = (values) => {};
+  const facilityData = useSelector(
+    (state) => state?.facilityReducer?.facilityStatus?.data
+  );
 
   return (
     <Box
@@ -36,149 +24,108 @@ const Summary = () => {
         marginTop: isSmallScreen && "2rem",
       }}
     >
-      <Formik
-        initialValues={{ ...initialValues }}
-        validationSchema={validationSchemaFacilitySummary}
-        onSubmit={handleSubmit}
-      >
-        <Form>
+      <Grid container>
+        <Grid item>
+          <Box
+            sx={{
+              cursor: "default",
+              borderRadius: "2rem",
+              background: "#EBEBEB",
+              border: "1px solid #D0D0D0",
+              textWrap: "nowrap",
+              padding: "0.375rem 1rem",
+            }}
+          >
+            <Typography variant="small">Summary</Typography>
+          </Box>
+        </Grid>
+        <Grid container mt={3}>
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
               flexDirection: isSmallScreen ? "column" : "row",
             }}
           >
             <Box
               sx={{
-                cursor: "default",
-                borderRadius: "2rem",
-                background: "#EBEBEB",
-                border: "1px solid #D0D0D0",
-                textWrap: "nowrap",
-                padding: "0.375rem 1rem",
+                borderRight: !isSmallScreen && "1px solid #DDDDDD",
+                padding: "0 20px 0 0",
               }}
             >
-              <Typography variant="small">Performance Summary</Typography>
+              <Typography variant="small">NAIC’s Code</Typography>
+              <Typography variant="h6" gutterBottom>
+                {facilityData?.naic_code}
+              </Typography>
             </Box>
+
             <Box
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginTop: isSmallScreen && "1.5rem",
+                paddingLeft: !isSmallScreen && "20px",
+                marginTop: isSmallScreen && "20px",
               }}
             >
-              <Box
-                sx={{
-                  cursor: "default",
-                  borderRadius: "2rem",
-                  background: "#D8FFDC",
-                  textWrap: "nowrap",
-                  padding: "0.375rem 1rem",
-                }}
-              >
-                <Typography variant="small">
-                  status:{" "}
-                  <Typography variant="span" sx={{ color: "text.primary" }}>
-                    Completed
-                  </Typography>
-                </Typography>
-              </Box>
-              <Button variant="contained" sx={{ marginLeft: "2rem" }}>
-                Save
-              </Button>
+              <Typography variant="small">Facility Category</Typography>
+              <Typography variant="h6" gutterBottom>
+                {facilityData?.facility_category}
+              </Typography>
             </Box>
           </Box>
-          <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="yearOfConstruction"
-                  label="Year of construction"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="grossFloorArea"
-                  label="Gross floor area"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="numberOfStoreys" label="Number of storeys" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="occupancy" label="Occupancy" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={8}>
-                <SelectBox
-                  label="How many physical buildings do you consider part of your property?"
-                  name="numberOfBuildings"
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="company" label="Company" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="facilityName"
-                  label="Facility Name/Nick Name"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={3}>
-                <InputField name="unitNumber" label="Unit Number" type="text" />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <InputField
-                  name="streetNumber"
-                  label="Street Number"
-                  type="text"
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField name="streetName" label="Street Name" type="text" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <InputField name="city" label="City" type="text" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <InputField name="province" label="Province" type="text" />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <InputField name="postalCode" label="Postal Code" type="text" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="facilityCategory" label="Facility Category" />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="facilityType" label="Facility Type" />
-              </Grid>
-            </Grid>
-            <Grid container spacing={4}>
-              <Grid item xs={12} sm={4}>
-                <SelectBox name="naicsCode" label="NAIC's Code" />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Form>
-      </Formik>
+        </Grid>
+      </Grid>
+      <Grid>
+        <Box id="bi-report" mt={4}>
+          <PowerBIEmbed
+            embedConfig={{
+              type: "report",
+              id: "a4beb0d6-3454-425f-ac0c-9b96429bc422",
+              embedUrl:
+                "https://app.powerbi.com/reportEmbed?reportId=a4beb0d6-3454-425f-ac0c-9b96429bc422&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUVBU1QtQVNJQS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
+              accessToken: process.env.REACT_APP_POWERBI_TOKEN,
+              tokenType: models.TokenType.Aad,
+              settings: {
+                panes: {
+                  filters: {
+                    expanded: false,
+                    visible: false, // Hide the filter pane
+                  },
+                  pageNavigation: {
+                    visible: false, // Hide the page navigation
+                  },
+                },
+                background: models.BackgroundType.Transparent,
+              },
+            }}
+            eventHandlers={
+              new Map([
+                [
+                  "loaded",
+                  function () {
+                    console.log("Report loaded");
+                  },
+                ],
+                [
+                  "rendered",
+                  function () {
+                    console.log("Report rendered");
+                  },
+                ],
+                [
+                  "error",
+                  function (event) {
+                    console.log(event.detail);
+                  },
+                ],
+                ["visualClicked", () => console.log("visual clicked")],
+                ["pageChanged", (event) => console.log(event)],
+              ])
+            }
+            cssClassName={"bi-embedded"}
+            getEmbeddedComponent={(embeddedReport) => {
+              window.report = embeddedReport;
+            }}
+          />
+        </Box>
+      </Grid>
     </Box>
   );
 };

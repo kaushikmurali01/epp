@@ -101,6 +101,8 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
+  meter_id: Yup.string().required("Meter Id is required"),
+
 });
 
 export const validationSchemaEntry = Yup.object().shape({

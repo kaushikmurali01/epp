@@ -1,89 +1,90 @@
 export const facilityEndPoints = {
-  ADD_EDIT_FACILITY: "/company-facility/v1/facility",
-  FACILITY_LIST: "/company-facility/v1/facility-listing",
-  GET_FACILITY_BY_ID: "/company-facility/v1/facility-details",
-  SUBMIT_FACILITY_FOR_APPROVAL: "/company-facility/v1/facility-submission",
-  GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
-  ADD_METER: "/company-facility/v1/facility-meter",
-  DELETE_FACILITY: "/company-facility/v1/facility",
-  ADD_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
-  GET_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
-  UPDATE_FACILITY_CHARACTERISTIC:
-    "/company-facility/v1/facility-characteristics",
-  GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
-  UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
-};
-
-export const PA_MANAGEMENT = {
-  GET_PA_DATA: "/company-facility/v1/pa-details",
-  CREATE_PA: "/company-facility/v1/pa-details",
-  SIGN_PA: "company-facility/v1/sign-pa",
-};
-
-export const USER_MANAGEMENT = {
-  // GET REQUEST
-  GET_USER_LIST: "/enerva-user/v1/combinedusers",
-  GET_USER_ROLE: "/enerva-user/v1/roles",
-  GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
-  // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
-  GET_COMPANY_LIST: "/enerva-user/v1/companies",
-  GET_USER_PERMISSONS_BY_ID: 'enerva-user/v1/user/permissions',
-  // POST REQUEST
-  SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
-  JOIN_REQUEST: "/enerva-user/v1/createrequest",
-  ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
-  REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
-  // DELETE REQUEST
-  DELETE_USER_REQUEST: "enerva-user/v1/users",
-  // EDIT REQUEST
-  EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign",
-  GET_USER_DETAILS: 'enerva-user/v1/user',
-  EDIT_PROFILE: 'enerva-user/v1/users'
-
-};
-
-export const ENERVA_USER_MANAGEMENT = {
-  GET_ENERVA_USER_LIST: '/enerva-user/v1/enerva',
-  GET_IESO_USER_LIST: '/enerva-user/v1/ieso',
-  GET_CUSTOMER_USER_LIST: 'enerva-user/v1/customer',
-  GET_AGGREGATOR_USER_LIST: '',
-
-  GET_EV_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/adrolepermission",
-
-  GET_EV_USER_PERMISSONS_BY_ID: '',
-  // POST REQUEST
-  SEND_EV_INVITATION_BY_ADMIN: "",
-  JOIN_EV_REQUEST: "",
-  ACCEPT_EV_USER_REQUEST: "",
-  REJECT_EV_USER_REQUEST: "",
-  // DELETE REQUEST
-  DELETE_EV_USER_REQUEST: "",
-  // EDIT REQUEST
-  EDIT_EV_INVITATION_BY_ADMIN: ""
-}
-
-export const LANDING_PAGE = {
-  CONTACT_US_FORM: "/public-api/v1/contact",
-  GET_NEWS: "/public-api/v1/news",
-};
-export const meterEndPoints = {
-  ADD_METER: "/company-facility/v1/facility-meter",
-  METER_LIST: "/company-facility/v1/facility-meter-listing",
-  GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
-  UPDATE_METER: "/company-facility/v1/facility-meter",
-  DELETE_METER: "/company-facility/v1/facility-meter",
-};
-
-export const imageUploadEndPoints = {
-  IMAGE_UPLOAD: "/company-facility/v1/upload",
-};
-
-export const entriesEndPoints = {
-  ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
-  ADD_EDIT_ENTRY: "/company-facility/v1/facility-meter-entry",
-  DELETE_ENTRY: "/company-facility/v1/facility-meter-entry",
-};
-
-export const fileUploadEndPoints = {
-  FILE_UPLOAD: "company-facility/v1/upload",
-};
+    ADD_EDIT_FACILITY: "/company-facility/v1/facility",
+    FACILITY_LIST: "/company-facility/v1/facility-listing",
+    GET_FACILITY_BY_ID: "/company-facility/v1/facility-details",
+    SUBMIT_FACILITY_FOR_APPROVAL: "/company-facility/v1/facility-submission",
+    GET_FACILITY_DETAILS: "/company-facility/v1/facility-details",
+    ADD_METER: "/company-facility/v1/facility-meter",
+    DELETE_FACILITY: "/company-facility/v1/facility",
+    ADD_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+    GET_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+    UPDATE_FACILITY_CHARACTERISTIC:
+      "/company-facility/v1/facility-characteristics",
+    GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
+    UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  };
+  
+  export const PA_MANAGEMENT = {
+    GET_PA_DATA: "/company-facility/v1/pa-details",
+    CREATE_PA: "/company-facility/v1/pa-details",
+    SIGN_PA: "company-facility/v1/sign-pa",
+  };
+  
+  export const USER_MANAGEMENT = {
+    // GET REQUEST
+    GET_USER_LIST: "/enerva-user/v1/combinedusers",
+    GET_USER_ROLE: "/enerva-user/v1/roles",
+    GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
+    // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
+    GET_COMPANY_LIST: "/enerva-user/v1/companies",
+    GET_USER_PERMISSONS_BY_ID: 'enerva-user/v1/user/permissions',
+    // POST REQUEST
+    SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
+    JOIN_REQUEST: "/enerva-user/v1/createrequest",
+    ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
+    REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
+    // DELETE REQUEST
+    DELETE_USER_REQUEST: "enerva-user/v1/users",
+    // EDIT REQUEST
+    EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign",
+    GET_USER_DETAILS: 'enerva-user/v1/user',
+    EDIT_PROFILE: 'enerva-user/v1/users'
+  
+  };
+  
+  export const ENERVA_USER_MANAGEMENT = {
+    GET_ENERVA_USER_LIST: '/enerva-user/v1/enerva',
+    GET_IESO_USER_LIST: '/enerva-user/v1/ieso',
+    GET_CUSTOMER_USER_LIST: 'enerva-user/v1/customer',
+    GET_AGGREGATOR_USER_LIST: '',
+  
+    GET_EV_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/adrolepermission",
+  
+    GET_EV_USER_PERMISSONS_BY_ID: '',
+    // POST REQUEST
+    SEND_EV_INVITATION_BY_ADMIN: "",
+    JOIN_EV_REQUEST: "",
+    ACCEPT_EV_USER_REQUEST: "",
+    REJECT_EV_USER_REQUEST: "",
+    // DELETE REQUEST
+    DELETE_EV_USER_REQUEST: "",
+    // EDIT REQUEST
+    EDIT_EV_INVITATION_BY_ADMIN: ""
+  }
+  
+  export const LANDING_PAGE = {
+    CONTACT_US_FORM: "/public-api/v1/contact",
+    GET_NEWS: "/public-api/v1/news",
+  };
+  export const meterEndPoints = {
+    ADD_METER: "/company-facility/v1/facility-meter",
+    METER_LIST: "/company-facility/v1/facility-meter-listing",
+    GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
+    UPDATE_METER: "/company-facility/v1/facility-meter",
+    DELETE_METER: "/company-facility/v1/facility-meter",
+  };
+  
+  export const imageUploadEndPoints = {
+    IMAGE_UPLOAD: "/company-facility/v1/upload",
+  };
+  
+  export const entriesEndPoints = {
+    ENTRIES_LIST: "/company-facility/v1/facility-meter-entries",
+    ADD_EDIT_ENTRY: "/company-facility/v1/facility-meter-entry",
+    DELETE_ENTRY: "/company-facility/v1/facility-meter-entry",
+  };
+  
+  export const fileUploadEndPoints = {
+    FILE_UPLOAD: "company-facility/v1/upload",
+  };
+  
