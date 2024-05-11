@@ -67,9 +67,10 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
 export async function ListCompanies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { offset, limit } = request.params;
+        const searchPromt = request.query.get('search' || "");
 
         // Get all companies
-        const companies = await CompanyController.listCompanies(offset, limit);
+        const companies = await CompanyController.listCompanies(offset, limit,searchPromt);
        
         // Prepare response body
         const responseBody = JSON.stringify(companies);
