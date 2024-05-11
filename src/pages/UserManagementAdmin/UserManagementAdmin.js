@@ -86,6 +86,9 @@ const UserManagementAdmin = () => {
   const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
   const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
+// for pagination
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageCount, setPageCount] = useState('');
 
 
   const handleSelectChange = (event) => {
@@ -175,6 +178,7 @@ const UserManagementAdmin = () => {
       .then((res) => {
         console.log(res, "Enerva user management");
         setEnervaUser(res.data)
+        
       }).catch((error) => {
         console.log(error)
       });
@@ -279,7 +283,7 @@ const UserManagementAdmin = () => {
                 <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management </Typography>
                 <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
               </Grid>
-              <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
+              <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
                 <FormGroup sx={{ flexGrow: '1' }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
@@ -358,7 +362,11 @@ const UserManagementAdmin = () => {
 
               </Grid>
               {(getEnervaUser && tabValue === 'enervaUsers') &&
-                  <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="#D9D9D9" />
+                  <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="#D9D9D9" 
+                  count={pageCount}
+                  pageInfo={pageInfo}
+                  setPageInfo={setPageInfo}
+                  />
               }
               {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="#D9D9D9" />}
               {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="#D9D9D9" />}

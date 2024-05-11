@@ -34,7 +34,7 @@ export const USER_MANAGEMENT = {
   ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
   REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
   // DELETE REQUEST
-  DELETE_USER_REQUEST: "enerva-user/v1/users",
+  DELETE_USER_REQUEST: "/enerva-user/v1/users",
   // EDIT REQUEST
   EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign"
 };
@@ -42,12 +42,12 @@ export const USER_MANAGEMENT = {
 export const ENERVA_USER_MANAGEMENT = {
   GET_ENERVA_USER_LIST: '/enerva-user/v1/enerva',
   GET_IESO_USER_LIST: '/enerva-user/v1/ieso',
-  GET_CUSTOMER_USER_LIST: 'enerva-user/v1/customer',
+  GET_CUSTOMER_USER_LIST: '/enerva-user/v1/customer',
   GET_AGGREGATOR_USER_LIST: '',
 
   GET_EV_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/program/rolepermission",
 
-  GET_EV_USER_PERMISSONS_BY_ID: '',
+  GET_EV_USER_PERMISSONS_BY_ID: '/enerva-user/v1/program/user/permissions',
   // POST REQUEST
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
   JOIN_EV_REQUEST: "",

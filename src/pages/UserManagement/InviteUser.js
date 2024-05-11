@@ -53,9 +53,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
     const getPermissionList = (permission_id) => {
-        // if(invitePageInfo?.type !== null) {
-        //     requestBody.type = invitePageInfo?.type;
-        // }
+       //check if we have type or not in page info, if we have type then it is user management admin page
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
@@ -84,6 +82,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 "permissions": permissionIds,
                 "entry_type": selectTableRow.entry_type
             }
+              //  for enverva admin types
+              if(invitePageInfo?.type !== null) {
+                    requestBody.type = invitePageInfo?.type;
+                }
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
 
@@ -127,7 +129,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
+        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
