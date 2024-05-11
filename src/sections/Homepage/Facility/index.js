@@ -45,7 +45,7 @@ const FacilityPage = () => {
     GET_REQUEST(facilityEndPoints.ADMIN_FACILITY_LIST + "/" + pageInfo.page + "/" + pageInfo.pageSize)
       .then((response) => {
         if (response.data.statusCode == 200) {
-          const filteredApprovedData = response.data.data.rows.filter(item => item.facility_id_submission_status == 0);
+          const filteredApprovedData = response.data.data.rows.filter(item => item.facility_id_submission_status == 5);
           setApprovedDataList(filteredApprovedData);
           const filteredInReviewData = response.data.data.rows.filter(item => item.facility_id_submission_status == 3);
           setInReviewList(filteredInReviewData);
