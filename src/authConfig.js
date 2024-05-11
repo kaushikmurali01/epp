@@ -18,16 +18,16 @@ export const b2cPolicies = {
     },
     authorities: {
         signUpSignIn: {
-            authority: 'https://enervadev.b2clogin.com/enervadev.onmicrosoft.com/B2C_1_SignUpSignIn'
+            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_SignUpSignIn`
         },
         forgotPassword: {
-            authority: 'https://enervadev.b2clogin.com/enervadev.onmicrosoft.com/B2C_1_reset_v3',
+            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_reset_v3`,
         },
         editProfile: {
-            authority: 'https://enervadev.b2clogin.com/enervadev.onmicrosoft.com/b2c_1_edit_profile_v2',
+            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/b2c_1_edit_profile_v2`,
         },
     },
-    authorityDomain: 'enervadev.b2clogin.com'
+    authorityDomain: `${process.env.REACT_APP_AZURE_ENV}.b2clogin.com`
 };
 
 
@@ -36,7 +36,7 @@ export const b2cPolicies = {
  * For a full list of MSAL.js configuration parameters, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
-console.log("process.env 06th May 2024, 09:00 PM", process.env.REACT_APP_REDIRECT_URI)
+console.log("process.env 11th May 2024, 12:00 AM", process.env.REACT_APP_REDIRECT_URI)
 export const msalConfig = {
     auth: {
         clientId: process.env.REACT_APP_AZURE_B2C_CLIENT_ID, // This is the ONLY mandatory field that you need to supply.
