@@ -30,7 +30,7 @@ export const USER_MANAGEMENT = {
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
   // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
-  GET_USER_PERMISSONS_BY_ID: 'enerva-user/v1/user/permissions',
+  GET_USER_PERMISSONS_BY_ID: '/enerva-user/v1/user/permissions',
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -48,18 +48,18 @@ export const ENERVA_USER_MANAGEMENT = {
   GET_CUSTOMER_USER_LIST: 'enerva-user/v1/customer',
   GET_AGGREGATOR_USER_LIST: '',
 
-  GET_EV_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/adrolepermission",
+  GET_EV_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/program/rolepermission",
 
   GET_EV_USER_PERMISSONS_BY_ID: '',
   // POST REQUEST
-  SEND_EV_INVITATION_BY_ADMIN: "",
+  SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
   JOIN_EV_REQUEST: "",
   ACCEPT_EV_USER_REQUEST: "",
   REJECT_EV_USER_REQUEST: "",
   // DELETE REQUEST
   DELETE_EV_USER_REQUEST: "",
   // EDIT REQUEST
-  EDIT_EV_INVITATION_BY_ADMIN: ""
+  EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/assign"
 }
 
 export const LANDING_PAGE = {
@@ -87,3 +87,4 @@ export const entriesEndPoints = {
 export const fileUploadEndPoints = {
   FILE_UPLOAD: "company-facility/v1/upload",
 };
+

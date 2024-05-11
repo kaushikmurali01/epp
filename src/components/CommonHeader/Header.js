@@ -15,6 +15,7 @@ import Menu from "@mui/material/Menu";
 import Avatar from "@mui/material/Avatar";
 import Tooltip from "@mui/material/Tooltip";
 import AdbIcon from "@mui/icons-material/Adb";
+import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
@@ -23,6 +24,7 @@ import { Link } from "@mui/material";
 const settings = ["Profile", "Logout"];
 
 function Header(props) {
+  const navigate = useNavigate()
   const [open, setOpen] = React.useState(false);
   const {instance} = useMsal();
 
@@ -67,6 +69,9 @@ function Header(props) {
     if(setting == 'Logout'){
       //logout from the application with msal instance
       instance.logoutRedirect()
+    }
+    else if(setting == 'Profile'){
+      navigate("/admin/profile")
     }
   }
 

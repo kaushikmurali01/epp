@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     Box,
     Checkbox,
@@ -28,6 +28,7 @@ const UserManagementColumn = () => {
         cursor: 'pointer',
 
     }
+    const [isChecked, setIsChecked] = useState(false)
 
     const DeleteModelContent = () => {
         return (
@@ -45,7 +46,7 @@ const UserManagementColumn = () => {
                 </Grid>
                 <Grid item>
                     <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                     <Checkbox id="receiveCopy" />
+                     <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
                     <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
                     </FormGroup>
                 </Grid>
@@ -53,8 +54,9 @@ const UserManagementColumn = () => {
         )
     }
 
+    console.log(isChecked, "isChecked")
 
-    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo) => [
+    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
         {
             Header: "Name",
             accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
@@ -66,7 +68,7 @@ const UserManagementColumn = () => {
         },
         {
             Header: "Facility",
-            accessor: "first_name",
+            accessor: "facility",
         },
         {
             Header: "Role Type",
@@ -98,7 +100,7 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo)}>
+                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                         Manage permission
                     </Typography>
                     <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
@@ -152,10 +154,12 @@ const UserManagementColumn = () => {
             })
     }
 
-    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo) => {
+    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+        const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)
         setInvitePageInfo({title:'Manage permission', type: null })
+        setInviteAPIURL(apiURL)
     }
 
     const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
@@ -186,7 +190,7 @@ const UserManagementColumn = () => {
     }
 
     const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.type;
+        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
         // return;
         DELETE_REQUEST(apiURL)
             .then((_response) => {
