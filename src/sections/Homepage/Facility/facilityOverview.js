@@ -1,13 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Container, Typography, Grid, Box } from "@mui/material";
 import FacilityOverViewTable from "components/FacilityOverview";
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { facilityEndPoints } from "constants/apiEndPoints";
+import { GET_REQUEST } from "utils/HTTPRequests";
 
 const FacilityOverview = () => {
   // Sample data for Table 1
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedFacility, setSelectedFacility] = useState('');
+  const [viewDataForFacility, setViewDataForFacility] = useState('');
+
+  useEffect(() => {
+    getOverview();
+  }, [])
+
+  const getOverview = () => {
+    GET_REQUEST(facilityEndPoints.ADMIN_STATISTICS)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          setViewDataForFacility(response.data.data);
+        }
+      })
+      .catch((error) => {
+      });
+  }
 
   const handleCompanyChange = (event) => {
     setSelectedCompany(event.target.value);
@@ -81,7 +99,7 @@ const FacilityOverview = () => {
                   letterSpacing: "-0.01125rem",
                 }}
               >
-                XXX
+                {viewDataForFacility?.all_facility}
               </Typography>
             </Typography>
           </Box>
@@ -137,6 +155,7 @@ const FacilityOverview = () => {
         </Select>
       </div> */}
           <FacilityOverViewTable
+            apiData={viewDataForFacility}
             data={mergedData}
             handleAction={handleAction}
           />

@@ -12,6 +12,9 @@ export const facilityEndPoints = {
     "/company-facility/v1/facility-characteristics",
   GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  ADMIN_STATISTICS: "company-facility/v1/program/facility-statistics",
+  ADMIN_FACILITY_LIST: "company-facility/v1/program/facility-listing",
+  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/facility",
 };
 
 export const PA_MANAGEMENT = {
@@ -36,7 +39,8 @@ export const USER_MANAGEMENT = {
   // DELETE REQUEST
   DELETE_USER_REQUEST: "/enerva-user/v1/users",
   // EDIT REQUEST
-  EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign"
+  EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign",
+  EDIT_PROFILE: '/enerva-user/v1/users'
 };
 
 export const ENERVA_USER_MANAGEMENT = {
