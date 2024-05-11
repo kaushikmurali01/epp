@@ -123,7 +123,7 @@ const ProfilePage = () => {
 
    const [userProfileData, setUserProfileData] = useState();
    const getUserProfileData = () => {
-     const apiURL = "https://ams-enerva-dev.azure-api.net/enerva-user/v1/user";
+     const apiURL = "/enerva-user/v1/user";
      GET_REQUEST(apiURL)
        .then((res) => {
          setUserProfileData(res?.data);
