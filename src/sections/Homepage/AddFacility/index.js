@@ -144,6 +144,8 @@ const AddFacilityComponent = (props) => {
             values.facility_construction_status = 3;
         }
 
+        // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY 
+
         if (!id) {
 
             POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
