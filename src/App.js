@@ -37,7 +37,7 @@ const App = (props) => {
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
               <>
-                  {/* <RoutesComp /> */}
+                  <RoutesComp />
               </>
             </AuthenticatedTemplate>
             <HomepageComponent/>
