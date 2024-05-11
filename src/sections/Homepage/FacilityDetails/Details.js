@@ -95,10 +95,10 @@ const Details = () => {
               SPACE_COOLING_ARRAY,
               charactersticsDetails?.space_cooling_technology
             ),
-            space_heating_technology: checkValueNotExist(
-              SPACE_HEATING_ARRAY,
-              charactersticsDetails?.space_heating_technology
-            ),
+            // space_heating_technology: checkValueNotExist(
+            //   SPACE_HEATING_ARRAY,
+            //   charactersticsDetails?.space_heating_technology
+            // ),
             water_heating_technology: checkValueNotExist(
               WATER_HEATING_ARRAY,
               charactersticsDetails?.water_heating_technology
@@ -107,10 +107,10 @@ const Details = () => {
               SPACE_COOLING_ARRAY,
               charactersticsDetails?.space_cooling_technology
             ),
-            space_heating_technology_other: checkAndReturnFromArray(
-              SPACE_HEATING_ARRAY,
-              charactersticsDetails?.space_heating_technology
-            ),
+            // space_heating_technology_other: checkAndReturnFromArray(
+            //   SPACE_HEATING_ARRAY,
+            //   charactersticsDetails?.space_heating_technology
+            // ),
             water_heating_technology_other: checkAndReturnFromArray(
               WATER_HEATING_ARRAY,
               charactersticsDetails?.water_heating_technology
@@ -174,8 +174,8 @@ const Details = () => {
     space_cooling_technology_other: "",
     space_heating_fuel_source: "",
     space_heating_fuel_source_other: "",
-    space_heating_technology: "",
-    space_heating_technology_other: "",
+    // space_heating_technology: "",
+    // space_heating_technology_other: "",
     water_heating_fuel_source: "",
     water_heating_fuel_source_other: "",
     water_heating_technology: "",
@@ -363,10 +363,10 @@ const Details = () => {
         values.space_heating_fuel_source === "other"
           ? values.space_heating_fuel_source_other
           : values.space_heating_fuel_source,
-      space_heating_technology:
-        values.space_heating_technology === "other"
-          ? values.space_heating_technology_other
-          : values.space_heating_technology,
+      // space_heating_technology:
+      //   values.space_heating_technology === "other"
+      //     ? values.space_heating_technology_other
+      //     : values.space_heating_technology,
       water_heating_fuel_source:
         values.water_heating_fuel_source === "other"
           ? values.water_heating_fuel_source_other
@@ -699,7 +699,7 @@ const Details = () => {
                   </Grid>
                 )}
               </Grid>
-              <Grid container spacing={4}>
+              {/* <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="space_heating_technology"
@@ -718,7 +718,7 @@ const Details = () => {
                     />
                   </Grid>
                 )}
-              </Grid>
+              </Grid> */}
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <SelectBox
