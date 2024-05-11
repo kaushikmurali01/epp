@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Grid, Button, Box } from "@mui/material";
+import { Container, Typography, Grid, Box, Button } from "@mui/material";
 import Table from "../../../components/Table";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
+import {
+  deleteAdminFacility,
+  fetchAdminFacilityListing,
+} from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import EvModal from "utils/modal/EvModal";
 
-const FacilityReview = () => {
+const FacilityCreated = () => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const [facilityToDelete, setFacilityToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 3));
+    dispatch(fetchAdminFacilityListing(pageInfo, 0));
   }, [dispatch, pageInfo.page, pageInfo.pageSize]);
 
   const adminFacilityData = useSelector(
@@ -20,7 +25,58 @@ const FacilityReview = () => {
   const adminFacilityCount = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.count || []
   );
+  const openDeleteFacilityModal = (facilityId) => {
+    setFacilityToDelete(facilityId);
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    }));
+  };
 
+  const handleDeleteFacility = (id) => {
+    if (id) {
+      dispatch(deleteAdminFacility(id))
+        .then(() => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(fetchAdminFacilityListing(pageInfo, 0));
+        })
+        .catch((error) => {
+          console.error("Error deleting facility:", error);
+        });
+    }
+  };
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Delete facility",
+    headerSubText: "Are you sure you want to delete this facility?",
+    modalBodyContent: "",
+    saveButtonAction: handleDeleteFacility,
+  });
   const columns = [
     {
       Header: "Facility ID",
@@ -76,7 +132,31 @@ const FacilityReview = () => {
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
-            Review
+            View
+          </Button>
+          <Button
+            style={{
+              color: "#2C77E9",
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+            // onClick={() => openRequestModal(true, item)}
+          >
+            Edit
+          </Button>
+          <Button
+            color="error"
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+            onClick={() => openDeleteFacilityModal(item.id)}
+          >
+            Delete
           </Button>
         </Box>
       ),
@@ -101,7 +181,7 @@ const FacilityReview = () => {
                   fontStyle: "italic",
                 }}
               >
-                List of Under Review Facilities
+                List of all facilities
               </Typography>
             </Grid>
             <Grid container xs={6} gap={4} justifyContent="flex-end">
@@ -138,8 +218,13 @@ const FacilityReview = () => {
           />
         </Grid>
       </Grid>
+      <EvModal
+        modalConfig={modalConfig}
+        setModalConfig={setModalConfig}
+        actionButtonData={facilityToDelete}
+      />
     </Container>
   );
 };
 
-export default FacilityReview;
+export default FacilityCreated;

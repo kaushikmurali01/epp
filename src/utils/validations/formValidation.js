@@ -147,9 +147,9 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   space_heating_fuel_source: Yup.string().required(
     "Space heating fuel source is required"
   ),
-  space_heating_technology: Yup.string().required(
-    "Space heating technology is required"
-  ),
+  // space_heating_technology: Yup.string().required(
+  //   "Space heating technology is required"
+  // ),
   water_heating_fuel_source: Yup.string().required(
     "Water heating fuel source is required"
   ),

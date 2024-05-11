@@ -3,9 +3,9 @@ import {
   fileUploadRequest,
   fileUploadSuccess,
   fileUploadFailure,
-} from "../actionCreators/fileUploadActionCreator";
+} from "../actionCreators/fileUploadActionCreator.js";
 import { POST_REQUEST } from "utils/HTTPRequests";
-import NotificationsTost from "../../utils/notification/NotificationsToast.js";
+import NotificationsTost from "../../../utils/notification/NotificationsToast.js";
 
 export const fileUploadAction = (uploadData) => {
   return async (dispatch) => {

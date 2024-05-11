@@ -25,10 +25,10 @@ import {
   addMeter,
   fetchMeterDetails,
   updateMeter,
-} from "./../../../redux/actions/metersActions";
+} from "../../../redux/superAdmin/actions/metersActions";
 import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { format } from "date-fns";
-import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
+import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));

@@ -25,7 +25,7 @@ import {
   PATCH_REQUEST,
   DELETE_REQUEST,
 } from "utils/HTTPRequests";
-import NotificationsTost from "../../utils/notification/NotificationsToast.js";
+import NotificationsTost from "../../../utils/notification/NotificationsToast";
 
 export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {

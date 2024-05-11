@@ -20,25 +20,37 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEntriesListing } from "./../../../redux/actions/entriesAction";
+import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
 import FacilityStatus from "components/FacilityStatus";
 import { format, getYear } from "date-fns";
 import { entriesEndPoints } from "constants/apiEndPoints";
-import { DELETE_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import {
+  DELETE_REQUEST,
+  PATCH_REQUEST,
+  POST_REQUEST,
+} from "utils/HTTPRequests";
 import { SnackbarContext } from "utils/notification/SnackbarProvider";
 import EvModal from "utils/modal/EvModal";
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
-import { deleteMeter, fetchMeterDetails } from "./../../../redux/actions/metersActions";
+import {
+  deleteMeter,
+  fetchMeterDetails,
+} from "../../../redux/superAdmin/actions/metersActions";
 
-const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDetailId, meterId }) => {
+const EntriesListing = ({
+  OnEditMeterButton,
+  onAddMeterSuccess,
+  facilityMeterDetailId,
+  meterId,
+}) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
-  const [tabValue, setTabValue] = useState('monthlyEntries');
-  const [entryToDelete, setEntryToDelete] = useState('');
+  const [tabValue, setTabValue] = useState("monthlyEntries");
+  const [entryToDelete, setEntryToDelete] = useState("");
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -46,10 +58,14 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
       showHeader: true,
       crossIcon: false,
       modalClass: "",
-      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
-      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' } },
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
       fotterActionStyle: "",
-      modalBodyContentStyle: ''
+      modalBodyContentStyle: "",
     },
     buttonsUI: {
       saveButton: false,
@@ -58,27 +74,26 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
-
     },
     headerText: "Add Entry",
-    headerSubText: 'Please enter the following details to add a new entry for this meter',
+    headerSubText:
+      "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
   });
 
   const handleDeleteEntry = (id) => {
     if (id) {
-      DELETE_REQUEST(entriesEndPoints.DELETE_ENTRY + '/' + id)
+      DELETE_REQUEST(entriesEndPoints.DELETE_ENTRY + "/" + id)
         .then((response) => {
           dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
           setDeleteModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
-
         })
         .catch((error) => {
           console.error("Error deleting entry:", error);
-        })
+        });
     }
   };
 
@@ -112,12 +127,12 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
   });
 
   const [initialValues, setInitialValues] = useState({
-    start_date: '',
-    end_date: '',
-    usage: '',
-    demand: '',
-    total_cost: '',
-  })
+    start_date: "",
+    end_date: "",
+    usage: "",
+    demand: "",
+    total_cost: "",
+  });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -224,7 +239,6 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
     saveButtonAction: handleDeleteMeter,
   });
 
-
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
@@ -234,11 +248,11 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
   );
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
-    dispatch(fetchMeterDetails(facilityMeterDetailId))
+    dispatch(fetchMeterDetails(facilityMeterDetailId));
   }, [dispatch, pageInfo]);
 
   const handleAddButtonClick = (id) => {
-    console.log(id)
+    console.log(id);
     OnEditMeterButton(id);
   };
 
@@ -259,40 +273,52 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
         usage: parseInt(data.usage),
         demand: parseInt(data.demand),
         total_cost: parseInt(data.total_cost),
-      }
+      };
 
       if (!isEdit) {
         POST_REQUEST(apiURL, requestBody)
           .then((response) => {
-            showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
+            showSnackbar("Your form has been submitted!", "success", {
+              vertical: "top",
+              horizontal: "right",
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
-              modalBodyContent: ''
+              modalBodyContent: "",
             }));
-
           })
           .catch((error) => {
-            showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-          })
+            showSnackbar(
+              error?.message ? error.message : "Something went wrong!",
+              "error",
+              { vertical: "top", horizontal: "right" }
+            );
+          });
       } else {
-        PATCH_REQUEST(apiURL + '/' + data?.id, requestBody)
+        PATCH_REQUEST(apiURL + "/" + data?.id, requestBody)
           .then((response) => {
-            showSnackbar('Your form has been updated!', 'success', { vertical: 'top', horizontal: 'right' });
+            showSnackbar("Your form has been updated!", "success", {
+              vertical: "top",
+              horizontal: "right",
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
-              modalBodyContent: ''
+              modalBodyContent: "",
             }));
-
           })
           .catch((error) => {
-            showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
-          })
+            showSnackbar(
+              error?.message ? error.message : "Something went wrong!",
+              "error",
+              { vertical: "top", horizontal: "right" }
+            );
+          });
       }
-    }
+    };
     return (
       <>
         <Formik
@@ -302,54 +328,35 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
           onSubmit={formSubmit}
         >
           <Form>
-            <Stack sx={{ marginBottom: '1rem' }}>
-              <InputField
-                name="start_date"
-                type="date"
-                label="Start Date*"
-              />
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField name="start_date" type="date" label="Start Date*" />
             </Stack>
-            <Stack sx={{ marginBottom: '1rem' }}>
-              <InputField
-                name="end_date"
-                type="date"
-                label="End Date*"
-              />
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField name="end_date" type="date" label="End Date*" />
             </Stack>
 
-            <Stack sx={{ marginBottom: '1rem' }}>
-              <InputField
-                name="usage"
-                label="Usage (KWh)*"
-                type="text" />
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField name="usage" label="Usage (KWh)*" type="text" />
             </Stack>
 
-            <Stack sx={{ marginBottom: '1rem' }}>
-              <InputField
-                name="demand"
-                label="Demand (KW)*"
-                type="text" />
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField name="demand" label="Demand (KW)*" type="text" />
             </Stack>
 
-            <Stack sx={{ marginBottom: '1rem' }}>
-              <InputField
-                name="total_cost"
-                label="Total cost*"
-                type="text" />
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField name="total_cost" label="Total cost*" type="text" />
             </Stack>
 
-            <Grid display="flex" sx={{ marginTop: '1rem' }}>
-              <ButtonWrapper type="submit" variant="contained"  >
+            <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <ButtonWrapper type="submit" variant="contained">
                 Submit
               </ButtonWrapper>
-
             </Grid>
-
           </Form>
         </Formik>
       </>
-    )
-  }
+    );
+  };
 
   const openDeleteMeterModal = () => {
     setDeleteMeterModalConfig((prevState) => ({
@@ -363,11 +370,13 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
       ...prevState,
       modalVisible: true,
       headerText: !isEdit ? "Add Entry" : "Edit Entry",
-      headerSubText: !isEdit ? 'Please enter the following details to add a new entry for this meter' : 'Please edit the following details to update the entry for this meter',
-      modalBodyContent: ""
+      headerSubText: !isEdit
+        ? "Please enter the following details to add a new entry for this meter"
+        : "Please edit the following details to update the entry for this meter",
+      modalBodyContent: "",
     }));
     if (isEdit) {
-      setInitialValues(prevValues => {
+      setInitialValues((prevValues) => {
         return {
           ...prevValues,
           ...data,
@@ -385,8 +394,10 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
         ...prevState,
         modalVisible: true,
         headerText: !isEdit ? "Add Entry" : "Edit Entry",
-        headerSubText: !isEdit ? 'Please enter the following details to add a new entry for this meter' : 'Please edit the following details to update the entry for this meter',
-        modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />
+        headerSubText: !isEdit
+          ? "Please enter the following details to add a new entry for this meter"
+          : "Please edit the following details to update the entry for this meter",
+        modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />,
       }));
     }, 10);
   };
@@ -425,102 +436,143 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
-
-        <Box sx={{
-          borderRight: "1px solid black",
-          padding: '0 20px 0 20px',
-        }}>
-          <Typography variant="small2">
-            Meter Name
-          </Typography>
+        <Box
+          sx={{
+            borderRight: "1px solid black",
+            padding: "0 20px 0 20px",
+          }}
+        >
+          <Typography variant="small2">Meter Name</Typography>
           <Typography variant="h6" gutterBottom>
             {meterData?.meter_name}
           </Typography>
         </Box>
 
-        <Box sx={{
-          borderRight: "1px solid black",
-          padding: '0 20px 0 20px',
-        }}>
-          <Typography variant="small2">
-            Meter ID
-          </Typography>
+        <Box
+          sx={{
+            borderRight: "1px solid black",
+            padding: "0 20px 0 20px",
+          }}
+        >
+          <Typography variant="small2">Meter ID</Typography>
           <Typography variant="h6" gutterBottom>
             {meterData?.meter_id}
           </Typography>
         </Box>
 
-        <Box sx={{
-          borderRight: "1px solid black",
-          padding: '0 20px 0 20px',
-        }}>
-          <Typography variant="small2">
-            Meter type
-          </Typography>
+        <Box
+          sx={{
+            borderRight: "1px solid black",
+            padding: "0 20px 0 20px",
+          }}
+        >
+          <Typography variant="small2">Meter type</Typography>
           <Typography variant="h6" gutterBottom>
-            {meterData?.meter_type == 1 ? 'Electricty' : meterData?.meter_type == 2 ? 'Natural Gas' : meterData?.meter_type == 3 ? 'Water' : ''}
+            {meterData?.meter_type == 1
+              ? "Electricty"
+              : meterData?.meter_type == 2
+              ? "Natural Gas"
+              : meterData?.meter_type == 3
+              ? "Water"
+              : ""}
           </Typography>
         </Box>
 
-        <Box sx={{
-          borderRight: "1px solid black",
-          padding: '0 20px 0 20px',
-        }}>
-          <Typography variant="small2">
-            Date meter became active
-          </Typography>
+        <Box
+          sx={{
+            borderRight: "1px solid black",
+            padding: "0 20px 0 20px",
+          }}
+        >
+          <Typography variant="small2">Date meter became active</Typography>
           <Typography variant="h6" gutterBottom>
-            {format(new Date(meterData?.meter_active ? meterData?.meter_active : null), "yyyy-MM-dd")}
+            {format(
+              new Date(
+                meterData?.meter_active ? meterData?.meter_active : null
+              ),
+              "yyyy-MM-dd"
+            )}
           </Typography>
         </Box>
 
-        <Box sx={{
-          padding: '0 0 0 20px',
-        }}>
+        <Box
+          sx={{
+            padding: "0 0 0 20px",
+          }}
+        >
           <Typography variant="h6" gutterBottom>
             Revenue-grade meter
           </Typography>
         </Box>
 
-        <Box sx={{
-          padding: '5px 0 0 20px',
-        }}>
-          <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={() => handleAddButtonClick(facilityMeterDetailId)}>
+        <Box
+          sx={{
+            padding: "5px 0 0 20px",
+          }}
+        >
+          <Typography
+            variant="small"
+            sx={{ color: "blue.main", cursor: "pointer" }}
+            onClick={() => handleAddButtonClick(facilityMeterDetailId)}
+          >
             Edit
           </Typography>
-          <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }} onClick={() => openDeleteMeterModal()}>
+          <Typography
+            variant="small"
+            sx={{ color: "danger.main", cursor: "pointer", marginLeft: "20px" }}
+            onClick={() => openDeleteMeterModal()}
+          >
             Delete
           </Typography>
         </Box>
-
       </Box>
 
-      <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '1rem', marginBottom: '3rem' }}>
-        <Grid item xs={12} md={6} >
+      <Grid
+        container
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "1rem",
+          marginBottom: "3rem",
+        }}
+      >
+        <Grid item xs={12} md={6}>
           <Tabs
-            className='theme-tabs-list'
+            className="theme-tabs-list"
             value={tabValue}
             onChange={handleChange}
-            sx={{ display: 'inline-flex' }}
+            sx={{ display: "inline-flex" }}
           >
-            <Tab value="monthlyEntries" label="Monthly entries" sx={{ minWidth: '10rem' }} />
-            <Tab value="hourlyOrSub-hourlyEntries" label="Hourly or Sub-hourly entries" sx={{ minWidth: '10rem' }} />
+            <Tab
+              value="monthlyEntries"
+              label="Monthly entries"
+              sx={{ minWidth: "10rem" }}
+            />
+            <Tab
+              value="hourlyOrSub-hourlyEntries"
+              label="Hourly or Sub-hourly entries"
+              sx={{ minWidth: "10rem" }}
+            />
           </Tabs>
         </Grid>
-        <Grid item sx={{ justifySelf: 'flex-end' }}>
+        <Grid item sx={{ justifySelf: "flex-end" }}>
           {/* <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }}>
             Downlod in excel
           </Typography>
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button variant="contained" sx={{ marginLeft: "2rem" }} onClick={() => openRequestModal(false)}>
+          <Button
+            variant="contained"
+            sx={{ marginLeft: "2rem" }}
+            onClick={() => openRequestModal(false)}
+          >
             Add Entry
           </Button>
         </Grid>
       </Grid>
 
-      {tabValue == 'monthlyEntries' ?
+      {tabValue == "monthlyEntries" ? (
         <Box sx={{ marginTop: "2rem" }}>
           <Table
             columns={columns}
@@ -528,33 +580,66 @@ const EntriesListing = ({ OnEditMeterButton, onAddMeterSuccess, facilityMeterDet
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
           />
-        </Box> :
+        </Box>
+      ) : (
         <Box>
           <Typography variant="h5">
             Upload data in bulk for this meter
           </Typography>
           <Typography variant="small2" gutterBottom>
-            Upload the excel file, and refer to single meter spreadsheet for the formatting details.
+            Upload the excel file, and refer to single meter spreadsheet for the
+            formatting details.
           </Typography>
-          <Typography my={1} sx={{ color: '#2E813E', fontWeight: '500', fontSize: '18px', backgroundColor: '#D1FFDA', padding: '7px 33px', borderRadius: '8px', width: '170px', height: '40px', marginTop: '20px' }} onClick={handleButtonClick}>
+          <Typography
+            my={1}
+            sx={{
+              color: "#2E813E",
+              fontWeight: "500",
+              fontSize: "18px",
+              backgroundColor: "#D1FFDA",
+              padding: "7px 33px",
+              borderRadius: "8px",
+              width: "170px",
+              height: "40px",
+              marginTop: "20px",
+            }}
+            onClick={handleButtonClick}
+          >
             Choose File
           </Typography>
           <input
             type="file"
             ref={fileInputRef}
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={handleFileChange}
             accept=".xlsx"
           />
-          <Button type="button" color='neutral' sx={{ marginTop: '20px', width: '165px', height: '48px', color: '#ffffff', backgroundColor: '#2E813E' }}>
+          <Button
+            type="button"
+            color="neutral"
+            sx={{
+              marginTop: "20px",
+              width: "165px",
+              height: "48px",
+              color: "#ffffff",
+              backgroundColor: "#2E813E",
+            }}
+          >
             Upload
           </Button>
-        </Box>}
+        </Box>
+      )}
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-      <EvModal modalConfig={deletModalConfig} setModalConfig={setDeleteModalConfig} actionButtonData={entryToDelete} />
-      <EvModal modalConfig={deleteMeterModalConfig} setModalConfig={setDeleteMeterModalConfig} />
-
+      <EvModal
+        modalConfig={deletModalConfig}
+        setModalConfig={setDeleteModalConfig}
+        actionButtonData={entryToDelete}
+      />
+      <EvModal
+        modalConfig={deleteMeterModalConfig}
+        setModalConfig={setDeleteMeterModalConfig}
+      />
     </>
   );
 };
