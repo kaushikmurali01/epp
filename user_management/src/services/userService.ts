@@ -155,7 +155,7 @@ static async rejectInvitation(data): Promise<Response> {
   static async getCombinedUsers(offset, limit, company): Promise<any> {
     try {
       const [usersResult, invitationsResult, requestsResult] = await Promise.all([
-        User.findAll({
+        User.findAndCountAll({
             include: [{
                 model: UserCompanyRole,
                 attributes: [],
@@ -180,7 +180,7 @@ static async rejectInvitation(data): Promise<Response> {
                 [sequelize.col('UserCompanyRole.company_id'), 'company_id']
             ],
         }),
-        UserInvitation.findAll({
+        UserInvitation.findAndCountAll({
             offset: offset,
             limit: limit,
             where: {
@@ -203,7 +203,7 @@ static async rejectInvitation(data): Promise<Response> {
                 }
             ]
         }),
-        UserRequest.findAll({
+        UserRequest.findAndCountAll({
             offset: offset,
             limit: limit,
             where: {
@@ -228,31 +228,42 @@ static async rejectInvitation(data): Promise<Response> {
         })
     ]);
     
-    const users = usersResult.map(user => ({
+    const users = usersResult?.rows?.map(user => ({
         entry_type: 1,
         facility: "Sample Facility",
         ...user.toJSON()
     }));
+    let userCount = usersResult?.count;
     
-    const invitations = invitationsResult.map(invitation => ({
+    const invitations = invitationsResult?.rows?.map(invitation => ({
         entry_type: 2,
         facility: "",
         first_name: "",
         last_name: "",
         ...invitation.toJSON()
     }));
+
+    let inviteCount = invitationsResult?.count;
     
-    const requests = requestsResult.map(request => ({
+    const requests = requestsResult?.rows?.map(request => ({
         entry_type: 3,
         facility: "Sample",
         first_name: "Test",
         last_name: "Test",
         ...request.toJSON()
     }));
+
+    let requestCount = requestsResult?.count;
+    console.log("Count ",userCount, inviteCount, requestCount);
+    let totalCount = userCount + inviteCount + requestCount;
+    console.log("totalCount",totalCount);
     
     // Combine all results into one array
     const allData = [...users, ...invitations, ...requests];
-    return allData;
+    return {
+      rows: allData,
+      count: totalCount
+    }
     
   } catch (error) {
       console.error('Error fetching data:', error);

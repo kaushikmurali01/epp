@@ -74,18 +74,17 @@ export async function UserUpdate(request: HttpRequest, context: InvocationContex
         let userData:any;
 
         const resp:any = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // context.log("middlewareResponse", resp);
 
         // Parse request data
         const requestData = await request.json();
 
         // Update user
-        userData = await UserController.updateUser(requestData, resp.id);
+        userData = await UserController.updateUser(requestData, resp.id, resp.company_id);
 
         // Return success response
         return { body: JSON.stringify(userData) };
     } catch (error) {
-        
+
         // Return error response
         return { status: 500, body: `${error.message}` };
     }

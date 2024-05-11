@@ -5,6 +5,7 @@ import { UserRequestService } from "../services/userRequestService";
 import { CompanyService } from "../services/companyService";
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { UserCompanyRole } from "../models/user-company-role";
+import { CompanyController } from "./companyController";
 
 class UserController {
 
@@ -28,7 +29,7 @@ class UserController {
             "company_id": company_id,
             "role_id": 1,
             "user_id": userData.id
-         };
+        };
         await UserCompanyRole.create(data);
           return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
       } catch (error) {
@@ -43,16 +44,25 @@ class UserController {
    * @returns Promise<any> - A promise resolving to an HTTP response.
    * @description Handles the updating of an existing user by extracting necessary data from the request body, invoking the UserService to update the user, and returning an HTTP response with appropriate status and JSON data.
    */
-  static async updateUser(req, id): Promise<any> {
+  static async updateUser(req, userId, companyId): Promise<any> {
     try {
-   //   const { id } = req.params;
-      const { first_name, last_name, email, password, address, phonenumber } = req.body;
-      const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
-      if (updatedUser) {
-        return {
-          status: 200, // OK status code
-          body: { user: updatedUser }
-        };
+     // const { id } = req.params;
+     // const { first_name, last_name, email, password, address, phonenumber } = req.body;
+     // const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
+     let companyData;
+     let userData;
+     const id = userId;
+     const { first_name, last_name, phonenumber, landline, profile_pic  } = req.user;
+     userData = await UserService.updateUser(parseInt(id), { first_name, last_name, phonenumber, landline, profile_pic });
+
+     if (userData.type === 2) {
+      // Update company
+      companyData = await CompanyController.updateCompany(req.company, companyId);
+    }
+
+     if (userData) {
+      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user: userData, company: companyData };
+
       } else {
         return {
           status: 404, // Not Found status code

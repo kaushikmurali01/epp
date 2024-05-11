@@ -73,27 +73,10 @@ export async function AdminUserUpdate(request: HttpRequest, context: InvocationC
  * @returns A promise resolving to an HTTP response containing all users.
  */
 export async function GetEnervaUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    // try {
-
-    //     const { offset, limit } = request.params;
-
-    //     // Get all users
-    //     const users = await AdminUserController.GetEnervaUsers(offset, limit);
-       
-    //     // Prepare response body
-    //     const responseBody = JSON.stringify(users);
-
-    //     // Return success response
-    //     return { body: responseBody };
-    // } catch (error) {
-    //     // Return error response
-    //     return { status: 500, body: `${error.message}` };
-    // }
-
     try {
         const { pageOffset, pageLimit } = request.params;
         const [usersResult, invitationsResult] = await Promise.all([
-          User.findAll({
+          User.findAndCountAll({
               include: [{
                   model: UserCompanyRole,
                   attributes: [],
@@ -117,7 +100,7 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
                   [sequelize.col('UserCompanyRole.status'), 'status']
               ],
           }),
-          UserInvitation.findAll({
+          UserInvitation.findAndCountAll({
             offset: parseInt(pageOffset),
             limit: parseInt(pageLimit),
               where: {
@@ -137,23 +120,29 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
           
       ]);
       
-      const users = usersResult.map(user => ({
+      const users = usersResult?.rows?.map(user => ({
           entry_type: 1,
           ...user.toJSON()
       }));
-      
-      const invitations = invitationsResult.map(invitation => ({
+      let userCount = usersResult.count;
+      const invitations = invitationsResult?.rows?.map(invitation => ({
           entry_type: 2,
           first_name: "",
           last_name: "",
           ...invitation.toJSON()
       }));
+
+      let inviteCount = invitationsResult.count;
       
       
       
       // Combine all results into one array
       const allData = [...users, ...invitations];
-      const responseBody = JSON.stringify(allData);
+      const data = {status: 200, body: {
+        rows:allData,
+        count:userCount+inviteCount
+      }}
+      const responseBody = JSON.stringify(data);
 
       return { body: responseBody };
       
@@ -172,27 +161,12 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
  */
 
 export async function GetIESOUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    // try {
-
-    //     const { offset, limit } = request.params;
-
-    //     // Get all users
-    //     const users = await AdminUserController.getIESOUsers(offset, limit);
-       
-    //     // Prepare response body
-    //     const responseBody = JSON.stringify(users);
-
-    //     // Return success response
-    //     return { body: responseBody };
-    // } catch (error) {
-    //     // Return error response
-    //     return { status: 500, body: `${error.message}` };
-    // }
+    
 
     try {
         const { pageOffset, pageLimit } = request.params;
         const [usersResult, invitationsResult] = await Promise.all([
-          User.findAll({
+          User.findAndCountAll({
               include: [{
                   model: UserCompanyRole,
                   attributes: [],
@@ -216,7 +190,7 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
                   [sequelize.col('UserCompanyRole.status'), 'status']
               ],
           }),
-          UserInvitation.findAll({
+          UserInvitation.findAndCountAll({
             offset: parseInt(pageOffset),
             limit: parseInt(pageLimit),
               where: {
@@ -236,12 +210,12 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
           
       ]);
       
-      const users = usersResult.map(user => ({
+      const users = usersResult?.rows?.map(user => ({
           entry_type: 1,
           ...user.toJSON()
       }));
       
-      const invitations = invitationsResult.map(invitation => ({
+      const invitations = invitationsResult?.rows?.map(invitation => ({
           entry_type: 2,
           first_name: "",
           last_name: "",
@@ -252,7 +226,14 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
       
       // Combine all results into one array
       const allData = [...users, ...invitations];
-      const responseBody = JSON.stringify(allData);
+      
+
+      const data = {status: 200, body: {
+        rows:allData,
+        count:usersResult.count+invitationsResult.count
+      }}
+
+      const responseBody = JSON.stringify(data);
 
       return { body: responseBody };
       

@@ -18,6 +18,7 @@ interface UserAttributes {
   status: string;
   type: number;
   is_active: number;
+  profile_pic: string
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -34,6 +35,7 @@ class User extends Model<UserCreationAttributes>{
   public status!: string;
   public type!: number;
   public is_active!: number;
+  public profile_pic: string
  
 }
 
@@ -109,6 +111,10 @@ User.init(
       allowNull: false
     },
     is_active: {
+      type: DataTypes.NUMBER,
+      allowNull: true
+    },
+    profile_pic: {
       type: DataTypes.NUMBER,
       allowNull: true
     }

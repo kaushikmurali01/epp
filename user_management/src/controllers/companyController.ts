@@ -62,9 +62,9 @@ static async listCompanies(offset, limit): Promise<any> {
      * @returns Promise<HttpResponse>
      * @description Handles the update of an existing company by extracting necessary data from the request body and parameters, invoking the CompanyService to update the company, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async updateCompany(req): Promise<any> {
+    static async updateCompany(req, companyId): Promise<any> {
         try {
-            const companyId = parseInt(req.id);
+          //  const companyId = parseInt(req.id);
             const updatedData = req;
             const updatedCompany = await CompanyService.updateCompany(companyId, updatedData);
             return updatedCompany;
