@@ -26,10 +26,10 @@ export const tabsData = (userType, userRole, permissions = []) => {
         label:"Facility List",
         route:'/facility-list'
       },
-      {
-        label:"Participant Agreement",
-        route:'/participant-agreement'
-      },
+      // {
+      //   label:"Participant Agreement",
+      //   route:'/participant-agreement'
+      // },
       {
         label:"User Management",
         route:'/user-management'
