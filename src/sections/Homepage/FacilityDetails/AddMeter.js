@@ -25,20 +25,20 @@ import {
   addMeter,
   fetchMeterDetails,
   updateMeter,
-} from "./../../../redux/actions/metersActions";
+} from "../../../redux/superAdmin/actions/metersActions";
 import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { format } from "date-fns";
-import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
+import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [imgUrl, setImgUrl] = useState("");
   const { id } = useParams();
   const dispatch = useDispatch();
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState();
   const [meterAlignment, setMeterAlignment] = useState(1);
-  const [revenueAlignment, setRevenueAlignment] = useState("no");
-  const [imgUrl, setImgUrl] = useState("");
+  const [revenueAlignment, setRevenueAlignment] = useState(false);
 
   useEffect(() => {
     if (meterId2) {
@@ -57,7 +57,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                 : "",
           });
           setMeterAlignment(meterDetails?.meter_type);
-          setRevenueAlignment(meterDetails?.is_rg_meter ? "yes" : "no");
+          setRevenueAlignment(meterDetails?.is_rg_meter);
           setSelectedFile(meterDetails?.meter_specification_url);
         })
         .catch((error) => {
@@ -81,7 +81,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     const selectedFile = event.target.files[0];
     setSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then(({ data }) => setImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -96,12 +98,10 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleSubmit = (values) => {
-    console.log(values);
     const newValues = {
       ...values,
       meter_specification_url: imgUrl,
       facility_id: +id,
-      is_rg_meter: values?.is_rg_meter === "yes" ? true : false,
       meter_inactive: values?.stil_in_use
         ? null
         : new Date(values?.meter_inactive),
@@ -218,7 +218,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <InputField name="meter_id" label="Meter ID" type="number" />
+                  <InputField name="meter_id" label="Meter ID*" type="number" />
                 </Grid>
               </Grid>
               <Grid container spacing={4}>
@@ -277,13 +277,13 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                         >
                           <ToggleButton
-                            value="yes"
+                            value={true}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             Yes
                           </ToggleButton>
                           <ToggleButton
-                            value="no"
+                            value={false}
                             sx={{ fontSize: "0.875rem" }}
                           >
                             No

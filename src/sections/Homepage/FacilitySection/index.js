@@ -14,7 +14,7 @@ import {
   deleteFacility,
   fetchFacilityListing,
   submitFacilityForApproval,
-} from "./../../../redux/actions/facilityActions";
+} from "../../../redux/superAdmin/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
 import FacilityStatus from "components/FacilityStatus";

@@ -18,7 +18,7 @@ const UserManagement = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useContext(SnackbarContext);
   // pull functions from user management..
-  const {USER_MANAGEMENT_COLUMN_ACTION} = UserManagementColumn()
+  const {USER_MANAGEMENT_COLUMN_ACTION} = UserManagementColumn();
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
@@ -27,6 +27,7 @@ const UserManagement = () => {
   const [tabValue, setTabValue] = useState('allUsers');
   const [selectTableRow, setSelectTableRow] = useState({});
   const [invitePageInfo, setInvitePageInfo] = useState({});
+  const [inviteAPIURL, setInviteAPIURL] = useState('');
   
 
   const [modalConfig, setModalConfig] = useState({
@@ -61,7 +62,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData();
 };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
   const initialValues = {
     company: '',
@@ -147,11 +148,20 @@ const UserManagement = () => {
     }));
   }
 
+  const handelInviteUser = () => {
+    const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+    setVisibleInvitePage(true); 
+    setSelectTableRow({}); 
+    setInvitePageInfo({title:'Invite user and set permissions', type: null }) 
+    setInviteAPIURL(apiURL)
+  }
+
   const getUserManagementData = () => {
     // const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
     const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
     GET_REQUEST(apiURL)
         .then((res) => {
+          // setAllUser(res.data?.body)
           if(res?.data?.body instanceof Array){
             setAllUser(res.data?.body)
           }
@@ -192,11 +202,13 @@ useEffect(() => {
     <React.Fragment>
       {isVisibleInvitePage ? 
         <InviteUser 
-        getUserRole={getUserRole} setVisibleInvitePage={setVisibleInvitePage} 
+        getUserRole={getUserRole} 
+        setVisibleInvitePage={setVisibleInvitePage} 
         isVisibleInvitePage={isVisibleInvitePage}
         invitePageInfo={invitePageInfo} 
         handleAPISuccessCallBack={handleAPISuccessCallBack} 
         selectTableRow={selectTableRow}
+        inviteAPIURL={inviteAPIURL}
         /> : 
         
           <Box component="section">
@@ -219,7 +231,7 @@ useEffect(() => {
                     color="primary"
                     variant="contained"
                     sx={{ alignSelf: 'center' }}
-                    onClick={() => {setVisibleInvitePage(true); setSelectTableRow({}); setInvitePageInfo({title:'Invite user and set permissions', type: null }) }}
+                    onClick={() => handelInviteUser()}
                   >
                     Invite User
                   </Button>

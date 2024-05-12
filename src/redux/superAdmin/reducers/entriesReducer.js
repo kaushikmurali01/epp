@@ -2,7 +2,7 @@ import {
     FETCH_ENTRIES_LIST_FAILURE,
     FETCH_ENTRIES_LIST_REQUEST,
     FETCH_ENTRIES_LIST_SUCCESS,
-  } from "./../actionTypes";
+  } from "../actionTypes";
   
   const initialState = {
     entriesList: [],

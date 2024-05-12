@@ -14,6 +14,9 @@ import {
   DELETE_METER_REQUEST,
   DELETE_METER_SUCCESS,
   DELETE_METER_FAILURE,
+  FETCH_METER_STATISTICS_REQUEST,
+  FETCH_METER_STATISTICS_SUCCESS,
+  FETCH_METER_STATISTICS_FAILURE,
 } from "../actionTypes";
 
 export const fetchMeterListRequest = () => ({
@@ -83,5 +86,19 @@ export const deleteMeterSuccess = (data) => ({
 
 export const deleteMeterFailure = (error) => ({
   type: DELETE_METER_FAILURE,
+  payload: error,
+});
+
+export const fetchMeterStatisticsRequest = () => ({
+  type: FETCH_METER_STATISTICS_REQUEST,
+});
+
+export const fetchMeterStatisticsSuccess = (data) => ({
+  type: FETCH_METER_STATISTICS_SUCCESS,
+  payload: data,
+});
+
+export const fetchMeterStatisticsFailure = (error) => ({
+  type: FETCH_METER_STATISTICS_FAILURE,
   payload: error,
 });

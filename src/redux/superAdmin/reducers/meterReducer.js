@@ -14,11 +14,15 @@ import {
   DELETE_METER_REQUEST,
   DELETE_METER_SUCCESS,
   DELETE_METER_FAILURE,
-} from "./../actionTypes";
+  FETCH_METER_STATISTICS_REQUEST,
+  FETCH_METER_STATISTICS_SUCCESS,
+  FETCH_METER_STATISTICS_FAILURE,
+} from "../actionTypes";
 
 const initialState = {
   meterList: [],
   meterDetails: null,
+  meterStatistics: null,
   loading: false,
   error: null,
 };
@@ -112,6 +116,25 @@ const meterReducer = (state = initialState, action) => {
         error: null,
       };
     case DELETE_METER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_METER_STATISTICS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_METER_STATISTICS_SUCCESS:
+      return {
+        ...state,
+        meterStatistics: action.payload,
+        loading: false,
+        error: null,
+      };
+    case FETCH_METER_STATISTICS_FAILURE:
       return {
         ...state,
         loading: false,

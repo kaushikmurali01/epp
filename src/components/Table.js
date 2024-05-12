@@ -49,7 +49,7 @@ const Table = ({
   const handleNextPage = () => {
     const totalPages = Math.ceil(count / pageInfo?.pageSize);
     if (pageInfo?.page < totalPages) {
-      setPageInfo({ ...pageInfo, page: pageInfo.page + 1 });
+      setPageInfo({ ...pageInfo, page: pageInfo?.page + 1 });
     }
   };
 
@@ -107,6 +107,7 @@ const Table = ({
     );
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
+
 
   return (
     <TableContainer>

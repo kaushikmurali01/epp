@@ -1,41 +1,75 @@
-import React, { useState } from "react";
-import { Container, Typography, Grid } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Container, Typography, Grid, Button, Box } from "@mui/material";
 import FacilityRejectedTable from "components/FacilityRejected";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
+import Table from "components/Table";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
 
 const FacilityRejected = () => {
-  // Sample data for Table 1
-  const data1 = [
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchAdminFacilityListing(pageInfo, 6));
+  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+
+  const adminFacilityData = useSelector(
+    (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
+  );
+  const adminFacilityCount = useSelector(
+    (state) => state?.adminFacilityReducer?.facilityList?.data?.count || []
+  );
+
+  const columns = [
     {
-      facilityId: "Facility-1",
-      submittedBy:'Wade Warren',
-      companyName:"Wallmant",
-      businessEmail:'wade.warren@dummy.com',
-      status:'Rejected',
-      submittedOn:" 11-April",
+      Header: "Facility ID",
+      accessor: "id",
     },
-    // Add more data objects as needed
-  ];
-
-  // Sample data for Table 2
-  const data2 = [
     {
-      facilityId: "Facility-2",
-      submittedBy:'Wade Warren',
-      companyName:"Wallmant",
-      businessEmail:'wade.warren@dummy.com',
-      status:'Rejected',
-      submittedOn:" 11-April",
+      Header: "Submitted by",
+      accessor: "submitted_by",
+    },
+    {
+      Header: "Company Name",
+      accessor: "company_name",
+    },
+    {
+      Header: "Business Email",
+      accessor: "email",
+    },
+    {
+      Header: "Status",
+      accessor: (item) => (
+        <AdminFacilityStatus>
+          {item?.facility_id_submission_status}
+        </AdminFacilityStatus>
+      ),
+    },
+    {
+      Header: "Submitted on",
+      accessor: "submitted_on",
+    },
+    {
+      Header: "Actions",
+      accessor: (item) => (
+        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+          <Button
+            style={{
+              color: "#F26D04",
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+            }}
+            // onClick={() => openDeleteModal(item?.id)}
+          >
+            Comment
+          </Button>
+        </Box>
+      ),
     },
   ];
-
-  // Merge data1 and data2 into one array
-  const mergedData = [...data1, ...data2];
-
-  // Define handleAction function
-  const handleAction = (id) => {
-    // Your action logic here
-    console.log("View details for row with id:", id);
-  };
 
   return (
     <Container>
@@ -55,11 +89,14 @@ const FacilityRejected = () => {
               fontStyle: "italic",
             }}
           >
-            List of Rejected Facilities
+            List of rejected facilities
           </Typography>
-          <FacilityRejectedTable
-            data={mergedData}
-            handleAction={handleAction}
+          <Table
+            columns={columns}
+            data={adminFacilityData}
+            count={adminFacilityCount}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
           />
         </Grid>
       </Grid>

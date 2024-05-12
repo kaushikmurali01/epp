@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 
-const FacilityOverViewTable = ({ data }) => {
+const FacilityOverViewTable = ({ apiData }) => {
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -31,7 +31,7 @@ const FacilityOverViewTable = ({ data }) => {
                 textAlign: "left",
               }}
             >
-             S/N
+              S/N
             </TableCell>
             <TableCell
               sx={{
@@ -42,7 +42,7 @@ const FacilityOverViewTable = ({ data }) => {
                 textAlign: "left",
               }}
             >
-             Overview
+              Overview
             </TableCell>
             <TableCell
               sx={{
@@ -53,12 +53,12 @@ const FacilityOverViewTable = ({ data }) => {
                 textAlign: "left",
               }}
             >
-            Result
+              Result
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((row, index) => (
+          {apiData.map((row, index) => (
             <TableRow key={index}>
               <TableCell
                 sx={{
@@ -69,7 +69,7 @@ const FacilityOverViewTable = ({ data }) => {
                   textAlign: "left",
                 }}
               >
-                {row.facilityId}
+                {row.all_pa_signed}
               </TableCell>
               <TableCell
                 sx={{

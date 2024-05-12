@@ -1,47 +1,38 @@
-import React, { useState } from "react";
-import { Container, Typography, Grid, Box } from "@mui/material";
-import FacilityOverViewTable from "components/FacilityOverview";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  TableRow,
+  TableCell,
+  TableContainer,
+  Table,
+  TableHead,
+  TableBody,
+  Select,
+  MenuItem,
+} from "@mui/material";
+
+import { adminFacilityEndpoints } from "constants/apiEndPoints";
+import { GET_REQUEST } from "utils/HTTPRequests";
 
 const FacilityOverview = () => {
-  // Sample data for Table 1
-  const [selectedCompany, setSelectedCompany] = useState('');
-  const [selectedFacility, setSelectedFacility] = useState('');
+  const [viewDataForFacility, setViewDataForFacility] = useState("");
 
-  const handleCompanyChange = (event) => {
-    setSelectedCompany(event.target.value);
+  useEffect(() => {
+    getOverview();
+  }, []);
+
+  const getOverview = () => {
+    GET_REQUEST(adminFacilityEndpoints.ADMIN_STATISTICS)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          setViewDataForFacility(response?.data?.data);
+        }
+      })
+      .catch((error) => {});
   };
-
-  const handleFacilityChange = (event) => {
-    setSelectedFacility(event.target.value);
-  };
-  const data1 = [
-    {
-      facilityId: 1,
-      overview: "Total Companies",
-      result: "XXXX",
-    },
-  ];
-
-  // Sample data for Table 2
-  const data2 = [
-    {
-      facilityId: 2,
-      overview: "Number of facilities submitted for baseline modelling",
-      result: "XXXX",
-    },
-  ];
-
-  // Merge data1 and data2 into one array
-  const mergedData = [...data1, ...data2];
-
-  // Define handleAction function
-  const handleAction = (id) => {
-    // Your action logic here
-    console.log("View details for row with id:", id);
-  };
-
   return (
     <Container>
       <Grid container spacing={3}>
@@ -81,65 +72,96 @@ const FacilityOverview = () => {
                   letterSpacing: "-0.01125rem",
                 }}
               >
-                XXX
+                {viewDataForFacility?.all_facility}
               </Typography>
             </Typography>
           </Box>
-          <Typography
-            variant="h2"
-            sx={{
-              marginTop: "2rem",
-              color: "#242424",
-              fontWeight: "700",
-              fontSize: "24px !important",
-              fontStyle: "italic",
-              lineHeight: "27.5px",
-              letterSpacing: "-0.01125rem",
-              fontStyle: "italic",
-            }}
-          >
-            Facilities Overview
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              marginTop: "0.500rem",
-              fontWeight: "400",
-              fontSize: "12px !important",
-              marginBottom: "2rem",
-              lineHeight: "13.75px !important",
-            }}
-          >
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.
-          </Typography>
-          {/* <div>
-        <Select
-          value={selectedCompany}
-          onChange={handleCompanyChange}
-          displayEmpty
-          variant="outlined"
-          sx={{ marginRight: '1rem' }}
-        >
-          <MenuItem value="" disabled>
-            Select Company
-          </MenuItem>
-        </Select>
-        <Select
-          value={selectedFacility}
-          onChange={handleFacilityChange}
-          displayEmpty
-          variant="outlined"
-        >
-          <MenuItem value="" disabled>
-            Select Facility
-          </MenuItem>
-        </Select>
-      </div> */}
-          <FacilityOverViewTable
-            data={mergedData}
-            handleAction={handleAction}
-          />
+          <Grid container gap={2} alignContent="center" mt={4}>
+            <Grid item xs={5}>
+              <Typography
+                variant="h2"
+                sx={{
+                  color: "#242424",
+                  fontWeight: "700",
+                  fontSize: "24px !important",
+                  fontStyle: "italic",
+                  lineHeight: "27.5px",
+                  letterSpacing: "-0.01125rem",
+                  fontStyle: "italic",
+                }}
+              >
+                Facilities Overview
+              </Typography>
+              <Typography
+                variant="h5"
+                sx={{
+                  marginTop: "0.500rem",
+                  fontWeight: "400",
+                  fontSize: "12px !important",
+                  marginBottom: "2rem",
+                  lineHeight: "13.75px !important",
+                }}
+              >
+                Lorem Ipsum is simply dummy text of the printing and typesetting
+                industry.
+              </Typography>
+            </Grid>
+
+            <Grid item xs={3}>
+              <Select sx={{ width: "100%" }} label="Company">
+                <MenuItem value="">
+                  <em>Company</em>
+                </MenuItem>
+              </Select>
+            </Grid>
+            <Grid item xs={3}>
+              <Select sx={{ width: "100%" }} label="Facility">
+                <MenuItem value="">
+                  <em>Select Facility</em>
+                </MenuItem>
+              </Select>
+            </Grid>
+          </Grid>
+
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>S.No.</TableCell>
+                  <TableCell>Overview</TableCell>
+                  <TableCell>Results</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                <TableRow>
+                  <TableCell>1</TableCell>
+                  <TableCell>Total Companies</TableCell>
+                  <TableCell>{viewDataForFacility?.all_company}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>2</TableCell>
+                  <TableCell>
+                    Number of facilities submitted for baseline modelling
+                  </TableCell>
+                  <TableCell>
+                    {viewDataForFacility?.all_acility_with_baseline_approval}
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>3</TableCell>
+                  <TableCell>Number of facilities created</TableCell>
+                  <TableCell>{viewDataForFacility?.all_facility}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>4</TableCell>
+                  <TableCell>
+                    Number of Participant Agreements executed
+                  </TableCell>
+                  <TableCell>{viewDataForFacility?.all_pa_signed}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Grid>
       </Grid>
     </Container>

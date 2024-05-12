@@ -40,6 +40,7 @@ const App = (props) => {
                   <RoutesComp />
               </>
             </AuthenticatedTemplate>
+            <HomepageComponent/>
           </MsalProvider>
         </Suspense>
         

@@ -101,6 +101,8 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
+  meter_id: Yup.string().required("Meter Id is required"),
+
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -111,6 +113,27 @@ export const validationSchemaEntry = Yup.object().shape({
   total_cost: Yup.date().required("Total cost is required"),
 });
 
+export default validationSchemaAddMeter;
+
+export const validationSchemaProfileDetails = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+  last_name: Yup.string().required("Last Name is required"),
+  // businessLandline: Yup.string().required("Business Landline is required"),
+  phonenumber: Yup.string().required("Business Mobile is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+
+  company_name: Yup.string().required("Company Name is required"),
+  website: Yup.string().required("Website URL is required"),
+
+  unit_number: Yup.string().required("Unit Number is required"),
+  street_number: Yup.string().required("Street Number is required"),
+  street_name: Yup.string().required("Street Name is required"),
+
+  city: Yup.string().required("City is required"),
+  province: Yup.string().required("Province/State is required"),
+  postal_code: Yup.string().required("Postal Code/Zip Code is required"),
+  country: Yup.string().required("Country is required"),
+});
 export const validationSchemaFacilityDetails = Yup.object().shape({
   unique_features_that_impact_energy_usage: Yup.string().required(
     "Unique features that impact energy usage is required"
@@ -124,9 +147,9 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   space_heating_fuel_source: Yup.string().required(
     "Space heating fuel source is required"
   ),
-  space_heating_technology: Yup.string().required(
-    "Space heating technology is required"
-  ),
+  // space_heating_technology: Yup.string().required(
+  //   "Space heating technology is required"
+  // ),
   water_heating_fuel_source: Yup.string().required(
     "Water heating fuel source is required"
   ),
