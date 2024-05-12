@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { connect, useDispatch } from "react-redux";
-import { setOption, setOption2 } from "../../../redux/actions/simpleActions";
+import {
+  setOption,
+  setOption2,
+} from "../../../redux/superAdmin/actions/simpleActions";
 import { Box, Container, Grid, Typography, InputLabel } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
@@ -15,7 +18,7 @@ import {
   imageUploadEndPoints,
 } from "constants/apiEndPoints";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
+import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 
 const AddFacilityComponent = (props) => {
@@ -288,64 +291,61 @@ const AddFacilityComponent = (props) => {
     }
 
     const handleButtonClick = () => {
-        // Trigger the click event on the hidden file input element
-        fileInputRef.current.click();
+      // Trigger the click event on the hidden file input element
+      fileInputRef.current.click();
     };
 
     const handleFileChange = (event) => {
-        // Handle the file selection here
-        const selectedFile = event.target.files[0];
-        setSelectedFile(URL.createObjectURL(selectedFile));
-        dispatch(fileUploadAction(selectedFile))
-            .then((data) => setImgUrl(data?.sasTokenUrl))
-            .catch((error) => {
-                console.error("Error uploading image:", error);
-            });
+      // Handle the file selection here
+      const selectedFile = event.target.files[0];
+      setSelectedFile(URL.createObjectURL(selectedFile));
+      dispatch(fileUploadAction(selectedFile))
+        .then((data) => setImgUrl(data?.sasTokenUrl))
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
     };
 
     const handleSubmit = (values) => {
-        const newValues = { ...values, display_pic_url: imgUrl }
-        console.log(newValues)
-        if (values.facility_construction_status == 'Existing') {
-            values.facility_construction_status = 1;
-        } else if (values.facility_construction_status == 'New') {
-            values.facility_construction_status = 2;
-        } else if (values.facility_construction_status == 'Test Facility') {
-            values.facility_construction_status = 3;
-        }
+      const newValues = { ...values, display_pic_url: imgUrl };
+      console.log(newValues);
+      if (values.facility_construction_status == "Existing") {
+        values.facility_construction_status = 1;
+      } else if (values.facility_construction_status == "New") {
+        values.facility_construction_status = 2;
+      } else if (values.facility_construction_status == "Test Facility") {
+        values.facility_construction_status = 3;
+      }
 
-        // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY 
+      // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
 
-        if (!id) {
-
-            POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
-                .then((response) => {
-                    console.log(response)
-                    NotificationsToast({
-                        message: "Facility added successfully!",
-                        type: "success",
-                    });
-                    navigate(`/admin/facility-details/${response?.data?.data?.id}`)
-                })
-                .catch((error) => {
-                });
-        } else {
-            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
-                .then((response) => {
-                    NotificationsToast({
-                        message: "Facility updated successfully!",
-                        type: "success",
-                    });
-                    navigate(`/admin/facility-details/${id}`)
-                })
-                .catch((error) => {
-                });
-        }
+      if (!id) {
+        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
+          .then((response) => {
+            console.log(response);
+            NotificationsToast({
+              message: "Facility added successfully!",
+              type: "success",
+            });
+            navigate(`/admin/facility-details/${response?.data?.data?.id}`);
+          })
+          .catch((error) => {});
+      } else {
+        PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + "/" + id, newValues)
+          .then((response) => {
+            NotificationsToast({
+              message: "Facility updated successfully!",
+              type: "success",
+            });
+            navigate(`/admin/facility-details/${id}`);
+          })
+          .catch((error) => {});
+      }
     };
 
     const deletePicture = () => {
-        setSelectedFile('');
-    }
+      setSelectedFile("");
+    };
   };
 
   const deletePicture = () => {

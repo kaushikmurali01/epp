@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { setOption, setOption2 } from "../../redux/actions/simpleActions";
+import {
+  setOption,
+  setOption2,
+} from "../../redux/superAdmin/actions/simpleActions";
 import TabsSection from "../../sections/Homepage/TabsSection";
 import DashboardSection from "../../sections/Homepage/DashboardSection";
 import AddFacilityComponent from "../../sections/Homepage/AddFacility";
@@ -29,7 +32,7 @@ const HomepageComponent = (props) => {
       {/* <DashboardSection></DashboardSection> */}
       {/* <AddFacilityComponent></AddFacilityComponent> */}
       {/* <FacilityPage /> */}
-      <CompanyPage/>
+      {/* <CompanyPage/> */}
       {/*<ParticipantAgreementSection></ParticipantAgreementSection>
     <UserManagementSection></UserManagementSection> */}
     </>

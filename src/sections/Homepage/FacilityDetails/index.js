@@ -10,7 +10,7 @@ import EnergyAndWater from "./EnergyAndWater";
 import Performance from "./Performance";
 import ReportsAndStudies from "./ReportsAndStudies";
 import Weather from "./Weather";
-import { fetchFacilityDetails } from "../../../redux/actions/facilityActions";
+import { fetchFacilityDetails } from "../../../redux/superAdmin/actions/facilityActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 

@@ -17,7 +17,7 @@ import {
   FETCH_METER_STATISTICS_REQUEST,
   FETCH_METER_STATISTICS_SUCCESS,
   FETCH_METER_STATISTICS_FAILURE,
-} from "./../actionTypes";
+} from "../actionTypes";
 
 const initialState = {
   meterList: [],

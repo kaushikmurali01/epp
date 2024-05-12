@@ -89,7 +89,6 @@ export const deleteMeterFailure = (error) => ({
   payload: error,
 });
 
-
 export const fetchMeterStatisticsRequest = () => ({
   type: FETCH_METER_STATISTICS_REQUEST,
 });
