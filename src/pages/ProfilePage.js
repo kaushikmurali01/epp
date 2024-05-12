@@ -131,19 +131,19 @@ const ProfilePage = () => {
          setInitialValues((prevValues) => {
            return {
              ...prevValues,
-             first_name: res?.data?.user?.first_name,
-             last_name: res?.data?.user?.last_name,
-             phonenumber: res?.data?.user?.phonenumber,
-             email: res?.data?.user?.email,
-             company_name: res?.data?.company?.company_name,
-             website: res?.data?.company?.website,
-             unit_number: res?.data?.company?.unit_number,
-             street_number: res?.data?.company?.street_number,
-             street_name: res?.data?.company?.street_name,
-             city: res?.data?.company?.city,
-             province: res?.data?.company?.state,
-             country: res?.data?.company?.country,
-             postal_code: res?.data?.company?.postal_code,
+             first_name: res?.data?.user?.first_name || "",
+             last_name: res?.data?.user?.last_name || "",
+             phonenumber: res?.data?.user?.phonenumber || "",
+             email: res?.data?.user?.email || "",
+             company_name: res?.data?.company?.company_name || "",
+             website: res?.data?.company?.website || "",
+             unit_number: res?.data?.company?.unit_number || "",
+             street_number: res?.data?.company?.street_number || "",
+             street_name: res?.data?.company?.street_name || "",
+             city: res?.data?.company?.city || "",
+             province: res?.data?.company?.state || "",
+             country: res?.data?.company?.country || "",
+             postal_code: res?.data?.company?.postal_code || "",
            };
          });
        })
@@ -298,9 +298,9 @@ const ProfilePage = () => {
               wrap="nowrap"
             >
               <Grid item>
-                <Typography variant="h3">{`${userProfileData?.user?.first_name} ${userProfileData?.user?.last_name}`}</Typography>
+                <Typography variant="h3">{(userProfileData?.user?.first_name || "") + " " + (userProfileData?.user?.last_name || "")}</Typography>
                 <Typography variant="h6">
-                  Role: {userProfileData?.user?.rolename}
+                  Role: {userProfileData?.user?.rolename  || ""}
                 </Typography>
               </Grid>
               <Grid
@@ -345,7 +345,7 @@ const ProfilePage = () => {
                   {userProfileData?.user?.phonenumber && (
                     <MicroStyledListItemComponent
                       primary="Phone Number"
-                      secondary={userProfileData?.user?.phonenumber}
+                      secondary={userProfileData?.user?.phonenumber  || ""}
                     />
                   )}
                   {/* {userProfileData?.user?.landline && (
@@ -357,13 +357,13 @@ const ProfilePage = () => {
                   {userProfileData?.user?.email && (
                     <MicroStyledListItemComponent
                       primary="Email Address"
-                      secondary={userProfileData?.user?.email}
+                      secondary={userProfileData?.user?.email  || ""}
                     />
                   )}
                   {userProfileData?.company?.company_name && (
                     <MicroStyledListItemComponent
                       primary="Company Name"
-                      secondary={userProfileData?.company?.company_name}
+                      secondary={userProfileData?.company?.company_name  || ""}
                     />
                   )}
                 </List>
@@ -384,7 +384,7 @@ const ProfilePage = () => {
                         lineHeight: "normal",
                       }}
                     >
-                      {userProfileData?.company?.company_name}
+                      {userProfileData?.company?.company_name  || ""}
                     </Typography>
                   )}
                   {userProfileData?.company?.website && (
@@ -397,7 +397,7 @@ const ProfilePage = () => {
                         lineHeight: "normal",
                       }}
                     >
-                      {userProfileData?.company?.website}
+                      {userProfileData?.company?.website  || ""}
                     </Typography>
                   )}
                 </Box>
