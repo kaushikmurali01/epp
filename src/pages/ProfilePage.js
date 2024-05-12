@@ -20,6 +20,7 @@ import { validationSchemaProfileDetails } from "utils/validations/formValidation
 import { USER_MANAGEMENT, fileUploadEndPoints } from "constants/apiEndPoints";
 import { POST_REQUEST } from "utils/HTTPRequests";
 import EditProfileComponent from "components/ProfilePageComponents/EditProfileComponent";
+import { useDispatch } from "react-redux";
 
 
 const ProfilePage = () => {
@@ -72,7 +73,7 @@ const ProfilePage = () => {
     width: "auto",
   };
 
-  
+  const dispatch = useDispatch();
   const [showEditPage, setShowEditPage] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
 
@@ -122,7 +123,8 @@ const ProfilePage = () => {
   });
 
    const [userProfileData, setUserProfileData] = useState();
-   const getUserProfileData = () => {
+  const getUserProfileData = () => {
+    dispatch({ type: "SHOW_LOADER", payload: true });
      const apiURL = "/enerva-user/v1/user";
      GET_REQUEST(apiURL)
        .then((res) => {
@@ -146,6 +148,7 @@ const ProfilePage = () => {
              postal_code: res?.data?.company?.postal_code,
            };
          });
+         dispatch({ type: "SHOW_LOADER", payload: false });
        })
        .catch((error) => {
          console.log(error);
@@ -157,6 +160,7 @@ const ProfilePage = () => {
    }, []);
 
   const handleSubmit = (values) => {
+    dispatch({ type: "SHOW_LOADER", payload: true });
     const newValues = { ...values }
     const body ={
       "user": {
@@ -184,16 +188,14 @@ const ProfilePage = () => {
       }
     }
 
-    console.log("data after refactorung", body)
 
     const endpoint = USER_MANAGEMENT.EDIT_PROFILE;
     PUT_REQUEST(endpoint, body).then((response) => {
-      console.log('response after UIIII', response)
       window.location.reload();
+      dispatch({ type: "SHOW_LOADER", payload: false });
     });
   }
   
-  console.log(initialValues, "initi");
 
   return (
     <Container>

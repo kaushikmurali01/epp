@@ -19,6 +19,7 @@ import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, MsalProvider } from "@azure/msal-react";
+import Loader from "pages/Loader";
 
 const store = configureStore();
 
@@ -27,23 +28,22 @@ const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <Suspense fallback="Loading...">
+        <Suspense fallback={<Loader />}>
           <MsalProvider instance={props.instance}>
             <UnauthenticatedTemplate>
               <Header />
-                <LandingPage />
-              <Footer/>
-
+              <LandingPage />
+              <Footer />
             </UnauthenticatedTemplate>
             <AuthenticatedTemplate>
               <>
-                  <RoutesComp />
+                <RoutesComp />
               </>
             </AuthenticatedTemplate>
-            <HomepageComponent/>
+            <HomepageComponent />
           </MsalProvider>
         </Suspense>
-        
+
         {/* <ActionComponent /> */}
         {/* <Login /> */}
         {/* {/* <Signup /> */}
@@ -54,6 +54,7 @@ const App = (props) => {
         {/* <ParticipantAgreement /> */}
         {/* <Footer /> */}
       </ThemeProvider>
+      <Loader />
     </Provider>
   );
 };
