@@ -28,7 +28,9 @@ const UserManagement = () => {
   const [selectTableRow, setSelectTableRow] = useState({});
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
-  
+  // for pagination
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageCount, setPageCount] = useState('');
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -158,12 +160,16 @@ const UserManagement = () => {
 
   const getUserManagementData = () => {
     // const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
-    const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
+    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}/1`;
+    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
     GET_REQUEST(apiURL)
         .then((res) => {
           // setAllUser(res.data?.body)
-          if(res?.data?.body instanceof Array){
-            setAllUser(res.data?.body)
+          if(res.data?.body?.rows instanceof Array){
+            setAllUser(res.data?.body?.rows)
+            setPageCount(res.data?.body?.count)
           }
         }).catch((error) => {
             console.log(error)
@@ -195,7 +201,6 @@ useEffect(() => {
   getUserRoleData()
   getComapanyListData()
 }, [])
-  
   
 
   return (
@@ -262,7 +267,12 @@ useEffect(() => {
               </Grid>
 
               <Grid container>
-               {getAllUser &&  <Table columns={columns} data={getAllUser || []} headbgColor="#D9D9D9" /> }
+               {getAllUser &&  <Table 
+               columns={columns} data={getAllUser || []} 
+               count={pageCount}
+               pageInfo={pageInfo}
+               setPageInfo={setPageInfo}
+               headbgColor="#D9D9D9" /> }
               </Grid>
             </Container>
 
