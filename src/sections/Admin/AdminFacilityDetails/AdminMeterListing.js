@@ -15,15 +15,14 @@ import React, { useEffect, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteMeter,
-  fetchMeterListing,
-  fetchMeterStatistics,
-} from "../../../redux/superAdmin/actions/metersActions";
-import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
 import { array } from "yup";
+import {
+  deleteAdminMeter,
+  fetchAdminMeterListing,
+  fetchAdminMeterStatistics,
+} from "../../../redux/admin/actions/adminMeterActions";
 
 const AdminMeterListing = ({
   onAddButtonClick,
@@ -38,11 +37,11 @@ const AdminMeterListing = ({
   const [meterToDelete, setMeterToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchMeterStatistics());
+    dispatch(fetchAdminMeterStatistics());
   }, [dispatch]);
 
   const meterStatistics = useSelector(
-    (state) => state?.meterReducer?.meterStatistics?.data
+    (state) => state?.adminMeterReducer?.meterStatistics?.data
   );
 
   const METER_TYPE_ARRAY = [
@@ -57,13 +56,13 @@ const AdminMeterListing = ({
 
   const handleDeleteMeter = (mId) => {
     if (mId) {
-      dispatch(deleteMeter(mId))
+      dispatch(deleteAdminMeter(mId))
         .then(() => {
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
-          dispatch(fetchMeterListing(pageInfo, id));
+          dispatch(fetchAdminMeterListing(pageInfo, id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -169,14 +168,14 @@ const AdminMeterListing = ({
   ];
 
   const meterListingData = useSelector(
-    (state) => state?.meterReducer?.meterList?.data?.rows || []
+    (state) => state?.adminMeterReducer?.meterList?.data?.rows || []
   );
   const meterCount = useSelector(
-    (state) => state?.meterReducer?.meterList?.data?.count || []
+    (state) => state?.adminMeterReducer?.meterList?.data?.count || []
   );
 
   useEffect(() => {
-    dispatch(fetchMeterListing(pageInfo, id));
+    dispatch(fetchAdminMeterListing(pageInfo, id));
   }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
 
   const handleAddButtonClick = () => {

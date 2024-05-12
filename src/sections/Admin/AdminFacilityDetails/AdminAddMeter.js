@@ -22,10 +22,10 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
-  addMeter,
-  fetchMeterDetails,
-  updateMeter,
-} from "../../../redux/superAdmin/actions/metersActions";
+  addAdminMeter,
+  fetchAdminMeterDetails,
+  updateAdminMeter,
+} from "../../../redux/admin/actions/adminMeterActions";
 import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { format } from "date-fns";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
@@ -42,7 +42,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
 
   useEffect(() => {
     if (meterId2) {
-      dispatch(fetchMeterDetails(meterId2))
+      dispatch(fetchAdminMeterDetails(meterId2))
         .then((response) => {
           const meterDetails = response?.data;
           setInitialValues({
@@ -111,7 +111,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       delete newValues.purchased_from_the_grid;
     }
     if (meterId2) {
-      dispatch(updateMeter(meterId2, newValues))
+      dispatch(updateAdminMeter(meterId2, newValues))
         .then(() => {
           onAddMeterSuccess();
         })
@@ -119,7 +119,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           console.error("Error updating meter:", error);
         });
     } else {
-      dispatch(addMeter(newValues))
+      dispatch(addAdminMeter(newValues))
         .then(() => {
           onAddMeterSuccess();
         })

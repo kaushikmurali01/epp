@@ -35,10 +35,7 @@ import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
-import {
-  deleteMeter,
-  fetchMeterDetails,
-} from "../../../redux/superAdmin/actions/metersActions";
+import { deleteAdminMeter, fetchAdminMeterDetails } from "../../../redux/admin/actions/adminMeterActions";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -197,7 +194,7 @@ const AdminEntriesListing = ({
   ];
 
   const handleDeleteMeter = () => {
-    dispatch(deleteMeter(facilityMeterDetailId))
+    dispatch(deleteAdminMeter(facilityMeterDetailId))
       .then(() => {
         setDeleteMeterModalConfig((prevState) => ({
           ...prevState,
@@ -244,11 +241,11 @@ const AdminEntriesListing = ({
   );
 
   const meterData = useSelector(
-    (state) => state?.meterReducer?.meterDetails?.data || {}
+    (state) => state?.adminMeterReducer?.meterDetails?.data || {}
   );
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
-    dispatch(fetchMeterDetails(facilityMeterDetailId));
+    dispatch(fetchAdminMeterDetails(facilityMeterDetailId));
   }, [dispatch, pageInfo]);
 
   const handleAddButtonClick = (id) => {

@@ -17,14 +17,14 @@ import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
-import {
-  addFacilityCharacteristic,
-  fetchFacilityCharacteristics,
-  updateFacilityCharacteristic,
-} from "../../../redux/superAdmin/actions/facilityActions";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { validationSchemaFacilityDetails } from "utils/validations/formValidation";
+import {
+  addAdminFacilityCharacteristic,
+  fetchAdminFacilityCharacteristics,
+  updateAdminFacilityCharacteristic,
+} from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -41,7 +41,7 @@ const AdminDetails = () => {
   const [heatingAlignment, setHeatingAlignment] = useState(false);
   const [coolingAlignment, setCoolingAlignment] = useState(false);
   const facilityCharacterstics = useSelector(
-    (state) => state?.facilityReducer?.characteristics?.data
+    (state) => state?.adminFacilityReducer?.characteristics?.data
   );
 
   function checkAndReturnFromArray(array, value) {
@@ -64,7 +64,7 @@ const AdminDetails = () => {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchFacilityCharacteristics(id))
+      dispatch(fetchAdminFacilityCharacteristics(id))
         .then((response) => {
           const charactersticsDetails = response?.data;
           setInitialValues({
@@ -388,9 +388,9 @@ const AdminDetails = () => {
       facility_site_layout_media_url: facilityImgUrl,
     };
     if (facilityCharacterstics) {
-      dispatch(updateFacilityCharacteristic(id, newValues));
+      dispatch(updateAdminFacilityCharacteristic(id, newValues));
     } else {
-      dispatch(addFacilityCharacteristic(newValues));
+      dispatch(addAdminFacilityCharacteristic(newValues));
     }
   };
 
