@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFacilityStatus } from "../../../redux/actions/facilityActions";
+import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
 import { useParams } from "react-router-dom";
 
 const DashedConnector = styled(StepConnector)(({ theme, active }) => ({

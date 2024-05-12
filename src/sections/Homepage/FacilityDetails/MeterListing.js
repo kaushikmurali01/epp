@@ -19,7 +19,7 @@ import {
   deleteMeter,
   fetchMeterListing,
   fetchMeterStatistics,
-} from "./../../../redux/actions/metersActions";
+} from "../../../redux/superAdmin/actions/metersActions";
 import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";

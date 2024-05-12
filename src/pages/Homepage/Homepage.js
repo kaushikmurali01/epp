@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { setOption, setOption2 } from "../../redux/actions/simpleActions";
+import {
+  setOption,
+  setOption2,
+} from "../../redux/superAdmin/actions/simpleActions";
 import TabsSection from "../../sections/Homepage/TabsSection";
 import DashboardSection from "../../sections/Homepage/DashboardSection";
 import AddFacilityComponent from "../../sections/Homepage/AddFacility";
@@ -8,8 +11,9 @@ import Facility from "sections/Homepage/FacilitySection";
 import Header from "components/CommonHeader/Header";
 import DashboardPage from "sections/Homepage/DashBoardPage";
 import CompanyPage from "sections/Homepage/CompanyPage";
-import FacilityPage from "sections/Homepage/Facility";
-import FacilityOverview from "sections/Homepage/Facility/facilityOverview";
+import FacilityPage from "../../sections/Admin/AdminFacilityListing";
+import FacilityOverview from "sections/Admin/AdminFacilityListing/facilityOverview";
+import AdminFacilityDetails from "sections/Admin/AdminFacilityDetails";
 
 const HomepageComponent = (props) => {
   const [option, setNewOption] = useState("");
@@ -29,7 +33,8 @@ const HomepageComponent = (props) => {
       {/* <DashboardSection></DashboardSection> */}
       {/* <AddFacilityComponent></AddFacilityComponent> */}
       {/* <FacilityPage /> */}
-      <CompanyPage/>
+      {/* <AdminFacilityDetails/> */}
+      {/* <CompanyPage/> */}
       {/*<ParticipantAgreementSection></ParticipantAgreementSection>
     <UserManagementSection></UserManagementSection> */}
     </>
