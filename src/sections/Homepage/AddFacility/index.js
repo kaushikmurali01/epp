@@ -319,28 +319,31 @@ const AddFacilityComponent = (props) => {
 
       // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
 
-      if (!id) {
-        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
-          .then((response) => {
-            console.log(response);
-            NotificationsToast({
-              message: "Facility added successfully!",
-              type: "success",
-            });
-            navigate(`/admin/facility-details/${response?.data?.data?.id}`);
-          })
-          .catch((error) => {});
-      } else {
-        PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + "/" + id, newValues)
-          .then((response) => {
-            NotificationsToast({
-              message: "Facility updated successfully!",
-              type: "success",
-            });
-            navigate(`/admin/facility-details/${id}`);
-          })
-          .catch((error) => {});
-      }
+        if (!id) {
+
+            POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
+                .then((response) => {
+                    console.log(response)
+                    NotificationsToast({
+                        message: "Facility added successfully!",
+                        type: "success",
+                    });
+                    navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
+                })
+                .catch((error) => {
+                });
+        } else {
+            PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
+                .then((response) => {
+                    NotificationsToast({
+                        message: "Facility updated successfully!",
+                        type: "success",
+                    });
+                    navigate(`/facility-list/facility-details/${id}`)
+                })
+                .catch((error) => {
+                });
+        }
     };
 
     const deletePicture = () => {

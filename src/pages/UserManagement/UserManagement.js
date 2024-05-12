@@ -262,7 +262,7 @@ useEffect(() => {
               </Grid>
 
               <Grid container>
-               {getAllUser &&  <Table columns={columns} data={getAllUser} headbgColor="#D9D9D9" /> }
+               {getAllUser &&  <Table columns={columns} data={getAllUser || []} headbgColor="#D9D9D9" /> }
               </Grid>
             </Container>
 
