@@ -138,7 +138,7 @@ const DashboardNoGraph = (props) => {
           color="primary"
           variant="contained"
           component="a"
-          onClick={() => navigate("/admin/add-facility")}
+          onClick={() => navigate("/facility-list/add-facility")}
         >
           Add Facility
         </Button>

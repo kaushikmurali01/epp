@@ -19,6 +19,10 @@ export const adminFacilityEndpoints = {
   ADMIN_FACILITY_LIST: "company-facility/v1/program/facility-listing",
   ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/facility",
   ADMIN_DELETE_FACILITY: "company-facility/v1/program/facility",
+  ADD_ADMIN_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+  GET_ADMIN_FACILITY_CHARACTERISTIC: "/company-facility/v1/facility-characteristics",
+  UPDATE_ADMIN_FACILITY_CHARACTERISTIC:
+    "/company-facility/v1/facility-characteristics",
 };
 
 export const PA_MANAGEMENT = {
@@ -44,6 +48,8 @@ export const USER_MANAGEMENT = {
   DELETE_USER_REQUEST: "/enerva-user/v1/users",
   // EDIT REQUEST
   EDIT_INVITATION_BY_ADMIN: "/enerva-user/v1/assign",
+  GET_USER_DETAILS: 'enerva-user/v1/user',
+
   EDIT_PROFILE: '/enerva-user/v1/users',
 };
 
@@ -79,6 +85,13 @@ export const meterEndPoints = {
   DELETE_METER: "/company-facility/v1/facility-meter",
 };
 
+export const adminMeterEndPoints = {
+  ADD_METER: "/company-facility/v1/facility-meter",
+  METER_LIST: "/company-facility/v1/facility-meter-listing",
+  GET_METER_DETAILS: "/company-facility/v1/facility-meter-details",
+  UPDATE_METER: "/company-facility/v1/facility-meter",
+  DELETE_METER: "/company-facility/v1/facility-meter",
+};
 export const imageUploadEndPoints = {
   IMAGE_UPLOAD: "/company-facility/v1/upload",
 };

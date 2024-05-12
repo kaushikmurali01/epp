@@ -33,6 +33,7 @@ msalInstance.addEventCallback((event) => {
 });
 
 console.log('ssss', msalInstance)
+console.log("build updated on 9th May 7PM")
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

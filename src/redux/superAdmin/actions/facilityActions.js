@@ -34,7 +34,7 @@ import {
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
-import NotificationsTost from "../../../utils/notification/NotificationsToast.js";
+import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
 export const fetchFacilityListing = (pageInfo) => {
   return async (dispatch) => {
@@ -49,7 +49,7 @@ export const fetchFacilityListing = (pageInfo) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilityListFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -65,14 +65,14 @@ export const submitFacilityForApproval = (facility) => {
       const response = await POST_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(submitFacilityForApprovalSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Facility Submited for Approval",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(submitFacilityForApprovalFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -91,7 +91,7 @@ export const fetchFacilityDetails = (facilityId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilityDetailsFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -107,14 +107,14 @@ export const deleteFacility = (facilityId) => {
       const response = await DELETE_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(deleteFacilitySuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Facility deleted successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(deleteFacilityFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -130,14 +130,14 @@ export const addFacilityCharacteristic = (characteristic) => {
       const response = await POST_REQUEST(endpoint, characteristic);
       const data = response.data;
       dispatch(addFacilityCharacteristicSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Facility details added successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(addFacilityCharacteristicFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -157,7 +157,7 @@ export const fetchFacilityCharacteristics = (facilityId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilityCharacteristicsFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -173,14 +173,14 @@ export const updateFacilityCharacteristic = (facilityId, characteristic) => {
       const response = await PATCH_REQUEST(endpointWithParams, characteristic);
       const data = response.data;
       dispatch(updateFacilityCharacteristicSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Facility details updated successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityCharacteristicFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -200,7 +200,7 @@ export const fetchFacilityStatus = (facilityId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilityStatusFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -216,14 +216,14 @@ export const updateFacilityStatus = (facilityId, status) => {
       const response = await PATCH_REQUEST(endpointWithParams, status);
       const data = response.data;
       dispatch(updateFacilityStatusSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Facility status updated successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityStatusFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });

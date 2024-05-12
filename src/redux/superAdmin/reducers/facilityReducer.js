@@ -11,21 +11,21 @@ import {
   DELETE_FACILITY_REQUEST,
   DELETE_FACILITY_SUCCESS,
   DELETE_FACILITY_FAILURE,
-  ADD_FACILITY_CHARACTERISTIC_REQUEST,
-  ADD_FACILITY_CHARACTERISTIC_SUCCESS,
-  ADD_FACILITY_CHARACTERISTIC_FAILURE,
   FETCH_FACILITY_CHARACTERISTICS_REQUEST,
   FETCH_FACILITY_CHARACTERISTICS_SUCCESS,
   FETCH_FACILITY_CHARACTERISTICS_FAILURE,
-  UPDATE_FACILITY_CHARACTERISTIC_REQUEST,
-  UPDATE_FACILITY_CHARACTERISTIC_SUCCESS,
-  UPDATE_FACILITY_CHARACTERISTIC_FAILURE,
   FETCH_FACILITY_STATUS_REQUEST,
   FETCH_FACILITY_STATUS_SUCCESS,
   FETCH_FACILITY_STATUS_FAILURE,
   UPDATE_FACILITY_STATUS_REQUEST,
   UPDATE_FACILITY_STATUS_SUCCESS,
   UPDATE_FACILITY_STATUS_FAILURE,
+  UPDATE_FACILITY_CHARACTERISTICS_REQUEST,
+  UPDATE_FACILITY_CHARACTERISTICS_SUCCESS,
+  UPDATE_FACILITY_CHARACTERISTICS_FAILURE,
+  ADD_FACILITY_CHARACTERISTICS_FAILURE,
+  ADD_FACILITY_CHARACTERISTICS_SUCCESS,
+  ADD_FACILITY_CHARACTERISTICS_REQUEST,
 } from "../actionTypes";
 
 const initialState = {
@@ -112,19 +112,19 @@ const facilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-    case ADD_FACILITY_CHARACTERISTIC_REQUEST:
+    case ADD_FACILITY_CHARACTERISTICS_REQUEST:
       return {
         ...state,
         loading: true,
         error: null,
       };
-    case ADD_FACILITY_CHARACTERISTIC_SUCCESS:
+    case ADD_FACILITY_CHARACTERISTICS_SUCCESS:
       return {
         ...state,
         loading: false,
         error: null,
       };
-    case ADD_FACILITY_CHARACTERISTIC_FAILURE:
+    case ADD_FACILITY_CHARACTERISTICS_FAILURE:
       return {
         ...state,
         loading: false,
@@ -149,19 +149,19 @@ const facilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-    case UPDATE_FACILITY_CHARACTERISTIC_REQUEST:
+    case UPDATE_FACILITY_CHARACTERISTICS_REQUEST:
       return {
         ...state,
         loading: true,
         error: null,
       };
-    case UPDATE_FACILITY_CHARACTERISTIC_SUCCESS:
+    case UPDATE_FACILITY_CHARACTERISTICS_SUCCESS:
       return {
         ...state,
         loading: false,
         error: null,
       };
-    case UPDATE_FACILITY_CHARACTERISTIC_FAILURE:
+    case UPDATE_FACILITY_CHARACTERISTICS_FAILURE:
       return {
         ...state,
         loading: false,

@@ -268,7 +268,7 @@ useEffect(() => {
 
               <Grid container>
                {getAllUser &&  <Table 
-               columns={columns} data={getAllUser} 
+               columns={columns} data={getAllUser || []} 
                count={pageCount}
                pageInfo={pageInfo}
                setPageInfo={setPageInfo}

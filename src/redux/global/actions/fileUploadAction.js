@@ -5,7 +5,7 @@ import {
   fileUploadFailure,
 } from "../actionCreators/fileUploadActionCreator.js";
 import { POST_REQUEST } from "utils/HTTPRequests";
-import NotificationsTost from "../../../utils/notification/NotificationsToast.js";
+import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
 export const fileUploadAction = (uploadData) => {
   return async (dispatch) => {
@@ -17,7 +17,7 @@ export const fileUploadAction = (uploadData) => {
       const response = await POST_REQUEST(endpoint, formData, true, "");
       const data = response.data;
       dispatch(fileUploadSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Image uploaded successfully!",
         type: "success",
       });
@@ -25,7 +25,7 @@ export const fileUploadAction = (uploadData) => {
     } catch (error) {
       console.error(error);
       dispatch(fileUploadFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });

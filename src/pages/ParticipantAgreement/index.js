@@ -7,6 +7,7 @@ import { dataURLtoFile } from "utils/commonFunctions";
 import NotificationsToast from "utils/notification/NotificationsToast";
 
 const ParticipantAgreementComponent = () => {
+  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails')) || {};
   useEffect(() => {
     createPA();
     // getParticipantAgreementData();
@@ -82,9 +83,7 @@ const ParticipantAgreementComponent = () => {
           const fileURL = window.URL.createObjectURL(blob);
           let alink = document.createElement("a");
           alink.href = fileURL;
-          let fileName = PAData?.signed_doc?.split("/");
-  
-          fileName = fileName[fileName?.length - 1];
+          let fileName = userDetails?.first_name + "_" + userDetails?.last_name + "_signed_participant_agreement.pdf"
           alink.download = fileName;
           alink.click();
         });
@@ -102,6 +101,8 @@ const ParticipantAgreementComponent = () => {
       if (response?.data?.sasTokenUrl) {
         let body = {
           upload_sign: response?.data?.sasTokenUrl,
+          username: `${userDetails?.first_name} ${userDetails?.last_name}`,
+          rolename: userDetails?.rolename
         };
         PATCH_REQUEST(PA_MANAGEMENT.SIGN_PA + `/${company_id}`, body).then(
           (response) => {

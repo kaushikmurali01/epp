@@ -17,9 +17,9 @@ export const uploadFileEndPoints = {
 };
 
 export const pageSubEndspoints = {
-  index: '',
-  dashboard: 'dashboard'
-}
+  index: "",
+  dashboard: "dashboard",
+};
 
 export const facilityEndPoints = {
   facilityDashboard: "facility-dashboard",
@@ -30,6 +30,14 @@ export const facilityEndPoints = {
   facilityDetails: "facility-details/:id",
   entriesDetails: "entries-details/:id",
 };
+
+export const enervaEndPoints = {
+  companies: "companies",
+  reportManagement: "report-management",
+  programManagement :"program-management",
+  roleAndPermissionManagement: "roles-permissions-management",
+  clientManagement: "client-management"
+}
 
 export const userManagementEndPoints = {
   userManagement: "user-management",

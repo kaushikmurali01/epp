@@ -23,7 +23,7 @@ const BoxCard = styled(Box)(({ theme }) => {
   };
 });
 
-const FacilityHeader = () => {
+const AdminFacilityHeader = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
@@ -40,7 +40,7 @@ const FacilityHeader = () => {
             ...prevState,
             modalVisible: false,
           }));
-          navigate("/facility-list");
+          navigate("/admin/facility-list");
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -141,7 +141,7 @@ const FacilityHeader = () => {
                     padding: 0,
                     minWidth: "unset",
                   }}
-                  onClick={() => navigate(`/facility-list/edit-facility/${id}`)}
+                  onClick={() => navigate(`/admin/edit-facility/${id}`)}
                 >
                   Edit
                 </Button>
@@ -207,4 +207,4 @@ const FacilityHeader = () => {
   );
 };
 
-export default FacilityHeader;
+export default AdminFacilityHeader;

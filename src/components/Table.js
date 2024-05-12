@@ -54,20 +54,30 @@ const Table = ({
   };
 
   const handleFirstPage = () => {
-    setPageInfo({ ...pageInfo, page: 1 });
+    if(pageInfo?.page){
+      setPageInfo({ ...pageInfo, page: 1 });
+    }
+    
   };
 
   const handleLastPage = () => {
     const totalPages = Math.ceil(count / pageInfo?.pageSize);
-    setPageInfo({ ...pageInfo, page: totalPages });
+    if(pageInfo?.page){
+      setPageInfo({ ...pageInfo, page: totalPages });
+    }
+    
   };
 
   const handlePageClick = (pageNumber) => {
-    setPageInfo({ ...pageInfo, page: pageNumber });
+    if(pageInfo?.page){
+      setPageInfo({ ...pageInfo, page: pageNumber });
+    }
   };
 
   const handleRowsPerPageChange = (event) => {
-    setPageInfo({ ...pageInfo, page: 1, pageSize: event.target.value });
+    if(pageInfo?.page){
+      setPageInfo({ ...pageInfo, page: 1, pageSize: event.target.value });
+    }
   };
 
   const totalPages = Math.ceil(count / pageInfo?.pageSize);
