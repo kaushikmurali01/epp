@@ -4,7 +4,7 @@ import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
 import React from "react";
 
-const Weather = () => {
+const AdminWeather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const initialValues = {};
 
@@ -80,4 +80,4 @@ const Weather = () => {
   );
 };
 
-export default Weather;
+export default AdminWeather;
