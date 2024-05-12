@@ -240,7 +240,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             onClick={() => handelInviteSubmit()}
                             disabled={!isFormValid}
                         >
-                            {isEdited ? 'Update Invite' : ' Send Invite'}
+                            {isEdited ? 'Update Permissions' : ' Send Invite'}
                            
                         </Button>
                     </Grid>
