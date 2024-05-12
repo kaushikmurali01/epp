@@ -31,6 +31,14 @@ export const facilityEndPoints = {
   entriesDetails: "entries-details/:id",
 };
 
+export const enervaEndPoints = {
+  companies: "companies",
+  reportManagement: "report-management",
+  programManagement :"program-management",
+  roleAndPermissionManagement: "roles-permissions-management",
+  clientManagement: "client-management"
+}
+
 export const userManagementEndPoints = {
   userManagement: "user-management",
 };

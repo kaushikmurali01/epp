@@ -2,10 +2,13 @@ import React, { useState, useEffect } from "react";
 import Tabs from "@mui/material/Tabs";
 import CustomTab from "../../../components/FormBuilder/CustomTab";
 import { Box, Container } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+
+import { tabsData } from "utils/tabsrouting";
 
 const TabsSection = (props) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tabValue, setTabValue] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -13,6 +16,44 @@ const TabsSection = (props) => {
     setTabValue(newValue);
     setActiveStep(0);
   };
+
+  const [tabsToShow, setTabsToShow] = useState([{
+    label: "Dashboard",
+    route:'/facility-dashboard'
+  }])
+
+  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
+  const userPermissions = localStorage.getItem('userPermissions') && JSON.parse(localStorage.getItem('userPermissions'))
+
+   const checkIfUrlInTabRoute = () => {
+    const pathName = location.pathname;
+    let parts = pathName.split("/");
+    let firstUrlPathAfter = '/'
+
+    if (parts.length > 1) {
+        let firstAfterSlash = parts[1];
+        firstUrlPathAfter = `/${firstAfterSlash}`
+    }
+
+    let a = tabsToShow?.some(obj => Object.values(obj).includes(firstUrlPathAfter));
+    const index = tabsToShow.findIndex(obj => Object.values(obj).includes(firstUrlPathAfter));
+    setTabValue(index);
+  }
+
+  useEffect(() => {
+    
+      let tabForUser = tabsData(userDetails?.type, userDetails?.rolename, userPermissions )
+      let tabs = [...tabsToShow, ...tabForUser];
+      setTabsToShow(tabs);
+  }, [localStorage.getItem('userDetails'), localStorage.getItem('userPermissions')])
+
+  
+
+  useEffect(() => {
+    checkIfUrlInTabRoute()
+  },)
+
+
 
   const customTabStyle = {
     borderRadius: "10px 10px 0 0",
@@ -39,7 +80,7 @@ const TabsSection = (props) => {
       <Container>
         <Tabs
           value={tabValue}
-          onChange={handleTabChange}
+          onChange={(event, value) => handleTabChange(event, value)}
           variant="scrollable"
           TabIndicatorProps={{
             style: { display: "none" },
@@ -47,32 +88,15 @@ const TabsSection = (props) => {
           TabScrollButtonProps={{
             style: { display: "none" },
           }}
-          // visibleScrollbar="true"
         >
-          <CustomTab
-            label="Dashboard"
+          {Array.isArray(tabsToShow) && tabsToShow.length && tabsToShow.map(tab=> (
+            <CustomTab
+            label={tab.label}
             pageName="Homepage"
             sx={customTabStyle}
-            onClick={() => navigate('/admin/facility-dashboard')}
+            onClick={() => navigate(tab.route)}
           />
-          <CustomTab
-            label="Facility List"
-            pageName="Homepage"
-            sx={customTabStyle}
-            onClick={() => navigate('/admin/facility-list')}
-          />
-          <CustomTab
-            label="Participant Agreement"
-            pageName="Homepage"
-            sx={customTabStyle}
-            onClick={() => navigate('/admin/participant-agreement')}
-          />
-          <CustomTab
-            label="User Management"
-            pageName="Homepage"
-            sx={customTabStyle}
-            onClick={() => navigate('/admin/user-management')}
-          />
+          ))}
         </Tabs>
       </Container>
     </Box>

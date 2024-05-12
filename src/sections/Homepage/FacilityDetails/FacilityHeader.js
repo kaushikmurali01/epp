@@ -40,7 +40,7 @@ const FacilityHeader = () => {
             ...prevState,
             modalVisible: false,
           }));
-          navigate("/admin/facility-list");
+          navigate("/facility-list");
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -141,7 +141,7 @@ const FacilityHeader = () => {
                     padding: 0,
                     minWidth: "unset",
                   }}
-                  onClick={() => navigate(`/admin/edit-facility/${id}`)}
+                  onClick={() => navigate(`/facility-list/edit-facility/${id}`)}
                 >
                   Edit
                 </Button>
