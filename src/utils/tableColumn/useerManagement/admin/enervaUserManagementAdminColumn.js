@@ -113,7 +113,6 @@ const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,se
     setSelectTableRow(item)
     setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '1' }) //enervaUsers for type "1"
     setInviteAPIURL(apiURL)
-    console.log(item, 'check item')
 }
 
 const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {

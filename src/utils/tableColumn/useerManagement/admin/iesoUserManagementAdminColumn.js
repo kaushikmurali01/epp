@@ -94,7 +94,7 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibleI
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography disabled variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
@@ -111,9 +111,8 @@ const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,se
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: null })
+    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '4' })
     setInviteAPIURL(apiURL)
-    console.log(item, 'check item')
 }
 
 const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
