@@ -12,7 +12,7 @@ import FacilityStatus from "components/FacilityStatus";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteFacility } from "../../../redux/actions/facilityActions";
+import { deleteFacility } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
 
 const BoxCard = styled(Box)(({ theme }) => {

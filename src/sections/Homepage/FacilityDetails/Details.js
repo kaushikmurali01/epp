@@ -16,12 +16,12 @@ import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { fileUploadAction } from "../../../redux/actions/fileUploadAction";
+import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import {
   addFacilityCharacteristic,
   fetchFacilityCharacteristics,
   updateFacilityCharacteristic,
-} from "../../../redux/actions/facilityActions";
+} from "../../../redux/superAdmin/actions/facilityActions";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { validationSchemaFacilityDetails } from "utils/validations/formValidation";

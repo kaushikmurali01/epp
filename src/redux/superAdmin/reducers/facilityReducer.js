@@ -26,7 +26,7 @@ import {
   UPDATE_FACILITY_STATUS_REQUEST,
   UPDATE_FACILITY_STATUS_SUCCESS,
   UPDATE_FACILITY_STATUS_FAILURE,
-} from "./../actionTypes";
+} from "../actionTypes";
 
 const initialState = {
   facilityList: [],
