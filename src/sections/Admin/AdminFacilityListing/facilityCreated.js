@@ -9,10 +9,12 @@ import {
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import EvModal from "utils/modal/EvModal";
+import { useNavigate } from "react-router-dom";
 
 const FacilityCreated = () => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
   useEffect(() => {
@@ -215,6 +217,7 @@ const FacilityCreated = () => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            onClick={(id) => navigate(`/admin/facility-details/${id}`)}
           />
         </Grid>
       </Grid>

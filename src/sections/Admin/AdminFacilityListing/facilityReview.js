@@ -101,7 +101,7 @@ const FacilityReview = () => {
                   fontStyle: "italic",
                 }}
               >
-                List of Under Review Facilities
+                List of under review facilities
               </Typography>
             </Grid>
             <Grid container xs={6} gap={4} justifyContent="flex-end">
