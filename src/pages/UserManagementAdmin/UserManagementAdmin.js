@@ -87,8 +87,18 @@ const UserManagementAdmin = () => {
   const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
 // for pagination
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const [pageCount, setPageCount] = useState('');
+const defaultPagination = { page: 1, pageSize: 10 }
+  const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
+  const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
+  const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
+  const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
+  
+  const [pageCount, setPageCount] = useState({
+    enerva: '',
+    ieso: '',
+    customer: '',
+    aggregator: ''
+  });
 
 
   const handleSelectChange = (event) => {
@@ -171,36 +181,56 @@ const UserManagementAdmin = () => {
 
 
   const getEnervaUserManagementData = () => {
-    // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
-    // const apiURL = "https://ams-enerva-dev.azure-api.net/enerva-user/v1/enerva/0/10"
-    const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
+    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
+      (enervaPageInfo.page - 1) * enervaPageInfo.pageSize
+    }/${enervaPageInfo.pageSize}`;
+    // const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
-      .then((res) => {
-        console.log(res, "Enerva user management");
-        setEnervaUser(res.data)
+      .then((res) => {       
+        if(res.data?.body?.rows instanceof Array){
+          setEnervaUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            enerva: res.data?.body?.count
+          }));
+        }
         
       }).catch((error) => {
         console.log(error)
       });
   }
   const getIESOUserManagementData = () => {
-    // const apiURL = "https://enervauser.azurewebsites.net/api/ieso/0/100"
-    const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
+    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
+      (iesoPageInfo.page - 1) * iesoPageInfo.pageSize
+    }/${iesoPageInfo.pageSize}`;
+    // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
-       
-        setIesoUser(res.data)
+        if(res.data?.body?.rows instanceof Array){
+          setIesoUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            ieso: res.data?.body?.count
+          }));
+        }
       }).catch((error) => {
         console.log(error)
       });
   }
   const getCustomerUserManagementData = () => {
-    // const apiURL = "https://enervauser.azurewebsites.net/api/customer/0/100"
-    const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
+    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
+      (customerPageInfo.page - 1) * customerPageInfo.pageSize
+    }/${customerPageInfo.pageSize}`;
+    // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
-        // console.log(res, 'getIESOUserManagementData');
-        setCustomerUser(res.data)
+        if(res.data?.body?.rows instanceof Array){
+          setCustomerUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            ieso: res.data?.body?.count
+          }));
+        }
       }).catch((error) => {
         console.log(error)
       });
@@ -238,30 +268,28 @@ const UserManagementAdmin = () => {
       });
   }
 
-  // const getComapanyListData = () => {
-  //   const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
-  //   GET_REQUEST(apiURL)
-  //     .then((res) => {
-  //       setCompanyList(res.data)
-  //     }).catch((error) => {
-  //       console.log(error)
-  //     });
-  // }
+  
+  useEffect(()=> {
+    getUserRoleData()
+  }, [])
 
   useEffect(() => {
     // load all default function on page load
-    getEnervaUserManagementData();
-    getIESOUserManagementData();
-    getCustomerUserManagementData();
-    // getAggregatorUserManagementData();
+      getEnervaUserManagementData();
+  }, [enervaPageInfo])
 
-    // other get values functions
-    getUserRoleData()
-    // getComapanyListData()
-  }, [])
+  useEffect(() => {
+    // load all default function on page load
+      getIESOUserManagementData();
+
+  }, [iesoPageInfo])
+
+  useEffect(() => {
+    // load all default function on page load
+      getCustomerUserManagementData();
+  }, [customerPageInfo])
 
 
-  console.log(tabValue, "tabValue")
 
 
   return (
@@ -363,14 +391,27 @@ const UserManagementAdmin = () => {
               </Grid>
               {(getEnervaUser && tabValue === 'enervaUsers') &&
                   <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="#D9D9D9" 
-                  count={pageCount}
-                  pageInfo={pageInfo}
-                  setPageInfo={setPageInfo}
+                  count={pageCount.enerva}
+                  pageInfo={enervaPageInfo}
+                  setPageInfo={setEnervaPageInfo}
                   />
               }
-              {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="#D9D9D9" />}
-              {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="#D9D9D9" />}
-              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="#D9D9D9" />}
+              {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="#D9D9D9" 
+              count={pageCount.ieso}
+              pageInfo={iesoPageInfo}
+              setPageInfo={setIesoPageInfo}
+              />}
+              {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="#D9D9D9"
+                count={pageCount.customer}
+                pageInfo={customerPageInfo}
+                setPageInfo={setCustomerPageInfo}
+              
+              />}
+              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="#D9D9D9" 
+              count={pageCount.aggregator}
+              pageInfo={aggregatorPageInfo}
+              setPageInfo={setAggregatorPageInfo}
+              />}
             </Grid>
           </Container>
         </Box >

@@ -54,7 +54,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     const getPermissionList = (permission_id) => {
        //check if we have type or not in page info, if we have type then it is user management admin page
-        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -166,7 +166,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType,]);
 
-    console.log(getUserRole, 'getUserRole')
+    console.log(getUserRole, invitePageInfo, 'invitePageInfo,getUserRole')
 
     return (
         <Box component="section">
