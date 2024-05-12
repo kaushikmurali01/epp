@@ -153,7 +153,7 @@ const AddFacilityComponent = (props) => {
                         message: "Facility added successfully!",
                         type: "success",
                     });
-                    navigate(`/admin/facility-details/${response?.data?.data?.id}`)
+                    navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
                 })
                 .catch((error) => {
                 });
@@ -164,7 +164,7 @@ const AddFacilityComponent = (props) => {
                         message: "Facility updated successfully!",
                         type: "success",
                     });
-                    navigate(`/admin/facility-details/${id}`)
+                    navigate(`/facility-list/facility-details/${id}`)
                 })
                 .catch((error) => {
                 });

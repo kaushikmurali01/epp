@@ -70,6 +70,8 @@ function Header(props) {
     }
   }
 
+  const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
+
   return (
     <AppBar
       position="sticky"
@@ -176,8 +178,8 @@ function Header(props) {
           {(props.page == "authenticated") ? <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, gap: '1.5rem', alignItems: "center", }} >
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Ben Martin" src="/static/images/avatar/23.jpg" />
-              </IconButton>
+                <Avatar alt={userData?.first_name+' '+userData?.last_name} src={userData?.profile_pic || '/static/'} />
+              </IconButton> 
             </Tooltip>
             <Menu
               sx={{ mt: "45px" }}

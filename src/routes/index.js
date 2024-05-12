@@ -10,6 +10,11 @@ import {
   useAccount,
 } from "@azure/msal-react";
 
+import { GET_REQUEST } from "utils/HTTPRequests";
+import { USER_MANAGEMENT } from "constants/apiEndPoints";
+import { CustomerRoutes } from "./customerRoutes";
+import { EnervaRoutes } from "./enervaRoutes";
+
 const CommonLayout = lazy(() => import("layout/dashboardLayout")); //todo
 
 const RoutesComp = () => {
@@ -21,10 +26,34 @@ const RoutesComp = () => {
   const { instance, accounts, inProgress } = useMsal();
   const activeAccount = instance.getActiveAccount();
   const account = useAccount(accounts[0] || {});
+  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
 
   const onClose = () => {
     setNewUserPopUp(false);
   };
+
+  const selectRouter = (userType) => {
+    switch (userType) {
+      case 2:
+        return <CustomerRoutes />;
+      case 1:
+        return (<EnervaRoutes />);
+    //   default:
+    //     return <UnprotectedRouter />;
+    }
+  };
+
+  const getUserDetails = () => {
+    const apiURL = USER_MANAGEMENT.GET_USER_DETAILS
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        console.log('user details', res)
+        localStorage.setItem('userDetails', JSON.stringify(res?.data?.user))
+        localStorage.setItem('userPermissions', JSON.stringify(res?.data?.permissions))
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
 
   useEffect(() => {
     if (account) {
@@ -35,6 +64,7 @@ const RoutesComp = () => {
         .then((response) => {
           console.log("response.", response)
           localStorage.setItem("accessToken", response?.idToken);
+          getUserDetails();
           if (response?.idTokenClaims?.newUser) {
             setNewUserPopUp(true);
           }
@@ -42,11 +72,15 @@ const RoutesComp = () => {
     }
   }, [account]);
 
+  console.log("user info", account)
+
   return true ? (
     <>
       <CommonLayout>
-        <DashboardRoutes />
+        {/* <DashboardRoutes /> */}
+        {selectRouter(userDetails.type)}
       </CommonLayout>
+      
       <Modal
         open={showNewUserPopup}
         onClose={onClose}

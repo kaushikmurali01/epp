@@ -101,10 +101,7 @@ const Facility = () => {
               padding: 0,
               minWidth: "unset",
             }}
-            // onClick={() =>
-            //   navigate(`/admin/add-facility${id}` })
-            // }
-            onClick={() => navigate(`/admin/edit-facility/${item?.id}`)}
+            onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
@@ -266,7 +263,7 @@ const Facility = () => {
                 }}
               />
             }
-            onClick={() => navigate("/admin/add-facility")}
+            onClick={() => navigate("/facility-list/add-facility")}
           >
             Add Facility
           </Button>
@@ -279,7 +276,7 @@ const Facility = () => {
           count={facilityCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
-          onClick={(id) => navigate(`/admin/facility-details/${id}`)}
+          onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
         />
       </Box>
       <EvModal

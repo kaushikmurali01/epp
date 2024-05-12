@@ -22,6 +22,8 @@ const DashboardSection = (props) => {
   const { isLg } = useMediaQueries();
   const navigate = useNavigate();
 
+  const userData = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
+
   return (
     <Container>
       <Box>
@@ -33,7 +35,7 @@ const DashboardSection = (props) => {
             fontWeight: "bold",
           }}
         >
-          Welcome Ben
+          Welcome {userData?.first_name}
         </Typography>
         <Typography
           variant="h6"
@@ -138,7 +140,7 @@ const DashboardSection = (props) => {
           color="primary"
           variant="contained"
           component="a"
-          onClick={() => navigate('/admin/add-facility')}
+          onClick={() => navigate('/facility-list/add-facility')}
         >
           Add Facility
         </Button>
