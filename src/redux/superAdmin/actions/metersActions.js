@@ -25,7 +25,7 @@ import {
   PATCH_REQUEST,
   DELETE_REQUEST,
 } from "utils/HTTPRequests";
-import NotificationsTost from "../../../utils/notification/NotificationsToast";
+import NotificationsToast from "../../../utils/notification/NotificationsToast";
 
 export const fetchMeterListing = (pageInfo, id) => {
   return async (dispatch) => {
@@ -40,7 +40,7 @@ export const fetchMeterListing = (pageInfo, id) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterListFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -55,14 +55,14 @@ export const addMeter = (meterData) => {
       const response = await POST_REQUEST(meterEndPoints.ADD_METER, meterData);
       const data = response.data;
       dispatch(addMeterSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Meter added successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(addMeterFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -78,14 +78,14 @@ export const updateMeter = (meterId, meterData) => {
       const response = await PATCH_REQUEST(endpointWithParams, meterData);
       const data = response.data;
       dispatch(updateMeterSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Meter details updated successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(updateMeterFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -105,7 +105,7 @@ export const fetchMeterDetails = (meterId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterDetailsFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -121,14 +121,14 @@ export const deleteMeter = (meterId) => {
       const response = await DELETE_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(deleteMeterSuccess(data));
-      NotificationsTost({
+      NotificationsToast({
         message: "Meter deleted successfully!",
         type: "success",
       });
     } catch (error) {
       console.error(error);
       dispatch(deleteMeterFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
@@ -146,7 +146,7 @@ export const fetchMeterStatistics = () => {
     } catch (error) {
       console.error(error);
       dispatch(fetchMeterStatisticsFailure(error));
-      NotificationsTost({
+      NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });

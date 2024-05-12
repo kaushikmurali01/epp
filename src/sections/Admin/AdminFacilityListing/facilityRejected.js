@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Container, Typography, Grid, Button, Box } from "@mui/material";
-import Table from "../../../components/Table";
+import FacilityRejectedTable from "components/FacilityRejected";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
+import Table from "components/Table";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
-import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { useNavigate } from "react-router-dom";
 
-const FacilityReview = () => {
+const FacilityRejected = () => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 3));
+    dispatch(fetchAdminFacilityListing(pageInfo, 6));
   }, [dispatch, pageInfo.page, pageInfo.pageSize]);
 
   const adminFacilityData = useSelector(
@@ -56,7 +58,7 @@ const FacilityReview = () => {
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
             style={{
-              color: "#007398",
+              color: "#F26D04",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
@@ -64,19 +66,7 @@ const FacilityReview = () => {
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
-            Download
-          </Button>
-          <Button
-            style={{
-              color: "#2E813E",
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              marginLeft: "1rem",
-            }}
-            // onClick={() => openDeleteModal(item?.id)}
-          >
-            Review
+            Comment
           </Button>
         </Box>
       ),
@@ -87,54 +77,29 @@ const FacilityReview = () => {
     <Container>
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Grid container mt={4} mb={4}>
-            <Grid item xs={6}>
-              <Typography
-                variant="h2"
-                sx={{
-                  color: "#242424",
-                  fontWeight: "500",
-                  fontSize: "20px !important",
-                  fontStyle: "italic",
-                  lineHeight: "27.5px",
-                  letterSpacing: "-0.01125rem",
-                  fontStyle: "italic",
-                }}
-              >
-                List of Under Review Facilities
-              </Typography>
-            </Grid>
-            <Grid container xs={6} gap={4} justifyContent="flex-end">
-              <Grid item alignContent="center">
-                <Button
-                  style={{
-                    backgroundColor: "transparent",
-                    color: "#007398",
-                    padding: 0,
-                    minWidth: "unset",
-                    fontSize: "0.875rem",
-                  }}
-                  disableRipple
-                  startIcon={
-                    <FileDownloadIcon
-                      style={{
-                        color: "text.primary",
-                        fontSize: "2rem",
-                      }}
-                    />
-                  }
-                >
-                  Download Bulk
-                </Button>
-              </Grid>
-            </Grid>
-          </Grid>
+          <Typography
+            variant="h2"
+            sx={{
+              marginTop: "2rem",
+              marginBottom: "2rem",
+              color: "#242424",
+              fontWeight: "500",
+              fontSize: "20px !important",
+              fontStyle: "italic",
+              lineHeight: "27.5px",
+              letterSpacing: "-0.01125rem",
+              fontStyle: "italic",
+            }}
+          >
+            List of rejected facilities
+          </Typography>
           <Table
             columns={columns}
             data={adminFacilityData}
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
           />
         </Grid>
       </Grid>
@@ -142,4 +107,4 @@ const FacilityReview = () => {
   );
 };
 
-export default FacilityReview;
+export default FacilityRejected;

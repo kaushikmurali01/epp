@@ -78,7 +78,7 @@ const RoutesComp = () => {
     <>
       <CommonLayout>
         {/* <DashboardRoutes /> */}
-        {selectRouter(userDetails.type)}
+        {selectRouter(userDetails?.type)}
       </CommonLayout>
       
       <Modal

@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Container, Typography, Grid, Tabs, Tab, Button } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Tabs,
+  Tab,
+  Button,
+  TextField,
+} from "@mui/material";
 import FacilityOverview from "./facilityOverview";
 import FacilityApproved from "./facilityApproved";
 import FacilityReview from "./facilityReview";
@@ -8,7 +16,7 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
 import FacilityCreated from "./facilityCreated";
 
-const FacilityPage = () => {
+const AdminFacilityListing = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("overview");
   const handleChange = (event, newValue) => {
@@ -37,36 +45,38 @@ const FacilityPage = () => {
       <Grid container spacing={2}>
         <Grid item xs={12} sm={6}>
           <Typography
-            variant="h2"
-            sx={{
-              color: "#242424",
-              fontWeight: "500",
-              fontSize: "1.25rem !important",
-              fontStyle: "italic",
-              lineHeight: "106.815%",
-              letterSpacing: "-0.01125rem",
-            }}
+            variant="h4"
+            sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
             Facilities Management
           </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: "200",
-              fontSize: ".725rem",
-            }}
-          >
-            Lorem Ipsum is simply dummy text of the printing and typesetting
+          <Typography variant="small2">
+            Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
           </Typography>
         </Grid>
+        <Grid item xs={6} sm={4}>
+          <TextField
+            name="search"
+            label="Search by Facility name & ID"
+            type="text"
+            fullWidth
+            size="small"
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "3rem",
+                borderRadius: "6px",
+              },
+            }}
+          />
+        </Grid>
         <Grid
           item
-          xs={12}
-          sm={6}
+          xs={6}
+          sm={2}
           display="flex"
           alignItems="center"
-          justifyContent="right"
+          justifyContent="center"
         >
           <Button
             style={{
@@ -84,13 +94,13 @@ const FacilityPage = () => {
                 }}
               />
             }
-            onClick={() => navigate("/admin/add-facility")}
+            onClick={() => navigate("/facility-list/add-facility")}
           >
             Add Facility
           </Button>
         </Grid>
       </Grid>
-      <Grid item xs={12} md={8}>
+      <Grid item xs={12} md={8} mt={4}>
         <Tabs
           className="theme-tabs-list"
           value={tabValue}
@@ -122,4 +132,4 @@ const FacilityPage = () => {
   );
 };
 
-export default FacilityPage;
+export default AdminFacilityListing;
