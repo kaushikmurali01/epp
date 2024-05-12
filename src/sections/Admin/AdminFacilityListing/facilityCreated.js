@@ -217,7 +217,7 @@ const FacilityCreated = () => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
-            onClick={(id) => navigate(`/admin/facility-details/${id}`)}
+            onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
           />
         </Grid>
       </Grid>

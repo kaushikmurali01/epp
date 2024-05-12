@@ -9,6 +9,10 @@ import AdminFacilitySidebar from "./AdminFacilitySidebar";
 import AdminSummary from "./AdminSummary";
 import AdminDetails from "./AdminDetails";
 import AdminEnergyAndWater from "./AdminEnergyAndWater";
+import AdminWeather from "./AdminWeather";
+import AdminReportsAndStudies from "./AdminReportsAndStudies";
+import AdminBaselineModel from "./AdminBaselineModel";
+import AdminPerformance from "./AdminPerformance";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -25,16 +29,16 @@ const AdminFacilityDetails = () => {
         return <AdminSummary />;
       case 1:
         return <AdminDetails />;
-    //   case 2:
-    //     return <AdminEnergyAndWater />;
-    //   case 3:
-    //     return <Weather />;
-    //   case 4:
-    //     return <ReportsAndStudies />;
-    //   case 5:
-    //     return <BaselineModel />;
-    //   case 6:
-    //     return <Performance />;
+      case 2:
+        return <AdminEnergyAndWater />;
+      case 3:
+        return <AdminWeather />;
+      case 4:
+        return <AdminReportsAndStudies />;
+      case 5:
+        return <AdminBaselineModel />;
+      case 6:
+        return <AdminPerformance />;
       default:
         return null;
     }

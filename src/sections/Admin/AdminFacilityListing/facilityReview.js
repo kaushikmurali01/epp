@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { useNavigate } from "react-router-dom";
 
 const FacilityReview = () => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchAdminFacilityListing(pageInfo, 3));
@@ -135,6 +137,7 @@ const FacilityReview = () => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
           />
         </Grid>
       </Grid>

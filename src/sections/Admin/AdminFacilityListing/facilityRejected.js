@@ -5,10 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
 import Table from "components/Table";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
+import { useNavigate } from "react-router-dom";
 
 const FacilityRejected = () => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(fetchAdminFacilityListing(pageInfo, 6));
@@ -97,6 +99,7 @@ const FacilityRejected = () => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
           />
         </Grid>
       </Grid>
