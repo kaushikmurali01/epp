@@ -68,10 +68,11 @@ function Header(props) {
   const clickSetting =(setting) => {
     if(setting == 'Logout'){
       //logout from the application with msal instance
+      localStorage.clear()
       instance.logoutRedirect()
     }
     else if(setting == 'Profile'){
-      navigate("/admin/profile")
+      navigate("/profile")
     }
   }
 
