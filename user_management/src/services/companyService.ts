@@ -5,7 +5,7 @@ import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status'
 import { User } from '../models/user';
 import { UserCompanyRole } from '../models/user-company-role';
 import { Role } from '../models/role';
-import { sequelize } from './database';
+import { rawQuery, sequelize } from './database';
 import { Op } from 'sequelize';
 
 class CompanyService {
@@ -74,7 +74,7 @@ class CompanyService {
                 ]
             });
             // return adminUsers.dataValues;
-            return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers.dataValues };
+            return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -129,29 +129,56 @@ class CompanyService {
      * @returns Promise<Response>
      * @description Retrieves a list of companies from the database.
      */
-    static async listCompanies(offset, limit, searchPromt): Promise<any[]> {
+    static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any[]> {
         try {
-            const companies = await Company.findAll(
-                {
-                    where: {
-                        [Op.or]: [
-                            { company_name: { [Op.iLike]: `%${searchPromt}%` } },
-                            { id: { [Op.iLike]: `%${searchPromt}%` } },
-                        ]
-                    },
-                    offset: offset,
-                    limit: limit,
-                    attributes: ['company_name', 'id']
-                }
-            );
-            const data = companies.map(user => ({
-                company_type: 'Customer',
-                email: "test@test.com",
-                superAdmin: "Test Admin",
-                status: "Active",
-                ...user.toJSON()
-            }));
-            return data;
+            let datas = await rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
+            INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+            INNER JOIN "users" u ON cr.user_id = u.id
+            WHERE cr.role_id= 1 AND (c.company_name LIKE '%${searchPromt}%' or u.first_name LIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
+                limit: limit,
+                offset: offset
+            })
+            // role =1 for super admin
+            // const companies = await Company.findAll(
+            //     {
+            //         include: [
+            //             {
+            //                 model: User,
+            //                 through: {
+            //                     model: UserCompanyRole,
+            //                     where: { role_id: 1 }, // Filter by role = 1 for superAdmin
+            //                 }
+            //             }
+            //         ],
+            //         where: {
+            //             [Op.or]: [
+            //                 { company_name: { [Op.iLike]: `%${searchPromt}%` } }, // Search for companies by name
+            //                 { '$users.first_name$': { [Op.iLike]: `%${searchPromt}%` } },// Search for users by firstname
+            //                 { '$users.last_name$': { [Op.iLike]: `%${searchPromt}%` } } // Search for users by last_name
+            //             ]
+            //         }
+            //     });
+
+            // {
+            //     where: {
+            //         [Op.or]: [
+            //             { company_name: { [Op.iLike]: `%${searchPromt}%` } },
+            //             { id: searchPromt },
+            //         ]
+            //     },
+            //     offset: offset,
+            //     limit: limit,
+            //     attributes: ['company_name', 'id', 'company_type', 'is_active']
+            // }
+            // );
+            // const data = companies.map(user => ({
+            //     company_type: 'Customer',
+            //     email: "test@test.com",
+            //     superAdmin: "Test Admin",
+            //     status: "Active",
+            //     ...user.toJSON()
+            // }));
+            return datas;
         } catch (error) {
             throw error;
         }
