@@ -15,7 +15,7 @@ function showForm(userRole) {
     }
 
     // Set default value for only the specific input fields in the form
-    document.getElementById("extension_BusinessLandline").value = '';
+    document.getElementById("extension_BusinessLandline").value = "";
     document.getElementById("extension_CompanyName").value = "";
     document.getElementById("extension_UnitNumber").value = "";
     document.getElementById("extension_StreetNo").value = "";
@@ -62,8 +62,7 @@ function showForm(userRole) {
     document.getElementById("extension_UserType_3").click();
 
     // Set default value for only the specific input fields in the form
-    document.getElementById("extension_BusinessLandline").value =
-      123;
+    document.getElementById("extension_BusinessLandline").value = 123;
     document.getElementById("extension_UnitNumber").value = 123;
     document.getElementById("extension_CompanyName").value = "default";
     document.getElementById("extension_StreetNo").value = "default";
@@ -142,6 +141,7 @@ function showForm(userRole) {
 
 function showCompanyDetailsForm() {
   //1st step form fields
+  document.getElementById("extension_UserType_2").click();
   document
     .querySelector(".emailVerificationControl_li")
     .classList.add("hidden");
@@ -153,7 +153,7 @@ function showCompanyDetailsForm() {
   document
     .querySelector(".extension_BusinessMobile_li")
     .classList.add("hidden");
-  
+
   document.querySelector(".extension_FirstName_li").classList.add("hidden");
   document.querySelector(".extension_LastName_li").classList.add("hidden");
   document.querySelector(".extension_CompanyName_li").classList.add("hidden");
@@ -177,7 +177,7 @@ function showCompanyDetailsForm() {
     .querySelector(".extension_CompanyName_li")
     .classList.remove("hidden");
   document.querySelector(".extension_StreetNo_li").classList.remove("hidden");
-  
+
   document.querySelectorAll(".CheckboxMultiSelect").forEach((element) => {
     element.classList.remove("hidden");
   });
@@ -207,7 +207,7 @@ function backBtnAction() {
   document
     .querySelector(".extension_BusinessMobile_li")
     .classList.remove("hidden");
-  
+
   document.querySelector(".extension_FirstName_li").classList.remove("hidden");
   document.querySelector(".extension_LastName_li").classList.remove("hidden");
   document
@@ -249,7 +249,6 @@ const businessMobileInput = document.getElementById("extension_BusinessMobile");
 const postalCodeInput = document.getElementById("postalCode");
 const streetNoInput = document.getElementById("extension_StreetNo");
 
-
 function setInputAttributes() {
   if (businessLandlineInput) {
     businessLandlineInput.setAttribute("pattern", "^[0-9]*$");
@@ -268,7 +267,7 @@ function setInputAttributes() {
   // No restriction on max length for street number
   if (streetNoInput) {
     streetNoInput.setAttribute("pattern", "\\d*");
-  } 
+  }
 }
 
 // Call the function to set attributes when the DOM is ready
@@ -276,30 +275,33 @@ setInputAttributes();
 
 // Function to restrict input to only digits
 function restrictToDigits(inputElement) {
-    inputElement.addEventListener("keypress", function(event) {
-        // Get the character code of the pressed key
-        let charCode = event.which || event.keyCode;
+  inputElement.addEventListener("keypress", function (event) {
+    // Get the character code of the pressed key
+    let charCode = event.which || event.keyCode;
 
-        // Allow only digits (0-9)
-        if (charCode < 48 || charCode > 57) {
-            event.preventDefault(); // Prevent the default action (typing)
-        }
-    });
+    // Allow only digits (0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault(); // Prevent the default action (typing)
+    }
+  });
 }
 
 // Function to restrict input to alphanumeric characters
 function restrictToAlphanumerics(inputElement) {
-    inputElement.addEventListener("keypress", function(event) {
-        // Get the character code of the pressed key
-        let charCode = event.which || event.keyCode;
+  inputElement.addEventListener("keypress", function (event) {
+    // Get the character code of the pressed key
+    let charCode = event.which || event.keyCode;
 
-        // Allow alphanumeric characters (a-z, A-Z, 0-9)
-        if (!(charCode >= 48 && charCode <= 57) && // 0-9
-            !(charCode >= 65 && charCode <= 90) && // A-Z
-            !(charCode >= 97 && charCode <= 122)) { // a-z
-            event.preventDefault(); // Prevent the default action (typing)
-        }
-    });
+    // Allow alphanumeric characters (a-z, A-Z, 0-9)
+    if (
+      !(charCode >= 48 && charCode <= 57) && // 0-9
+      !(charCode >= 65 && charCode <= 90) && // A-Z
+      !(charCode >= 97 && charCode <= 122)
+    ) {
+      // a-z
+      event.preventDefault(); // Prevent the default action (typing)
+    }
+  });
 }
 
 function resetForm() {
