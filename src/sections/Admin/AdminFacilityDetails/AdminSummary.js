@@ -6,7 +6,7 @@ import { useSelector } from "react-redux";
 const AdminSummary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const facilityData = useSelector(
-    (state) => state?.facilityReducer?.facilityStatus?.data
+    (state) => state?.adminFacilityReducer?.facilityStatus?.data
   );
 
   return (
