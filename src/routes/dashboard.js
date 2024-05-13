@@ -23,7 +23,7 @@ const DashboardRoutes = () => {
     );
 
     return (
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<Loader fallBackLoader={true} />}>
             <Routes>
                 <Route path='/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />
                 <Route path='/admin/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />

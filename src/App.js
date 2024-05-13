@@ -30,7 +30,7 @@ const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<Loader fallBackLoader={true} />}>
           <MsalProvider instance={props.instance}>
             <UnauthenticatedTemplate>
               <Header />
@@ -56,7 +56,7 @@ const App = (props) => {
         {/* <ParticipantAgreement /> */}
         {/* <Footer /> */}
       </ThemeProvider>
-      <Loader />
+      {/* <Loader /> */}
     </Provider>
   );
 };

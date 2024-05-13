@@ -37,7 +37,9 @@ body {
 }
 
 .main-inner-contianer {
+    position: relative;
     padding: 0rem 0 5rem;
+    min-height: calc(100svh - (112px + 140.8px + 57.8px + 3.25rem)); // 112px-header, 140.8px-footer, 57.8px-tab header menu, 3.25rem-margin bottom for tab header menu
 }
 
 // theme heading css
