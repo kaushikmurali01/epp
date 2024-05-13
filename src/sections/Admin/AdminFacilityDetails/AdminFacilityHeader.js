@@ -12,8 +12,8 @@ import FacilityStatus from "components/FacilityStatus";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteFacility } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
+import { deleteAdminFacility } from "../../../redux/admin/actions/adminFacilityActions";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -26,7 +26,7 @@ const BoxCard = styled(Box)(({ theme }) => {
 const AdminFacilityHeader = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const facilityDetails = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
   const navigate = useNavigate();
   const { id } = useParams();
@@ -34,13 +34,13 @@ const AdminFacilityHeader = () => {
 
   const handleDeleteFacility = () => {
     if (id) {
-      dispatch(deleteFacility(id))
+      dispatch(deleteAdminFacility(id))
         .then(() => {
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
-          navigate("/admin/facility-list");
+          navigate("/facility-list");
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -141,7 +141,7 @@ const AdminFacilityHeader = () => {
                     padding: 0,
                     minWidth: "unset",
                   }}
-                  onClick={() => navigate(`/admin/edit-facility/${id}`)}
+                  onClick={() => navigate(`/facility-list/edit-facility/${id}`)}
                 >
                   Edit
                 </Button>

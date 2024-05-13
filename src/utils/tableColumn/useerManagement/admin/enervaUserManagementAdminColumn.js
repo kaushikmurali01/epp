@@ -20,12 +20,14 @@ const [isChecked, setIsChecked] = useState(false)
 const buttonStyle = {
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '0.25rem',
-    padding: '0.4375rem 1rem',
+    margin: '0.4375rem 1rem',
     borderRadius: '1.5rem',
     fontWeight: '500',
     fontSize: { sm: '0.875rem' },
     cursor: 'pointer',
+    '&:last-child': {
+        marginRight: 0,
+    }
 
 }
 
@@ -82,7 +84,7 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibl
             // if (item.status === 'pending') {
                 return (
                     <Box>
-                        <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #DCFF88', color: 'primary.main', backgroundColor: '#DCFF88', textTransform: 'capitalize', marginRight: '1rem' }}  >
+                        <Typography variant="span" sx={{ ...buttonStyle, margin: '0', padding: '0.4375rem 1rem', border: '1px solid #DCFF88', color: 'primary.main', backgroundColor: '#DCFF88', textTransform: 'capitalize', marginRight: '1rem' }}  >
                             {/* <CheckCircleIcon /> */}
                              {item.status}
                         </Typography>

@@ -48,7 +48,7 @@ const EntriesListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [tabValue, setTabValue] = useState("monthlyEntries");
   const [entryToDelete, setEntryToDelete] = useState("");
 
@@ -242,6 +242,9 @@ const EntriesListing = ({
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
+  const enteriesListingCount = useSelector(
+    (state) => state?.entriesReducer?.entriesList?.data?.count || []
+  );
 
   const meterData = useSelector(
     (state) => state?.meterReducer?.meterDetails?.data || {}
@@ -249,7 +252,7 @@ const EntriesListing = ({
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
     dispatch(fetchMeterDetails(facilityMeterDetailId));
-  }, [dispatch, pageInfo]);
+  }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
     console.log(id);
@@ -576,6 +579,7 @@ const EntriesListing = ({
         <Box sx={{ marginTop: "2rem" }}>
           <Table
             columns={columns}
+            count={enteriesListingCount}
             data={enteriesListingData}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}

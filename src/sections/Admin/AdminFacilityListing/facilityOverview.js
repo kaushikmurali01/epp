@@ -106,18 +106,29 @@ const FacilityOverview = () => {
                 industry.
               </Typography>
             </Grid>
-
-            <Grid item xs={3}>
-              <Select sx={{ width: "100%" }} label="Company">
+            <Grid
+              item
+              sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Select name="Company" fullWidth size="small">
                 <MenuItem value="">
                   <em>Company</em>
                 </MenuItem>
               </Select>
             </Grid>
-            <Grid item xs={3}>
-              <Select sx={{ width: "100%" }} label="Facility">
+            <Grid
+              item
+              sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Select name="Facility" fullWidth size="small">
                 <MenuItem value="">
-                  <em>Select Facility</em>
+                  <em>Facility</em>
                 </MenuItem>
               </Select>
             </Grid>

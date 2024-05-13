@@ -6,6 +6,7 @@ import {
   Container,
   Grid,
   Link,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -20,6 +21,10 @@ import { useNavigate } from "react-router-dom";
 import FacilityStatus from "components/FacilityStatus";
 import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
+import { Form, Formik } from "formik";
+import InputField from "components/FormBuilder/InputField";
+import SelectBox from "components/FormBuilder/Select";
+import ButtonWrapper from "components/FormBuilder/Button";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
@@ -200,6 +205,88 @@ const Facility = () => {
       });
   };
 
+  const [assignModalConfig, setAssignModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      successButtonStyle: {},
+      cancelButtonStyle: {},
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Assign Facility",
+    headerSubText: "Lorem Ipsum is simply dummy text of the print",
+    modalBodyContent: "",
+  });
+
+  const RequestToJoinForm = () => {
+    const initialValues = {
+      emails: "",
+      assign_facility: "",
+    };
+    const formSubmit = (values) => {
+      const emailArray = values.emails?.split(",").map((email) => email.trim());
+      console.log(emailArray);
+    };
+
+    return (
+      <Formik
+        initialValues={{
+          ...initialValues,
+        }}
+        onSubmit={formSubmit}
+      >
+        <Form>
+          <Stack sx={{ marginBottom: "1rem" }}>
+            <InputField
+              name="emails"
+              label="User email ID*"
+              placeholder="email1, email2, ..."
+            />
+          </Stack>
+          <Stack sx={{ marginBottom: "1rem" }}>
+            <SelectBox
+              name="assign_facility"
+              label="Assign Facility*"
+              options={facilityListData}
+              valueKey="id"
+              labelKey="facility_name"
+            />
+          </Stack>
+          <Grid display="flex" sx={{ marginTop: "1rem" }}>
+            <ButtonWrapper type="submit" variant="contained">
+              Submit
+            </ButtonWrapper>
+          </Grid>
+        </Form>
+      </Formik>
+    );
+  };
+
+  const openRequestModal = () => {
+    setAssignModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <RequestToJoinForm />,
+    }));
+  };
+
   return (
     <Container>
       <Grid container spacing={2}>
@@ -224,7 +311,7 @@ const Facility = () => {
             is mandatory before you enrol your facility
           </Typography>
         </Grid>
-        <Grid item xs={6} sm={4}>
+        <Grid item>
           <TextField
             name="search"
             label="Search by Facility name & ID"
@@ -238,6 +325,25 @@ const Facility = () => {
               },
             }}
           />
+        </Grid>
+        <Grid
+          item
+          // sm={2}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <Button
+            variant="contained"
+            sx={{
+              padding: 0,
+              minWidth: "5rem!important",
+              bgcolor: "#2C77E9",
+            }}
+            onClick={openRequestModal}
+          >
+            Assign
+          </Button>
         </Grid>
         <Grid
           item
@@ -283,6 +389,10 @@ const Facility = () => {
         modalConfig={modalConfig}
         setModalConfig={setModalConfig}
         actionButtonData={facilityToDelete}
+      />
+      <EvModal
+        modalConfig={assignModalConfig}
+        setModalConfig={setAssignModalConfig}
       />
     </Container>
   );

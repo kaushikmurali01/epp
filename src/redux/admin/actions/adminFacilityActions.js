@@ -22,6 +22,15 @@ import {
   updateAdminFacilityCharacteristicFailure,
   updateAdminFacilityCharacteristicRequest,
   updateAdminFacilityCharacteristicSuccess,
+  fetchAdminFacilityDetailsRequest,
+  fetchAdminFacilityDetailsSuccess,
+  fetchAdminFacilityDetailsFailure,
+  fetchAdminFacilityStatusRequest,
+  fetchAdminFacilityStatusSuccess,
+  fetchAdminFacilityStatusFailure,
+  updateAdminFacilityStatusRequest,
+  updateAdminFacilityStatusSuccess,
+  updateAdminFacilityStatusFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
 export const fetchAdminFacilityListing = (pageInfo, status) => {
@@ -47,6 +56,24 @@ export const fetchAdminFacilityListing = (pageInfo, status) => {
   };
 };
 
+export const fetchAdminFacilityDetails = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityDetailsRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.GET_ADMIN_FACILITY_DETAILS}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityDetailsSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
 export const deleteAdminFacility = (facilityId) => {
   return async (dispatch) => {
     try {
@@ -131,6 +158,49 @@ export const updateAdminFacilityCharacteristic = (
     } catch (error) {
       console.error(error);
       dispatch(updateAdminFacilityCharacteristicFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityStatus = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityStatusRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.GET_ADMIN_FACILITY_STATUS}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityStatusSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminFacilityStatus = (facilityId, status) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateAdminFacilityStatusRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.UPDATE_ADMIN_FACILITY_STATUS}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, status);
+      const data = response.data;
+      dispatch(updateAdminFacilityStatusSuccess(data));
+      NotificationsToast({
+        message: "AdminFacility status updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateAdminFacilityStatusFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
