@@ -395,7 +395,7 @@ static async rejectInvitation(data): Promise<Response> {
  */
    static async GetUserAndCompanyDetails(user_id, company_id): Promise<Object> {
     try {
-      // Fetch user details
+      // Fetch user details.
       const user = await User.findOne({
         where: { id: user_id },
         attributes: ['id', 'first_name', 'last_name', 'phonenumber', 'landline', 'profile_pic']
