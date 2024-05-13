@@ -44,7 +44,8 @@ class UserInvitationService {
         const invitation = await UserInvitation.create(details);
         const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
-        await CompanyService.getCompanyAdmin(resp.company_id);
+        console.log("Existing User",existingUser);
+       // await CompanyService.getCompanyAdmin(resp.company_id);
         let body:string, emailContent:string;
         let inviteEmailContent = EmailContent.invitationEmailForExistingUser.content
         .replace('#company#', "company name")

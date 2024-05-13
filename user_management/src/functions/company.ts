@@ -43,7 +43,7 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
         const requestData = await request.json(); 
 
         // Create company
-        const company = await CompanyController.updateCompany(requestData);
+        const company = await CompanyController.updateCompany(requestData, 1);
        
         // Prepare response body
         const responseBody = JSON.stringify(company);

@@ -68,7 +68,7 @@ UserCompanyRole.init(
   }
 );
 
-export { UserCompanyRole };
+export { UserCompanyRole, UserCompanyRoleAttributes };
 
 UserCompanyRole.belongsTo(User, { foreignKey: 'user_id' }); 
 UserCompanyRole.belongsTo(Role, { foreignKey: 'role_id' });
