@@ -15,15 +15,12 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
-import FacilityStatus from "components/FacilityStatus";
 import { format, getYear } from "date-fns";
-import { entriesEndPoints } from "constants/apiEndPoints";
+import { adminEntriesEndPoints } from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
   PATCH_REQUEST,
@@ -35,7 +32,11 @@ import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
-import { deleteAdminMeter, fetchAdminMeterDetails } from "../../../redux/admin/actions/adminMeterActions";
+import {
+  deleteAdminMeter,
+  fetchAdminMeterDetails,
+} from "../../../redux/admin/actions/adminMeterActions";
+import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntriesAction";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -45,7 +46,7 @@ const AdminEntriesListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [tabValue, setTabValue] = useState("monthlyEntries");
   const [entryToDelete, setEntryToDelete] = useState("");
 
@@ -80,9 +81,9 @@ const AdminEntriesListing = ({
 
   const handleDeleteEntry = (id) => {
     if (id) {
-      DELETE_REQUEST(entriesEndPoints.DELETE_ENTRY + "/" + id)
+      DELETE_REQUEST(adminEntriesEndPoints.DELETE_ENTRY + "/" + id)
         .then((response) => {
-          dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+          dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
           setDeleteModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
@@ -237,16 +238,20 @@ const AdminEntriesListing = ({
   });
 
   const enteriesListingData = useSelector(
-    (state) => state?.entriesReducer?.entriesList?.data?.rows || []
+    (state) => state?.adminEntriesReducer?.entriesList?.data?.rows || []
+  );
+
+  const enteriesListingCount = useSelector(
+    (state) => state?.adminEntriesReducer?.entriesList?.data?.count || []
   );
 
   const meterData = useSelector(
     (state) => state?.adminMeterReducer?.meterDetails?.data || {}
   );
   useEffect(() => {
-    dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+    dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
     dispatch(fetchAdminMeterDetails(facilityMeterDetailId));
-  }, [dispatch, pageInfo]);
+  }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
     console.log(id);
@@ -259,7 +264,7 @@ const AdminEntriesListing = ({
 
   const AddEditEntry = ({ isEdit, data }) => {
     const formSubmit = (data) => {
-      const apiURL = entriesEndPoints.ADD_EDIT_ENTRY;
+      const apiURL = adminEntriesEndPoints.ADD_EDIT_ENTRY;
       const requestBody = {
         facility_id: parseInt(id),
         facility_meter_detail_id: parseInt(facilityMeterDetailId),
@@ -279,7 +284,7 @@ const AdminEntriesListing = ({
               vertical: "top",
               horizontal: "right",
             });
-            dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -300,7 +305,7 @@ const AdminEntriesListing = ({
               vertical: "top",
               horizontal: "right",
             });
-            dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -573,6 +578,7 @@ const AdminEntriesListing = ({
         <Box sx={{ marginTop: "2rem" }}>
           <Table
             columns={columns}
+            count={enteriesListingCount}
             data={enteriesListingData}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}

@@ -12,8 +12,8 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
 import { useParams } from "react-router-dom";
+import { fetchAdminFacilityStatus } from "../../../redux/admin/actions/adminFacilityActions";
 
 const DashedConnector = styled(StepConnector)(({ theme, active }) => ({
   [`& .${stepConnectorClasses.line}`]: {
@@ -76,11 +76,11 @@ export default function AdminFacilityTimeline() {
   const { id } = useParams();
 
   React.useEffect(() => {
-    dispatch(fetchFacilityStatus(id));
+    dispatch(fetchAdminFacilityStatus(id));
   }, [dispatch, id]);
 
   const facility_status = useSelector(
-    (state) => state?.facilityReducer?.facilityStatus?.data
+    (state) => state?.adminFacilityReducer?.facilityStatus?.data
   );
 
   const steps = [

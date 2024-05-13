@@ -1,7 +1,6 @@
 import { Box, Container, useMediaQuery } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { fetchFacilityDetails } from "../../../redux/superAdmin/actions/facilityActions";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import AdminFacilityHeader from "./AdminFacilityHeader";
 import AdminFacilityTimeline from "./AdminFacilityTimeline";
@@ -13,6 +12,7 @@ import AdminWeather from "./AdminWeather";
 import AdminReportsAndStudies from "./AdminReportsAndStudies";
 import AdminBaselineModel from "./AdminBaselineModel";
 import AdminPerformance from "./AdminPerformance";
+import { fetchAdminFacilityDetails } from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -21,7 +21,7 @@ const AdminFacilityDetails = () => {
   const { id } = useParams();
 
   useEffect(() => {
-    dispatch(fetchFacilityDetails(id));
+    dispatch(fetchAdminFacilityDetails(id));
   }, [dispatch, id]);
   const renderComponent = (componentName) => {
     switch (componentName) {

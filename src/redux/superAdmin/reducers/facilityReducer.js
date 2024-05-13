@@ -31,6 +31,7 @@ import {
 const initialState = {
   facilityList: [],
   characteristics: [],
+  facilityDetails: [],
   facilityStatus: [],
   loading: false,
   error: null,
