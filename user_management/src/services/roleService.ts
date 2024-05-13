@@ -123,6 +123,7 @@ class RoleService {
     */
     static async assignPermissions(data): Promise<any> {
         try {
+            console.log("data001", data);
             let email = data.email;
             let permissions = data.permissions;
              const user = await User.findOne({ where: { email } });

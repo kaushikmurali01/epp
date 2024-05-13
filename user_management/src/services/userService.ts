@@ -10,9 +10,10 @@ import { UserRequest } from '../models/user-request';
 import { Role } from '../models/role';
 import { Company } from '../models/company';
 import { sequelize } from '../services/database';
-import { UserCompanyRole } from '../models/user-company-role';
+import { UserCompanyRole, UserCompanyRoleAttributes } from '../models/user-company-role';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { Permission } from '../models/permission';
+import { UpsertOptions } from 'sequelize';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
 
 
@@ -36,7 +37,40 @@ static async registerUser(userDetails): Promise<any> {
 
 static async acceptInvitation(data): Promise<Response> {
   try {
-     const result = UserRequest.update({ status: "Active"}, {where:{id: data.user_id, company_id: data.company_id}});
+    console.log("Data", data);
+    let id = data.user_id;
+    console.log("DataUserId", data.user_id);
+    let userData:any = await UserRequest.findByPk(id);
+    console.log("UserData111", userData);
+
+    const existingUserCompanyRole = await UserCompanyRole.findOne({
+      where: {
+        company_id: data.company_id,
+        user_id: userData?.dataValues?.user_id
+      }
+    });
+    
+    // If the record exists, update it; otherwise, create a new one
+    if (existingUserCompanyRole) {
+      await existingUserCompanyRole.update({
+        role_id: userData?.dataValues?.role
+      });
+    } else {
+      const newUserCompanyRole: any = {
+        company_id: data.company_id,
+        role_id: userData?.dataValues?.role,
+        user_id: userData?.dataValues?.user_id,
+        is_active: 1 // Assuming default value
+      };
+      await UserCompanyRole.create(newUserCompanyRole);
+    }
+    //await UserRequest.destroy({ where: { id } });
+    await UserRequest.update({ is_active: 0 }, { where: { id } });
+
+    
+    // Second new code ends here
+
+   //  const result = UserRequest.update({ status: "Active"}, {where:{id: data.user_id, company_id: data.company_id}});
      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
   } catch (error) {
      throw new Error(`${error.message}`);
@@ -349,6 +383,48 @@ static async rejectInvitation(data): Promise<Response> {
     } catch (error) {
       throw new Error(`Failed to delete user: ${error.message}`);
     }
+  }
+
+  /**
+ * Retrieves user details and associated company information from the database.
+ * 
+ * @param {number} user_id - The ID of the user.
+ * @param {number} company_id - The ID of the company.
+ * @returns {Promise<Object>} - A promise resolving to an object containing user, company details, and associated companies.
+ * @description This method fetches user details, company details, and associated companies from the database based on the provided user ID.
+ */
+   static async GetUserAndCompanyDetails(user_id, company_id): Promise<Object> {
+    try {
+      // Fetch user details
+      const user = await User.findOne({
+        where: { id: user_id },
+        attributes: ['id', 'first_name', 'last_name', 'phonenumber', 'landline', 'profile_pic']
+      });
+  
+      // Fetch company details
+      const companyDetail = await Company.findOne({
+        where: { id: company_id },
+        attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name']
+      });
+  
+      // Fetch all associated companies
+      const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+        where: { user_id: user_id },
+        attributes: [],
+        include: {
+          model: Company,
+          attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name']
+        }
+      });
+  
+      const associatedCompanies = associatedCompaniesRaw.map(assocCompany => assocCompany.Company);
+  
+  
+      return { user, companyDetail, associatedCompanies };
+    } catch (error) {
+      throw new Error('Failed to fetch user and company details: ' + error.message);
+    }
+  
   }
 
 }
