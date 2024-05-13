@@ -6,6 +6,7 @@ import { User } from '../models/user';
 import { UserCompanyRole } from '../models/user-company-role';
 import { Role } from '../models/role';
 import { sequelize } from './database';
+import { Op } from 'sequelize';
 
 class CompanyService {
 
@@ -21,7 +22,7 @@ class CompanyService {
             //await testDatabaseConnection();
             console.log("companyDetails", companyDetails)
             const company = await Company.create(companyDetails);
-           return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -47,33 +48,33 @@ class CompanyService {
 
             const adminUsers = await User.findOne({
                 include: [
-                  {
-                    model: UserCompanyRole,
-                    where: { company_id: companyId, role_id: 1 },
-                    attributes: [],
-                   
-                    include: [
-                      {
-                        model: Role,
-                        where: { id: 1 },
-                        attributes: []
-                      },
-                      {
-                        model: Company,
-                        where: { id: companyId },
-                        attributes: [] 
-                      }
-                    ]
-                  }
+                    {
+                        model: UserCompanyRole,
+                        where: { company_id: companyId, role_id: 1 },
+                        attributes: [],
+
+                        include: [
+                            {
+                                model: Role,
+                                where: { id: 1 },
+                                attributes: []
+                            },
+                            {
+                                model: Company,
+                                where: { id: companyId },
+                                attributes: []
+                            }
+                        ]
+                    }
                 ],
                 attributes: ['first_name', 'last_name', 'id', 'email',
-                [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
-                [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
-                [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
+                    [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
+                    [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
+                    [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
                 ]
-              });
-             // return adminUsers.dataValues;
-              return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers.dataValues };
+            });
+            // return adminUsers.dataValues;
+            return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers.dataValues };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -128,27 +129,34 @@ class CompanyService {
      * @returns Promise<Response>
      * @description Retrieves a list of companies from the database.
      */
-        static async listCompanies(offset, limit): Promise<any[]> {
-            try {
-                const companies = await Company.findAll(
-                   { offset: offset,
+    static async listCompanies(offset, limit, searchPromt): Promise<any[]> {
+        try {
+            const companies = await Company.findAll(
+                {
+                    where: {
+                        [Op.or]: [
+                            { company_name: { [Op.iLike]: `%${searchPromt}%` } },
+                            { id: { [Op.iLike]: `%${searchPromt}%` } },
+                        ]
+                    },
+                    offset: offset,
                     limit: limit,
                     attributes: ['company_name', 'id']
-                   }
-                );
-                const data = companies.map(user => ({
-                    company_type: 'Customer',
-                    email: "test@test.com",
-                    superAdmin: "Test Admin",
-                    status: "Active",
-                    ...user.toJSON()
-                }));
-                return data;
-            } catch (error) {
-                throw error;
-            }
+                }
+            );
+            const data = companies.map(user => ({
+                company_type: 'Customer',
+                email: "test@test.com",
+                superAdmin: "Test Admin",
+                status: "Active",
+                ...user.toJSON()
+            }));
+            return data;
+        } catch (error) {
+            throw error;
         }
-    
+    }
+
 }
 
 

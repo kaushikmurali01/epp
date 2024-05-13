@@ -2,7 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
 
 interface CompanyAttributes {
-  id: number;
+  id: number | any;
   source_of_discovery: string;
   company_type: number;
   company_name: string;
@@ -21,7 +21,7 @@ interface CompanyAttributes {
   street_name: string;
 }
 
-interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> {}
+interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> { }
 
 class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implements CompanyAttributes {
   public id!: number;
@@ -41,7 +41,7 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public unit_number: string;
   public street_number: string;
   public street_name: string;
- 
+
 }
 
 Company.init(
@@ -122,7 +122,7 @@ Company.init(
         },
       },
     },
-     country: {
+    country: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {

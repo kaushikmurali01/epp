@@ -13,7 +13,7 @@ class RoleController {
      */
     static async createRole(requestData): Promise<Object> {
         try {
-          //  const requestData = req.body;
+            //  const requestData = req.body;
             const role = await RoleService.createRole(requestData);
             return { status: 201, body: role };
         } catch (error) {
@@ -23,9 +23,9 @@ class RoleController {
 
     static async assignPermissions(requestData): Promise<Object> {
         try {
-          //  const requestData = req.body;
+            //  const requestData = req.body;
             const perm = await RoleService.assignPermissions(requestData);
-            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success};
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
 
         } catch (error) {
             return { status: 500, body: { error: error.message } };
@@ -58,7 +58,8 @@ class RoleController {
      */
     static async listRoles(req: HttpRequest): Promise<Object> {
         try {
-            const roles = await RoleService.listRoles();
+            const searchPromt = req.query.get('search' || "");
+            const roles = await RoleService.listRoles(searchPromt);
             return { status: 200, body: roles };
         } catch (error) {
             return { status: 500, body: { error: error.message } };
