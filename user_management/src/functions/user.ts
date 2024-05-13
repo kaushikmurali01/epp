@@ -423,9 +423,37 @@ export async function GetUserAndCompanyDetails(request: HttpRequest, context: In
         const { company_id} = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
        // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-       resp.id = 1;
+       //resp.id = 1;
         // Get all users
         const data = await UserService.GetUserAndCompanyDetails(resp.id, company_id);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(data);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
+ * Get Company List of User.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing list of companies of user.
+ */
+export async function GetUserCompanyDetail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { company_id} = request.params;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+      // resp.id = 1;
+        // Get all users
+        const data = await UserService.GetUserCompanyList(resp.id);
        
         // Prepare response body
         const responseBody = JSON.stringify(data);
@@ -533,4 +561,11 @@ app.http('GetUserAndCompanyDetails', {
     authLevel: 'anonymous',
     route: 'usercompany/{company_id}',
     handler: GetUserAndCompanyDetails
+});
+
+app.http('GetUserCompanyDetail', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'usercompanies',
+    handler: GetUserCompanyDetail
 });

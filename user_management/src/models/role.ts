@@ -1,16 +1,16 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
 import { isEmail, isNumeric } from 'validator'; // Importing validator library for validation
+import { UserType } from './userType';
 
 interface RoleAttributes {
   id: number;
   rolename: string;
   description?: string;
   is_active?: number;
-  created_at?: Date;
-  updated_at?: Date;
   created_by?: number;
   updated_by?: number;
+  user_type?: number;
 }
 
 interface RoleCreationAttributes extends Optional<RoleAttributes, 'id'> {}
@@ -20,10 +20,9 @@ class Role extends Model<RoleAttributes, RoleCreationAttributes> {
   public rolename!: string;
   public description?: string;
   public is_active?: number;
-  public created_at?: Date;
-  public updated_at?: Date;
   public created_by?: number;
   public updated_by?: number;
+  public user_type?: number;
 }
 
 Role.init(
@@ -49,6 +48,10 @@ Role.init(
           msg: 'Description cannot be empty.',
         },
       },
+    },
+    user_type: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     is_active: {
       type: DataTypes.INTEGER,
@@ -87,3 +90,4 @@ Role.init(
 );
 
 export { Role };
+Role.belongsTo(UserType, { foreignKey: 'user_type' });

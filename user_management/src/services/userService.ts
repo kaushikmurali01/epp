@@ -427,6 +427,24 @@ static async rejectInvitation(data): Promise<Response> {
   
   }
 
+  static async GetUserCompanyList(user_id): Promise<Object> {
+    try {
+        const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+        where: { user_id: user_id },
+        attributes: [],
+        include: {
+          model: Company,
+          attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name']
+        }
+      });
+      const associatedCompanies = associatedCompaniesRaw.map(assocCompany => assocCompany.Company);
+      return associatedCompanies;
+    } catch (error) {
+      throw new Error('Failed to fetch user and company details: ' + error.message);
+    }
+  
+  }
+
 }
 
 export { UserService };
