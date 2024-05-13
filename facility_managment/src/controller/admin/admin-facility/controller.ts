@@ -1,13 +1,13 @@
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../enerva-utils/utils/status";
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../../utils/status";
 import { AdminFacilityService } from "./service";
-import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
-import { Facility } from "../enerva-utils/models/facility.model";
+import { ResponseHandler } from '../../../utils/responseHandler';
+import { Facility } from "../../../models/facility.model";
 import { HttpRequest } from "@azure/functions";
-import { IBaseInterface } from "../enerva-utils/interfaces/baseline.interface";
-import { createSignedPDF } from "../lib/signDocument";
-import { createPDF } from "../lib/testFilePdf";
-import { IUserToken } from "../enerva-utils/interfaces/usertoken.interface";
-const fs = require('fs');
+import { IBaseInterface } from "../../../interfaces/baseline.interface";
+import { createSignedPDF } from "../../../helper/signDocument";
+import { IUserToken } from "../../../interfaces/usertoken.interface";
+import { creatSignDocumentUrlForUser } from "../../../helper/create-doc";
+
 
 
 
@@ -182,26 +182,7 @@ export class AdminFacilityController {
    */
   //  static async  getDashboardStats (event:HttpRequest): Promise<Facility[]> {
     static async  getDashboardStats (decodedToken: IUserToken, event:HttpRequest): Promise<any> {
-    try {
-      // const originalPdfPath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
-      // const signatureImagePath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/img"
-
-      // const result = await createSignedPDF(originalPdfPath, signatureImagePath)
-      // .then(modifiedPdfBytes => {
-      //   // Once you have the modified PDF bytes, write them to a file
-      //   fs.writeFile('signed_document.pdf', Buffer.from(modifiedPdfBytes), (err) => {
-      //     if (err) {
-      //       console.error('Error saving signed PDF:', err);
-      //       return;
-      //     }
-      //     console.log('Signed PDF saved successfully as signed_document.pdf');
-      //     console.log('Please manually download the signed document from the file system.');
-      //   });
-      // })
-      // .catch(error => {
-      //   console.error('Error creating signed PDF:', error);
-      // });
-      
+    try {      
       const result = await AdminFacilityService.getDashboardStats(Object(decodedToken));
       return result
     } catch (error) {

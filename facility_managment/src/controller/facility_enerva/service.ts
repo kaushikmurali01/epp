@@ -1,8 +1,8 @@
-import { IUserToken } from '../enerva-utils/interfaces/usertoken.interface';
-import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../enerva-utils/utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../enerva-utils/utils/facility_status';
-import { Facility } from '../enerva-utils/models/facility.model';
+import { IUserToken } from '../../interfaces/usertoken.interface';
+import { ResponseHandler } from '../../utils/responseHandler';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility_status';
+import { Facility } from '../../models/facility.model';
 
 
 export class FacilityEnervaService {

@@ -1,13 +1,15 @@
-import { IUserToken } from '../enerva-utils/interfaces/usertoken.interface';
-import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../enerva-utils/utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../enerva-utils/utils/facility_status';
-import { Facility } from '../enerva-utils/models/facility.model';
-import { IBaseInterface } from '../enerva-utils/interfaces/baseline.interface';
-import { Company } from '../enerva-utils/models/company.model';
-import { ParticipantAgreement } from '../enerva-utils/models/participant_agreement.model';
-import { User } from '../enerva-utils/models/user.model';
-
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS } from "../../../utils/status";
+import { ResponseHandler } from '../../../utils/responseHandler';
+import { Facility } from "../../../models/facility.model";
+import { HttpRequest } from "@azure/functions";
+import { IBaseInterface } from "../../../interfaces/baseline.interface";
+import { decodeToken } from "../../../helper/authantication";
+import { IUserToken } from "../../../interfaces/usertoken.interface";
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from "../../../utils/facility_status";
+import { Company } from "../../../models/company.model";
+import { ParticipantAgreement } from "../../../models/participant_agreement.model";
+import { User } from "../../../models/user.model";
+import { creatSignDocumentUrlForUser } from "../../../helper/create-doc";
 
 export class AdminFacilityService {
 
@@ -187,15 +189,15 @@ export class AdminFacilityService {
 
       if(oldData){
 
-        const obj = {
-          company_id : body.company_id,
-          unsigned_doc : body.unsigned_doc,
-          is_signed : false,
-          signed_on : new Date(),
-          is_active : STATUS.IS_ACTIVE
-        }
+        // const obj = {
+        //   company_id : body.company_id,
+        //   unsigned_doc : body.unsigned_doc,
+        //   is_signed : false,
+        //   signed_on : new Date(),
+        //   is_active : STATUS.IS_ACTIVE
+        // }
         
-         result = await ParticipantAgreement.update(obj,{where:{company_id:body.company_id}})
+         result = oldData;
 
 
       }else{
@@ -243,20 +245,52 @@ export class AdminFacilityService {
 
   static async signPaById(userToken: IUserToken, body:IBaseInterface, companyId:number): Promise<Facility[]> {
     try {
-      const obj = {
-        upload_sign: body.upload_sign,
-        signed_doc: body.signed_doc,
-        is_signed: true,
-        is_active: STATUS.IS_ACTIVE,
-        updated_by: userToken.id,
-        updated_at : new Date()
-        };
-      const result = await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
-  
-      
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+
+      const olResult = await ParticipantAgreement.findOne({where:{company_id:companyId}})
+
+      if(olResult.is_signed === true){
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.paAlreadySigned, []);
       return resp;
-      
+      }else if(olResult.is_signed === false)
+      {
+        if(body.signed_doc){
+          const obj = {
+            signed_doc: body.signed_doc,
+            is_signed: true,
+            is_active: STATUS.IS_ACTIVE,
+            updated_by: userToken.id,
+            updated_at : new Date()
+            };
+            
+          const result = await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+          
+          const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+          return resp;
+  
+        }else if(body.upload_sign && body.username){
+  
+          const originalPdfPath = body.unsigned_doc ? body.unsigned_doc : "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
+          const signatureImagePath = body.upload_sign
+    
+          const signURL = await creatSignDocumentUrlForUser(originalPdfPath, signatureImagePath, body.username, body.rolename)
+  
+          const obj = {
+            upload_sign: body.upload_sign,
+            signed_doc: signURL,
+            is_signed: true,
+            is_active: STATUS.IS_ACTIVE,
+            updated_by: userToken.id,
+            updated_at : new Date()
+            };
+    
+          const result =  await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+          const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+          return resp;
+        }else{
+          const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.CONFLICT_ERROR, RESPONSE_MESSAGES.invalidJson, []);
+          return resp;
+        }
+      }
     } catch (error) {
       throw error;
     }
@@ -266,7 +300,6 @@ export class AdminFacilityService {
   static async getPaDataById(userToken: IUserToken, conpanyId:number): Promise<Facility[]> {
     try {
       const result = await ParticipantAgreement.findOne({where:{company_id:conpanyId}})
-  
       
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;

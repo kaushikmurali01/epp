@@ -1,9 +1,9 @@
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../enerva-utils/utils/status";
-import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
+import { ResponseHandler } from '../../utils/responseHandler';
 import { FacilityEnervaService } from "./service";
 import { HttpRequest } from "@azure/functions";
-import { Facility } from "../enerva-utils/models/facility.model";
-import { IUserToken } from "../enerva-utils/interfaces/usertoken.interface";
+import { Facility } from "../../models/facility.model";
+import { IUserToken } from "../../interfaces/usertoken.interface";
 
 
 

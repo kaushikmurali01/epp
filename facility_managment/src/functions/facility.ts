@@ -1,16 +1,16 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
-import { FacilityController } from "../facility_user/controller";
+import { FacilityController } from "../controller/facility_user/controller";
 
 
-import { uploadBlob } from "../lib/azure-storage";
-import { FacilityEnervaController } from "../facility_enerva/controller";
-import { FacilityMeterController } from "../facility_meter/controller";
-import { FacilityMeterEntriesController } from "../facility_meter_entries/controller";
-import { FacilityCharacteristicsController } from "../facility_characteristics/controller";
-import { AdminFacilityController } from "../admin-facility/controller";
-import { FACILITY_ID_SUBMISSION_STATUS } from "../enerva-utils/utils/facility_status";
+import { uploadBlob } from "../helper/azure-storage";
+import { FacilityEnervaController } from "../controller/facility_enerva/controller";
+import { FacilityMeterController } from "../controller/facility_meter/controller";
+import { FacilityMeterEntriesController } from "../controller/facility_meter_entries/controller";
+import { FacilityCharacteristicsController } from "../controller/facility_characteristics/controller";
+import { AdminFacilityController } from "../controller/admin/admin-facility/controller";
+import { FACILITY_ID_SUBMISSION_STATUS } from "../utils/facility_status";
 import { object } from "yup";
-import { decodeToken } from "../lib/authantication";
+import { decodeToken } from "../helper/authantication";
 
 // Facility User CRUD
 

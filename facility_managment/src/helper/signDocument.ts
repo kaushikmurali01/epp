@@ -1,52 +1,64 @@
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import { BlobServiceClient, AnonymousCredential, StorageSharedKeyCredential } from '@azure/storage-blob';
 
-export async function createSignedPDF(originalPdfBlobUrl: string, signatureImageBlobUrl: string): Promise<Uint8Array> {
-
-    const blobServiceClient = getBlobServiceClient(process.env?.Azure_Storage_AccountName,
-      process.env?.Azure_Storage_AccountKey);
 
 
-    // Get references to the blobs
-    const originalPdfBlob = await downloadBlob(blobServiceClient, originalPdfBlobUrl);
-    // console.log(originalPdfBlob, "originalPdfBlob");
-    
-    const signatureImageBlob = await downloadBlob(blobServiceClient, signatureImageBlobUrl);
-    // console.log(signatureImageBlob, "signatureImageBlob");
-    
+export async function createSignedPDF(originalPdfBlobUrl: string, signatureImageBlobUrl: string, username: string, userrole: string): Promise<Uint8Array> {
+    // Fetch the original PDF blob and the signature image blob
+    const originalPdfBlob = await fetch(originalPdfBlobUrl).then(res => res.arrayBuffer());
+    const signatureImageBlob = await fetch(signatureImageBlobUrl).then(res => res.arrayBuffer());
 
     // Load the original PDF
     const originalPdfDoc = await PDFDocument.load(originalPdfBlob);
-    // console.log(originalPdfDoc,"originalPdfDoc");
-    
 
     // Embed the signature image
     const signatureImage = await originalPdfDoc.embedPng(signatureImageBlob);
 
-    // Create a new PDF document
-    const signedPdfDoc = await PDFDocument.create();
-    // console.log(signedPdfDoc,"signedPdfDoc");
-    
+    // Get the last page of the original PDF
+    const lastPage = originalPdfDoc.getPages()[originalPdfDoc.getPageCount() - 1];
 
-    // Copy pages from the original PDF to the new PDF
-    const pages = await signedPdfDoc.copyPages(originalPdfDoc, [...Array(originalPdfDoc.getPageCount()).keys()]);
-    pages.forEach(page => signedPdfDoc.addPage(page));
+    // Calculate the dimensions of the signature image
+    const signatureImageWidth = 140; // Adjust according to your requirement
+    const signatureImageHeight = 50; // Adjust according to your requirement
 
-    // Add the signature image to the last page
-    const lastPage = signedPdfDoc.getPage(signedPdfDoc.getPageCount() - 1);
-    const { width, height } = lastPage.getSize();
-    lastPage.drawImage(signatureImage, {
-        x: 50,
-        y: 50,
-        width: signatureImage.width,
-        height: signatureImage.height,
+     // Add the username text at the left bottom
+    lastPage.drawText(username, {
+        x: 60, // Adjust the x coordinate as needed
+        y: 40, // Adjust the y coordinate as needed
+        size: 12, // Adjust the font size as needed
+        color: rgb(0, 0, 0), // Black color
     });
+    lastPage.drawText(userrole, {
+        x: 60, // Adjust the x coordinate as needed
+        y: 25, // Adjust the y coordinate as needed
+        size: 10, // Adjust the font size as needed
+        color: rgb(0, 0, 0), // Black color
+    });
+
+    // Add the signature image to the last page, positioned at the right bottom
+    lastPage.drawImage(signatureImage, {
+        x: lastPage.getWidth() - signatureImageWidth - 50, // Adjust the x coordinate as needed
+        y: 0, // Adjust the y coordinate as needed
+        width: signatureImageWidth,
+        height: signatureImageHeight,
+    });
+
+   
+
+    // Serialize the PDF document
+    const modifiedPdfBytes = await originalPdfDoc.save();
+
+    // Return the modified PDF as bytes
+    return modifiedPdfBytes;
+}
+
+
 
     
     
     // Return the modified PDF as bytes
-    return signedPdfDoc.save();
-}
+    // return signedPdfDoc.save();
+// }
 
 async function downloadBlob(blobServiceClient: BlobServiceClient, blobUrl: string): Promise<Uint8Array> {
     const containerName = getContainerNameFromUrl(blobUrl);

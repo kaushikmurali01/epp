@@ -34,6 +34,7 @@ export const HTTP_STATUS_CODES = {
     otpSent: "OTP sent successfully",
     dataUnique: "Data Should be unique",
     emailNotExist: "Please enter a registered email address",
+    paAlreadySigned: "You have already sign the participant agreement"
   };
 
   export const STATUS = {

@@ -1,11 +1,11 @@
 import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import * as jwt from 'jsonwebtoken';
 import { sequelize } from "../services/database";
-import { User } from "../enerva-utils/models/user.model";
+import { User } from "../models/user.model";
 import { Token } from "./toekn";
-import { UserCompanyRole } from "../enerva-utils/models/user-company-role";
-import { ResponseHandler } from "../enerva-utils/utils/responseHandler";
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../enerva-utils/utils/status";
+import { UserCompanyRole } from "../models/user-company-role";
+import { ResponseHandler } from "../utils/responseHandler";
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../utils/status";
 
 // Middleware to decode JWT token
 export async function decodeToken(req: HttpRequest, context: InvocationContext, next: () => Promise<HttpResponseInit>): Promise<any> {

@@ -55,13 +55,16 @@ import { PDFDocument } from 'pdf-lib';
     await blockBlobClient.uploadData(blob);
   
     // Best practice: create time limits
-    const SIXTY_MINUTES = 60 * 60 * 1000;
-    const NOW = new Date();
+    // const SIXTY_MINUTES = 60 * 60 * 1000;
+    // const NOW = new Date();
+    const farFuture = new Date();
+    farFuture.setFullYear(farFuture.getFullYear() + 10);
   
     // Create SAS URL
     const accountSasTokenUrl = await blockBlobClient.generateSasUrl({
-      startsOn: NOW,
-      expiresOn: new Date(new Date().valueOf() + SIXTY_MINUTES),
+      // startsOn: NOW,
+      // expiresOn: new Date(new Date().valueOf() + SIXTY_MINUTES),
+      expiresOn: farFuture,
       permissions: BlobSASPermissions.parse('r'), // Read only permission to the blob
       protocol: SASProtocol.Https // Only allow HTTPS access to the blob
     });

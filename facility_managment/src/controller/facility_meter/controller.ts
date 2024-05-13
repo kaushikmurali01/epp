@@ -1,11 +1,11 @@
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../enerva-utils/utils/status";
-import { ResponseHandler } from '../enerva-utils/utils/responseHandler';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
+import { ResponseHandler } from '../../utils/responseHandler';
 import { FacilityMeterService } from "./service";
-import { FacilityMeterMonthlyEntries } from "../enerva-utils/models/facility_meter_monthly_entries";
-import { FacilityMeterDetail } from "../enerva-utils/models/facility_meter_details.model";
+import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
+import { FacilityMeterDetail } from "../../models/facility_meter_details.model";
 import { HttpRequest } from "@azure/functions";
-import { IBaseInterface } from "../enerva-utils/interfaces/baseline.interface";
-import { IUserToken } from "../enerva-utils/interfaces/usertoken.interface";
+import { IBaseInterface } from "../../interfaces/baseline.interface";
+import { IUserToken } from "../../interfaces/usertoken.interface";
 
 
 
