@@ -19,6 +19,7 @@ const DashboardArrow = () => {
 };
 
 const DashboardNoGraph = (props) => {
+  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
   const { isLg } = useMediaQueries();
   const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const DashboardNoGraph = (props) => {
             fontWeight: "bold",
           }}
         >
-          Welcome Ben
+          Welcome {userDetails.first_name}
         </Typography>
         <Typography
           variant="h6"
