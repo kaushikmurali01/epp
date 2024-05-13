@@ -7,7 +7,7 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo,inviteAPIURL }) => {
+const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL }) => {
     console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
@@ -31,7 +31,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             const newStates = [...prevStates];
             const permissionId = permissions[index].permission_id;
             const isSelected = !newStates.includes(permissionId);
-    
+
             if (isSelected) {
                 newStates.push(permissionId);
                 setSelectedPermissions((prevSelectedPermissions) => [
@@ -47,13 +47,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 );
                 return updatedStates;
             }
-    
+
             return newStates;
         });
     };
 
     const getPermissionList = (permission_id) => {
-       //check if we have type or not in page info, if we have type then it is user management admin page
+        //check if we have type or not in page info, if we have type then it is user management admin page
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
@@ -67,7 +67,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
 
     const handelInviteSubmit = () => {
-        
+
         // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
@@ -82,10 +82,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 "permissions": permissionIds,
                 "entry_type": selectTableRow.entry_type
             }
-              //  for enverva admin types
-              if(invitePageInfo?.type !== null) {
-                    requestBody.type = invitePageInfo?.type;
-                }
+            //  for enverva admin types
+            if (invitePageInfo?.type !== null) {
+                requestBody.type = invitePageInfo?.type;
+            }
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
 
@@ -105,7 +105,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 "permissions": permissionIds
             }
             //  for enverva admin types
-            if(invitePageInfo?.type !== null) {
+            if (invitePageInfo?.type !== null) {
                 requestBody.type = invitePageInfo?.type;
             }
 
@@ -129,7 +129,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
+        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
@@ -141,7 +141,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 console.log(error);
             });
     };
-    
+
     useEffect(() => {
         if (Object.keys(selectTableRow).length !== 0) {
             getUserPermissionListAPI(selectTableRow);
@@ -166,7 +166,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType,]);
 
-    console.log(getUserRole, invitePageInfo, 'invitePageInfo,getUserRole')
+    console.log(invitePageInfo, 'invitePageInfo')
 
     return (
         <Box component="section">
@@ -188,49 +188,69 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 }}
                             />
                         </IconButton>
-                        <Typography variant='h4'> 
-                        {/* {isEdited ? 'Manage permission' : 'Invite user and set permissions'} */}
-                        {invitePageInfo?.title}
+                        <Typography variant='h4'>
+                            {invitePageInfo?.title}
                         </Typography>
                     </Grid>
                 </Grid>
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
                     <Grid item xs={12} md={6} sx={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-                        <FormGroup className='theme-form-group'>
-                            <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem', minWidth: '12rem' }}> Business Email* </FormLabel>
-                            <FormControl className='theme-form-control'>
-                                <TextField
-                                    placeholder="Business Email"
-                                    onChange={(e) => handelEmailSelectChange(e)}
-                                    value={userEmail}
-                                />
-                            </FormControl>
-                        </FormGroup>
-                        <FormGroup className='theme-form-group'>
-                            <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Role Type* </FormLabel>
-                            <FormControl sx={{ minWidth: '12rem' }} >
-                                <Select
-                                    value={selectRoleType}
-                                    onChange={(e) => handleSelectChange(e)}
-                                    displayEmpty={true}
-                                >
-                                     <MenuItem value="" disabled>
-                                            <em>Select</em>
-                                        </MenuItem>
-                                    {getUserRole && (getUserRole).map((item) => {
-                                        // console.log(item, "Role Type");
 
-                                        return (
-                                            <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
-                                        )
-                                    })}
 
-                                </Select>
-                              
+                        {invitePageInfo?.type === 'default' ?
+                            <Stack flexDirection="row" sx={{display: 'flex', width: '100%', gap:'2rem'}}>
+                                <Box component='div' sx={{ borderRight: { md: '1px solid #ccc' }, paddingRight: { md: '2rem'} }}>
+                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}} >User type</Typography>
+                                    <Typography variant='h5'>Role Type</Typography>
+                                </Box>
+                                <Box component='div'>
+                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}}  >User type</Typography>
+                                    <Typography variant='h5'>Role Type</Typography>
+                                </Box>
+                            </Stack>
+                            :
+                            <React.Fragment>
+                                <FormGroup className='theme-form-group'>
+                                    <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem', minWidth: '12rem' }}> Role Name* </FormLabel>
+                                    <FormControl className='theme-form-control'>
+                                        <TextField
+                                            placeholder="Role Name"
+                                            onChange={(e) => handelEmailSelectChange(e)}
+                                            value={userEmail}
+                                        />
+                                    </FormControl>
+                                </FormGroup>
+                                <FormGroup className='theme-form-group'>
+                                    <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> User type* </FormLabel>
+                                    <FormControl sx={{ minWidth: '12rem' }} >
+                                        <Select
+                                            value={selectRoleType}
+                                            onChange={(e) => handleSelectChange(e)}
+                                            displayEmpty={true}
+                                        >
+                                            <MenuItem value="" disabled>
+                                                <em>Select</em>
+                                            </MenuItem>
+                                            {getUserRole && (getUserRole).map((item) => {
+                                                // console.log(item, "Role Type");
 
-                            </FormControl>
+                                                return (
+                                                    <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
+                                                )
+                                            })}
 
-                        </FormGroup>
+                                        </Select>
+
+
+                                    </FormControl>
+
+                                </FormGroup>
+                            </React.Fragment>
+
+
+                        }
+
+
                     </Grid>
                     <Grid item >
                         <Button
@@ -240,8 +260,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             onClick={() => handelInviteSubmit()}
                             disabled={!isFormValid}
                         >
-                            {isEdited ? 'Update Permissions' : ' Send Invite'}
+                            {invitePageInfo?.type === 'default' ? 'Save'
+                            :
+                             isEdited ? 'Update' : ' Add role'
+                            }
                            
+
                         </Button>
                     </Grid>
                 </Grid>
@@ -302,4 +326,4 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     )
 }
 
-export default InviteUser
+export default RolePermissionsUserInvite

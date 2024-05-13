@@ -8,6 +8,7 @@ import EntriesListing from 'sections/Homepage/FacilityDetails/EntriesListing';
 import AdminFacilityList from 'pages/Admin/Facility/AdminFacilityList';
 import AdminFacilityDetailsPage from 'pages/Admin/Facility/AdminFacilityDetails';
 import UserManagementAdmin from 'pages/UserManagementAdmin/UserManagementAdmin';
+import RolePermissionsUserManagement from 'pages/RolesPermissions/RolePermissionsUserManagement';
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
 
@@ -26,7 +27,7 @@ export const EnervaRoutes = () => {
         <Route path={enervaEndPoints.companies} element={<DashboardSectionComponent />} />
         <Route path={enervaEndPoints.reportManagement} element={<DashboardSectionComponent />} />
         <Route path={enervaEndPoints.programManagement} element={<DashboardSectionComponent />} />
-        <Route path={enervaEndPoints.roleAndPermissionManagement} element={<DashboardSectionComponent />} />
+        <Route path={enervaEndPoints.roleAndPermissionManagement} element={<RolePermissionsUserManagement />} />
         <Route path={enervaEndPoints.clientManagement} element={<DashboardSectionComponent />} />
         <Route path='*' element={<Error404 />} />
       </Routes>

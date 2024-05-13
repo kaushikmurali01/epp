@@ -71,8 +71,15 @@ const theme = createTheme({
           ".MuiTableCell-root": {
             color: '#54585A',
             fontSize: '0.875rem',
+            textAlign: 'left',
+            padding: '1rem',
+            minWidth: '8rem',
             "&:first-of-type": {
               fontWeight: 600,
+              minWidth: '5rem',
+            },
+            "&:last-child": {
+              textAlign: 'right'
             },
           },
         },

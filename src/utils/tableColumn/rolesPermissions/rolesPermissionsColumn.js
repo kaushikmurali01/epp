@@ -1,22 +1,19 @@
 import React, { useState } from "react";
 import {
     Box,
-    Button,
     Checkbox,
     FormGroup,
     FormLabel,
     Grid,
     Typography,
 } from "@mui/material";
-
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
-// import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
-const CustomerUserManagementColumn = () => {
+const RolesPermissionManagementColumn = () => {
 
 const [isChecked, setIsChecked] = useState(false)
 
@@ -44,8 +41,8 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to Delete
-                    the user Details
+                Are you sure you would like to Delete
+                the Role from the system.
                 </Typography>
             </Grid>
             <Grid item>
@@ -60,47 +57,28 @@ const DeleteModelContent = () => {
 
 
 
-const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
-        Header: "User ID",
+        Header: "Role name",
         accessor: 'id',
-    },
-    {
-        Header: "User Full Name",
-        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
-    },
-    {
-        Header: "Business Email",
-        accessor: "email",
     },
     {
         Header: "Role Type",
         accessor: "rolename",
     },
     {
-        Header: "Created on (Date)",
+        Header: "Created date",
         accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`
-    },
-    {
-        Header: "Status",
-        accessor: (item) => {
-            // if (item.status === 'pending') {
-                return (
-                    <Box>
-                        <Typography variant="span" sx={{ ...buttonStyle,margin: '0', padding: '0.4375rem 1rem',  border: '1px solid #DCFF88', color: 'primary.main', backgroundColor: '#DCFF88', textTransform: 'capitalize', marginRight: '1rem' }}  >
-                            {/* <CheckCircleIcon /> */}
-                             {item.status}
-                        </Typography>
-                    </Box>
-                );
-        }
     },
     {
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography  variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
-                    Manage permission
+                 <Typography variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelDefaultPermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    Set Default permission
+                </Typography>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    Edit
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
@@ -112,14 +90,22 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisi
 ];
 
 
+const handelDefaultPermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    setVisibleInvitePage(true);
+    setSelectTableRow(item)
+    setInvitePageInfo({title:'Set Default Permissions', type: 'default' }) 
+    setInviteAPIURL(apiURL)
+}
+
 const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Customer User and set permissions', type: "2" })
+    setInvitePageInfo({title:'Edit Role', type: 'edit' }) 
     setInviteAPIURL(apiURL)
-    console.log(item, 'check item')
 }
+
 
 const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
     setModalConfig((prevState) => ({
@@ -163,8 +149,8 @@ const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
         })
 }
 
-return {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN}
+return {ROLES_PERMISSIONS_MANAGEMENT_COLUMN}
 
 }
 
-export default CustomerUserManagementColumn;
+export default RolesPermissionManagementColumn;

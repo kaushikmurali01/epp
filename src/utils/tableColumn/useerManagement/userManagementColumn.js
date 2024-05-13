@@ -99,10 +99,10 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                         Manage permission
                     </Typography>
-                    <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
+                    <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
                     </Typography>
 
