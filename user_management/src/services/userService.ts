@@ -37,11 +37,13 @@ static async registerUser(userDetails): Promise<any> {
 
 static async acceptInvitation(data): Promise<Response> {
   try {
-    console.log("Data", data);
     let id = data.user_id;
-    console.log("DataUserId", data.user_id);
-    let userData:any = await UserRequest.findByPk(id);
-    console.log("UserData111", userData);
+    let userData:any = await UserRequest.findOne({
+      where: {
+          id: id,
+          is_active: 1
+      }
+  });
 
     const existingUserCompanyRole = await UserCompanyRole.findOne({
       where: {
@@ -52,26 +54,23 @@ static async acceptInvitation(data): Promise<Response> {
     
     // If the record exists, update it; otherwise, create a new one
     if (existingUserCompanyRole) {
-      await existingUserCompanyRole.update({
+      await UserCompanyRole.update({
         role_id: userData?.dataValues?.role
-      });
+      }, {where: {
+        company_id: data.company_id,
+        user_id: userData?.dataValues?.user_id
+      } });
     } else {
       const newUserCompanyRole: any = {
         company_id: data.company_id,
         role_id: userData?.dataValues?.role,
         user_id: userData?.dataValues?.user_id,
-        is_active: 1 // Assuming default value
+        is_active: 1 
       };
       await UserCompanyRole.create(newUserCompanyRole);
     }
-    //await UserRequest.destroy({ where: { id } });
     await UserRequest.update({ is_active: 0 }, { where: { id } });
-
-    
-    // Second new code ends here
-
-   //  const result = UserRequest.update({ status: "Active"}, {where:{id: data.user_id, company_id: data.company_id}});
-     return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
   } catch (error) {
      throw new Error(`${error.message}`);
   }

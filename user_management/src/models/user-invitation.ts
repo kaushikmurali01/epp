@@ -47,10 +47,10 @@ UserInvitation.init(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: {
-        name: 'UniqueEmailConstraint',
-        msg: 'Email address already exists.',
-      },
+      // unique: {
+      //   name: 'UniqueEmailConstraint',
+      //   msg: 'Email address already exists.',
+      // },
       validate: {
         isEmail: {
           msg: 'Invalid email format.',

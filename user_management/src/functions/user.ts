@@ -25,27 +25,33 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
     try {
         // Parse request data
         const data:any = await request.json();
+        context.log("data01", data);
+
        // const data = JSON.parse(requestData.rawBody); 
+      //console.log("testing",process.env.AD_EXTENSION)
+      const ext = process.env.AD_EXTENSION;
         const userData = {
-            first_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_FirstName,
-            last_name:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
+            first_name: data[`extension_${ext}_FirstName`],
+            last_name:  data[`extension_${ext}_LastName`],
             email: data.email,
-            phonenumber: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessMobile,
-            landline: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessLandline,
-            type: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_UserType,
+            phonenumber: data[`extension_${ext}_BusinessMobile`],
+            landline: data[`extension_${ext}_BusinessLandline`],
+            type: data[`extension_${ext}_UserType`],
             display_name: data.displayName
         }
+        context.log("userData01",userData);
         const companyData = {
-            company_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_CompanyName,
-            company_description:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
+            company_name: data[`extension_${ext}_CompanyName`],
+            company_description:  data[`extension_${ext}_LastName`],
             address1: data.streetAddress,
             city: data.city,
             state: data.state,
-            source_of_discovery: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_Howdoyouhearaboutus,
-            website: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_WebsiteURL,
+            source_of_discovery: data[`extension_${ext}_Howdoyouhearaboutus`],
+            website: data[`extension_${ext}_WebsiteURL`],
             postal_code: data.postalCode,
             country: data.country
         }
+        context.log("userData01",userData);
 
         // Register user
          const user = await UserController.registerUser(userData, companyData);

@@ -7,8 +7,8 @@ class RolePermission extends Model {
     public id!: number;
     public role_id!: number;
     public permission_id!: number;
-    public created_at!: Date;
-    public updated_at!: Date;
+  //  public created_at!: Date;
+   // public updated_at!: Date;
     public created_by!: number;
     public updated_by!: number;
 }
@@ -29,16 +29,16 @@ RolePermission.init(
             type: DataTypes.INTEGER,
             allowNull: false,
         },
-        created_at: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW
-        },
-        updated_at: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: DataTypes.NOW
-        },
+        // created_at: {
+        //     type: DataTypes.DATE,
+        //     allowNull: false,
+        //     defaultValue: DataTypes.NOW
+        // },
+        // updated_at: {
+        //     type: DataTypes.DATE,
+        //     allowNull: false,
+        //     defaultValue: DataTypes.NOW
+        // },
         created_by: {
             type: DataTypes.INTEGER,
             allowNull: true,
@@ -50,8 +50,7 @@ RolePermission.init(
     },
     {
         sequelize,
-        tableName: 'role_permission',
-        timestamps: false // Assuming you handle timestamps manually
+        tableName: 'role_permission'
     }
 );
 

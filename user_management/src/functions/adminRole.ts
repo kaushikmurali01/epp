@@ -45,6 +45,7 @@ export async function AddRolePermission(request: HttpRequest, context: Invocatio
         const responseBody = JSON.stringify(obj);
         return { body: responseBody };
     } catch (error) {
+        context.log(error)
         // Return error response
         return { status: 500, body: `${error.message}` };
     }
