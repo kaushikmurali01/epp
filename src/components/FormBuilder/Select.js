@@ -35,7 +35,7 @@ const SelectBox = ({
   }
 
   return (
-    <FormGroup className='theme-form-group' key={name}>
+    <FormGroup className='theme-form-group theme-select-form-group' key={name}>
     <FormControl sx={{ width: "100%" }} >
       <FormLabel >{label}</FormLabel>
       <TextField {...configSelect}>

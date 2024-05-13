@@ -7,8 +7,7 @@ import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuI
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { GET_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
-import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
-import InviteUserAdmin from './InviteUserAdmin';
+
 
 
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
@@ -390,24 +389,24 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
               </Grid>
               {(getEnervaUser && tabValue === 'enervaUsers') &&
-                  <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="#D9D9D9" 
+                  <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="rgba(217, 217, 217, 0.2)" 
                   count={pageCount.enerva}
                   pageInfo={enervaPageInfo}
                   setPageInfo={setEnervaPageInfo}
                   />
               }
-              {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="#D9D9D9" 
+              {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="rgba(217, 217, 217, 0.2)" 
               count={pageCount.ieso}
               pageInfo={iesoPageInfo}
               setPageInfo={setIesoPageInfo}
               />}
-              {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="#D9D9D9"
+              {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
                 count={pageCount.customer}
                 pageInfo={customerPageInfo}
                 setPageInfo={setCustomerPageInfo}
               
               />}
-              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="#D9D9D9" 
+              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="rgba(217, 217, 217, 0.2)" 
               count={pageCount.aggregator}
               pageInfo={aggregatorPageInfo}
               setPageInfo={setAggregatorPageInfo}

@@ -272,7 +272,7 @@ useEffect(() => {
                count={pageCount}
                pageInfo={pageInfo}
                setPageInfo={setPageInfo}
-               headbgColor="#D9D9D9" /> }
+               headbgColor="rgba(217, 217, 217, 0.2)" /> }
               </Grid>
             </Container>
 

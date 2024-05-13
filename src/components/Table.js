@@ -112,7 +112,7 @@ const Table = ({
   return (
     <TableContainer>
       <MUITable {...getTableProps()}>
-        <TableHead sx={{ backgroundColor: headbgColor || "#D9D9D9" }}>
+        <TableHead sx={{ backgroundColor: headbgColor || 'rgba(217, 217, 217, 0.2)' }}>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
