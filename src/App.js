@@ -17,7 +17,7 @@ import FacilityDetails from "sections/Homepage/FacilityDetails";
 import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection";
 import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
-
+import Loader from "pages/Loader";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -30,7 +30,7 @@ const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <Suspense fallback="Loading...">
+        <Suspense fallback={<Loader fallBackLoader={true} />}>
           <MsalProvider instance={props.instance}>
             <UnauthenticatedTemplate>
               <Header />
@@ -56,6 +56,7 @@ const App = (props) => {
         {/* <ParticipantAgreement /> */}
         {/* <Footer /> */}
       </ThemeProvider>
+      {/* <Loader /> */}
     </Provider>
   );
 };

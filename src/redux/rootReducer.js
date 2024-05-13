@@ -6,7 +6,7 @@ import entriesReducer from "./superAdmin/reducers/entriesReducer";
 import fileUploadReducer from "./global/reducers/fileUploadReducer";
 import adminFacilityReducer from "./admin/reducers/adminFacilityReducers";
 import adminMeterReducer from "./admin/reducers/adminMeterReducer";
-import adminEntriesReducer from "./admin/reducers/adminEntriesReducer";
+import loaderReducer from "./global/reducers/loaderReducer";
 export default combineReducers({
   simpleReducer,
   facilityReducer,
@@ -15,5 +15,5 @@ export default combineReducers({
   fileUploadReducer,
   adminFacilityReducer,
   adminMeterReducer,
-  adminEntriesReducer,
+  loaderReducer,
 });
