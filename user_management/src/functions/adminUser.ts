@@ -10,6 +10,7 @@ import { UserCompanyRole } from "../models/user-company-role";
 import { Role } from "../models/role";
 import { sequelize } from "../services/database";
 import { UserInvitation } from "../models/user-invitation";
+import { Op } from "sequelize";
 
 /**
  * Registers a new user based on the provided request data.
@@ -21,12 +22,12 @@ import { UserInvitation } from "../models/user-invitation";
 export async function AdminUserRegister(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
 
 
         // Register user
         const user = await AdminUserController.registerAdminUser(requestData);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(user);
 
@@ -49,11 +50,11 @@ export async function AdminUserRegister(request: HttpRequest, context: Invocatio
 export async function AdminUserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
 
         // Update user
         const user = await AdminUserController.updateUser(requestData);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(user);
 
@@ -75,77 +76,88 @@ export async function AdminUserUpdate(request: HttpRequest, context: InvocationC
 export async function GetEnervaUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { pageOffset, pageLimit } = request.params;
+        const searchPromt = request.query.get('search' || "");
         const [usersResult, invitationsResult] = await Promise.all([
-          User.findAndCountAll({
-              include: [{
-                  model: UserCompanyRole,
-                  attributes: [],
-                  where: {
-                    is_active: 1
-                  },
-                  include: [{
-                      model: Role,
-                      attributes: []
-                  }]
-              }],
-              offset: parseInt(pageOffset),
-              limit: parseInt(pageLimit),
-              where: {
-                type: 1,
-                is_active: 1 
-              },
-              attributes: ["id", "email", "first_name", "last_name", "createdAt",
-                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
-                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
-                  [sequelize.col('UserCompanyRole.status'), 'status']
-              ],
-          }),
-          UserInvitation.findAndCountAll({
-            offset: parseInt(pageOffset),
-            limit: parseInt(pageLimit),
-              where: {
-                is_active: 1,
-                type: 1
-              },
-              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
-                  [sequelize.col('Role.rolename'), 'rolename'],
-                  [sequelize.col('Role.id'), 'role_id']
-              ],
-              include: [{
-                      model: Role,
-                      attributes: []
-                  }
-              ]
-          })
-          
-      ]);
-      
-      const users = usersResult?.rows?.map(user => ({
-          entry_type: 1,
-          ...user.toJSON()
-      }));
-      let userCount = usersResult.count;
-      const invitations = invitationsResult?.rows?.map(invitation => ({
-          entry_type: 2,
-          first_name: "",
-          last_name: "",
-          ...invitation.toJSON()
-      }));
+            User.findAndCountAll({
+                include: [{
+                    model: UserCompanyRole,
+                    attributes: [],
+                    where: {
+                        is_active: 1
+                    },
+                    include: [{
+                        model: Role,
+                        attributes: []
+                    }]
+                }],
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    type: 1,
+                    is_active: 1,
+                    [Op.or]: [
+                        { first_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { last_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
+                },
+                attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                    [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                    [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                    [sequelize.col('UserCompanyRole.status'), 'status']
+                ],
+            }),
+            UserInvitation.findAndCountAll({
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    is_active: 1,
+                    type: 1,
+                    [Op.or]: [
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
+                },
+                attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                    [sequelize.col('Role.rolename'), 'rolename'],
+                    [sequelize.col('Role.id'), 'role_id']
+                ],
+                include: [{
+                    model: Role,
+                    attributes: []
+                }
+                ]
+            })
 
-      let inviteCount = invitationsResult.count;
-      
-      
-      
-      // Combine all results into one array
-      const allData = [...users, ...invitations];
-      const data = {status: 200, body: {
-        rows:allData,
-        count:userCount+inviteCount
-      }}
-      const responseBody = JSON.stringify(data);
+        ]);
 
-      return { body: responseBody };
-      
+        const users = usersResult?.rows?.map(user => ({
+            entry_type: 1,
+            ...user.toJSON()
+        }));
+        let userCount = usersResult.count;
+        const invitations = invitationsResult?.rows?.map(invitation => ({
+            entry_type: 2,
+            first_name: "",
+            last_name: "",
+            ...invitation.toJSON()
+        }));
+
+        let inviteCount = invitationsResult.count;
+
+
+
+        // Combine all results into one array
+        const allData = [...users, ...invitations];
+        const data = {
+            status: 200, body: {
+                rows: allData,
+                count: userCount + inviteCount
+            }
+        }
+        const responseBody = JSON.stringify(data);
+
+        return { body: responseBody };
+
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
@@ -164,77 +176,79 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
     try {
         const { pageOffset, pageLimit } = request.params;
         const [usersResult, invitationsResult] = await Promise.all([
-          User.findAndCountAll({
-              include: [{
-                  model: UserCompanyRole,
-                  attributes: [],
-                  where: {
+            User.findAndCountAll({
+                include: [{
+                    model: UserCompanyRole,
+                    attributes: [],
+                    where: {
+                        is_active: 1
+                    },
+                    include: [{
+                        model: Role,
+                        attributes: []
+                    }]
+                }],
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    type: 4,
                     is_active: 1
-                  },
-                  include: [{
-                      model: Role,
-                      attributes: []
-                  }]
-              }],
-              offset: parseInt(pageOffset),
-              limit: parseInt(pageLimit),
-              where: {
-                type: 4,
-                is_active: 1 
-              },
-              attributes: ["id", "email", "first_name", "last_name", "createdAt",
-                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
-                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
-                  [sequelize.col('UserCompanyRole.status'), 'status']
-              ],
-          }),
-          UserInvitation.findAndCountAll({
-            offset: parseInt(pageOffset),
-            limit: parseInt(pageLimit),
-              where: {
-                is_active: 1,
-                type: 4
-              },
-              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
-                  [sequelize.col('Role.rolename'), 'rolename'],
-                  [sequelize.col('Role.id'), 'role_id']
-              ],
-              include: [{
-                      model: Role,
-                      attributes: []
-                  }
-              ]
-          })
-          
-      ]);
-      
-      const users = usersResult?.rows?.map(user => ({
-          entry_type: 1,
-          ...user.toJSON()
-      }));
-      
-      const invitations = invitationsResult?.rows?.map(invitation => ({
-          entry_type: 2,
-          first_name: "",
-          last_name: "",
-          ...invitation.toJSON()
-      }));
-      
-      
-      
-      // Combine all results into one array
-      const allData = [...users, ...invitations];
-      
+                },
+                attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                    [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                    [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                    [sequelize.col('UserCompanyRole.status'), 'status']
+                ],
+            }),
+            UserInvitation.findAndCountAll({
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    is_active: 1,
+                    type: 4
+                },
+                attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                    [sequelize.col('Role.rolename'), 'rolename'],
+                    [sequelize.col('Role.id'), 'role_id']
+                ],
+                include: [{
+                    model: Role,
+                    attributes: []
+                }
+                ]
+            })
 
-      const data = {status: 200, body: {
-        rows:allData,
-        count:usersResult.count+invitationsResult.count
-      }}
+        ]);
 
-      const responseBody = JSON.stringify(data);
+        const users = usersResult?.rows?.map(user => ({
+            entry_type: 1,
+            ...user.toJSON()
+        }));
 
-      return { body: responseBody };
-      
+        const invitations = invitationsResult?.rows?.map(invitation => ({
+            entry_type: 2,
+            first_name: "",
+            last_name: "",
+            ...invitation.toJSON()
+        }));
+
+
+
+        // Combine all results into one array
+        const allData = [...users, ...invitations];
+
+
+        const data = {
+            status: 200, body: {
+                rows: allData,
+                count: usersResult.count + invitationsResult.count
+            }
+        }
+
+        const responseBody = JSON.stringify(data);
+
+        return { body: responseBody };
+
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
@@ -253,76 +267,77 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
     try {
         const { pageOffset, pageLimit } = request.params;
         const [usersResult, invitationsResult] = await Promise.all([
-          User.findAndCountAll({
-              include: [{
-                  model: UserCompanyRole,
-                  attributes: [],
-                  where: {
+            User.findAndCountAll({
+                include: [{
+                    model: UserCompanyRole,
+                    attributes: [],
+                    where: {
+                        is_active: 1
+                    },
+                    include: [{
+                        model: Role,
+                        attributes: []
+                    }]
+                }],
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    type: 2,
                     is_active: 1
-                  },
-                  include: [{
-                      model: Role,
-                      attributes: []
-                  }]
-              }],
-              offset: parseInt(pageOffset),
-              limit: parseInt(pageLimit),
-              where: {
-                type: 2,
-                is_active: 1 
-              },
-              attributes: ["id", "email", "first_name", "last_name", "createdAt",
-                  [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
-                  [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
-                  [sequelize.col('UserCompanyRole.status'), 'status']
-              ],
-          }),
-          UserInvitation.findAndCountAll({
-            offset: parseInt(pageOffset),
-            limit: parseInt(pageLimit),
-              where: {
-                is_active: 1,
-                type: 2
-              },
-              attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
-                  [sequelize.col('Role.rolename'), 'rolename'],
-                  [sequelize.col('Role.id'), 'role_id']
-              ],
-              include: [{
-                      model: Role,
-                      attributes: []
-                  }
-              ]
-          })
-          
-      ]);
-      
-      const users = usersResult?.rows?.map(user => ({
-          entry_type: 1,
-          ...user.toJSON()
-      }));
-      
-      const invitations = invitationsResult?.rows?.map(invitation => ({
-          entry_type: 2,
-          first_name: "",
-          last_name: "",
-          ...invitation.toJSON()
-      }));
-      
-      
-      
-      // Combine all results into one array
-      const allData = [...users, ...invitations];
-      const dataSection = {
-        status: 200,
-        body: {
-        rows: allData,
-        count: usersResult.count + invitationsResult.count
-      }}
-      const responseBody = JSON.stringify(dataSection);
+                },
+                attributes: ["id", "email", "first_name", "last_name", "createdAt",
+                    [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+                    [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+                    [sequelize.col('UserCompanyRole.status'), 'status']
+                ],
+            }),
+            UserInvitation.findAndCountAll({
+                offset: parseInt(pageOffset),
+                limit: parseInt(pageLimit),
+                where: {
+                    is_active: 1,
+                    type: 2
+                },
+                attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                    [sequelize.col('Role.rolename'), 'rolename'],
+                    [sequelize.col('Role.id'), 'role_id']
+                ],
+                include: [{
+                    model: Role,
+                    attributes: []
+                }
+                ]
+            })
 
-      return { body: responseBody };
-      
+        ]);
+
+        const users = usersResult?.rows?.map(user => ({
+            entry_type: 1,
+            ...user.toJSON()
+        }));
+
+        const invitations = invitationsResult?.rows?.map(invitation => ({
+            entry_type: 2,
+            first_name: "",
+            last_name: "",
+            ...invitation.toJSON()
+        }));
+
+
+
+        // Combine all results into one array
+        const allData = [...users, ...invitations];
+        const dataSection = {
+            status: 200,
+            body: {
+                rows: allData,
+                count: usersResult.count + invitationsResult.count
+            }
+        }
+        const responseBody = JSON.stringify(dataSection);
+
+        return { body: responseBody };
+
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
@@ -338,13 +353,13 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
  */
 export async function GetAdminUserById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        
+
         // Extract user ID from request
         const { id } = request.params;
 
         // Get user by ID
         const user = await AdminUserController.getUserById(id);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(user);
 
@@ -370,7 +385,7 @@ export async function DeleteAdminUser(request: HttpRequest, context: InvocationC
 
         // Delete user by ID
         const deleted = await AdminUserController.deleteUser(userId);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify({ deleted });
 
@@ -400,7 +415,7 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
         // Prepare response body
         const responseBody = JSON.stringify(invitationList);
 
-       
+
         // Return success response
         return { body: responseBody };
     } catch (error) {
@@ -419,7 +434,7 @@ export async function SendEnervaInvitation(request: HttpRequest, context: Invoca
     //     const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
     //     const data = await UserInvitationService.sendInvitation(requestData, resp);
-       
+
     //     // Prepare response body
     //     const responseBody = JSON.stringify(data);
 
@@ -432,12 +447,12 @@ export async function SendEnervaInvitation(request: HttpRequest, context: Invoca
 
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         resp.company_id = null;
         const data = await UserInvitationService.sendInvitation(requestData, resp);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
@@ -478,12 +493,12 @@ export async function GetAdmnPermissionsByRoleId(request: HttpRequest, context: 
 export async function AdAssignPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData:any = await request.json(); 
+        const requestData: any = await request.json();
         requestData.company_id = null;
 
         // Create role
         const role = await RoleController.assignPermissions(requestData);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(role);
 

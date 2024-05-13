@@ -97,22 +97,23 @@ class RoleService {
      * @returns Promise<any[]>
      * @description Retrieves a list of roles from the database.
      */
-        static async listRoles(): Promise<any[]> {
-            try {
-               // const roles = await Role.findAll();
-               const roles = await Role.findAll({
+    static async listRoles(searchPromt: string): Promise<any[]> {
+        try {
+            // const roles = await Role.findAll();
+            const roles = await Role.findAll({
                 where: {
-                  id: {
-                    [Op.ne]: 1 // Op.ne means "not equal to"
-                  }
+                    rolename: { [Op.iLike]: `%${searchPromt}%` },
+                    id: {
+                        [Op.ne]: 1 // Op.ne means "not equal to"
+                    }
                 }
-              });
-              
-                return roles;
-            } catch (error) {
-                throw error;
-            }
+            });
+
+            return roles;
+        } catch (error) {
+            throw error;
         }
+    }
 
     /**
      * Creates a new role with provided details.
@@ -126,46 +127,46 @@ class RoleService {
             console.log("data001", data);
             let email = data.email;
             let permissions = data.permissions;
-             const user = await User.findOne({ where: { email } });
-            if(data.entry_type == 1) {
-            await this.deletePermissions(user.id, data.company_id);
-            for (const permissionId of data.permissions) {
-              // Create a new record for each permission
-             await UserCompanyRolePermission.create({
-                role_id: data.role_id,
-                permission_id: permissionId,
-                user_id: user.id,
-                company_id: data.company_id, 
-                is_active: 1,  
-              });
+            const user = await User.findOne({ where: { email } });
+            if (data.entry_type == 1) {
+                await this.deletePermissions(user.id, data.company_id);
+                for (const permissionId of data.permissions) {
+                    // Create a new record for each permission
+                    await UserCompanyRolePermission.create({
+                        role_id: data.role_id,
+                        permission_id: permissionId,
+                        user_id: user.id,
+                        company_id: data.company_id,
+                        is_active: 1,
+                    });
+                }
+            } else {
+                await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });
             }
-         } else {
-            await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });
-         }
             console.log('Permissions inserted successfully.');
             //return perm;
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
-          } catch (error) {
+        } catch (error) {
             console.error('Error inserting permissions:', error);
-          }
+        }
     }
 
-    static async deletePermissions(userId: number, companyId:number): Promise<number> {
+    static async deletePermissions(userId: number, companyId: number): Promise<number> {
         try {
             // Delete permissions based on user_id and company_id
-           const resp = await UserCompanyRolePermission.destroy({
-              where: {
-                user_id: userId,
-                company_id: companyId,
-              },
+            const resp = await UserCompanyRolePermission.destroy({
+                where: {
+                    user_id: userId,
+                    company_id: companyId,
+                },
             });
             return resp;
             console.log('Permissions deleted successfully.');
-          } catch (error) {
+        } catch (error) {
             console.error('Error deleting permissions:', error);
-          }
+        }
     }
-    
+
 }
 
 export { RoleService };
