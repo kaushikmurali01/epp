@@ -36,7 +36,7 @@ export const b2cPolicies = {
  * For a full list of MSAL.js configuration parameters, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
-console.log("process.env 06th May 2024, 09:00 PM", process.env.REACT_APP_AZURE_ENV)
+console.log("process.env 13th May 2024, 02:00 AM", process.env.REACT_APP_AZURE_ENV)
 export const msalConfig = {
     auth: {
         clientId: process.env.REACT_APP_AZURE_B2C_CLIENT_ID, // This is the ONLY mandatory field that you need to supply.

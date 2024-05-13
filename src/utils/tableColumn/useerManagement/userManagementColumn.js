@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
     Box,
     Checkbox,
-    FormControlLabel,
     FormGroup,
     FormLabel,
     Grid,

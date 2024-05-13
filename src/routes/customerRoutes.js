@@ -1,6 +1,6 @@
 import React, { lazy } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
-import {  facilityEndPoints, participantAgreementEndPoints, userManagementEndPoints } from 'constants/endPoints';
+import {  facilityEndPoints, participantAgreementEndPoints, userManagementEndPoints, profilePageEndPoints } from 'constants/endPoints';
 import FacilityList from 'pages/Facility/FacilityList';
 import AddFacilityComponent from 'pages/Facility/AddFacility';
 import DashboardSectionComponent from 'pages/Facility/FacilityDashboard';
@@ -8,6 +8,7 @@ import UserManagement from 'pages/UserManagement/UserManagement';
 import ParticipantAgreementComponent from 'pages/ParticipantAgreement';
 import FacilityDetailsPage from 'pages/Facility/FacilityDetails';
 import EntriesListing from 'sections/Homepage/FacilityDetails/EntriesListing';
+import ProfilePage from 'pages/ProfilePage';
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
 
@@ -23,6 +24,7 @@ export const CustomerRoutes = () => {
         <Route path= {userManagementEndPoints.userManagement} element={ <UserManagement />} />
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.facilityDetails} element={ <FacilityDetailsPage />}/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.entriesDetails} element={ <EntriesListing /> }/>
+        <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>
         <Route path='*' element={<Error404 />} />
       </Routes>
     );
