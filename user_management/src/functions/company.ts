@@ -14,11 +14,11 @@ import { decodeTokenMiddleware } from "../middleware/authMiddleware";
 export async function CreateCompany(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
 
         // Create company
         const company = await CompanyController.createCompany(requestData);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(company);
 
@@ -40,18 +40,18 @@ export async function CreateCompany(request: HttpRequest, context: InvocationCon
 export async function UpdateCompany(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
 
         // Create company
         const company = await CompanyController.updateCompany(requestData, 1);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(company);
 
         // Return success response
         return { body: responseBody, status: 201 };
     } catch (error) {
-        
+
         // Return error response
         return { status: 500, body: `${error.message}` };
     }
@@ -66,12 +66,13 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
  */
 export async function ListCompanies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const { offset, limit } = request.params;
+        const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search' || "");
+        const companyFilter = request.query.get('company');
 
         // Get all companies
-        const companies = await CompanyController.listCompanies(offset, limit,searchPromt);
-       
+        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt,companyFilter);
+
         // Prepare response body
         const responseBody = JSON.stringify(companies);
 
@@ -98,7 +99,7 @@ export async function GetCompanyAdmin(request: HttpRequest, context: InvocationC
 
         // Get all companies
         const company = await CompanyController.getCompanyAdmin(id);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(company);
 
@@ -113,7 +114,7 @@ app.http('ListCompanies', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: ListCompanies,
-    route: 'companies'
+    route: 'companies/{pageOffset}/{pageLimit}'
 });
 app.http('GetCompanyAdmin', {
     methods: ['GET'],
