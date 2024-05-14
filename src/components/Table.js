@@ -166,91 +166,88 @@ const Table = ({
             );
           })}
         </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell
-              colSpan={columns.length}
-              sx={
-                {
-                  // borderBottom: "none",
-                }
-              }
-            >
-              <Box
-                container
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: isSmallScreen ? "flex-start" : "flex-end",
-                  flexDirection: isSmallScreen && "column",
-                }}
+        {pageInfo?.pageSize && 
+          <TableFooter>
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
               >
-                <Box>
-                  <Typography
-                    variant="small"
-                    color="text.secondary "
-                    sx={{
-                      textWrap: "nowrap",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    Rows per Page:{" "}
-                  </Typography>
-                  <Select
-                    value={pageInfo?.pageSize}
-                    onChange={handleRowsPerPageChange}
-                    variant="outlined"
-                    size="small"
-                    style={{
-                      marginLeft: "auto",
-                      height: "2rem",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    {rowsPerPageArr.map((item) => (
-                      <MenuItem value={item} sx={{ fontSize: "0.875rem" }}>
-                        {item}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <Typography
-                    variant="small"
-                    color="text.secondary "
-                    sx={{
-                      textWrap: "nowrap",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    Page {pageInfo?.page} of {totalPages}
-                  </Typography>
-                </Box>
-                <ButtonGroup
-                  size="small"
-                  variant="text"
-                  style={{
-                    height: "20px",
-                    marginLeft: !isSmallScreen && "1rem",
-                    marginTop: isSmallScreen && "1rem",
+                <Box
+                  container
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: isSmallScreen ? "flex-start" : "flex-end",
+                    flexDirection: isSmallScreen && "column",
                   }}
                 >
-                  <IconButton onClick={handleFirstPage} disableRipple>
-                    <FirstPageIcon />
-                  </IconButton>
-                  <IconButton onClick={handlePrevPage} disableRipple>
-                    <KeyboardArrowLeftIcon />
-                  </IconButton>
-                  {pageButtons}
-                  <IconButton onClick={handleNextPage} disableRipple>
-                    <KeyboardArrowRightIcon />
-                  </IconButton>
-                  <IconButton onClick={handleLastPage} disableRipple>
-                    <LastPageIcon />
-                  </IconButton>
-                </ButtonGroup>
-              </Box>
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+                  <Box>
+                    <Typography
+                      variant="small"
+                      color="text.secondary "
+                      sx={{
+                        textWrap: "nowrap",
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      Rows per Page:{" "}
+                    </Typography>
+                    <Select
+                      value={pageInfo?.pageSize}
+                      onChange={handleRowsPerPageChange}
+                      variant="outlined"
+                      size="small"
+                      style={{
+                        marginLeft: "auto",
+                        height: "2rem",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {rowsPerPageArr.map((item) => (
+                        <MenuItem value={item} sx={{ fontSize: "0.875rem" }}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <Typography
+                      variant="small"
+                      color="text.secondary "
+                      sx={{
+                        textWrap: "nowrap",
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      Page {pageInfo?.page} of {totalPages}
+                    </Typography>
+                  </Box>
+                  <ButtonGroup
+                    size="small"
+                    variant="text"
+                    style={{
+                      height: "20px",
+                      marginLeft: !isSmallScreen && "1rem",
+                      marginTop: isSmallScreen && "1rem",
+                    }}
+                  >
+                    <IconButton onClick={handleFirstPage} disableRipple>
+                      <FirstPageIcon />
+                    </IconButton>
+                    <IconButton onClick={handlePrevPage} disableRipple>
+                      <KeyboardArrowLeftIcon />
+                    </IconButton>
+                    {pageButtons}
+                    <IconButton onClick={handleNextPage} disableRipple>
+                      <KeyboardArrowRightIcon />
+                    </IconButton>
+                    <IconButton onClick={handleLastPage} disableRipple>
+                      <LastPageIcon />
+                    </IconButton>
+                  </ButtonGroup>
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        }
       </MUITable>
     </TableContainer>
   );

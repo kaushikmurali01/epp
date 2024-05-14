@@ -10,8 +10,8 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL }) => {
     console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
-    const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
-    const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
+    const [roleName, setRoleName] = useState(selectTableRow?.rolename || '');
+    const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.user_type || '1');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -22,7 +22,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         setSelectRoleType(event.target.value);
     };
     const handelEmailSelectChange = (event) => {
-        setUserEmail(event.target.value)
+        setRoleName(event.target.value)
     }
 
 
@@ -73,23 +73,23 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
         console.log(apiURL, permissionIds, "checked data");
+        const requestBody = {
+            "role_name": roleName,
+            "user_type": selectRoleType,
+            "permissions": permissionIds
+        }
         // return;
         if (isEdited) {
-            const requestBody = {
-                "email": userEmail,
-                "role_id": selectRoleType,
-                "company_id": selectTableRow.company_id, // comapnay id is static right now.
-                "permissions": permissionIds,
-                "entry_type": selectTableRow.entry_type
-            }
-            //  for enverva admin types
-            if (invitePageInfo?.type !== null) {
-                requestBody.type = invitePageInfo?.type;
-            }
+            requestBody.role_id = '2';
+
+            console.log(requestBody, 'requestBody edit')
+
+            return;
+         
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
 
-                    NotificationsToast({ message: 'The Invite has been updated', type: "success" });
+                    NotificationsToast({ message: 'Roles and permissions updated successfully!', type: "success" });
                     setVisibleInvitePage(false);
                     handleAPISuccessCallBack();
                 })
@@ -98,21 +98,14 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
                 });
         } else {
-            const requestBody = {
-                "email": userEmail,
-                "role": selectRoleType,
-                // "company": "1", // comapnay id is static right now.
-                "permissions": permissionIds
-            }
-            //  for enverva admin types
-            if (invitePageInfo?.type !== null) {
-                requestBody.type = invitePageInfo?.type;
-            }
+           
+            console.log(requestBody, 'requestBody submit')
 
+            // return;
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     if (response.data.status === 200) {
-                        NotificationsToast({ message: 'The Invite has been sent', type: "success" });
+                        NotificationsToast({ message: 'Roles and permissions added successfully!', type: "success" });
                         setVisibleInvitePage(false);
                         handleAPISuccessCallBack();
                     } else if (response.data.status === 500) {
@@ -129,7 +122,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
+        const apiURL =  ''
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
@@ -144,7 +137,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     useEffect(() => {
         if (Object.keys(selectTableRow).length !== 0) {
-            getUserPermissionListAPI(selectTableRow);
+            // getUserPermissionListAPI(selectTableRow);
         } else {
             setPermissionStates([]);
             setSelectedPermissions([]);
@@ -152,9 +145,9 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     }, [selectTableRow, permissions]);
 
     useEffect(() => {
-        const isValidEmail = emailRegExp.test(userEmail)
-        setIsFormValid(isValidEmail && selectRoleType !== '')
-    }, [userEmail, selectRoleType])
+       
+        setIsFormValid(roleName && selectRoleType !== '')
+    }, [roleName, selectRoleType])
 
 
     useEffect(() => {
@@ -166,7 +159,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     }, [selectRoleType,]);
 
-    console.log(invitePageInfo, 'invitePageInfo')
+    console.log(roleName,selectRoleType, 'invitePageInfo')
 
     return (
         <Box component="section">
@@ -216,7 +209,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                         <TextField
                                             placeholder="Role Name"
                                             onChange={(e) => handelEmailSelectChange(e)}
-                                            value={userEmail}
+                                            value={roleName}
                                         />
                                     </FormControl>
                                 </FormGroup>
@@ -235,7 +228,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                                 // console.log(item, "Role Type");
 
                                                 return (
-                                                    <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
+                                                    <MenuItem key={`${item.id}_${item.userType}`} value={item?.id}>{item?.userType}</MenuItem>
                                                 )
                                             })}
 
