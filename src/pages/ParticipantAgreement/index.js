@@ -13,7 +13,7 @@ const ParticipantAgreementComponent = () => {
     // getParticipantAgreementData();
   }, []);
 
-  let company_id = 1;
+  let company_id = userDetails.company_id;
   const [PAData, setPAData] = useState({
     company_id: company_id,
     unsigned_doc:
