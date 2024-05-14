@@ -65,13 +65,16 @@ export const fetchUserDetails = () => {
   return async (dispatch) => {
     try {
       dispatch(getUserDetailsRequest());
+      dispatch({ type: "SHOW_LOADER", payload: true });
       const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}`;
       const response = await GET_REQUEST(endpointWithParams);
+      dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;
       dispatch(getUserDetailsSuccess(data));
     } catch (error) {
       console.error(error);
       dispatch(getUserDetailsFailure(error));
+      dispatch({ type: "SHOW_LOADER", payload: false });
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

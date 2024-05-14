@@ -16,6 +16,7 @@ import { CustomerRoutes } from "./customerRoutes";
 import { EnervaRoutes } from "./enervaRoutes";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
+import Loader from "pages/Loader";
 
 const CommonLayout = lazy(() => import("layout/dashboardLayout")); //todo
 
@@ -75,7 +76,7 @@ const RoutesComp = () => {
 
   console.log("user info", account)
 
-  return true ? (
+  return userDetails.type ? (
     <>
       <CommonLayout>
         {/* <DashboardRoutes /> */}
@@ -211,7 +212,7 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : null;
+  ) : <Loader sectionLoader={true}/>;
 };
 
 export default RoutesComp;
