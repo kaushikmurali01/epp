@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="./login-style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="wrapper">
+      <div class="header-nav">
+        <a href=""><img src="https://enervalogin.z14.web.core.windows.net/assets/logo.svg" alt="logo"></a>
+        <div class="header-menu">Don’t have an account? <a href="">Sign up</a></div>
+      </div>
+    </div>
+  </header>
+  
+  <section class="login">
+    <div class="wrapper">
+      <div class="login-form">
+        <div class="header">
+          <h1>Welcome to Energy Performance Program</h1>
+          <h6>Log in to continue</h6>
+        </div>
+        <div id="api" data-name="Unified" action="">
+          <div class="heading">
+            <h1 role="heading">Sign in</h1>
+          </div>
+          <form id="localAccountForm" class="localAccount" aria-label="Sign in with your email address">
+            <div class="intro">
+              <h2>
+                Sign in with your email address
+              </h2>
+            </div>
+            <div class="error pageLevel" aria-hidden="true" role="alert">
+              <p></p>
+            </div>
+            <div class="entry">
+              <div class="entry-item">
+                <label for="email">
+                  Email Address
+                </label>
+                <div class="error itemLevel" aria-hidden="true" role="alert">
+                  <p></p>
+                </div>
+                <input type="email" id="email" name="Email Address" title="Please enter a valid email address"
+                  pattern="^[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$"
+                  autofocus="" placeholder="Email Address" aria-label="Email Address">
+              </div>
+              <div class="entry-item">
+                <div class="password-label">
+                  <label for="password">Password</label>
+                  <a id="forgotPassword"
+                    href="/enervadev.onmicrosoft.com/B2C_1_Signup_Sigin/api/CombinedSigninAndSignup/forgotPassword?csrf_token=SXRhMUk0U0d6NzJ1RTBTVWVxd21pSFhIaUoxeE1ZT0lPRXdsd3FKNkFjTkR1MFRMNHhBQ2lvMkF5V3BlM0grVmhkNkJnY0lpSERPUU8xRlJtWk1IUlE9PTsyMDI0LTA1LTAxVDExOjI3OjAzLjUzODQzOTVaO2JRWldJOFo1YWlqTUZMajM1amk0Vmc9PTt7Ik9yY2hlc3RyYXRpb25TdGVwIjoxfQ==&amp;tx=StateProperties=eyJUSUQiOiI4M2I3YTgzYi1mODE2LTQ2YjMtOTM1OC03ZDUyNzcwNGRlODYifQ&amp;p=B2C_1_Signup_Sigin">Forgot
+                    your password?</a>
+                </div>
+                <div class="error itemLevel" aria-hidden="true">
+                  <p role="alert"></p>
+                </div>
+                <input type="password" id="password" name="Password" placeholder="Password" aria-label="Password"
+                  autocomplete="current-password" aria-required="true">
+              </div>
+  
+              <div class="working"></div>
+  
+  
+  
+              <div class="buttons">
+                <button id="next" type="submit" form="localAccountForm">Sign in</button>
+              </div>
+            </div>
+            <div class="divider">
+              <h2>OR</h2>
+            </div>
+            <div class="create">
+              <p>
+                Don't have an account?<a id="createAccount"
+                  href="/enervadev.onmicrosoft.com/B2C_1_Signup_Sigin/api/CombinedSigninAndSignup/unified?local=signup&amp;csrf_token=SXRhMUk0U0d6NzJ1RTBTVWVxd21pSFhIaUoxeE1ZT0lPRXdsd3FKNkFjTkR1MFRMNHhBQ2lvMkF5V3BlM0grVmhkNkJnY0lpSERPUU8xRlJtWk1IUlE9PTsyMDI0LTA1LTAxVDExOjI3OjAzLjUzODQzOTVaO2JRWldJOFo1YWlqTUZMajM1amk0Vmc9PTt7Ik9yY2hlc3RyYXRpb25TdGVwIjoxfQ==&amp;tx=StateProperties=eyJUSUQiOiI4M2I3YTgzYi1mODE2LTQ2YjMtOTM1OC03ZDUyNzcwNGRlODYifQ&amp;p=B2C_1_Signup_Sigin">Sign
+                  up now</a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="wrapper">
+      <div class="footer-nav">
+        <a href=""><img src="https://enervalogin.z14.web.core.windows.net/assets/logo.svg" alt="logo"></a>
+        <div class="footer-block">
+          <span>This Save on Energy program is delivered by Enerva and brought to you by the Independent Electricity
+            System Operator.
+            Subject to additional terms and conditions found at <a href="">SaveOnEnergy.ca</a>
+          </span>
+          <div class="secondary-footer">
+            <span>Copyright ©2024 Enerva Energy Solutions Inc. All rights reserved.</span>
+            <a href="#">Privacy</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
