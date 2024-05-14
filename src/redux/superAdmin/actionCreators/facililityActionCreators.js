@@ -2,6 +2,9 @@ import {
   FETCH_FACILITY_LIST_FAILURE,
   FETCH_FACILITY_LIST_REQUEST,
   FETCH_FACILITY_LIST_SUCCESS,
+  GET_USER_DETAILS_FAILURE,
+  GET_USER_DETAILS_REQUEST,
+  GET_USER_DETAILS_SUCCESS,
   SUBMIT_FACILITY_FOR_APPROVAL_REQUEST,
   SUBMIT_FACILITY_FOR_APPROVAL_SUCCESS,
   SUBMIT_FACILITY_FOR_APPROVAL_FAILURE,
@@ -39,6 +42,20 @@ export const fetchFacilityListSuccess = (data) => ({
 
 export const fetchFacilityListFailure = (error) => ({
   type: FETCH_FACILITY_LIST_FAILURE,
+  payload: error,
+});
+
+export const getUserDetailsRequest = () => ({
+  type: GET_USER_DETAILS_REQUEST,
+});
+
+export const getUserDetailsSuccess = (data) => ({
+  type: GET_USER_DETAILS_SUCCESS,
+  payload: data,
+});
+
+export const getUserDetailsFailure = (error) => ({
+  type: GET_USER_DETAILS_FAILURE,
   payload: error,
 });
 

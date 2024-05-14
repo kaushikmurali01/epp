@@ -2,6 +2,9 @@ import {
   FETCH_FACILITY_LIST_FAILURE,
   FETCH_FACILITY_LIST_REQUEST,
   FETCH_FACILITY_LIST_SUCCESS,
+  GET_USER_DETAILS_FAILURE,
+  GET_USER_DETAILS_REQUEST,
+  GET_USER_DETAILS_SUCCESS,
   SUBMIT_FACILITY_FOR_APPROVAL_REQUEST,
   SUBMIT_FACILITY_FOR_APPROVAL_SUCCESS,
   SUBMIT_FACILITY_FOR_APPROVAL_FAILURE,
@@ -33,6 +36,7 @@ const initialState = {
   characteristics: [],
   facilityDetails: [],
   facilityStatus: [],
+  userDetails: {},
   loading: false,
   error: null,
 };
@@ -58,6 +62,27 @@ const facilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+
+      case GET_USER_DETAILS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case GET_USER_DETAILS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          userDetails: action.payload,
+          error: null,
+        };
+      case GET_USER_DETAILS_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+    
     case SUBMIT_FACILITY_FOR_APPROVAL_REQUEST:
       return {
         ...state,
