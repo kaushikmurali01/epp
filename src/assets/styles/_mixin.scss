@@ -1,0 +1,37 @@
+$breakpoints: (
+  /// for mobile first approach
+ 
+  'theme_Xs': (min-width: 320px),
+  'theme_Sm': (min-width: 600px),
+  'theme_Md': (min-width: 900px),
+  'theme_Lg': (min-width: 1200px),
+  'theme_Xl': (min-width: 1536px),
+
+  // for desktop first approach
+  // 'ipadLandscape': (max-width: 1199px),
+  // 'ipadPortrait': (max-width: 992px),
+  // 'mobileScreen': (max-width: 767px),
+  // 'smallMobileScreen': (max-width: 379px),
+  ) !default;
+
+// Mixin to manage responsive breakpoints
+
+/// @param {String} $breakpoint - Breakpoint name
+/// @require $breakpoints
+@mixin respond-to($breakpoint) {
+
+  // If the key exists in the map
+  @if map-has-key($breakpoints, $breakpoint) {
+
+    // Prints a media query based on the value
+    @media #{inspect(map-get($breakpoints, $breakpoint))} {
+      @content;
+    }
+  }
+
+  // If the key doesn't exist in the map
+  @else {
+    @warn "Unfortunately, no value could be retrieved from `#{$breakpoint}`. "
+    +"Available breakpoints are: #{map-keys($breakpoints)}.";
+  }
+}

@@ -1,0 +1,9 @@
+// common css and module styles
+@import "./mixin";
+@import "./variables";
+@import "./common.scss";
+@import "./form.scss";
+
+// page wise styles
+
+@import "./landingpage.scss";

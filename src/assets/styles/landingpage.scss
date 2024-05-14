@@ -1,0 +1,295 @@
+// common section top and bottom spaces
+.common-section {
+    padding: 2rem 0;
+    @include respond-to(theme_Sm){ 
+        padding: 3rem 0;
+    }
+    @include respond-to(theme_Md){ 
+        padding: 4rem 0;
+    }
+
+    .heading-row {
+        margin-bottom: 2.5rem;
+        @include respond-to(theme_Sm){ 
+            margin-bottom: 3rem;
+        }
+        @include respond-to(theme_Md){ 
+            margin-bottom: 3.875rem;
+        }
+    }
+}
+
+// banner section UI.
+.banner-section {
+    position: relative;
+    background: linear-gradient(115deg, #F9FBF9 28.32%, #B0C2B2 172.58%);
+
+    .banner-info {
+        position: relative;
+        padding: 1rem 0;
+        @include respond-to(theme_Sm){ 
+            padding: 4.5rem 0;
+        }
+        @include respond-to(theme_Md){ 
+            padding: 7.5rem 0;
+        }
+       
+        // .whats-new {
+        //     position: absolute;
+        //     bottom: 0;
+        //     background-color: #f00;
+        //     padding: 0.625rem 1.5rem;
+        //     color: #fff;
+        //     border-top-right-radius: 0.625rem;
+        //     border-top-left-radius: 0.625rem;
+        // }
+    }
+
+    .banner-bg {
+        background: url(~/public/images/landingPage/header_banner.jpg) no-repeat center center/cover;
+        min-height: 400px;
+        display: inline-block;
+        width: 100%;
+        position: static;
+     
+        @include respond-to(theme_Sm){ 
+            width: 50%;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: 100%;
+            background-position: center right;
+        }
+        // @include respond-to(theme_Md){ 
+           
+        // }
+    }
+}
+
+
+// Instructions sections
+
+// .instruction-section {
+//     padding: 34px 0;
+// }
+
+
+.how-it-work-section {
+    .how-it-work-row {
+        .text {
+            margin-top: 2.5rem;
+            text-align: center;
+            // span {
+            //     font-size: 1.25rem;
+            //     font-weight: 600;
+            // }
+        }
+    }
+}
+
+
+.success-story-section {
+    .glider-track {
+        padding-top: 5rem;
+        @include respond-to(theme_Sm){ 
+            padding-top: 3rem;
+        }
+    }
+}
+
+// testimonial-section
+
+.testimonial-section {
+    .testimonial-section-row {
+        padding: 0 100px;
+        gap: 44px;
+        align-items: center;
+
+        .image-box {
+            width: 303px;
+            height: 303px;
+            position: relative;
+
+            .active-image {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 50%;
+                background-color: #fff;
+                padding: 24px;
+
+                .large-avatar {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+
+            .remaining-list {
+                position: absolute;
+                left: -38px;
+                top: 0;
+                bottom: 0;
+                /* margin: auto; */
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+                justify-content: center;
+
+                li {
+                    &:first-child {
+                        position: relative;
+                        top: -40px;
+                        left: 52px;
+                    }
+
+                    &:nth-child(2) {
+                        position: relative;
+                        top: -28px;
+                        left: 12px;
+                    }
+
+                    &:nth-child(3) {
+                        position: relative;
+                        top: 0;
+                        left: 0;
+                    }
+
+                    &:nth-child(4) {
+                        position: relative;
+                        top: 22px;
+                        left: 10px;
+                    }
+
+                    &:nth-child(5) {
+                        position: relative;
+                        top: 32px;
+                        left: 42px;
+                    }
+                }
+            }
+        }
+
+        .content-box {
+            width: calc(100% - 350px);
+            max-width: 574px;
+        }
+    }
+}
+
+
+// slider UI style
+.theme-slider-container {
+    .glider-contain {
+        button {
+            top: -1rem;
+            background-color: $color-primary;
+            color: $theme-color-white;
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 50%;
+            opacity: 1;
+            font-size: 1.75rem;
+            @include respond-to(theme_Sm){ 
+                top: -5.25rem;
+            }
+            @include respond-to(theme_Md){ 
+                top: -6.5rem;
+            }
+
+            &.disabled {
+                background-color: $color-gray-dark;
+            }
+        }
+
+        .glider-prev {
+            // right: calc((100vw - 66rem + 5.625rem) / 2);
+            right: auto;
+            left:0;
+            @include respond-to(theme_Sm){ 
+                right: 5.625rem;
+                left: auto;
+            }
+        }
+
+        .glider-next {
+            // right: calc((100vw - 70rem) / 2);
+            right: 0;
+        }
+
+        .glider-track {
+            // margin-left: calc((100vw - 73rem) / 2);
+            gap: 1rem;
+            @include respond-to(theme_Sm){ 
+                gap: 1.75rem;
+            }
+            @include respond-to(theme_Md){ 
+                gap: 4.75rem;
+            }
+        }
+    }
+}
+
+.our-client-section {
+    .our-client-row {
+        .glider-track {
+            // margin-left: calc((100vw - 73rem) / 2);
+            gap: 1rem;
+            margin-left: calc((100vw - 22rem) / 2);
+           
+            @include respond-to(theme_Sm){ 
+                gap: 1.5rem;
+                margin-left: calc((100vw - 45rem) / 2);
+            }
+            @include respond-to(theme_Md){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 60rem) / 2);
+            }
+            @include respond-to(theme_Lg){ 
+                gap: 2rem;
+                margin-left: calc((100vw - 73rem) / 2);
+            }
+        }
+    }
+}
+
+.news-feeds-section {
+    .glider-track {
+        padding-top: 5rem;
+        @include respond-to(theme_Sm){ 
+            padding-top: 0;
+        }
+    }
+}
+
+
+.contact-us-section {
+    background: var(--grdient, linear-gradient(115deg, #F9FBF9 28.32%, #B0C2B2 172.58%), linear-gradient(115deg, #242424 28.32%, #0F3F14 172.58%), #348D3D);
+    .form-data-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3%;
+
+        li {
+            width: 100%;
+            margin-bottom: 2rem;
+           
+            @include respond-to(theme_Sm){
+                width: 48%;
+                margin-bottom: 4%;
+            }
+            .MuiInputBase-formControl {
+                background-color: $theme-color-white;
+            }
+            input {
+                font-size: 0.875rem;
+            }
+            textarea {
+                background-color: $theme-color-white;
+                font-size: 0.875rem;
+            }
+            &.text-area-field {
+                width: 100%;
+            }
+        }
+    }
+}

@@ -1,0 +1,147 @@
+// all form css classes will be writen here
+
+
+// Form CSS
+
+.theme-form-group{
+    .theme-form-control {
+        .MuiInputBase-formControl {
+            border-radius: 8px;
+        }
+        
+        fieldset{
+            border-color: rgba(84, 88, 90, 0.40);
+        }
+        input{  
+            color: $theme-color-dark-light;
+            &::-webkit-input-placeholder {
+                /* Chrome/Opera/Safari */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &::-moz-placeholder {
+                /* Firefox 19+ */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &:-ms-input-placeholder {
+                /* IE 10+ */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &:-moz-placeholder {
+                /* Firefox 18- */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              // Hide input type number up/down arrow
+              &::-webkit-outer-spin-button,
+              &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+              }
+        }
+       
+    }
+
+    // .MuiSelect-select {
+    //   padding: 0.5rem 1rem;
+    // }
+
+    &.password-field-group {
+        &.has-error {
+            li {
+                color: #ab003c;
+            }
+        }
+        .form-field {
+            position: relative;
+        }
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            // top: 0;
+            top: 24px;
+            bottom: 0;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        
+        }
+    
+        .error-list {
+            li {
+                &.valid {
+                    color: #357a38;
+                }
+                &.invalid {
+                    color: #ab003c;
+                }
+            }
+        }
+    }
+    
+    &.text-area-form-group {
+        textarea {
+            padding: 16px;
+            border-color: rgba(84, 88, 90, 0.20);    
+            border-radius: 8px;
+            background-color: transparent;
+            outline-color: $color-primary;
+            color: $theme-color-dark-light;
+            // &:focus {
+                
+            // }
+            &::-webkit-input-placeholder {
+                /* Chrome/Opera/Safari */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &::-moz-placeholder {
+                /* Firefox 19+ */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &:-ms-input-placeholder {
+                /* IE 10+ */
+                color: #808080;
+                opacity: 1;
+              }
+          
+              &:-moz-placeholder {
+                /* Firefox 18- */
+                color: #808080;
+                opacity: 1;
+              }
+        }
+
+        &.has-error {
+            textarea {
+              border-color: #d32f2f;
+            }
+        }
+    }
+
+    &.theme-select-form-group {
+      .MuiInputBase-formControl {
+        color: $color-gray-dark;
+      }
+    }
+
+    .transparent-border {
+      fieldset.MuiOutlinedInput-notchedOutline {
+        border-color: transparent;
+      }
+      &:hover fieldset.MuiOutlinedInput-notchedOutline {
+        border-color: transparent;
+      }
+    }
+}
+

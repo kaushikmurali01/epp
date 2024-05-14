@@ -8,16 +8,47 @@ import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import MenuItem from "@mui/material/MenuItem";
 import Drawer from "@mui/material/Drawer";
-import logo from "../../assets/images/logo.png";
+import logo from "../../assets/images/logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
+import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import Avatar from "@mui/material/Avatar";
+import Tooltip from "@mui/material/Tooltip";
+import AdbIcon from "@mui/icons-material/Adb";
+import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import { loginRequest } from "authConfig";
+import { Link } from "@mui/material";
 
-function Header() {
+const settings = ["Profile", "Logout"];
+
+function Header(props) {
+  const navigate = useNavigate()
   const [open, setOpen] = React.useState(false);
+  const {instance} = useMsal();
+
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
+  };
+
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
+  };
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+
+  const handleRedirect=()=>{
+    console.log('redirecting',)
+    instance.loginRedirect({
+      ...loginRequest,
+      // prompt: 'create'
+    }).catch((error)=> console.log("error in login redirect", error))
+  }
 
   const scrollToSection = (sectionId) => {
     const sectionElement = document.getElementById(sectionId);
@@ -33,40 +64,55 @@ function Header() {
     }
   };
 
+
+  const clickSetting =(setting) => {
+    if(setting == 'Logout'){
+      //logout from the application with msal instance
+      localStorage.clear()
+      instance.logoutRedirect()
+    }
+    else if(setting == 'Profile'){
+      navigate("/profile")
+    }
+  }
+
+  const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
+
   return (
-    <div>
-      <AppBar
-        position="fixed"
-        sx={{
-          boxShadow: 0,
-          bgcolor: "white",
-          backgroundImage: "none",
-          pt: 2,
-        }}
-      >
-        <Container maxWidth="lg">
-          <Toolbar
-            variant="regular"
-            sx={() => ({
+    <AppBar
+      position="sticky"
+      sx={{
+        boxShadow: "0 0 8px #f1f1f1",
+        bgcolor: "white",
+        backgroundImage: "none",
+        py: 3,
+      }}
+    >
+      <Container maxWidth="lg">
+        <Toolbar
+          variant="regular"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexShrink: 0,
+            backdropFilter: "blur(24px)",
+            maxHeight: 40,
+            borderColor: "divider",
+            px: { xs: "0" },
+          }}
+        >
+          <Box
+            sx={{
+              flexGrow: 1,
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
-              flexShrink: 0,
-              backdropFilter: "blur(24px)",
-              maxHeight: 40,
-              borderColor: "divider",
-            })}
+              // ml: "-18px",
+              px: 0,
+            }}
           >
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: "flex",
-                alignItems: "center",
-                ml: "-18px",
-                px: 0,
-              }}
-            >
-              <img src={logo} style={logoStyle} alt="logo" />
+            <img src={logo} style={logoStyle} alt="logo" />
+            {!(props.page == "authenticated") && (
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
@@ -77,120 +123,198 @@ function Header() {
                 }}
               >
                 <MenuItem
-                  onClick={() => scrollToSection("features")}
+                  onClick={() => scrollToSection("howItWorksSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
                     How it works
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("testimonials")}
+                  onClick={() => scrollToSection("userStorySection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
-                    News Feed
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    Success stories
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("highlights")}
+                  onClick={() => scrollToSection("whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
-                  <Typography variant="body2" color="text.primary">
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    What's New
+                  </Typography>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => scrollToSection("contactUsFormSection")}
+                  sx={{ py: "6px", px: "12px" }}
+                >
+                  <Typography
+                    variant="body2"
+                    component="a"
+                    href="#"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
                     Contact Us
                   </Typography>
                 </MenuItem>
               </Box>
-            </Box>
-            <Box
-              sx={{
-                display: { xs: "none", md: "flex" },
-                gap: 0.5,
-                alignItems: "center",
+            )}
+          </Box>
+          {(props.page == "authenticated") ? <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, gap: '1.5rem', alignItems: "center", }} >
+            <Tooltip title="Open settings">
+              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Avatar alt={userData?.first_name+' '+userData?.last_name} src={userData?.profile_pic || 'static/'} />
+              </IconButton> 
+            </Tooltip>
+            <Menu
+              sx={{ mt: "45px" }}
+              id="menu-appbar"
+              anchorEl={anchorElUser}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
               }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              open={Boolean(anchorElUser)}
+              onClose={handleCloseUserMenu}
             >
-              <Button
-                color="primary"
-                variant="text"
-                size="medium"
-                component="a"
-                href="/sign-in"
-                target="_blank"
+              {settings.map((setting) => (
+                <MenuItem key={setting} onClick={() => clickSetting(setting)}>
+                  <Typography textAlign="center">{setting}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box> : null}
+          {!(props.page == "authenticated") && (
+            <>
+              <Box
+                sx={{
+                  display: { xs: "none", md: "flex" },
+                  gap: '1.5rem',
+                  alignItems: "center",
+                }}
               >
-                Sign in
-              </Button>
-              <Button
-                color="primary"
-                variant="contained"
-                size="medium"
-                component="a"
-                href="/sign-up"
-                target="_blank"
-                sx={{ borderRadius: "0px" }}
-              >
-                Sign up
-              </Button>
-            </Box>
-            <Box sx={{ display: { sm: "", md: "none" } }}>
-              <Button
-                variant="text"
-                color="primary"
-                aria-label="menu"
-                onClick={toggleDrawer(true)}
-                sx={{ minWidth: "30px", p: "4px" }}
-              >
-                <MenuIcon />
-              </Button>
-              <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
-                <Box
+                {/* <Button
+                  color="primary"
+                  variant="outlined"
+                  component="a"
+                  onClick={handleRedirect}
+                >
+                  Login
+                </Button> */}
+                <Button
+                  color="primary"
+                  variant="contained"
+                  component="a"
+                  onClick={handleRedirect}
+                >
+                  Login/Sign up
+                </Button>
+              </Box>
+              <Box sx={{ display: { sm: "", md: "none" } }}>
+                <Button
+                  variant="text"
+                  color="primary"
+                  aria-label="menu"
+                  onClick={toggleDrawer(true)}
                   sx={{
-                    minWidth: "60dvw",
-                    p: 2,
-                    backgroundColor: "background.paper",
-                    flexGrow: 1,
+                    minWidth: { xs: "fit-content", md: "30px" },
+                    p: "4px",
+                    justifyContent: "flex-end",
                   }}
                 >
-                  <MenuItem onClick={() => scrollToSection("features")}>
-                    How it works
-                  </MenuItem>
-                  <MenuItem onClick={() => scrollToSection("testimonials")}>
-                    News Feed
-                  </MenuItem>
-                  <MenuItem onClick={() => scrollToSection("highlights")}>
-                    Contact Us
-                  </MenuItem>
-                  <Divider />
-                  <MenuItem>
-                    <Button
-                      color="primary"
-                      variant="contained"
-                      component="a"
-                      href="/sign-up"
-                      sx={{ width: "100%" }}
-                      target="_blank"
-                    >
-                      Sign up
-                    </Button>
-                  </MenuItem>
-                  <MenuItem>
-                    <Button
-                      color="primary"
-                      variant="outlined"
-                      component="a"
-                      href="/sign-in"
-                      target="_blank"
-                      sx={{ width: "100%" }}
-                    >
-                      Sign in
-                    </Button>
-                  </MenuItem>
-                </Box>
-              </Drawer>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </div>
+                  <MenuIcon
+                    sx={{
+                      color: "#fff",
+                      bgcolor: "primary.main",
+                      width: "3rem",
+                      height: "3rem",
+                      borderRadius: "0.875rem",
+                      padding: "0.25rem",
+                    }}
+                  />
+                </Button>
+                <Drawer
+                  anchor="right"
+                  open={open}
+                  onClose={toggleDrawer(false)}
+                >
+                  <Box
+                    sx={{
+                      minWidth: "60dvw",
+                      p: 2,
+                      backgroundColor: "background.paper",
+                      flexGrow: 1,
+                    }}
+                  >
+                    <MenuItem onClick={() => scrollToSection("howItWorksSection")}>
+                      How it works
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("userStorySection")} >
+                        Success stories
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("whatsNewSection")}>
+                       What's New
+                    </MenuItem>
+                    <MenuItem onClick={() => scrollToSection("contactUsFormSection")}>
+                      Contact Us
+                    </MenuItem>
+                    <Divider />
+                    <MenuItem>
+                      <Button
+                        color="primary"
+                        variant="outlined"
+                        component="a"
+                        onClick={handleRedirect}
+                        sx={{ width: "100%" }}
+                      >
+                        Login/Sign up
+                      </Button>
+                    </MenuItem>
+                    {/* <MenuItem>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        component="a"
+                        sx={{ width: "100%" }}
+                        onClick={handleRedirect}
+                      >
+                        Sign up
+                      </Button>
+                    </MenuItem> */}
+                  </Box>
+                </Drawer>
+              </Box>
+            </>
+          )}
+        </Toolbar>
+      </Container>
+    </AppBar>
   );
 }
 

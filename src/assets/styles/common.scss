@@ -1,0 +1,102 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+img {
+    max-width: 100%;
+}
+ul {
+    list-style: none;
+}
+
+body {
+    font-family: 'Asap', 'Arial', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// * @default {
+//     *    // extra-small
+//     *    xs: 0,
+//     *    // small
+//     *    sm: 600,
+//     *    // medium
+//     *    md: 900,
+//     *    // large
+//     *    lg: 1200,
+//     *    // extra-large
+//     *    xl: 1536,
+//     * }
+
+
+
+// common layout
+.site-container{
+    position: relative;
+}
+
+.main-inner-contianer {
+    position: relative;
+    padding: 0rem 0 5rem;
+    min-height: calc(100svh - (112px + 140.8px + 57.8px + 3.25rem)); // 112px-header, 140.8px-footer, 57.8px-tab header menu, 3.25rem-margin bottom for tab header menu
+}
+
+// theme heading css
+
+.ev-theme-heading {
+    position: relative;
+    &:after {
+        content: none;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: auto;
+        bottom: -18px;
+        height: 4px;
+        width: 70px;
+        display: inline-block;
+        background: $color-primary;
+        @include respond-to(theme_Sm){ 
+           content: '';
+        }
+    }
+}
+
+
+
+// tabs list styles
+.theme-tabs-list {
+    // display: inline-flex;
+    position: relative;
+    &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        height: 3.5px;
+        width: 100%;
+        background-color: rgba(84, 88, 90, 0.5);
+    }
+    .MuiTabs-indicator {
+        height: 3.5px;
+    }
+}
+
+
+//   Notification variable color modification
+
+:root {
+    --toastify-color-success: #2e813e;
+    --toastify-color-warning: #eb9719;
+    --toastify-color-error: #bd362f;
+  }
+  
+
+//   disabled mui typgraphy
+.MuiTypography-root {
+    &[disabled]  {
+    pointer-events: none;
+    opacity: 0.75;
+    cursor: text;
+   }
+}

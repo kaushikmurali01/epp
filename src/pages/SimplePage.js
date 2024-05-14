@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
-import { setOption, setOption2 } from "../redux/actions/simpleActions";
+import { setOption, setOption2 } from "../redux/superAdmin/actions/simpleActions";
 import OptionComponent from "./OptionComponent";
 
 const ActionComponent = (props) => {
