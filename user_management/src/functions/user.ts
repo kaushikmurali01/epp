@@ -25,7 +25,7 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
     try {
         // Parse request data
         const data:any = await request.json();
-        context.log("data01", data);
+       // context.log("data01", data);
 
        // const data = JSON.parse(requestData.rawBody); 
       //console.log("testing",process.env.AD_EXTENSION)
@@ -39,7 +39,7 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
             type: data[`extension_${ext}_UserType`],
             display_name: data.displayName
         }
-        context.log("userData01",userData);
+        //context.log("userData01",userData);
         const companyData = {
             company_name: data[`extension_${ext}_CompanyName`],
             company_description:  data[`extension_${ext}_CompanyName`],
@@ -51,7 +51,7 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
             postal_code: data.postalCode,
             country: data.country
         }
-        context.log("userData02",companyData);
+        //context.log("userData02",companyData);
 
         // Register user
          const user = await UserController.registerUser(userData, companyData, context);

@@ -53,12 +53,8 @@ Company.init(
     },
     source_of_discovery: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Source of discovery is required.',
-        },
-      },
+      allowNull: true
+      
     },
     company_type: {
       type: DataTypes.INTEGER,
@@ -75,7 +71,7 @@ Company.init(
     },
     website: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
       // validate: {
       //   isUrl: {
       //     msg: 'Website must be a valid URL.',

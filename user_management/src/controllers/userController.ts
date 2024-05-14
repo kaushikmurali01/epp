@@ -20,23 +20,32 @@ class UserController {
       try {
         let companyData = null;
         let company_id = null;
+        let data;
           const userData = await UserService.registerUser(user);
+          context.log("company", company);
           if(userData.type == 2) {
             companyData = await CompanyService.createCompany(company);
-            company_id = companyData.id;
-          }
-          context.log("aaaa",userData);
-          context.log("bbbb",companyData);
-          
-          const data = {
-            "company_id": company_id,
+            if(!companyData) {
+              return { status: 400, body: { error: "No company created." } };
+            }
+            context.log("ccccc",companyData);
+           data = {
+            "company_id": companyData.dataValues.id,
             "role_id": 1,
             "user_id": userData.id
         };
-        await UserCompanyRole.create(data);
+       
+      } else {
+         data = {
+          "company_id": null,
+          "role_id": 1,
+          "user_id": userData.id
+      };
+      }
+      await UserCompanyRole.create(data);
           return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
       } catch (error) {
-          return { status: 500, body: { error: error.message } };
+          return { status: 400, body: { error: error.message } };
       }
     }
 
