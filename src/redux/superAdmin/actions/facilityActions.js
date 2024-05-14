@@ -3,6 +3,9 @@ import {
   fetchFacilityListFailure,
   fetchFacilityListRequest,
   fetchFacilityListSuccess,
+  getUserDetailsFailure,
+  getUserDetailsRequest,
+  getUserDetailsSuccess,
   submitFacilityForApprovalRequest,
   submitFacilityForApprovalSuccess,
   submitFacilityForApprovalFailure,
@@ -34,6 +37,7 @@ import {
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
+import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
 export const fetchFacilityListing = (pageInfo) => {
@@ -56,6 +60,26 @@ export const fetchFacilityListing = (pageInfo) => {
     }
   };
 };
+
+export const fetchUserDetails = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(getUserDetailsRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(getUserDetailsSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getUserDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
 
 export const submitFacilityForApproval = (facility) => {
   return async (dispatch) => {

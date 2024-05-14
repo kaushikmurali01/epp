@@ -10,6 +10,7 @@ import AdminFacilityDetailsPage from 'pages/Admin/Facility/AdminFacilityDetails'
 import UserManagementAdmin from 'pages/UserManagementAdmin/UserManagementAdmin';
 import ProfilePage from 'pages/ProfilePage';
 import RolePermissionsUserManagement from 'pages/RolesPermissions/RolePermissionsUserManagement';
+import CompanyPage from 'sections/Homepage/CompanyPage';
 import CompanyList from 'pages/Admin/Company/CompanyList';
 import CompanyProfilePage from 'pages/Admin/Company/CompanyProfilePage';
 import CompanyAgreement from 'pages/Admin/Company/CompanyAgreement';

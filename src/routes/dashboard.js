@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import { ALL_LINKS } from '../constants/routes';
 import { dashboardEndpoints, pageSubEndspoints, facilityEndPoints } from '../constants/endPoints';
+import Loader from 'pages/Loader';
 
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
@@ -22,7 +23,7 @@ const DashboardRoutes = () => {
     );
 
     return (
-        <Suspense fallback={'loading spinner....'}>
+        <Suspense fallback={<Loader fallBackLoader={true} />}>
             <Routes>
                 <Route path='/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />
                 <Route path='/admin/' element={<Navigate to={dashboardEndpoints.admin+`/`+facilityEndPoints.facilityDashboard} replace />} />

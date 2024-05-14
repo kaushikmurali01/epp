@@ -39,7 +39,7 @@ const SelectBox = ({
     <FormControl sx={{ width: "100%" }} >
       <FormLabel >{label}</FormLabel>
       <TextField {...configSelect}>
-        {options && options.map((item) => (
+        {options?.length && options.map((item) => (
           <MenuItem key={item[valueKey]} value={item[valueKey]}>
             {item[labelKey]}
           </MenuItem>

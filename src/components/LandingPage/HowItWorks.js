@@ -149,9 +149,9 @@ const HowItWorks = () => {
                     </Grid>
                     <Grid container justifyContent= "center">
                         <Grid item>
-                            <Typography variant='small' component='small'>
+                            {/* <Typography variant='small' component='small'>
                                  *You can sign the <Link href="#"  variant='a' sx={{color: 'blue.main', textDecoration: 'none'}}>Participant Agreement </Link> anytime, but it’s mandatory before you enrol your first facility into the program
-                            </Typography>
+                            </Typography> */}
                         </Grid>
                     </Grid>
                 </Container>

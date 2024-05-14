@@ -3,6 +3,7 @@ import Tabs from "@mui/material/Tabs";
 import CustomTab from "../../../components/FormBuilder/CustomTab";
 import { Box, Container } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 import { tabsData } from "utils/tabsrouting";
 
@@ -11,6 +12,13 @@ const TabsSection = (props) => {
   const location = useLocation();
   const [tabValue, setTabValue] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
+
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -21,9 +29,6 @@ const TabsSection = (props) => {
     label: "Dashboard",
     route:'/facility-dashboard'
   }])
-
-  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
-  const userPermissions = localStorage.getItem('userPermissions') && JSON.parse(localStorage.getItem('userPermissions'))
 
    const checkIfUrlInTabRoute = () => {
     const pathName = location.pathname;
@@ -45,15 +50,11 @@ const TabsSection = (props) => {
       let tabForUser = tabsData(userDetails?.type, userDetails?.rolename, userPermissions )
       let tabs = [...tabsToShow, ...tabForUser];
       setTabsToShow(tabs);
-  }, [localStorage.getItem('userDetails'), localStorage.getItem('userPermissions')])
-
-  
+  }, [userData])
 
   useEffect(() => {
     checkIfUrlInTabRoute()
   },)
-
-
 
   const customTabStyle = {
     borderRadius: "10px 10px 0 0",
