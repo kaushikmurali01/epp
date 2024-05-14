@@ -212,7 +212,7 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : <Loader sectionLoader={true}/>;
+  ) : <Loader/>;
 };
 
 export default RoutesComp;
