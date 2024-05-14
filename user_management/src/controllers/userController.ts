@@ -16,7 +16,7 @@ class UserController {
      * @returns Promise<HttpResponse>
      * @description Handles the registration of a new user by extracting necessary data from the request body, invoking the UserService to register the user, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async registerUser(user: any, company:any): Promise<any> {
+    static async registerUser(user: any, company:any, context): Promise<any> {
       try {
         let companyData = null;
         let company_id = null;
@@ -25,6 +25,9 @@ class UserController {
             companyData = await CompanyService.createCompany(company);
             company_id = companyData.id;
           }
+          context.log("aaaa",userData);
+          context.log("bbbb",companyData);
+          
           const data = {
             "company_id": company_id,
             "role_id": 1,

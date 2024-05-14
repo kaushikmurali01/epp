@@ -42,7 +42,7 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
         context.log("userData01",userData);
         const companyData = {
             company_name: data[`extension_${ext}_CompanyName`],
-            company_description:  data[`extension_${ext}_LastName`],
+            company_description:  data[`extension_${ext}_CompanyName`],
             address1: data.streetAddress,
             city: data.city,
             state: data.state,
@@ -51,10 +51,10 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
             postal_code: data.postalCode,
             country: data.country
         }
-        context.log("userData01",userData);
+        context.log("userData02",companyData);
 
         // Register user
-         const user = await UserController.registerUser(userData, companyData);
+         const user = await UserController.registerUser(userData, companyData, context);
        
         // Prepare response body
          const responseBody = JSON.stringify(user);
