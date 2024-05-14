@@ -77,6 +77,10 @@ export const validationSchemaLandingPageForm = Yup.object({
     .matches(phoneUSFormatRegExp, "Invalid Phone Number"),
 });
 
+export const validationSchemaAlertPopUp = Yup.object({
+  comment: Yup.string().required("Please enter comment")
+});
+
 export const validationSchemaFacilitySummary = Yup.object().shape({
   yearOfConstruction: Yup.string().required("Year of construction is required"),
   grossFloorArea: Yup.string().required("Gross floor area is required"),
