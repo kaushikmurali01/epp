@@ -147,7 +147,7 @@ function Header(props) {
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
-                    Succes stories
+                    Success stories
                   </Typography>
                 </MenuItem>
                 <MenuItem
@@ -184,7 +184,7 @@ function Header(props) {
           {(props.page == "authenticated") ? <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, gap: '1.5rem', alignItems: "center", }} >
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userData?.first_name+' '+userData?.last_name} src={userData?.profile_pic || '/static/'} />
+                <Avatar alt={userData?.first_name+' '+userData?.last_name} src={userData?.profile_pic || 'static/'} />
               </IconButton> 
             </Tooltip>
             <Menu
@@ -276,7 +276,7 @@ function Header(props) {
                       How it works
                     </MenuItem>
                     <MenuItem onClick={() => scrollToSection("userStorySection")} >
-                        Succes stories
+                        Success stories
                     </MenuItem>
                     <MenuItem onClick={() => scrollToSection("whatsNewSection")}>
                        What's New

@@ -41,13 +41,12 @@ export default function Footer() {
                   variant="body2"
                   color="dark.light"
                   mb={2}
-                  sx={{ width: "100%" }}
+                  sx={{ width: "100%", textAlign: "justify" }}
                 >
-                  This save on Energy program is delivered by Enerva and brought to
-                  you by the Independent System Operator. Subject to additional terms
-                  & conditions found at <Link href="#" sx={{ textDecoration: "none" }} color="blue.main">
+                  This Save on Energy program is delivered by Enerva and brought to you by the Independent Electricity System Operator. Subject to additional terms and conditions found at <Link href="#" sx={{ textDecoration: "none" }} color="blue.main">
                     SaveOnEnergy.ca
                   </Link>
+                  
                 </Typography>
               </Grid>
               <Grid item sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>

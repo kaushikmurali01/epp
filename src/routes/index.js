@@ -14,6 +14,8 @@ import { GET_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import { CustomerRoutes } from "./customerRoutes";
 import { EnervaRoutes } from "./enervaRoutes";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
 
 const CommonLayout = lazy(() => import("layout/dashboardLayout")); //todo
 
@@ -24,9 +26,20 @@ const RoutesComp = () => {
     `msal.${process.env.REACT_APP_AZURE_B2C_CLIENT_ID}.active-account`
   );
   const { instance, accounts, inProgress } = useMsal();
+  const dispatch = useDispatch();
+
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
+
+  localStorage.setItem('userDetails', JSON.stringify(userDetails))
+  localStorage.setItem('userPermissions', JSON.stringify(userPermissions))
+
   const activeAccount = instance.getActiveAccount();
   const account = useAccount(accounts[0] || {});
-  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
 
   const onClose = () => {
     setNewUserPopUp(false);
@@ -43,18 +56,6 @@ const RoutesComp = () => {
     }
   };
 
-  const getUserDetails = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_DETAILS
-    GET_REQUEST(apiURL)
-      .then((res) => {
-        console.log('user details', res)
-        localStorage.setItem('userDetails', JSON.stringify(res?.data?.user))
-        localStorage.setItem('userPermissions', JSON.stringify(res?.data?.permissions))
-      }).catch((error) => {
-        console.log(error)
-      });
-  }
-
   useEffect(() => {
     if (account) {
       instance
@@ -64,7 +65,7 @@ const RoutesComp = () => {
         .then((response) => {
           console.log("response.", response)
           localStorage.setItem("accessToken", response?.idToken);
-          getUserDetails();
+          dispatch(fetchUserDetails());
           if (response?.idTokenClaims?.newUser) {
             setNewUserPopUp(true);
           }
