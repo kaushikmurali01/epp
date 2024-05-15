@@ -1,5 +1,6 @@
 function showForm(userRole) {
   if (userRole === "super_administrator") {
+    resetForm();
     // Target the label element and reset its text content
     let labelElement = document.getElementById(
       "extension_BusinessMobile_label"
@@ -29,10 +30,33 @@ function showForm(userRole) {
     document.getElementById("extension_UserType_2").click();
 
     document.querySelector(".steps").classList.remove("hidden");
-    document.querySelector(".step").classList.remove("complete");
+    document.querySelector(".step2").classList.remove("complete");
 
     document.getElementById("super_administrator").classList.add("active");
     document.getElementById("individual").classList.remove("active");
+
+    document
+      .querySelector(".emailVerificationControl_li")
+      .classList.remove("hidden");
+    document.querySelector(".newPassword_li").classList.remove("hidden");
+    document.querySelector(".reenterPassword_li").classList.remove("hidden");
+    document
+      .querySelector(".extension_BusinessLandline_li")
+      .classList.remove("hidden");
+    document
+      .querySelector(".extension_BusinessMobile_li")
+      .classList.remove("hidden");
+
+    document
+      .querySelector(".extension_FirstName_li")
+      .classList.remove("hidden");
+    document.querySelector(".extension_LastName_li").classList.remove("hidden");
+    document
+      .querySelector(".extension_CompanyName_li")
+      .classList.remove("hidden");
+    document.getElementById("continue").classList.remove("hidden");
+    document.getElementById("cancel").classList.remove("hidden");
+    document.getElementById("back_btn").classList.add("hidden");
 
     document
       .querySelector(".extension_BusinessLandline_li")
@@ -59,6 +83,7 @@ function showForm(userRole) {
     document.getElementById("cancel").classList.add("hidden");
     document.getElementById("next").classList.remove("hidden");
   } else if (userRole === "individual") {
+    resetForm();
     document.getElementById("extension_UserType_3").click();
 
     // Set default value for only the specific input fields in the form
@@ -140,6 +165,24 @@ function showForm(userRole) {
 }
 
 function showCompanyDetailsForm() {
+  // add dull class for select tag
+  const selectElements = document.querySelectorAll(".dropdown_single");
+
+  // Add the "dull" class initially to all select elements
+  selectElements.forEach((selectElement) => {
+    selectElement.classList.add("dull");
+    // Listen for changes in the select element
+    selectElement.addEventListener("change", function () {
+      if (selectElement.value === "") {
+        // If the default option is selected, add the "dull" class
+        selectElement.classList.add("dull");
+      } else {
+        // Otherwise, remove the "dull" class
+        selectElement.classList.remove("dull");
+      }
+    });
+  });
+
   //1st step form fields
   document.getElementById("extension_UserType_2").click();
   document
@@ -161,7 +204,7 @@ function showCompanyDetailsForm() {
   document.getElementById("cancel").classList.add("hidden");
 
   //2nd step form fields
-  document.querySelector(".step").classList.add("complete");
+  document.querySelector(".step2").classList.add("complete");
 
   document.querySelector(".extension_WebsiteURL_li").classList.remove("hidden");
   document.querySelector(".extension_UnitNumber_li").classList.remove("hidden");
@@ -193,7 +236,7 @@ function showCompanyDetailsForm() {
 }
 
 function backBtnAction() {
-  document.querySelector(".step").classList.remove("complete");
+  document.querySelector(".step2").classList.remove("complete");
 
   //1st step form fields
   document
@@ -262,6 +305,10 @@ function setInputAttributes() {
 
   if (postalCodeInput) {
     postalCodeInput.setAttribute("maxlength", "6");
+    postalCodeInput.setAttribute(
+      "pattern",
+      "/^[ABCEGHJ-NPRSTVXY]d[ABCEGHJ-NPRSTV-Z][ -]?d[ABCEGHJ-NPRSTV-Z]d$/i"
+    );
   }
 
   // No restriction on max length for street number
@@ -306,7 +353,6 @@ function restrictToAlphanumerics(inputElement) {
 
 function resetForm() {
   // Reset form fields here
-  // For example:
   document.getElementById("attributeVerification").reset();
 }
 
@@ -350,6 +396,27 @@ restrictToAlphanumerics(postalCodeInput);
 //   }
 // };
 
+// Assuming you have an existing label element with an ID "extension_Policy1_label"
+const existingLabel = document.getElementById("extension_Policy1_label");
+const labelText = existingLabel.textContent.trim();
+
+// Extract the word "Portal Services Agreement"
+const agreementWord = "Portal Services Agreement";
+
+// Create a new <a> element
+const linkElement = document.createElement("a");
+linkElement.href =
+  "https://eppdevstorage.blob.core.windows.net/assets/epp-portal-services-agreement.pdf";
+linkElement.id = "agreement";
+linkElement.className = "agreement";
+linkElement.textContent = agreementWord;
+linkElement.setAttribute("target", "_blank");
+
+// Replace the exact occurrence of the word with the new <a> element
+existingLabel.innerHTML = labelText.replace(agreementWord, linkElement.outerHTML);
+
+
 // Show Super Administrator Form by default
 showForm("super_administrator");
 document.querySelector(".extension_UserType_li").classList.add("hidden");
+document.getElementById("cancel").classList.add("grey-btn");

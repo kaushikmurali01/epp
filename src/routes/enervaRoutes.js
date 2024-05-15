@@ -14,6 +14,7 @@ import CompanyPage from 'sections/Homepage/CompanyPage';
 import CompanyList from 'pages/Admin/Company/CompanyList';
 import CompanyProfilePage from 'pages/Admin/Company/CompanyProfilePage';
 import CompanyAgreement from 'pages/Admin/Company/CompanyAgreement';
+import UserProfilePage from 'pages/UserManagementAdmin/UserProfilePage';
 
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
@@ -28,6 +29,7 @@ export const EnervaRoutes = () => {
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AddFacilityComponent /> }/>
         {/* <Route path= {participantAgreementEndPoints.participantAgreement} element={ <ParticipantAgreementComponent />} /> */}
         <Route path= {userManagementEndPoints.userManagement} element={ <UserManagementAdmin />} />
+        <Route path= {userManagementEndPoints.userProfile} element={ <UserProfilePage />} />
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.facilityDetails} element={ <AdminFacilityDetailsPage />}/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.entriesDetails} element={ <EntriesListing /> }/>
         <Route path={enervaEndPoints.companies} element={<CompanyList />} />
