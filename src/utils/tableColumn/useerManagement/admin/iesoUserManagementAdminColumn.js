@@ -11,11 +11,16 @@ import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
+import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
 
 
 const IESOUserManagementColumn = () => {
 
-const [isChecked, setIsChecked] = useState(false)
+const [isChecked, setIsChecked] = useState(false);
+const [alertModalContnet, setAlertModalContnet] = useState({
+    title: 'Alert',
+    content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+})
 
 const buttonStyle = {
     display: 'inline-flex',
@@ -99,6 +104,9 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibleI
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
+                    Alert
+                </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
                 </Typography>
@@ -127,6 +135,23 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     // handelDelete(item, handleAPISuccessCallBack)
 }
 
+const handelAlertModalOpen = (item, setModalConfig) => {
+    const apiURL = ENERVA_USER_MANAGEMENT.SEND_USER_ALERT;
+    const apiData = {
+        apiURL,
+        item
+    }
+    setModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <PopUpAlert modalContent={alertModalContnet} setModalConfig={setModalConfig} apiData={apiData} />,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: false,
+            cancelButton: false,
+        }
+    }));
+}
 
 
 

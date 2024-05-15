@@ -8,7 +8,7 @@ import {
     Typography,
 } from "@mui/material";
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
-import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
+import { ENERVA_USER_MANAGEMENT, ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 
@@ -60,11 +60,11 @@ const DeleteModelContent = () => {
 const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "Role name",
-        accessor: 'id',
+        accessor: 'rolename',
     },
     {
         Header: "Role Type",
-        accessor: "rolename",
+        accessor: "userType",
     },
     {
         Header: "Created date",
@@ -123,7 +123,7 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    const apiURL = ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS + '/' + item.id;
     // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {
