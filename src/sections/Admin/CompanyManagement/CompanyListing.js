@@ -126,7 +126,7 @@ const CompanyListing = () => {
   const navigate = useNavigate();
 
   const companyListData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyList || []
+    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
   );
   const companyCount = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.count || []
