@@ -164,7 +164,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             getPermissionList(selectRoleType);
         }
 
-    }, [selectRoleType,]);
+    }, [selectRoleType]);
 
     console.log(getUserRole, invitePageInfo, 'invitePageInfo,getUserRole')
 

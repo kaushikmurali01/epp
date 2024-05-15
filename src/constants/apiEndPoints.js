@@ -43,6 +43,7 @@ export const USER_MANAGEMENT = {
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
   // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
+  GET_COMPANY_DETAILS:"/enerva-user/v1/fetch/company",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
@@ -56,6 +57,8 @@ export const USER_MANAGEMENT = {
   GET_USER_DETAILS: "enerva-user/v1/user",
 
   EDIT_PROFILE: "/enerva-user/v1/users",
+
+  GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
 };
 
 export const ENERVA_USER_MANAGEMENT = {
@@ -64,8 +67,7 @@ export const ENERVA_USER_MANAGEMENT = {
   GET_CUSTOMER_USER_LIST: "enerva-user/v1/customer",
   GET_AGGREGATOR_USER_LIST: "",
 
-  GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID:
-    "/enerva-user/v1/program/rolepermission",
+  GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/program/rolepermission",
 
   GET_EV_USER_PERMISSONS_BY_ID: "/enerva-user/v1/program/user/permissions",
   // POST REQUEST
@@ -73,10 +75,27 @@ export const ENERVA_USER_MANAGEMENT = {
   JOIN_EV_REQUEST: "",
   ACCEPT_EV_USER_REQUEST: "",
   REJECT_EV_USER_REQUEST: "",
+  SEND_USER_ALERT: "/enerva-user/v1/alert/send",
   // DELETE REQUEST
   DELETE_EV_USER_REQUEST: "",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
+};
+
+export const ROLES_PERMISSIONS_MANAGEMENT = {
+  ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
+  USER_TYPES: "/enerva-user/v1/program/usertypes",
+  GET_ROLE_PERMISSIONS_BY_ID: "/enerva-user/v1/program/rolepermissiondetail/"
+
+  // GET_ROLES_PERMISSIONS_LIST: "/enerva-user/v1/program/rolepermission",
+ 
+  // // POST REQUEST
+  // ADD_ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
+  
+  // // DELETE REQUEST
+  // DELETE_EV_USER_REQUEST: "/enerva-user/v1/program/rolepermission",
+  // // EDIT REQUEST
+  // EDIT_ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
 };
 
 export const LANDING_PAGE = {

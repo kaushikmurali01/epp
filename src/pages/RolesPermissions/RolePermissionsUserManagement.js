@@ -4,19 +4,20 @@ import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuI
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { GET_REQUEST } from 'utils/HTTPRequests';
-import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 
 import RolePermissionsUserInvite from './RolePermissionsUserInvite';
 import EvModal from 'utils/modal/EvModal';
 
 import RolesPermissionManagementColumn from 'utils/tableColumn/rolesPermissions/rolesPermissionsColumn';
+import { userTypes } from 'constants/allDefault';
 
 const RolePermissionsUserManagement = () => {
 
     const { ROLES_PERMISSIONS_MANAGEMENT_COLUMN } = RolesPermissionManagementColumn();
 
     // tabs table data
-    const [getEnervaUser, setEnervaUser] = useState([]);
+    const [getRolesPermissions, setRolesPermissions] = useState([]);
 
     const [getUserRole, setUserRole] = useState([]);
     const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
@@ -29,7 +30,7 @@ const RolePermissionsUserManagement = () => {
     // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
     const handleAPISuccessCallBack = () => {
         // Call the API to get all user data
-        getEnervaUserManagementData();
+        getRolesPermissionsData();
     };
 
 
@@ -62,11 +63,11 @@ const RolePermissionsUserManagement = () => {
 
 
     const rolesPermissionsUsersColumns = useMemo(() => ROLES_PERMISSIONS_MANAGEMENT_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
-   
+
     // for pagination
     const defaultPagination = { page: 1, pageSize: 10 }
     const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
-  
+
     const [pageCount, setPageCount] = useState('');
 
 
@@ -77,28 +78,24 @@ const RolePermissionsUserManagement = () => {
 
 
 
-    const getEnervaUserManagementData = () => {
-        const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${(enervaPageInfo.page - 1) * enervaPageInfo.pageSize
-            }/${enervaPageInfo.pageSize}`;
+    const getRolesPermissionsData = () => {
+        const apiURL = `${ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS}`;
         // const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
         GET_REQUEST(apiURL)
             .then((res) => {
-                if (res.data?.body?.rows instanceof Array) {
-                    setEnervaUser(res.data?.body?.rows)
-                    setPageCount((prevState) => ({
-                        ...prevState,
-                        enerva: res.data?.body?.count
-                    }));
+                if (res.data instanceof Array) {
+                    setRolesPermissions(res.data)
+
                 }
 
             }).catch((error) => {
                 console.log(error)
             });
     }
- 
+
 
     const handelInviteUserAdmin = () => {
-        const apiURL = ENERVA_USER_MANAGEMENT.SEND_EV_INVITATION_BY_ADMIN
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS
         setVisibleInvitePage(true);
         setSelectTableRow({});
         setInviteAPIURL(apiURL)
@@ -107,10 +104,14 @@ const RolePermissionsUserManagement = () => {
     }
 
     const getUserRoleData = () => {
-        const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.USER_TYPES;
         GET_REQUEST(apiURL)
             .then((res) => {
-                setUserRole(res.data?.body)
+                console.log(res, "check result")
+                if(res.data instanceof Array){
+                    setUserRole(res.data)
+                }
+
             }).catch((error) => {
                 console.log(error)
             });
@@ -123,11 +124,11 @@ const RolePermissionsUserManagement = () => {
 
     useEffect(() => {
         // load all default function on page load
-        getEnervaUserManagementData();
-    }, [enervaPageInfo])
+        getRolesPermissionsData();
+    }, [])
 
 
-
+    console.log(getRolesPermissions, "getRolesPermissions")
 
     return (
         <React.Fragment>
@@ -158,28 +159,24 @@ const RolePermissionsUserManagement = () => {
                                     </FormControl>
                                 </FormGroup>
 
-                                <FormGroup className='theme-form-group theme-select-form-group'>
-
-                                    <FormControl sx={{ minWidth: '6rem' }} >
+                                <FormGroup className="theme-form-group theme-select-form-group">
+                                    <FormControl sx={{ minWidth: '6rem' }}>
                                         <Select
                                             value={selectRoleType}
                                             onChange={(e) => handleSelectChange(e)}
                                             displayEmpty={true}
-                                            className='transparent-border'
+                                            className="transparent-border"
                                         >
-                                            <MenuItem value="">
-                                                User Type
+                                            <MenuItem value="" disabled>
+                                             <em> User Type </em>
                                             </MenuItem>
-                                            {getUserRole && (getUserRole).map((item) => {
-                                                return (
-                                                    <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
-                                                )
-                                            })}
-
+                                            {getUserRole?.map((item) => (
+                                                <MenuItem key={`${item.id}-${item.user_type}`} value={item?.id}>
+                                                    {item?.user_type}
+                                                </MenuItem>
+                                            ))}
                                         </Select>
-
                                     </FormControl>
-
                                 </FormGroup>
                                 <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() => handelInviteUserAdmin()} >
                                     Add User
@@ -197,12 +194,9 @@ const RolePermissionsUserManagement = () => {
 
                         </Grid>
 
-                        <Grid container sx={{marginTop: '2rem'}}>
+                        <Grid container sx={{ marginTop: '2rem' }}>
                             <Grid item xs={12}>
-                                <Table columns={rolesPermissionsUsersColumns} data={getEnervaUser} headbgColor="rgba(217, 217, 217, 0.2)"
-                                    count={pageCount.enerva}
-                                    pageInfo={enervaPageInfo}
-                                    setPageInfo={setEnervaPageInfo}
+                                <Table columns={rolesPermissionsUsersColumns} data={getRolesPermissions} headbgColor="rgba(217, 217, 217, 0.2)"
                                 />
                             </Grid>
                         </Grid>

@@ -19,7 +19,10 @@ import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
-import { Link } from "@mui/material";
+import { FormControl, FormGroup, FormLabel, Link, Select } from "@mui/material";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import { useEffect, useState } from "react";
+import { USER_MANAGEMENT } from "constants/apiEndPoints";
 
 const settings = ["Profile", "Logout"];
 
@@ -76,7 +79,44 @@ function Header(props) {
     }
   }
 
+  const [companyList, setCompanyList] = useState([]);
+  const [selectCompany, setSelectCompany] = useState("");
+
+  const getCompanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setCompanyList(res?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  
+  useEffect(() => {
+    getCompanyListData();
+  }, []);
+
+  const handleSelectChange = (event) => {
+    const selectedCompanyId = event.target.value;
+    setSelectCompany(selectedCompanyId);
+
+    // Store the selected company ID
+    localStorage.setItem("selectedCompanyId", selectedCompanyId);
+  };
+
   const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
+
+  // Get the selected company ID
+  const newlySelectedCompany = localStorage.getItem("selectedCompanyId");
+
+  useEffect(() => {
+    if (newlySelectedCompany) {
+      setSelectCompany(newlySelectedCompany);
+    } else {
+      setSelectCompany(userData.company_id);
+    };
+  }, [userData]);
 
   return (
     <AppBar
@@ -181,41 +221,83 @@ function Header(props) {
               </Box>
             )}
           </Box>
-          {(props.page == "authenticated") ? <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, gap: '1.5rem', alignItems: "center", }} >
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt={userData?.first_name+' '+userData?.last_name} src={userData?.profile_pic || 'static/'} />
-              </IconButton> 
-            </Tooltip>
-            <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
+          {props.page == "authenticated" ? (
+            <Box
+              sx={{
+                flexGrow: 0,
+                display: { xs: "none", md: "flex" },
+                gap: "1.5rem",
+                alignItems: "flex-end",
               }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={() => clickSetting(setting)}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box> : null}
+              {/* {companyList?.length > 0 && ( */}
+              <FormGroup className="theme-form-group">
+                <FormLabel
+                  sx={{
+                    marginBottom: "0.25rem",
+                    fontSize: "0.75rem !important",
+                    lineHeight: "1 !important",
+                    fontWeight: "400",
+                  }}
+                >
+                  Choose company
+                </FormLabel>
+                <FormControl sx={{ minWidth: "10rem" }}>
+                  <Select
+                    value={selectCompany}
+                    onChange={(e) => handleSelectChange(e)}
+                    displayEmpty={true}
+                    sx={{ padding: 0, fontWeight: 600, background: "#F3FFF6", maxHeight: "2.25rem" }}
+                  >
+                    {companyList.map((item) => {
+                      return (
+                        <MenuItem key={item.id} value={item?.id}>
+                          {item?.company_name}
+                        </MenuItem>
+                      );
+                    })}
+                  </Select>
+                </FormControl>
+              </FormGroup>
+              {/* )} */}
+              <Tooltip title="Open settings">
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                  <Avatar
+                    alt={userData?.first_name + " " + userData?.last_name}
+                    src={userData?.profile_pic || "static/"}
+                  />
+                </IconButton>
+              </Tooltip>
+              <Menu
+                sx={{ mt: "45px" }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+              >
+                {settings.map((setting) => (
+                  <MenuItem key={setting} onClick={() => clickSetting(setting)}>
+                    <Typography textAlign="center">{setting}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+          ) : null}
           {!(props.page == "authenticated") && (
             <>
               <Box
                 sx={{
                   display: { xs: "none", md: "flex" },
-                  gap: '1.5rem',
+                  gap: "1.5rem",
                   alignItems: "center",
                 }}
               >
@@ -272,16 +354,24 @@ function Header(props) {
                       flexGrow: 1,
                     }}
                   >
-                    <MenuItem onClick={() => scrollToSection("howItWorksSection")}>
+                    <MenuItem
+                      onClick={() => scrollToSection("howItWorksSection")}
+                    >
                       How it works
                     </MenuItem>
-                    <MenuItem onClick={() => scrollToSection("userStorySection")} >
-                        Success stories
+                    <MenuItem
+                      onClick={() => scrollToSection("userStorySection")}
+                    >
+                      Success stories
                     </MenuItem>
-                    <MenuItem onClick={() => scrollToSection("whatsNewSection")}>
-                       What's New
+                    <MenuItem
+                      onClick={() => scrollToSection("whatsNewSection")}
+                    >
+                      What's New
                     </MenuItem>
-                    <MenuItem onClick={() => scrollToSection("contactUsFormSection")}>
+                    <MenuItem
+                      onClick={() => scrollToSection("contactUsFormSection")}
+                    >
                       Contact Us
                     </MenuItem>
                     <Divider />

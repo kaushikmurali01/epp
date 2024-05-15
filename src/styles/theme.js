@@ -305,6 +305,9 @@ const theme = createTheme({
       scarlet: '#FF5858',
       colorCrimson: '#e54949'
     },
+    warning: {
+      main: '#F26D04',
+    },
 
     text: {
       primary: "#2e813e",
