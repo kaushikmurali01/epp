@@ -1,5 +1,9 @@
-import { Box, styled } from "@mui/material";
+import { Box, Typography, styled } from "@mui/material";
 import { PDFDisplay } from "components/pdfDisplay";
+import { PA_MANAGEMENT } from "constants/apiEndPoints";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { GET_REQUEST } from "utils/HTTPRequests";
 
 const StyledContentWrapper = styled(Box)(() => {
   return {
@@ -29,7 +33,42 @@ const StyledContentWrapper = styled(Box)(() => {
   };
 });
 
-const CompanyAgreementContent = ({ pdfUrl }) => {
+const CompanyAgreementContent = () => {
+  const { id } = useParams();
+  const [PAData, setPAData] = useState({
+    company_id: id,
+    unsigned_doc:
+      "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf",
+    upload_sign: null,
+    is_signed: false,
+    signed_doc: null,
+    status: null,
+    signed_on: "",
+    is_active: 1,
+    created_by: null,
+    updated_by: null,
+    company_name: null,
+  });
+  useEffect(() => {
+    getParticipantAgreementData();
+  }, []);
+
+  const getParticipantAgreementData = () => {
+    const apiURL = PA_MANAGEMENT.CREATE_PA;
+    GET_REQUEST(apiURL + `/${id}`)
+      .then((res) => {
+        setPAData((prevState) => {
+          return {
+            ...prevState,
+            ...res?.data?.data,
+          };
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
   return (
     <Box
       sx={{
@@ -40,7 +79,14 @@ const CompanyAgreementContent = ({ pdfUrl }) => {
       }}
     >
       <StyledContentWrapper>
-        <PDFDisplay pdfUrl={pdfUrl} />
+        {PAData?.is_signed ? (
+          <PDFDisplay pdfUrl={PAData?.is_signed && PAData?.signed_doc} />
+        ) : (
+          <Typography>
+            The company {PAData?.company_name} has not signed paticipant
+            agreement yet.
+          </Typography>
+        )}
       </StyledContentWrapper>
     </Box>
   );

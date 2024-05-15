@@ -4,6 +4,7 @@ import MicroStyledListItemComponent from "components/ProfilePageComponents/Micro
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminCompanyDetails } from "../../../redux/admin/actions/adminCompanyAction";
 import { useParams } from "react-router-dom";
+import { userTypes } from "constants/allDefault";
 
 const CompanyProfile = () => {
   const tabStyle = {
@@ -29,7 +30,10 @@ const CompanyProfile = () => {
   const companyProfileData = useSelector(
     (state) => state?.adminCompanyReducer?.companyDetails?.data
   );
-
+  const getCompanyType = (type) => {
+    const companyType = userTypes.find((company) => company.id === type);
+    return companyType ? companyType.userType : "";
+  };
   return (
     <Container>
       <Typography
@@ -71,7 +75,7 @@ const CompanyProfile = () => {
               aspectRatio: 1,
               borderRadius: "100%",
             }}
-            src={""}
+            src={companyProfileData?.profile_pic}
             alt="company-profile"
           />
         </Grid>
@@ -88,12 +92,12 @@ const CompanyProfile = () => {
           >
             <Grid item>
               <Typography variant="h3">
-                {(companyProfileData?.user?.first_name || "") +
+                {(companyProfileData?.first_name || "") +
                   " " +
-                  (companyProfileData?.user?.last_name || "")}
+                  (companyProfileData?.last_name || "")}
               </Typography>
               <Typography variant="h6">
-                Role: {companyProfileData?.user?.rolename || ""}
+                Role: {companyProfileData?.role_name || ""}
               </Typography>
             </Grid>
           </Grid>
@@ -113,34 +117,34 @@ const CompanyProfile = () => {
                 }}
                 className="profileLists"
               >
-                {companyProfileData?.company?.unit_number && (
+                {companyProfileData?.landline && (
                   <MicroStyledListItemComponent
                     primary="Business mobile"
-                    secondary={companyProfileData?.company?.unit_number}
+                    secondary={companyProfileData?.landline}
                   />
                 )}
-                {companyProfileData?.company?.street_number && (
+                {companyProfileData?.email && (
                   <MicroStyledListItemComponent
                     primary="Business email"
-                    secondary={companyProfileData?.company?.street_number}
+                    secondary={companyProfileData?.email}
                   />
                 )}
-                {companyProfileData?.company?.street_name && (
+                {companyProfileData?.company_name && (
                   <MicroStyledListItemComponent
                     primary="Company name"
-                    secondary={companyProfileData?.company?.street_name}
+                    secondary={companyProfileData?.company_name}
                   />
                 )}
-                {companyProfileData?.company?.city && (
+                {companyProfileData?.company_type && (
                   <MicroStyledListItemComponent
                     primary="Company type"
-                    secondary={companyProfileData?.company?.city}
+                    secondary={getCompanyType(companyProfileData?.company_type)}
                   />
                 )}
-                {companyProfileData?.company?.state && (
+                {companyProfileData?.website && (
                   <MicroStyledListItemComponent
                     primary="Company url"
-                    secondary={companyProfileData?.company?.state}
+                    secondary={companyProfileData?.website}
                   />
                 )}
               </List>

@@ -1,15 +1,21 @@
 import {
-    FETCH_ADMIN_COMPANY_DETAILS_FAILURE,
-    FETCH_ADMIN_COMPANY_DETAILS_REQUEST,
+  FETCH_ADMIN_COMPANY_DETAILS_FAILURE,
+  FETCH_ADMIN_COMPANY_DETAILS_REQUEST,
   FETCH_ADMIN_COMPANY_DETAILS_SUCCESS,
   FETCH_ADMIN_COMPANY_LIST_FAILURE,
   FETCH_ADMIN_COMPANY_LIST_REQUEST,
   FETCH_ADMIN_COMPANY_LIST_SUCCESS,
+  ADMIN_COMPANY_SEND_ALERT_REQUEST,
+  ADMIN_COMPANY_SEND_ALERT_SUCCESS,
+  ADMIN_COMPANY_SEND_ALERT_FAILURE,
+  ADMIN_COMPANY_UPDATE_STATUS_REQUEST,
+  ADMIN_COMPANY_UPDATE_STATUS_SUCCESS,
+  ADMIN_COMPANY_UPDATE_STATUS_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
   companyList: [],
-  companyDetails:[],
+  companyDetails: [],
   loading: false,
   error: null,
 };
@@ -49,6 +55,42 @@ const adminCompanyReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ADMIN_COMPANY_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADMIN_COMPANY_SEND_ALERT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADMIN_COMPANY_SEND_ALERT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADMIN_COMPANY_SEND_ALERT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADMIN_COMPANY_UPDATE_STATUS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADMIN_COMPANY_UPDATE_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADMIN_COMPANY_UPDATE_STATUS_FAILURE:
       return {
         ...state,
         loading: false,
