@@ -68,9 +68,11 @@ class CompanyService {
                         ]
                     }
                 ],
-                attributes: ['first_name', 'last_name', 'id', 'email',
+                attributes: ['first_name', 'last_name', 'id', 'email', 'landline', 'profile_pic',
                     [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
                     [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
+                    [sequelize.col('UserCompanyRole.Company.company_type'), 'company_type'],
+                    [sequelize.col('UserCompanyRole.Company.website'), 'website'],
                     [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
                 ]
             });
@@ -96,7 +98,8 @@ class CompanyService {
             if (!company) {
                 throw new Error(RESPONSE_MESSAGES.notFound404);
             }
-            let result = await company.update(updatedDetails);
+            console.log(updatedDetails, { where: { id: companyId } })
+            let result = await Company.update(updatedDetails, { where: { id: Number(companyId) } });
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, company: result };
         } catch (error) {
             throw new Error(`${error.message}`);
@@ -132,13 +135,16 @@ class CompanyService {
      */
     static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any[]> {
         try {
-            let datas = await rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
+            let [count, rows]: any = await Promise.all([rawQuery(`SELECT COUNT(*) AS count FROM "company" c
+            INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+            INNER JOIN "users" u ON cr.user_id = u.id
+            WHERE cr.role_id= 1 AND (c.company_name LIKE '%${searchPromt}%' or u.first_name LIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
             WHERE cr.role_id= 1 AND (c.company_name LIKE '%${searchPromt}%' or u.first_name LIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
                 limit: limit,
                 offset: offset
-            })
+            })])
             // role =1 for super admin
             // const companies = await Company.findAll(
             //     {
@@ -179,7 +185,7 @@ class CompanyService {
             //     status: "Active",
             //     ...user.toJSON()
             // }));
-            return datas;
+            return [count[0].count, rows];
         } catch (error) {
             throw error;
         }

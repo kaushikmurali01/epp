@@ -1,5 +1,7 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
 import { CompanyService } from '../services/companyService';
+import { Email } from "../services/email";
+import { EmailContent } from "../utils/emailContent";
 
 class CompanyController {
 
@@ -47,8 +49,8 @@ class CompanyController {
  */
     static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any> {
         try {
-            const companies = await CompanyService.listCompanies(offset, limit, searchPromt, companyFilter);
-            return companies;
+            const [count, rows] = await CompanyService.listCompanies(offset, limit, searchPromt, companyFilter);
+            return { status: 204, data: { count, rows } };
         } catch (error) {
             return { status: 500, body: { error: error.message } };
         }
@@ -73,6 +75,22 @@ class CompanyController {
         }
     }
 
+    /**
+     * Send an alert on email.
+     * 
+     * @param req - The HTTP request object containing updated company data.
+     * @returns Promise<HttpResponse>
+     */
+    static async sendAlertForCompany(requestData, companyId): Promise<any> {
+        try {
+            const company = await CompanyService.getCompanyAdmin(companyId);
+            Email.send(company?.data?.email, EmailContent.alertEmail.title, requestData.message);
+            const resp = { status: 200, body: 'Alert Sent successfully' };
+            return resp;
+        } catch (error) {
+            return { status: 400, body: { error: error.message } };
+        }
+    }
     /**
      * Deletes an existing company.
      * 

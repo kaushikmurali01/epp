@@ -58,6 +58,58 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
 }
 
 /**
+ * Updates a company status based on the provided request data.
+ * 
+ * @param request The HTTP request object containing company data.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing company updation status.
+ */
+export async function UpdateCompanyStatus(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData = await request.json();
+        const { id } = request.params;
+        const company = await CompanyController.updateCompany(requestData, id);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(company);
+
+        // Return success response
+        return { body: responseBody, status: 201 };
+    } catch (error) {
+
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
+ * Sent a alert for company on the provided request data.
+ * 
+ * @param request The HTTP request object containing company data.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing compnay alert send on mail.
+ */
+export async function sendAlertForCompany(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const { id } = request.params;
+        const requestData = await request.json();
+        const company = await CompanyController.sendAlertForCompany(requestData, id);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(company);
+
+        // Return success response
+        return { body: responseBody, status: 201 };
+    } catch (error) {
+
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
  * Retrieves all companies.
  * 
  * @param request The HTTP request object.
@@ -67,11 +119,11 @@ export async function UpdateCompany(request: HttpRequest, context: InvocationCon
 export async function ListCompanies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { pageOffset, pageLimit } = request.params;
-        const searchPromt = request.query.get('search' || "");
+        const searchPromt = request.query.get('search') || "";
         const companyFilter = request.query.get('company');
 
         // Get all companies
-        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt,companyFilter);
+        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
@@ -116,6 +168,7 @@ app.http('ListCompanies', {
     handler: ListCompanies,
     route: 'companies/{pageOffset}/{pageLimit}'
 });
+
 app.http('GetCompanyAdmin', {
     methods: ['GET'],
     authLevel: 'anonymous',
@@ -133,6 +186,18 @@ app.http('UpdateCompany', {
     authLevel: 'anonymous',
     handler: UpdateCompany,
     route: 'company'
+});
+app.http('sendAlertForCompany', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    handler: sendAlertForCompany,
+    route: 'company/sendAlert/{id}'
+});
+app.http('UpdateCompanyStatus', {
+    methods: ['PUT'],
+    authLevel: 'anonymous',
+    handler: UpdateCompanyStatus,
+    route: 'company/updateStatus/{id}'
 });
 
 

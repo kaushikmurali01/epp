@@ -76,7 +76,7 @@ export async function AdminUserUpdate(request: HttpRequest, context: InvocationC
 export async function GetEnervaUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { pageOffset, pageLimit } = request.params;
-        const searchPromt = request.query.get('search' || "");
+        const searchPromt = request.query.get('search') || "";
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
