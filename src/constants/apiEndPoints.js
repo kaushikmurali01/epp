@@ -43,6 +43,7 @@ export const USER_MANAGEMENT = {
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
   // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
+  GET_COMPANY_DETAILS:"/enerva-user/v1/fetch/company",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
@@ -56,6 +57,8 @@ export const USER_MANAGEMENT = {
   GET_USER_DETAILS: "enerva-user/v1/user",
 
   EDIT_PROFILE: "/enerva-user/v1/users",
+
+  GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
 };
 
 export const ENERVA_USER_MANAGEMENT = {
