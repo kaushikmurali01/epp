@@ -97,12 +97,12 @@ class RoleService {
      * @returns Promise<any[]>
      * @description Retrieves a list of roles from the database.
      */
-    static async listRoles(searchPromt: string): Promise<any[]> {
+    static async listRoles(): Promise<any[]> {
         try {
             // const roles = await Role.findAll();
             const roles = await Role.findAll({
                 where: {
-                    rolename: { [Op.iLike]: `%${searchPromt}%` },
+                   // rolename: { [Op.iLike]: `%${searchPromt}%` },
                     id: {
                         [Op.ne]: 1 // Op.ne means "not equal to"
                     }

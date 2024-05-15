@@ -25,29 +25,27 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
     try {
         // Parse request data
         const data:any = await request.json();
-       // context.log("data01", data);
-
-       // const data = JSON.parse(requestData.rawBody); 
-      //console.log("testing",process.env.AD_EXTENSION)
+        context.log("data001", data);
+       
       const ext = process.env.AD_EXTENSION;
         const userData = {
             first_name: data[`extension_${ext}_FirstName`],
             last_name:  data[`extension_${ext}_LastName`],
             email: data.email,
             phonenumber: data[`extension_${ext}_BusinessMobile`],
-            landline: data[`extension_${ext}_BusinessLandline`],
+            landline: data[`extension_${ext}_BusinessLandline`] || null,
             type: data[`extension_${ext}_UserType`],
             display_name: data.displayName
         }
         //context.log("userData01",userData);
         const companyData = {
             company_name: data[`extension_${ext}_CompanyName`],
-            company_description:  data[`extension_${ext}_CompanyName`],
+            company_description:  data[`extension_${ext}_CompanyName`] || null,
             address1: data.streetAddress,
             city: data.city,
             state: data.state,
-            source_of_discovery: data[`extension_${ext}_Howdoyouhearaboutus`],
-            website: data[`extension_${ext}_WebsiteURL`],
+            source_of_discovery: data[`extension_${ext}_Howdoyouhearaboutus`] || null,
+            website: data[`extension_${ext}_WebsiteURL`] || null,
             postal_code: data.postalCode,
             country: data.country
         }
@@ -224,6 +222,41 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         }
 
         user.permissions = userPermissions;
+
+       user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(user);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+
+
+/**
+ * Retrieves data of current user.
+ * 
+ * @param request The HTTP request object containing user ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the user with the specified ID.
+ */
+export async function AcceptUserInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        // Middleware
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        context.log("middlewareResponse",resp);
+        
+        // Extract user ID from request
+        const requestData = await request.json(); 
+
+        // Get user by ID
+        const user = await UserInvitationService.acceptUserInvitation(requestData, resp);
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -574,4 +607,11 @@ app.http('GetUserCompanyDetail', {
     authLevel: 'anonymous',
     route: 'usercompanies',
     handler: GetUserCompanyDetail
+});
+
+app.http('AcceptUserInvitation', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'acceptuserinvitation',
+    handler: AcceptUserInvitation
 });

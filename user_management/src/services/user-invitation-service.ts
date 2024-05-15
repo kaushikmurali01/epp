@@ -8,6 +8,8 @@ import { Email } from './email';
 import { EmailTemplate } from '../utils/emailTemplate';
 import { EmailContent } from '../utils/emailContent';
 import { CompanyService } from './companyService';
+import { UserCompanyRole } from '../models/user-company-role';
+import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 
 class UserInvitationService {
   /**
@@ -68,6 +70,90 @@ class UserInvitationService {
     } catch (error) {
         return { status: 500, message: error.message };
     }
+}
+
+
+static async getUserInvitation(email:any, user_id:any): Promise<Object> {
+  try {
+   
+    const invitationList:any = await UserInvitation.findAll({
+        where: { email: email },
+        include: [
+            {
+                model: Role,
+                attributes: ['rolename']
+            },
+            {
+                model: Company,
+                attributes: ['company_name']
+            }
+        ]
+    });
+
+    
+
+    // Transform data into the desired format
+    const responseData = invitationList.map(invitation => ({
+        email: invitation.email,
+        company_name: invitation.Company.company_name,
+        role: invitation.Role.rolename,
+        role_id: invitation.role,
+        company_id: invitation.company,
+        user_id: user_id
+    }));
+
+    return responseData;
+
+   
+} catch (error) {
+    // Return error response
+    return {
+        status: 500, // Internal Server Error status code
+        body: `${error.message}`
+    };
+}
+}
+
+static async acceptUserInvitation(detail, resp): Promise<Object> {
+  try {
+
+    const invitationList:any = await UserInvitation.findOne({
+      where: { email: resp.email }
+  });
+
+  console.log("Listing",invitationList.dataValues.permissions);
+   
+    await UserCompanyRole.create({
+      user_id: detail.user_id,
+      company_id: detail.company_id,
+      role_id: detail.role_id,
+      is_active: 1, 
+      status: 'accepted'
+  });
+console.log("invitationPermissions",invitationList.permissions);
+  for (const permission of invitationList.permissions) {
+    await UserCompanyRolePermission.create({
+        role_id: detail.role_id, 
+        permission_id: permission,
+        company_id: detail.company_id,
+        user_id: detail.user_id
+    });
+}
+
+
+
+return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+
+
+
+   
+} catch (error) {
+    // Return error response
+    return {
+        status: 500, // Internal Server Error status code
+        body: `${error.message}`
+    };
+}
 }
 }
 

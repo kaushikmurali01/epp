@@ -14,6 +14,7 @@ import { RoleUserType } from "../models/roleUserType";
 import { RolePermission } from "../models/role-permission";
 import { UserType } from "../models/userType";
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
+import { Permission } from "../models/permission";
 
 
 
@@ -104,11 +105,11 @@ export async function ListRolePermission(request: HttpRequest, context: Invocati
     try {
        
         const roles:any = await Role.findAll({
-            attributes: ['rolename', 'createdAt'], 
+            attributes: ['rolename', 'createdAt', 'id'], 
             include: [
                 {
                     model: UserType,
-                    attributes: ['user_type'] 
+                    attributes: ['user_type', 'id'] 
                 }
             ]
         });
@@ -117,7 +118,9 @@ export async function ListRolePermission(request: HttpRequest, context: Invocati
         const rolesData = roles.map(role => ({
             rolename: role.rolename,
             userType: role.UserType.user_type,
-            createdAt: role.createdAt
+            createdAt: role.createdAt,
+            role_id: role.id,
+            user_type_id: role.UserType.id
         }));
 
         // Return roles data
@@ -174,7 +177,101 @@ export async function DeleteRolePermission(request: HttpRequest, context: Invoca
     }
 }
 
+export async function GetRolePermission(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Assuming you have received role_id and user_type from the request
+        const { role_id, user_type } = request.params;
 
+        // Fetch permissions associated with the given role_id and user_type
+        const rolePermissions: any = await RolePermission.findAll({
+            where: { role_id },
+            include: [
+                {
+                    model: Role,
+                    where: { user_type }
+                },
+                {
+                    model: Permission,
+                    attributes: ["id",'permission', 'permission_description'] // Assuming you have a permission name attribute
+                }
+            ]
+        });
+
+        console.log("rolePermissions",rolePermissions);
+
+        // Transform data into desired format
+        // const permissionsData = rolePermissions.map(rolePermission => ({
+        //     role_id: rolePermission.role_id,
+        //     permission: rolePermission.Permission.permission,
+        //     description: rolePermission.Permission.permission_description,
+        //     permission_id: rolePermission.Permission.id
+        // }));
+
+        // console.log("permissionsData",permissionsData);
+
+                // Extract permission IDs
+                const permissionIds = rolePermissions.map(rolePermission => rolePermission.Permission.id);
+
+                // Prepare the response data
+                const responseData = {
+                    role_id: role_id,
+                    permissionIds: permissionIds,
+                    user_type_id: user_type
+                };
+
+        // Return permissions data
+        return { status: 200, body: JSON.stringify(responseData) };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function GetAllUserTypes(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Fetch all user types
+        const userTypes: any = await UserType.findAll();
+
+        // Transform data into desired format
+        const userTypesData = userTypes.map((userType: any) => ({
+            id: userType.id,
+            user_type: userType.user_type,
+            created_at: userType.created_at,
+            updated_at: userType.updated_at
+        }));
+
+        // Return user types data
+        return { status: 200, body: JSON.stringify(userTypesData) };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function GetALLPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Fetch all user types
+        const permissions: any = await Permission.findAll();
+
+        
+
+        // Return user types data
+        return { status: 200, body: JSON.stringify(permissions) };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+
+
+
+app.http('GetALLPermissions', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'program/allpermissions',
+    handler: GetALLPermissions
+});
 
 app.http('AddRolePermission', {
     methods: ['POST'],
@@ -201,6 +298,18 @@ app.http('DeleteRolePermission', {
     authLevel: 'anonymous',
     route: 'program/rolepermission/{role_id}',
     handler: DeleteRolePermission
+});
+app.http('GetRolePermission', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'program/rolepermissiondetail/{role_id}/{user_type}',
+    handler: GetRolePermission
+});
+app.http('GetAllUserTypes', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'program/usertypes',
+    handler: GetAllUserTypes
 });
 
 
