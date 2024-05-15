@@ -251,9 +251,8 @@ function Header(props) {
                   >
                     {companyList.map((item) => {
                       return (
-                        <MenuItem key={item.id} value={item?.id}>
-                          {item?.company_name}
-                        </MenuItem>
+                       
+                        <></>
                       );
                     })}
                   </Select>

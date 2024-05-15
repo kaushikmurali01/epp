@@ -1,8 +1,7 @@
 import { Box, Container, Typography, useMediaQuery } from "@mui/material";
 import CompanyAgreementContent from "sections/Admin/CompanyManagement/CompanyAgreementContent";
 
-const CompanyAgreement = (props) => {
-  const { pdfUrl } = props;
+const CompanyAgreement = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
 
   return (
@@ -21,7 +20,7 @@ const CompanyAgreement = (props) => {
           Participant Agreement
         </Typography>
       </Box>
-      <CompanyAgreementContent pdfUrl={pdfUrl} />
+      <CompanyAgreementContent />
       <Box
         sx={{
           display: "flex",

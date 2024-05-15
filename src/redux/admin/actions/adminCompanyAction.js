@@ -10,13 +10,13 @@ import {
   fetchAdminCompanyListSuccess,
 } from "../actionCreators/adminCompanyActionCreators";
 
-export const fetchAdminCompanyListing = (pageInfo) => {
+export const fetchAdminCompanyListing = (pageInfo, search = "") => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminCompanyListRequest());
       const endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}`;
+      }/${pageInfo.pageSize}?search=${search}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));

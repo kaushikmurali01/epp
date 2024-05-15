@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Container,
+  FormGroup,
   Grid,
   MenuItem,
   Select,
@@ -19,6 +20,8 @@ import EvModal from "utils/modal/EvModal";
 import { fetchAdminCompanyListing } from "../../../redux/admin/actions/adminCompanyAction";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
+import { format } from "date-fns";
+import { userTypes } from "constants/allDefault";
 
 const CompanyListing = () => {
   const columns = [
@@ -28,23 +31,34 @@ const CompanyListing = () => {
     },
     {
       Header: "Super admin name",
-      accessor: "super_admin_name",
+      accessor: (item) => (
+        <>
+          {item?.first_name} {item?.last_name}
+        </>
+      ),
     },
     {
       Header: "Company type",
-      accessor: "company_type",
+      accessor: (item) => {
+        const userType = userTypes.find(
+          (type) => type.id === item?.company_type
+        );
+        return userType ? userType.userType : "";
+      },
     },
     {
       Header: "Business email",
-      accessor: "business_email",
+      accessor: "email",
     },
     {
       Header: "Created on(Date)",
-      accessor: "created_on",
+      accessor: (item) => (
+        <>{format(new Date(item?.createdAt), "yyyy-MM-dd")}</>
+      ),
     },
     {
       Header: "Status",
-      accessor: "status",
+      accessor: (item) => <>{item?.is_active === 1 ? "active" : "inactive"}</>,
     },
     {
       Header: "Actions",
@@ -56,8 +70,9 @@ const CompanyListing = () => {
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
-              textWrap: "nowrap",
+              // textWrap: "nowrap",
             }}
+            onClick={() => navigate(`/companies/company-agreement/${item?.id}`)}
           >
             View Participant Agreement
           </Button>
@@ -80,20 +95,21 @@ const CompanyListing = () => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            onClick={openRequestModal}
+            onClick={() => openRequestModal(item?.id)}
           >
             Alert
           </Button>
           <Button
-            color="error"
+            color={item?.is_active === 1 ? "error" : "primary"}
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
             }}
+            onClick={() => openStatusModal(item?.id, item?.is_active)}
           >
-            Inactive
+            {item?.is_active === 1 ? "InActive" : "Active"}
           </Button>
         </Box>
       ),
@@ -103,11 +119,12 @@ const CompanyListing = () => {
   const navigate = useNavigate();
 
   const companyListData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+    (state) => state?.adminCompanyReducer?.companyList || []
   );
   const companyCount = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.count || []
   );
+  console.log(companyListData);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   useEffect(() => {
@@ -159,12 +176,12 @@ const CompanyListing = () => {
       >
         <Form>
           <Stack>
-            <TextareaAutosize
+            <Typography variant="small">Comment</Typography>
+            <textarea
               name="comment"
               rowsMin={3}
               rowsMax={5}
-              placeholder="Comment"
-              sx={{ width: "100%" }}
+              style={{ width: "85%", minHeight: "200px", padding: "5px" }}
             />
           </Stack>
           <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -183,6 +200,71 @@ const CompanyListing = () => {
       modalVisible: true,
       modalBodyContent: <CommentForm />,
     }));
+  };
+  const [statusModalConfig, setStatusModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openStatusModal = () => {
+    setStatusModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <StatusChangeModalContent />,
+    }));
+  };
+
+  const StatusChangeModalContent = () => {
+    return (
+      <Grid
+        container
+        alignItems="center"
+        flexDirection="column"
+        textAlign="center"
+        sx={{ padding: { md: "0 5%" } }}
+      >
+        <Grid container sx={{ justifyContent: "center" }}>
+          {true ? (
+            <figure>
+              <img src="/images/statusChangeIcon.svg" alt="" />
+            </figure>
+          ) : (
+            <figure>
+              <img src="/images/new_user_popup_icon.svg" alt="" />
+            </figure>
+          )}
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }}>
+          <Typography variant="h4">
+            Are you sure you would like to Active Company Details?
+          </Typography>
+        </Grid>
+      </Grid>
+    );
   };
 
   return (
@@ -249,6 +331,10 @@ const CompanyListing = () => {
         />
       </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal
+        modalConfig={statusModalConfig}
+        setModalConfig={setStatusModalConfig}
+      />
     </Container>
   );
 };
