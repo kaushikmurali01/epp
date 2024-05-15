@@ -41,10 +41,12 @@ export const enervaEndPoints = {
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
+  userProfile: "  :id",
 };
 
 export const evUserManagementEndPoints = {
   evUserManagement: "ev-user-management",
+  
 };
 
 export const participantAgreementEndPoints = {

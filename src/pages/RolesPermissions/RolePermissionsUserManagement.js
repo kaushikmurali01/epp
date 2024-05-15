@@ -62,12 +62,11 @@ const RolePermissionsUserManagement = () => {
     });
 
 
-    const rolesPermissionsUsersColumns = useMemo(() => ROLES_PERMISSIONS_MANAGEMENT_COLUMN(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
+    const rolesPermissionsUsersColumns = useMemo(() => ROLES_PERMISSIONS_MANAGEMENT_COLUMN(getUserRole,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), [getUserRole]);
 
     // for pagination
     const defaultPagination = { page: 1, pageSize: 10 }
     const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
-
     const [pageCount, setPageCount] = useState('');
 
 
@@ -107,7 +106,6 @@ const RolePermissionsUserManagement = () => {
         const apiURL = ROLES_PERMISSIONS_MANAGEMENT.USER_TYPES;
         GET_REQUEST(apiURL)
             .then((res) => {
-                console.log(res, "check result")
                 if(res.data instanceof Array){
                     setUserRole(res.data)
                 }
@@ -126,9 +124,6 @@ const RolePermissionsUserManagement = () => {
         // load all default function on page load
         getRolesPermissionsData();
     }, [])
-
-
-    console.log(getRolesPermissions, "getRolesPermissions")
 
     return (
         <React.Fragment>

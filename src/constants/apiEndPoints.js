@@ -82,7 +82,8 @@ export const ENERVA_USER_MANAGEMENT = {
 export const ROLES_PERMISSIONS_MANAGEMENT = {
   ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
   USER_TYPES: "/enerva-user/v1/program/usertypes",
-  GET_ROLE_PERMISSIONS_BY_ID: "/enerva-user/v1/program/rolepermissiondetail/"
+  GET_ROLE_PERMISSIONS_BY_ID: "/enerva-user/v1/program/rolepermissiondetail",
+  GET_ALL_PERMISSIONS_LIST: "enerva-user/v1/program/allpermissions"
 
   // GET_ROLES_PERMISSIONS_LIST: "/enerva-user/v1/program/rolepermission",
  
