@@ -76,7 +76,7 @@ const RoutesComp = () => {
 
   console.log("user info", account)
 
-  return userDetails.type ? (
+  return userDetails?.type ? (
     <>
       <CommonLayout>
         {/* <DashboardRoutes /> */}
@@ -212,7 +212,11 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : <Loader/>;
+  ) : <>
+    <CommonLayout>
+    </CommonLayout>
+    <Loader/>
+  </>;
 };
 
 export default RoutesComp;
