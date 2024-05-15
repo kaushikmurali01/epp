@@ -57,6 +57,8 @@ export const USER_MANAGEMENT = {
   GET_USER_DETAILS: "enerva-user/v1/user",
 
   EDIT_PROFILE: "/enerva-user/v1/users",
+
+  GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
 };
 
 export const ENERVA_USER_MANAGEMENT = {
