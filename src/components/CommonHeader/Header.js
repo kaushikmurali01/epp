@@ -19,17 +19,57 @@ import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
-import { FormControl, FormGroup, FormLabel, Link, Select } from "@mui/material";
+import { FormControl, FormGroup, FormLabel, Grid, Link, Modal, Select } from "@mui/material";
 import { GET_REQUEST } from "utils/HTTPRequests";
 import { useEffect, useState } from "react";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 
 const settings = ["Profile", "Logout"];
 
+export const InvitationList = ({company, role, date}) => {
+  return (
+    <Grid
+      sx={{
+        padding: "0.5rem",
+        borderRadius: "0.5rem",
+        border: "1px solid #cccccc50",
+        background: "#fff",
+        transition: "box-shadow 0.3s",
+        ":hover": {
+          boxShadow: "0 0 11px rgba(33,33,33,.2)",
+        }
+      }}
+    >
+      <Grid display="flex" justifyContent="space-between" alignItems={"center"}>
+        <Box>
+          <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
+            From company: <b>{company}</b>
+          </Typography>
+          <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
+            For role: <b>{role}</b>
+          </Typography>
+          <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
+            Invitation date: <b>{date}</b>
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Button>Accept</Button>
+          <Button sx={{ color: "danger.main" }}>Reject</Button>
+        </Box>
+      </Grid>
+    </Grid>
+  );
+};
+
 function Header(props) {
   const navigate = useNavigate()
   const [open, setOpen] = React.useState(false);
-  const {instance} = useMsal();
+  const { instance } = useMsal();
+  const [showInvitationPopup, setInvitationPopUp] = useState(false);
+  
+  const onClose = () => {
+    setInvitationPopUp(false);
+  };
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -230,6 +270,16 @@ function Header(props) {
                 alignItems: "flex-end",
               }}
             >
+              <Button
+                onClick={() => setInvitationPopUp(true)}
+                sx={{ minWidth: "auto !important", padding: "0 !important" }}
+              >
+                <img
+                  src="/images/icons/invitation.svg"
+                  alt="invitation"
+                  style={{ maxWidth: "70%" }}
+                />
+              </Button>
               {/* {companyList?.length > 0 && ( */}
               <FormGroup className="theme-form-group">
                 <FormLabel
@@ -247,7 +297,12 @@ function Header(props) {
                     value={selectCompany}
                     onChange={(e) => handleSelectChange(e)}
                     displayEmpty={true}
-                    sx={{ padding: 0, fontWeight: 600, background: "#F3FFF6", maxHeight: "2.25rem" }}
+                    sx={{
+                      padding: 0,
+                      fontWeight: 600,
+                      background: "#F3FFF6",
+                      maxHeight: "2.25rem",
+                    }}
                   >
                     {companyList.map((item) => {
                       return (
@@ -404,6 +459,54 @@ function Header(props) {
           )}
         </Toolbar>
       </Container>
+      <Modal
+        open={showInvitationPopup}
+        onClose={onClose}
+        aria-labelledby="invitation-modal"
+        aria-describedby="invitation-modal"
+        disableAutoFocus
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: "500px", md: "45rem" },
+            borderRadius: "2rem",
+            bgcolor: "#fff",
+            p: 4,
+            maxHeight: "70svh",
+            overflow: "auto",
+            display: "grid",
+            gap: "1.5rem",
+            "::-webkit-scrollbar": {
+              width: "5px",
+            },
+            "::-webkit-scrollbar-track": {
+              backgroundColor: "transparent",
+            },
+            "::-webkit-scrollbar-thumb": {
+              backgroundColor: "#348D3D60",
+              borderRadius: "1.375rem",
+              "&:hover": {
+                backgroundColor: "#348D3D",
+              },
+            },
+            "&:hover ::-webkit-scrollbar": {
+              display: "block",
+            },
+          }}
+          className={"modal-size"}
+        >
+          {/* Loop over the following list to show the list */}
+          <InvitationList
+            company={"algoworks"}
+            role={"super-admin"}
+            date={"today"}
+          />
+        </Box>
+      </Modal>
     </AppBar>
   );
 }
