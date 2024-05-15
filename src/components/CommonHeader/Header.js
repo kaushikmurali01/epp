@@ -94,8 +94,10 @@ function Header(props) {
   };
   
   useEffect(() => {
-    getCompanyListData();
-  }, []);
+    if(props.page == "authenticated" && localStorage.getItem("accessToken")){
+      getCompanyListData();
+    }
+  }, [props.page, localStorage.getItem("accessToken")]);
 
   const handleSelectChange = (event) => {
     const selectedCompanyId = event.target.value;
