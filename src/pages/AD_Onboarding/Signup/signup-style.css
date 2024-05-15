@@ -224,6 +224,10 @@ ul {
   color: #E93323;
 }
 
+.error {
+  color: #E93323;
+}
+
 .entry-item input,
 .attrEntry input,
 select {
