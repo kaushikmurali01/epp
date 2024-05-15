@@ -25,30 +25,34 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
     try {
         // Parse request data
         const data:any = await request.json();
-       // const data = JSON.parse(requestData.rawBody); 
+        context.log("data001", data);
+       
+      const ext = process.env.AD_EXTENSION;
         const userData = {
-            first_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_FirstName,
-            last_name:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
+            first_name: data[`extension_${ext}_FirstName`],
+            last_name:  data[`extension_${ext}_LastName`],
             email: data.email,
-            phonenumber: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessMobile,
-            landline: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_BusinessLandline,
-            type: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_UserType,
+            phonenumber: data[`extension_${ext}_BusinessMobile`],
+            landline: data[`extension_${ext}_BusinessLandline`] || null,
+            type: data[`extension_${ext}_UserType`],
             display_name: data.displayName
         }
+        //context.log("userData01",userData);
         const companyData = {
-            company_name: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_CompanyName,
-            company_description:  data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_LastName,
+            company_name: data[`extension_${ext}_CompanyName`],
+            company_description:  data[`extension_${ext}_CompanyName`] || null,
             address1: data.streetAddress,
             city: data.city,
             state: data.state,
-            source_of_discovery: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_Howdoyouhearaboutus,
-            website: data.extension_5d32203cb8d54cf0a859617d3a5a6d9c_WebsiteURL,
+            source_of_discovery: data[`extension_${ext}_Howdoyouhearaboutus`] || null,
+            website: data[`extension_${ext}_WebsiteURL`] || null,
             postal_code: data.postalCode,
             country: data.country
         }
+        //context.log("userData02",companyData);
 
         // Register user
-         const user = await UserController.registerUser(userData, companyData);
+         const user = await UserController.registerUser(userData, companyData, context);
        
         // Prepare response body
          const responseBody = JSON.stringify(user);
@@ -218,6 +222,41 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         }
 
         user.permissions = userPermissions;
+
+       user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(user);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+
+
+/**
+ * Retrieves data of current user.
+ * 
+ * @param request The HTTP request object containing user ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the user with the specified ID.
+ */
+export async function AcceptUserInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        // Middleware
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        context.log("middlewareResponse",resp);
+        
+        // Extract user ID from request
+        const requestData = await request.json(); 
+
+        // Get user by ID
+        const user = await UserInvitationService.acceptUserInvitation(requestData, resp);
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -423,9 +462,37 @@ export async function GetUserAndCompanyDetails(request: HttpRequest, context: In
         const { company_id} = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
        // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-       resp.id = 1;
+       //resp.id = 1;
         // Get all users
         const data = await UserService.GetUserAndCompanyDetails(resp.id, company_id);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(data);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
+ * Get Company List of User.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing list of companies of user.
+ */
+export async function GetUserCompanyDetail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { company_id} = request.params;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+      // resp.id = 1;
+        // Get all users
+        const data = await UserService.GetUserCompanyList(resp.id);
        
         // Prepare response body
         const responseBody = JSON.stringify(data);
@@ -533,4 +600,18 @@ app.http('GetUserAndCompanyDetails', {
     authLevel: 'anonymous',
     route: 'usercompany/{company_id}',
     handler: GetUserAndCompanyDetails
+});
+
+app.http('GetUserCompanyDetail', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'usercompanies',
+    handler: GetUserCompanyDetail
+});
+
+app.http('AcceptUserInvitation', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'acceptuserinvitation',
+    handler: AcceptUserInvitation
 });

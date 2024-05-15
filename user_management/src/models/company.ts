@@ -56,12 +56,8 @@ Company.init(
     },
     source_of_discovery: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Source of discovery is required.',
-        },
-      },
+      allowNull: true
+      
     },
     company_type: {
       type: DataTypes.INTEGER,
@@ -78,7 +74,7 @@ Company.init(
     },
     website: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
       // validate: {
       //   isUrl: {
       //     msg: 'Website must be a valid URL.',
@@ -87,12 +83,7 @@ Company.init(
     },
     address1: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Address line 1 is required.',
-        },
-      },
+      allowNull: true
     },
     address2: {
       type: DataTypes.STRING,
@@ -100,39 +91,19 @@ Company.init(
     },
     city: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'City is required.',
-        },
-      },
+      allowNull: true
     },
     state: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'State is required.',
-        },
-      },
+      allowNull: true
     },
     postal_code: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Postal code is required.',
-        },
-      },
+      allowNull: true
     },
     country: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Country is required.',
-        },
-      },
+      allowNull: true
     },
     total_facility: {
       type: DataTypes.INTEGER,

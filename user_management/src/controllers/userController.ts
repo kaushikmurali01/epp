@@ -16,24 +16,36 @@ class UserController {
      * @returns Promise<HttpResponse>
      * @description Handles the registration of a new user by extracting necessary data from the request body, invoking the UserService to register the user, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async registerUser(user: any, company:any): Promise<any> {
+    static async registerUser(user: any, company:any, context): Promise<any> {
       try {
         let companyData = null;
         let company_id = null;
+        let data;
           const userData = await UserService.registerUser(user);
+          context.log("company", company);
           if(userData.type == 2) {
             companyData = await CompanyService.createCompany(company);
-            company_id = companyData.id;
-          }
-          const data = {
-            "company_id": company_id,
+            if(!companyData) {
+              return { status: 400, body: { error: "No company created." } };
+            }
+            context.log("ccccc",companyData);
+           data = {
+            "company_id": companyData.dataValues.id,
             "role_id": 1,
             "user_id": userData.id
         };
-        await UserCompanyRole.create(data);
+       
+      } else {
+         data = {
+          "company_id": null,
+          "role_id": 1,
+          "user_id": userData.id
+      };
+      }
+      await UserCompanyRole.create(data);
           return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
       } catch (error) {
-          return { status: 500, body: { error: error.message } };
+          return { status: 400, body: { error: error.message } };
       }
     }
 

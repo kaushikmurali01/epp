@@ -521,13 +521,14 @@ export async function GetPermissionsByUserAdmin(request: HttpRequest, context: I
     try {
         // Extract role ID from request
         const user_id = parseInt(request.params.user_id);
-        //  const company_id = parseInt(request.params.company_id);
+        const type = parseInt(request.params.type);
+      //  const company_id = parseInt(request.params.company_id);
 
         // Get permissions by role ID
         const userInvitations = await UserInvitation.findAll({
             where: {
-                type: 1,
-                id: user_id
+              type: type,
+              id: user_id
             }
         });
 
@@ -596,7 +597,7 @@ app.http('GetAdmnPermissionsByRoleId', {
 });
 
 app.http('GetPermissionsByUserAdmin', {
-    route: 'program/user/permissions/{user_id}',
+    route: 'program/user/permissions/{user_id}/{type}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetPermissionsByUserAdmin

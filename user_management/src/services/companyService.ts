@@ -22,7 +22,8 @@ class CompanyService {
             //await testDatabaseConnection();
             console.log("companyDetails", companyDetails)
             const company = await Company.create(companyDetails);
-            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
+            return company;
+            //return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
         } catch (error) {
             throw new Error(`${error.message}`);
         }

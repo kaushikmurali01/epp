@@ -58,8 +58,7 @@ class RoleController {
      */
     static async listRoles(req: HttpRequest): Promise<Object> {
         try {
-            const searchPromt = req.query.get('search' || "");
-            const roles = await RoleService.listRoles(searchPromt);
+            const roles = await RoleService.listRoles();
             return { status: 200, body: roles };
         } catch (error) {
             return { status: 500, body: { error: error.message } };
