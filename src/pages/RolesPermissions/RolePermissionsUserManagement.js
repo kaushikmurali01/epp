@@ -19,7 +19,7 @@ const RolePermissionsUserManagement = () => {
     // tabs table data
     const [getRolesPermissions, setRolesPermissions] = useState([]);
 
-    const [getUserRole, setUserRole] = useState([...userTypes]);
+    const [getUserRole, setUserRole] = useState([]);
     const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
 
     const [selectRoleType, setSelectRoleType] = useState('');
@@ -104,11 +104,14 @@ const RolePermissionsUserManagement = () => {
     }
 
     const getUserRoleData = () => {
-        const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.USER_TYPES;
         GET_REQUEST(apiURL)
             .then((res) => {
                 console.log(res, "check result")
-                setUserRole(res.data?.body)
+                if(res.data instanceof Array){
+                    setUserRole(res.data)
+                }
+
             }).catch((error) => {
                 console.log(error)
             });
@@ -116,7 +119,7 @@ const RolePermissionsUserManagement = () => {
 
 
     useEffect(() => {
-        // getUserRoleData()
+        getUserRoleData()
     }, [])
 
     useEffect(() => {
@@ -125,6 +128,7 @@ const RolePermissionsUserManagement = () => {
     }, [])
 
 
+    console.log(getRolesPermissions, "getRolesPermissions")
 
     return (
         <React.Fragment>
@@ -164,11 +168,11 @@ const RolePermissionsUserManagement = () => {
                                             className="transparent-border"
                                         >
                                             <MenuItem value="" disabled>
-                                                User Type
+                                             <em> User Type </em>
                                             </MenuItem>
                                             {getUserRole?.map((item) => (
-                                                <MenuItem key={`${item.id}-${item.userType}`} value={item?.id}>
-                                                    {item?.userType}
+                                                <MenuItem key={`${item.id}-${item.user_type}`} value={item?.id}>
+                                                    {item?.user_type}
                                                 </MenuItem>
                                             ))}
                                         </Select>

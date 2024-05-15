@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
-import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -11,7 +11,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [roleName, setRoleName] = useState(selectTableRow?.rolename || '');
-    const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.user_type || '1');
+    const [selectRoleType, setSelectRoleType] = useState(isEdited ? (selectTableRow?.type || '2') : '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -54,7 +54,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     const getPermissionList = (permission_id) => {
         //check if we have type or not in page info, if we have type then it is user management admin page
-        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+        const apiURL =  ROLES_PERMISSIONS_MANAGEMENT.GET_ROLE_PERMISSIONS_BY_ID+'/'+permission_id+'/'+'2';
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -159,7 +159,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     }, [selectRoleType,]);
 
-    console.log(roleName,selectRoleType, 'invitePageInfo')
+    console.log(getUserRole, 'getUserRole')
 
     return (
         <Box component="section">
@@ -228,7 +228,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                                 // console.log(item, "Role Type");
 
                                                 return (
-                                                    <MenuItem key={`${item.id}_${item.userType}`} value={item?.id}>{item?.userType}</MenuItem>
+                                                    <MenuItem key={`${item.id}_${item.user_type}`} value={item?.id}>{item?.user_type}</MenuItem>
                                                 )
                                             })}
 
