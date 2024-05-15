@@ -25,6 +25,18 @@ img{
 button{
   border: transparent;
   background: transparent;
+  cursor: pointer;
+  background: #2E813E;
+}
+
+input[type="checkbox"]{
+  cursor: pointer;
+}
+
+.agreement {
+  text-decoration: none;
+  color: #2C77E9;
+  font-weight: 500;
 }
 
 .wrapper {
@@ -209,7 +221,7 @@ ul {
 }
 
 .attrEntry .error {
-  color: #d2691e;
+  color: #E93323;
 }
 
 .entry-item input,
@@ -220,6 +232,15 @@ select {
   border: 1px solid rgba(84, 88, 90, 0.40);
   background: #FFF;
   width: auto;
+  color: #242424;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+}
+
+select.dull{
+  color: #24242490;
 }
 
 .entry-item .password-label {
@@ -248,44 +269,18 @@ select {
   min-width: 10.3125rem;
   padding: 0.625rem;
   border-radius: 0.5rem;
-  background: #9E9D9D;
   color: #FFF;
   font-size: 1.125rem;
   font-weight: 600;
   line-height: normal;
 }
 
-.buttons button.success-btn{
-  background: #2E813E;
+.buttons button.grey-btn{
+  background: #9E9D9D;
 }
 
 .mt-2{
   margin-top: 2rem;
-}
-
-.profileImage_li{
-  position: absolute;
-  bottom: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  color: #54585A;
-    font-size: 0.875rem;
-    font-weight: 400;
-    line-height: normal;
-}
-
-.profileImage_li .profile_img{
-  width: 5.5rem;
-  height: 5.5rem;
-  border-radius: 100%;
-}
-
-.profileImage_li .delete_label{
-  display: flex;
-  gap: 4px;
-  align-items: flex-end;
-  color: #FF5858;
 }
 
 .secondary-header {
