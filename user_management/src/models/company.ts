@@ -19,6 +19,8 @@ interface CompanyAttributes {
   unit_number: string;
   street_number: string;
   street_name: string;
+  is_active: number;
+
 }
 
 interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> { }
@@ -41,6 +43,7 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public unit_number: string;
   public street_number: string;
   public street_name: string;
+  public is_active!: number
 
 }
 
@@ -140,6 +143,10 @@ Company.init(
       allowNull: true
     },
     information_commercial_accepted: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    is_active: {
       type: DataTypes.INTEGER,
       allowNull: true
     },
