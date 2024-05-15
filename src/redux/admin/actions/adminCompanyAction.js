@@ -1,7 +1,13 @@
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
-import { GET_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
+  adminCompanySendAlertFailure,
+  adminCompanySendAlertRequest,
+  adminCompanySendAlertSuccess,
+  adminCompanyUpdateStatusFailure,
+  adminCompanyUpdateStatusRequest,
+  adminCompanyUpdateStatusSuccess,
   fetchAdminCompanyDetailsFailure,
   fetchAdminCompanyDetailsRequest,
   fetchAdminCompanyDetailsSuccess,
@@ -42,6 +48,53 @@ export const fetchAdminCompanyDetails = (companyId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminCompanyDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminCompanySendAlert = (companyId, alertMessage) => {
+  console.log(companyId, alertMessage);
+  return async (dispatch) => {
+    try {
+      dispatch(adminCompanySendAlertRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.COMPANY_SEND_ALERT}/${companyId}`;
+      const response = await POST_REQUEST(endpointWithParams, alertMessage);
+      const data = response.data;
+      dispatch(adminCompanySendAlertSuccess(data));
+      NotificationsToast({
+        message: "Alert sent successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminCompanySendAlertFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminCompanyUpdateStatus = (companyId, newStatus) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminCompanyUpdateStatusRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.UPDATE_COMPANY_STATUS}/${companyId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, newStatus);
+      const data = response.data;
+      dispatch(adminCompanyUpdateStatusSuccess(data));
+      NotificationsToast({
+        message: "Status updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminCompanyUpdateStatusFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

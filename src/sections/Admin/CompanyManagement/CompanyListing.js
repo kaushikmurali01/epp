@@ -4,7 +4,9 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
   FormGroup,
+  FormLabel,
   Grid,
   MenuItem,
   Select,
@@ -12,16 +14,21 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { TextareaAutosize } from "@mui/base/TextareaAutosize";
 import { useDispatch, useSelector } from "react-redux";
-
+import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import EvModal from "utils/modal/EvModal";
-import { fetchAdminCompanyListing } from "../../../redux/admin/actions/adminCompanyAction";
+import {
+  adminCompanySendAlert,
+  adminCompanyUpdateStatus,
+  fetchAdminCompanyListing,
+} from "../../../redux/admin/actions/adminCompanyAction";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { format } from "date-fns";
 import { userTypes } from "constants/allDefault";
+import TextAreaField from "components/FormBuilder/TextAreaField";
+import { debounce } from "lodash";
 
 const CompanyListing = () => {
   const columns = [
@@ -124,12 +131,19 @@ const CompanyListing = () => {
   const companyCount = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.count || []
   );
-  console.log(companyListData);
+  const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchAdminCompanyListing(pageInfo, searchString));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminCompanyListing(pageInfo));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -161,11 +175,23 @@ const CompanyListing = () => {
     saveButtonAction: "",
   });
 
-  const CommentForm = () => {
+  const CommentForm = ({ companyId }) => {
     const initialValues = {
       comment: "",
     };
-    const formSubmit = (values) => {};
+    const validationSchemaSendAlert = Yup.object().shape({
+      comment: Yup.string().required("Comment is required"),
+    });
+    const formSubmit = (values) => {
+      dispatch(adminCompanySendAlert(companyId, values))
+        .then(() => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+        })
+        .catch((error) => {});
+    };
 
     return (
       <Formik
@@ -173,12 +199,13 @@ const CompanyListing = () => {
           ...initialValues,
         }}
         onSubmit={formSubmit}
+        validationSchema={validationSchemaSendAlert}
       >
         <Form>
           <Stack>
-            <Typography variant="small">Comment</Typography>
-            <textarea
+            <TextAreaField
               name="comment"
+              label="Comment"
               rowsMin={3}
               rowsMax={5}
               style={{ width: "85%", minHeight: "200px", padding: "5px" }}
@@ -194,13 +221,14 @@ const CompanyListing = () => {
     );
   };
 
-  const openRequestModal = () => {
+  const openRequestModal = (company_id) => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <CommentForm />,
+      modalBodyContent: <CommentForm companyId={company_id} />,
     }));
   };
+
   const [statusModalConfig, setStatusModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -217,8 +245,8 @@ const CompanyListing = () => {
       modalBodyContentStyle: "",
     },
     buttonsUI: {
-      saveButton: true,
-      cancelButton: true,
+      saveButton: false,
+      cancelButton: false,
       saveButtonName: "Yes",
       cancelButtonName: "No",
       saveButtonClass: "",
@@ -230,15 +258,39 @@ const CompanyListing = () => {
     saveButtonAction: "",
   });
 
-  const openStatusModal = () => {
+  const openStatusModal = (company_id, activity_status) => {
     setStatusModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <StatusChangeModalContent />,
+      modalBodyContent: (
+        <StatusChangeModalContent
+          companyId={company_id}
+          activityStatus={activity_status}
+        />
+      ),
     }));
   };
 
-  const StatusChangeModalContent = () => {
+  const StatusChangeModalContent = ({ companyId, activityStatus }) => {
+    const handleCStatusChange = () => {
+      const formdata = new FormData();
+      formdata.append("is_active", activityStatus === 1 ? 0 : 1);
+      console.log(formdata);
+      dispatch(adminCompanyUpdateStatus(companyId, formdata))
+        .then(() => {
+          setStatusModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+        })
+        .catch((error) => {});
+    };
+    const handleCloseButton = () => {
+      setStatusModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    };
     return (
       <Grid
         container
@@ -248,7 +300,7 @@ const CompanyListing = () => {
         sx={{ padding: { md: "0 5%" } }}
       >
         <Grid container sx={{ justifyContent: "center" }}>
-          {true ? (
+          {activityStatus === 1 ? (
             <figure>
               <img src="/images/statusChangeIcon.svg" alt="" />
             </figure>
@@ -260,8 +312,22 @@ const CompanyListing = () => {
         </Grid>
         <Grid container sx={{ justifyContent: "center" }}>
           <Typography variant="h4">
-            Are you sure you would like to Active Company Details?
+            {activityStatus === 1
+              ? "Are you sure you would like to deactivate the Company Details"
+              : "Are you sure you would like to Activate Company Details?"}
           </Typography>
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
+          <Button
+            onClick={handleCStatusChange}
+            sx={{ color: activityStatus === 1 ? "danger" : "primary" }}
+            variant="contained"
+          >
+            Yes
+          </Button>
+          <Button variant="contained" onClick={handleCloseButton}>
+            No
+          </Button>
         </Grid>
       </Grid>
     );
@@ -295,6 +361,8 @@ const CompanyListing = () => {
                 borderRadius: "6px",
               },
             }}
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
         <Grid
