@@ -114,7 +114,7 @@ function Header(props) {
     if (newlySelectedCompany) {
       setSelectCompany(newlySelectedCompany);
     } else {
-      setSelectCompany(userData.company_id);
+      setSelectCompany(userData?.company_id);
     };
   }, [userData]);
 
