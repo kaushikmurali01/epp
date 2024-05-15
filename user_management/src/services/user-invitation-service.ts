@@ -77,7 +77,7 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
   try {
    
     const invitationList:any = await UserInvitation.findAll({
-        where: { email: email },
+        where: { email: email, is_active: 1 },
         include: [
             {
                 model: Role,
@@ -122,6 +122,14 @@ static async acceptUserInvitation(detail, resp): Promise<Object> {
   });
 
   console.log("Listing",invitationList.dataValues.permissions);
+
+  await UserCompanyRole.destroy({
+    where: {
+        user_id: detail.user_id,
+        company_id: detail.company_id
+    }
+});
+
    
     await UserCompanyRole.create({
       user_id: detail.user_id,
@@ -130,6 +138,13 @@ static async acceptUserInvitation(detail, resp): Promise<Object> {
       is_active: 1, 
       status: 'accepted'
   });
+
+  await UserCompanyRolePermission.destroy({
+    where: {
+        user_id: detail.user_id,
+        company_id: detail.company_id
+    }
+});
 console.log("invitationPermissions",invitationList.permissions);
   for (const permission of invitationList.permissions) {
     await UserCompanyRolePermission.create({
@@ -139,6 +154,14 @@ console.log("invitationPermissions",invitationList.permissions);
         user_id: detail.user_id
     });
 }
+
+await UserInvitation.update({ is_active: 0 }, { where: { email: resp.email, company:detail.company_id } });
+if(detail.company_id) {
+await User.update({ type: 1 }, { where: { id: detail.user_id} });
+} else {
+  await User.update({ type: 2 }, { where: { id: detail.user_id} });
+}
+
 
 
 
