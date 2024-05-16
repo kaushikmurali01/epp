@@ -6,15 +6,23 @@ import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFac
 import Table from "components/Table";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
-const FacilityRejected = () => {
+const FacilityRejected = ({ searchVal }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchAdminFacilityListing(pageInfo, 6, searchString));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 6));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
