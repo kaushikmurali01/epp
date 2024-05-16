@@ -98,8 +98,16 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleSubmit = (values) => {
+    const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      if (typeof value === "string" && value.trim() === "") {
+        acc[key] = null;
+      } else {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
     const newValues = {
-      ...values,
+      ...updatedValues,
       meter_specification_url: imgUrl,
       facility_id: +id,
       meter_inactive: values?.stil_in_use
@@ -251,12 +259,12 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Still in use"
+                            label="Is meter still in use?"
                           />
                         )}
                       </Field>
                     }
-                    label="Still in use"
+                    label="Is meter still in use?"
                   />
                 </Grid>
               </Grid>

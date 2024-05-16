@@ -33,6 +33,7 @@ const AdminFacilityListing = () => {
     setTabValue(newValue);
   };
   const dispatch = useDispatch();
+  const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
 
   useEffect(() => {
@@ -128,15 +129,15 @@ const AdminFacilityListing = () => {
   const renderTabContent = () => {
     switch (tabValue) {
       case "overview":
-        return <FacilityOverview />;
+        return <FacilityOverview searchVal={searchString} />;
       case "created_facilities":
-        return <FacilityCreated />;
+        return <FacilityCreated searchVal={searchString} />;
       case "approved":
-        return <FacilityApproved />;
+        return <FacilityApproved searchVal={searchString} />;
       case "underreview":
-        return <FacilityReview />;
+        return <FacilityReview searchVal={searchString} />;
       case "rejected":
-        return <FacilityRejected />;
+        return <FacilityRejected searchVal={searchString} />;
       default:
         return null;
     }
@@ -170,6 +171,7 @@ const AdminFacilityListing = () => {
                 borderRadius: "6px",
               },
             }}
+            onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
         <Grid

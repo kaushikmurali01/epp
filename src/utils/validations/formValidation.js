@@ -78,7 +78,7 @@ export const validationSchemaLandingPageForm = Yup.object({
 });
 
 export const validationSchemaAlertPopUp = Yup.object({
-  comment: Yup.string().required("Please enter comment")
+  comment: Yup.string().required("Please enter comment"),
 });
 
 export const validationSchemaFacilitySummary = Yup.object().shape({
@@ -106,7 +106,6 @@ export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
   meter_id: Yup.string().required("Meter Id is required"),
-
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -138,8 +137,9 @@ export const validationSchemaProfileDetails = Yup.object().shape({
   postal_code: Yup.string().required("Postal Code/Zip Code is required"),
   country: Yup.string().required("Country is required"),
 });
+
 export const validationSchemaFacilityDetails = Yup.object().shape({
-  unique_features_that_impact_energy_usage: Yup.string().required(
+  unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
   space_cooling_fuel_source: Yup.string().required(
@@ -151,13 +151,64 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   space_heating_fuel_source: Yup.string().required(
     "Space heating fuel source is required"
   ),
-  // space_heating_technology: Yup.string().required(
-  //   "Space heating technology is required"
-  // ),
   water_heating_fuel_source: Yup.string().required(
     "Water heating fuel source is required"
   ),
   water_heating_technology: Yup.string().required(
     "Water heating technology is required"
+  ),
+  space_cooling_fuel_source_other: Yup.string().when(
+    "space_cooling_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space cooling fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_heating_fuel_source_other: Yup.string().when(
+    "space_heating_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space Heating fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  water_heating_fuel_source_other: Yup.string().when(
+    "water_heating_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Water Heating fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_cooling_technology_other: Yup.string().when(
+    "space_cooling_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space cooling technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  water_heating_technology_other: Yup.string().when(
+    "water_heating_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Water heating technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  is_lighting_controlled_for_occupancy: Yup.boolean().required(
+    "Is Lighting Controlled for Occupancy is required"
+  ),
+  is_space_heating_controlled_for_occupancy: Yup.boolean().required(
+    "Is Space Heating Controlled for Occupancy is required"
+  ),
+  is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
+    "Is Space Cooling Controlled for Occupancy is required"
   ),
 });

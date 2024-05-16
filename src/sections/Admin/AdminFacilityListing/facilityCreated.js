@@ -10,16 +10,24 @@ import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
-const FacilityCreated = () => {
+const FacilityCreated = ({ searchVal }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchAdminFacilityListing(pageInfo, 0, searchString));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 0));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []

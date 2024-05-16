@@ -5,14 +5,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import debounce from "lodash.debounce";
 
-const FacilityApproved = () => {
+const FacilityApproved = ({ searchVal }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchAdminFacilityListing(pageInfo, 5, searchString));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 5));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
