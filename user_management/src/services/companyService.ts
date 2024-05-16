@@ -76,8 +76,10 @@ class CompanyService {
                     [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
                 ]
             });
+
+            return adminUsers;
             // return adminUsers.dataValues;
-            return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
+           // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
         } catch (error) {
             throw new Error(`${error.message}`);
         }

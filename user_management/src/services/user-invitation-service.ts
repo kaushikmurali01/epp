@@ -47,16 +47,22 @@ class UserInvitationService {
         const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
         console.log("Existing User",existingUser);
-       // await CompanyService.getCompanyAdmin(resp.company_id);
+        let company;
+        details.company = 12;
+        if(details.company) {
+        company = await CompanyService.getCompanyAdmin(details.company);
+        console.log("Company111", company);
+        }
         let body:string, emailContent:string;
-        let inviteEmailContent = EmailContent.invitationEmailForExistingUser.content
-        .replace('#company#', "company name")
-        .replace('#admin#', 'Admin name');
+         let inviteEmailContent = EmailContent.invitationEmailForExistingUser.content
+         .replace('#company#', "company name")
+         .replace('#admin#', 'Admin name');
         if(existingUser) {
             emailContent =  template
            .replace('#name#', existingUser.first_name)
            .replace('#admin#', "Test Admin")
-           .replace('#content#', EmailContent.invitationEmailForExistingUser.content);
+           .replace('#heading#', '')
+           .replace('#content#', inviteEmailContent);
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
         } else {
            emailContent =  template
@@ -77,7 +83,7 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
   try {
    
     const invitationList:any = await UserInvitation.findAll({
-        where: { email: email },
+        where: { email: email, is_active: 1 },
         include: [
             {
                 model: Role,
@@ -99,6 +105,7 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
         role: invitation.Role.rolename,
         role_id: invitation.role,
         company_id: invitation.company,
+        createdAt: invitation.createdAt,
         user_id: user_id
     }));
 
@@ -114,14 +121,28 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
 }
 }
 
-static async acceptUserInvitation(detail, resp): Promise<Object> {
+static async acceptUserInvitation(detail, resp, context): Promise<Object> {
   try {
+
+    if(detail.type == 'rejected') {
+      await UserInvitation.update({ is_active: 0 }, { where: { email: resp.email, company:detail.company_id } });
+    } else {
 
     const invitationList:any = await UserInvitation.findOne({
       where: { email: resp.email }
   });
 
-  console.log("Listing",invitationList.dataValues.permissions);
+  context.log("Listing1234",invitationList);
+
+  context.log("Listing",invitationList.dataValues.permissions);
+
+  await UserCompanyRole.destroy({
+    where: {
+        user_id: detail.user_id,
+        company_id: detail.company_id
+    }
+});
+
    
     await UserCompanyRole.create({
       user_id: detail.user_id,
@@ -130,6 +151,13 @@ static async acceptUserInvitation(detail, resp): Promise<Object> {
       is_active: 1, 
       status: 'accepted'
   });
+
+  await UserCompanyRolePermission.destroy({
+    where: {
+        user_id: detail.user_id,
+        company_id: detail.company_id
+    }
+});
 console.log("invitationPermissions",invitationList.permissions);
   for (const permission of invitationList.permissions) {
     await UserCompanyRolePermission.create({
@@ -140,6 +168,14 @@ console.log("invitationPermissions",invitationList.permissions);
     });
 }
 
+await UserInvitation.update({ is_active: 0 }, { where: { email: resp.email, company:detail.company_id } });
+if(detail.company_id) {
+  await User.update({ type: 2 }, { where: { id: detail.user_id} });
+} else {
+  await User.update({ type: 1 }, { where: { id: detail.user_id} });
+}
+}
+
 
 
 return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
@@ -148,6 +184,7 @@ return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success }
 
    
 } catch (error) {
+  context.log("error", error);
     // Return error response
     return {
         status: 500, // Internal Server Error status code
