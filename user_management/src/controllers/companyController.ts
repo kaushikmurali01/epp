@@ -2,6 +2,7 @@ import { HttpRequest, HttpResponse } from "@azure/functions";
 import { CompanyService } from '../services/companyService';
 import { Email } from "../services/email";
 import { EmailContent } from "../utils/emailContent";
+import { EmailTemplate } from "../utils/emailTemplate";
 
 class CompanyController {
 
@@ -84,7 +85,14 @@ class CompanyController {
     static async sendAlertForCompany(requestData, companyId): Promise<any> {
         try {
             const company = await CompanyService.getCompanyAdmin(companyId);
-            Email.send(company?.data?.email, EmailContent.alertEmail.title, requestData.message);
+            let template = await EmailTemplate.getEmailTemplate();
+            let logo: any = EmailTemplate.getLogo();
+            if (!requestData.first_name) requestData.first_name = '';
+            template = template.replace('#heading#', 'Alert from admin')
+                .replace('#content#', requestData.message)
+                .replace('#name#', company?.data.first_name)
+                .replace('#logo#', logo);
+            Email.send(company?.data?.email, EmailContent.alertEmail.title, template);
             const resp = { status: 200, body: 'Alert Sent successfully' };
             return resp;
         } catch (error) {

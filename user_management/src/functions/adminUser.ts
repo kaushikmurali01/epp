@@ -11,6 +11,7 @@ import { Role } from "../models/role";
 import { sequelize } from "../services/database";
 import { UserInvitation } from "../models/user-invitation";
 import { Op } from "sequelize";
+import { UserResourceFacilityPermission } from "../models/user-resource-permission";
 
 /**
  * Registers a new user based on the provided request data.
@@ -522,13 +523,13 @@ export async function GetPermissionsByUserAdmin(request: HttpRequest, context: I
         // Extract role ID from request
         const user_id = parseInt(request.params.user_id);
         const type = parseInt(request.params.type);
-      //  const company_id = parseInt(request.params.company_id);
+        //  const company_id = parseInt(request.params.company_id);
 
         // Get permissions by role ID
         const userInvitations = await UserInvitation.findAll({
             where: {
-              type: type,
-              id: user_id
+                type: type,
+                id: user_id
             }
         });
 
@@ -543,11 +544,61 @@ export async function GetPermissionsByUserAdmin(request: HttpRequest, context: I
     }
 }
 
+
+/**
+ * Admin add resource permission.
+ * 
+ * @param request The HTTP request object containing role ID.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing permissions data.
+ */
+export async function AddResourceFacilityPermission(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Extract emails from request
+        const requestData: any = await request.json()
+        let emails = requestData.email.split(",")
+        let facilityId = requestData.facilityId
+        for (let i = 0; i < emails.length; i++) {
+            for (let j = 0; j < facilityId.length; j++) {
+                let alreadyCheck = await UserResourceFacilityPermission.findOne({
+                    where: {
+                        email: emails[i],
+                        facility_id: facilityId[j],
+                        resource_permission_id: 5,   // default for 5 for full crud operation
+                    }, attributes: ["id", "resource_permission_id", "email", "facility_id"]
+                })
+                if (!alreadyCheck && !alreadyCheck?.id) {
+                    await UserResourceFacilityPermission.create({
+                        email: emails[i],
+                        facility_id: facilityId[j],
+                        resource_permission_id: 5,
+                    })
+                }
+            }
+        }
+        // Prepare response body
+        const resp = { status: 200, body: 'Permission grant successfully' };
+        // Prepare response body
+        const responseBody = JSON.stringify(resp);
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 app.http('SendEnervaInvitation', {
     methods: ['POST'],
     authLevel: 'anonymous',
     route: 'program/send',
     handler: SendEnervaInvitation
+});
+app.http('AddResourceFacilityPermission', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'resource-permission/add',
+    handler: AddResourceFacilityPermission
 });
 
 app.http('GetEnervaUsers', {
