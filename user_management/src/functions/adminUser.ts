@@ -288,7 +288,8 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                 attributes: ["id", "email", "first_name", "last_name", "createdAt",
                     [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
                     [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
-                    [sequelize.col('UserCompanyRole.status'), 'status']
+                    [sequelize.col('UserCompanyRole.status'), 'status'],
+                    [sequelize.col('UserCompanyRole.company_id'), 'company_id']
                 ],
             }),
             UserInvitation.findAndCountAll({

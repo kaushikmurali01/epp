@@ -256,7 +256,7 @@ export async function AcceptUserInvitation(request: HttpRequest, context: Invoca
         const requestData = await request.json(); 
 
         // Get user by ID
-        const user = await UserInvitationService.acceptUserInvitation(requestData, resp);
+        const user = await UserInvitationService.acceptUserInvitation(requestData, resp, context);
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -389,11 +389,32 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
 export async function GetCombinedUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { offset, limit, company} = request.params;
+        const { offset, limit, entrytype} = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
-        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id);
+        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id, entrytype);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(users);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function GetFilteredUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { offset, limit, entrytype} = request.params;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        resp.company_id = 22;
+        if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        // Get all users
+        const users = await UserController.getFilteredUsers(offset, limit, resp.company_id, entrytype);
        
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -477,6 +498,27 @@ export async function GetUserAndCompanyDetails(request: HttpRequest, context: In
     }
 }
 
+export async function GetUserAndCompanyDetailsByUserId(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { company_id, user_id} = request.params;
+      //  const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+       //resp.id = 1;
+        // Get all users
+        const data = await UserService.GetUserAndCompanyDetails(user_id, company_id);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(data);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 /**
  * Get Company List of User.
  * 
@@ -528,8 +570,15 @@ app.http('CreateUserRequest', {
 app.http('GetCombinedUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'combinedusers/{offset}/{limit}/{company}',
+    route: 'combinedusers/{offset}/{limit}/{entrytype}',
     handler: GetCombinedUsers
+});
+
+app.http('GetFilteredUsers', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'filteredusers/{offset}/{limit}/{entrytype}',
+    handler: GetFilteredUsers
 });
 
 app.http('GetUserInvitationList', {
@@ -600,6 +649,13 @@ app.http('GetUserAndCompanyDetails', {
     authLevel: 'anonymous',
     route: 'usercompany/{company_id}',
     handler: GetUserAndCompanyDetails
+});
+
+app.http('GetUserAndCompanyDetailsByUserId', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'usercompanybyuser/{company_id}/{user_id}',
+    handler: GetUserAndCompanyDetailsByUserId
 });
 
 app.http('GetUserCompanyDetail', {

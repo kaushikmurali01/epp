@@ -131,9 +131,24 @@ class UserController {
    * @returns Promise<any> - A promise resolving to an HTTP response.
    * @description Handles the retrieval of all users by invoking the UserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
    */
-   static async getCombinedUsers(offset, limit, company): Promise<any> {
+   static async getCombinedUsers(offset, limit, company, entrytype): Promise<any> {
     try {
-      const data = await UserService.getCombinedUsers(offset, limit, company);
+      const data = await UserService.getCombinedUsers(offset, limit, company, entrytype);
+      return {
+        status: 200, // OK status code
+        body: data 
+      };
+    } catch (error) {
+      return {
+        status: 500, // Internal Server Error status code
+        body: { error: error.message }
+      };
+    }
+  }
+
+  static async getFilteredUsers(offset, limit, company, entrytype): Promise<any> {
+    try {
+      const data = await UserService.getFilteredUsers(offset, limit, company, entrytype);
       return {
         status: 200, // OK status code
         body: data 
