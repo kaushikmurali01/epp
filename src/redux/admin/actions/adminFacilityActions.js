@@ -33,7 +33,7 @@ import {
   updateAdminFacilityStatusFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
-export const fetchAdminFacilityListing = (pageInfo, status) => {
+export const fetchAdminFacilityListing = (pageInfo, status, search = "") => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminFacilityListRequest());
@@ -41,7 +41,7 @@ export const fetchAdminFacilityListing = (pageInfo, status) => {
         adminFacilityEndpoints.ADMIN_FACILITY_LIST
       }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
         pageInfo.pageSize
-      }?status=${status}`;
+      }?status=${status}&search=${search}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));
