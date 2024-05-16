@@ -61,6 +61,7 @@ export const USER_MANAGEMENT = {
   EDIT_PROFILE: "/enerva-user/v1/users",
 
   GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
+  ACCEPT_REJECT_INVITE: 'enerva-user/v1/acceptuserinvitation',
 };
 
 export const ENERVA_USER_MANAGEMENT = {

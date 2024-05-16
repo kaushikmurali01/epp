@@ -25,30 +25,32 @@ const TabsSection = (props) => {
     setActiveStep(0);
   };
 
-  const [tabsToShow, setTabsToShow] = useState([{
+  const defaultTabValue = {
     label: "Dashboard",
     route:'/facility-dashboard'
-  }])
-
-   const checkIfUrlInTabRoute = () => {
-    const pathName = location.pathname;
-    let parts = pathName.split("/");
-    let firstUrlPathAfter = '/'
-
-    if (parts.length > 1) {
-        let firstAfterSlash = parts[1];
-        firstUrlPathAfter = `/${firstAfterSlash}`
-    }
-
-    let a = tabsToShow?.some(obj => Object.values(obj).includes(firstUrlPathAfter));
-    const index = tabsToShow.findIndex(obj => Object.values(obj).includes(firstUrlPathAfter));
-    setTabValue(index);
   }
+
+  const [tabsToShow, setTabsToShow] = useState([defaultTabValue])
+
+  const checkIfUrlInTabRoute = () => {
+  const pathName = location.pathname;
+  let parts = pathName.split("/");
+  let firstUrlPathAfter = '/'
+
+  if (parts.length > 1) {
+      let firstAfterSlash = parts[1];
+      firstUrlPathAfter = `/${firstAfterSlash}`
+  }
+
+  let a = tabsToShow?.some(obj => Object.values(obj).includes(firstUrlPathAfter));
+  const index = tabsToShow.findIndex(obj => Object.values(obj).includes(firstUrlPathAfter));
+  setTabValue(index);
+}
 
   useEffect(() => {
     
       let tabForUser = tabsData(userDetails?.type, userDetails?.rolename, userPermissions )
-      let tabs = [...tabsToShow, ...tabForUser];
+      let tabs = [defaultTabValue, ...tabForUser];
       setTabsToShow(tabs);
   }, [userData])
 
