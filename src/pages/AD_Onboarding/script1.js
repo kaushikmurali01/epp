@@ -88,13 +88,13 @@ function showForm(userRole) {
 
     // Set default value for only the specific input fields in the form
     document.getElementById("extension_BusinessLandline").value = 123;
-    document.getElementById("extension_UnitNumber").value = 123;
+    document.getElementById("extension_UnitNumber").value = "default";
     document.getElementById("extension_CompanyName").value = "default";
-    document.getElementById("extension_StreetNo").value = "default";
+    document.getElementById("extension_StreetNo").value = 123;
     document.getElementById("streetAddress").value = "default";
     document.getElementById("city").value = "default";
     document.getElementById("state").value = "default";
-    document.getElementById("postalCode").value = "default";
+    document.getElementById("postalCode").value = "A1A1A1";
     // Set default value for country select
     document.getElementById("country").value = "Canada";
 
@@ -292,6 +292,12 @@ const businessMobileInput = document.getElementById("extension_BusinessMobile");
 const postalCodeInput = document.getElementById("postalCode");
 const streetNoInput = document.getElementById("extension_StreetNo");
 
+// Add an event listener for the "input" event
+postalCodeInput.addEventListener('input', function(event) {
+    // Convert the value to uppercase
+    event.target.value = event.target.value.toUpperCase();
+});
+
 function setInputAttributes() {
   if (businessLandlineInput) {
     businessLandlineInput.setAttribute("pattern", "^[0-9]*$");
@@ -307,7 +313,7 @@ function setInputAttributes() {
     postalCodeInput.setAttribute("maxlength", "6");
     postalCodeInput.setAttribute(
       "pattern",
-      "/^[ABCEGHJ-NPRSTVXY]d[ABCEGHJ-NPRSTV-Z][ -]?d[ABCEGHJ-NPRSTV-Z]d$/i"
+      "^[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z][ -]?\\d[ABCEGHJ-NPRSTV-Z]\\d$"
     );
   }
 
