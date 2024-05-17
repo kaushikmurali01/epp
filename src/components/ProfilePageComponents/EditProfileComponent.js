@@ -2,7 +2,7 @@ import React from 'react';
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { validationSchemaProfileDetails } from "utils/validations/formValidation";
+import { validationSchemaUserProfile, validationSchemaPUserCompanyrofileDetails } from "utils/validations/formValidation";
 import { Box, Grid, Typography } from '@mui/material';
 
 const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
@@ -10,7 +10,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
     <Grid marginBlockStart={"3.25rem"} gap={"3.25rem"}>
       <Formik
         initialValues={{ ...initialValues }}
-        validationSchema={validationSchemaProfileDetails}
+        validationSchema={initialValues?.type == 2 && initialValues.rolename == "SuperAdmin" ? validationSchemaPUserCompanyrofileDetails : validationSchemaUserProfile}
         enableReinitialize={true}
         onSubmit={handleSubmit}
       >
@@ -45,7 +45,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
             </Grid>
           </Grid>
 
-          <Grid>
+          {initialValues.type == 2 && initialValues.rolename == "Super-Admin" ? <Grid>
             <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
               Company details
             </Typography>
@@ -115,7 +115,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
                 />
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> : null}
           <Box mt={6} rowGap={4}>
             <ButtonWrapper
               type="submit"

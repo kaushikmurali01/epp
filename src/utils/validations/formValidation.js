@@ -119,7 +119,15 @@ export const validationSchemaEntry = Yup.object().shape({
 
 export default validationSchemaAddMeter;
 
-export const validationSchemaProfileDetails = Yup.object().shape({
+export const validationSchemaUserProfile = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+  last_name: Yup.string().required("Last Name is required"),
+  // businessLandline: Yup.string().required("Business Landline is required"),
+  phonenumber: Yup.string().required("Business Mobile is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+});
+
+export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   first_name: Yup.string().required("First Name is required"),
   last_name: Yup.string().required("Last Name is required"),
   // businessLandline: Yup.string().required("Business Landline is required"),
