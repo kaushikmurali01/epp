@@ -1,8 +1,8 @@
-import React, { useEffect,useContext, useMemo, useState } from 'react';
+import React, { useEffect, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Table from 'components/Table';
-import { Box, Button, Container, FormControl, FormGroup, Grid, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import EvModal from 'utils/modal/EvModal';
 import SelectBox from 'components/FormBuilder/Select';
 import { Form, Formik } from 'formik';
@@ -18,7 +18,7 @@ const UserManagement = () => {
   const navigate = useNavigate();
   const { showSnackbar } = useContext(SnackbarContext);
   // pull functions from user management..
-  const {USER_MANAGEMENT_COLUMN_ACTION} = UserManagementColumn();
+  const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
 
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
@@ -28,6 +28,7 @@ const UserManagement = () => {
   const [selectTableRow, setSelectTableRow] = useState({});
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
+  const [selectFilterType, setSelectFilterType] = useState('0');
   // for pagination
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [pageCount, setPageCount] = useState('');
@@ -63,8 +64,8 @@ const UserManagement = () => {
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
     getUserManagementData();
-};
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  };
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
     company: '',
@@ -74,8 +75,10 @@ const UserManagement = () => {
 
 
 
- 
-  
+
+  const handleSelectChange = (event) => {
+    setSelectFilterType(event.target.value);
+  };
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
@@ -88,26 +91,26 @@ const UserManagement = () => {
         "company_id": data.company.toString(),
         "role": data.role.toString(),
         "user_id": "1"
-    }
+      }
 
-   
-    POST_REQUEST(apiURL, requestBody)
-    .then((response) => {
-      handleAPISuccessCallBack();
-        NotificationsToast({ message: "Your form has been submitted!", type: "success" });
-        setModalConfig((prevState) => ({
-          ...prevState,
-          modalVisible: false,
-          modalBodyContent: ''
-        }));
-        
-    })
-    .catch((error) => {
-        console.log(error, 'error')
-        NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-       
 
-    })
+      POST_REQUEST(apiURL, requestBody)
+        .then((response) => {
+          handleAPISuccessCallBack();
+          NotificationsToast({ message: "Your form has been submitted!", type: "success" });
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+            modalBodyContent: ''
+          }));
+
+        })
+        .catch((error) => {
+          console.log(error, 'error')
+          NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+
+        })
 
     }
 
@@ -150,137 +153,199 @@ const UserManagement = () => {
     }));
   }
 
+  const filterByData = [
+    {
+     label: 'All User',
+     id: '0',
+     defaultSelected: true,
+    },
+    {
+      label: 'Invitation sent',
+      id: '1',
+      defaultSelected: false,
+     },
+     {
+      label: 'Request sent',
+      id: '2',
+      defaultSelected: false,
+     }
+  ]
+
   const handelInviteUser = () => {
     const apiURL = USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
-    setVisibleInvitePage(true); 
-    setSelectTableRow({}); 
-    setInvitePageInfo({title:'Invite user and set permissions', type: null }) 
+    setVisibleInvitePage(true);
+    setSelectTableRow({});
+    setInvitePageInfo({ title: 'Invite user and set permissions', type: null })
     setInviteAPIURL(apiURL)
   }
 
   const getUserManagementData = () => {
-    // const apiURL = "https://enervauser.azurewebsites.net/api/combinedusers/0/100/1"
-    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${
-      (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}/1`;
-    // const apiURL = USER_MANAGEMENT.GET_USER_LIST+'/0/100/1';
-    GET_REQUEST(apiURL)
+    
+    // const allUserTypes = selectFilterType;
+    const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}/${selectFilterType}`;
+
+    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageInfo.page - 1) * pageInfo.pageSize
+      }/${pageInfo.pageSize}/${selectFilterType}`;
+      
+      const getAPI_Data = (url)=> {
+        GET_REQUEST(url)
         .then((res) => {
           // setAllUser(res.data?.body)
-          if(res.data?.body?.rows instanceof Array){
+          if (res.data?.body?.rows instanceof Array) {
             setAllUser(res.data?.body?.rows)
             setPageCount(res.data?.body?.count)
+          } else {
+            setAllUser([])
+            setPageCount(0)
           }
         }).catch((error) => {
-            console.log(error)
+          console.log(error)
         });
-}
+      }
+      
+      if(selectFilterType !== '0'){
+        getAPI_Data(filterApiURL)
+      } else {
+        getAPI_Data(apiURL)
+      }
 
-const getUserRoleData = () => {
-  const apiURL = USER_MANAGEMENT.GET_USER_ROLE
-  GET_REQUEST(apiURL)
+      
+    
+  }
+
+  const getUserRoleData = () => {
+
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+    GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
       }).catch((error) => {
-          console.log(error)
+        console.log(error)
       });
-}
+  }
 
-const getComapanyListData = () => {
-  const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
-  GET_REQUEST(apiURL)
+  const getComapanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
+    GET_REQUEST(apiURL)
       .then((res) => {
         setCompanyList(res.data)
       }).catch((error) => {
-          console.log(error)
+        console.log(error)
       });
-}
+  }
 
-useEffect(() => {
-  getUserManagementData();
-  getUserRoleData()
-  getComapanyListData()
-}, [])
-  
+  useEffect(() => {
+    
+    getUserManagementData();
+   
+  }, [selectFilterType])
+
+  useEffect(() => {
+    getUserRoleData()
+    getComapanyListData()
+  }, [])
+
+  console.log(selectFilterType, "selectFilterType")
 
   return (
     <React.Fragment>
-      {isVisibleInvitePage ? 
-        <InviteUser 
-        getUserRole={getUserRole} 
-        setVisibleInvitePage={setVisibleInvitePage} 
-        isVisibleInvitePage={isVisibleInvitePage}
-        invitePageInfo={invitePageInfo} 
-        handleAPISuccessCallBack={handleAPISuccessCallBack} 
-        selectTableRow={selectTableRow}
-        inviteAPIURL={inviteAPIURL}
-        /> : 
-        
-          <Box component="section">
-            <Container maxWidth="lg">
-              <Grid container sx={{ justifyContent: 'space-between' }} >
-                <Grid item xs={12} md={4} >
-                  <Typography variant='h4'>User Management</Typography>
-                </Grid>
-                <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
-                  <FormGroup sx={{ flexGrow: '1' }}>
-                    <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
-                      <TextField
-                        placeholder="Search"
-                        inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
-                      />
-                    </FormControl>
-                  </FormGroup>
+      {isVisibleInvitePage ?
+        <InviteUser
+          getUserRole={getUserRole}
+          setVisibleInvitePage={setVisibleInvitePage}
+          isVisibleInvitePage={isVisibleInvitePage}
+          invitePageInfo={invitePageInfo}
+          handleAPISuccessCallBack={handleAPISuccessCallBack}
+          selectTableRow={selectTableRow}
+          inviteAPIURL={inviteAPIURL}
+        /> :
 
-                  <Button
-                    color="primary"
-                    variant="contained"
-                    sx={{ alignSelf: 'center' }}
-                    onClick={() => handelInviteUser()}
-                  >
-                    Invite User
-                  </Button>
-                </Grid>
+        <Box component="section">
+          <Container maxWidth="lg">
+            <Grid container sx={{ justifyContent: 'space-between' }} >
+              <Grid item xs={12} md={4} >
+                <Typography variant='h4'>User Management</Typography>
+              </Grid>
+              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+                <FormGroup className="theme-form-group theme-select-form-group" >
+                
+                  <FormControl sx={{ minWidth: '6rem' }}>
+                    <Select
+                      value={selectFilterType}
+                      onChange={(e) => handleSelectChange(e)}
+                      displayEmpty={true}
+                      className="transparent-border"
+                    >
+                      <MenuItem value="" disabled>
+                        Filter By 
+                      </MenuItem>
+                      {filterByData?.map((item) => (
+                        <MenuItem key={`${item.id}`} value={item?.id}>
+                          {item?.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </FormGroup>
+                <FormGroup >
+                  <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                    <TextField
+                      placeholder="Search"
+                      inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                    />
+                  </FormControl>
+                </FormGroup>
 
+                <Button
+                  color="primary"
+                  variant="contained"
+                  sx={{ alignSelf: 'center' }}
+                  onClick={() => handelInviteUser()}
+                >
+                  Invite User
+                </Button>
               </Grid>
 
-              <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-                <Grid item xs={6}  >
-                  <Tabs
-                    className='theme-tabs-list'
-                    value={tabValue}
-                    onChange={handleChange}
-                    sx={{ display: 'inline-flex' }}
+            </Grid>
+
+            <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
+              <Grid item xs={6}  >
+                <Tabs
+                  className='theme-tabs-list'
+                  value={tabValue}
+                  onChange={handleChange}
+                  sx={{ display: 'inline-flex' }}
 
 
-                  >
-                    <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
-                    {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
+                >
+                  <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
+                  {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
                     <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
-                  </Tabs>
-                </Grid>
-                <Grid item sx={{ justifySelf: 'flex-end' }}>
-                  <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                    Request to join other company
-                  </Typography>
-                </Grid>
+                </Tabs>
               </Grid>
-
-              <Grid container>
-               {getAllUser &&  <Table 
-               columns={columns} data={getAllUser || []} 
-               count={pageCount}
-               pageInfo={pageInfo}
-               setPageInfo={setPageInfo}
-               headbgColor="rgba(217, 217, 217, 0.2)" /> }
+              <Grid item sx={{ justifySelf: 'flex-end' }}>
+                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
+                  Request to join other company
+                </Typography>
               </Grid>
-            </Container>
+            </Grid>
 
-            <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-          </Box >
+            <Grid container>
+              {getAllUser && <Table
+                columns={columns} data={getAllUser || []}
+                count={pageCount}
+                pageInfo={pageInfo}
+                setPageInfo={setPageInfo}
+                headbgColor="rgba(217, 217, 217, 0.2)" />}
+            </Grid>
+          </Container>
+
+          <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+        </Box >
       }
-    
-     </React.Fragment>
+
+    </React.Fragment>
   )
 }
 
