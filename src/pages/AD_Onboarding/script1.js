@@ -1,6 +1,6 @@
 function showForm(userRole) {
   if (userRole === "super_administrator") {
-    resetForm();
+    // resetForm();
     // Target the label element and reset its text content
     let labelElement = document.getElementById(
       "extension_BusinessMobile_label"
@@ -83,7 +83,7 @@ function showForm(userRole) {
     document.getElementById("cancel").classList.add("hidden");
     document.getElementById("next").classList.remove("hidden");
   } else if (userRole === "individual") {
-    resetForm();
+    // resetForm();
     document.getElementById("extension_UserType_3").click();
 
     // Set default value for only the specific input fields in the form
@@ -293,9 +293,9 @@ const postalCodeInput = document.getElementById("postalCode");
 const streetNoInput = document.getElementById("extension_StreetNo");
 
 // Add an event listener for the "input" event
-postalCodeInput.addEventListener('input', function(event) {
-    // Convert the value to uppercase
-    event.target.value = event.target.value.toUpperCase();
+postalCodeInput.addEventListener("input", function (event) {
+  // Convert the value to uppercase
+  event.target.value = event.target.value.toUpperCase();
 });
 
 function setInputAttributes() {
@@ -368,7 +368,6 @@ restrictToDigits(businessMobileInput);
 restrictToDigits(streetNoInput);
 restrictToAlphanumerics(postalCodeInput);
 
-
 // extract the data form the URL and Prefill the input fields function call on Load
 // window.onload = function () {
 //   // Extract parameters from URL
@@ -419,10 +418,136 @@ linkElement.textContent = agreementWord;
 linkElement.setAttribute("target", "_blank");
 
 // Replace the exact occurrence of the word with the new <a> element
-existingLabel.innerHTML = labelText.replace(agreementWord, linkElement.outerHTML);
-
+existingLabel.innerHTML = labelText.replace(
+  agreementWord,
+  linkElement.outerHTML
+);
 
 // Show Super Administrator Form by default
 showForm("super_administrator");
 document.querySelector(".extension_UserType_li").classList.add("hidden");
 document.getElementById("cancel").classList.add("grey-btn");
+
+// Get a reference to the Company Name input field
+const companyNameInput = document.getElementById("extension_CompanyName");
+
+// Add an event listener for the input event
+companyNameInput.addEventListener("input", debounce(checkCompanyName, 500));
+
+// Debounce function to limit the rate of API calls
+function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+}
+
+// Function to check if the company name already exists
+function checkCompanyName() {
+  const companyName = companyNameInput.value.trim();
+
+  // Make sure the input field is not empty
+  if (companyName) {
+    // Construct the API URL
+    const apiUrl = `https://ams-enerva-dev.azure-api.net/public-api/v1/check/company/${companyName}`;
+
+    // Send the API request
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        // Check the response status and exists property
+        if (data.status === 200 && data.exists) {
+          // Company name already exists, you can show an error message here
+          showPopup();
+          //showErrorMessage('Company name already exists');
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle any errors that occur during the API call
+      });
+  } else {
+    // Remove any existing error message if the input field is empty
+    removeErrorMessage();
+  }
+}
+
+// Function to show an error message
+function showErrorMessage(message, cls = ".extension_CompanyName_li") {
+  // You can display the error message in the desired way
+  // For example, you can use the provided error div with the class "error itemLevel"
+  const companyli = document.querySelector(cls);
+  const errorDiv = companyli.querySelector(".error.itemLevel");
+  errorDiv.textContent = message;
+  errorDiv.style.display = "block";
+}
+
+// Function to remove any existing error message
+function removeErrorMessage(cls = ".extension_CompanyName_li") {
+  const companyli = document.querySelector(cls);
+  const errorDiv = companyli.querySelector(".error.itemLevel");
+  errorDiv.textContent = "";
+  errorDiv.style.display = "none";
+}
+function showPopup() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // Dark background color
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.zIndex = "9999";
+
+  const popup = document.createElement("div");
+  popup.style.backgroundColor = "white";
+  popup.style.padding = "20px";
+  popup.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+  popup.style.borderRadius = "1rem";
+  popup.style.maxWidth = "53rem";
+
+  const heading = document.createElement("h2");
+  heading.textContent = "The company already exists.";
+  const p1 = document.createElement("p");
+  p1.textContent = `Do you want to create a new company?`;
+  const p2 = document.createElement("i");
+  p2.textContent = `Click 'Yes' to proceed or Click 'No' to sign up as an individual user and join the existing company.`;
+  popup.appendChild(heading);
+  popup.appendChild(p1);
+  popup.appendChild(p2);
+
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.classList.add("buttons");
+  buttonsContainer.style.display = "flex";
+  buttonsContainer.style.justifyContent = "center";
+  buttonsContainer.style.marginTop = "20px";
+
+  const yesButton = document.createElement("button");
+  yesButton.textContent = "Yes";
+  yesButton.style.marginRight = "40px";
+  yesButton.addEventListener("click", () => {
+    // Enable the Create button and remove the popup
+    document.body.removeChild(overlay);
+  });
+  buttonsContainer.appendChild(yesButton);
+
+  const noButton = document.createElement("button");
+  noButton.textContent = "No";
+  noButton.addEventListener("click", () => {
+    // Disable the Create button and remove the popup
+    //createButton.disabled = true;
+    showForm("individual");
+    document.body.removeChild(overlay);
+  });
+  buttonsContainer.appendChild(noButton);
+
+  popup.appendChild(buttonsContainer);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+}
