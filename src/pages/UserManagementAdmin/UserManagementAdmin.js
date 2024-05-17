@@ -7,8 +7,8 @@ import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuI
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { GET_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
-
-
+import ClearIcon from '@mui/icons-material/Clear';
+import debounce from "lodash.debounce";
 
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
 import InviteUser from 'pages/UserManagement/InviteUser';
@@ -25,6 +25,7 @@ const UserManagementAdmin = () => {
   const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
 
   // tabs table data
+  const [searchString, setSearchString] = useState("");
   const [getEnervaUser, setEnervaUser] = useState([]);
   const [getIesoUser, setIesoUser] = useState([]);
   const [getCustomerUser, setCustomerUser] = useState([]);
@@ -42,9 +43,9 @@ const UserManagementAdmin = () => {
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
-    getEnervaUserManagementData();
-    getIESOUserManagementData();
-    getCustomerUserManagementData();
+    getEnervaUserManagementData(enervaPageInfo, searchString);
+    getIESOUserManagementData(iesoPageInfo, searchString);
+    getCustomerUserManagementData(customerPageInfo, searchString);
     // getAggregatorUserManagementData();
   };
   const initialValues = {
@@ -106,6 +107,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   const handleChange = (event, newValue) => {
+    setSearchString('');
     setTabValue(newValue);
   };
 
@@ -179,11 +181,12 @@ const defaultPagination = { page: 1, pageSize: 10 }
 }
 
 
-  const getEnervaUserManagementData = () => {
+
+
+  const getEnervaUserManagementData = (pageInfo,search) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
-      (enervaPageInfo.page - 1) * enervaPageInfo.pageSize
-    }/${enervaPageInfo.pageSize}`;
-    // const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}`;
     GET_REQUEST(apiURL)
       .then((res) => {       
         if(res.data?.body?.rows instanceof Array){
@@ -198,10 +201,11 @@ const defaultPagination = { page: 1, pageSize: 10 }
         console.log(error)
       });
   }
-  const getIESOUserManagementData = () => {
+
+  const getIESOUserManagementData = (pageInfo,search) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
-      (iesoPageInfo.page - 1) * iesoPageInfo.pageSize
-    }/${iesoPageInfo.pageSize}`;
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -216,10 +220,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
         console.log(error)
       });
   }
-  const getCustomerUserManagementData = () => {
+  const getCustomerUserManagementData = (pageInfo,search) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
-      (customerPageInfo.page - 1) * customerPageInfo.pageSize
-    }/${customerPageInfo.pageSize}`;
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -272,21 +276,76 @@ const defaultPagination = { page: 1, pageSize: 10 }
     getUserRoleData()
   }, [])
 
+
+// search implementation
+  // const enervaDebouncedSearch = debounce((pageInfo, searchString) => {
+  //   getEnervaUserManagementData(pageInfo, searchString);
+  // }, 300);
+
+  // const iesoDebouncedSearch = debounce((pageInfo, searchString) => {
+  //   getIESOUserManagementData(pageInfo, searchString);
+  // }, 300);
+
+  // const customerDebouncedSearch = debounce((pageInfo, searchString) => {
+  //   getIESOUserManagementData(pageInfo, searchString);
+  // }, 300);
+
+
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    console.log(searchString, tabValue, "checking data...");
+    if(tabValue === 'enervaUsers' && searchString?.length > 0) {
+      getEnervaUserManagementData(pageInfo, searchString);
+    }else if(tabValue === 'iesoUsers' && searchString?.length > 0) {
+      getIESOUserManagementData(pageInfo, searchString);
+    }else if(tabValue === 'customerUsers' && searchString?.length > 0) {
+      getCustomerUserManagementData(pageInfo, searchString);
+    }
+   
+
+  }, 300);
+
+  
   useEffect(() => {
-    // load all default function on page load
-      getEnervaUserManagementData();
-  }, [enervaPageInfo])
+    debouncedSearch(enervaPageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  useEffect(() => {
+    debouncedSearch(iesoPageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [iesoPageInfo.page, iesoPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  useEffect(() => {
+    debouncedSearch(customerPageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType]);
+  
 
   useEffect(() => {
     // load all default function on page load
-      getIESOUserManagementData();
+    getEnervaUserManagementData(enervaPageInfo, searchString);
+    getIESOUserManagementData(iesoPageInfo, searchString);
+    getCustomerUserManagementData(customerPageInfo, searchString);
+  }, [])
 
-  }, [iesoPageInfo])
+  // useEffect(() => {
+  //   // load all default function on page load
+  //     getIESOUserManagementData();
 
-  useEffect(() => {
-    // load all default function on page load
-      getCustomerUserManagementData();
-  }, [customerPageInfo])
+  // }, [iesoPageInfo])
+
+  // useEffect(() => {
+  //   // load all default function on page load
+  //     getCustomerUserManagementData();
+  // }, [customerPageInfo])
 
 
 
@@ -314,9 +373,25 @@ const defaultPagination = { page: 1, pageSize: 10 }
                 <FormGroup sx={{ flexGrow: '1' }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
+                      value={searchString}
                       placeholder="Search by Username & ID"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      onChange={(e) => setSearchString(e.target.value)}
                     />
+                     {searchString?.length > 0 &&
+                      <ClearIcon
+                        onClick={() => setSearchString("")}
+                        sx={{
+                          color: "#333",
+                          fontSize: "1.25rem",
+                          position: "absolute",
+                          right: "0.75rem",
+                          top: '0', bottom: '0', margin: 'auto',
+                          zIndex: "1",
+                          cursor: "pointer"
+                        }}
+                      />
+                    }
                   </FormControl>
                 </FormGroup>
 
