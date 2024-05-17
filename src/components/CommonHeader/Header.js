@@ -20,13 +20,16 @@ import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
 import { FormControl, FormGroup, FormLabel, Grid, Link, Modal, Select } from "@mui/material";
-import { GET_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { useEffect, useState } from "react";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
+import NotificationsToast from "utils/notification/NotificationsToast";
+import { fetchUserDetails } from "../../redux/superAdmin/actions/facilityActions";
+import { useDispatch, useSelector } from "react-redux";
 
 const settings = ["Profile", "Logout"];
 
-export const InvitationList = ({company, role, date}) => {
+export const InvitationList = ({invitationData, acceptRejectInvite}) => {
   return (
     <Grid
       sx={{
@@ -43,18 +46,18 @@ export const InvitationList = ({company, role, date}) => {
       <Grid display="flex" justifyContent="space-between" alignItems={"center"}>
         <Box>
           <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
-            From company: <b>{company}</b>
+            From company: <b>{invitationData?.company_name}</b>
           </Typography>
           <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
-            For role: <b>{role}</b>
+            For role: <b>{invitationData?.role}</b>
           </Typography>
           <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
-            Invitation date: <b>{date}</b>
+            Invitation date: <b>{invitationData?.createdAt}</b>
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Button>Accept</Button>
-          <Button sx={{ color: "danger.main" }}>Reject</Button>
+          <Button onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "accept")}>Accept</Button>
+          <Button sx={{ color: "danger.main" }} onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "reject")}>Reject</Button>
         </Box>
       </Grid>
     </Grid>
@@ -63,6 +66,8 @@ export const InvitationList = ({company, role, date}) => {
 
 function Header(props) {
   const navigate = useNavigate()
+  const dispatch = useDispatch();
+  
   const [open, setOpen] = React.useState(false);
   const { instance } = useMsal();
   const [showInvitationPopup, setInvitationPopUp] = useState(false);
@@ -72,6 +77,12 @@ function Header(props) {
   };
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
 
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
@@ -137,7 +148,7 @@ function Header(props) {
     if(props.page == "authenticated" && localStorage.getItem("accessToken")){
       getCompanyListData();
     }
-  }, [props.page, localStorage.getItem("accessToken")]);
+  }, [props.page, localStorage.getItem("accessToken"), userDetails?.company_id]);
 
   const handleSelectChange = (event) => {
     const selectedCompanyId = event.target.value;
@@ -145,9 +156,10 @@ function Header(props) {
 
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
+    dispatch(fetchUserDetails(selectedCompanyId))
   };
 
-  const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
+  // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
 
   // Get the selected company ID
   const newlySelectedCompany = localStorage.getItem("selectedCompanyId");
@@ -156,9 +168,34 @@ function Header(props) {
     if (newlySelectedCompany) {
       setSelectCompany(newlySelectedCompany);
     } else {
-      setSelectCompany(userData?.company_id);
+      setSelectCompany(userDetails?.company_id);
     };
-  }, [userData]);
+  }, [userDetails]);
+
+  const acceptRejectInvite = (user_id, role_id, company_id, email, type) =>{
+    const apiURL = USER_MANAGEMENT.ACCEPT_REJECT_INVITE;
+    const body = {
+      user_id: user_id,
+      role_id: role_id,
+      company_id: company_id,
+      type: type,
+      email: email
+    }
+    POST_REQUEST(apiURL, body)
+      .then((res) => {
+        if(type == 'accept' && res.status == 200) {
+          NotificationsToast({ message: "You have successfully accepted the invite!", type: "success" });
+          getCompanyListData();
+        } else if(type == 'reject' && res.statusCode == 200){
+          NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
+        }
+        dispatch(fetchUserDetails(selectCompany));
+        setInvitationPopUp(false);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
 
   return (
     <AppBar
@@ -282,7 +319,7 @@ function Header(props) {
                   style={{ maxWidth: "70%" }}
                 />
               </Button>
-              {/* {companyList?.length > 0 && ( */}
+              {(companyList?.length > 0 && companyList[0] != null && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
               <FormGroup className="theme-form-group">
                 <FormLabel
                   sx={{
@@ -316,12 +353,12 @@ function Header(props) {
                   </Select>
                 </FormControl>
               </FormGroup>
-              {/* )} */}
+              )}
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
-                    alt={userData?.first_name + " " + userData?.last_name}
-                    src={userData?.profile_pic || "static/"}
+                    alt={userDetails?.first_name + " " + userDetails?.last_name}
+                    src={userDetails?.profile_pic || "static/"}
                   />
                 </IconButton>
               </Tooltip>
@@ -502,11 +539,16 @@ function Header(props) {
           className={"modal-size"}
         >
           {/* Loop over the following list to show the list */}
-          <InvitationList
-            company={"algoworks"}
-            role={"super-admin"}
-            date={"today"}
+          {userData?.invitations?.length ? userData.invitations.map((item) => (
+            <InvitationList
+              invitationData={item}
+              acceptRejectInvite={acceptRejectInvite}
           />
+          )) : 
+          <Typography>
+            No invitations found!
+          </Typography>
+          }
         </Box>
       </Modal>
     </AppBar>

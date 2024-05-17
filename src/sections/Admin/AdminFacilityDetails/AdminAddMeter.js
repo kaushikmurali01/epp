@@ -78,7 +78,23 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   });
 
   const handleFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
@@ -98,8 +114,16 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleSubmit = (values) => {
+    const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      if (typeof value === "string" && value.trim() === "") {
+        acc[key] = null;
+      } else {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
     const newValues = {
-      ...values,
+      ...updatedValues,
       meter_specification_url: imgUrl,
       facility_id: +id,
       meter_inactive: values?.stil_in_use
@@ -251,12 +275,12 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Still in use"
+                            label="Is meter still in use?"
                           />
                         )}
                       </Field>
                     }
-                    label="Still in use"
+                    label="Is meter still in use?"
                   />
                 </Grid>
               </Grid>
@@ -351,6 +375,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           ref={fileInputRef}
                           style={{ display: "none" }}
                           onChange={handleFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}

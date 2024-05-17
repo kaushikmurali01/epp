@@ -3,14 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
-import { USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow }) => {
-    const navigate = useNavigate();
+const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableRow, invitePageInfo,inviteAPIURL }) => {
+    console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
-    const [alignment, setAlignment] = useState('yes');
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
     const [isFormValid, setIsFormValid] = useState(false);
@@ -54,7 +53,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
     const getPermissionList = (permission_id) => {
-        const apiURL = USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
+       //check if we have type or not in page info, if we have type then it is user management admin page
+        const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -68,56 +68,37 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     const handelInviteSubmit = () => {
         
-        const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
+        const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
+
+        console.log(apiURL, permissionIds, "checked data");
         // return;
         if (isEdited) {
             const requestBody = {
                 "email": userEmail,
                 "role_id": selectRoleType,
                 "company_id": selectTableRow.company_id, // comapnay id is static right now.
-                "permissions": permissionIds
+                "permissions": permissionIds,
+                "entry_type": selectTableRow.entry_type,
+                "requestBody" : invitePageInfo?.type
             }
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
-
-                    NotificationsToast({ message: 'The Invite has been updated', type: "success" });
+                    NotificationsToast({ message: 'The User Permissions has been updated', type: "success" });
                     setVisibleInvitePage(false);
-                    handleAPISuccessCallBack();
                 })
                 .catch((error) => {
                     console.log(error, 'error')
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
                 });
-        } else {
-            const requestBody = {
-                "email": userEmail,
-                "role": selectRoleType,
-                "company": "1", // comapnay id is static right now.
-                "permissions": permissionIds
-            }
-
-            POST_REQUEST(apiURL, requestBody)
-                .then((response) => {
-                    if (response.data.status === 200) {
-                        NotificationsToast({ message: 'The Invite has been sent', type: "success" });
-                        setVisibleInvitePage(false);
-                        handleAPISuccessCallBack();
-                    } else if (response.data.status === 500) {
-                        NotificationsToast({ message: response.data.message, type: "error" });
-                    }
-                })
-                .catch((error) => {
-                    console.log(error, 'error')
-                    NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
-                })
-        }
+        } 
+        
 
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/1';
+        const apiURL =  ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ item?.type ;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
@@ -152,8 +133,9 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             getPermissionList(selectRoleType);
         }
 
-    }, [selectRoleType,]);
+    }, [selectRoleType]);
 
+    console.log(selectTableRow, 'selectTableRow last')
 
     return (
         <Box component="section">
@@ -175,7 +157,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 }}
                             />
                         </IconButton>
-                        <Typography variant='h4'> {isEdited ? 'Manage permission' : 'Invite user and set permissions'}</Typography>
+                        <Typography variant='h4'> 
+                        {/* {isEdited ? 'Manage permission' : 'Invite user and set permissions'} */}
+                        {invitePageInfo?.title}
+                        </Typography>
                     </Grid>
                 </Grid>
                 <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
@@ -198,16 +183,19 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     onChange={(e) => handleSelectChange(e)}
                                     displayEmpty={true}
                                 >
-                                    <MenuItem value="">
-                                        Select
-                                    </MenuItem>
+                                     <MenuItem value="" disabled>
+                                            <em>Select</em>
+                                        </MenuItem>
                                     {getUserRole && (getUserRole).map((item) => {
+                                        // console.log(item, "Role Type");
+
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )
                                     })}
 
                                 </Select>
+                              
 
                             </FormControl>
 
@@ -221,7 +209,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             onClick={() => handelInviteSubmit()}
                             disabled={!isFormValid}
                         >
-                            {isEdited ? 'Update Invite' : ' Send Invite'}
+                            {isEdited ? 'Update Permissions' : ' Send Invite'}
                            
                         </Button>
                     </Grid>
@@ -283,4 +271,4 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     )
 }
 
-export default InviteUser
+export default UserManagePermissions

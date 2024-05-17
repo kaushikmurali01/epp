@@ -25,6 +25,16 @@ import {
   fetchAdminFacilityCharacteristics,
   updateAdminFacilityCharacteristic,
 } from "../../../redux/admin/actions/adminFacilityActions";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import {
+  FLOOR_AREA_ARRAY,
+  NUMBER_OF_ARRAY_2,
+  SOURCE_ARRAY,
+  SPACE_COOLING_ARRAY,
+  SPACE_COOLING_UNIT_ARRAY,
+  WATER_HEATING_ARRAY,
+  WATER_HEATING_UNIT_ARRAY,
+} from "../../../utils/dropdownConstants/dropdownConstants";
 
 const AdminDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -78,55 +88,69 @@ const AdminDetails = () => {
               charactersticsDetails?.not_standard_hvac_equipment
                 ? JSON.parse(charactersticsDetails?.not_standard_hvac_equipment)
                 : "",
-
-            space_cooling_fuel_source: checkValueNotExist(
-              SOURCE_ARRAY,
-              charactersticsDetails?.space_cooling_fuel_source
-            ),
-            space_heating_fuel_source: checkValueNotExist(
-              SOURCE_ARRAY,
-              charactersticsDetails?.space_heating_fuel_source
-            ),
-            water_heating_fuel_source: checkValueNotExist(
-              SOURCE_ARRAY,
-              charactersticsDetails?.water_heating_fuel_source
-            ),
-            space_cooling_technology: checkValueNotExist(
-              SPACE_COOLING_ARRAY,
-              charactersticsDetails?.space_cooling_technology
-            ),
-            // space_heating_technology: checkValueNotExist(
-            //   SPACE_HEATING_ARRAY,
-            //   charactersticsDetails?.space_heating_technology
-            // ),
-            water_heating_technology: checkValueNotExist(
-              WATER_HEATING_ARRAY,
-              charactersticsDetails?.water_heating_technology
-            ),
-            space_cooling_technology_other: checkAndReturnFromArray(
-              SPACE_COOLING_ARRAY,
-              charactersticsDetails?.space_cooling_technology
-            ),
-            // space_heating_technology_other: checkAndReturnFromArray(
-            //   SPACE_HEATING_ARRAY,
-            //   charactersticsDetails?.space_heating_technology
-            // ),
-            water_heating_technology_other: checkAndReturnFromArray(
-              WATER_HEATING_ARRAY,
-              charactersticsDetails?.water_heating_technology
-            ),
-            space_cooling_fuel_source_other: checkAndReturnFromArray(
-              SOURCE_ARRAY,
-              charactersticsDetails?.space_cooling_fuel_source
-            ),
-            space_heating_fuel_source_other: checkAndReturnFromArray(
-              SOURCE_ARRAY,
-              charactersticsDetails?.space_heating_fuel_source
-            ),
-            water_heating_fuel_source_other: checkAndReturnFromArray(
-              SOURCE_ARRAY,
-              charactersticsDetails?.water_heating_fuel_source
-            ),
+            space_cooling_fuel_source:
+              charactersticsDetails?.space_cooling_fuel_source &&
+              checkValueNotExist(
+                SOURCE_ARRAY,
+                charactersticsDetails?.space_cooling_fuel_source
+              ),
+            space_heating_fuel_source:
+              charactersticsDetails?.space_heating_fuel_source &&
+              checkValueNotExist(
+                SOURCE_ARRAY,
+                charactersticsDetails?.space_heating_fuel_source
+              ),
+            water_heating_fuel_source:
+              charactersticsDetails?.water_heating_fuel_source &&
+              checkValueNotExist(
+                SOURCE_ARRAY,
+                charactersticsDetails?.water_heating_fuel_source
+              ),
+            space_cooling_technology:
+              charactersticsDetails?.space_cooling_technology &&
+              checkValueNotExist(
+                SPACE_COOLING_ARRAY,
+                charactersticsDetails?.space_cooling_technology
+              ),
+            water_heating_technology:
+              charactersticsDetails?.water_heating_technology &&
+              checkValueNotExist(
+                WATER_HEATING_ARRAY,
+                charactersticsDetails?.water_heating_technology
+              ),
+            space_cooling_technology_other:
+              charactersticsDetails?.space_cooling_technology &&
+              checkAndReturnFromArray(
+                SPACE_COOLING_ARRAY,
+                charactersticsDetails?.space_cooling_technology
+              ),
+            water_heating_technology_other:
+              charactersticsDetails?.water_heating_technology &&
+              checkAndReturnFromArray(
+                WATER_HEATING_ARRAY,
+                charactersticsDetails?.water_heating_technology
+              ),
+            space_cooling_fuel_source_other:
+              charactersticsDetails?.space_cooling_fuel_source &&
+              checkAndReturnFromArray(
+                SOURCE_ARRAY,
+                charactersticsDetails?.space_cooling_fuel_source
+              ),
+            space_heating_fuel_source_other:
+              charactersticsDetails?.space_heating_fuel_source &&
+              checkAndReturnFromArray(
+                SOURCE_ARRAY,
+                charactersticsDetails?.space_heating_fuel_source
+              ),
+            water_heating_fuel_source_other:
+              charactersticsDetails?.water_heating_fuel_source &&
+              checkAndReturnFromArray(
+                SOURCE_ARRAY,
+                charactersticsDetails?.water_heating_fuel_source
+              ),
+            year_of_construction: charactersticsDetails?.year_of_construction
+              ? new Date(charactersticsDetails.year_of_construction)
+              : null,
           });
           setSelectedFacilityFile(
             charactersticsDetails?.facility_site_layout_media_url
@@ -174,8 +198,6 @@ const AdminDetails = () => {
     space_cooling_technology_other: "",
     space_heating_fuel_source: "",
     space_heating_fuel_source_other: "",
-    // space_heating_technology: "",
-    // space_heating_technology_other: "",
     water_heating_fuel_source: "",
     water_heating_fuel_source_other: "",
     water_heating_technology: "",
@@ -221,136 +243,22 @@ const AdminDetails = () => {
     is_lighting_controlled_for_occupancy: false,
     is_space_heating_controlled_for_occupancy: false,
     is_space_cooling_controlled_for_occupancy: false,
+    space_cooling_efficiency_unit: "EER",
+    space_heating_efficiency_unit: "EER",
+    water_heating_efficiency_unit: "%",
   });
 
-  const NUMBER_OF_ARRAY = [
-    { value: "1", label: 1 },
-    { value: "2", label: 2 },
-    { value: "3", label: 3 },
-    { value: "4", label: 4 },
-    { value: "5", label: 5 },
-    { value: "6", label: 6 },
-    { value: "7", label: 7 },
-    { value: "8", label: 8 },
-    { value: "9", label: 9 },
-    { value: "10", label: 10 },
-    { value: "11", label: 11 },
-    { value: "12", label: 12 },
-    { value: "13", label: 13 },
-    { value: "14", label: 14 },
-    { value: "15", label: 15 },
-    { value: "16", label: 16 },
-    { value: "17", label: 17 },
-    { value: "18", label: 18 },
-    { value: "19", label: 19 },
-    { value: "20", label: 20 },
-    { value: "other", label: "other" },
-  ];
-
-  const NUMBER_OF_ARRAY_2 = [
-    { value: 1, label: "Year round" },
-    { value: 2, label: "Seasonal" },
-  ];
-
-  const FLOOR_AREA_ARRAY = [
-    {
-      label: "Less than 10000",
-      value: "1",
-    },
-    {
-      label: "10000 - 49999",
-      value: "2",
-    },
-    {
-      label: "50000 - 99999",
-      value: "3",
-    },
-    {
-      label: "100000 - 249999",
-      value: "4",
-    },
-    {
-      label: "250000 - 499999",
-      value: "5",
-    },
-    {
-      label: "500000 - 999999",
-      value: "6",
-    },
-    {
-      label: "Greater that 1000000",
-      value: "7",
-    },
-  ];
-
-  const SOURCE_ARRAY = [
-    {
-      label: "Electricty",
-      value: "electricty",
-    },
-    {
-      label: "Natural gas",
-      value: "natural_gas",
-    },
-    { label: "Other", value: "other" },
-  ];
-
-  const SPACE_COOLING_ARRAY = [
-    { value: "chiller", label: "Chiller" },
-    {
-      value: "rooftoop_unit",
-      label: "Rooftoop unit",
-    },
-    {
-      value: "window_air_conditioner",
-      label: "Window air conditioner",
-    },
-    {
-      value: "ground_source_heat_pump",
-      label: "Ground source heat pump",
-    },
-    {
-      value: "air_source_heat_pump_vrf",
-      label: "Air source heat pump/VRF",
-    },
-    { value: "other", label: "Other" },
-  ];
-
-  const SPACE_HEATING_ARRAY = [
-    { value: "boiler", label: "Boiler" },
-    { value: "furnance", label: "Furnance" },
-    {
-      value: "baseboard_heating",
-      label: "Baseboard heating",
-    },
-    {
-      value: "ground_source_heat_pump",
-      label: "Ground source heat pump",
-    },
-    {
-      value: "air_source_heat_pump_VRF",
-      label: "air source heat pump/VRF",
-    },
-    {
-      value: "rooftoop_unit",
-      label: "Rooftoop unit",
-    },
-    { value: "other", label: "Other" },
-  ];
-
-  const WATER_HEATING_ARRAY = [
-    { value: "boiler", label: "Boiler" },
-    {
-      value: "water_heater",
-      label: "Water heater",
-    },
-    { value: "other", label: "Other" },
-  ];
-
   const handleSubmit = (values) => {
-    console.log(values);
+    const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      if (typeof value === "string" && value.trim() === "") {
+        acc[key] = null;
+      } else {
+        acc[key] = value;
+      }
+      return acc;
+    }, {});
     const newValues = {
-      ...values,
+      ...updatedValues,
       space_cooling_fuel_source:
         values.space_cooling_fuel_source === "other"
           ? values.space_cooling_fuel_source_other
@@ -363,10 +271,6 @@ const AdminDetails = () => {
         values.space_heating_fuel_source === "other"
           ? values.space_heating_fuel_source_other
           : values.space_heating_fuel_source,
-      // space_heating_technology:
-      //   values.space_heating_technology === "other"
-      //     ? values.space_heating_technology_other
-      //     : values.space_heating_technology,
       water_heating_fuel_source:
         values.water_heating_fuel_source === "other"
           ? values.water_heating_fuel_source_other
@@ -395,10 +299,28 @@ const AdminDetails = () => {
   };
 
   const handleAssemblyFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedAssemblyFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then((data) => setAssemblyImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setAssemblyImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -413,10 +335,28 @@ const AdminDetails = () => {
   };
 
   const handleFacilityFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedFacilityFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then((data) => setFacilityImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setFacilityImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -505,7 +445,8 @@ const AdminDetails = () => {
                   sx={{
                     cursor: "default",
                     borderRadius: "2rem",
-                    background: "#D8FFDC",
+                    background:
+                      facilityCharacterstics === null ? "#EBEBEB" : "#D8FFDC",
                     textWrap: "nowrap",
                     padding: "0.375rem 1rem",
                   }}
@@ -513,7 +454,7 @@ const AdminDetails = () => {
                   <Typography variant="small">
                     status:{" "}
                     <Typography variant="span" sx={{ color: "text.primary" }}>
-                      Draft
+                      {facilityCharacterstics === null ? "Draft" : "Existing"}
                     </Typography>
                   </Typography>
                 </Box>
@@ -539,10 +480,22 @@ const AdminDetails = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <InputField
+                  <InputLabel
+                    htmlFor="year_of_construction"
+                    style={{ whiteSpace: "initial" }}
+                  >
+                    Year of construction
+                  </InputLabel>
+                  <DatePicker
+                    id="year_of_construction"
                     name="year_of_construction"
-                    label="Year of construction"
-                    type="number"
+                    views={["year"]}
+                    sx={{ width: "100%" }}
+                    value={values.year_of_construction}
+                    onChange={(date) => {
+                      setFieldValue("year_of_construction", date);
+                    }}
+                    disableFuture
                   />
                 </Grid>
               </Grid>
@@ -550,7 +503,7 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="gross_floor_area"
-                    label="Gross Floor Area"
+                    label="Gross Floor Area(Sqft)"
                     valueKey="value"
                     labelKey="label"
                     options={FLOOR_AREA_ARRAY}
@@ -569,7 +522,7 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="conditioned_gross_floor_area_including_common_area"
-                    label="Conditioned gross floor area including common area"
+                    label="Conditioned gross floor area including common area(Sqft)"
                     valueKey="value"
                     labelKey="label"
                     options={FLOOR_AREA_ARRAY}
@@ -578,7 +531,7 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="unonditioned_gross_floor_area"
-                    label="Unconditioned gross floor area such as parking lots"
+                    label="Unconditioned gross floor area such as parking lots(Sqft)"
                     valueKey="value"
                     labelKey="label"
                     options={FLOOR_AREA_ARRAY}
@@ -699,26 +652,6 @@ const AdminDetails = () => {
                   </Grid>
                 )}
               </Grid>
-              {/* <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="space_heating_technology"
-                    label="Space Heating Technology *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={SPACE_HEATING_ARRAY}
-                  />
-                </Grid>
-                {values.space_heating_technology === "other" && (
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="space_heating_technology_other"
-                      label="If other, describe *"
-                      type="text"
-                    />
-                  </Grid>
-                )}
-              </Grid> */}
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <SelectBox
@@ -876,12 +809,10 @@ const AdminDetails = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <SelectBox
+                  <InputField
                     name="space_cooling_technology_age"
-                    label="Space Cooling Technology Age"
-                    valueKey="value"
-                    labelKey="label"
-                    options={NUMBER_OF_ARRAY}
+                    label="Space Cooling Technology Age(Years)"
+                    type="number"
                   />
                 </Grid>
               </Grid>
@@ -889,15 +820,39 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="space_cooling_technology_capacity"
-                    label="Space Cooling Technology Capacity"
-                    type="text"
+                    label="Space Cooling Technology Capacity(Tons)"
+                    type="number"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
+                  {/* <InputField
+                    name="space_cooling_efficiency"
+                    label="Space Cooling Efficiency(EER, SEER, COP)"
+                    type="number"
+                  /> */}
                   <InputField
                     name="space_cooling_efficiency"
-                    label="Space Cooling Efficiency"
-                    type="text"
+                    label="Space Cooling Efficiency(EER, SEER, COP)"
+                    type="number"
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <SelectBox
+                          name="space_cooling_efficiency_unit"
+                          valueKey="value"
+                          labelKey="label"
+                          value={values.space_cooling_efficiency_unit}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              fieldset: {
+                                border: "none",
+                              },
+                            },
+                          }}
+                          options={SPACE_COOLING_UNIT_ARRAY}
+                        />
+                      ),
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -910,12 +865,10 @@ const AdminDetails = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <SelectBox
+                  <InputField
                     name="space_heating_technology_age"
-                    label="Space Heating Technology Age"
-                    valueKey="value"
-                    labelKey="label"
-                    options={NUMBER_OF_ARRAY}
+                    label="Space Heating Technology Age(Years)"
+                    type="number"
                   />
                 </Grid>
               </Grid>
@@ -923,15 +876,39 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="space_heating_technology_capacity"
-                    label="Space Heating Technology Capacity"
-                    type="text"
+                    label="Space Heating Technology Capacity(MBH)"
+                    type="number"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
+                  {/* <InputField
+                    name="space_heating_efficiency"
+                    label="Space Heating Efficiency(EER, SEER, COP)"
+                    type="number"
+                  /> */}
                   <InputField
                     name="space_heating_efficiency"
-                    label="Space Heating Efficiency"
-                    type="text"
+                    label="Space Heating Efficiency(EER, SEER, COP)"
+                    type="number"
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <SelectBox
+                          name="space_heating_efficiency_unit"
+                          valueKey="value"
+                          labelKey="label"
+                          value={values.space_cooling_heating_unit}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              fieldset: {
+                                border: "none",
+                              },
+                            },
+                          }}
+                          options={SPACE_COOLING_UNIT_ARRAY}
+                        />
+                      ),
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -944,12 +921,10 @@ const AdminDetails = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <SelectBox
+                  <InputField
                     name="water_heating_technology_age"
-                    label="Water Heating Technology Age"
-                    valueKey="value"
-                    labelKey="label"
-                    options={NUMBER_OF_ARRAY}
+                    label="Water Heating Technology Age(Years)"
+                    type="number"
                   />
                 </Grid>
               </Grid>
@@ -957,15 +932,39 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="water_heating_technology_capacity"
-                    label="Water Heating Technology Capacity"
-                    type="text"
+                    label="Water Heating Technology Capacity(MBH)"
+                    type="number"
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
+                  {/* <InputField
+                    name="water_heating_efficiency"
+                    label="Water Heating Efficiency(%, COP)"
+                    type="number"
+                  /> */}
                   <InputField
                     name="water_heating_efficiency"
-                    label="Water Heating Efficiency"
-                    type="text"
+                    label="Water Heating Efficiency(%, COP)"
+                    type="number"
+                    fullWidth
+                    InputProps={{
+                      endAdornment: (
+                        <SelectBox
+                          name="water_heating_efficiency_unit"
+                          valueKey="value"
+                          labelKey="label"
+                          value={values.water_heating_efficiency_unit}
+                          sx={{
+                            "& .MuiOutlinedInput-root": {
+                              fieldset: {
+                                border: "none",
+                              },
+                            },
+                          }}
+                          options={WATER_HEATING_UNIT_ARRAY}
+                        />
+                      ),
+                    }}
                   />
                 </Grid>
               </Grid>
@@ -1188,14 +1187,14 @@ const AdminDetails = () => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_lighting_controlled_for_occupancy">
-                    Is Space Heating Controlled for Occupancy?
+                    Is Lighting Controlled for Occupancy?
                   </InputLabel>
                   <FormControl>
                     <Field name="is_lighting_controlled_for_occupancy">
                       {({ field, form }) => (
                         <ToggleButtonGroup
                           id="is_lighting_controlled_for_occupancy"
-                          value={lightingAlignment}
+                          value={values.is_lighting_controlled_for_occupancy}
                           exclusive
                           onChange={(event, newAlignment) => {
                             handleLightingTypeChange(event, newAlignment, form);
@@ -1227,7 +1226,9 @@ const AdminDetails = () => {
                       {({ field, form }) => (
                         <ToggleButtonGroup
                           id="is_space_heating_controlled_for_occupancy"
-                          value={heatingAlignment}
+                          value={
+                            values.is_space_heating_controlled_for_occupancy
+                          }
                           exclusive
                           onChange={(event, newAlignment) => {
                             handleHeatingTypeChange(event, newAlignment, form);
@@ -1259,7 +1260,9 @@ const AdminDetails = () => {
                       {({ field, form }) => (
                         <ToggleButtonGroup
                           id="is_space_cooling_controlled_for_occupancy"
-                          value={coolingAlignment}
+                          value={
+                            values.is_space_cooling_controlled_for_occupancy
+                          }
                           exclusive
                           onChange={(event, newAlignment) => {
                             handleCoolingTypeChange(event, newAlignment, form);
@@ -1310,6 +1313,7 @@ const AdminDetails = () => {
                         ref={fileFacilityInputRef}
                         style={{ display: "none" }}
                         onChange={handleFacilityFileChange}
+                        accept="image/png, image/gif, image/jpeg, image/jpg"
                       />
                     </>
                   ) : (
@@ -1382,6 +1386,7 @@ const AdminDetails = () => {
                         ref={fileAssemblyInputRef}
                         style={{ display: "none" }}
                         onChange={handleAssemblyFileChange}
+                        accept="image/png, image/gif, image/jpeg, image/jpg"
                       />
                     </>
                   ) : (

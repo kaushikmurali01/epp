@@ -40,13 +40,13 @@ import {
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
-export const fetchFacilityListing = (pageInfo) => {
+export const fetchFacilityListing = (pageInfo, search = "") => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
       const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}`;
+      }/${pageInfo.pageSize}?search=${search}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));
@@ -61,15 +61,16 @@ export const fetchFacilityListing = (pageInfo) => {
   };
 };
 
-export const fetchUserDetails = () => {
+export const fetchUserDetails = (id = 0) => {
   return async (dispatch) => {
     try {
       dispatch(getUserDetailsRequest());
       dispatch({ type: "SHOW_LOADER", payload: true });
-      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}`;
+      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}/${id}`;
       const response = await GET_REQUEST(endpointWithParams);
       dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;
+      localStorage.setItem("selectedCompanyId", data?.user?.company_id || 0)
       dispatch(getUserDetailsSuccess(data));
     } catch (error) {
       console.error(error);
@@ -82,7 +83,6 @@ export const fetchUserDetails = () => {
     }
   };
 };
-
 
 export const submitFacilityForApproval = (facility) => {
   return async (dispatch) => {
