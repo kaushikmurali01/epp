@@ -148,7 +148,7 @@ function Header(props) {
     if(props.page == "authenticated" && localStorage.getItem("accessToken")){
       getCompanyListData();
     }
-  }, [props.page, localStorage.getItem("accessToken")]);
+  }, [props.page, localStorage.getItem("accessToken"), userDetails?.company_id]);
 
   const handleSelectChange = (event) => {
     const selectedCompanyId = event.target.value;
@@ -156,6 +156,7 @@ function Header(props) {
 
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
+    dispatch(fetchUserDetails(selectedCompanyId))
   };
 
   // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
@@ -182,12 +183,13 @@ function Header(props) {
     }
     POST_REQUEST(apiURL, body)
       .then((res) => {
-        if(type == 'accept' && res.statusCode == 200) {
+        if(type == 'accept' && res.status == 200) {
           NotificationsToast({ message: "You have successfully accepted the invite!", type: "success" });
+          getCompanyListData();
         } else if(type == 'reject' && res.statusCode == 200){
           NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
         }
-        dispatch(fetchUserDetails());
+        dispatch(fetchUserDetails(selectCompany));
         setInvitationPopUp(false);
       })
       .catch((error) => {
@@ -317,7 +319,7 @@ function Header(props) {
                   style={{ maxWidth: "70%" }}
                 />
               </Button>
-              {(companyList?.length > 0 && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
+              {(companyList?.length > 0 && companyList[0] != null && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
               <FormGroup className="theme-form-group">
                 <FormLabel
                   sx={{

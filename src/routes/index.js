@@ -91,7 +91,7 @@ const RoutesComp = () => {
     }
   }, [isNewUser, userData])
 
-  console.log("user info", account)
+  console.log("user info", userDetails)
 
   return userDetails?.type ? (
     <>
