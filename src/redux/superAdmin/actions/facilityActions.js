@@ -70,6 +70,7 @@ export const fetchUserDetails = (id = 0) => {
       const response = await GET_REQUEST(endpointWithParams);
       dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;
+      localStorage.setItem("selectedCompanyId", data?.user?.company_id || 0)
       dispatch(getUserDetailsSuccess(data));
     } catch (error) {
       console.error(error);

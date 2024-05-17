@@ -115,21 +115,21 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
   ];
 
   for (let i = 0; i < userPermissions.length; i++) {
-    if (userPermissions[i].id === 1 || userPermissions[i].id == 2) {
+    if (userPermissions[i].permission === "add-user" || userPermissions[i].permission =="grant-revoke-access") {
       routesToPermit.push(
         <Route
           path={userManagementEndPoints.userManagement}
           element={<UserManagement />}
         />
       );
-    } else if (userPermissions[i].id == 4) {
+    } else if (userPermissions[i].permission == "bind-company") {
       routesToPermit.push(
         <Route
           path={participantAgreementEndPoints.participantAgreement}
           element={<ParticipantAgreementComponent />}
         />
       );
-    } else if (userPermissions[i].id == 6) {
+    } else if (userPermissions[i].permission == "facility") {
       routesToPermit.push(
         <Route
           path={facilityEndPoints.facilityList}
@@ -150,7 +150,7 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
           element={<AddFacilityComponent />}
         />
       );
-    } else if (userPermissions[i].id == 7 && userPermissions[i].id == 8) {
+    } else if (userPermissions[i].permission == "facility-data" && userPermissions[i].permission == "facility-data-visualizations") {
       routesToPermit.push(
         <Route
           path={
@@ -171,6 +171,8 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
       );
     }
   }
+
+  console.log('routes to permin', routesToPermit)
 
   return (
     <Routes>

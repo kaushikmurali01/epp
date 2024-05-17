@@ -86,21 +86,21 @@ export const tabsData = (userType, userRole, permissions = []) => {
   let tabs = [];
   if(userType === 2){
     for(let i = 0; i < permissions.length; i++){
-        if (permissions[i].id === 1 || permissions[i].id == 2) {
+        if (permissions[i].permission === "add-use" || permissions[i].permission == "grant-revoke-access") {
           tabs.push(
             {
               label:"User Management",
               route:'/user-management'
             },
           );
-        } else if (permissions[i].id == 4) {
+        } else if (permissions[i].permission == "bind-company") {
           tabs.push(
             {
               label:"Participant Agreement",
               route:'/participant-agreement'
             },
           );
-        } else if (permissions[i].id == 6) {
+        } else if (permissions[i].permission == "facility") {
           tabs.push(
             {
               label:"Facility List",
