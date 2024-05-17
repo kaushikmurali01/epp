@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     Button,
@@ -14,11 +15,12 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints"
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
+
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
 const CustomerUserManagementColumn = () => {
-
+    const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
@@ -28,7 +30,7 @@ const [alertModalContnet, setAlertModalContnet] = useState({
 const buttonStyle = {
     display: 'inline-flex',
     alignItems: 'center',
-    margin: '0.4375rem 1rem',
+    margin: '0.4375rem 0.5rem',
     borderRadius: '1.5rem',
     fontWeight: '500',
     fontSize: { sm: '0.875rem' },
@@ -106,6 +108,9 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisi
             <Box gap={1}>
                 <Typography  variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
+                </Typography>
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => navigate(`/user-management/profile/${(item?.company_id === (undefined || null)) ? '0': item?.company_id}/${item?.id}`) } >
+                    View
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     Checkbox,
@@ -15,7 +16,7 @@ import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
 
 
 const IESOUserManagementColumn = () => {
-
+const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
@@ -25,7 +26,7 @@ const [alertModalContnet, setAlertModalContnet] = useState({
 const buttonStyle = {
     display: 'inline-flex',
     alignItems: 'center',
-    margin: '0.4375rem 1rem',
+    margin: '0.4375rem 0.5rem',
     borderRadius: '1.5rem',
     fontWeight: '500',
     fontSize: { sm: '0.875rem' },
@@ -103,6 +104,9 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibleI
             <Box gap={1}>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
+                </Typography>
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() =>  navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`) } >
+                    View
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert
