@@ -61,12 +61,12 @@ export const fetchFacilityListing = (pageInfo, search = "") => {
   };
 };
 
-export const fetchUserDetails = () => {
+export const fetchUserDetails = (id = 0) => {
   return async (dispatch) => {
     try {
       dispatch(getUserDetailsRequest());
       dispatch({ type: "SHOW_LOADER", payload: true });
-      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}`;
+      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}/${id}`;
       const response = await GET_REQUEST(endpointWithParams);
       dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;

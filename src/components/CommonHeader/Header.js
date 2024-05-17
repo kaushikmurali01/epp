@@ -56,8 +56,8 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Button onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, "accept")}>Accept</Button>
-          <Button sx={{ color: "danger.main" }} onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, "reject")}>Reject</Button>
+          <Button onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "accept")}>Accept</Button>
+          <Button sx={{ color: "danger.main" }} onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "reject")}>Reject</Button>
         </Box>
       </Grid>
     </Grid>
@@ -171,13 +171,14 @@ function Header(props) {
     };
   }, [userDetails]);
 
-  const acceptRejectInvite = (user_id, role_id, company_id, type) =>{
+  const acceptRejectInvite = (user_id, role_id, company_id, email, type) =>{
     const apiURL = USER_MANAGEMENT.ACCEPT_REJECT_INVITE;
     const body = {
       user_id: user_id,
       role_id: role_id,
       company_id: company_id,
-      type: type
+      type: type,
+      email: email
     }
     POST_REQUEST(apiURL, body)
       .then((res) => {
@@ -316,7 +317,7 @@ function Header(props) {
                   style={{ maxWidth: "70%" }}
                 />
               </Button>
-              {(companyList?.length > 0 && userData?.user?.type != 3 ) && (
+              {(companyList?.length > 0 && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
               <FormGroup className="theme-form-group">
                 <FormLabel
                   sx={{
