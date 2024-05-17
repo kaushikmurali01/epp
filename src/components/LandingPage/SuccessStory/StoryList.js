@@ -80,7 +80,7 @@ const StoryList = () => {
                 <Grid container className='heading-row' sx={{justifyContent: theme_Sm ? 'flex-start' : 'center', textAlign : theme_Sm ? 'left': 'center'}}>
                     <Grid item >
                         <Typography variant="h3" >
-                            See how others are succeeding with EPP
+                            Success stories
                         </Typography>
 
                     </Grid>

@@ -35,9 +35,9 @@ const BlogPost = ({ post }) => {
                     {post?.description}
                 </Typography>
             </CardContent>
-            <CardActions sx={{...linkStyle, padding: '0', marginTop: theme_Md ? '1.5rem' : '1rem'}}>
+            {/* <CardActions sx={{...linkStyle, padding: '0', marginTop: theme_Md ? '1.5rem' : '1rem'}}>
                 <Link href={post?.link} >Learn more</Link>
-            </CardActions>
+            </CardActions> */}
         </Card>
     )
 }

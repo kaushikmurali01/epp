@@ -12,7 +12,7 @@ const Testimonial = () => {
                     <Grid container justifyContent="space-between" className='heading-row'>
                         <Grid container item xs={12} justifyContent="center" >
                             <Typography variant="h3"  >
-                                  See how others are succeeding with EPP
+                                Success stories
                             </Typography>
                         </Grid>
                     </Grid>
