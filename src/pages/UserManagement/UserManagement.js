@@ -2,7 +2,7 @@ import React, { useEffect, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import Table from 'components/Table';
-import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 import EvModal from 'utils/modal/EvModal';
 import SelectBox from 'components/FormBuilder/Select';
 import { Form, Formik } from 'formik';
@@ -13,6 +13,8 @@ import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
+import debounce from "lodash.debounce";
+import ClearIcon from '@mui/icons-material/Clear';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -20,6 +22,7 @@ const UserManagement = () => {
   // pull functions from user management..
   const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
 
+  const [searchString, setSearchString] = useState("");
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
@@ -97,7 +100,7 @@ const UserManagement = () => {
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           handleAPISuccessCallBack();
-          NotificationsToast({ message: "Your form has been submitted!", type: "success" });
+          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
@@ -155,20 +158,20 @@ const UserManagement = () => {
 
   const filterByData = [
     {
-     label: 'All User',
-     id: '0',
-     defaultSelected: true,
+      label: 'All User',
+      id: '0',
+      defaultSelected: true,
     },
     {
       label: 'Invitation sent',
       id: '1',
       defaultSelected: false,
-     },
-     {
+    },
+    {
       label: 'Request sent',
       id: '2',
       defaultSelected: false,
-     }
+    }
   ]
 
   const handelInviteUser = () => {
@@ -179,17 +182,17 @@ const UserManagement = () => {
     setInviteAPIURL(apiURL)
   }
 
-  const getUserManagementData = () => {
-    
-    // const allUserTypes = selectFilterType;
-    const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}/${selectFilterType}`;
+  const getUserManagementData = (pageDataInfo, search) => {
 
-    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}/${selectFilterType}`;
-      
-      const getAPI_Data = (url)=> {
-        GET_REQUEST(url)
+    // const allUserTypes = selectFilterType;
+    const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+      }/${pageDataInfo.pageSize}/${selectFilterType}?search=${search}`;
+
+    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+      }/${pageDataInfo.pageSize}/${selectFilterType}?search=${search}`;
+
+    const getAPI_Data = (url) => {
+      GET_REQUEST(url)
         .then((res) => {
           // setAllUser(res.data?.body)
           if (res.data?.body?.rows instanceof Array) {
@@ -202,16 +205,16 @@ const UserManagement = () => {
         }).catch((error) => {
           console.log(error)
         });
-      }
-      
-      if(selectFilterType !== '0'){
-        getAPI_Data(filterApiURL)
-      } else {
-        getAPI_Data(apiURL)
-      }
+    }
 
-      
-    
+    if (selectFilterType !== '0') {
+      getAPI_Data(filterApiURL)
+    } else {
+      getAPI_Data(apiURL)
+    }
+
+
+
   }
 
   const getUserRoleData = () => {
@@ -226,20 +229,27 @@ const UserManagement = () => {
   }
 
   const getComapanyListData = () => {
-    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "1/100";
     GET_REQUEST(apiURL)
       .then((res) => {
-        setCompanyList(res.data)
+        setCompanyList(res.data?.data?.rows);
       }).catch((error) => {
         console.log(error)
       });
   }
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    getUserManagementData(pageInfo, searchString);
+  }, 300);
+
   useEffect(() => {
-    
-    getUserManagementData();
-   
-  }, [selectFilterType])
+    debouncedSearch(pageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType]);
+
+
 
   useEffect(() => {
     getUserRoleData()
@@ -269,7 +279,7 @@ const UserManagement = () => {
               </Grid>
               <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
                 <FormGroup className="theme-form-group theme-select-form-group" >
-                
+
                   <FormControl sx={{ minWidth: '6rem' }}>
                     <Select
                       value={selectFilterType}
@@ -278,7 +288,7 @@ const UserManagement = () => {
                       className="transparent-border"
                     >
                       <MenuItem value="" disabled>
-                        Filter By 
+                        Filter By
                       </MenuItem>
                       {filterByData?.map((item) => (
                         <MenuItem key={`${item.id}`} value={item?.id}>
@@ -289,11 +299,27 @@ const UserManagement = () => {
                   </FormControl>
                 </FormGroup>
                 <FormGroup >
-                  <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                  <FormControl fullWidth sx={{ position: 'relative', bgcolor: '#fff', borderRadius: '8px', color: 'dark.main' }}>
                     <TextField
+                      value={searchString}
                       placeholder="Search"
-                      inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2rem' } }}
+                      onChange={(e) => setSearchString(e.target.value)}
                     />
+                    {searchString?.length > 0 &&
+                      <ClearIcon
+                        onClick={() => setSearchString("")}
+                        sx={{
+                          color: "#333",
+                          fontSize: "1.25rem",
+                          position: "absolute",
+                          right: "0.75rem",
+                          top: '0', bottom: '0', margin: 'auto',
+                          zIndex: "1",
+                          cursor: "pointer"
+                        }}
+                      />
+                    }
                   </FormControl>
                 </FormGroup>
 
