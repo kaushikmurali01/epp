@@ -71,7 +71,13 @@ const RoutesComp = () => {
         .then((response) => {
           console.log("response.", response)
           localStorage.setItem("accessToken", response?.idToken);
-          dispatch(fetchUserDetails());
+          if(localStorage.getItem("selectedCompanyId")){
+            dispatch(fetchUserDetails(localStorage.getItem("selectedCompanyId")));
+          } else{
+            localStorage.setItem("selectedCompanyId", 0)
+            dispatch(fetchUserDetails());
+          }
+          
           if(response?.idTokenClaims?.newUser){
             setIsNewuser(true)
           }
