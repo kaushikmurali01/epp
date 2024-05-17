@@ -29,6 +29,9 @@ import {
   ADD_FACILITY_CHARACTERISTICS_FAILURE,
   ADD_FACILITY_CHARACTERISTICS_SUCCESS,
   ADD_FACILITY_CHARACTERISTICS_REQUEST,
+  ASSIGN_FACILITIES_REQUEST,
+  ASSIGN_FACILITIES_SUCCESS,
+  ASSIGN_FACILITIES_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -63,26 +66,26 @@ const facilityReducer = (state = initialState, action) => {
         error: action.payload,
       };
 
-      case GET_USER_DETAILS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-          error: null,
-        };
-      case GET_USER_DETAILS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          userDetails: action.payload,
-          error: null,
-        };
-      case GET_USER_DETAILS_FAILURE:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-    
+    case GET_USER_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_USER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userDetails: action.payload,
+        error: null,
+      };
+    case GET_USER_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
     case SUBMIT_FACILITY_FOR_APPROVAL_REQUEST:
       return {
         ...state,
@@ -225,6 +228,24 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_FACILITY_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ASSIGN_FACILITIES_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ASSIGN_FACILITIES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ASSIGN_FACILITIES_FAILURE:
       return {
         ...state,
         loading: false,

@@ -10,6 +10,8 @@ import {
   Select,
   MenuItem,
   Stack,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import FacilityOverview from "./facilityOverview";
 import FacilityApproved from "./facilityApproved";
@@ -24,7 +26,11 @@ import SelectBox from "components/FormBuilder/Select";
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
+import {
+  adminAssignFacilities,
+  fetchAdminFacilityListing,
+} from "../../../redux/admin/actions/adminFacilityActions";
+import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
@@ -76,12 +82,16 @@ const AdminFacilityListing = () => {
 
   const RequestToJoinForm = () => {
     const initialValues = {
-      emails: "",
-      assign_facility: "",
+      email: "",
+      facilityId: [],
     };
     const formSubmit = (values) => {
-      const emailArray = values.emails?.split(",").map((email) => email.trim());
-      console.log(emailArray);
+      dispatch(adminAssignFacilities(values)).then(() => {
+        setModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+      });
     };
 
     return (
@@ -89,31 +99,45 @@ const AdminFacilityListing = () => {
         initialValues={{
           ...initialValues,
         }}
+        validationSchema={validationSchemaAssignFacility}
         onSubmit={formSubmit}
       >
-        <Form>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <InputField
-              name="emails"
-              label="User email ID*"
-              placeholder="email1, email2, ..."
-            />
-          </Stack>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <SelectBox
-              name="assign_facility"
-              label="Assign Facility*"
-              options={adminFacilityData}
-              valueKey="id"
-              labelKey="facility_name"
-            />
-          </Stack>
-          <Grid display="flex" sx={{ marginTop: "1rem" }}>
-            <ButtonWrapper type="submit" variant="contained">
-              Submit
-            </ButtonWrapper>
-          </Grid>
-        </Form>
+        {({ values, setFieldValue }) => (
+          <Form>
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField
+                name="email"
+                label="User email ID*"
+                placeholder="email1, email2, ..."
+              />
+            </Stack>
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputLabel>Assign Facility*</InputLabel>
+              <FormControl>
+                <Select
+                  fullWidth
+                  name="facilityId"
+                  multiple
+                  value={values.facilityId}
+                  onChange={(e) => {
+                    setFieldValue("facilityId", e.target.value);
+                  }}
+                >
+                  {adminFacilityData?.map((item) => (
+                    <MenuItem key={item?.id} value={item?.id}>
+                      {item?.facility_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+            <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <ButtonWrapper type="submit" variant="contained">
+                Submit
+              </ButtonWrapper>
+            </Grid>
+          </Form>
+        )}
       </Formik>
     );
   };

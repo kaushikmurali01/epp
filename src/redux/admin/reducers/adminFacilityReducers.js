@@ -23,6 +23,9 @@ import {
   UPDATE_ADMIN_FACILITY_STATUS_REQUEST,
   UPDATE_ADMIN_FACILITY_STATUS_SUCCESS,
   UPDATE_ADMIN_FACILITY_STATUS_FAILURE,
+  ADMIN_ASSIGN_FACILITIES_REQUEST,
+  ADMIN_ASSIGN_FACILITIES_SUCCESS,
+  ADMIN_ASSIGN_FACILITIES_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -179,6 +182,24 @@ const adminFacilityReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_ADMIN_FACILITY_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADMIN_ASSIGN_FACILITIES_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADMIN_ASSIGN_FACILITIES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADMIN_ASSIGN_FACILITIES_FAILURE:
       return {
         ...state,
         loading: false,

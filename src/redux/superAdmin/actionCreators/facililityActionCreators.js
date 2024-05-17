@@ -29,6 +29,9 @@ import {
   UPDATE_FACILITY_STATUS_REQUEST,
   UPDATE_FACILITY_STATUS_SUCCESS,
   UPDATE_FACILITY_STATUS_FAILURE,
+  ASSIGN_FACILITIES_REQUEST,
+  ASSIGN_FACILITIES_SUCCESS,
+  ASSIGN_FACILITIES_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -168,5 +171,19 @@ export const updateFacilityStatusSuccess = (data) => ({
 
 export const updateFacilityStatusFailure = (error) => ({
   type: UPDATE_FACILITY_STATUS_FAILURE,
+  payload: error,
+});
+
+export const assignFacilityRequest = () => ({
+  type: ASSIGN_FACILITIES_REQUEST,
+});
+
+export const assignFacilitySuccess = (data) => ({
+  type: ASSIGN_FACILITIES_SUCCESS,
+  payload: data,
+});
+
+export const assignFacilityFailure = (error) => ({
+  type: ASSIGN_FACILITIES_FAILURE,
   payload: error,
 });
