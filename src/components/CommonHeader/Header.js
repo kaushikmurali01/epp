@@ -157,6 +157,7 @@ function Header(props) {
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
     dispatch(fetchUserDetails(selectedCompanyId))
+    window.location.reload();
   };
 
   // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
@@ -309,6 +310,11 @@ function Header(props) {
                 alignItems: "flex-end",
               }}
             >
+              <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
+                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} >
+                  Request to join other company
+                </Typography>
+              </Grid>
               <Button
                 onClick={() => setInvitationPopUp(true)}
                 sx={{ minWidth: "auto !important", padding: "0 !important" }}
