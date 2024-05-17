@@ -108,7 +108,7 @@ const Table = ({
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
-
+  
   return (
     <TableContainer>
       <MUITable {...getTableProps()}>
@@ -126,47 +126,53 @@ const Table = ({
           ))}
         </TableHead>
         <TableBody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            const { id } = row.original;
-            return (
-              <TableRow
-                {...row.getRowProps()}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#DBFFE2",
-                  },
-                }}
-              >
-                {row.cells.map((cell) => {
-                  return (
-                    <TableCell
-                      {...cell.getCellProps()}
-                      onClick={() => {
-                        if (onClick) {
-                          onClick(id, row?.original);
-                        }
-                      }}
-                      sx={{
-                        cursor: "pointer",
-                        color: "text.primary2",
-                        textAlign: "center",
-                        fontSize: "0.875rem",
-                        padding: "1.5rem 0.5rem",
-                        "&:first-of-type": {
-                          fontWeight: 600,
-                        },
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
+          {rows?.length > 0 ? 
+              rows.map((row) => {
+              prepareRow(row);
+              const { id } = row.original;
+              return (
+                <TableRow
+                  {...row.getRowProps()}
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#DBFFE2",
+                    },
+                  }}
+                >
+                  {row.cells.map((cell) => {
+                    return (
+                      <TableCell
+                        {...cell.getCellProps()}
+                        onClick={() => {
+                          if (onClick) {
+                            onClick(id, row?.original);
+                          }
+                        }}
+                        sx={{
+                          cursor: "pointer",
+                          color: "text.primary2",
+                          textAlign: "center",
+                          fontSize: "0.875rem",
+                          padding: "1.5rem 0.5rem",
+                          "&:first-of-type": {
+                            fontWeight: 600,
+                          },
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })
+          : 
+          <TableRow>
+             <TableCell colSpan={columns.length} sx={{textAlign: 'center !important'}}>No Data found.</TableCell>
+          </TableRow>
+        }
         </TableBody>
-        {pageInfo?.pageSize && 
+        {(pageInfo?.pageSize && rows?.length > 0 ) && 
           <TableFooter>
             <TableRow>
               <TableCell
