@@ -78,7 +78,23 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   });
 
   const handleFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
@@ -359,6 +375,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           ref={fileInputRef}
                           style={{ display: "none" }}
                           onChange={handleFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}

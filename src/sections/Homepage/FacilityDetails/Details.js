@@ -299,10 +299,28 @@ const Details = () => {
   };
 
   const handleAssemblyFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedAssemblyFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then((data) => setAssemblyImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setAssemblyImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -317,10 +335,28 @@ const Details = () => {
   };
 
   const handleFacilityFileChange = (event) => {
+    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
     const selectedFile = event.target.files[0];
+    if (!acceptedTypes.includes(selectedFile.type)) {
+      alert(
+        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
+      );
+      event.target.value = "";
+      return;
+    }
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      alert(
+        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+      );
+      event.target.value = "";
+      return;
+    }
     setSelectedFacilityFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
-      .then((data) => setFacilityImgUrl(data?.sasTokenUrl))
+      .then((data) => {
+        setFacilityImgUrl(data?.sasTokenUrl);
+      })
       .catch((error) => {
         console.error("Error uploading image:", error);
       });
@@ -1304,6 +1340,7 @@ const Details = () => {
                           ref={fileFacilityInputRef}
                           style={{ display: "none" }}
                           onChange={handleFacilityFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}
@@ -1348,6 +1385,7 @@ const Details = () => {
                         ref={fileAssemblyInputRef}
                         style={{ display: "none" }}
                         onChange={handleAssemblyFileChange}
+                        accept="image/png, image/gif, image/jpeg, image/jpg"
                       />
                     </>
                   ) : (
