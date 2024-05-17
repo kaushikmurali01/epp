@@ -23,38 +23,41 @@ import {
   UnauthenticatedTemplate,
   MsalProvider,
 } from "@azure/msal-react";
-
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 const store = configureStore();
 
 const App = (props) => {
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
-        <Suspense fallback={<Loader fallBackLoader={true} />}>
-          <MsalProvider instance={props.instance}>
-            <UnauthenticatedTemplate>
-              <Header />
-              <LandingPage />
-              <Footer />
-            </UnauthenticatedTemplate>
-            <AuthenticatedTemplate>
-              <>
-                <RoutesComp />
-              </>
-            </AuthenticatedTemplate>
-            <HomepageComponent />
-          </MsalProvider>
-        </Suspense>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <Suspense fallback={<Loader fallBackLoader={true} />}>
+            <MsalProvider instance={props.instance}>
+              <UnauthenticatedTemplate>
+                <Header />
+                <LandingPage />
+                <Footer />
+              </UnauthenticatedTemplate>
+              <AuthenticatedTemplate>
+                <>
+                  <RoutesComp />
+                </>
+              </AuthenticatedTemplate>
+              <HomepageComponent />
+            </MsalProvider>
+          </Suspense>
 
-        {/* <ActionComponent /> */}
-        {/* <Login /> */}
-        {/* {/* <Signup /> */}
-        {/* <HomepageComponent /> */}
-        {/* <LandingPage /> */}
-        {/* <Facility /> */}
-        {/* <FacilityDetails /> */}
-        {/* <ParticipantAgreement /> */}
-        {/* <Footer /> */}
+          {/* <ActionComponent /> */}
+          {/* <Login /> */}
+          {/* {/* <Signup /> */}
+          {/* <HomepageComponent /> */}
+          {/* <LandingPage /> */}
+          {/* <Facility /> */}
+          {/* <FacilityDetails /> */}
+          {/* <ParticipantAgreement /> */}
+          {/* <Footer /> */}
+        </LocalizationProvider>
       </ThemeProvider>
       {/* <Loader /> */}
     </Provider>

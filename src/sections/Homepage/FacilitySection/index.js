@@ -25,6 +25,7 @@ import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
+import debounce from "lodash.debounce";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
@@ -52,14 +53,18 @@ const Facility = () => {
               Submit for approval
             </Button>
           )}
-          <Link
-            href="#"
-            variant="small"
-            sx={{ color: "#2C77E9", cursor: "pointer" }}
-            underline="none"
-          >
-            Update energy savings calculation
-          </Link>
+          {false ? (
+            <Link
+              href="#"
+              variant="small"
+              sx={{ color: "#2C77E9", cursor: "pointer" }}
+              underline="none"
+            >
+              Update energy savings calculation
+            </Link>
+          ) : (
+            <></>
+          )}
         </Box>
       ),
     },
@@ -136,6 +141,7 @@ const Facility = () => {
   const facilityCount = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.count || []
   );
+  const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   const openDeleteFacilityModal = (facilityId) => {
@@ -191,9 +197,16 @@ const Facility = () => {
     saveButtonAction: handleDeleteFacility,
   });
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchFacilityListing(pageInfo, searchString));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchFacilityListing(pageInfo));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
@@ -300,7 +313,7 @@ const Facility = () => {
           <Typography variant="small2">
             Please note that signing{" "}
             <Link
-              href="#"
+              href="#/participant-agreement"
               variant="span2"
               sx={{ color: "#2C77E9", cursor: "pointer" }}
               underline="none"
@@ -314,7 +327,7 @@ const Facility = () => {
         <Grid item>
           <TextField
             name="search"
-            label="Search by Facility name & ID"
+            label="Search by Facility name"
             type="text"
             fullWidth
             size="small"
@@ -324,6 +337,7 @@ const Facility = () => {
                 borderRadius: "6px",
               },
             }}
+            onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
         <Grid
