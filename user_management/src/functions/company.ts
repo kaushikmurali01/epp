@@ -1,6 +1,8 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { CompanyController } from '../controllers/companyController';
 import { decodeTokenMiddleware } from "../middleware/authMiddleware";
+import { Company } from "../models/company";
+import { sequelize } from "../services/database";
 
 
 
@@ -162,6 +164,39 @@ export async function GetCompanyAdmin(request: HttpRequest, context: InvocationC
         return { status: 500, body: `${error.message}` };
     }
 }
+
+export async function CheckCompanyByName(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { company_name } = request.params;
+       // const company = await Company.findOne({ where: { company_name: company_name } });
+
+        const company = await Company.findOne({ 
+            where: sequelize.where(sequelize.fn('LOWER', sequelize.col('company_name')), company_name.toLowerCase())
+        });
+        let resp:object;
+        if(company) {
+            resp = {
+                status: 200,
+                exists:true
+            }
+        } else {
+            resp = {
+                status: 200,
+                exists:false
+            }  
+        }
+
+        // Prepare response body
+        const responseBody = JSON.stringify(resp);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
 app.http('ListCompanies', {
     methods: ['GET'],
     authLevel: 'anonymous',
@@ -174,6 +209,12 @@ app.http('GetCompanyAdmin', {
     authLevel: 'anonymous',
     handler: GetCompanyAdmin,
     route: 'fetch/company/{id}'
+});
+app.http('CheckCompanyByName', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: CheckCompanyByName,
+    route: 'check/company/{company_name}'
 });
 app.http('CreateCompany', {
     methods: ['POST'],

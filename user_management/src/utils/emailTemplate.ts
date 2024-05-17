@@ -177,21 +177,15 @@ export class EmailTemplate {
                                       font-weight: 400;
                                       text-transform: lowercase;
                                     ">
-                                  <button style="
-                                    border: transparent;
-                                    padding: 0.5rem 0.75rem;
-                                    border-radius: 0.25rem;
-                                    background: #2E813E;
-                                    cursor: pointer;
-                                  ">
-                                    <a href="#" style="
+                                  
+                                    <a href="https://eppstgstorage.z14.web.core.windows.net/" style="
                                       text-decoration: none;
                                       color: #fff;
                                       font-size: 0.875rem;
                                       font-style: normal;
                                       font-weight: 400;
                                     ">View application</a>
-                                  </button>
+                                 
                                 </td>
                               </tr>
                               <tr>

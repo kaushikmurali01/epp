@@ -42,33 +42,37 @@ class UserInvitationService {
   static async sendInvitation(details:any, resp:any): Promise<Response> {
     try {
         const email = details.email;
-        details.company = resp.company_id;
+       // details.company = resp.company_id;
         const invitation = await UserInvitation.create(details);
         const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
-        console.log("Existing User",existingUser);
+        //console.log("Existing User",existingUser);
         let company;
-        details.company = 12;
+       // details.company = 22;
         if(details.company) {
         company = await CompanyService.getCompanyAdmin(details.company);
-        console.log("Company111", company);
+       // console.log("Company111", company.dataValues.company_name);
         }
         let body:string, emailContent:string;
-         let inviteEmailContent = EmailContent.invitationEmailForExistingUser.content
-         .replace('#company#', "company name")
-         .replace('#admin#', 'Admin name');
+        let landing_page = process.env.LANDING_PAGE;
+        //console.log("landing_page",landing_page);
         if(existingUser) {
             emailContent =  template
+           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
            .replace('#name#', existingUser.first_name)
-           .replace('#admin#', "Test Admin")
+           .replace('#admin#', company.first_name +' '+company.last_name)
            .replace('#heading#', '')
-           .replace('#content#', inviteEmailContent);
+           .replace('#link#', landing_page)
+           .replace('#company#', company.dataValues.company_name);
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
         } else {
-           emailContent =  template
-          .replace('#name#', "")
-          .replace('#admin#', "Test Admin")
-          .replace('#content#', EmailContent.invitationEmailForExistingUser.content);
+          emailContent =  template
+          .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
+          .replace('#name#', " ")
+          .replace('#admin#', company.first_name +' '+company.last_name)
+          .replace('#heading#', '')
+          .replace('#link#', landing_page)
+          .replace('#company#', company.dataValues.company_name);
           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
         }
        
@@ -91,7 +95,8 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
             },
             {
                 model: Company,
-                attributes: ['company_name']
+                attributes: ['company_name'],
+                required:false
             }
         ]
     });
@@ -124,12 +129,12 @@ static async getUserInvitation(email:any, user_id:any): Promise<Object> {
 static async acceptUserInvitation(detail, resp, context): Promise<Object> {
   try {
 
-    if(detail.type == 'rejected') {
-      await UserInvitation.update({ is_active: 0 }, { where: { email: resp.email, company:detail.company_id } });
+    if(detail.type == 'reject') {
+      await UserInvitation.update({ is_active: 0 }, { where: { email: detail.email, company:detail.company_id } });
     } else {
 
     const invitationList:any = await UserInvitation.findOne({
-      where: { email: resp.email }
+      where: { email: detail.email }
   });
 
   context.log("Listing1234",invitationList);
@@ -168,12 +173,20 @@ console.log("invitationPermissions",invitationList.permissions);
     });
 }
 
-await UserInvitation.update({ is_active: 0 }, { where: { email: resp.email, company:detail.company_id } });
+await UserInvitation.destroy({
+  where: {
+    email: detail.email,
+    company: detail.company_id
+  }
+});
+
+//await UserInvitation.update({ is_active: 0 }, { where: { email: detail.email, company:detail.company_id } });
 if(detail.company_id) {
   await User.update({ type: 2 }, { where: { id: detail.user_id} });
-} else {
-  await User.update({ type: 1 }, { where: { id: detail.user_id} });
-}
+} 
+// else {
+//   await User.update({ type: 1 }, { where: { id: detail.user_id} });
+// }
 }
 
 

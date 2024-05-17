@@ -28,6 +28,15 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
             return { status: 401, body: 'Unauthorized: Invalid token' };
         }
 
+        // const userData = {
+        //     id: user.dataValues.id,
+        //     email: user.dataValues.email,
+        //     type: user.dataValues.type,
+        //     role_id: user.get('role_id') || null,
+        //     company_id: user.get('company_id') || null
+        // };
+       // return userData;
+
         console.log("values", user.dataValues)
 
         // Call the next function
