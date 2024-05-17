@@ -148,9 +148,9 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
             facilityEndPoints.facilityList + "/" + facilityEndPoints.addFacility
           }
           element={<AddFacilityComponent />}
-        />
+        />,
       );
-    } else if (userPermissions[i].permission == "facility-data" && userPermissions[i].permission == "facility-data-visualizations") {
+    } else if (userPermissions[i].permission == "facility-data" || userPermissions[i].permission == "facility-data-visualizations") {
       routesToPermit.push(
         <Route
           path={
