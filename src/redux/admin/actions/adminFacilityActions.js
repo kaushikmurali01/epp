@@ -31,6 +31,9 @@ import {
   updateAdminFacilityStatusRequest,
   updateAdminFacilityStatusSuccess,
   updateAdminFacilityStatusFailure,
+  adminAssignFacilityRequest,
+  adminAssignFacilitySuccess,
+  adminAssignFacilityFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
 export const fetchAdminFacilityListing = (pageInfo, status, search = "") => {
@@ -201,6 +204,30 @@ export const updateAdminFacilityStatus = (facilityId, status) => {
     } catch (error) {
       console.error(error);
       dispatch(updateAdminFacilityStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+
+export const adminAssignFacilities = (assignData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAssignFacilityRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_ASSIGN_FACILITIES;
+      const response = await POST_REQUEST(endpoint, assignData);
+      const data = response.data;
+      dispatch(adminAssignFacilitySuccess(data));
+      NotificationsToast({
+        message: "Facility assigned successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAssignFacilityFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

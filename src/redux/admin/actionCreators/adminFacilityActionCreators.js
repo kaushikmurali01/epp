@@ -23,6 +23,9 @@ import {
   UPDATE_ADMIN_FACILITY_STATUS_FAILURE,
   UPDATE_ADMIN_FACILITY_STATUS_REQUEST,
   UPDATE_ADMIN_FACILITY_STATUS_SUCCESS,
+  ADMIN_ASSIGN_FACILITIES_REQUEST,
+  ADMIN_ASSIGN_FACILITIES_SUCCESS,
+  ADMIN_ASSIGN_FACILITIES_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -134,5 +137,19 @@ export const updateAdminFacilityStatusSuccess = (data) => ({
 
 export const updateAdminFacilityStatusFailure = (error) => ({
   type: UPDATE_ADMIN_FACILITY_STATUS_FAILURE,
+  payload: error,
+});
+
+export const adminAssignFacilityRequest = () => ({
+  type: ADMIN_ASSIGN_FACILITIES_REQUEST,
+});
+
+export const adminAssignFacilitySuccess = (data) => ({
+  type: ADMIN_ASSIGN_FACILITIES_SUCCESS,
+  payload: data,
+});
+
+export const adminAssignFacilityFailure = (error) => ({
+  type: ADMIN_ASSIGN_FACILITIES_FAILURE,
   payload: error,
 });

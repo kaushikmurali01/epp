@@ -30,6 +30,9 @@ import {
   updateFacilityStatusRequest,
   updateFacilityStatusSuccess,
   updateFacilityStatusFailure,
+  assignFacilityRequest,
+  assignFacilitySuccess,
+  assignFacilityFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -250,6 +253,29 @@ export const updateFacilityStatus = (facilityId, status) => {
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const assignFacilities = (assignData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(assignFacilityRequest());
+      const endpoint = facilityEndPoints.ASSIGN_FACILITIES;
+      const response = await POST_REQUEST(endpoint, assignData);
+      const data = response.data;
+      dispatch(assignFacilitySuccess(data));
+      NotificationsToast({
+        message: "Facility assigned successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(assignFacilityFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

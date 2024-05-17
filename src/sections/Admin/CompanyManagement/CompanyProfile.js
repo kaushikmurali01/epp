@@ -28,7 +28,7 @@ const CompanyProfile = () => {
   }, [dispatch, id]);
 
   const companyProfileData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyDetails?.data
+    (state) => state?.adminCompanyReducer?.companyDetails
   );
   const getCompanyType = (type) => {
     const companyType = userTypes.find((company) => company.id === type);
