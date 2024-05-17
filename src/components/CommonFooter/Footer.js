@@ -43,7 +43,7 @@ export default function Footer() {
                   mb={2}
                   sx={{ width: "100%", textAlign: "justify" }}
                 >
-                  This Save on Energy program is delivered by Enerva and brought to you by the Independent Electricity System Operator. Subject to additional terms and conditions found at <Link href="#" sx={{ textDecoration: "none" }} color="blue.main">
+                  This Save on Energy program is delivered by Enerva and brought to you by the Independent Electricity System Operator. Subject to additional terms and conditions found at <Link target="_blank" href={"https://www.saveonenergy.ca/"} sx={{ textDecoration: "none" }} color="blue.main">
                     SaveOnEnergy.ca
                   </Link>
                   
@@ -51,7 +51,7 @@ export default function Footer() {
               </Grid>
               <Grid item sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
                 <Copyright />
-                <Link color="text.primary" href="#" sx={{ textDecoration: "none", color: 'blue.main' }}>
+                <Link target="_blank" color="text.primary" href={"https://www.ieso.ca/en/privacy"} sx={{ textDecoration: "none", color: 'blue.main' }}>
                   Privacy
                 </Link>
               </Grid>

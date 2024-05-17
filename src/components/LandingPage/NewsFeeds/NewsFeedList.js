@@ -49,7 +49,7 @@ const NewsFeedList = () => {
                 <Grid container className='heading-row' sx={{ justifyContent: theme_Sm ? 'flex-start' : 'center' }}>
                     <Grid item >
                         <Typography variant="h3" >
-                            What’s New
+                            What's new
                         </Typography>
 
                     </Grid>

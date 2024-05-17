@@ -104,7 +104,8 @@ function Header(props) {
     }).catch((error)=> console.log("error in login redirect", error))
   }
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (event, sectionId) => {
+    event.preventDefault()
     const sectionElement = document.getElementById(sectionId);
     const offset = 128;
     if (sectionElement) {
@@ -243,7 +244,7 @@ function Header(props) {
                 }}
               >
                 <MenuItem
-                  onClick={() => scrollToSection("howItWorksSection")}
+                  onClick={(event) => scrollToSection(event, "howItWorksSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -257,7 +258,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("userStorySection")}
+                  onClick={(event) => scrollToSection(event, "userStorySection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -271,7 +272,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("whatsNewSection")}
+                  onClick={(event) => scrollToSection(event, "whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -281,11 +282,11 @@ function Header(props) {
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
-                    What's New
+                    What's new
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("contactUsFormSection")}
+                  onClick={(event) => scrollToSection(event, "contactUsFormSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -295,7 +296,7 @@ function Header(props) {
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
-                    Contact Us
+                    Contact us
                   </Typography>
                 </MenuItem>
               </Box>
@@ -455,24 +456,24 @@ function Header(props) {
                     }}
                   >
                     <MenuItem
-                      onClick={() => scrollToSection("howItWorksSection")}
+                      onClick={(event) => scrollToSection(event, "howItWorksSection")}
                     >
                       How it works
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("userStorySection")}
+                      onClick={(event) => scrollToSection(event, "userStorySection")}
                     >
                       Success stories
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("whatsNewSection")}
+                      onClick={(event) => scrollToSection(event, "whatsNewSection")}
                     >
-                      What's New
+                      What's new
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("contactUsFormSection")}
+                      onClick={(event) => scrollToSection(event, "contactUsFormSection")}
                     >
-                      Contact Us
+                      Contact us
                     </MenuItem>
                     <Divider />
                     <MenuItem>
