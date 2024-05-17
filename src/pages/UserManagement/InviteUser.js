@@ -101,7 +101,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             const requestBody = {
                 "email": userEmail,
                 "role": selectRoleType,
-                // "company": "1", // comapnay id is static right now.
+                "company": localStorage.getItem("selectedCompanyId"), 
                 "permissions": permissionIds
             }
             //  for enverva admin types
