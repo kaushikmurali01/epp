@@ -111,7 +111,7 @@ const AdminFacilityListing = () => {
                 placeholder="email1, email2, ..."
               />
             </Stack>
-            <Stack sx={{ marginBottom: "1rem" }}>
+            <Stack sx={{ marginBottom: "1rem", width:"300px" }}>
               <InputLabel>Assign Facility*</InputLabel>
               <FormControl>
                 <Select
