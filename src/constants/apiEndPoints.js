@@ -41,7 +41,8 @@ export const USER_MANAGEMENT = {
   GET_USER_LIST: "/enerva-user/v1/combinedusers",
   GET_USER_ROLE: "/enerva-user/v1/roles",
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
-  // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
+  GET_FILTER_USER_LIST: "/enerva-user/v1/filteredusers",
+
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
   GET_COMPANY_DETAILS: "/enerva-user/v1/fetch/company",
   COMPANY_SEND_ALERT: "/enerva-user/v1/company/sendAlert",
@@ -76,12 +77,11 @@ export const ENERVA_USER_MANAGEMENT = {
   GET_EV_USER_PERMISSONS_BY_ID: "/enerva-user/v1/program/user/permissions",
   // POST REQUEST
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
-  JOIN_EV_REQUEST: "",
-  ACCEPT_EV_USER_REQUEST: "",
-  REJECT_EV_USER_REQUEST: "",
+
   SEND_USER_ALERT: "/enerva-user/v1/alert/send",
   // DELETE REQUEST
-  DELETE_EV_USER_REQUEST: "",
+  // DELETE_EV_USER_REQUEST: "",
+  VIEW_USER_PROFILE: "/enerva-user/v1/usercompanybyuser",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
 };
