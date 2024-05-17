@@ -35,8 +35,8 @@ const AddFacilityComponent = (props) => {
     street_number: "",
     street_name: "",
     city: "",
-    province: "",
-    country: "",
+    province: "Toronto",
+    country: "Canada",
     postal_code: "",
   });
 
@@ -260,7 +260,7 @@ const AddFacilityComponent = (props) => {
           setSelectedFile(response.data.data.display_pic_url);
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const handleButtonClick = () => {
@@ -294,28 +294,35 @@ const AddFacilityComponent = (props) => {
 
     if (!id) {
 
-        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
-            .then((response) => {
-                console.log(response)
-                NotificationsToast({
-                    message: "Facility added successfully!",
-                    type: "success",
-                });
-                navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
-            })
-            .catch((error) => {
-            });
+      POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
+        .then((response) => {
+          NotificationsToast({
+            message: "Facility added successfully!",
+            type: "success",
+          });
+          navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
+        })
+        .catch((error) => {
+          NotificationsToast({
+            message: error?.message ? error.message : "Something went wrong!",
+            type: "error",
+          });
+        });
     } else {
-        PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
-            .then((response) => {
-                NotificationsToast({
-                    message: "Facility updated successfully!",
-                    type: "success",
-                });
-                navigate(`/facility-list/facility-details/${id}`)
-            })
-            .catch((error) => {
-            });
+      PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
+        .then((response) => {
+          NotificationsToast({
+            message: "Facility updated successfully!",
+            type: "success",
+          });
+          navigate(`/facility-list/facility-details/${id}`)
+        })
+        .catch((error) => {
+          NotificationsToast({
+            message: error?.message ? error.message : "Something went wrong!",
+            type: "error",
+          });
+        });
     }
   };
 
@@ -618,7 +625,10 @@ const AddFacilityComponent = (props) => {
 
             <Grid container spacing={2} sx={{ marginTop: "10px" }}>
               <Grid item xs={12} sm={3}>
-                <InputField name="city" label="City*" type="text" />
+                <InputField
+                  name="city"
+                  label="City*"
+                  type="text" />
               </Grid>
 
               <Grid item xs={12} sm={3}>
@@ -626,11 +636,16 @@ const AddFacilityComponent = (props) => {
                   name="province"
                   label="Province/State*"
                   type="text"
+                  isDisabled={true}
                 />
               </Grid>
 
               <Grid item xs={12} sm={3}>
-                <InputField name="country" label="Country*" type="text" />
+                <InputField
+                  name="country"
+                  label="Country*"
+                  type="text"
+                  isDisabled={true} />
               </Grid>
 
               <Grid item xs={12} sm={3}>

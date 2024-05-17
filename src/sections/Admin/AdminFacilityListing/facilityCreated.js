@@ -140,7 +140,7 @@ const FacilityCreated = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() => navigate(`/facility-list/facility-details/${item?.id}`)}
           >
             View
           </Button>
@@ -152,7 +152,7 @@ const FacilityCreated = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openRequestModal(true, item)}
+            onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>

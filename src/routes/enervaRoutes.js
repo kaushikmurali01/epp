@@ -2,6 +2,7 @@ import React, { lazy } from 'react';
 import { Navigate, Route, Routes, Outlet } from 'react-router-dom';
 import {  enervaEndPoints, facilityEndPoints, participantAgreementEndPoints, userManagementEndPoints, profilePageEndPoints } from 'constants/endPoints';
 import AddFacilityComponent from 'pages/Facility/AddFacility';
+import AdminAddFacilityComponent from 'sections/Admin/AdminFacilityDetails/AdminAddFacility';
 import DashboardSectionComponent from 'pages/Facility/FacilityDashboard';
 import ParticipantAgreementComponent from 'pages/ParticipantAgreement';
 import EntriesListing from 'sections/Homepage/FacilityDetails/EntriesListing';
@@ -25,8 +26,8 @@ export const EnervaRoutes = () => {
         <Route path='/' element={<Navigate to={facilityEndPoints.facilityDashboard} replace />} />
         <Route path={facilityEndPoints.facilityDashboard} element={<DashboardSectionComponent />} />
         <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
-        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AddFacilityComponent /> }/>
-        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AddFacilityComponent /> }/>
+        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AdminAddFacilityComponent /> }/>
+        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AdminAddFacilityComponent /> }/>
         {/* <Route path= {participantAgreementEndPoints.participantAgreement} element={ <ParticipantAgreementComponent />} /> */}
         <Route path= {userManagementEndPoints.userManagement} element={ <UserManagementAdmin />} />
         <Route path= {userManagementEndPoints.userProfile} element={ <UserProfilePage />} />
