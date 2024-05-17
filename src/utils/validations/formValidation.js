@@ -213,3 +213,16 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     "Is Space Cooling Controlled for Occupancy is required"
   ),
 });
+
+export const validationSchemaAssignFacility = Yup.object().shape({
+  email: Yup.string()
+  .required("Email is required")
+  .matches(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/, "Invalid email")
+  .test("At least one email is required", (value) => {
+     return value.split(",").some((email) => email.trim()!== "");
+   }),
+   facilityId: Yup.array()
+    .of(Yup.number())
+    .required("Facility is required")
+    .min(1, "At least one facility is required"),
+});
