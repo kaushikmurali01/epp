@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { emailRegExp, phoneUSFormatRegExp } from "../../config/regex";
+import { emailRegExp, phoneUSFormatRegExp, postalCodeCanadaFormatRegExp } from "../../config/regex";
 
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
@@ -62,7 +62,8 @@ export const validationSchemaAddFacility = Yup.object().shape({
   city: Yup.string().required("City is required"),
   province: Yup.string().required("Province/State is required"),
   country: Yup.string().required("Country is required"),
-  postal_code: Yup.string().required("Postal Code is required"),
+  postal_code: Yup.string().required("Postal Code is required")
+  .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
 });
 
 export const validationSchemaLandingPageForm = Yup.object({
