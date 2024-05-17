@@ -1,9 +1,9 @@
 import { User } from '../models/user';
 //import { UserAttributes } from 'enerva-utils/interfaces/user';
 //import { testDatabaseConnection } from 'enerva-utils/utils/database';
- import { Response } from 'enerva-utils/interfaces/response';
- //import { RESPONSE_MESSAGES } from 'enerva-utils/utils/message';
- import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
+import { Response } from 'enerva-utils/interfaces/response';
+//import { RESPONSE_MESSAGES } from 'enerva-utils/utils/message';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
 import { UserInvitation } from '../models/user-invitation';
 import { Status } from '../models/status';
 import { UserRequest } from '../models/user-request';
@@ -13,77 +13,79 @@ import { sequelize } from '../services/database';
 import { UserCompanyRole, UserCompanyRoleAttributes } from '../models/user-company-role';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { Permission } from '../models/permission';
-import { UpsertOptions } from 'sequelize';
+import { Op, UpsertOptions } from 'sequelize';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
 
 
 class UserService {
 
-/**
- * Registers a new user with provided details.
- * 
- * @param userDetails - Object containing user details such as first_name, last_name, email, password, and address.
- * @returns Promise<Response> - A promise resolving to a response indicating the status of user registration.
- * @description Registers a new user by creating a user record in the database with specified user details. Returns a response indicating the success or failure of the registration process.
- */
-static async registerUser(userDetails): Promise<any> {
-  try {
-    const user = await User.create(userDetails);
-    return user;
-} catch (error) {
-    throw new Error(`${error.message}`);
-}
-}
+  /**
+   * Registers a new user with provided details.
+   * 
+   * @param userDetails - Object containing user details such as first_name, last_name, email, password, and address.
+   * @returns Promise<Response> - A promise resolving to a response indicating the status of user registration.
+   * @description Registers a new user by creating a user record in the database with specified user details. Returns a response indicating the success or failure of the registration process.
+   */
+  static async registerUser(userDetails): Promise<any> {
+    try {
+      const user = await User.create(userDetails);
+      return user;
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
 
-static async acceptInvitation(data): Promise<Response> {
-  try {
-    let id = data.user_id;
-    let userData:any = await UserRequest.findOne({
-      where: {
+  static async acceptInvitation(data): Promise<Response> {
+    try {
+      let id = data.user_id;
+      let userData: any = await UserRequest.findOne({
+        where: {
           id: id,
           is_active: 1
-      }
-  });
+        }
+      });
 
-    const existingUserCompanyRole = await UserCompanyRole.findOne({
-      where: {
-        company_id: data.company_id,
-        user_id: userData?.dataValues?.user_id
+      const existingUserCompanyRole = await UserCompanyRole.findOne({
+        where: {
+          company_id: data.company_id,
+          user_id: userData?.dataValues?.user_id
+        }
+      });
+
+      // If the record exists, update it; otherwise, create a new one
+      if (existingUserCompanyRole) {
+        await UserCompanyRole.update({
+          role_id: userData?.dataValues?.role
+        }, {
+          where: {
+            company_id: data.company_id,
+            user_id: userData?.dataValues?.user_id
+          }
+        });
+      } else {
+        const newUserCompanyRole: any = {
+          company_id: data.company_id,
+          role_id: userData?.dataValues?.role,
+          user_id: userData?.dataValues?.user_id,
+          is_active: 1
+        };
+        await UserCompanyRole.create(newUserCompanyRole);
       }
-    });
-    
-    // If the record exists, update it; otherwise, create a new one
-    if (existingUserCompanyRole) {
-      await UserCompanyRole.update({
-        role_id: userData?.dataValues?.role
-      }, {where: {
-        company_id: data.company_id,
-        user_id: userData?.dataValues?.user_id
-      } });
-    } else {
-      const newUserCompanyRole: any = {
-        company_id: data.company_id,
-        role_id: userData?.dataValues?.role,
-        user_id: userData?.dataValues?.user_id,
-        is_active: 1 
-      };
-      await UserCompanyRole.create(newUserCompanyRole);
+      await UserRequest.update({ is_active: 0 }, { where: { id } });
+      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    } catch (error) {
+      throw new Error(`${error.message}`);
     }
-    await UserRequest.update({ is_active: 0 }, { where: { id } });
-    return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
-  } catch (error) {
-     throw new Error(`${error.message}`);
   }
-}
 
-static async rejectInvitation(data): Promise<Response> {
-  try {
-     const result = UserRequest.update({ status: "Rejected"}, {where:{id: data.user_id}});
-     return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
-} catch (error) {
-     throw new Error(`${error.message}`);
-}
-}
+  static async rejectInvitation(data): Promise<Response> {
+    try {
+      const result = UserRequest.update({ status: "Rejected" }, { where: { id: data.user_id } });
+      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
 
   /**
    * Updates an existing user with provided details.
@@ -93,7 +95,7 @@ static async rejectInvitation(data): Promise<Response> {
    * @returns Promise<User | null> - A promise resolving to the updated user if successful, otherwise null.
    * @description Updates an existing user record in the database with specified user details.
    */
-  static async updateUser(id: number, userDetails:Object): Promise<User | null> {
+  static async updateUser(id: number, userDetails: Object): Promise<User | null> {
     try {
       const [rowsAffected, updatedUsers] = await User.update(userDetails, {
         where: { id },
@@ -114,25 +116,25 @@ static async rejectInvitation(data): Promise<Response> {
    */
   static async getEnervaUsers(offset, limit): Promise<User[]> {
     try {
-        return await User.findAll({
+      return await User.findAll({
         include: [{
           model: UserCompanyRole,
           attributes: [],
           include: [{
             model: Role,
             attributes: []
-        }]
-      }],
+          }]
+        }],
         offset: offset,
         limit: limit,
         where: {
-          type: 2, 
+          type: 2,
         },
-        attributes: ["id","status", "email", "first_name", "last_name", "createdAt", "type",
-        [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 
-  
+        attributes: ["id", "status", "email", "first_name", "last_name", "createdAt", "type",
+          [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+
         ],
-    });
+      });
     } catch (error) {
       throw new Error(`Failed to fetch users: ${error.message}`);
     }
@@ -140,25 +142,25 @@ static async rejectInvitation(data): Promise<Response> {
 
   static async getIESOUsers(offset, limit): Promise<User[]> {
     try {
-        return await User.findAll({
+      return await User.findAll({
         include: [{
           model: UserCompanyRole,
           attributes: [],
           include: [{
             model: Role,
             attributes: []
-        }]
-      }],
+          }]
+        }],
         offset: offset,
         limit: limit,
         where: {
-          type: 3, 
+          type: 3,
         },
-        attributes: ["id","status", "email", "first_name", "last_name", "createdAt", "type",
-        [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 
-  
+        attributes: ["id", "status", "email", "first_name", "last_name", "createdAt", "type",
+          [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+
         ],
-    });
+      });
     } catch (error) {
       throw new Error(`Failed to fetch users: ${error.message}`);
     }
@@ -168,8 +170,8 @@ static async rejectInvitation(data): Promise<Response> {
     try {
       // Fetch users and invitations concurrently
       const [users, invitations] = await Promise.all([
-          User.findAll(),
-          UserInvitation.findAll(),
+        User.findAll(),
+        UserInvitation.findAll(),
       ]);
 
       // Concatenate the results of both tables
@@ -179,209 +181,213 @@ static async rejectInvitation(data): Promise<Response> {
       const paginatedResults = allResults.slice(offset, offset + limit);
 
       return paginatedResults;
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
-  }
+    }
   }
 
-  static async findAllRegisteredUsers(offset, limit, company, entrytype){
-    if(entrytype == 0 || entrytype == 1) {
-    return User.findAndCountAll({
-      include: [{
+  static async findAllRegisteredUsers(offset, limit, company, entrytype, search?) {
+    if (entrytype == 0 || entrytype == 1) {
+      return User.findAndCountAll({
+        include: [{
           model: UserCompanyRole,
           attributes: [],
           where: {
-              company_id: company
+            company_id: company
           },
           include: [{
-              model: Role,
-              attributes: []
+            model: Role,
+            attributes: []
           }]
-      }],
-      offset: offset,
-      limit: limit,
-      where: {
-        type: 2,
-        is_active: 1 
-      },
-      attributes: ["id", "email", "first_name", "last_name",
+        }],
+        offset: offset,
+        limit: limit,
+        where: {
+          type: 2,
+          is_active: 1,
+          [Op.or]: [
+            { first_name: { [Op.iLike]: `%${search}%` } },
+            { last_name: { [Op.iLike]: `%${search}%` } },
+            { email: { [Op.iLike]: `%${search}%` } },
+          ]
+        },
+        attributes: ["id", "email", "first_name", "last_name",
           [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
           [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
           [sequelize.col('UserCompanyRole.status'), 'status'],
           [sequelize.col('UserCompanyRole.company_id'), 'company_id']
-      ],
-  });
-}
+        ],
+      });
+    }
   }
 
-  static async findAllInvitedUsers(offset, limit, company, entrytype){
-    if(entrytype == 0 || entrytype == 2) {
- 
-    return UserInvitation.findAndCountAll({
-      offset: offset,
-      limit: limit,
-      where: {
-        is_active: 1,
-        company: company
-      },
-      attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status',
+  static async findAllInvitedUsers(offset, limit, company, entrytype, search?) {
+    if (entrytype == 0 || entrytype == 2) {
+
+      return UserInvitation.findAndCountAll({
+        offset: offset,
+        limit: limit,
+        where: {
+          is_active: 1,
+          company: company,
+          [Op.or]: [
+            { email: { [Op.iLike]: `%${search}%` } },
+          ]
+        },
+        attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status',
           [sequelize.col('Role.rolename'), 'rolename'],
           [sequelize.col('Role.id'), 'role_id'],
           [sequelize.col('Company.company_name'), 'company_name'],
           [sequelize.col('Company.id'), 'company_id']
-      ],
-      include: [{
-              model: Role,
-              attributes: []
-          },
-          {
-              model: Company,
-              attributes: []
-          }
-      ]
-  });
-} else return [];
+        ],
+        include: [{
+          model: Role,
+          attributes: []
+        },
+        {
+          model: Company,
+          attributes: []
+        }
+        ]
+      });
+    } else return [];
   }
 
-  static async findAllRequestReceived(offset, limit, company, entrytype){
-    if(entrytype == 0 || entrytype == 3) {
-    return UserRequest.findAndCountAll({
-      offset: offset,
-      limit: limit,
-      where: {
-        is_active: 1,
-        company_id: company
-      },
-      attributes: ['id','date_of_request_sent', 'time_of_request_sent', 'status',
+  static async findAllRequestReceived(offset, limit, company, entrytype, search?) {
+    if (entrytype == 0 || entrytype == 3) {
+      return UserRequest.findAndCountAll({
+        offset: offset,
+        limit: limit,
+        where: {
+          is_active: 1,
+          company_id: company,
+        },
+        attributes: ['id', 'date_of_request_sent', 'time_of_request_sent', 'status',
           [sequelize.col('Role.rolename'), 'rolename'],
           [sequelize.col('Role.id'), 'role_id'],
           [sequelize.col('Company.company_name'), 'company_name'],
           [sequelize.col('Company.id'), 'company_id']
-      ],
-      include: [{
-              model: Role,
-              attributes: []
-          },
-          {
-              model: Company,
-              attributes: []
-          }
-      ]
-  })
-} else return [];
+        ],
+        include: [{
+          model: Role,
+          attributes: []
+        },
+        {
+          model: Company,
+          attributes: []
+        }
+        ]
+      })
+    } else return [];
   }
 
-  static async getCombinedUsers(offset, limit, company, entrytype): Promise<any> {
+  static async getCombinedUsers(offset, limit, company, entrytype, search): Promise<any> {
     try {
-      const [usersResult, invitationsResult, requestsResult]:any = await Promise.all([
-       
-        await this.findAllRegisteredUsers(offset, limit, company, entrytype),
-        await this.findAllInvitedUsers(offset, limit, company, entrytype),
-        await this.findAllRequestReceived(offset, limit, company, entrytype),
-    ]);
-    
-    const users = usersResult?.rows?.map(user => ({
+      const [usersResult, invitationsResult, requestsResult]: any = await Promise.all([
+
+        await this.findAllRegisteredUsers(offset, limit, company, entrytype, search),
+        await this.findAllInvitedUsers(offset, limit, company, entrytype, search),
+        await this.findAllRequestReceived(offset, limit, company, entrytype, search),
+      ]);
+
+      const users = usersResult?.rows?.map(user => ({
         entry_type: 1,
         facility: "Sample Facility",
         ...user.toJSON()
-    }));
-    let userCount = usersResult?.count;
+      })) || []
+      let userCount = usersResult?.count || 0;
 
-    console.log("inv",invitationsResult);
-    
-    const invitations = invitationsResult?.rows?.map(invitation => ({
+      console.log("inv", invitationsResult);
+
+      const invitations = invitationsResult?.rows?.map(invitation => ({
         entry_type: 2,
         facility: "",
         first_name: "",
         last_name: "",
         ...invitation.toJSON()
-    }));
+      })) || []
 
-    let inviteCount = invitationsResult?.count;
-    
-    const requests = requestsResult?.rows?.map(request => ({
+      let inviteCount = invitationsResult?.count || 0;
+
+      const requests = requestsResult?.rows?.map(request => ({
         entry_type: 3,
         facility: "Sample",
         first_name: "Test",
         last_name: "Test",
         ...request.toJSON()
-    }));
+      })) || []
 
-    console.log("req",requestsResult);
+      let requestCount = requestsResult?.count || 0;
+      let totalCount = userCount + inviteCount + requestCount;
 
-    let requestCount = requestsResult?.count;
-    console.log("Count ",userCount, inviteCount, requestCount);
-    let totalCount = userCount + inviteCount + requestCount;
-    console.log("totalCount",totalCount);
-    
-    // Combine all results into one array
-    const allData = [...users, ...invitations, ...requests];
-    return {
-      rows: allData,
-      count: totalCount
-    }
-    
-  } catch (error) {
+      // Combine all results into one array
+      const allData = [...users, ...invitations, ...requests];
+      return {
+        rows: allData,
+        count: totalCount
+      }
+
+    } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
-  }
-
-  }
-
-
-  static async getFilteredUsers(offset, limit, company, entrytype): Promise<any> {
-    try {
-      if(entrytype == 1) {
-      const usersResult =  await this.findAllRegisteredUsers(offset, limit, company, entrytype);
-      const users = usersResult?.rows?.map(user => ({
-        entry_type: 1,
-        facility: "Sample Facility",
-        ...user.toJSON()
-    }));
-    let userCount = usersResult?.count;
-    return {
-      rows: users,
-      count: userCount
     }
-      } else if(entrytype == 2) {
-        const invitationsResult =  await this.findAllRegisteredUsers(offset, limit, company, entrytype);
+
+  }
+
+
+  static async getFilteredUsers(offset, limit, company, entrytype, search): Promise<any> {
+    try {
+      if (entrytype == 1) {
+        const usersResult = await this.findAllRegisteredUsers(offset, limit, company, entrytype, search);
+        const users = usersResult?.rows?.map(user => ({
+          entry_type: 1,
+          facility: "Sample Facility",
+          ...user.toJSON()
+        }));
+        let userCount = usersResult?.count;
+        return {
+          rows: users,
+          count: userCount
+        }
+      } else if (entrytype == 2) {
+        const invitationsResult: any = await this.findAllInvitedUsers(offset, limit, company, entrytype, search);
         const invitations = invitationsResult?.rows?.map(invitation => ({
           entry_type: 2,
           facility: "",
           first_name: "",
           last_name: "",
           ...invitation.toJSON()
-      }));
-  
-      let inviteCount = invitationsResult?.count;
-      return {
-        rows: invitations,
-        count: inviteCount
-      }
-      } else if(entrytype == 3) {
-        const requestsResult =  await this.findAllRegisteredUsers(offset, limit, company, entrytype);
+        }));
+
+        let inviteCount = invitationsResult?.count || 0;
+        return {
+          rows: invitations,
+          count: inviteCount
+        }
+      } else if (entrytype == 3) {
+        const requestsResult: any = await this.findAllRequestReceived(offset, limit, company, entrytype, search);
         const requests = requestsResult?.rows?.map(request => ({
           entry_type: 3,
           facility: "Sample",
           first_name: "Test",
           last_name: "Test",
           ...request.toJSON()
-      }));
-  
-      console.log("req",requestsResult);
-  
-      let requestCount = requestsResult?.count;
-      return {
-        rows: requests,
-        count: requestCount
+        }));
+
+        console.log("req", requestsResult);
+
+        let requestCount = requestsResult?.count || 0;
+        return {
+          rows: requests,
+          count: requestCount
+        }
       }
-      }
-    
-  } catch (error) {
+
+    } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
-  }
+    }
 
   }
 
@@ -456,25 +462,25 @@ static async rejectInvitation(data): Promise<Response> {
   }
   
       if (!user) {
-          return {
-              status: 404,
-              body: 'User not found'
-          };
+        return {
+          status: 404,
+          body: 'User not found'
+        };
       }
 
       return {
-          status: 200,
-          user: user,
-          company: company
-          
+        status: 200,
+        user: user,
+        company: company
+
       };
-  } catch (error) {
+    } catch (error) {
       // Return error response
       return {
-          status: 500,
-          body: `${error.message}`
+        status: 500,
+        body: `${error.message}`
       };
-  }
+    }
   }
 
   /**
@@ -501,7 +507,7 @@ static async rejectInvitation(data): Promise<Response> {
  * @returns {Promise<Object>} - A promise resolving to an object containing user, company details, and associated companies.
  * @description This method fetches user details, company details, and associated companies from the database based on the provided user ID.
  */
-   static async GetUserAndCompanyDetails(user_id, company_id): Promise<Object> {
+  static async GetUserAndCompanyDetails(user_id, company_id): Promise<Object> {
     try {
       // Fetch user details.
       const user = await User.findOne({
@@ -509,7 +515,7 @@ static async rejectInvitation(data): Promise<Response> {
         attributes: ['id', 'first_name', 'email', 'last_name', 'phonenumber', 'landline', 'profile_pic',
         [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], [sequelize.col('UserCompanyRole.Role.id'), 'role_id'], 'type', [sequelize.literal('1'), 'entry_type']
         ],
-        include:{
+        include: {
           model: UserCompanyRole,
           attributes: [],
           include: [{
@@ -518,12 +524,12 @@ static async rejectInvitation(data): Promise<Response> {
           }]
         }
       });
-  if(company_id > 0) {
-      // Fetch company details
-      const companyDetail = await Company.findOne({
-        where: { id: company_id },
-        attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name']
-      });
+      if (company_id > 0) {
+        // Fetch company details
+        const companyDetail = await Company.findOne({
+          where: { id: company_id },
+          attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name']
+        });
 
 
       const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
@@ -591,12 +597,12 @@ static async rejectInvitation(data): Promise<Response> {
     } catch (error) {
       throw new Error('Failed to fetch user and company details: ' + error.message);
     }
-  
+
   }
 
   static async GetUserCompanyList(user_id): Promise<Object> {
     try {
-        const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+      const associatedCompaniesRaw: any = await UserCompanyRole.findAll({
         where: { user_id: user_id },
         attributes: [],
         include: {
@@ -609,7 +615,7 @@ static async rejectInvitation(data): Promise<Response> {
     } catch (error) {
       throw new Error('Failed to fetch user and company details: ' + error.message);
     }
-  
+
   }
 
 }

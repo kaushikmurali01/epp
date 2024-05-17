@@ -26,13 +26,13 @@ import { Role } from "../models/role";
 export async function UserRegister(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const data:any = await request.json();
+        const data: any = await request.json();
         context.log("data001", data);
-       
-      const ext = process.env.AD_EXTENSION;
+
+        const ext = process.env.AD_EXTENSION;
         const userData = {
             first_name: data[`extension_${ext}_FirstName`],
-            last_name:  data[`extension_${ext}_LastName`],
+            last_name: data[`extension_${ext}_LastName`],
             email: data.email,
             phonenumber: data[`extension_${ext}_BusinessMobile`],
             landline: data[`extension_${ext}_BusinessLandline`] || null,
@@ -42,7 +42,7 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
         //context.log("userData01",userData);
         const companyData = {
             company_name: data[`extension_${ext}_CompanyName`],
-            company_description:  data[`extension_${ext}_CompanyName`] || null,
+            company_description: data[`extension_${ext}_CompanyName`] || null,
             address1: data.streetAddress,
             city: data.city,
             state: data.state,
@@ -54,10 +54,10 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
         //context.log("userData02",companyData);
 
         // Register user
-         const user = await UserController.registerUser(userData, companyData, context);
-       
+        const user = await UserController.registerUser(userData, companyData, context);
+
         // Prepare response body
-         const responseBody = JSON.stringify(user);
+        const responseBody = JSON.stringify(user);
 
         // Return success response
         return { body: responseBody };
@@ -77,9 +77,9 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
  */
 export async function UserUpdate(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        let userData:any;
+        let userData: any;
 
-        const resp:any = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const resp: any = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         // Parse request data
         const requestData = await request.json();
@@ -110,7 +110,7 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
 
         // Get all users
         const users = await UserController.getAllUsers(offset, limit);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(users);
 
@@ -129,7 +129,7 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
 
         // Get all users
         const users = await UserController.getIESOUsers(offset, limit);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(users);
 
@@ -143,7 +143,7 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
 
 export async function AcceptInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const requestData = await request.json(); 
+        const requestData = await request.json();
         const data = await UserController.acceptInvitation(requestData);
         const responseBody = JSON.stringify(data);
         return { body: responseBody };
@@ -154,7 +154,7 @@ export async function AcceptInvitation(request: HttpRequest, context: Invocation
 
 export async function RejectInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const requestData = await request.json(); 
+        const requestData = await request.json();
         const data = await UserService.rejectInvitation(requestData);
         const responseBody = JSON.stringify(data);
         return { body: responseBody };
@@ -176,8 +176,8 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
         // Middleware
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        context.log("middlewareResponse",resp);
-        
+        context.log("middlewareResponse", resp);
+
         // Extract user ID from request
         const { company } = request.params;
         let company_id;
@@ -221,15 +221,15 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         } else if(user.user.dataValues.type == 1) {
             userPermissions = await UserCompanyRolePermission.findAll({
                 where: {
-                  user_id: user_id
+                    user_id: user_id
                 },
                 include: [{
-                  model: Permission,
-                  required: true,
-                  
+                    model: Permission,
+                    required: true,
+
                 }],
-                attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
-              });
+                attributes: ['id', [sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']],
+            });
         }
 
         user.permissions = userPermissions;
@@ -312,10 +312,10 @@ export async function AcceptUserInvitation(request: HttpRequest, context: Invoca
 
         // Middleware
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        context.log("middlewareResponse",resp);
-        
+        context.log("middlewareResponse", resp);
+
         // Extract user ID from request
-        const requestData = await request.json(); 
+        const requestData = await request.json();
 
         // Get user by ID
         const user = await UserInvitationService.acceptUserInvitation(requestData, resp, context);
@@ -346,17 +346,17 @@ export async function GetUserDetailById(request: HttpRequest, context: Invocatio
         console.log("Testing");
 
         // Middleware
-       // const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // context.log("middlewareResponse",resp);
-        
+        // const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        // context.log("middlewareResponse",resp);
+
         // Extract user ID from request
-       // const { id } = request.params;
-       console.log("params009",request.params);
+        // const { id } = request.params;
+        console.log("params009", request.params);
 
         // Get user by ID
         const user = await UserController.getUserById(request.params);
 
-        
+
         // Prepare response body
         const responseBody = JSON.stringify(user);
 
@@ -377,16 +377,16 @@ export async function GetUserDetailById(request: HttpRequest, context: Invocatio
  */
 export async function DeleteUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const userId:any = request.params.id;
-        const type:any = request.params.type;
-        if(type == 1) {
+        const userId: any = request.params.id;
+        const type: any = request.params.type;
+        if (type == 1) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
-        } else if(type == 2) {
+        } else if (type == 2) {
             await UserInvitation.update({ is_active: 0 }, { where: { id: userId } });
-        } else if(type == 3) {
+        } else if (type == 3) {
             await UserRequest.update({ is_active: 0 }, { where: { id: userId } });
         }
-        return {body: JSON.stringify ({status: 200, body: `Deleted Successfully.` })};
+        return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
     } catch (error) {
         return { status: 500, body: `${error.message}` };
     }
@@ -410,7 +410,7 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
         // Prepare response body
         const responseBody = JSON.stringify(invitationList);
 
-       
+
         // Return success response
         return { body: responseBody };
     } catch (error) {
@@ -425,11 +425,11 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const data = await UserInvitationService.sendInvitation(requestData, resp);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
@@ -451,12 +451,13 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
 export async function GetCombinedUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { offset, limit, entrytype} = request.params;
+        const { offset, limit, entrytype } = request.params;
+        const search = request.query.get('search') || "";
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
-        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id, entrytype);
-       
+        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id, entrytype, search);
+
         // Prepare response body
         const responseBody = JSON.stringify(users);
 
@@ -471,13 +472,15 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
 export async function GetFilteredUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { offset, limit, entrytype} = request.params;
+        const { offset, limit, entrytype } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        resp.company_id = 22;
-        if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        // resp.company_id = 1;
+        if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
-        const users = await UserController.getFilteredUsers(offset, limit, resp.company_id, entrytype);
-       
+        const search = request.query.get('search') || "";
+
+        const users = await UserController.getFilteredUsers(offset, limit, resp.company_id, entrytype,search);
+
         // Prepare response body
         const responseBody = JSON.stringify(users);
 
@@ -492,10 +495,10 @@ export async function GetFilteredUsers(request: HttpRequest, context: Invocation
 export async function CreateUserRequest(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json(); 
+        const requestData = await request.json();
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const data = await UserController.createUserRequest(requestData, resp);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
@@ -510,15 +513,15 @@ export async function CreateUserRequest(request: HttpRequest, context: Invocatio
 export async function AlertUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData:any = await request.json(); 
+        const requestData: any = await request.json();
         let template = await EmailTemplate.getEmailTemplate();
-        let logo:any = EmailTemplate.getLogo();
-        if(!requestData.first_name) requestData.first_name = '';
+        let logo: any = EmailTemplate.getLogo();
+        if (!requestData.first_name) requestData.first_name = '';
         template = template.replace('#heading#', 'Alert from admin')
-        .replace('#content#', requestData.comment)
-        .replace('#name#', requestData.first_name)
-        .replace('#logo#', logo);
-        
+            .replace('#content#', requestData.comment)
+            .replace('#name#', requestData.first_name)
+            .replace('#logo#', logo);
+
         Email.send(requestData.email, EmailContent.alertEmail.title, template);
         const resp = { status: 200, body: 'Alert Sent successfully' };
         // Prepare response body
@@ -542,13 +545,13 @@ export async function AlertUser(request: HttpRequest, context: InvocationContext
 export async function GetUserAndCompanyDetails(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { company_id} = request.params;
+        const { company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-       //resp.id = 1;
+        // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        //resp.id = 1;
         // Get all users
         const data = await UserService.GetUserAndCompanyDetails(resp.id, company_id);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
@@ -563,13 +566,13 @@ export async function GetUserAndCompanyDetails(request: HttpRequest, context: In
 export async function GetUserAndCompanyDetailsByUserId(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { company_id, user_id} = request.params;
-      //  const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-       //resp.id = 1;
+        const { company_id, user_id } = request.params;
+        //  const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        //resp.id = 1;
         // Get all users
         const data = await UserService.GetUserAndCompanyDetails(user_id, company_id);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
@@ -591,13 +594,13 @@ export async function GetUserAndCompanyDetailsByUserId(request: HttpRequest, con
 export async function GetUserCompanyDetail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { company_id} = request.params;
+        const { company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-      // resp.id = 1;
+        // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        // resp.id = 1;
         // Get all users
         const data = await UserService.GetUserCompanyList(resp.id);
-       
+
         // Prepare response body
         const responseBody = JSON.stringify(data);
 
