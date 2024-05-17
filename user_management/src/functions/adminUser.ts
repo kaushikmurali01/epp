@@ -78,6 +78,12 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
     try {
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
+        const role = request.query.get('role') || ""
+        let where = {}
+        if (role) {
+            where = { id: Number(role) }
+        }
+
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
@@ -88,7 +94,7 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
                     },
                     include: [{
                         model: Role,
-                        attributes: []
+                        attributes: [], where
                     }]
                 }],
                 offset: parseInt(pageOffset),
@@ -124,7 +130,8 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
                 ],
                 include: [{
                     model: Role,
-                    attributes: []
+                    attributes: [],
+                    where
                 }
                 ]
             })
@@ -176,6 +183,12 @@ export async function GetEnervaUsers(request: HttpRequest, context: InvocationCo
 export async function GetIESOUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { pageOffset, pageLimit } = request.params;
+        const searchPromt = request.query.get('search') || "";
+        const role = request.query.get('role') || ""
+        let where = {}
+        if (role) {
+            where = { id: Number(role) }
+        }
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
@@ -186,14 +199,20 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
                     },
                     include: [{
                         model: Role,
-                        attributes: []
+                        attributes: [],
+                        where
                     }]
                 }],
                 offset: parseInt(pageOffset),
                 limit: parseInt(pageLimit),
                 where: {
                     type: 4,
-                    is_active: 1
+                    is_active: 1,
+                    [Op.or]: [
+                        { first_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { last_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
                 },
                 attributes: ["id", "email", "first_name", "last_name", "createdAt",
                     [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
@@ -206,7 +225,10 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
                 limit: parseInt(pageLimit),
                 where: {
                     is_active: 1,
-                    type: 4
+                    type: 4,
+                    [Op.or]: [
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
                 },
                 attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
                     [sequelize.col('Role.rolename'), 'rolename'],
@@ -214,7 +236,8 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
                 ],
                 include: [{
                     model: Role,
-                    attributes: []
+                    attributes: [],
+                    where
                 }
                 ]
             })
@@ -267,6 +290,12 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
 export async function GetCustomerUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { pageOffset, pageLimit } = request.params;
+        const searchPromt = request.query.get('search') || "";
+        const role = request.query.get('role') || ""
+        let where = {}
+        if (role) {
+            where = { id: Number(role) }
+        }
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
@@ -277,14 +306,20 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                     },
                     include: [{
                         model: Role,
-                        attributes: []
+                        attributes: [],
+                        where
                     }]
                 }],
                 offset: parseInt(pageOffset),
                 limit: parseInt(pageLimit),
                 where: {
                     type: 2,
-                    is_active: 1
+                    is_active: 1,
+                    [Op.or]: [
+                        { first_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { last_name: { [Op.iLike]: `%${searchPromt}%` } },
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
                 },
                 attributes: ["id", "email", "first_name", "last_name", "createdAt",
                     [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
@@ -298,7 +333,10 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                 limit: parseInt(pageLimit),
                 where: {
                     is_active: 1,
-                    type: 2
+                    type: 2,
+                    [Op.or]: [
+                        { email: { [Op.iLike]: `%${searchPromt}%` } },
+                    ]
                 },
                 attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
                     [sequelize.col('Role.rolename'), 'rolename'],
@@ -306,7 +344,8 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                 ],
                 include: [{
                     model: Role,
-                    attributes: []
+                    attributes: [],
+                    where
                 }
                 ]
             })
