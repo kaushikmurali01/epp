@@ -3,7 +3,7 @@ import { TextField,FormControl, FormLabel } from '@mui/material';
 import { FormGroup } from "@mui/material";
 import { useField } from "formik";
 
-const InputField = ({name, label, ...otherProps}) => {
+const InputField = ({name, label, isDisabled, ...otherProps}) => {
     const [field, meta] = useField(name);
 
   const configTextfield = {
@@ -22,7 +22,7 @@ const InputField = ({name, label, ...otherProps}) => {
     <FormGroup className='theme-form-group'>
       {label && <FormLabel>{label}</FormLabel> }
       <FormControl className='theme-form-control'>
-        <TextField {...configTextfield} />
+        <TextField {...configTextfield} disabled={isDisabled} />
       </FormControl>
     </FormGroup>
   );

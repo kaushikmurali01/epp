@@ -39,6 +39,7 @@ import {
   deleteMeter,
   fetchMeterDetails,
 } from "../../../redux/superAdmin/actions/metersActions";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -281,10 +282,10 @@ const EntriesListing = ({
       if (!isEdit) {
         POST_REQUEST(apiURL, requestBody)
           .then((response) => {
-            showSnackbar("Your form has been submitted!", "success", {
-              vertical: "top",
-              horizontal: "right",
-            });
+            NotificationsToast({
+              message: "Entry added successfully!",
+              type: "success",
+          });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
@@ -293,19 +294,18 @@ const EntriesListing = ({
             }));
           })
           .catch((error) => {
-            showSnackbar(
-              error?.message ? error.message : "Something went wrong!",
-              "error",
-              { vertical: "top", horizontal: "right" }
-            );
+            NotificationsToast({
+              message: error?.message ? error.message : "Something went wrong!",
+              type: "error",
+            });
           });
       } else {
         PATCH_REQUEST(apiURL + "/" + data?.id, requestBody)
           .then((response) => {
-            showSnackbar("Your form has been updated!", "success", {
-              vertical: "top",
-              horizontal: "right",
-            });
+            NotificationsToast({
+              message: "Entry updated successfully!",
+              type: "success",
+          });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
@@ -314,11 +314,10 @@ const EntriesListing = ({
             }));
           })
           .catch((error) => {
-            showSnackbar(
-              error?.message ? error.message : "Something went wrong!",
-              "error",
-              { vertical: "top", horizontal: "right" }
-            );
+            NotificationsToast({
+              message: error?.message ? error.message : "Something went wrong!",
+              type: "error",
+            });
           });
       }
     };
