@@ -125,16 +125,22 @@ const MeterListing = ({
     },
     {
       Header: "Status",
-      accessor: (item) => <>{item.stil_in_use ? "Active" : "Inactive"}</>,
+      accessor: (item) => <>{item?.stil_in_use ? "Active" : "Inactive"}</>,
     },
     {
       Header: "Most recent update",
-      accessor: (item) => <>{format(item?.updated_at, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{item?.updated_at && format(item?.updated_at, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "In use(inactive date)",
       accessor: (item) => (
-        <>{!item.stil_in_use && format(item?.meter_inactive, "MM/dd/yyyy")}</>
+        <>
+          {!item?.stil_in_use &&
+            item?.meter_inactive &&
+            format(item?.meter_inactive, "MM/dd/yyyy")}
+        </>
       ),
     },
     {
