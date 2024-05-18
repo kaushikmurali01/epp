@@ -34,6 +34,9 @@ import {
   adminAssignFacilityRequest,
   adminAssignFacilitySuccess,
   adminAssignFacilityFailure,
+  fetchAdminFacilitiesDropdownRequest,
+  fetchAdminFacilitiesDropdownSuccess,
+  fetchAdminFacilitiesDropdownFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
 export const fetchAdminFacilityListing = (pageInfo, status, search = "") => {
@@ -212,7 +215,6 @@ export const updateAdminFacilityStatus = (facilityId, status) => {
   };
 };
 
-
 export const adminAssignFacilities = (assignData) => {
   return async (dispatch) => {
     try {
@@ -228,6 +230,25 @@ export const adminAssignFacilities = (assignData) => {
     } catch (error) {
       console.error(error);
       dispatch(adminAssignFacilityFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilitiesDropdown = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilitiesDropdownRequest());
+      const endpoint = `${adminFacilityEndpoints.ADMIN_FACILITIES_DROPDOWN}`;
+      const response = await GET_REQUEST(endpoint);
+      const data = response.data;
+      dispatch(fetchAdminFacilitiesDropdownSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilitiesDropdownFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

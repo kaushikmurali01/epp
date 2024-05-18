@@ -33,6 +33,9 @@ import {
   assignFacilityRequest,
   assignFacilitySuccess,
   assignFacilityFailure,
+  fetchFacilitiesDropdownRequest,
+  fetchFacilitiesDropdownSuccess,
+  fetchFacilitiesDropdownFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -43,13 +46,13 @@ import {
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
-export const fetchFacilityListing = (pageInfo, search = "") => {
+export const fetchFacilityListing = (pageInfo, search = "", companyId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
       const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}?search=${search}`;
+      }/${pageInfo.pageSize}?search=${search}&company_id=${companyId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));
@@ -73,7 +76,7 @@ export const fetchUserDetails = (id = 0) => {
       const response = await GET_REQUEST(endpointWithParams);
       dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;
-      localStorage.setItem("selectedCompanyId", data?.user?.company_id || 0)
+      localStorage.setItem("selectedCompanyId", data?.user?.company_id || 0);
       dispatch(getUserDetailsSuccess(data));
     } catch (error) {
       console.error(error);
@@ -276,6 +279,25 @@ export const assignFacilities = (assignData) => {
     } catch (error) {
       console.error(error);
       dispatch(assignFacilityFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilitiesDropdown = (companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilitiesDropdownRequest());
+      const endpointWithParams = `${facilityEndPoints.FACILITIES_DROPDOWN}?company_id=${companyId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilitiesDropdownSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilitiesDropdownFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
