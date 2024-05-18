@@ -66,7 +66,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/icon_1.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
-                                <Typography variant='span'>Save on <br /> Energy Bills</Typography>
+                                <Typography variant='span'>Save on <br /> energy Bills</Typography>
                             </Stack>
 
                         </Grid>
@@ -123,7 +123,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/howItWorks/image_1.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
-                                <Typography  sx={{fontWeight: '600'}}>Create an account, add your team, and sign Participant Agreement</Typography>
+                                <Typography  sx={{fontWeight: '600'}}>Create an account and sign Participant Agreement*</Typography>
                             </div>
 
                         </Grid>
@@ -132,7 +132,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/howItWorks/image_2.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
-                                <Typography  sx={{fontWeight: '600'}}>Add your facility details and receive your baseline energy model</Typography>
+                                <Typography  sx={{fontWeight: '600'}}>Create facility and receive your baseline energy model</Typography>
                             </div>
 
                         </Grid>

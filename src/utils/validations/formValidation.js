@@ -119,7 +119,15 @@ export const validationSchemaEntry = Yup.object().shape({
 
 export default validationSchemaAddMeter;
 
-export const validationSchemaProfileDetails = Yup.object().shape({
+export const validationSchemaUserProfile = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+  last_name: Yup.string().required("Last Name is required"),
+  // businessLandline: Yup.string().required("Business Landline is required"),
+  phonenumber: Yup.string().required("Business Mobile is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+});
+
+export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   first_name: Yup.string().required("First Name is required"),
   last_name: Yup.string().required("Last Name is required"),
   // businessLandline: Yup.string().required("Business Landline is required"),
@@ -212,4 +220,17 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
     "Is Space Cooling Controlled for Occupancy is required"
   ),
+});
+
+export const validationSchemaAssignFacility = Yup.object().shape({
+  email: Yup.string()
+  .required("Email is required")
+  .matches(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/, "Invalid email")
+  .test("At least one email is required", (value) => {
+     return value.split(",").some((email) => email.trim()!== "");
+   }),
+   facilityId: Yup.array()
+    .of(Yup.number())
+    .required("Facility is required")
+    .min(1, "At least one facility is required"),
 });

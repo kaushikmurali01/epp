@@ -12,6 +12,7 @@ export const facilityEndPoints = {
     "/company-facility/v1/facility-characteristics",
   GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
 };
 
 export const adminFacilityEndpoints = {
@@ -28,6 +29,7 @@ export const adminFacilityEndpoints = {
   GET_ADMIN_FACILITY_DETAILS: "/company-facility/v1/facility-details",
   GET_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  ADMIN_ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
 };
 
 export const PA_MANAGEMENT = {
@@ -62,7 +64,7 @@ export const USER_MANAGEMENT = {
   EDIT_PROFILE: "/enerva-user/v1/users",
 
   GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
-  ACCEPT_REJECT_INVITE: 'enerva-user/v1/acceptuserinvitation',
+  ACCEPT_REJECT_INVITE: "enerva-user/v1/acceptuserinvitation",
 };
 
 export const ENERVA_USER_MANAGEMENT = {
@@ -90,7 +92,7 @@ export const ROLES_PERMISSIONS_MANAGEMENT = {
   ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
   USER_TYPES: "/enerva-user/v1/program/usertypes",
   GET_ROLE_PERMISSIONS_BY_ID: "/enerva-user/v1/program/rolepermissiondetail",
-  GET_ALL_PERMISSIONS_LIST: "enerva-user/v1/program/allpermissions"
+  GET_ALL_PERMISSIONS_LIST: "enerva-user/v1/program/allpermissions",
 
   // GET_ROLES_PERMISSIONS_LIST: "/enerva-user/v1/program/rolepermission",
 

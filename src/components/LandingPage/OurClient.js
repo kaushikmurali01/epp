@@ -110,7 +110,7 @@ const OurClient = () => {
                 <Grid container className='heading-row' >
                     <Grid item sx={{ paddingLeft: '0' }} >
                         <Typography variant="h3" sx={{ color: "primary.contrastText" }}>
-                            Trusted By Businesses Across Ontario
+                            Trusted by customers across Ontario
                         </Typography>
                     </Grid>
                 </Grid>

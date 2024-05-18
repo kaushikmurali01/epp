@@ -104,7 +104,8 @@ function Header(props) {
     }).catch((error)=> console.log("error in login redirect", error))
   }
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = (event, sectionId) => {
+    event.preventDefault()
     const sectionElement = document.getElementById(sectionId);
     const offset = 128;
     if (sectionElement) {
@@ -157,6 +158,7 @@ function Header(props) {
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
     dispatch(fetchUserDetails(selectedCompanyId))
+    window.location.reload();
   };
 
   // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
@@ -242,7 +244,7 @@ function Header(props) {
                 }}
               >
                 <MenuItem
-                  onClick={() => scrollToSection("howItWorksSection")}
+                  onClick={(event) => scrollToSection(event, "howItWorksSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -256,7 +258,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("userStorySection")}
+                  onClick={(event) => scrollToSection(event, "userStorySection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -270,7 +272,7 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("whatsNewSection")}
+                  onClick={(event) => scrollToSection(event, "whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -280,11 +282,11 @@ function Header(props) {
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
-                    What's New
+                    What's new
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={() => scrollToSection("contactUsFormSection")}
+                  onClick={(event) => scrollToSection(event, "contactUsFormSection")}
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -294,7 +296,7 @@ function Header(props) {
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
-                    Contact Us
+                    Contact us
                   </Typography>
                 </MenuItem>
               </Box>
@@ -309,6 +311,11 @@ function Header(props) {
                 alignItems: "flex-end",
               }}
             >
+              <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
+                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} >
+                  Request to join other company
+                </Typography>
+              </Grid>
               <Button
                 onClick={() => setInvitationPopUp(true)}
                 sx={{ minWidth: "auto !important", padding: "0 !important" }}
@@ -449,24 +456,24 @@ function Header(props) {
                     }}
                   >
                     <MenuItem
-                      onClick={() => scrollToSection("howItWorksSection")}
+                      onClick={(event) => scrollToSection(event, "howItWorksSection")}
                     >
                       How it works
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("userStorySection")}
+                      onClick={(event) => scrollToSection(event, "userStorySection")}
                     >
                       Success stories
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("whatsNewSection")}
+                      onClick={(event) => scrollToSection(event, "whatsNewSection")}
                     >
-                      What's New
+                      What's new
                     </MenuItem>
                     <MenuItem
-                      onClick={() => scrollToSection("contactUsFormSection")}
+                      onClick={(event) => scrollToSection(event, "contactUsFormSection")}
                     >
-                      Contact Us
+                      Contact us
                     </MenuItem>
                     <Divider />
                     <MenuItem>

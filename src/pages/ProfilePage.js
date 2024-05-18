@@ -16,12 +16,12 @@ import { GET_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { validationSchemaProfileDetails } from "utils/validations/formValidation";
 import { USER_MANAGEMENT, fileUploadEndPoints } from "constants/apiEndPoints";
 import { POST_REQUEST } from "utils/HTTPRequests";
 import EditProfileComponent from "components/ProfilePageComponents/EditProfileComponent";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
+import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
 
 const ProfilePage = () => {
   const profileButtonStyle = {
@@ -76,6 +76,12 @@ const ProfilePage = () => {
   const dispatch = useDispatch();
   const [showEditPage, setShowEditPage] = useState(false);
   const [imgUrl, setImgUrl] = useState("");
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
 
   const [profilePicture, setProfilePicture] = useState("");
 
@@ -120,13 +126,41 @@ const ProfilePage = () => {
     province: "",
     country: "",
     postal_code: "",
+    rolename: "",
+    type: ""
   });
 
   const [userProfileData, setUserProfileData] = useState();
 
+  useEffect(() => {
+    console.log('adadadadad', userData)
+    setInitialValues((prevValues) => {
+      return {
+        ...prevValues,
+        first_name: userData?.user?.first_name || "",
+        last_name: userData?.user?.last_name || "",
+        phonenumber: userData?.user?.phonenumber || "",
+        email: userData?.user?.email || "",
+        company_name: userData?.company?.company_name || "",
+        website: userData?.company?.website || "",
+        unit_number: userData?.company?.unit_number || "",
+        street_number: userData?.company?.street_number || "",
+        street_name: userData?.company?.street_name || "",
+        city: userData?.company?.city || "",
+        province: userData?.company?.state || "",
+        country: userData?.company?.country || "",
+        postal_code: userData?.company?.postal_code || "",
+        rolename: userData?.user?.rolename || "",
+        type: userData?.user?.type || "",
+      };
+    });
+    setUserProfileData(userData);
+  }, [userData]);
+
   const getUserProfileData = () => {
     dispatch({ type: "SHOW_LOADER", payload: true });
-    const apiURL = "/enerva-user/v1/user/0";
+    const company_id = localStorage.getItem("selectedCompanyId") || 0
+    const apiURL = `/enerva-user/v1/user/${company_id}`;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserProfileData(res?.data);
@@ -160,7 +194,8 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    getUserProfileData();
+    // getUserProfileData();
+    dispatch(fetchUserDetails(localStorage.getItem('selectedCompanyId')))
   }, []);
 
   const handleSubmit = (values) => {
@@ -341,9 +376,9 @@ const ProfilePage = () => {
                     >
                       Edit Profile
                     </Button>
-                    <Button sx={profileButtonStyle}>
+                   {userProfileData?.user?.rolename == "Super-Admin" ? <Button sx={profileButtonStyle}>
                       Change Super administrator
-                    </Button>
+                    </Button> : null}
                   </Grid>
                 </Grid>
 
@@ -395,7 +430,7 @@ const ProfilePage = () => {
                     </List>
                   </Box>
 
-                  <Box
+                  {userProfileData?.user?.type == 2 && userProfileData?.user?.rolename == "Super-Admin" ? <Box
                     display={"flex"}
                     gap={"1.25rem"}
                     flexDirection={"column"}
@@ -484,54 +519,50 @@ const ProfilePage = () => {
                         />
                       )}
                     </List>
-                  </Box>
+                  </Box> : null}
 
-                  {/* <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-                <Typography variant="h6" sx={tabStyle}>
-                  Also part of:
-                </Typography>
+                  {userProfileData?.user?.type == 2 && userProfileData?.associatedCompanies?.length && userProfileData?.associatedCompanies.filter((item) => item.id != userProfileData?.user?.company_id).length ? <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+                    <Typography variant="h6" sx={tabStyle}>
+                      Also part of:
+                    </Typography>
 
-                <List
-                  disablePadding
-                  sx={{
-                    display: "flex",
-                    width: "auto",
-                    flexWrap: "wrap",
-                    gap: "0.5rem",
-                    flexDirection: "row",
-                  }}
-                >
-                  <ListItem disablePadding>
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="Company name"
-                      secondary="Role"
-                      primaryTypographyProps={otherInfoHeaderStyle}
-                      secondaryTypographyProps={otherInfoHeaderStyle}
-                    />
-                  </ListItem>
+                    <List
+                      disablePadding
+                      sx={{
+                        display: "flex",
+                        width: "auto",
+                        flexWrap: "wrap",
+                        gap: "0.5rem",
+                        flexDirection: "row",
+                      }}
+                    >
+                      
+                      <ListItem disablePadding>
+                        <ListItemText
+                          sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                          primary="Company name"
+                          secondary="Role"
+                          primaryTypographyProps={otherInfoHeaderStyle}
+                          secondaryTypographyProps={otherInfoHeaderStyle}
+                        />
+                      </ListItem>
 
-                  <ListItem
-                    disablePadding
-                    sx={{ flexDirection: "column", alignItems: "flex-start" }}
-                  >
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="testing technologies pvt ltd"
-                      secondary="hsiuh iuhuw duoicjnwd"
-                      primaryTypographyProps={otherInfoStyleContentStyle}
-                      secondaryTypographyProps={otherInfoStyleContentStyle}
-                    />
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="test"
-                      secondary="super-admin super duper"
-                      primaryTypographyProps={otherInfoStyleContentStyle}
-                      secondaryTypographyProps={roleInfoStyleContentStyle}
-                    />
-                  </ListItem>
-                </List>
-              </Box> */}
+                      <ListItem
+                        disablePadding
+                        sx={{ flexDirection: "column", alignItems: "flex-start" }}
+                      >
+                        {userProfileData?.associatedCompanies?.length && userProfileData?.associatedCompanies.filter((item) => item.id != userProfileData?.user?.company_id).map(item => (
+                          <ListItemText
+                            sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                            primary={item?.company_name}
+                            secondary={item?.role_name}
+                            primaryTypographyProps={otherInfoStyleContentStyle}
+                            secondaryTypographyProps={otherInfoStyleContentStyle}
+                          />
+                        )) }
+                      </ListItem>
+                    </List>
+                  </Box> : null}
                 </Box>
               </Grid>
             )}

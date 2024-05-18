@@ -4,14 +4,20 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
   Link,
+  MenuItem,
+  OutlinedInput,
+  Select,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  assignFacilities,
   deleteFacility,
   fetchFacilityListing,
   submitFacilityForApproval,
@@ -26,6 +32,7 @@ import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
 import debounce from "lodash.debounce";
+import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
@@ -250,12 +257,16 @@ const Facility = () => {
 
   const RequestToJoinForm = () => {
     const initialValues = {
-      emails: "",
-      assign_facility: "",
+      email: "",
+      facilityId: [],
     };
     const formSubmit = (values) => {
-      const emailArray = values.emails?.split(",").map((email) => email.trim());
-      console.log(emailArray);
+      dispatch(assignFacilities(values)).then(() => {
+        setAssignModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+      });
     };
 
     return (
@@ -263,31 +274,45 @@ const Facility = () => {
         initialValues={{
           ...initialValues,
         }}
+        validationSchema={validationSchemaAssignFacility}
         onSubmit={formSubmit}
       >
-        <Form>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <InputField
-              name="emails"
-              label="User email ID*"
-              placeholder="email1, email2, ..."
-            />
-          </Stack>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <SelectBox
-              name="assign_facility"
-              label="Assign Facility*"
-              options={facilityListData}
-              valueKey="id"
-              labelKey="facility_name"
-            />
-          </Stack>
-          <Grid display="flex" sx={{ marginTop: "1rem" }}>
-            <ButtonWrapper type="submit" variant="contained">
-              Submit
-            </ButtonWrapper>
-          </Grid>
-        </Form>
+        {({ values, setFieldValue }) => (
+          <Form>
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField
+                name="email"
+                label="User email ID*"
+                placeholder="email1, email2, ..."
+              />
+            </Stack>
+            <Stack sx={{ marginBottom: "1rem", width:"300px" }}>
+              <InputLabel>Assign Facility*</InputLabel>
+              <FormControl>
+                <Select
+                  fullWidth
+                  name="facilityId"
+                  multiple
+                  value={values.facilityId}
+                  onChange={(e) => {
+                    setFieldValue("facilityId", e.target.value);
+                  }}
+                >
+                  {facilityListData?.map((item) => (
+                    <MenuItem key={item?.id} value={item?.id}>
+                      {item?.facility_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+            <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <ButtonWrapper type="submit" variant="contained">
+                Submit
+              </ButtonWrapper>
+            </Grid>
+          </Form>
+        )}
       </Formik>
     );
   };
