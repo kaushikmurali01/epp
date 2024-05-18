@@ -15,6 +15,7 @@ import NotificationsToast from 'utils/notification/NotificationsToast';
 import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
+import { useSelector } from 'react-redux';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -35,6 +36,10 @@ const UserManagement = () => {
   // for pagination
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [pageCount, setPageCount] = useState('');
+
+  // selector 
+  const userCompanyId = useSelector((state) => state?.facilityReducer?.userDetails?.user?.company_id);
+  const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -66,7 +71,7 @@ const UserManagement = () => {
   // need to call this function before USER_MANAGEMENT_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
-    getUserManagementData();
+    getUserManagementData(pageInfo, searchString);
   };
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
@@ -89,11 +94,12 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
+      console.log(data, "check role")
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
         "company_id": data.company.toString(),
         "role": data.role.toString(),
-        "user_id": "1"
+        "user_id": userData?.user?.id
       }
 
 
@@ -110,8 +116,7 @@ const UserManagement = () => {
         })
         .catch((error) => {
           console.log(error, 'error')
-          NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
+          // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
         })
 
@@ -186,10 +191,10 @@ const UserManagement = () => {
 
     // const allUserTypes = selectFilterType;
     const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
-      }/${pageDataInfo.pageSize}/${selectFilterType}?search=${search}`;
+      }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
 
     const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
-      }/${pageDataInfo.pageSize}/${selectFilterType}?search=${search}`;
+      }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
 
     const getAPI_Data = (url) => {
       GET_REQUEST(url)
@@ -218,8 +223,8 @@ const UserManagement = () => {
   }
 
   const getUserRoleData = () => {
-
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+    const userType = "2" // for customers
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
@@ -256,7 +261,7 @@ const UserManagement = () => {
     getComapanyListData()
   }, [])
 
-  console.log(selectFilterType, "selectFilterType")
+  console.log(selectFilterType,userData, "selectFilterType")
 
   return (
     <React.Fragment>

@@ -137,7 +137,7 @@ const UserProfilePage = () => {
   }
 
   const getUserRoleData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/2"
     GET_REQUEST(apiURL)
       .then((res) => {
         console.log(res, "User role")

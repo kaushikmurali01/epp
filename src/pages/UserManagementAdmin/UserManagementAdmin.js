@@ -109,11 +109,17 @@ const defaultPagination = { page: 1, pageSize: 10 }
   const handleChange = (event, newValue) => {
     setSearchString('');
     setTabValue(newValue);
+    setPageInfo();
   };
 
 
   const handleAddUser = () => {
     setVisibleInvitePage(true);
+    setPageInfo();
+
+  }
+
+  const setPageInfo = () => {
     if (tabValue === 'enervaUsers') {
       setInvitePageInfo({
         title: 'Invite Enerva User and set permissions',
@@ -137,8 +143,6 @@ const defaultPagination = { page: 1, pageSize: 10 }
         type: '5'
       })
     }
-
-
   }
 
   const  getTabTitle = (tabValue)=> {
@@ -179,8 +183,6 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
     return data;
 }
-
-
 
 
   const getEnervaUserManagementData = (pageInfo,search,role) => {
@@ -263,7 +265,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getUserRoleData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
@@ -272,10 +274,24 @@ const defaultPagination = { page: 1, pageSize: 10 }
       });
   }
 
+  const getComapanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "1/100";
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setCompanyList(res.data?.data?.rows);
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
   
   useEffect(()=> {
-    getUserRoleData()
+    getComapanyListData();
   }, [])
+
+  useEffect(()=> {
+    getUserRoleData();
+  }, [invitePageInfo?.type])
 
 
 // search implementation
@@ -338,6 +354,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
         handleAPISuccessCallBack={handleAPISuccessCallBack}
         selectTableRow={selectTableRow}
         inviteAPIURL={inviteAPIURL}
+        getCompanyList={getCompanyList}
         /> :
 
         <Box component="section">
@@ -382,7 +399,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
                       onChange={(e) => handleSelectChange(e)}
                       displayEmpty={true}
                     >
-                      <MenuItem value="1">
+                      <MenuItem value="">
                         Select
                       </MenuItem>
                       {getUserRole && (getUserRole).map((item) => {

@@ -6,17 +6,21 @@ import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useSelector } from 'react-redux';
 
-const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo,inviteAPIURL }) => {
+const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo,inviteAPIURL,getCompanyList }) => {
     console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
+    const [selectCompanyType, setSelectCompanyType] = useState('');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
 
     const [permissionStates, setPermissionStates] = useState([]);
+
+    const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -24,6 +28,9 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const handelEmailSelectChange = (event) => {
         setUserEmail(event.target.value)
     }
+    const handleSelectCompanyChange = (event) => {
+        setSelectCompanyType(event.target.value);
+    };
 
 
     const handleAlignment = (event, index) => {
@@ -102,15 +109,21 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 "email": userEmail,
                 "role": selectRoleType,
                 "permissions": permissionIds,
-                "type": invitePageInfo?.type
             }
-            //  for enverva admin types
-            if(invitePageInfo?.type === "2") {
-                requestBody.company = localStorage.getItem("selectedCompanyId");
+            //  for super admin types
+
+            if(invitePageInfo?.type !== null) {
+                requestBody.type = invitePageInfo?.type
+            } else {
+                requestBody.company = userData?.user?.company_id
+            }
+
+             //  for enverva admin types
+            if(invitePageInfo?.type === "2" && selectCompanyType !=='') {
+                requestBody.company = selectCompanyType;
             }
 
             console.log(requestBody, "check data");
-            return;
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     if (response.data.status === 200) {
@@ -134,7 +147,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type+"/"+ (item.company_id ? item.company_id : '0') : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
-                const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
+                console.log(res.data, "User permissions")
+                const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
                 setSelectedPermissions(userPermissionObjects);
@@ -233,6 +247,33 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             </FormControl>
 
                         </FormGroup>
+                        {invitePageInfo?.type === "2" && 
+                            <FormGroup className='theme-form-group'>
+                                <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Company* </FormLabel>
+                                <FormControl sx={{ minWidth: '12rem' }} >
+                                    <Select
+                                        value={selectCompanyType}
+                                        onChange={(e) => handleSelectCompanyChange(e)}
+                                        displayEmpty={true}
+                                    >
+                                        <MenuItem value="" disabled>
+                                                <em>Select</em>
+                                            </MenuItem>
+                                        {getCompanyList && (getCompanyList).map((item) => {
+                                            // console.log(item, "Role Type");
+
+                                            return (
+                                                <MenuItem key={`${item.id}_${item.company_name}`} value={item?.id}>{item?.company_name}</MenuItem>
+                                            )
+                                        })}
+
+                                    </Select>
+                                
+
+                                </FormControl>
+
+                            </FormGroup>
+                        }
                     </Grid>
                     <Grid item >
                         <Button

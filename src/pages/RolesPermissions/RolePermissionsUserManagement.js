@@ -148,7 +148,7 @@ const RolePermissionsUserManagement = () => {
                                 <FormGroup sx={{minWidth: '14rem' }}>
                                     <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                                         <TextField
-                                            placeholder="Search by Username & ID"
+                                            placeholder="Search by Role"
                                             inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
                                         />
                                     </FormControl>
