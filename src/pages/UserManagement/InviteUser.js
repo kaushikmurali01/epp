@@ -101,14 +101,16 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             const requestBody = {
                 "email": userEmail,
                 "role": selectRoleType,
-                "company": localStorage.getItem("selectedCompanyId"), 
-                "permissions": permissionIds
+                "permissions": permissionIds,
+                "type": invitePageInfo?.type
             }
             //  for enverva admin types
-            if(invitePageInfo?.type !== null) {
-                requestBody.type = invitePageInfo?.type;
+            if(invitePageInfo?.type === "2") {
+                requestBody.company = localStorage.getItem("selectedCompanyId");
             }
 
+            console.log(requestBody, "check data");
+            return;
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     if (response.data.status === 200) {
@@ -129,7 +131,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
+        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type+"/"+ (item.company_id ? item.company_id : '0') : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs

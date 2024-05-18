@@ -183,10 +183,11 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
 
-  const getEnervaUserManagementData = (pageInfo,search) => {
+  const getEnervaUserManagementData = (pageInfo,search,role) => {
+    console.log(pageInfo,search,role, "Getting data on role changes");
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
     GET_REQUEST(apiURL)
       .then((res) => {       
         if(res.data?.body?.rows instanceof Array){
@@ -202,10 +203,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
       });
   }
 
-  const getIESOUserManagementData = (pageInfo,search) => {
+  const getIESOUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -220,10 +221,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
         console.log(error)
       });
   }
-  const getCustomerUserManagementData = (pageInfo,search) => {
+  const getCustomerUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -278,35 +279,23 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
 // search implementation
-  // const enervaDebouncedSearch = debounce((pageInfo, searchString) => {
-  //   getEnervaUserManagementData(pageInfo, searchString);
-  // }, 300);
-
-  // const iesoDebouncedSearch = debounce((pageInfo, searchString) => {
-  //   getIESOUserManagementData(pageInfo, searchString);
-  // }, 300);
-
-  // const customerDebouncedSearch = debounce((pageInfo, searchString) => {
-  //   getIESOUserManagementData(pageInfo, searchString);
-  // }, 300);
 
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    console.log(searchString, tabValue, "checking data...");
-    if(tabValue === 'enervaUsers' && searchString?.length > 0) {
-      getEnervaUserManagementData(pageInfo, searchString);
-    }else if(tabValue === 'iesoUsers' && searchString?.length > 0) {
-      getIESOUserManagementData(pageInfo, searchString);
-    }else if(tabValue === 'customerUsers' && searchString?.length > 0) {
-      getCustomerUserManagementData(pageInfo, searchString);
+  const debouncedSearch = debounce((pageInfo, searchString,selectedRole) => {
+    console.log(searchString, tabValue,selectedRole, "checking data...");
+    if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getEnervaUserManagementData(pageInfo, searchString,selectedRole);
+    }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getIESOUserManagementData(pageInfo, searchString,selectedRole);
+    }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getCustomerUserManagementData(pageInfo, searchString,selectedRole);
     }
-   
 
   }, 300);
 
   
   useEffect(() => {
-    debouncedSearch(enervaPageInfo, searchString);
+    debouncedSearch(enervaPageInfo, searchString,selectRoleType);
     return () => {
       debouncedSearch.cancel();
     };
@@ -314,7 +303,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   useEffect(() => {
-    debouncedSearch(iesoPageInfo, searchString);
+    debouncedSearch(iesoPageInfo, searchString,selectRoleType);
     return () => {
       debouncedSearch.cancel();
     };
@@ -322,7 +311,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   useEffect(() => {
-    debouncedSearch(customerPageInfo, searchString);
+    debouncedSearch(customerPageInfo, searchString,selectRoleType);
     return () => {
       debouncedSearch.cancel();
     };
@@ -331,24 +320,13 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
   useEffect(() => {
     // load all default function on page load
-    getEnervaUserManagementData(enervaPageInfo, searchString);
-    getIESOUserManagementData(iesoPageInfo, searchString);
-    getCustomerUserManagementData(customerPageInfo, searchString);
+    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
   }, [])
 
-  // useEffect(() => {
-  //   // load all default function on page load
-  //     getIESOUserManagementData();
-
-  // }, [iesoPageInfo])
-
-  // useEffect(() => {
-  //   // load all default function on page load
-  //     getCustomerUserManagementData();
-  // }, [customerPageInfo])
-
-
-
+  
+  console.log(selectRoleType, "selectRoleType")
 
   return (
     <React.Fragment>
@@ -370,7 +348,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
                 <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
               </Grid>
               <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
-                <FormGroup sx={{ flexGrow: '1' }}>
+                <FormGroup sx={{ minWidth: '14rem' }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
                       value={searchString}
@@ -395,15 +373,16 @@ const defaultPagination = { page: 1, pageSize: 10 }
                   </FormControl>
                 </FormGroup>
 
-                <FormGroup className='theme-form-group'>
+                <FormGroup className='theme-form-group theme-select-form-group'>
 
-                  <FormControl sx={{ minWidth: '12rem' }} >
+                  <FormControl sx={{  }} >
                     <Select
+                      className='transparent-border'
                       value={selectRoleType}
                       onChange={(e) => handleSelectChange(e)}
                       displayEmpty={true}
                     >
-                      <MenuItem value="">
+                      <MenuItem value="1">
                         Select
                       </MenuItem>
                       {getUserRole && (getUserRole).map((item) => {

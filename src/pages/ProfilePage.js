@@ -126,7 +126,7 @@ const ProfilePage = () => {
 
   const getUserProfileData = () => {
     dispatch({ type: "SHOW_LOADER", payload: true });
-    const apiURL = "/enerva-user/v1/user";
+    const apiURL = "/enerva-user/v1/user/0";
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserProfileData(res?.data);
