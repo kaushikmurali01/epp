@@ -13,6 +13,7 @@ export const facilityEndPoints = {
   GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
+  FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
 };
 
 export const adminFacilityEndpoints = {
@@ -30,6 +31,7 @@ export const adminFacilityEndpoints = {
   GET_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ADMIN_ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
+  ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
 };
 
 export const PA_MANAGEMENT = {

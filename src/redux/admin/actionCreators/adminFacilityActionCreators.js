@@ -26,6 +26,9 @@ import {
   ADMIN_ASSIGN_FACILITIES_REQUEST,
   ADMIN_ASSIGN_FACILITIES_SUCCESS,
   ADMIN_ASSIGN_FACILITIES_FAILURE,
+  FETCH_ADMIN_FACILITIES_DROPDOWN_REQUEST,
+  FETCH_ADMIN_FACILITIES_DROPDOWN_SUCCESS,
+  FETCH_ADMIN_FACILITIES_DROPDOWN_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -151,5 +154,19 @@ export const adminAssignFacilitySuccess = (data) => ({
 
 export const adminAssignFacilityFailure = (error) => ({
   type: ADMIN_ASSIGN_FACILITIES_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilitiesDropdownRequest = () => ({
+  type: FETCH_ADMIN_FACILITIES_DROPDOWN_REQUEST,
+});
+
+export const fetchAdminFacilitiesDropdownSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITIES_DROPDOWN_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilitiesDropdownFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITIES_DROPDOWN_FAILURE,
   payload: error,
 });

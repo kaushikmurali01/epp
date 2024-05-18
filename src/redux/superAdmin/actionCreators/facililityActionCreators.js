@@ -32,6 +32,9 @@ import {
   ASSIGN_FACILITIES_REQUEST,
   ASSIGN_FACILITIES_SUCCESS,
   ASSIGN_FACILITIES_FAILURE,
+  FETCH_FACILITIES_DROPDOWN_REQUEST,
+  FETCH_FACILITIES_DROPDOWN_SUCCESS,
+  FETCH_FACILITIES_DROPDOWN_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -185,5 +188,19 @@ export const assignFacilitySuccess = (data) => ({
 
 export const assignFacilityFailure = (error) => ({
   type: ASSIGN_FACILITIES_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilitiesDropdownRequest = () => ({
+  type: FETCH_FACILITIES_DROPDOWN_REQUEST,
+});
+
+export const fetchFacilitiesDropdownSuccess = (data) => ({
+  type: FETCH_FACILITIES_DROPDOWN_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilitiesDropdownFailure = (error) => ({
+  type: FETCH_FACILITIES_DROPDOWN_FAILURE,
   payload: error,
 });

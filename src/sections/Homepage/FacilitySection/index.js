@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   assignFacilities,
   deleteFacility,
+  fetchFacilitiesDropdown,
   fetchFacilityListing,
   submitFacilityForApproval,
 } from "../../../redux/superAdmin/actions/facilityActions";
@@ -142,12 +143,23 @@ const Facility = () => {
   ];
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const userCompanyId = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.user?.company_id
+  );
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
   const facilityCount = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.count || []
   );
+  const facilitiesDropdwonData= useSelector(
+    (state) => state?.facilityReducer?.facilitiesDropdown?.data || []
+  );
+  useEffect(() => {
+    dispatch(fetchFacilitiesDropdown(userCompanyId));
+  }, [dispatch]);
+
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
@@ -167,7 +179,7 @@ const Facility = () => {
             ...prevState,
             modalVisible: false,
           }));
-          dispatch(fetchFacilityListing(pageInfo));
+          dispatch(fetchFacilityListing(pageInfo, "", userCompanyId));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -205,7 +217,7 @@ const Facility = () => {
   });
 
   const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchFacilityListing(pageInfo, searchString));
+    dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
   }, 300);
 
   useEffect(() => {
@@ -218,7 +230,7 @@ const Facility = () => {
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
       .then(() => {
-        dispatch(fetchFacilityListing(pageInfo));
+        dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
       })
       .catch((error) => {
         console.error("Error submitting for approval:", error);
@@ -286,7 +298,7 @@ const Facility = () => {
                 placeholder="email1, email2, ..."
               />
             </Stack>
-            <Stack sx={{ marginBottom: "1rem", width:"300px" }}>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
               <InputLabel>Assign Facility*</InputLabel>
               <FormControl>
                 <Select
@@ -298,7 +310,7 @@ const Facility = () => {
                     setFieldValue("facilityId", e.target.value);
                   }}
                 >
-                  {facilityListData?.map((item) => (
+                  {facilitiesDropdwonData?.map((item) => (
                     <MenuItem key={item?.id} value={item?.id}>
                       {item?.facility_name}
                     </MenuItem>
