@@ -77,31 +77,55 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     is_rg_meter: "",
   });
 
-  const handleFileChange = (event) => {
-    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
+  const handleFileChange = (event, meterType) => {
+    const acceptedImageTypes = [
+      "image/png",
+      "image/gif",
+      "image/jpeg",
+      "image/jpg",
+    ];
+    const acceptedDocTypes = [".xlsx", ".xls", ".csv"];
+
     const selectedFile = event.target.files[0];
-    if (!acceptedTypes.includes(selectedFile.type)) {
-      alert(
-        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
-      );
-      event.target.value = "";
-      return;
+    const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+
+    if (meterType === 3) {
+      if (!acceptedDocTypes.includes("." + fileExtension)) {
+        alert(
+          "Invalid file type. Only .xlsx, .xls, and .csv files are allowed"
+        );
+        event.target.value = "";
+        return;
+      }
+    } else {
+      if (
+        !acceptedImageTypes.includes(selectedFile.type) &&
+        !acceptedImageTypes.includes("." + fileExtension)
+      ) {
+        alert(
+          "Invalid file type. Only images (png, gif, jpeg, jpg) are allowed"
+        );
+        event.target.value = "";
+        return;
+      }
+
+      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        alert(
+          "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+        );
+        event.target.value = "";
+        return;
+      }
     }
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      alert(
-        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
-      );
-      event.target.value = "";
-      return;
-    }
+
     setSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setImgUrl(data?.sasTokenUrl);
       })
       .catch((error) => {
-        console.error("Error uploading image:", error);
+        console.error("Error uploading file:", error);
       });
   };
 
@@ -170,7 +194,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         marginTop: isSmallScreen && "2rem",
       }}
     >
-      <Typography variant="h4">Add Meter</Typography>
+      <Typography variant="h4">
+        {meterId2 ? "Edit Meter" : "Add Meter"}
+      </Typography>
       <Formik
         initialValues={{ ...initialValues }}
         validationSchema={validationSchemaAddMeter}
@@ -251,6 +277,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     name="meter_active"
                     type="date"
                     label="Date meter became active"
+                    inputProps={{
+                      max: format(new Date(), "yyyy-MM-dd"),
+                    }}
                   />
                 </Grid>
                 {!values.stil_in_use && (
@@ -259,6 +288,12 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       name="meter_inactive"
                       type="date"
                       label=" Date meter became inactive"
+                      inputProps={{
+                        max: format(new Date(), "yyyy-MM-dd"),
+                        min:
+                          values?.meter_active &&
+                          format(values?.meter_active, "yyyy-MM-dd"),
+                      }}
                     />
                   </Grid>
                 )}
@@ -337,6 +372,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           borderRadius: "8px",
                           width: "140px",
                           height: "40px",
+                          cursor: "pointer",
                         }}
                         onClick={handleButtonClick}
                       >
@@ -346,7 +382,14 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         type="file"
                         ref={fileInputRef}
                         style={{ display: "none" }}
-                        onChange={handleFileChange}
+                        onChange={(event) =>
+                          handleFileChange(event, values.meter_type)
+                        }
+                        accept={
+                          values.meter_type === 3
+                            ? ".xlsx,.xls,.csv"
+                            : "image/png, image/gif, image/jpeg, image/jpg"
+                        }
                       />
                     </>
                   ) : (
@@ -368,14 +411,22 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                           onClick={handleButtonClick}
                         >
-                          Change Picture
+                          {values.meter_type === 3
+                            ? "Change File"
+                            : "Change Picture"}
                         </Typography>
                         <input
                           type="file"
                           ref={fileInputRef}
                           style={{ display: "none" }}
-                          onChange={handleFileChange}
-                          accept="image/png, image/gif, image/jpeg, image/jpg"
+                          onChange={(event) =>
+                            handleFileChange(event, values.meter_type)
+                          }
+                          accept={
+                            values.meter_type === 3
+                              ? ".xlsx,.xls,.csv"
+                              : "image/png, image/gif, image/jpeg, image/jpg"
+                          }
                         />
                         <Typography
                           my={1}
@@ -386,7 +437,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                           onClick={deletePicture}
                         >
-                          Delete Picture
+                          {values.meter_type === 3
+                            ? "Delete File"
+                            : "Delete Picture"}
                         </Typography>
                       </div>
                     </div>

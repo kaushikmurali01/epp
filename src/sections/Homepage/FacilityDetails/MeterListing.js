@@ -248,7 +248,7 @@ const MeterListing = ({
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current enegy date
+                    Current energy date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (

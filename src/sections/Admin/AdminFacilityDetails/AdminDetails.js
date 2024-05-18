@@ -1303,6 +1303,7 @@ const AdminDetails = () => {
                           borderRadius: "8px",
                           width: "140px",
                           height: "40px",
+                          cursor: "pointer",
                         }}
                         onClick={handleFacilityButtonClick}
                       >
@@ -1342,6 +1343,7 @@ const AdminDetails = () => {
                           ref={fileFacilityInputRef}
                           style={{ display: "none" }}
                           onChange={handleFacilityFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}
@@ -1376,6 +1378,7 @@ const AdminDetails = () => {
                           borderRadius: "8px",
                           width: "140px",
                           height: "40px",
+                          cursor: "pointer",
                         }}
                         onClick={handleAssemblyButtonClick}
                       >
@@ -1415,6 +1418,7 @@ const AdminDetails = () => {
                           ref={fileAssemblyInputRef}
                           style={{ display: "none" }}
                           onChange={handleAssemblyFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}

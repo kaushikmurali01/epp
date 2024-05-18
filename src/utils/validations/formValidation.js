@@ -1,5 +1,9 @@
 import * as Yup from "yup";
-import { emailRegExp, phoneUSFormatRegExp, postalCodeCanadaFormatRegExp } from "../../config/regex";
+import {
+  emailRegExp,
+  phoneUSFormatRegExp,
+  postalCodeCanadaFormatRegExp,
+} from "../../config/regex";
 
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
@@ -62,8 +66,9 @@ export const validationSchemaAddFacility = Yup.object().shape({
   city: Yup.string().required("City is required"),
   province: Yup.string().required("Province/State is required"),
   country: Yup.string().required("Country is required"),
-  postal_code: Yup.string().required("Postal Code is required")
-  .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
+  postal_code: Yup.string()
+    .required("Postal Code is required")
+    .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
 });
 
 export const validationSchemaLandingPageForm = Yup.object({
@@ -107,6 +112,24 @@ export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
   meter_id: Yup.string().required("Meter Id is required"),
+  meter_active: Yup.date().max(
+    new Date(),
+    "Date meter became active cannot be in the future"
+  ),
+  meter_inactive: Yup.date().when("stil_in_use", {
+    is: false,
+    then: (schema) =>
+      schema
+        .min(
+          Yup.ref("meter_active"),
+          "Date meter became inactive cannot be earlier than date meter became active"
+        )
+        .max(new Date(), "Date meter became inactive cannot be in the future")
+        .required(
+          "Date meter became inactive is required when meter is not in use"
+        ),
+    otherwise: (schema) => schema.notRequired().nullable(),
+  }),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -224,12 +247,15 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
 
 export const validationSchemaAssignFacility = Yup.object().shape({
   email: Yup.string()
-  .required("Email is required")
-  .matches(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/, "Invalid email")
-  .test("At least one email is required", (value) => {
-     return value.split(",").some((email) => email.trim()!== "");
-   }),
-   facilityId: Yup.array()
+    .required("Email is required")
+    .matches(
+      /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
+      "Invalid email"
+    )
+    .test("At least one email is required", (value) => {
+      return value.split(",").some((email) => email.trim() !== "");
+    }),
+  facilityId: Yup.array()
     .of(Yup.number())
     .required("Facility is required")
     .min(1, "At least one facility is required"),
