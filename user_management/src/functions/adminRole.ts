@@ -15,6 +15,7 @@ import { RolePermission } from "../models/role-permission";
 import { UserType } from "../models/userType";
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { Permission } from "../models/permission";
+import { Op } from "sequelize";
 
 
 
@@ -28,16 +29,16 @@ export async function AddRolePermission(request: HttpRequest, context: Invocatio
             rolename: requestData.role_name,
             description: requestData.role_name,
             user_type: requestData.user_type,
-            created_by:  resp.id,
-            updated_by:  resp.id
+            created_by: resp.id,
+            updated_by: resp.id
         });
 
         // Associate the role with permissions
         const permissionRecords = requestData.permissions.map(permissionId => ({
             role_id: role.id,
             permission_id: permissionId,
-            created_by:  resp.id,
-            updated_by:  resp.id
+            created_by: resp.id,
+            updated_by: resp.id
         }));
 
         await RolePermission.bulkCreate(permissionRecords);
@@ -103,13 +104,24 @@ export async function EditRolePermission(request: HttpRequest, context: Invocati
 
 export async function ListRolePermission(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-       
-        const roles:any = await Role.findAll({
-            attributes: ['rolename', 'createdAt', 'id'], 
+        let userType = request.query.get("userType")
+        let search = request.query.get("search") || ""
+        let where = {}
+        if (userType) {
+            where = { id: userType }
+        }
+        const roles: any = await Role.findAll({
+            attributes: ['rolename', 'createdAt', 'id'],
+            where: {
+                [Op.or]: [
+                    { rolename: { [Op.iLike]: `%${search}%` } },
+                ]
+            },
             include: [
                 {
                     model: UserType,
-                    attributes: ['user_type', 'id'] 
+                    attributes: ['user_type', 'id'],
+                    where
                 }
             ]
         });
@@ -133,7 +145,7 @@ export async function ListRolePermission(request: HttpRequest, context: Invocati
 
 export async function DeleteRolePermission(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const roleId = Number(parseInt(request.params.role_id)); 
+        const roleId = Number(parseInt(request.params.role_id));
 
         // Check if the roleId is valid
         if (isNaN(roleId) || roleId <= 0) {
@@ -166,7 +178,7 @@ export async function DeleteRolePermission(request: HttpRequest, context: Invoca
             return { status: 404, body: 'Role not found' };
         }
 
-        const resp =  {status: 200, message: 'Role and associated records deleted successfully' }; 
+        const resp = { status: 200, message: 'Role and associated records deleted successfully' };
 
         return { body: JSON.stringify(resp), status: 200 };
 
@@ -192,12 +204,12 @@ export async function GetRolePermission(request: HttpRequest, context: Invocatio
                 },
                 {
                     model: Permission,
-                    attributes: ["id",'permission', 'permission_description'] // Assuming you have a permission name attribute
+                    attributes: ["id", 'permission', 'permission_description'] // Assuming you have a permission name attribute
                 }
             ]
         });
 
-        console.log("rolePermissions",rolePermissions);
+        console.log("rolePermissions", rolePermissions);
 
         // Transform data into desired format
         // const permissionsData = rolePermissions.map(rolePermission => ({
@@ -209,15 +221,15 @@ export async function GetRolePermission(request: HttpRequest, context: Invocatio
 
         // console.log("permissionsData",permissionsData);
 
-                // Extract permission IDs
-                const permissionIds = rolePermissions.map(rolePermission => rolePermission.Permission.id);
+        // Extract permission IDs
+        const permissionIds = rolePermissions.map(rolePermission => rolePermission.Permission.id);
 
-                // Prepare the response data
-                const responseData = {
-                    role_id: role_id,
-                    permissionIds: permissionIds,
-                    user_type_id: user_type
-                };
+        // Prepare the response data
+        const responseData = {
+            role_id: role_id,
+            permissionIds: permissionIds,
+            user_type_id: user_type
+        };
 
         // Return permissions data
         return { status: 200, body: JSON.stringify(responseData) };
@@ -253,7 +265,7 @@ export async function GetALLPermissions(request: HttpRequest, context: Invocatio
         // Fetch all user types
         const permissions: any = await Permission.findAll();
 
-        
+
 
         // Return user types data
         return { status: 200, body: JSON.stringify(permissions) };
