@@ -28,7 +28,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   adminAssignFacilities,
-  fetchAdminFacilityListing,
+  fetchAdminFacilitiesDropdown,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 
@@ -40,14 +40,13 @@ const AdminFacilityListing = () => {
   };
   const dispatch = useDispatch();
   const [searchString, setSearchString] = useState("");
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
 
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 0));
+    dispatch(fetchAdminFacilitiesDropdown());
   }, [dispatch]);
 
-  const adminFacilityData = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
+  const adminFacilitiesDropdownData = useSelector(
+    (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
   );
 
   const [modalConfig, setModalConfig] = useState({
@@ -111,7 +110,7 @@ const AdminFacilityListing = () => {
                 placeholder="email1, email2, ..."
               />
             </Stack>
-            <Stack sx={{ marginBottom: "1rem", width:"300px" }}>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
               <InputLabel>Assign Facility*</InputLabel>
               <FormControl>
                 <Select
@@ -123,7 +122,7 @@ const AdminFacilityListing = () => {
                     setFieldValue("facilityId", e.target.value);
                   }}
                 >
-                  {adminFacilityData?.map((item) => (
+                  {adminFacilitiesDropdownData?.map((item) => (
                     <MenuItem key={item?.id} value={item?.id}>
                       {item?.facility_name}
                     </MenuItem>

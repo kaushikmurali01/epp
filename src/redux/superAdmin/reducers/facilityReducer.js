@@ -32,6 +32,9 @@ import {
   ASSIGN_FACILITIES_REQUEST,
   ASSIGN_FACILITIES_SUCCESS,
   ASSIGN_FACILITIES_FAILURE,
+  FETCH_FACILITIES_DROPDOWN_REQUEST,
+  FETCH_FACILITIES_DROPDOWN_SUCCESS,
+  FETCH_FACILITIES_DROPDOWN_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -40,6 +43,7 @@ const initialState = {
   facilityDetails: [],
   facilityStatus: [],
   userDetails: {},
+  facilitiesDropdown: [],
   loading: false,
   error: null,
 };
@@ -246,6 +250,25 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case ASSIGN_FACILITIES_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITIES_DROPDOWN_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITIES_DROPDOWN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilitiesDropdown: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITIES_DROPDOWN_FAILURE:
       return {
         ...state,
         loading: false,

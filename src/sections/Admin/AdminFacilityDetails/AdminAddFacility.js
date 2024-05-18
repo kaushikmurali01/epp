@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import {
     setOption,
     setOption2,
@@ -280,8 +280,12 @@ const AdminAddFacilityComponent = (props) => {
             });
     };
 
+    const userCompanyId = useSelector(
+        (state) => state?.facilityReducer?.userDetails?.user?.company_id
+      );
+
     const handleSubmit = (values) => {
-        const newValues = { ...values, display_pic_url: imgUrl };
+        const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
         console.log(newValues);
         if (values.facility_construction_status == "Existing") {
             values.facility_construction_status = 1;
