@@ -13,6 +13,8 @@ import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { Email } from "../services/email";
 import { EmailContent } from "../utils/emailContent";
 import { EmailTemplate } from "../utils/emailTemplate";
+import { Company } from "../models/company";
+import { Role } from "../models/role";
 
 /**
  * Registers a new user based on the provided request data.
@@ -177,37 +179,46 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         context.log("middlewareResponse", resp);
 
         // Extract user ID from request
-        const { id } = request.params;
+        const { company } = request.params;
+        let company_id;
+        if(company) company_id = company; else company_id = resp.company_id;
+        if(company_id == 0) company_id = resp.company_id;
+        
+        resp.company_id = company_id;
 
-        // Get user by ID
+        console.log("company_id",resp.company_id);
         const user = await UserController.getUserById(resp);
+
+        
+
+        console.log("testing",user.user);
 
         // Get User Permissions start
         const user_id = resp.id;
-        const company_id = resp.company_id;
+        
 
-        let userPermissions = null;
-        if (resp.role_id === 1 || resp.role_id === 2) {
-            userPermissions = await Permission.findAll(
-                {
-                    attributes: ['id', 'permission', 'permission_type']
-                }
-            );
-        }
-        else if (resp.type === 2) {
-            userPermissions = await UserCompanyRolePermission.findAll({
-                where: {
-                    user_id: user_id,
-                    company_id: company_id,
-                },
-                include: [{
-                    model: Permission,
-                    required: true,
-
-                }],
-                attributes: ['id', [sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']],
-            });
-        } else {
+       let userPermissions = null;
+       if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
+         userPermissions = await Permission.findAll(
+            {
+                attributes: ['id', 'permission', 'permission_type']
+            }
+         );
+       }
+       else if(user.user.dataValues.type == 2) {
+           userPermissions = await UserCompanyRolePermission.findAll({
+            where: {
+              user_id: user_id,
+              company_id: user.user.dataValues.company_id,
+            },
+            include: [{
+              model: Permission,
+              required: true,
+              
+            }],
+            attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
+          });
+        } else if(user.user.dataValues.type == 1) {
             userPermissions = await UserCompanyRolePermission.findAll({
                 where: {
                     user_id: user_id
@@ -223,7 +234,58 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
         user.permissions = userPermissions;
 
-        user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
+        
+
+       user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
+
+       if(!company_id) {
+       const responseBody1 = JSON.stringify(user);
+
+        // Return success response
+        return { body: responseBody1 };
+       }
+
+       // Associated
+       if(company_id){
+       const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+        where: { user_id: user_id },
+        attributes: [],
+        include: [
+          {
+            model: Company,
+            attributes: [
+              'id', 
+              'company_name', 
+              'website', 
+              'address1', 
+              'address2', 
+              'city', 
+              'state', 
+              'postal_code', 
+              'country', 
+              'unit_number', 
+              'street_number', 
+              'street_name'
+            ]
+          },
+          {
+            model: Role,
+            attributes: ['rolename', 'id'] // Include the role_name attribute
+          }
+        ],
+      });
+      
+      console.log("Test", associatedCompaniesRaw);
+      
+      // Map the results to include the company data and the role name
+      const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
+        ...assocCompany.Company.get(), 
+        role_name: assocCompany.Role.rolename,
+        role_id: assocCompany.Role.id  
+      }));
+      user.associatedCompanies = associatedCompanies;
+       // Associated
+    }
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -615,7 +677,7 @@ app.http('UserUpdate', {
 app.http('GetUserById', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'user',
+    route: 'user/{company}',
     handler: GetUserById
 });
 

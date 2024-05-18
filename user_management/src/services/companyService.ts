@@ -77,6 +77,8 @@ class CompanyService {
                 ]
             });
 
+            console.log("AdminUsers2345",adminUsers);
+
             return adminUsers;
             // return adminUsers.dataValues;
            // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };

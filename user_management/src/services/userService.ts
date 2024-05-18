@@ -399,39 +399,68 @@ class UserService {
    * @returns Promise<User | null> - A promise resolving to the user if found, otherwise null.
    * @description Retrieves a user record from the database by its ID.
    */
-  static async getUserById(id: number): Promise<any> {
-
+  static async getUserById(id: number, company_id): Promise<any> {
+    
 
     try {
-
+      let user:any;
+     if(company_id) {
       // Find user by primary key
-      const user: any = await User.findByPk(id, {
-        include: [
-          {
-            model: UserCompanyRole,
-            attributes: [],
-            include: [
+       user = await User.findByPk(id, {
+          include: [
               {
-                model: Role,
-                attributes: []
+                  model: UserCompanyRole,
+                  where: { company_id: company_id },
+                  required: false,
+                  attributes: [],
+                  include: [
+                      {
+                          model: Role,
+                          attributes: []
+                      }
+                     
+                  ]
               }
-
-            ]
-          }
+          ],
+          attributes: ["id", "email", "first_name", "last_name", "phonenumber", "landline", "type", "profile_pic",
+              [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+              [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+              [sequelize.col('UserCompanyRole.status'), 'status'],
+              [sequelize.col('UserCompanyRole.company_id'), 'company_id']
+          ],
+      });
+    } else {
+      user = await User.findByPk(id, {
+        include: [
+            {
+                model: UserCompanyRole,
+                required: false,
+                attributes: [],
+                include: [
+                    {
+                        model: Role,
+                        attributes: []
+                    }
+                   
+                ]
+            }
         ],
         attributes: ["id", "email", "first_name", "last_name", "phonenumber", "landline", "type", "profile_pic",
-          [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
-          [sequelize.col('UserCompanyRole.status'), 'status'],
-          [sequelize.col('UserCompanyRole.company_id'), 'company_id']
+            [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+            [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+            [sequelize.col('UserCompanyRole.status'), 'status'],
+            [sequelize.col('UserCompanyRole.company_id'), 'company_id']
         ],
-      });
+    });
+    }
+
       let company = null;
       let companyData = null;
-      const companyId = user.dataValues?.company_id;
-      if (companyId) {
-        company = await Company.findByPk(companyId);
-      }
-
+     const companyId = user.dataValues?.company_id;
+     if (company_id) {
+       company = await Company.findByPk(company_id);
+  }
+  
       if (!user) {
         return {
           status: 404,
@@ -484,7 +513,7 @@ class UserService {
       const user = await User.findOne({
         where: { id: user_id },
         attributes: ['id', 'first_name', 'email', 'last_name', 'phonenumber', 'landline', 'profile_pic',
-          [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], 'type', [sequelize.literal('1'), 'entry_type']
+        [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'], [sequelize.col('UserCompanyRole.Role.id'), 'role_id'], 'type', [sequelize.literal('1'), 'entry_type']
         ],
         include: {
           model: UserCompanyRole,
@@ -503,67 +532,68 @@ class UserService {
         });
 
 
-        const associatedCompaniesRaw: any = await UserCompanyRole.findAll({
-          where: { user_id: user_id },
-          attributes: [],
-          include: [
-            {
-              model: Company,
-              attributes: [
-                'id',
-                'company_name',
-                'website',
-                'address1',
-                'address2',
-                'city',
-                'state',
-                'postal_code',
-                'country',
-                'unit_number',
-                'street_number',
-                'street_name'
-              ]
-            },
-            {
-              model: Role,
-              attributes: ['rolename'] // Include the role_name attribute
-            }
-          ],
-        });
-
-        console.log("Test", associatedCompaniesRaw);
-
-        // Map the results to include the company data and the role name
-        const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
-          ...assocCompany.Company.get(), // Extract the company data
-          role_name: assocCompany.Role.rolename // Extract the role name
-        }));
-
-        console.log("Associated Companies with Role Names:", associatedCompanies);
-
-
-        // Fetch all associated companies
-        // const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
-        //   where: { user_id: user_id },
-        //   attributes: [],
-        //   include: [{
-        //     model: Company,
-        //     attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name',
-
-        //     ]
-
-        //   },
-        //   {
-        //     model:Role,
-        //     attributes: []
-        //   }],
-        // });
-
-        // const associatedCompanies = associatedCompaniesRaw.map(assocCompany => assocCompany.Company);
-        return { user, companyDetail, associatedCompanies };
-      } else {
-        return { user };
-      }
+      const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+        where: { user_id: user_id },
+        attributes: [],
+        include: [
+          {
+            model: Company,
+            attributes: [
+              'id', 
+              'company_name', 
+              'website', 
+              'address1', 
+              'address2', 
+              'city', 
+              'state', 
+              'postal_code', 
+              'country', 
+              'unit_number', 
+              'street_number', 
+              'street_name'
+            ]
+          },
+          {
+            model: Role,
+            attributes: ['rolename', 'id'] // Include the role_name attribute
+          }
+        ],
+      });
+      
+      console.log("Test", associatedCompaniesRaw);
+      
+      // Map the results to include the company data and the role name
+      const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
+        ...assocCompany.Company.get(), 
+        role_name: assocCompany.Role.rolename,
+        role_id: assocCompany.Role.id  
+      }));
+      
+      console.log("Associated Companies with Role Names:", associatedCompanies);
+      
+  
+      // Fetch all associated companies
+      // const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
+      //   where: { user_id: user_id },
+      //   attributes: [],
+      //   include: [{
+      //     model: Company,
+      //     attributes: ['id', 'company_name', 'website', 'address1', 'address2', 'city', 'state', 'postal_code', 'country', 'unit_number', 'street_number', 'street_name',
+          
+      //     ]
+          
+      //   },
+      //   {
+      //     model:Role,
+      //     attributes: []
+      //   }],
+      // });
+  
+      // const associatedCompanies = associatedCompaniesRaw.map(assocCompany => assocCompany.Company);
+      return { user, companyDetail, associatedCompanies };
+    } else {
+      return { user };
+    }
     } catch (error) {
       throw new Error('Failed to fetch user and company details: ' + error.message);
     }

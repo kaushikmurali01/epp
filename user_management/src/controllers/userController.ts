@@ -34,20 +34,23 @@ class UserController {
           "role_id": 1,
           "user_id": userData.id
         };
-
-      } else {
-        data = {
-          "company_id": null,
-          "role_id": 1,
-          "user_id": userData.id
-        };
+        await UserCompanyRole.create(data);
+       
+      } 
+      // else {
+      //    data = {
+      //     "company_id": null,
+      //     "role_id": 1,
+      //     "user_id": userData.id
+      // };
+      // }
+      
+          return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user:userData, company:companyData };
+      } catch (error) {
+          return { status: 400, body: { error: error.message } };
       }
-      await UserCompanyRole.create(data);
-      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user: userData, company: companyData };
-    } catch (error) {
-      return { status: 400, body: { error: error.message } };
     }
-  }
+  
 
   /**
 * Updates an existing user.
@@ -170,9 +173,9 @@ class UserController {
    */
   static async getUserById(tokenData): Promise<any> {
     try {
-      // const { id } = req.params;
-      let id = tokenData.id;
-      const user = await UserService.getUserById(parseInt(id));
+     // const { id } = req.params;
+     let id = tokenData.id;
+      const user = await UserService.getUserById(parseInt(id), tokenData.company_id);
       console.log('user1000', user);
       if (user) {
         return user;
