@@ -292,11 +292,26 @@ const businessMobileInput = document.getElementById("extension_BusinessMobile");
 const postalCodeInput = document.getElementById("postalCode");
 const streetNoInput = document.getElementById("extension_StreetNo");
 
-// Add an event listener for the "input" event
-postalCodeInput.addEventListener("input", function (event) {
-  // Convert the value to uppercase
-  event.target.value = event.target.value.toUpperCase();
-});
+// Regex pattern for Canadian postal code
+const postalCodePattern =
+  /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/;
+
+if (postalCodeInput) {
+  postalCodeInput.addEventListener("input", function (event) {
+    // Convert the value to uppercase
+    event.target.value = event.target.value.toUpperCase();
+
+    const errorDiv = document.querySelector(".postalCode_li .error");
+
+    // Validate the postal code pattern
+    const value = event.target.value;
+    if (!postalCodePattern.test(value)) {
+      errorDiv.textContent = "Please enter a valid Canadian postal code.";
+    } else {
+      errorDiv.textContent = "";
+    }
+  });
+}
 
 function setInputAttributes() {
   if (businessLandlineInput) {
@@ -508,18 +523,17 @@ function showPopup() {
   const popup = document.createElement("div");
   popup.style.backgroundColor = "white";
   popup.style.padding = "20px";
+  popup.style.margin = "20px";
   popup.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
   popup.style.borderRadius = "1rem";
   popup.style.maxWidth = "53rem";
+  popup.style.textAlign = "center";
 
   const heading = document.createElement("h2");
-  heading.textContent = "The company already exists.";
-  const p1 = document.createElement("p");
-  p1.textContent = `Do you want to create a new company?`;
+  heading.textContent = "The company name you entered already exists.";
   const p2 = document.createElement("i");
-  p2.textContent = `Click 'Yes' to proceed or Click 'No' to sign up as an individual user and join the existing company.`;
+  p2.textContent = `You can either create a new company with the same name or join the existing company as an individual user.`;
   popup.appendChild(heading);
-  popup.appendChild(p1);
   popup.appendChild(p2);
 
   const buttonsContainer = document.createElement("div");
@@ -529,8 +543,7 @@ function showPopup() {
   buttonsContainer.style.marginTop = "20px";
 
   const yesButton = document.createElement("button");
-  yesButton.textContent = "Yes";
-  yesButton.style.marginRight = "40px";
+  yesButton.textContent = "Proceed as New Company";
   yesButton.addEventListener("click", () => {
     // Enable the Create button and remove the popup
     document.body.removeChild(overlay);
@@ -538,10 +551,8 @@ function showPopup() {
   buttonsContainer.appendChild(yesButton);
 
   const noButton = document.createElement("button");
-  noButton.textContent = "No";
+  noButton.textContent = "Proceed as Individual User";
   noButton.addEventListener("click", () => {
-    // Disable the Create button and remove the popup
-    //createButton.disabled = true;
     showForm("individual");
     document.body.removeChild(overlay);
   });
