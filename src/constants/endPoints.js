@@ -57,4 +57,5 @@ export const participantAgreementEndPoints = {
 
 export const profilePageEndPoints = {
   profilePage: "profile",
+  ChangePassword: "change-password",
 };
