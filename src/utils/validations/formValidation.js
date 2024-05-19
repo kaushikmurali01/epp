@@ -260,3 +260,13 @@ export const validationSchemaAssignFacility = Yup.object().shape({
     .required("Facility is required")
     .min(1, "At least one facility is required"),
 });
+
+// Change Password Validation schema
+export const changePasswordValidationSchema = Yup.object().shape({
+  newPassword: Yup.string()
+    .required("New Password is required")
+    .min(8, "Password should be at least 8 characters long"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('newPassword'), null], "Passwords must match")
+    .required("Confirm Password is required")
+});

@@ -16,6 +16,8 @@ import CompanyList from 'pages/Admin/Company/CompanyList';
 import CompanyProfilePage from 'pages/Admin/Company/CompanyProfilePage';
 import CompanyAgreement from 'pages/Admin/Company/CompanyAgreement';
 import UserProfilePage from 'pages/UserManagementAdmin/UserProfilePage';
+import EnervaAdminDashboard from 'pages/Admin/EnervaAdminDashboard';
+import ChangePassword from 'pages/Onboarding/ChangePassword';
 
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
@@ -24,7 +26,7 @@ export const EnervaRoutes = () => {
     return (
       <Routes>
         <Route path='/' element={<Navigate to={facilityEndPoints.facilityDashboard} replace />} />
-        <Route path={facilityEndPoints.facilityDashboard} element={<DashboardSectionComponent />} />
+        <Route path={facilityEndPoints.facilityDashboard} element={<EnervaAdminDashboard />} />
         <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AdminAddFacilityComponent /> }/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AdminAddFacilityComponent /> }/>
@@ -41,7 +43,9 @@ export const EnervaRoutes = () => {
         <Route path={enervaEndPoints.programManagement} element={<DashboardSectionComponent />} />
         <Route path={enervaEndPoints.roleAndPermissionManagement} element={<RolePermissionsUserManagement />} />
         <Route path={enervaEndPoints.clientManagement} element={<DashboardSectionComponent />} />
+        <Route path={profilePageEndPoints.profilePage} element={<ProfilePage />} />
         <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>
+        <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
         <Route path='*' element={<Error404 />} />
       </Routes>
     );
