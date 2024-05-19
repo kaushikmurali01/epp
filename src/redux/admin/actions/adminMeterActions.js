@@ -139,11 +139,12 @@ export const deleteAdminMeter = (meterId) => {
   };
 };
 
-export const fetchAdminMeterStatistics = () => {
+export const fetchAdminMeterStatistics = (facilityId) => {
   return async (dispatch) => {
     try {
-      dispatch(fetchAdminMeterStatisticsRequest());
-      const response = await GET_REQUEST(adminMeterEndPoints.METER_STATISTICS);
+      dispatch(fetchAdminMeterStatisticsRequest(facilityId));
+      const endpointWithParams = `${adminMeterEndPoints.METER_STATISTICS}?facility_id=${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminMeterStatisticsSuccess(data));
     } catch (error) {

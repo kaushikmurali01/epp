@@ -27,14 +27,16 @@ const FacilityStatus = ({ children }) => {
         return "Draft";
       case 1:
         return "Ready for submission";
-      case 3:
+      case 2:
         return "Submitted";
-      case 4:
+      case 3:
         return "In review";
-      case 5:
+      case 4:
         return "Baseline approved";
-      case 6:
+      case 5:
         return "approved";
+      case 6:
+        return "rejected";
       default:
         return "NA";
     }
