@@ -110,7 +110,7 @@ const Facility = () => {
       ),
     },
     {
-      Header: "View/Edit",
+      Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
@@ -153,7 +153,7 @@ const Facility = () => {
   const facilityCount = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.count || []
   );
-  const facilitiesDropdwonData= useSelector(
+  const facilitiesDropdwonData = useSelector(
     (state) => state?.facilityReducer?.facilitiesDropdown?.data || []
   );
   useEffect(() => {
@@ -361,7 +361,7 @@ const Facility = () => {
             is mandatory before you enrol your facility
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item sm={3.5}>
           <TextField
             name="search"
             label="Search by Facility name"
@@ -377,13 +377,7 @@ const Facility = () => {
             onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
+        <Grid item display="flex" alignItems="center" justifyContent="center">
           <Button
             variant="contained"
             sx={{
@@ -396,14 +390,7 @@ const Facility = () => {
             Assign
           </Button>
         </Grid>
-        <Grid
-          item
-          xs={6}
-          sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
+        <Grid item display="flex" alignItems="center" justifyContent="flex-end">
           <Button
             style={{
               backgroundColor: "transparent",
