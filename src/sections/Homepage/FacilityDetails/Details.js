@@ -490,6 +490,7 @@ const Details = () => {
                     id="year_of_construction"
                     name="year_of_construction"
                     views={["year"]}
+                    sx={{ width: "100%" }}
                     value={values.year_of_construction}
                     onChange={(date) => {
                       setFieldValue("year_of_construction", date);

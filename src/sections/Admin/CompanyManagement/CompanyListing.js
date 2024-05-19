@@ -124,6 +124,7 @@ const CompanyListing = () => {
   ];
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [companyFilter, setCompanyFilter] = useState("");
 
   const companyListData = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
@@ -134,16 +135,16 @@ const CompanyListing = () => {
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchAdminCompanyListing(pageInfo, searchString));
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(fetchAdminCompanyListing(pageInfo, searchString, company_filter));
   }, 300);
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString, companyFilter);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString, companyFilter]);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -348,7 +349,7 @@ const CompanyListing = () => {
             industry.
           </Typography>
         </Grid>
-        <Grid item>
+        <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
             name="search"
             label="Search by username & ID"
@@ -357,7 +358,7 @@ const CompanyListing = () => {
             size="small"
             sx={{
               "& .MuiInputBase-root": {
-                height: "3rem",
+                height: "2.9rem",
                 borderRadius: "6px",
               },
             }}
@@ -372,11 +373,25 @@ const CompanyListing = () => {
           alignItems="center"
           justifyContent="center"
         >
-          <Select name="Company" fullWidth size="small">
-            <MenuItem value="">
-              <em>Company type</em>
-            </MenuItem>
-          </Select>
+          <FormGroup className="theme-form-group theme-select-form-group">
+            <FormControl sx={{ minWidth: "6rem" }}>
+              <Select
+                displayEmpty={true}
+                className="transparent-border"
+                value={companyFilter}
+                onChange={(e) => setCompanyFilter(e.target.value)}
+              >
+                <MenuItem value="" disabled>
+                  <em>Company type</em>
+                </MenuItem>
+                {userTypes?.map((item) => (
+                  <MenuItem key={item?.id} value={item?.id}>
+                    {item?.userType}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </FormGroup>
         </Grid>
       </Grid>
       <Grid container mt={2}>

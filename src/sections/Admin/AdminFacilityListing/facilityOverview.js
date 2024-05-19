@@ -12,6 +12,8 @@ import {
   TableBody,
   Select,
   MenuItem,
+  FormGroup,
+  FormControl,
 } from "@mui/material";
 
 import { adminFacilityEndpoints } from "constants/apiEndPoints";
@@ -19,6 +21,8 @@ import { GET_REQUEST } from "utils/HTTPRequests";
 
 const FacilityOverview = () => {
   const [viewDataForFacility, setViewDataForFacility] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [facilityFilter, setFacilityFilter] = useState("");
 
   useEffect(() => {
     getOverview();
@@ -113,11 +117,20 @@ const FacilityOverview = () => {
               alignItems="center"
               justifyContent="center"
             >
-              <Select name="Company" fullWidth size="small">
-                <MenuItem value="">
-                  <em>Company</em>
-                </MenuItem>
-              </Select>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <FormControl sx={{ minWidth: "6rem" }}>
+                  <Select
+                    displayEmpty={true}
+                    className="transparent-border"
+                    value={companyFilter}
+                    onChange={(e) => setCompanyFilter(e.target.value)}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Company</em>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </FormGroup>
             </Grid>
             <Grid
               item
@@ -126,11 +139,20 @@ const FacilityOverview = () => {
               alignItems="center"
               justifyContent="center"
             >
-              <Select name="Facility" fullWidth size="small">
-                <MenuItem value="">
-                  <em>Facility</em>
-                </MenuItem>
-              </Select>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <FormControl sx={{ minWidth: "6rem" }}>
+                  <Select
+                    displayEmpty={true}
+                    className="transparent-border"
+                    value={facilityFilter}
+                    onChange={(e) => setFacilityFilter(e.target.value)}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Facility</em>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </FormGroup>
             </Grid>
           </Grid>
 

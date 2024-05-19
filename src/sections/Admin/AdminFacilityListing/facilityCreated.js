@@ -12,22 +12,24 @@ import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 
-const FacilityCreated = ({ searchVal }) => {
+const FacilityCreated = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 0, searchString));
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(
+      fetchAdminFacilityListing(pageInfo, 0, searchString, company_filter)
+    );
   }, 300);
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchVal);
+    debouncedSearch(pageInfo, searchVal, companyFilter);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal]);
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -140,7 +142,9 @@ const FacilityCreated = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            onClick={() => navigate(`/facility-list/facility-details/${item?.id}`)}
+            onClick={() =>
+              navigate(`/facility-list/facility-details/${item?.id}`)
+            }
           >
             View
           </Button>

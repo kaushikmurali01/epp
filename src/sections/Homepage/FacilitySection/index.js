@@ -153,7 +153,7 @@ const Facility = () => {
   const facilityCount = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.count || []
   );
-  const facilitiesDropdwonData = useSelector(
+  const facilitiesDropdownData = useSelector(
     (state) => state?.facilityReducer?.facilitiesDropdown?.data || []
   );
   useEffect(() => {
@@ -310,7 +310,7 @@ const Facility = () => {
                     setFieldValue("facilityId", e.target.value);
                   }}
                 >
-                  {facilitiesDropdwonData?.map((item) => (
+                  {facilitiesDropdownData?.map((item) => (
                     <MenuItem key={item?.id} value={item?.id}>
                       {item?.facility_name}
                     </MenuItem>
