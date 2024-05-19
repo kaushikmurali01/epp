@@ -19,7 +19,7 @@ import { useSelector } from 'react-redux';
 
 const UserManagement = () => {
   const navigate = useNavigate();
-  const { showSnackbar } = useContext(SnackbarContext);
+
   // pull functions from user management..
   const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
 
@@ -234,7 +234,7 @@ const UserManagement = () => {
   }
 
   const getComapanyListData = () => {
-    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "1/100";
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
         setCompanyList(res.data?.data?.rows);

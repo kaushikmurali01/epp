@@ -10,7 +10,10 @@ import RolePermissionsUserInvite from './RolePermissionsUserInvite';
 import EvModal from 'utils/modal/EvModal';
 
 import RolesPermissionManagementColumn from 'utils/tableColumn/rolesPermissions/rolesPermissionsColumn';
-import { userTypes } from 'constants/allDefault';
+import debounce from "lodash.debounce";
+import ClearIcon from '@mui/icons-material/Clear';
+import { useSelector } from 'react-redux';
+
 
 const RolePermissionsUserManagement = () => {
 
@@ -19,10 +22,11 @@ const RolePermissionsUserManagement = () => {
     // tabs table data
     const [getRolesPermissions, setRolesPermissions] = useState([]);
 
+    const [searchString, setSearchString] = useState("");
     const [getUserRole, setUserRole] = useState([]);
     const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
 
-    const [selectRoleType, setSelectRoleType] = useState('');
+    const [selectRoleType, setSelectRoleType] = useState('0');
     const [invitePageInfo, setInvitePageInfo] = useState({});
     const [selectTableRow, setSelectTableRow] = useState({});
     const [inviteAPIURL, setInviteAPIURL] = useState('');
@@ -30,10 +34,8 @@ const RolePermissionsUserManagement = () => {
     // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
     const handleAPISuccessCallBack = () => {
         // Call the API to get all user data
-        getRolesPermissionsData();
+        getRolesPermissionsData(searchString,selectRoleType);
     };
-
-
     const [modalConfig, setModalConfig] = useState({
         modalVisible: false,
         modalUI: {
@@ -60,26 +62,23 @@ const RolePermissionsUserManagement = () => {
         headerSubText: "",
         modalBodyContent: "",
     });
-
-
-    const rolesPermissionsUsersColumns = useMemo(() => ROLES_PERMISSIONS_MANAGEMENT_COLUMN(getUserRole,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), [getUserRole]);
+    const rolesPermissionsUsersColumns = useMemo(() => ROLES_PERMISSIONS_MANAGEMENT_COLUMN(getUserRole, handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), [getUserRole]);
 
     // for pagination
-    const defaultPagination = { page: 1, pageSize: 10 }
-    const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
+    const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
     const [pageCount, setPageCount] = useState('');
 
+    const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
     };
 
+    const getRolesPermissionsData = (search,role) => {
+        // const apiURL = `${ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS}`;
+        console.log(role, search, "role");
+        const apiURL = `${ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS}/?search=${search}&userType=${role ==="0" ? "" : role}`;
 
-
-
-    const getRolesPermissionsData = () => {
-        const apiURL = `${ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS}`;
-        // const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
         GET_REQUEST(apiURL)
             .then((res) => {
                 if (res.data instanceof Array) {
@@ -106,7 +105,7 @@ const RolePermissionsUserManagement = () => {
         const apiURL = ROLES_PERMISSIONS_MANAGEMENT.USER_TYPES;
         GET_REQUEST(apiURL)
             .then((res) => {
-                if(res.data instanceof Array){
+                if (res.data instanceof Array) {
                     setUserRole(res.data)
                 }
 
@@ -120,10 +119,22 @@ const RolePermissionsUserManagement = () => {
         getUserRoleData()
     }, [])
 
+    // useEffect(() => {
+    //     // load all default function on page load
+    //     getRolesPermissionsData();
+    // }, [])
+
+    const debouncedSearch = debounce((searchString,selectRoleType) => {
+        getRolesPermissionsData(searchString,selectRoleType);
+    }, 300);
+
     useEffect(() => {
-        // load all default function on page load
-        getRolesPermissionsData();
-    }, [])
+        debouncedSearch(searchString,selectRoleType);
+        return () => {
+            debouncedSearch.cancel();
+        };
+    }, [searchString, selectRoleType]);
+
 
     return (
         <React.Fragment>
@@ -145,12 +156,28 @@ const RolePermissionsUserManagement = () => {
                                 <Typography variant='small'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
                             </Grid>
                             <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
-                                <FormGroup sx={{minWidth: '14rem' }}>
+                                <FormGroup sx={{ minWidth: '14rem' }}>
                                     <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                                         <TextField
+                                             value={searchString}
                                             placeholder="Search by Role"
                                             inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                                            onChange={(e) => setSearchString(e.target.value)}
                                         />
+                                        {searchString?.length > 0 &&
+                                            <ClearIcon
+                                                onClick={() => setSearchString("")}
+                                                sx={{
+                                                    color: "#333",
+                                                    fontSize: "1.25rem",
+                                                    position: "absolute",
+                                                    right: "0.75rem",
+                                                    top: '0', bottom: '0', margin: 'auto',
+                                                    zIndex: "1",
+                                                    cursor: "pointer"
+                                                }}
+                                            />
+                                        }
                                     </FormControl>
                                 </FormGroup>
 
@@ -162,8 +189,8 @@ const RolePermissionsUserManagement = () => {
                                             displayEmpty={true}
                                             className="transparent-border"
                                         >
-                                            <MenuItem value="" disabled>
-                                             <em> User Type </em>
+                                            <MenuItem value="0" >
+                                                <em> User Type </em>
                                             </MenuItem>
                                             {getUserRole?.map((item) => (
                                                 <MenuItem key={`${item.id}-${item.user_type}`} value={item?.id}>
@@ -174,7 +201,7 @@ const RolePermissionsUserManagement = () => {
                                     </FormControl>
                                 </FormGroup>
                                 <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() => handelInviteUserAdmin()} >
-                                    Add User
+                                    Add Role
                                     <IconButton>
 
                                         <AddCircleIcon
@@ -191,7 +218,12 @@ const RolePermissionsUserManagement = () => {
 
                         <Grid container sx={{ marginTop: '2rem' }}>
                             <Grid item xs={12}>
-                                <Table columns={rolesPermissionsUsersColumns} data={getRolesPermissions} headbgColor="rgba(217, 217, 217, 0.2)"
+                                <Table 
+                                    columns={rolesPermissionsUsersColumns} data={getRolesPermissions}
+                                    headbgColor="rgba(217, 217, 217, 0.2)"
+                                    // count={pageCount}
+                                    // pageInfo={pageInfo}
+                                    // setPageInfo={setPageInfo}
                                 />
                             </Grid>
                         </Grid>
