@@ -6,7 +6,7 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { POST_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
@@ -142,27 +142,28 @@ const handelManagePermission = (item) => {
     // setVisibleInvitePage(true);
 }
 
-const handelDelete = (item) => {
-    
-    // const { showSnackbar } = useContext(SnackbarContext);
-    console.log("delete",item);
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST;
-    const requestBody = {
-        "user_id" : "1",
-        "company_id": item.id
-    }
-    console.log("requestBody",requestBody);
-    return;
-    // POST_REQUEST(apiURL, requestBody)
-    // .then((response) => {
-    //     alert('Rejected User successfully')
-    //     // showSnackbar('Your form has been submitted!', 'success', { vertical: 'top', horizontal: 'right' });
-        
-    // })
-    // .catch((error) => {
-    //     console.log(error, 'error')
-    //     // showSnackbar(error?.message ? error.message : 'Something went wrong!', 'error', { vertical: 'top', horizontal: 'right' });
+const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    DELETE_REQUEST(apiURL)
+        .then((_response) => {
+            NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+            handleSuccessCallback();
+            // close the modal
+            setModalConfig((prevState) => ({
+                ...prevState,
+                modalVisible: false,
+            }));
 
+        })
+        .catch((error) => {
+            console.log(error, 'error')
 
-    // })
+            NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+             // close the modal
+             setModalConfig((prevState) => ({
+                ...prevState,
+                modalVisible: false,
+            }));
+
+        })
 }

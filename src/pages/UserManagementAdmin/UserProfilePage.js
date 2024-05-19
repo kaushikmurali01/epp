@@ -87,31 +87,15 @@ const UserProfilePage = () => {
 
   const handelManagePermissions = () => {
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    const profileData = {
+      companyId,
+      userId,
+      ...userProfileData?.user
+    }
+    setInviteAPIURL(apiURL)
     setVisibleInvitePage(true);
-    setSelectTableRow(userProfileData?.user)
-    if (userProfileData?.user?.type === 1) {
-      setInvitePageInfo({
-        title: 'Invite Enerva User and set permissions',
-        type: '1'
-      })
-    } else if (userProfileData?.user?.type === 4) {
-      setInvitePageInfo({
-        title: 'Invite IESO User and set permissions',
-        type: '4'
-      })
-    }
-    else if (userProfileData?.user?.type === 3) {
-      setInvitePageInfo({
-        title: 'Invite Customer User and set permissions',
-        type: '2'
-      })
-
-    } else {
-      setInvitePageInfo({
-        title: 'Invite Aggregator User and set permissions',
-        type: '5'
-      })
-    }
+    setSelectTableRow(profileData)
+    
 
 
   }
@@ -123,7 +107,6 @@ const UserProfilePage = () => {
   };
   const deleteUserProfile = () => {
     const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + userProfileData?.user.id + '/' + userProfileData?.user.entry_type;
-    console.log(apiURL, 'deleteUserProfile');
 
     DELETE_REQUEST(apiURL)
       .then((_response) => {
@@ -140,7 +123,6 @@ const UserProfilePage = () => {
     const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/2"
     GET_REQUEST(apiURL)
       .then((res) => {
-        console.log(res, "User role")
         setUserRole(res.data?.body)
       }).catch((error) => {
         console.log(error)
@@ -152,7 +134,6 @@ const UserProfilePage = () => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.VIEW_USER_PROFILE}/${companyId}/${userId} `;
     GET_REQUEST(apiURL)
       .then((res) => {
-        console.log(res, "check response")
         setUserProfileData(res?.data);
         setProfilePicture(
           res?.data?.user?.profile_pic || "/images/landingPage/generic_profile.png"
@@ -170,7 +151,6 @@ const UserProfilePage = () => {
     getUserRoleData();
   }, []);
 
-  console.log(companyId, userId, "get data")
 
   return (
     <>

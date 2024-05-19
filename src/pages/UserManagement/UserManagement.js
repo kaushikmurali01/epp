@@ -94,7 +94,6 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
-      console.log(data, "check role")
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
         "company_id": data.company.toString(),
@@ -116,7 +115,7 @@ const UserManagement = () => {
         })
         .catch((error) => {
           console.log(error, 'error')
-          // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+          NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
         })
 
@@ -261,7 +260,6 @@ const UserManagement = () => {
     getComapanyListData()
   }, [])
 
-  console.log(selectFilterType,userData, "selectFilterType")
 
   return (
     <React.Fragment>
