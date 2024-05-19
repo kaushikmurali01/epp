@@ -8,6 +8,7 @@ const SelectBox = ({
   options,
   valueKey,
   labelKey,
+  onChange,
   ...otherProps
 }) => {
 
@@ -17,6 +18,7 @@ const SelectBox = ({
   const handleChange = evt => {
     const { value } = evt.target;
     setFieldValue(name, value);
+    if(onChange) onChange(evt)
   };
 
   const configSelect = {
@@ -25,7 +27,7 @@ const SelectBox = ({
     select: true,
     variant: 'outlined',
     fullWidth: true,
-    value: field.value || '', // Initialize value prop with an empty string if undefined
+    value: field?.value || '', // Initialize value prop with an empty string if undefined
     onChange: handleChange,
   };
 
@@ -39,11 +41,11 @@ const SelectBox = ({
     <FormControl sx={{ width: "100%" }} >
       <FormLabel >{label}</FormLabel>
       <TextField {...configSelect}>
-        {options?.length && options.map((item) => (
-          <MenuItem key={item[valueKey]} value={item[valueKey]}>
+        {options?.length ? options.map((item) => (
+          <MenuItem key={item[valueKey]} value={item?.[valueKey] || ''}>
             {item[labelKey]}
           </MenuItem>
-        ))}
+        )) : null}
       </TextField>
     </FormControl>
     </FormGroup>

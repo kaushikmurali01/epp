@@ -19,13 +19,17 @@ import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
 import { loginRequest } from "authConfig";
-import { FormControl, FormGroup, FormLabel, Grid, Link, Modal, Select } from "@mui/material";
+import { FormControl, FormGroup, FormLabel, Grid, Link, Modal, Select, Stack } from "@mui/material";
 import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { useEffect, useState } from "react";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { fetchUserDetails } from "../../redux/superAdmin/actions/facilityActions";
 import { useDispatch, useSelector } from "react-redux";
+import EvModal from 'utils/modal/EvModal';
+import SelectBox from 'components/FormBuilder/Select';
+import { Form, Formik } from 'formik';
+import ButtonWrapper from 'components/FormBuilder/Button';
 
 const settings = ["Profile", "Logout"];
 
@@ -71,6 +75,32 @@ function Header(props) {
   const [open, setOpen] = React.useState(false);
   const { instance } = useMsal();
   const [showInvitationPopup, setInvitationPopUp] = useState(false);
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
+      fotterActionStyle: "",
+      modalBodyContentStyle: ''
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      successButtonStyle: {},
+      cancelButtonStyle: {},
+      saveButtonClass: "",
+      cancelButtonClass: "",
+
+    },
+    headerText: "Request to join other company",
+    headerSubText: 'Please enter the following details to send request to join other company',
+    modalBodyContent: "",
+  });
   
   const onClose = () => {
     setInvitationPopUp(false);
@@ -134,6 +164,34 @@ function Header(props) {
 
   const [companyList, setCompanyList] = useState([]);
   const [selectCompany, setSelectCompany] = useState("");
+  const [getAllCompanyList, setAllCompanyList] = useState([]);
+  const [getUserRole, setUserRole] = useState([]);
+
+  const getAllComapanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setAllCompanyList(res.data?.data?.rows);
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
+  const getUserRoleData = () => {
+    const userType = "2" // for customers
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setUserRole(res.data?.body)
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
+  useEffect(() => {
+    getAllComapanyListData();
+    getUserRoleData();
+  }, []);
 
   const getCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
@@ -198,6 +256,80 @@ function Header(props) {
       .catch((error) => {
         console.log(error);
       });
+  }
+
+  const RequestToJoinForm = () => {
+
+    const initialValues = {
+      company: '',
+      role: '',
+    };
+    const formSubmit = (data) => {
+      console.log(data, "check role")
+      const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
+      const requestBody = {
+        "company_id": data.company.toString(),
+        "role": data.role.toString(),
+        "user_id": userData?.user?.id
+      }
+
+
+      POST_REQUEST(apiURL, requestBody)
+        .then((response) => {
+          // handleAPISuccessCallBack();
+          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+            modalBodyContent: ''
+          }));
+
+        })
+        .catch((error) => {
+          console.log(error, 'error')
+          // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+        })
+
+    }
+
+    return (
+      <Formik
+        initialValues={{
+          ...initialValues
+        }}
+        // validationSchema={}
+        onSubmit={formSubmit}
+      >
+        <Form >
+          <Stack sx={{ marginBottom: '1rem' }}>
+            {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
+            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+          </Stack>
+          <Stack sx={{ marginBottom: '1rem' }}>
+            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+          </Stack>
+
+
+
+          {/* <SelectBox /> */}
+          <Grid display="flex" sx={{ marginTop: '1rem' }}>
+            <ButtonWrapper type="submit" variant="contained"  >
+              Submit
+            </ButtonWrapper>
+
+          </Grid>
+        </Form>
+      </Formik>
+    )
+  }
+
+  const openRequestModal = () => {
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <RequestToJoinForm />
+    }));
   }
 
   return (
@@ -312,11 +444,11 @@ function Header(props) {
                 alignItems: "flex-end",
               }}
             >
-              <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
-                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} >
+              {userDetails?.type == 2 || userDetails?.type == 3 ? <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
+                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
                   Request to join other company
                 </Typography>
-              </Grid>
+              </Grid> : null}
               <Button
                 onClick={() => setInvitationPopUp(true)}
                 sx={{ minWidth: "auto !important", padding: "0 !important" }}
@@ -559,6 +691,7 @@ function Header(props) {
           }
         </Box>
       </Modal>
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </AppBar>
   );
 }

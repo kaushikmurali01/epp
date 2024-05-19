@@ -10,6 +10,7 @@ import {
   ListItemText,
   IconButton,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { GET_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
@@ -75,6 +76,7 @@ const ProfilePage = () => {
 
   const dispatch = useDispatch();
   const [showEditPage, setShowEditPage] = useState(false);
+  const navigate = useNavigate();
   const [imgUrl, setImgUrl] = useState("");
   const userData= useSelector(
     (state) => state?.facilityReducer?.userDetails || {}
@@ -375,7 +377,7 @@ const ProfilePage = () => {
                     wrap="nowrap"
                     gap="1.25rem"
                   >
-                    <Button sx={profileButtonStyle}>Change Password</Button>
+                    <Button sx={profileButtonStyle} onClick={() => navigate('/change-password')}>Change Password</Button>
                     <Button
                       sx={profileButtonStyle}
                       onClick={() => setShowEditPage(true)}

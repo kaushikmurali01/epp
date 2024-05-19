@@ -36,7 +36,7 @@ const AdminAddFacilityComponent = (props) => {
         street_number: "",
         street_name: "",
         city: "",
-        province: "Toronto",
+        province: "Ontario",
         country: "Canada",
         postal_code: "",
     });

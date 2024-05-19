@@ -14,6 +14,7 @@ export const facilityEndPoints = {
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
+  GET_CATEGORIES_TYPES_AND_NAICS: 'company-facility/v1/facility-naic',
 };
 
 export const adminFacilityEndpoints = {

@@ -35,7 +35,7 @@ const AddFacilityComponent = (props) => {
     street_number: "",
     street_name: "",
     city: "",
-    province: "Toronto",
+    province: "Ontario",
     country: "Canada",
     postal_code: "",
   });
@@ -234,10 +234,72 @@ const AddFacilityComponent = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [categoriesTypesAndNAICS ,setCategoriesTypesAndNAICS] = useState([])
+  const [facilityCategories, setFacilityCategories] = useState([])
+  const [facilityTypes, setFacilityTypes] = useState([])
 
   useEffect(() => {
-    id && getFacilityDetailsById();
+    getCategoriesTypesAndNAICS();
   }, []);
+
+  useEffect(() => {
+    
+    const distinctCategories = [...new Set(categoriesTypesAndNAICS.map(obj => {
+      return obj['facility_category'] != "" ? obj['facility_category'] : null
+    }))].filter(c => c!=null).map((element, index) => {
+      return { id: element, name: element, label: element, value: element }
+  });
+    setFacilityCategories(distinctCategories)
+  }, [categoriesTypesAndNAICS]);
+
+  useEffect(() => {
+    if(facilityCategories.length > 0 && id){
+      getFacilityDetailsById()
+    }
+  }, [facilityCategories])
+
+  const getFacilityType = (value, formValues) => {
+    const facilitiesType = [...categoriesTypesAndNAICS].map((item) => {
+      return item['facility_category'] == value ? item : null  
+    }).filter(c => c!=null).map((element, index) => {
+      return { id: element['facility_type'], name: element['facility_type'], label: element['facility_type'], value: element['facility_type'] }
+    })
+    setFacilityTypes(facilitiesType)
+    setInitialValues((prevValues) => {
+      return {
+        ...formValues,
+        facility_category: value,
+        facility_type: '',
+        naic_code: '',
+      };
+    });
+  }
+
+  const getNAICS = (value, formValues) => {
+    const NAICS = [...categoriesTypesAndNAICS].map((item) => {
+      return (item['facility_type'] == value) ? item : null  
+    }).filter(c => c!=null).map((element, index) => {
+      return { id: element['naic_code'], name: element['naic_code'], label: element['naic_code'], value: element['naic_code'] }
+    })
+    setInitialValues((prevValues) => {
+      return {
+        ...formValues,
+        facility_type: value,
+        naic_code: NAICS[0]?.value,
+      };
+    });
+  }
+
+  const getCategoriesTypesAndNAICS = () => {
+    GET_REQUEST(facilityEndPoints.GET_CATEGORIES_TYPES_AND_NAICS)
+     .then((response) => {
+        if (response.data.statusCode == 200) {
+          setCategoriesTypesAndNAICS(response.data.data);
+          ;
+        }
+      })
+     .catch((error) => { });
+  }
 
   const getFacilityDetailsById = () => {
     GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + "/" + id)
@@ -252,6 +314,7 @@ const AddFacilityComponent = (props) => {
           //     response.data.data.facility_construction_status = 'New';
           // }
           setInitialValues((prevValues) => {
+            getFacilityType(response?.data?.data?.facility_category, response.data.data)
             return {
               ...prevValues,
               ...response.data.data,
@@ -439,6 +502,7 @@ const AddFacilityComponent = (props) => {
           enableReinitialize={true}
           onSubmit={handleSubmit}
         >
+           {({ values }) => (
           <Form>
             <Grid container spacing={2} sx={{ marginTop: "10px" }}>
               <Grid item xs={12} sm={4}>
@@ -471,15 +535,15 @@ const AddFacilityComponent = (props) => {
                             </Grid> */}
 
             <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12} sm={4}>
-                <InputField name="naic_code" label="NAIC’s Code*" type="text" />
-              </Grid>
 
               <Grid item xs={12} sm={4}>
                 <SelectBox
                   name="facility_category"
                   label="Facility Category*"
-                  options={FacilityCategoryArray}
+                  options={facilityCategories || []}
+                  onChange={(e) => {
+                    getFacilityType(e.target.value, values)
+                  }}
                 />
               </Grid>
 
@@ -487,8 +551,15 @@ const AddFacilityComponent = (props) => {
                 <SelectBox
                   name="facility_type"
                   label="Facility Type*"
-                  options={FacilityTypeArray}
+                  options={facilityTypes || []}
+                  onChange={(e) => {
+                   getNAICS(e.target.value, values)
+                  }}
                 />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <InputField name="naic_code" label="NAIC’s Code*" type="text" />
               </Grid>
             </Grid>
 
@@ -673,6 +744,7 @@ const AddFacilityComponent = (props) => {
               </ButtonWrapper>
             </Box>
           </Form>
+          )}
         </Formik>
       </Container>
     </>
