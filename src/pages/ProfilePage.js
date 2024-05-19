@@ -134,6 +134,10 @@ const ProfilePage = () => {
 
   useEffect(() => {
     console.log('adadadadad', userData)
+    setProfilePicture(
+      userData?.user?.profile_pic ||
+        "/images/landingPage/generic_profile.png"
+    );
     setInitialValues((prevValues) => {
       return {
         ...prevValues,
@@ -209,21 +213,20 @@ const ProfilePage = () => {
         email: newValues.email,
         profile_pic: profilePicture || "",
       },
+      company: null
     };
 
     //check if role is super-admin
     if (
-      userProfileData?.user?.rolename == "Super-Admin" &&
-      userProfileData?.user?.type == "2"
+      isCompanyProfileViewPermission
     ) {
-      // type 2 is for customer
       body.company = {
         company_name: newValues.company_name,
         website: newValues.website,
         city: newValues.city,
         state: newValues.state,
         postal_code: newValues.postal_code,
-
+        company_id: userProfileData?.user?.company_id,
         country: newValues.country,
         unit_number: newValues.unit_number,
         street_number: newValues.street_number,
@@ -237,6 +240,9 @@ const ProfilePage = () => {
       dispatch({ type: "SHOW_LOADER", payload: false });
     });
   };
+
+  // type 2 is for customer
+  const isCompanyProfileViewPermission = (userProfileData?.user?.type == 2 && userProfileData?.user.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
 
   return (
     <>
@@ -430,7 +436,7 @@ const ProfilePage = () => {
                     </List>
                   </Box>
 
-                  {userProfileData?.user?.type == 2 && userProfileData?.user?.rolename == "Super-Admin" ? <Box
+                  {isCompanyProfileViewPermission ? <Box
                     display={"flex"}
                     gap={"1.25rem"}
                     flexDirection={"column"}
@@ -573,6 +579,7 @@ const ProfilePage = () => {
               tabStyle={tabStyle}
               initialValues={initialValues}
               handleSubmit={handleSubmit}
+              userProfileData={userProfileData}
             />
           )}
         </Container>
