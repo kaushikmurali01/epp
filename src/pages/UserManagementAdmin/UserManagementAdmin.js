@@ -108,6 +108,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
   const handleChange = (event, newValue) => {
     setSearchString('');
+    setSelectRoleType('0');
     setTabValue(newValue);
     setPageInfo(newValue);
   };
@@ -277,7 +278,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getComapanyListData = () => {
-    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "1/100";
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
         setCompanyList(res.data?.data?.rows);

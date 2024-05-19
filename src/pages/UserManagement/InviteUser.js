@@ -124,6 +124,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             }
 
             console.log(requestBody, "check data");
+            return;
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     if (response.data.status === 200) {
@@ -144,7 +145,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type+"/"+ (item.company_id ? item.company_id : '0') : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
+        const apiURL = invitePageInfo?.type !== null  ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ invitePageInfo?.type+"/"+ (item.company_id ? item.company_id : '0')+"/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID+'/'+item.id +'/'+item.company_id +'/'+item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 console.log(res.data, "User permissions")
@@ -169,8 +170,9 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
-        setIsFormValid(isValidEmail && selectRoleType !== '')
-    }, [userEmail, selectRoleType])
+        setIsFormValid(isValidEmail && selectRoleType !== '' && selectCompanyType !== '')
+
+    }, [userEmail, selectRoleType,selectCompanyType])
 
 
     useEffect(() => {
@@ -182,7 +184,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log(getUserRole, invitePageInfo, selectTableRow, 'invitePageInfo,getUserRole, selectTableRow')
+    console.log(getUserRole, invitePageInfo, selectTableRow,getCompanyList, 'getCompanyList,getUserRole,selectTableRow')
 
     return (
         <Box component="section">
