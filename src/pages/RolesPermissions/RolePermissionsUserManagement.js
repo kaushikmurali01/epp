@@ -145,10 +145,10 @@ const RolePermissionsUserManagement = () => {
                                 <Typography variant='small'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
                             </Grid>
                             <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
-                                <FormGroup sx={{ flexGrow: '1', maxWidth: '14rem' }}>
+                                <FormGroup sx={{minWidth: '14rem' }}>
                                     <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                                         <TextField
-                                            placeholder="Search by Username & ID"
+                                            placeholder="Search by Role"
                                             inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
                                         />
                                     </FormControl>

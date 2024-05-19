@@ -149,7 +149,6 @@ const Table = ({
                           }
                         }}
                         sx={{
-                          cursor: "pointer",
                           color: "text.primary2",
                           textAlign: "center",
                           fontSize: "0.875rem",

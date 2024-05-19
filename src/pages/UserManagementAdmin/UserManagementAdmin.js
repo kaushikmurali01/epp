@@ -7,8 +7,8 @@ import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuI
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { GET_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
-
-
+import ClearIcon from '@mui/icons-material/Clear';
+import debounce from "lodash.debounce";
 
 import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
 import InviteUser from 'pages/UserManagement/InviteUser';
@@ -25,6 +25,7 @@ const UserManagementAdmin = () => {
   const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
 
   // tabs table data
+  const [searchString, setSearchString] = useState("");
   const [getEnervaUser, setEnervaUser] = useState([]);
   const [getIesoUser, setIesoUser] = useState([]);
   const [getCustomerUser, setCustomerUser] = useState([]);
@@ -34,7 +35,7 @@ const UserManagementAdmin = () => {
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('enervaUsers');
-  const [selectRoleType, setSelectRoleType] = useState('');
+  const [selectRoleType, setSelectRoleType] = useState('0');
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
@@ -42,9 +43,9 @@ const UserManagementAdmin = () => {
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
-    getEnervaUserManagementData();
-    getIESOUserManagementData();
-    getCustomerUserManagementData();
+    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
   const initialValues = {
@@ -106,37 +107,43 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   const handleChange = (event, newValue) => {
+    setSearchString('');
     setTabValue(newValue);
+    setPageInfo(newValue);
   };
 
 
   const handleAddUser = () => {
     setVisibleInvitePage(true);
-    if (tabValue === 'enervaUsers') {
+    setPageInfo(tabValue);
+
+  }
+
+  const setPageInfo = (newTabValue) => {
+    if (newTabValue === 'enervaUsers') {
       setInvitePageInfo({
         title: 'Invite Enerva User and set permissions',
         type: '1'
       })
-    } else if (tabValue === 'iesoUsers') {
+    } else if (newTabValue === 'iesoUsers') {
       setInvitePageInfo({
         title: 'Invite IESO User and set permissions',
         type: '4'
       })
     }
-    else if (tabValue === 'customerUsers') {
+    else if (newTabValue === 'customerUsers') {
       setInvitePageInfo({
         title: 'Invite Customer User and set permissions',
         type: '2'
       })
 
     } else {
+      // default tab is first
       setInvitePageInfo({
-        title: 'Invite Aggregator User and set permissions',
-        type: '5'
+        title: 'Invite Enerva User and set permissions',
+        type: '1'
       })
     }
-
-
   }
 
   const  getTabTitle = (tabValue)=> {
@@ -179,11 +186,11 @@ const defaultPagination = { page: 1, pageSize: 10 }
 }
 
 
-  const getEnervaUserManagementData = () => {
+  const getEnervaUserManagementData = (pageInfo,search,role) => {
+    console.log(pageInfo,search,role, "Getting data on role changes");
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
-      (enervaPageInfo.page - 1) * enervaPageInfo.pageSize
-    }/${enervaPageInfo.pageSize}`;
-    // const apiURL = ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST+'/0/100';
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     GET_REQUEST(apiURL)
       .then((res) => {       
         if(res.data?.body?.rows instanceof Array){
@@ -198,10 +205,11 @@ const defaultPagination = { page: 1, pageSize: 10 }
         console.log(error)
       });
   }
-  const getIESOUserManagementData = () => {
+
+  const getIESOUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
-      (iesoPageInfo.page - 1) * iesoPageInfo.pageSize
-    }/${iesoPageInfo.pageSize}`;
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -216,10 +224,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
         console.log(error)
       });
   }
-  const getCustomerUserManagementData = () => {
+  const getCustomerUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
-      (customerPageInfo.page - 1) * customerPageInfo.pageSize
-    }/${customerPageInfo.pageSize}`;
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -258,7 +266,8 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getUserRoleData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE
+    console.log(invitePageInfo, "check invite page info")
+    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
@@ -267,29 +276,79 @@ const defaultPagination = { page: 1, pageSize: 10 }
       });
   }
 
+  const getComapanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "1/100";
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setCompanyList(res.data?.data?.rows);
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
   
   useEffect(()=> {
-    getUserRoleData()
+    getComapanyListData();
+    setPageInfo();
   }, [])
 
+  useEffect(()=> {
+    if(invitePageInfo?.type !== undefined){
+      getUserRoleData();
+    }
+
+  }, [invitePageInfo])
+
+
+// search implementation
+
+
+  const debouncedSearch = debounce((pageInfo, searchString,selectedRole) => {
+    console.log(searchString, tabValue,selectedRole, "checking data...");
+    if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getEnervaUserManagementData(pageInfo, searchString,selectedRole);
+    }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getIESOUserManagementData(pageInfo, searchString,selectedRole);
+    }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
+      getCustomerUserManagementData(pageInfo, searchString,selectedRole);
+    }
+
+  }, 300);
+
+  
+  useEffect(() => {
+    debouncedSearch(enervaPageInfo, searchString,selectRoleType);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  useEffect(() => {
+    debouncedSearch(iesoPageInfo, searchString,selectRoleType);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [iesoPageInfo.page, iesoPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  useEffect(() => {
+    debouncedSearch(customerPageInfo, searchString,selectRoleType);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType]);
+  
+
   useEffect(() => {
     // load all default function on page load
-      getEnervaUserManagementData();
-  }, [enervaPageInfo])
+    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
+  }, [])
 
-  useEffect(() => {
-    // load all default function on page load
-      getIESOUserManagementData();
-
-  }, [iesoPageInfo])
-
-  useEffect(() => {
-    // load all default function on page load
-      getCustomerUserManagementData();
-  }, [customerPageInfo])
-
-
-
+  
+  console.log(selectRoleType, "selectRoleType")
 
   return (
     <React.Fragment>
@@ -301,6 +360,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
         handleAPISuccessCallBack={handleAPISuccessCallBack}
         selectTableRow={selectTableRow}
         inviteAPIURL={inviteAPIURL}
+        getCompanyList={getCompanyList}
         /> :
 
         <Box component="section">
@@ -311,27 +371,44 @@ const defaultPagination = { page: 1, pageSize: 10 }
                 <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
               </Grid>
               <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
-                <FormGroup sx={{ flexGrow: '1' }}>
+                <FormGroup sx={{ minWidth: '14rem' }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
+                      value={searchString}
                       placeholder="Search by Username & ID"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      onChange={(e) => setSearchString(e.target.value)}
                     />
+                     {searchString?.length > 0 &&
+                      <ClearIcon
+                        onClick={() => setSearchString("")}
+                        sx={{
+                          color: "#333",
+                          fontSize: "1.25rem",
+                          position: "absolute",
+                          right: "0.75rem",
+                          top: '0', bottom: '0', margin: 'auto',
+                          zIndex: "1",
+                          cursor: "pointer"
+                        }}
+                      />
+                    }
                   </FormControl>
                 </FormGroup>
 
-                <FormGroup className='theme-form-group'>
+                <FormGroup className='theme-form-group theme-select-form-group'>
 
-                  <FormControl sx={{ minWidth: '12rem' }} >
+                  <FormControl sx={{  }} >
                     <Select
+                      className='transparent-border'
                       value={selectRoleType}
                       onChange={(e) => handleSelectChange(e)}
                       displayEmpty={true}
                     >
-                      <MenuItem value="">
-                        Select
+                      <MenuItem key={0} value="0">
+                        Role Type
                       </MenuItem>
-                      {getUserRole && (getUserRole).map((item) => {
+                      {getUserRole?.length > 0 && (getUserRole).map((item) => {
                         return (
                           <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                         )
