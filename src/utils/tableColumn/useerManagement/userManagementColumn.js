@@ -53,8 +53,6 @@ const UserManagementColumn = () => {
         )
     }
 
-    console.log(isChecked, "isChecked")
-
     const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
         {
             Header: "Name",

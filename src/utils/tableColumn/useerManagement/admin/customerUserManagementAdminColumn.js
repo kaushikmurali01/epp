@@ -131,7 +131,7 @@ const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,se
     setSelectTableRow(item)
     setInvitePageInfo({title:'Invite Customer User and set permissions', type: "2" })
     setInviteAPIURL(apiURL)
-    console.log(item, 'check item')
+    
 }
 
 const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
