@@ -9,9 +9,15 @@ const AdminFacilityStatus = ({ children }) => {
       case 1:
         return "#DCFF88";
       case 2:
-        return "#CFEEFF";
+        return "#8e78de";
       case 3:
-        return "#FFC6C4";
+        return "#CFEEFF";
+      case 4:
+        return "#a9bf75";
+      case 5:
+        return "#DCFF88";
+      case 6:
+        return "#ffa6a3";
       default:
         return "#54585A33";
     }
@@ -22,11 +28,17 @@ const AdminFacilityStatus = ({ children }) => {
       case 0:
         return "Draft";
       case 1:
-        return "Approved";
+        return "Ready for submission";
       case 2:
-        return "In Review";
+        return "Submitted";
       case 3:
-        return "#FF5858";
+        return "In review";
+      case 4:
+        return "Baseline approved";
+      case 5:
+        return "Approved";
+      case 6:
+        return "Rejected";
       default:
         return "NA";
     }
@@ -38,7 +50,8 @@ const AdminFacilityStatus = ({ children }) => {
         p={1}
         sx={{
           cursor: "default",
-          borderRadius: "5px",
+          borderRadius: "55px",
+          padding: "5px 15px",
           background: `${getColor(children)}`,
           textWrap: "nowrap",
         }}
