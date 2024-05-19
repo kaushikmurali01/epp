@@ -5,12 +5,14 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaUserProfile, validationSchemaPUserCompanyrofileDetails } from "utils/validations/formValidation";
 import { Box, Grid, Typography } from '@mui/material';
 
-const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
+const EditProfileComponent = ({tabStyle, handleSubmit, initialValues, userProfileData}) => {
+  const isCompanyProfileEditPermission = (initialValues?.type == 2 && initialValues.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
+
   return (
     <Grid marginBlockStart={"3.25rem"} gap={"3.25rem"}>
       <Formik
         initialValues={{ ...initialValues }}
-        validationSchema={initialValues?.type == 2 && initialValues.rolename == "SuperAdmin" ? validationSchemaPUserCompanyrofileDetails : validationSchemaUserProfile}
+        validationSchema={isCompanyProfileEditPermission ? validationSchemaPUserCompanyrofileDetails : validationSchemaUserProfile}
         enableReinitialize={true}
         onSubmit={handleSubmit}
       >
@@ -40,12 +42,12 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
               </Grid>
 
               <Grid item xs={12} sm={4}>
-                <InputField name="email" label="Email Address*" type="text" />
+                <InputField isDisabled={true} name="email" label="Email Address*" type="text" />
               </Grid>
             </Grid>
           </Grid>
 
-          {initialValues.type == 2 && initialValues.rolename == "Super-Admin" ? <Grid>
+          {isCompanyProfileEditPermission ? <Grid>
             <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
               Company details
             </Typography>
