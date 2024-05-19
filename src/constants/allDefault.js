@@ -18,3 +18,26 @@ const userTypes = [
 ]
 
 export {userTypes};
+
+export const dateFilterTypes = [
+  {
+    id: 1,
+    dateFilterType: "Today",
+  },
+  {
+    id: 2,
+    dateFilterType: "Past 01 Week",
+  },
+  {
+    id: 3,
+    dateFilterType: "Past 30 Days",
+  },
+  {
+    id: 4,
+    dateFilterType: "Past 60 Days",
+  },
+  {
+    id: 5,
+    dateFilterType: "Custom Date",
+  },
+];

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { TextField,FormControl, FormGroup, List,ListItem, FormLabel } from '@mui/material';
 import { useField } from "formik";
 
-const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProps }) => {
+const InputFieldPassword = ({ name, label, type, showpasswordHints, isLabelBlack, isRequiredField, ...otherProps }) => {
   const [pwdError, setPwdError] = useState({});
   const [field, meta] = useField(name);
   const configTextfield = {
@@ -37,56 +37,69 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
   }, [configTextfield.value]);
 
   return (
-    <FormGroup className={`theme-form-group password-field-group ${
-      configTextfield.error
-        ? "has-error"
-        : ""
-    } `}>
-    <FormControl>
-    <FormLabel sx={{ color: '#2E813E' }}> {label} </FormLabel>
-      <div className="form-field">
-      {/* <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel> */}
-       <TextField {...configTextfield} type={inputType} xs={12} />
+    <FormGroup
+      className={`theme-form-group password-field-group ${
+        configTextfield.error ? "has-error" : ""
+      } `}
+    >
+      <FormControl>
+        <FormLabel sx={{ color: isLabelBlack ? "#54585A" : "#2E813E" }}>
+          {label}
+          {isRequiredField ? <span style={{ color: "#F00" }}>*</span> : null}
+        </FormLabel>
+        <div className="form-field">
+          {/* <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel> */}
+          <TextField {...configTextfield} type={inputType} xs={12} />
 
-        {configTextfield.showeyeicon === "true" ? (
-          <span
-            className="eye-icon"
-            onClick={() => {
-              if (
-                inputType === "password" &&
-                configTextfield.showeyeicon === "true"
-              ) {
-                setinputType("text");
-              } else {
-                setinputType("password");
-              }
-            }}
-          >
-            {inputType !== "password" ? (
-              <img  width="24"  height="29" src="/images/eyeShow.svg" alt="eye-Show" />
-            ) : (
-              <img width="24"  height="22" src="/images/eyeCrossed.svg" alt="eye-Crossed" />
-            )}
-          </span>
-        ) : null}
-      </div>
+          {configTextfield.showeyeicon === "true" ? (
+            <span
+              className="eye-icon"
+              onClick={() => {
+                if (
+                  inputType === "password" &&
+                  configTextfield.showeyeicon === "true"
+                ) {
+                  setinputType("text");
+                } else {
+                  setinputType("password");
+                }
+              }}
+            >
+              {inputType !== "password" ? (
+                <img
+                  width="24"
+                  height="29"
+                  src="/images/eyeShow.svg"
+                  alt="eye-Show"
+                />
+              ) : (
+                <img
+                  width="24"
+                  height="22"
+                  src="/images/eyeCrossed.svg"
+                  alt="eye-Crossed"
+                />
+              )}
+            </span>
+          ) : null}
+        </div>
       </FormControl>
 
-    {showpasswordHints === "true"  &&     
-      <List 
+      {showpasswordHints === "true" && (
+        <List
           sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap:'8px'
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px",
           }}
           className="error-list"
         >
           <ListItem
-          sx={{ width: 'auto', padding: '0' }}
+            sx={{ width: "auto", padding: "0" }}
             className={`${
-              configTextfield.value.length === 0 
+              configTextfield.value.length === 0
                 ? ""
-                :  pwdError.hasMinumLength
+                : pwdError.hasMinumLength
                 ? "valid"
                 : "invalid"
             }`}
@@ -94,7 +107,7 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
             8 Characters -
           </ListItem>
           <ListItem
-          sx={{ width: 'auto', padding: '0' }}
+            sx={{ width: "auto", padding: "0" }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -106,7 +119,7 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
             1 Uppercase -
           </ListItem>
           <ListItem
-          sx={{ width: 'auto', padding: '0' }}
+            sx={{ width: "auto", padding: "0" }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -118,7 +131,7 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
             1 Lowercase -
           </ListItem>
           <ListItem
-          sx={{ width: 'auto', padding: '0' }}
+            sx={{ width: "auto", padding: "0" }}
             className={`${
               configTextfield.value.length === 0
                 ? ""
@@ -127,13 +140,10 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, ...otherProp
                 : "in-valid"
             }`}
           >
-            1 Number 
+            1 Number
           </ListItem>
-         
-      </List>
-      }
-
-    
+        </List>
+      )}
     </FormGroup>
   );
 };
