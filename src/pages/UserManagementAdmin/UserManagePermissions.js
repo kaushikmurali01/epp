@@ -7,11 +7,12 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableRow, invitePageInfo,inviteAPIURL }) => {
-    console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
+const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableRow, invitePageInfo,inviteAPIURL, getCompanyList }) => {
+    
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
+    const [selectCompanyType, setSelectCompanyType] = useState(selectTableRow?.company_id || '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -24,6 +25,9 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
     const handelEmailSelectChange = (event) => {
         setUserEmail(event.target.value)
     }
+    const handleSelectCompanyChange = (event) => {
+        setSelectCompanyType(event.target.value);
+    };
 
 
     const handleAlignment = (event, index) => {
@@ -67,22 +71,21 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
 
 
     const handelInviteSubmit = () => {
-        
         // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
-
-        console.log(apiURL, permissionIds, "checked data");
-        // return;
+        
         if (isEdited) {
             const requestBody = {
                 "email": userEmail,
                 "role_id": selectRoleType,
-                "company_id": selectTableRow.company_id, // comapnay id is static right now.
+                "company_id": selectTableRow.companyId, // comapnay id is static right now.
                 "permissions": permissionIds,
                 "entry_type": selectTableRow.entry_type,
-                "requestBody" : invitePageInfo?.type
+                "type" : selectTableRow?.type
+
             }
+
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     NotificationsToast({ message: 'The User Permissions has been updated', type: "success" });
@@ -98,10 +101,11 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL =  ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ item?.type ;
+        // const apiURL =  ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.id+'/'+ item?.type ;
+           const apiURL =  ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID+'/'+item.userId+'/'+ item?.type+"/"+ (item.companyId ? item.companyId : '0')+"/" + item.entry_type 
         GET_REQUEST(apiURL)
             .then((res) => {
-                const userPermissions = res.data[0]?.permissions || []; // Assuming permissions is an array of permission IDs
+                const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
                 setSelectedPermissions(userPermissionObjects);
@@ -135,7 +139,6 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
 
     }, [selectRoleType]);
 
-    console.log(selectTableRow, 'selectTableRow last')
 
     return (
         <Box component="section">
@@ -187,8 +190,6 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                             <em>Select</em>
                                         </MenuItem>
                                     {getUserRole && (getUserRole).map((item) => {
-                                        // console.log(item, "Role Type");
-
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )
@@ -200,6 +201,32 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                             </FormControl>
 
                         </FormGroup>
+                        {selectTableRow?.type === "2" && 
+                            <FormGroup className='theme-form-group'>
+                                <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Company* </FormLabel>
+                                <FormControl sx={{ minWidth: '12rem' }} >
+                                    <Select
+                                        value={selectCompanyType}
+                                        onChange={(e) => handleSelectCompanyChange(e)}
+                                        displayEmpty={true}
+                                        disabled={isEdited}
+                                    >
+                                        <MenuItem value="" disabled>
+                                                <em>Select</em>
+                                            </MenuItem>
+                                        {getCompanyList && (getCompanyList).map((item) => {
+                                            return (
+                                                <MenuItem key={`${item.id}_${item.company_name}`} value={item?.id}>{item?.company_name}</MenuItem>
+                                            )
+                                        })}
+
+                                    </Select>
+                                
+
+                                </FormControl>
+
+                            </FormGroup>
+                        }
                     </Grid>
                     <Grid item >
                         <Button

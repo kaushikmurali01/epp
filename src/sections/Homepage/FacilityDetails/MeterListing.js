@@ -20,10 +20,8 @@ import {
   fetchMeterListing,
   fetchMeterStatistics,
 } from "../../../redux/superAdmin/actions/metersActions";
-import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
-import { array } from "yup";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -32,14 +30,13 @@ const MeterListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchMeterStatistics());
-  }, [dispatch]);
+    dispatch(fetchMeterStatistics(id));
+  }, [dispatch, id]);
 
   const meterStatistics = useSelector(
     (state) => state?.meterReducer?.meterStatistics?.data

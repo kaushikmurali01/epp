@@ -484,7 +484,7 @@ const AdminDetails = () => {
                     htmlFor="year_of_construction"
                     style={{ whiteSpace: "initial" }}
                   >
-                    Year of construction
+                    Year of construction *
                   </InputLabel>
                   <DatePicker
                     id="year_of_construction"

@@ -136,11 +136,12 @@ export const deleteMeter = (meterId) => {
   };
 };
 
-export const fetchMeterStatistics = () => {
+export const fetchMeterStatistics = (facilityId) => {
   return async (dispatch) => {
     try {
-      dispatch(fetchMeterStatisticsRequest());
-      const response = await GET_REQUEST(meterEndPoints.METER_STATISTICS);
+      dispatch(fetchMeterStatisticsRequest(facilityId));
+      const endpointWithParams = `${meterEndPoints.METER_STATISTICS}?facility_id=${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchMeterStatisticsSuccess(data));
     } catch (error) {

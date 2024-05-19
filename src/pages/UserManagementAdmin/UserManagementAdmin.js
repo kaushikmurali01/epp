@@ -188,7 +188,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   const getEnervaUserManagementData = (pageInfo,search,role) => {
-    console.log(pageInfo,search,role, "Getting data on role changes");
+
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
     }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
@@ -267,7 +267,6 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getUserRoleData = () => {
-    console.log(invitePageInfo, "check invite page info")
     const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -305,7 +304,6 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   const debouncedSearch = debounce((pageInfo, searchString,selectedRole) => {
-    console.log(searchString, tabValue,selectedRole, "checking data...");
     if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
       getEnervaUserManagementData(pageInfo, searchString,selectedRole);
     }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
@@ -348,8 +346,6 @@ const defaultPagination = { page: 1, pageSize: 10 }
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
   }, [])
 
-  
-  console.log(selectRoleType, "selectRoleType")
 
   return (
     <React.Fragment>
@@ -376,7 +372,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
                       value={searchString}
-                      placeholder="Search by Username & ID"
+                      placeholder="Search by Username"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
                       onChange={(e) => setSearchString(e.target.value)}
                     />
