@@ -35,7 +35,7 @@ const UserManagementAdmin = () => {
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getCompanyList, setCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('enervaUsers');
-  const [selectRoleType, setSelectRoleType] = useState('');
+  const [selectRoleType, setSelectRoleType] = useState('0');
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
@@ -43,9 +43,9 @@ const UserManagementAdmin = () => {
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
-    getEnervaUserManagementData(enervaPageInfo, searchString);
-    getIESOUserManagementData(iesoPageInfo, searchString);
-    getCustomerUserManagementData(customerPageInfo, searchString);
+    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
   const initialValues = {
@@ -109,38 +109,39 @@ const defaultPagination = { page: 1, pageSize: 10 }
   const handleChange = (event, newValue) => {
     setSearchString('');
     setTabValue(newValue);
-    setPageInfo();
+    setPageInfo(newValue);
   };
 
 
   const handleAddUser = () => {
     setVisibleInvitePage(true);
-    setPageInfo();
+    setPageInfo(tabValue);
 
   }
 
-  const setPageInfo = () => {
-    if (tabValue === 'enervaUsers') {
+  const setPageInfo = (newTabValue) => {
+    if (newTabValue === 'enervaUsers') {
       setInvitePageInfo({
         title: 'Invite Enerva User and set permissions',
         type: '1'
       })
-    } else if (tabValue === 'iesoUsers') {
+    } else if (newTabValue === 'iesoUsers') {
       setInvitePageInfo({
         title: 'Invite IESO User and set permissions',
         type: '4'
       })
     }
-    else if (tabValue === 'customerUsers') {
+    else if (newTabValue === 'customerUsers') {
       setInvitePageInfo({
         title: 'Invite Customer User and set permissions',
         type: '2'
       })
 
     } else {
+      // default tab is first
       setInvitePageInfo({
-        title: 'Invite Aggregator User and set permissions',
-        type: '5'
+        title: 'Invite Enerva User and set permissions',
+        type: '1'
       })
     }
   }
@@ -189,7 +190,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
     console.log(pageInfo,search,role, "Getting data on role changes");
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     GET_REQUEST(apiURL)
       .then((res) => {       
         if(res.data?.body?.rows instanceof Array){
@@ -208,7 +209,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
   const getIESOUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -226,7 +227,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
   const getCustomerUserManagementData = (pageInfo,search,role) => {
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}&role=${role}`;
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -265,6 +266,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getUserRoleData = () => {
+    console.log(invitePageInfo, "check invite page info")
     const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -287,11 +289,15 @@ const defaultPagination = { page: 1, pageSize: 10 }
   
   useEffect(()=> {
     getComapanyListData();
+    setPageInfo();
   }, [])
 
   useEffect(()=> {
-    getUserRoleData();
-  }, [invitePageInfo?.type])
+    if(invitePageInfo?.type !== undefined){
+      getUserRoleData();
+    }
+
+  }, [invitePageInfo])
 
 
 // search implementation
@@ -399,10 +405,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
                       onChange={(e) => handleSelectChange(e)}
                       displayEmpty={true}
                     >
-                      <MenuItem value="">
-                        Select
+                      <MenuItem key={0} value="0">
+                        Role Type
                       </MenuItem>
-                      {getUserRole && (getUserRole).map((item) => {
+                      {getUserRole?.length > 0 && (getUserRole).map((item) => {
                         return (
                           <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                         )

@@ -13,7 +13,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
-    const [selectCompanyType, setSelectCompanyType] = useState('');
+    const [selectCompanyType, setSelectCompanyType] = useState(selectTableRow?.company_id || '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -182,7 +182,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log(getUserRole, invitePageInfo, 'invitePageInfo,getUserRole')
+    console.log(getUserRole, invitePageInfo, selectTableRow, 'invitePageInfo,getUserRole, selectTableRow')
 
     return (
         <Box component="section">
@@ -260,8 +260,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                                 <em>Select</em>
                                             </MenuItem>
                                         {getCompanyList && (getCompanyList).map((item) => {
-                                            // console.log(item, "Role Type");
-
                                             return (
                                                 <MenuItem key={`${item.id}_${item.company_name}`} value={item?.id}>{item?.company_name}</MenuItem>
                                             )
