@@ -8,21 +8,23 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import debounce from "lodash.debounce";
 import { useNavigate } from "react-router-dom";
 
-const FacilityApproved = ({ searchVal }) => {
+const FacilityApproved = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 5, searchString));
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(
+      fetchAdminFacilityListing(pageInfo, 5, searchString, company_filter)
+    );
   }, 300);
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchVal);
+    debouncedSearch(pageInfo, searchVal, companyFilter);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal]);
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -72,7 +74,7 @@ const FacilityApproved = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-          // onClick={() => openDeleteModal(item?.id)}
+            // onClick={() => openDeleteModal(item?.id)}
           >
             Download
           </Button>
@@ -84,7 +86,9 @@ const FacilityApproved = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            onClick={() => navigate(`/facility-list/facility-details/${item?.id}`)}
+            onClick={() =>
+              navigate(`/facility-list/facility-details/${item?.id}`)
+            }
           >
             View
           </Button>
@@ -108,7 +112,7 @@ const FacilityApproved = ({ searchVal }) => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-          // onClick={() => openDeleteModal(item?.id)}
+            // onClick={() => openDeleteModal(item?.id)}
           >
             Delete
           </Button>

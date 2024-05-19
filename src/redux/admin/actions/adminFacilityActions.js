@@ -39,7 +39,12 @@ import {
   fetchAdminFacilitiesDropdownFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
-export const fetchAdminFacilityListing = (pageInfo, status, search = "") => {
+export const fetchAdminFacilityListing = (
+  pageInfo,
+  status,
+  search = "",
+  compFilter = ""
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminFacilityListRequest());
@@ -47,7 +52,7 @@ export const fetchAdminFacilityListing = (pageInfo, status, search = "") => {
         adminFacilityEndpoints.ADMIN_FACILITY_LIST
       }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
         pageInfo.pageSize
-      }?status=${status}&search=${search}`;
+      }?status=${status}&search=${search}&col_name=${""}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));
