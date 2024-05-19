@@ -216,7 +216,7 @@ const Details = () => {
     water_heating_efficiency: "",
     maximum_number_of_occupants: "",
     average_number_of_occupants: "",
-    year_round_or_seasonal: "",
+    year_round_or_seasonal: 1,
     not_standard_hvac_equipment: {
       industrial_Process: false,
       refrigeration: false,
@@ -712,7 +712,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="industrial_Process"
-                    label="Industrial/Process"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Industrial/Process
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -726,7 +730,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="refrigeration"
-                    label="Refrigeration"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Refrigeration
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -740,7 +748,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="compressed_air"
-                    label="Compressed Air"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Compressed Air
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -754,7 +766,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="commercial_kitchen"
-                    label="Commercial Kitchen"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Commercial Kitchen
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -768,7 +784,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="swimming_pool"
-                    label="Swimming Pool"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Swimming Pool
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -782,7 +802,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="other"
-                    label="Other"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        Other
+                      </Typography>
+                    }
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -796,7 +820,11 @@ const Details = () => {
                     }
                     sx={{ color: "text.secondary2" }}
                     name="none"
-                    label="None"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        None
+                      </Typography>
+                    }
                   />
                 </Grid>
               </Grid>
@@ -825,11 +853,6 @@ const Details = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  {/* <InputField
-                    name="space_cooling_efficiency"
-                    label="Space Cooling Efficiency(EER, SEER, COP)"
-                    type="number"
-                  /> */}
                   <InputField
                     name="space_cooling_efficiency"
                     label="Space Cooling Efficiency(EER, SEER, COP)"
@@ -881,11 +904,6 @@ const Details = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  {/* <InputField
-                    name="space_heating_efficiency"
-                    label="Space Heating Efficiency(EER, SEER, COP)"
-                    type="number"
-                  /> */}
                   <InputField
                     name="space_heating_efficiency"
                     label="Space Heating Efficiency(EER, SEER, COP)"
@@ -937,11 +955,6 @@ const Details = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  {/* <InputField
-                    name="water_heating_efficiency"
-                    label="Water Heating Efficiency(%, COP)"
-                    type="number"
-                  /> */}
                   <InputField
                     name="water_heating_efficiency"
                     label="Water Heating Efficiency(%, COP)"
@@ -1011,7 +1024,7 @@ const Details = () => {
                   />
                 </Grid>
               </Grid>
-              {values.year_round_or_seasonal === 2 && (
+              {values?.year_round_or_seasonal === 2 && (
                 <Grid container spacing={2} mt={1}>
                   <Grid item>
                     <FormControlLabel
@@ -1024,7 +1037,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="jan"
-                      label="Jan"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Jan
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1038,7 +1055,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="feb"
-                      label="Feb"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Feb
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1052,7 +1073,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="march"
-                      label="March"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          march
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1066,7 +1091,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="april"
-                      label="April"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          April
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1080,7 +1109,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="may"
-                      label="May"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          May
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1094,7 +1127,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="june"
-                      label="June"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          June
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1108,7 +1145,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="july"
-                      label="July"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          July
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1122,7 +1163,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="aug"
-                      label="Aug"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Aug
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1136,7 +1181,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="sep"
-                      label="Sep"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Sep
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1150,7 +1199,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="oct"
-                      label="Oct"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Oct
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1164,7 +1217,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="nov"
-                      label="Nov"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Nov
+                        </Typography>
+                      }
                     />
                   </Grid>
                   <Grid item>
@@ -1178,7 +1235,11 @@ const Details = () => {
                       }
                       sx={{ color: "text.secondary2" }}
                       name="dec"
-                      label="Dec"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Dec
+                        </Typography>
+                      }
                     />
                   </Grid>
                 </Grid>
