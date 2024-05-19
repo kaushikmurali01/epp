@@ -14,6 +14,7 @@ import ParticipantAgreementComponent from "pages/ParticipantAgreement";
 import FacilityDetailsPage from "pages/Facility/FacilityDetails";
 import EntriesListing from "sections/Homepage/FacilityDetails/EntriesListing";
 import ProfilePage from "pages/ProfilePage";
+import ChangePassword from 'pages/Onboarding/ChangePassword';
 const Error404 = lazy(() => import("pages/Error/Error404"));
 
 //permission list for developer reference
@@ -111,7 +112,8 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
       element={<DashboardSectionComponent />}
     />,
     <Route path="*" element={<Error404 />} />,
-    <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>
+    <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,
+    <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
   ];
 
   for (let i = 0; i < userPermissions.length; i++) {
