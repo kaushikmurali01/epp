@@ -2,6 +2,7 @@ function showForm(userRole) {
   if (userRole === "super_administrator") {
     // resetForm();
     // Target the label element and reset its text content
+    scrollToTop();
     let labelElement = document.getElementById(
       "extension_BusinessMobile_label"
     );
@@ -84,6 +85,7 @@ function showForm(userRole) {
     document.getElementById("next").classList.remove("hidden");
   } else if (userRole === "individual") {
     // resetForm();
+    scrollToTop();
     document.getElementById("extension_UserType_3").click();
 
     // Set default value for only the specific input fields in the form
@@ -165,6 +167,7 @@ function showForm(userRole) {
 }
 
 function showCompanyDetailsForm() {
+  scrollToTop();
   // add dull class for select tag
   const selectElements = document.querySelectorAll(".dropdown_single");
 
@@ -236,6 +239,7 @@ function showCompanyDetailsForm() {
 }
 
 function backBtnAction() {
+  scrollToTop();
   document.querySelector(".step2").classList.remove("complete");
 
   //1st step form fields
@@ -377,10 +381,13 @@ function resetForm() {
   document.getElementById("attributeVerification").reset();
 }
 
+const verificationCodeInput = document.getElementById("emailVerificationCode");
+
 // Restriction on input fields
 restrictToDigits(businessLandlineInput);
 restrictToDigits(businessMobileInput);
 restrictToDigits(streetNoInput);
+restrictToDigits(verificationCodeInput);
 restrictToAlphanumerics(postalCodeInput);
 
 // extract the data form the URL and Prefill the input fields function call on Load
@@ -562,3 +569,10 @@ function showPopup() {
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
 }
+
+function scrollToTop(){
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};

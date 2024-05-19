@@ -111,3 +111,16 @@ export const WATER_HEATING_UNIT_ARRAY = [
   { value: "%", label: "%" },
   { value: "COP", label: "COP" },
 ];
+
+export const FACILITY_CATEGORY_ARRAY = [
+  { id: "1", value: "Commercial" },
+  {
+    id: "2",
+    value: "Institutional",
+  },
+  {
+    id: "3",
+    value: "Multi-Family",
+  },
+  { id: "4", value: "Industrial" },
+];

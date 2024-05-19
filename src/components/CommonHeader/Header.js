@@ -129,6 +129,7 @@ function Header(props) {
     else if(setting == 'Profile'){
       navigate("/profile")
     }
+    setAnchorElUser(null)
   }
 
   const [companyList, setCompanyList] = useState([]);
