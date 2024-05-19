@@ -111,7 +111,9 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
-  meter_id: Yup.string().required("Meter Id is required"),
+  meter_id: Yup.number()
+    .required("Meter Id is required")
+    .min(0, "Meter Id must be a positive number"),
   meter_active: Yup.date().max(
     new Date(),
     "Date meter became active cannot be in the future"
@@ -171,6 +173,11 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
 });
 
 export const validationSchemaFacilityDetails = Yup.object().shape({
+  year_of_construction: Yup.date().required("Year of construction is required"),
+  number_of_storeys: Yup.number().min(
+    0,
+    "Number of Storeys must be a positive number"
+  ),
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
@@ -242,6 +249,38 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   ),
   is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
     "Is Space Cooling Controlled for Occupancy is required"
+  ),
+  space_cooling_technology_capacity: Yup.number().min(
+    0,
+    "Space cooling technology capacity must be a positive number"
+  ),
+  space_heating_technology_capacity: Yup.number().min(
+    0,
+    "Space heating technology capacity must be a positive number"
+  ),
+  water_heating_technology_capacity: Yup.number().min(
+    0,
+    "Water heating technology capacity must be a positive number"
+  ),
+  space_cooling_technology_age: Yup.number().min(
+    0,
+    "Space cooling technology age must be a positive number"
+  ),
+  space_heating_technology_age: Yup.number().min(
+    0,
+    "Space heating technology age must be a positive number"
+  ),
+  water_heating_technology_age: Yup.number().min(
+    0,
+    "Water heating technology age must be a positive number"
+  ),
+  maximum_number_of_occupants: Yup.number().min(
+    0,
+    "Maximum number of occupants must be a positive number"
+  ),
+  average_number_of_occupants: Yup.number().min(
+    0,
+    "Average number of occupants must be a positive number"
   ),
 });
 

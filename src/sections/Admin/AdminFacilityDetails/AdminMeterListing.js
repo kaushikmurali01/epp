@@ -37,7 +37,7 @@ const AdminMeterListing = ({
   const [meterToDelete, setMeterToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAdminMeterStatistics());
+    dispatch(fetchAdminMeterStatistics(id));
   }, [dispatch]);
 
   const meterStatistics = useSelector(

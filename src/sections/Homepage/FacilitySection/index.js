@@ -347,7 +347,7 @@ const Facility = () => {
           >
             Facility List
           </Typography>
-          <Typography variant="small2">
+          {/* <Typography variant="small2">
             Please note that signing{" "}
             <Link
               href="#/participant-agreement"
@@ -359,7 +359,7 @@ const Facility = () => {
               Participant Agreement
             </Link>{" "}
             is mandatory before you enrol your facility
-          </Typography>
+          </Typography> */}
         </Grid>
         <Grid item sm={3.5}>
           <TextField
