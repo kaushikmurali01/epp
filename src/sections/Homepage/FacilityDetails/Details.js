@@ -1302,6 +1302,7 @@ const Details = () => {
                           borderRadius: "8px",
                           width: "140px",
                           height: "40px",
+                          cursor: "pointer",
                         }}
                         onClick={handleFacilityButtonClick}
                       >
@@ -1312,6 +1313,7 @@ const Details = () => {
                         ref={fileFacilityInputRef}
                         style={{ display: "none" }}
                         onChange={handleFacilityFileChange}
+                        accept="image/png, image/gif, image/jpeg, image/jpg"
                       />
                     </>
                   ) : (
@@ -1375,6 +1377,7 @@ const Details = () => {
                           borderRadius: "8px",
                           width: "140px",
                           height: "40px",
+                          cursor: "pointer",
                         }}
                         onClick={handleAssemblyButtonClick}
                       >
@@ -1414,6 +1417,7 @@ const Details = () => {
                           ref={fileAssemblyInputRef}
                           style={{ display: "none" }}
                           onChange={handleAssemblyFileChange}
+                          accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
                         <Typography
                           my={1}
