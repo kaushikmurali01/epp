@@ -303,9 +303,12 @@ export const validationSchemaAssignFacility = Yup.object().shape({
 // Change Password Validation schema
 export const changePasswordValidationSchema = Yup.object().shape({
   newPassword: Yup.string()
-    .required("New Password is required")
-    .min(8, "Password should be at least 8 characters long"),
+    .required("Please enter Password")
+    .min(8, "Password length should be between 8-12 characters")
+    .matches(/\d/, "Password must contain one number")
+    .matches(/[A-Z]/, "Password must contain one uppercase character.")
+    .matches(/[a-z]/, "Password must contain one lowercase character"),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref('newPassword'), null], "Passwords must match")
-    .required("Confirm Password is required")
+    .oneOf([Yup.ref("newPassword"), null], "Passwords must match")
+    .required("Confirm Password is required"),
 });

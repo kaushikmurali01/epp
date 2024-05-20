@@ -258,21 +258,24 @@ const AddFacilityComponent = (props) => {
     }
   }, [facilityCategories])
 
-  const getFacilityType = (value, formValues) => {
+  const getFacilityType = (value, formValues, isReset) => {
     const facilitiesType = [...categoriesTypesAndNAICS].map((item) => {
       return item['facility_category'] == value ? item : null  
     }).filter(c => c!=null).map((element, index) => {
       return { id: element['facility_type'], name: element['facility_type'], label: element['facility_type'], value: element['facility_type'] }
     })
     setFacilityTypes(facilitiesType)
-    setInitialValues((prevValues) => {
-      return {
-        ...formValues,
-        facility_category: value,
-        facility_type: '',
-        naic_code: '',
-      };
-    });
+    if(!isReset){
+      setInitialValues((prevValues) => {
+        return {
+          ...formValues,
+          facility_category: value,
+          facility_type: '',
+          naic_code: '',
+        };
+      });
+    }
+    
   }
 
   const getNAICS = (value, formValues) => {
@@ -314,7 +317,7 @@ const AddFacilityComponent = (props) => {
           //     response.data.data.facility_construction_status = 'New';
           // }
           setInitialValues((prevValues) => {
-            getFacilityType(response?.data?.data?.facility_category, response.data.data)
+            getFacilityType(response?.data?.data?.facility_category, response.data.data, true)
             return {
               ...prevValues,
               ...response.data.data,
@@ -559,7 +562,7 @@ const AddFacilityComponent = (props) => {
               </Grid>
 
               <Grid item xs={12} sm={4}>
-                <InputField name="naic_code" label="NAIC’s Code*" type="text" />
+                <InputField isDisabled={true} name="naic_code" label="NAIC’s Code*" type="text" />
               </Grid>
             </Grid>
 
