@@ -117,7 +117,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
   meter_active: Yup.date().max(
     new Date(),
     "Date meter became active cannot be in the future"
-  ),
+  ).required("Meter activation date is required"),
   meter_inactive: Yup.date().when("stil_in_use", {
     is: false,
     then: (schema) =>

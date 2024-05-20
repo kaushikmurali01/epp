@@ -20,7 +20,7 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
 
   const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
     dispatch(
-      fetchAdminFacilityListing(pageInfo, 0, searchString, company_filter)
+      fetchAdminFacilityListing(pageInfo, "", searchString, company_filter)
     );
   }, 300);
 

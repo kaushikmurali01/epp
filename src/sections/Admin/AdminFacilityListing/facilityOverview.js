@@ -16,27 +16,50 @@ import {
   FormControl,
 } from "@mui/material";
 
-import { adminFacilityEndpoints } from "constants/apiEndPoints";
-import { GET_REQUEST } from "utils/HTTPRequests";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchAdminFacilitiesDropdown,
+  fetchAdminStatistic,
+} from "../../../redux/admin/actions/adminFacilityActions";
+import {
+  fetchAdminCompaniesDropdown,
+  fetchAdminCompanyListing,
+} from "../../../redux/admin/actions/adminCompanyAction";
 
 const FacilityOverview = () => {
-  const [viewDataForFacility, setViewDataForFacility] = useState("");
   const [companyFilter, setCompanyFilter] = useState("");
   const [facilityFilter, setFacilityFilter] = useState("");
 
+  // also remove this line later----------------------------------------------------------------
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 1000 });
+  //----------------------------------------------------------------
+  const dispatch = useDispatch();
+  const viewDataForFacility = useSelector(
+    (state) => state?.adminFacilityReducer?.facilityStatistics?.data || []
+  );
   useEffect(() => {
-    getOverview();
-  }, []);
+    dispatch(fetchAdminStatistic(companyFilter, facilityFilter));
+  }, [dispatch, companyFilter, facilityFilter]);
 
-  const getOverview = () => {
-    GET_REQUEST(adminFacilityEndpoints.ADMIN_STATISTICS)
-      .then((response) => {
-        if (response.data.statusCode == 200) {
-          setViewDataForFacility(response?.data?.data);
-        }
-      })
-      .catch((error) => {});
-  };
+  useEffect(() => {
+    dispatch(fetchAdminFacilitiesDropdown());
+    // dispatch(fetchAdminCompaniesDropdown());
+    dispatch(fetchAdminCompanyListing(pageInfo));
+  }, [dispatch]);
+
+  const adminFacilitiesDropdownData = useSelector(
+    (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
+  );
+
+  // const adminCompaniesDropdownData = useSelector(
+  //   (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
+  // );
+
+  //remove this one later when the above one will be working properly
+  const companyListDropdownData = useSelector(
+    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+  );
+
   return (
     <Container>
       <Grid container spacing={3}>
@@ -126,8 +149,21 @@ const FacilityOverview = () => {
                     onChange={(e) => setCompanyFilter(e.target.value)}
                   >
                     <MenuItem value="" disabled>
-                      <em>Company</em>
+                      <em>Company name</em>
                     </MenuItem>
+                    <MenuItem value="">
+                      <em>All companies</em>
+                    </MenuItem>
+                    {/* {adminCompanyDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.company_name}
+                      </MenuItem>
+                    ))} */}
+                    {companyListDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.company_name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </FormGroup>
@@ -148,8 +184,16 @@ const FacilityOverview = () => {
                     onChange={(e) => setFacilityFilter(e.target.value)}
                   >
                     <MenuItem value="" disabled>
-                      <em>Facility</em>
+                      <em>Facility name</em>
                     </MenuItem>
+                    <MenuItem value="">
+                      <em>All facility</em>
+                    </MenuItem>
+                    {adminFacilitiesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.facility_name}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </FormGroup>

@@ -74,9 +74,12 @@ const UserManagementColumn = () => {
         {
             Header: "Status",
             accessor: (item) => {
+                const capitalizeSentence = (str) => {
+                    return str.charAt(0).toUpperCase() + str.slice(1);
+                };
                 if (item.status === 'Initiated') {
                     return (
-                        <Box>
+                        <Box >
                             <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAccept(item, handleAPISuccessCallBack)} >
                                 <CheckCircleIcon /> Accept
                             </Typography>
@@ -86,10 +89,10 @@ const UserManagementColumn = () => {
                         </Box>
                     );
                 } else if (item.status === 'pending') {
-                    return 'Request sent'
+                    return 'Request received'
                 }
                 else {
-                    return item.status; // Display status text for other status types
+                    return capitalizeSentence(item.status); // Display status text for other status types
                 }
             }
         },
