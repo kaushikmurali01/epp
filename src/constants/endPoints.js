@@ -36,15 +36,19 @@ export const enervaEndPoints = {
   reportManagement: "report-management",
   programManagement :"program-management",
   roleAndPermissionManagement: "roles-permissions-management",
-  clientManagement: "client-management"
+  clientManagement: "client-management",
+  companyProfile:"company-profile/:id",
+  companyAgreement: "company-agreement/:id"
 }
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
+  userProfile: "/user-management/profile/:companyId/:userId"
 };
 
 export const evUserManagementEndPoints = {
   evUserManagement: "ev-user-management",
+  
 };
 
 export const participantAgreementEndPoints = {
@@ -53,4 +57,5 @@ export const participantAgreementEndPoints = {
 
 export const profilePageEndPoints = {
   profilePage: "profile",
+  ChangePassword: "change-password",
 };

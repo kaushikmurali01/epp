@@ -8,6 +8,7 @@ import adminFacilityReducer from "./admin/reducers/adminFacilityReducers";
 import adminMeterReducer from "./admin/reducers/adminMeterReducer";
 import loaderReducer from "./global/reducers/loaderReducer";
 import adminEntriesReducer from "./admin/reducers/adminEntriesReducer";
+import adminCompanyReducer from "./admin/reducers/adminCompanyReducer";
 export default combineReducers({
   simpleReducer,
   facilityReducer,
@@ -17,5 +18,6 @@ export default combineReducers({
   adminFacilityReducer,
   adminMeterReducer,
   adminEntriesReducer,
+  adminCompanyReducer,
   loaderReducer,
 });

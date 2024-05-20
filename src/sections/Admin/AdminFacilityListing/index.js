@@ -10,6 +10,9 @@ import {
   Select,
   MenuItem,
   Stack,
+  InputLabel,
+  FormControl,
+  FormGroup,
 } from "@mui/material";
 import FacilityOverview from "./facilityOverview";
 import FacilityApproved from "./facilityApproved";
@@ -20,29 +23,38 @@ import { useNavigate } from "react-router-dom";
 import FacilityCreated from "./facilityCreated";
 import EvModal from "utils/modal/EvModal";
 import { Form, Formik } from "formik";
-import SelectBox from "components/FormBuilder/Select";
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
+import {
+  adminAssignFacilities,
+  fetchAdminFacilitiesDropdown,
+} from "../../../redux/admin/actions/adminFacilityActions";
+import { validationSchemaAssignFacility } from "utils/validations/formValidation";
+import { fetchAdminCompanyListing } from "../../../redux/admin/actions/adminCompanyAction";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("overview");
+  const [companyFilter, setCompanyFilter] = useState("");
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
   };
   const dispatch = useDispatch();
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 100 });
+  const [searchString, setSearchString] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 0));
+    dispatch(fetchAdminFacilitiesDropdown());
+    dispatch(fetchAdminCompanyListing(pageInfo));
   }, [dispatch]);
 
-  const adminFacilityData = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
+  const adminFacilitiesDropdownData = useSelector(
+    (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
   );
-
+  const companyListDropdownData = useSelector(
+    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+  );
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -75,12 +87,16 @@ const AdminFacilityListing = () => {
 
   const RequestToJoinForm = () => {
     const initialValues = {
-      emails: "",
-      assign_facility: "",
+      email: "",
+      facilityId: [],
     };
     const formSubmit = (values) => {
-      const emailArray = values.emails?.split(",").map((email) => email.trim());
-      console.log(emailArray);
+      dispatch(adminAssignFacilities(values)).then(() => {
+        setModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+      });
     };
 
     return (
@@ -88,31 +104,45 @@ const AdminFacilityListing = () => {
         initialValues={{
           ...initialValues,
         }}
+        validationSchema={validationSchemaAssignFacility}
         onSubmit={formSubmit}
       >
-        <Form>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <InputField
-              name="emails"
-              label="User email ID*"
-              placeholder="email1, email2, ..."
-            />
-          </Stack>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <SelectBox
-              name="assign_facility"
-              label="Assign Facility*"
-              options={adminFacilityData}
-              valueKey="id"
-              labelKey="facility_name"
-            />
-          </Stack>
-          <Grid display="flex" sx={{ marginTop: "1rem" }}>
-            <ButtonWrapper type="submit" variant="contained">
-              Submit
-            </ButtonWrapper>
-          </Grid>
-        </Form>
+        {({ values, setFieldValue }) => (
+          <Form>
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField
+                name="email"
+                label="User email ID*"
+                placeholder="email1, email2, ..."
+              />
+            </Stack>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+              <InputLabel>Assign Facility*</InputLabel>
+              <FormControl>
+                <Select
+                  fullWidth
+                  name="facilityId"
+                  multiple
+                  value={values.facilityId}
+                  onChange={(e) => {
+                    setFieldValue("facilityId", e.target.value);
+                  }}
+                >
+                  {adminFacilitiesDropdownData?.map((item) => (
+                    <MenuItem key={item?.id} value={item?.id}>
+                      {item?.facility_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+            <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <ButtonWrapper type="submit" variant="contained">
+                Submit
+              </ButtonWrapper>
+            </Grid>
+          </Form>
+        )}
       </Formik>
     );
   };
@@ -128,15 +158,35 @@ const AdminFacilityListing = () => {
   const renderTabContent = () => {
     switch (tabValue) {
       case "overview":
-        return <FacilityOverview />;
+        return <FacilityOverview searchVal={searchString} />;
       case "created_facilities":
-        return <FacilityCreated />;
+        return (
+          <FacilityCreated
+            searchVal={searchString}
+            companyFilter={companyFilter}
+          />
+        );
       case "approved":
-        return <FacilityApproved />;
+        return (
+          <FacilityApproved
+            searchVal={searchString}
+            companyFilter={companyFilter}
+          />
+        );
       case "underreview":
-        return <FacilityReview />;
+        return (
+          <FacilityReview
+            searchVal={searchString}
+            companyFilter={companyFilter}
+          />
+        );
       case "rejected":
-        return <FacilityRejected />;
+        return (
+          <FacilityRejected
+            searchVal={searchString}
+            companyFilter={companyFilter}
+          />
+        );
       default:
         return null;
     }
@@ -160,7 +210,7 @@ const AdminFacilityListing = () => {
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
             name="search"
-            label="Search by Facility name & ID"
+            label="Search by Facility name"
             type="text"
             fullWidth
             size="small"
@@ -170,6 +220,7 @@ const AdminFacilityListing = () => {
                 borderRadius: "6px",
               },
             }}
+            onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
         <Grid
@@ -179,11 +230,25 @@ const AdminFacilityListing = () => {
           alignItems="center"
           justifyContent="center"
         >
-          <Select name="Company" fullWidth size="small">
-            <MenuItem value="">
-              <em>Company</em>
-            </MenuItem>
-          </Select>
+          <FormGroup className="theme-form-group theme-select-form-group">
+            <FormControl sx={{ minWidth: "6rem" }}>
+              <Select
+                displayEmpty={true}
+                className="transparent-border"
+                value={companyFilter}
+                onChange={(e) => setCompanyFilter(e.target.value)}
+              >
+                <MenuItem value="" disabled>
+                  <em>Company name</em>
+                </MenuItem>
+                {companyListDropdownData?.map((item) => (
+                  <MenuItem key={item?.id} value={item?.company_name}>
+                    {item?.company_name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </FormGroup>
         </Grid>
         <Grid
           item

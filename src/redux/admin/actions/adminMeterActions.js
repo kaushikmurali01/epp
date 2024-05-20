@@ -59,7 +59,7 @@ export const addAdminMeter = (meterData) => {
       const data = response.data;
       dispatch(addAdminMeterSuccess(data));
       NotificationsToast({
-        message: "AdminMeter added successfully!",
+        message: "Meter added successfully!",
         type: "success",
       });
     } catch (error) {
@@ -82,7 +82,7 @@ export const updateAdminMeter = (meterId, meterData) => {
       const data = response.data;
       dispatch(updateAdminMeterSuccess(data));
       NotificationsToast({
-        message: "AdminMeter details updated successfully!",
+        message: "Meter details updated successfully!",
         type: "success",
       });
     } catch (error) {
@@ -125,7 +125,7 @@ export const deleteAdminMeter = (meterId) => {
       const data = response.data;
       dispatch(deleteAdminMeterSuccess(data));
       NotificationsToast({
-        message: "AdminMeter deleted successfully!",
+        message: "Meter deleted successfully!",
         type: "success",
       });
     } catch (error) {
@@ -139,11 +139,12 @@ export const deleteAdminMeter = (meterId) => {
   };
 };
 
-export const fetchAdminMeterStatistics = () => {
+export const fetchAdminMeterStatistics = (facilityId) => {
   return async (dispatch) => {
     try {
-      dispatch(fetchAdminMeterStatisticsRequest());
-      const response = await GET_REQUEST(adminMeterEndPoints.METER_STATISTICS);
+      dispatch(fetchAdminMeterStatisticsRequest(facilityId));
+      const endpointWithParams = `${adminMeterEndPoints.METER_STATISTICS}?facility_id=${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminMeterStatisticsSuccess(data));
     } catch (error) {

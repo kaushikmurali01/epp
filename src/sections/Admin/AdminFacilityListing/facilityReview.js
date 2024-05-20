@@ -6,15 +6,25 @@ import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFac
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
-const FacilityReview = () => {
+const FacilityReview = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(
+      fetchAdminFacilityListing(pageInfo, 3, searchString, company_filter)
+    );
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 3));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal, companyFilter);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []

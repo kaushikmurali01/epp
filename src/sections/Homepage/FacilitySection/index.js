@@ -4,15 +4,22 @@ import {
   Box,
   Button,
   Container,
+  FormControl,
   Grid,
+  InputLabel,
   Link,
+  MenuItem,
+  OutlinedInput,
+  Select,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  assignFacilities,
   deleteFacility,
+  fetchFacilitiesDropdown,
   fetchFacilityListing,
   submitFacilityForApproval,
 } from "../../../redux/superAdmin/actions/facilityActions";
@@ -25,6 +32,8 @@ import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
+import debounce from "lodash.debounce";
+import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
@@ -52,14 +61,18 @@ const Facility = () => {
               Submit for approval
             </Button>
           )}
-          <Link
-            href="#"
-            variant="small"
-            sx={{ color: "#2C77E9", cursor: "pointer" }}
-            underline="none"
-          >
-            Update energy savings calculation
-          </Link>
+          {false ? (
+            <Link
+              href="#"
+              variant="small"
+              sx={{ color: "#2C77E9", cursor: "pointer" }}
+              underline="none"
+            >
+              Update energy savings calculation
+            </Link>
+          ) : (
+            <></>
+          )}
         </Box>
       ),
     },
@@ -97,7 +110,7 @@ const Facility = () => {
       ),
     },
     {
-      Header: "View/Edit",
+      Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
@@ -130,12 +143,24 @@ const Facility = () => {
   ];
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const userCompanyId = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.user?.company_id
+  );
   const facilityListData = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.rows || []
   );
   const facilityCount = useSelector(
     (state) => state?.facilityReducer?.facilityList?.data?.count || []
   );
+  const facilitiesDropdownData = useSelector(
+    (state) => state?.facilityReducer?.facilitiesDropdown?.data || []
+  );
+  useEffect(() => {
+    dispatch(fetchFacilitiesDropdown(userCompanyId));
+  }, [dispatch]);
+
+  const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
   const openDeleteFacilityModal = (facilityId) => {
@@ -154,7 +179,7 @@ const Facility = () => {
             ...prevState,
             modalVisible: false,
           }));
-          dispatch(fetchFacilityListing(pageInfo));
+          dispatch(fetchFacilityListing(pageInfo, "", userCompanyId));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -191,14 +216,21 @@ const Facility = () => {
     saveButtonAction: handleDeleteFacility,
   });
 
+  const debouncedSearch = debounce((pageInfo, searchString) => {
+    dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchFacilityListing(pageInfo));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchString);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
       .then(() => {
-        dispatch(fetchFacilityListing(pageInfo));
+        dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
       })
       .catch((error) => {
         console.error("Error submitting for approval:", error);
@@ -237,12 +269,16 @@ const Facility = () => {
 
   const RequestToJoinForm = () => {
     const initialValues = {
-      emails: "",
-      assign_facility: "",
+      email: "",
+      facilityId: [],
     };
     const formSubmit = (values) => {
-      const emailArray = values.emails?.split(",").map((email) => email.trim());
-      console.log(emailArray);
+      dispatch(assignFacilities(values)).then(() => {
+        setAssignModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+      });
     };
 
     return (
@@ -250,31 +286,45 @@ const Facility = () => {
         initialValues={{
           ...initialValues,
         }}
+        validationSchema={validationSchemaAssignFacility}
         onSubmit={formSubmit}
       >
-        <Form>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <InputField
-              name="emails"
-              label="User email ID*"
-              placeholder="email1, email2, ..."
-            />
-          </Stack>
-          <Stack sx={{ marginBottom: "1rem" }}>
-            <SelectBox
-              name="assign_facility"
-              label="Assign Facility*"
-              options={facilityListData}
-              valueKey="id"
-              labelKey="facility_name"
-            />
-          </Stack>
-          <Grid display="flex" sx={{ marginTop: "1rem" }}>
-            <ButtonWrapper type="submit" variant="contained">
-              Submit
-            </ButtonWrapper>
-          </Grid>
-        </Form>
+        {({ values, setFieldValue }) => (
+          <Form>
+            <Stack sx={{ marginBottom: "1rem" }}>
+              <InputField
+                name="email"
+                label="User email ID*"
+                placeholder="email1, email2, ..."
+              />
+            </Stack>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+              <InputLabel>Assign Facility*</InputLabel>
+              <FormControl>
+                <Select
+                  fullWidth
+                  name="facilityId"
+                  multiple
+                  value={values.facilityId}
+                  onChange={(e) => {
+                    setFieldValue("facilityId", e.target.value);
+                  }}
+                >
+                  {facilitiesDropdownData?.map((item) => (
+                    <MenuItem key={item?.id} value={item?.id}>
+                      {item?.facility_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+            <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <ButtonWrapper type="submit" variant="contained">
+                Submit
+              </ButtonWrapper>
+            </Grid>
+          </Form>
+        )}
       </Formik>
     );
   };
@@ -297,10 +347,10 @@ const Facility = () => {
           >
             Facility List
           </Typography>
-          <Typography variant="small2">
+          {/* <Typography variant="small2">
             Please note that signing{" "}
             <Link
-              href="#"
+              href="#/participant-agreement"
               variant="span2"
               sx={{ color: "#2C77E9", cursor: "pointer" }}
               underline="none"
@@ -309,12 +359,12 @@ const Facility = () => {
               Participant Agreement
             </Link>{" "}
             is mandatory before you enrol your facility
-          </Typography>
+          </Typography> */}
         </Grid>
-        <Grid item>
+        <Grid item sm={3.5}>
           <TextField
             name="search"
-            label="Search by Facility name & ID"
+            label="Search by Facility name"
             type="text"
             fullWidth
             size="small"
@@ -324,15 +374,10 @@ const Facility = () => {
                 borderRadius: "6px",
               },
             }}
+            onChange={(e) => setSearchString(e.target.value)}
           />
         </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
+        <Grid item display="flex" alignItems="center" justifyContent="center">
           <Button
             variant="contained"
             sx={{
@@ -345,14 +390,7 @@ const Facility = () => {
             Assign
           </Button>
         </Grid>
-        <Grid
-          item
-          xs={6}
-          sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
+        <Grid item display="flex" alignItems="center" justifyContent="flex-end">
           <Button
             style={{
               backgroundColor: "transparent",

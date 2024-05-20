@@ -20,10 +20,8 @@ import {
   fetchMeterListing,
   fetchMeterStatistics,
 } from "../../../redux/superAdmin/actions/metersActions";
-import FacilityStatus from "components/FacilityStatus";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
-import { array } from "yup";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -32,14 +30,13 @@ const MeterListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchMeterStatistics());
-  }, [dispatch]);
+    dispatch(fetchMeterStatistics(id));
+  }, [dispatch, id]);
 
   const meterStatistics = useSelector(
     (state) => state?.meterReducer?.meterStatistics?.data
@@ -125,16 +122,22 @@ const MeterListing = ({
     },
     {
       Header: "Status",
-      accessor: (item) => <>{item.stil_in_use ? "Active" : "Inactive"}</>,
+      accessor: (item) => <>{item?.stil_in_use ? "Active" : "Inactive"}</>,
     },
     {
       Header: "Most recent update",
-      accessor: (item) => <>{format(item?.updated_at, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{item?.updated_at && format(item?.updated_at, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "In use(inactive date)",
       accessor: (item) => (
-        <>{!item.stil_in_use && format(item?.meter_inactive, "MM/dd/yyyy")}</>
+        <>
+          {!item?.stil_in_use &&
+            item?.meter_inactive &&
+            format(item?.meter_inactive, "MM/dd/yyyy")}
+        </>
       ),
     },
     {
@@ -242,7 +245,7 @@ const MeterListing = ({
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current enegy date
+                    Current energy date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
     Box,
     Checkbox,
@@ -11,16 +12,21 @@ import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
+import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
 
 
 const EnvervaUserManagementColumn = () => {
-
+const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false)
+const [alertModalContnet, setAlertModalContnet] = useState({
+    title: 'Alert',
+    content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+})
 
 const buttonStyle = {
     display: 'inline-flex',
     alignItems: 'center',
-    margin: '0.4375rem 1rem',
+    margin: '0.4375rem 0.5rem',
     borderRadius: '1.5rem',
     fontWeight: '500',
     fontSize: { sm: '0.875rem' },
@@ -96,12 +102,19 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibl
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
+                </Typography>
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`) } >
+                    View
+                </Typography>
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
+                    Alert
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
                 </Typography>
+               
 
             </Box>
         ),
@@ -127,6 +140,24 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     // handelDelete(item, handleAPISuccessCallBack)
 }
 
+const handelAlertModalOpen = (item, setModalConfig) => {
+    const apiURL = ENERVA_USER_MANAGEMENT.SEND_USER_ALERT;
+    const apiData = {
+        apiURL,
+        item
+    }
+    setModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <PopUpAlert modalContent={alertModalContnet} setModalConfig={setModalConfig} apiData={apiData} />,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: false,
+            cancelButton: false,
+        }
+    }));
+}
+
 
 
 
@@ -134,7 +165,7 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
     const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
-    // return;
+    console.log(apiURL,item, 'delete user');
     DELETE_REQUEST(apiURL)
         .then((_response) => {
             NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });

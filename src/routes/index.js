@@ -16,12 +16,15 @@ import { CustomerRoutes } from "./customerRoutes";
 import { EnervaRoutes } from "./enervaRoutes";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
+import Loader from "pages/Loader";
+import { IndividualUserRoutes } from "./individualUserRoutes";
 
 const CommonLayout = lazy(() => import("layout/dashboardLayout")); //todo
 
 const RoutesComp = () => {
   const { pathname } = useLocation();
   const [showNewUserPopup, setNewUserPopUp] = useState(false);
+  const [isNewUser ,setIsNewuser] = useState(false)
   const token = localStorage.getItem(
     `msal.${process.env.REACT_APP_AZURE_B2C_CLIENT_ID}.active-account`
   );
@@ -42,15 +45,18 @@ const RoutesComp = () => {
   const account = useAccount(accounts[0] || {});
 
   const onClose = () => {
+    localStorage.setItem('newUserPopupDisplayed', true)
     setNewUserPopUp(false);
   };
 
   const selectRouter = (userType) => {
     switch (userType) {
       case 2:
-        return <CustomerRoutes />;
+        return <CustomerRoutes userDetails={userDetails} userPermissions={userPermissions}/>;
       case 1:
         return (<EnervaRoutes />);
+      case 3:
+        return (<IndividualUserRoutes />);
     //   default:
     //     return <UnprotectedRouter />;
     }
@@ -65,17 +71,29 @@ const RoutesComp = () => {
         .then((response) => {
           console.log("response.", response)
           localStorage.setItem("accessToken", response?.idToken);
-          dispatch(fetchUserDetails());
-          if (response?.idTokenClaims?.newUser) {
-            setNewUserPopUp(true);
+          if(localStorage.getItem("selectedCompanyId")){
+            dispatch(fetchUserDetails(localStorage.getItem("selectedCompanyId")));
+          } else{
+            localStorage.setItem("selectedCompanyId", 0)
+            dispatch(fetchUserDetails());
+          }
+          
+          if(response?.idTokenClaims?.newUser){
+            setIsNewuser(true)
           }
         });
     }
   }, [account]);
 
-  console.log("user info", account)
+  useEffect(() => {
+    if (isNewUser && !localStorage.getItem('newUserPopupDisplayed') && (userDetails.type == 2 || userDetails.type == 3)) {
+      setNewUserPopUp(true);
+    }
+  }, [isNewUser, userData])
 
-  return true ? (
+  console.log("user info", userDetails)
+
+  return userDetails?.type ? (
     <>
       <CommonLayout>
         {/* <DashboardRoutes /> */}
@@ -199,7 +217,7 @@ const RoutesComp = () => {
           >
             <Button
               variant="contained"
-              onClick={() => setNewUserPopUp(false)}
+              onClick={() => onClose()}
               style={{
                 padding: "0.2rem 1rem",
                 minWidth: "unset",
@@ -211,7 +229,11 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : null;
+  ) : <>
+    <CommonLayout>
+    </CommonLayout>
+    <Loader/>
+  </>;
 };
 
 export default RoutesComp;

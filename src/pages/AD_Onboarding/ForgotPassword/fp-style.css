@@ -180,8 +180,16 @@ ul {
   margin-bottom: 0.5rem;
 }
 
-.attrEntry .error {
-  color: #d2691e;
+.attrEntry .error, .verificationInfoText {
+  color: #E93323;
+}
+
+.error {
+  color: #E93323 !important;
+}
+
+.verificationSuccessText {
+  color: #2E813E;
 }
 
 .entry-item input,
@@ -214,20 +222,21 @@ select {
 }
 
 .buttons button {
+  cursor: pointer;
   border: transparent;
   outline: transparent;
   min-width: 10.3125rem;
   padding: 0.625rem;
   border-radius: 0.5rem;
-  background: #9E9D9D;
+  background: #2E813E;
   color: #FFF;
   font-size: 1.125rem;
   font-weight: 600;
   line-height: normal;
 }
 
-.buttons button.success-btn{
-  background: #2E813E;
+.buttons button.grey-btn {
+  background: #da0606;
 }
 
 .success{

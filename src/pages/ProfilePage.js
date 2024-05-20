@@ -10,18 +10,19 @@ import {
   ListItemText,
   IconButton,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { GET_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { validationSchemaProfileDetails } from "utils/validations/formValidation";
 import { USER_MANAGEMENT, fileUploadEndPoints } from "constants/apiEndPoints";
 import { POST_REQUEST } from "utils/HTTPRequests";
 import EditProfileComponent from "components/ProfilePageComponents/EditProfileComponent";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
+import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
 
 const ProfilePage = () => {
   const profileButtonStyle = {
@@ -75,7 +76,14 @@ const ProfilePage = () => {
 
   const dispatch = useDispatch();
   const [showEditPage, setShowEditPage] = useState(false);
+  const navigate = useNavigate();
   const [imgUrl, setImgUrl] = useState("");
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
 
   const [profilePicture, setProfilePicture] = useState("");
 
@@ -120,13 +128,45 @@ const ProfilePage = () => {
     province: "",
     country: "",
     postal_code: "",
+    rolename: "",
+    type: ""
   });
 
   const [userProfileData, setUserProfileData] = useState();
 
+  useEffect(() => {
+    console.log('adadadadad', userData)
+    setProfilePicture(
+      userData?.user?.profile_pic ||
+        "/images/landingPage/generic_profile.png"
+    );
+    setInitialValues((prevValues) => {
+      return {
+        ...prevValues,
+        first_name: userData?.user?.first_name || "",
+        last_name: userData?.user?.last_name || "",
+        phonenumber: userData?.user?.phonenumber || "",
+        email: userData?.user?.email || "",
+        company_name: userData?.company?.company_name || "",
+        website: userData?.company?.website || "",
+        unit_number: userData?.company?.unit_number || "",
+        street_number: userData?.company?.street_number || "",
+        street_name: userData?.company?.street_name || "",
+        city: userData?.company?.city || "",
+        province: userData?.company?.state || "",
+        country: userData?.company?.country || "",
+        postal_code: userData?.company?.postal_code || "",
+        rolename: userData?.user?.rolename || "",
+        type: userData?.user?.type || "",
+      };
+    });
+    setUserProfileData(userData);
+  }, [userData]);
+
   const getUserProfileData = () => {
     dispatch({ type: "SHOW_LOADER", payload: true });
-    const apiURL = "/enerva-user/v1/user";
+    const company_id = localStorage.getItem("selectedCompanyId") || 0
+    const apiURL = `/enerva-user/v1/user/${company_id}`;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserProfileData(res?.data);
@@ -160,7 +200,8 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    getUserProfileData();
+    // getUserProfileData();
+    dispatch(fetchUserDetails(localStorage.getItem('selectedCompanyId')))
   }, []);
 
   const handleSubmit = (values) => {
@@ -174,21 +215,20 @@ const ProfilePage = () => {
         email: newValues.email,
         profile_pic: profilePicture || "",
       },
+      company: null
     };
 
     //check if role is super-admin
     if (
-      userProfileData?.user?.rolename == "Super-Admin" &&
-      userProfileData?.user?.type == "2"
+      isCompanyProfileViewPermission
     ) {
-      // type 2 is for customer
       body.company = {
         company_name: newValues.company_name,
         website: newValues.website,
         city: newValues.city,
         state: newValues.state,
         postal_code: newValues.postal_code,
-
+        company_id: userProfileData?.user?.company_id,
         country: newValues.country,
         unit_number: newValues.unit_number,
         street_number: newValues.street_number,
@@ -202,6 +242,9 @@ const ProfilePage = () => {
       dispatch({ type: "SHOW_LOADER", payload: false });
     });
   };
+
+  // type 2 is for customer
+  const isCompanyProfileViewPermission = (userProfileData?.user?.type == 2 && userProfileData?.user.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
 
   return (
     <>
@@ -334,16 +377,16 @@ const ProfilePage = () => {
                     wrap="nowrap"
                     gap="1.25rem"
                   >
-                    <Button sx={profileButtonStyle}>Change Password</Button>
+                    <Button sx={profileButtonStyle} onClick={() => navigate('/change-password')}>Change Password</Button>
                     <Button
                       sx={profileButtonStyle}
                       onClick={() => setShowEditPage(true)}
                     >
                       Edit Profile
                     </Button>
-                    <Button sx={profileButtonStyle}>
+                   {userProfileData?.user?.rolename == "Super-Admin" ? <Button sx={profileButtonStyle}>
                       Change Super administrator
-                    </Button>
+                    </Button> : null}
                   </Grid>
                 </Grid>
 
@@ -395,7 +438,7 @@ const ProfilePage = () => {
                     </List>
                   </Box>
 
-                  <Box
+                  {isCompanyProfileViewPermission ? <Box
                     display={"flex"}
                     gap={"1.25rem"}
                     flexDirection={"column"}
@@ -484,54 +527,50 @@ const ProfilePage = () => {
                         />
                       )}
                     </List>
-                  </Box>
+                  </Box> : null}
 
-                  {/* <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-                <Typography variant="h6" sx={tabStyle}>
-                  Also part of:
-                </Typography>
+                  {userProfileData?.user?.type == 2 && userProfileData?.associatedCompanies?.length && userProfileData?.associatedCompanies.filter((item) => item.id != userProfileData?.user?.company_id).length ? <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
+                    <Typography variant="h6" sx={tabStyle}>
+                      Also part of:
+                    </Typography>
 
-                <List
-                  disablePadding
-                  sx={{
-                    display: "flex",
-                    width: "auto",
-                    flexWrap: "wrap",
-                    gap: "0.5rem",
-                    flexDirection: "row",
-                  }}
-                >
-                  <ListItem disablePadding>
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="Company name"
-                      secondary="Role"
-                      primaryTypographyProps={otherInfoHeaderStyle}
-                      secondaryTypographyProps={otherInfoHeaderStyle}
-                    />
-                  </ListItem>
+                    <List
+                      disablePadding
+                      sx={{
+                        display: "flex",
+                        width: "auto",
+                        flexWrap: "wrap",
+                        gap: "0.5rem",
+                        flexDirection: "row",
+                      }}
+                    >
+                      
+                      <ListItem disablePadding>
+                        <ListItemText
+                          sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                          primary="Company name"
+                          secondary="Role"
+                          primaryTypographyProps={otherInfoHeaderStyle}
+                          secondaryTypographyProps={otherInfoHeaderStyle}
+                        />
+                      </ListItem>
 
-                  <ListItem
-                    disablePadding
-                    sx={{ flexDirection: "column", alignItems: "flex-start" }}
-                  >
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="testing technologies pvt ltd"
-                      secondary="hsiuh iuhuw duoicjnwd"
-                      primaryTypographyProps={otherInfoStyleContentStyle}
-                      secondaryTypographyProps={otherInfoStyleContentStyle}
-                    />
-                    <ListItemText
-                      sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
-                      primary="test"
-                      secondary="super-admin super duper"
-                      primaryTypographyProps={otherInfoStyleContentStyle}
-                      secondaryTypographyProps={roleInfoStyleContentStyle}
-                    />
-                  </ListItem>
-                </List>
-              </Box> */}
+                      <ListItem
+                        disablePadding
+                        sx={{ flexDirection: "column", alignItems: "flex-start" }}
+                      >
+                        {userProfileData?.associatedCompanies?.length && userProfileData?.associatedCompanies.filter((item) => item.id != userProfileData?.user?.company_id).map(item => (
+                          <ListItemText
+                            sx={{ display: "flex", gap: "2.5rem", margin: 0 }}
+                            primary={item?.company_name}
+                            secondary={item?.role_name}
+                            primaryTypographyProps={otherInfoStyleContentStyle}
+                            secondaryTypographyProps={otherInfoStyleContentStyle}
+                          />
+                        )) }
+                      </ListItem>
+                    </List>
+                  </Box> : null}
                 </Box>
               </Grid>
             )}
@@ -542,6 +581,7 @@ const ProfilePage = () => {
               tabStyle={tabStyle}
               initialValues={initialValues}
               handleSubmit={handleSubmit}
+              userProfileData={userProfileData}
             />
           )}
         </Container>

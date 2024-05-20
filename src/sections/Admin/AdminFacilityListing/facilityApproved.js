@@ -5,14 +5,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminFacilityListing } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import debounce from "lodash.debounce";
+import { useNavigate } from "react-router-dom";
 
-const FacilityApproved = () => {
+const FacilityApproved = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(
+      fetchAdminFacilityListing(pageInfo, 5, searchString, company_filter)
+    );
+  }, 300);
 
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 5));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal, companyFilter);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -74,7 +86,9 @@ const FacilityApproved = () => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() =>
+              navigate(`/facility-list/facility-details/${item?.id}`)
+            }
           >
             View
           </Button>
@@ -86,7 +100,7 @@ const FacilityApproved = () => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openRequestModal(true, item)}
+            onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>

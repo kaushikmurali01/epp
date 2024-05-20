@@ -30,6 +30,12 @@ import {
   updateFacilityStatusRequest,
   updateFacilityStatusSuccess,
   updateFacilityStatusFailure,
+  assignFacilityRequest,
+  assignFacilitySuccess,
+  assignFacilityFailure,
+  fetchFacilitiesDropdownRequest,
+  fetchFacilitiesDropdownSuccess,
+  fetchFacilitiesDropdownFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -40,13 +46,13 @@ import {
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
-export const fetchFacilityListing = (pageInfo) => {
+export const fetchFacilityListing = (pageInfo, search = "", companyId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
       const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}`;
+      }/${pageInfo.pageSize}?search=${search}&company_id=${companyId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));
@@ -61,17 +67,21 @@ export const fetchFacilityListing = (pageInfo) => {
   };
 };
 
-export const fetchUserDetails = () => {
+export const fetchUserDetails = (id = 0) => {
   return async (dispatch) => {
     try {
       dispatch(getUserDetailsRequest());
-      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}`;
+      dispatch({ type: "SHOW_LOADER", payload: true });
+      const endpointWithParams = `${USER_MANAGEMENT.GET_USER_DETAILS}/${id}`;
       const response = await GET_REQUEST(endpointWithParams);
+      dispatch({ type: "SHOW_LOADER", payload: false });
       const data = response.data;
+      localStorage.setItem("selectedCompanyId", data?.user?.company_id || 0);
       dispatch(getUserDetailsSuccess(data));
     } catch (error) {
       console.error(error);
       dispatch(getUserDetailsFailure(error));
+      dispatch({ type: "SHOW_LOADER", payload: false });
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
@@ -79,7 +89,6 @@ export const fetchUserDetails = () => {
     }
   };
 };
-
 
 export const submitFacilityForApproval = (facility) => {
   return async (dispatch) => {
@@ -247,6 +256,48 @@ export const updateFacilityStatus = (facilityId, status) => {
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const assignFacilities = (assignData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(assignFacilityRequest());
+      const endpoint = facilityEndPoints.ASSIGN_FACILITIES;
+      const response = await POST_REQUEST(endpoint, assignData);
+      const data = response.data;
+      dispatch(assignFacilitySuccess(data));
+      NotificationsToast({
+        message: "Facility assigned successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(assignFacilityFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilitiesDropdown = (companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilitiesDropdownRequest());
+      const endpointWithParams = `${facilityEndPoints.FACILITIES_DROPDOWN}?company_id=${companyId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilitiesDropdownSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilitiesDropdownFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

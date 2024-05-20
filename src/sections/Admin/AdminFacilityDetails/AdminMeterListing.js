@@ -37,7 +37,7 @@ const AdminMeterListing = ({
   const [meterToDelete, setMeterToDelete] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAdminMeterStatistics());
+    dispatch(fetchAdminMeterStatistics(id));
   }, [dispatch]);
 
   const meterStatistics = useSelector(
@@ -124,16 +124,22 @@ const AdminMeterListing = ({
     },
     {
       Header: "Status",
-      accessor: (item) => <>{item.stil_in_use ? "Active" : "Inactive"}</>,
+      accessor: (item) => <>{item?.stil_in_use ? "Active" : "Inactive"}</>,
     },
     {
       Header: "Most recent update",
-      accessor: (item) => <>{format(item?.updated_at, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{item?.updated_at && format(item?.updated_at, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "In use(inactive date)",
       accessor: (item) => (
-        <>{!item.stil_in_use && format(item?.meter_inactive, "MM/dd/yyyy")}</>
+        <>
+          {!item?.stil_in_use &&
+            item?.meter_inactive &&
+            format(item?.meter_inactive, "MM/dd/yyyy")}
+        </>
       ),
     },
     {
@@ -241,7 +247,7 @@ const AdminMeterListing = ({
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current enegy date
+                    Current energy date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (

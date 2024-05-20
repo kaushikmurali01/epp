@@ -1,6 +1,8 @@
 function showForm(userRole) {
   if (userRole === "super_administrator") {
+    // resetForm();
     // Target the label element and reset its text content
+    scrollToTop();
     let labelElement = document.getElementById(
       "extension_BusinessMobile_label"
     );
@@ -29,10 +31,33 @@ function showForm(userRole) {
     document.getElementById("extension_UserType_2").click();
 
     document.querySelector(".steps").classList.remove("hidden");
-    document.querySelector(".step").classList.remove("complete");
+    document.querySelector(".step2").classList.remove("complete");
 
     document.getElementById("super_administrator").classList.add("active");
     document.getElementById("individual").classList.remove("active");
+
+    document
+      .querySelector(".emailVerificationControl_li")
+      .classList.remove("hidden");
+    document.querySelector(".newPassword_li").classList.remove("hidden");
+    document.querySelector(".reenterPassword_li").classList.remove("hidden");
+    document
+      .querySelector(".extension_BusinessLandline_li")
+      .classList.remove("hidden");
+    document
+      .querySelector(".extension_BusinessMobile_li")
+      .classList.remove("hidden");
+
+    document
+      .querySelector(".extension_FirstName_li")
+      .classList.remove("hidden");
+    document.querySelector(".extension_LastName_li").classList.remove("hidden");
+    document
+      .querySelector(".extension_CompanyName_li")
+      .classList.remove("hidden");
+    document.getElementById("continue").classList.remove("hidden");
+    document.getElementById("cancel").classList.remove("hidden");
+    document.getElementById("back_btn").classList.add("hidden");
 
     document
       .querySelector(".extension_BusinessLandline_li")
@@ -59,17 +84,19 @@ function showForm(userRole) {
     document.getElementById("cancel").classList.add("hidden");
     document.getElementById("next").classList.remove("hidden");
   } else if (userRole === "individual") {
+    // resetForm();
+    scrollToTop();
     document.getElementById("extension_UserType_3").click();
 
     // Set default value for only the specific input fields in the form
     document.getElementById("extension_BusinessLandline").value = 123;
-    document.getElementById("extension_UnitNumber").value = 123;
+    document.getElementById("extension_UnitNumber").value = "default";
     document.getElementById("extension_CompanyName").value = "default";
-    document.getElementById("extension_StreetNo").value = "default";
+    document.getElementById("extension_StreetNo").value = 123;
     document.getElementById("streetAddress").value = "default";
     document.getElementById("city").value = "default";
     document.getElementById("state").value = "default";
-    document.getElementById("postalCode").value = "default";
+    document.getElementById("postalCode").value = "A1A1A1";
     // Set default value for country select
     document.getElementById("country").value = "Canada";
 
@@ -140,6 +167,25 @@ function showForm(userRole) {
 }
 
 function showCompanyDetailsForm() {
+  scrollToTop();
+  // add dull class for select tag
+  const selectElements = document.querySelectorAll(".dropdown_single");
+
+  // Add the "dull" class initially to all select elements
+  selectElements.forEach((selectElement) => {
+    selectElement.classList.add("dull");
+    // Listen for changes in the select element
+    selectElement.addEventListener("change", function () {
+      if (selectElement.value === "") {
+        // If the default option is selected, add the "dull" class
+        selectElement.classList.add("dull");
+      } else {
+        // Otherwise, remove the "dull" class
+        selectElement.classList.remove("dull");
+      }
+    });
+  });
+
   //1st step form fields
   document.getElementById("extension_UserType_2").click();
   document
@@ -161,7 +207,7 @@ function showCompanyDetailsForm() {
   document.getElementById("cancel").classList.add("hidden");
 
   //2nd step form fields
-  document.querySelector(".step").classList.add("complete");
+  document.querySelector(".step2").classList.add("complete");
 
   document.querySelector(".extension_WebsiteURL_li").classList.remove("hidden");
   document.querySelector(".extension_UnitNumber_li").classList.remove("hidden");
@@ -193,7 +239,8 @@ function showCompanyDetailsForm() {
 }
 
 function backBtnAction() {
-  document.querySelector(".step").classList.remove("complete");
+  scrollToTop();
+  document.querySelector(".step2").classList.remove("complete");
 
   //1st step form fields
   document
@@ -249,6 +296,27 @@ const businessMobileInput = document.getElementById("extension_BusinessMobile");
 const postalCodeInput = document.getElementById("postalCode");
 const streetNoInput = document.getElementById("extension_StreetNo");
 
+// Regex pattern for Canadian postal code
+const postalCodePattern =
+  /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/;
+
+if (postalCodeInput) {
+  postalCodeInput.addEventListener("input", function (event) {
+    // Convert the value to uppercase
+    event.target.value = event.target.value.toUpperCase();
+
+    const errorDiv = document.querySelector(".postalCode_li .error");
+
+    // Validate the postal code pattern
+    const value = event.target.value;
+    if (!postalCodePattern.test(value)) {
+      errorDiv.textContent = "Please enter a valid Canadian postal code.";
+    } else {
+      errorDiv.textContent = "";
+    }
+  });
+}
+
 function setInputAttributes() {
   if (businessLandlineInput) {
     businessLandlineInput.setAttribute("pattern", "^[0-9]*$");
@@ -262,6 +330,10 @@ function setInputAttributes() {
 
   if (postalCodeInput) {
     postalCodeInput.setAttribute("maxlength", "6");
+    postalCodeInput.setAttribute(
+      "pattern",
+      "^[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z][ -]?\\d[ABCEGHJ-NPRSTV-Z]\\d$"
+    );
   }
 
   // No restriction on max length for street number
@@ -306,16 +378,17 @@ function restrictToAlphanumerics(inputElement) {
 
 function resetForm() {
   // Reset form fields here
-  // For example:
   document.getElementById("attributeVerification").reset();
 }
+
+const verificationCodeInput = document.getElementById("emailVerificationCode");
 
 // Restriction on input fields
 restrictToDigits(businessLandlineInput);
 restrictToDigits(businessMobileInput);
 restrictToDigits(streetNoInput);
+restrictToDigits(verificationCodeInput);
 restrictToAlphanumerics(postalCodeInput);
-
 
 // extract the data form the URL and Prefill the input fields function call on Load
 // window.onload = function () {
@@ -350,6 +423,156 @@ restrictToAlphanumerics(postalCodeInput);
 //   }
 // };
 
+// Assuming you have an existing label element with an ID "extension_Policy1_label"
+const existingLabel = document.getElementById("extension_Policy1_label");
+const labelText = existingLabel.textContent.trim();
+
+// Extract the word "Portal Services Agreement"
+const agreementWord = "Portal Services Agreement";
+
+// Create a new <a> element
+const linkElement = document.createElement("a");
+linkElement.href =
+  "https://eppdevstorage.blob.core.windows.net/assets/epp-portal-services-agreement.pdf";
+linkElement.id = "agreement";
+linkElement.className = "agreement";
+linkElement.textContent = agreementWord;
+linkElement.setAttribute("target", "_blank");
+
+// Replace the exact occurrence of the word with the new <a> element
+existingLabel.innerHTML = labelText.replace(
+  agreementWord,
+  linkElement.outerHTML
+);
+
 // Show Super Administrator Form by default
 showForm("super_administrator");
 document.querySelector(".extension_UserType_li").classList.add("hidden");
+document.getElementById("cancel").classList.add("grey-btn");
+
+// Get a reference to the Company Name input field
+const companyNameInput = document.getElementById("extension_CompanyName");
+
+// Add an event listener for the input event
+companyNameInput.addEventListener("input", debounce(checkCompanyName, 500));
+
+// Debounce function to limit the rate of API calls
+function debounce(func, delay) {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(null, args);
+    }, delay);
+  };
+}
+
+// Function to check if the company name already exists
+function checkCompanyName() {
+  const companyName = companyNameInput.value.trim();
+
+  // Make sure the input field is not empty
+  if (companyName) {
+    // Construct the API URL
+    const apiUrl = `https://ams-enerva-dev.azure-api.net/public-api/v1/check/company/${companyName}`;
+
+    // Send the API request
+    fetch(apiUrl)
+      .then((response) => response.json())
+      .then((data) => {
+        // Check the response status and exists property
+        if (data.status === 200 && data.exists) {
+          // Company name already exists, you can show an error message here
+          showPopup();
+          //showErrorMessage('Company name already exists');
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle any errors that occur during the API call
+      });
+  } else {
+    // Remove any existing error message if the input field is empty
+    removeErrorMessage();
+  }
+}
+
+// Function to show an error message
+function showErrorMessage(message, cls = ".extension_CompanyName_li") {
+  // You can display the error message in the desired way
+  // For example, you can use the provided error div with the class "error itemLevel"
+  const companyli = document.querySelector(cls);
+  const errorDiv = companyli.querySelector(".error.itemLevel");
+  errorDiv.textContent = message;
+  errorDiv.style.display = "block";
+}
+
+// Function to remove any existing error message
+function removeErrorMessage(cls = ".extension_CompanyName_li") {
+  const companyli = document.querySelector(cls);
+  const errorDiv = companyli.querySelector(".error.itemLevel");
+  errorDiv.textContent = "";
+  errorDiv.style.display = "none";
+}
+function showPopup() {
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.top = "0";
+  overlay.style.left = "0";
+  overlay.style.width = "100%";
+  overlay.style.height = "100%";
+  overlay.style.backgroundColor = "rgba(0, 0, 0, 0.5)"; // Dark background color
+  overlay.style.display = "flex";
+  overlay.style.justifyContent = "center";
+  overlay.style.alignItems = "center";
+  overlay.style.zIndex = "9999";
+
+  const popup = document.createElement("div");
+  popup.style.backgroundColor = "white";
+  popup.style.padding = "20px";
+  popup.style.margin = "20px";
+  popup.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.5)";
+  popup.style.borderRadius = "1rem";
+  popup.style.maxWidth = "53rem";
+  popup.style.textAlign = "center";
+
+  const heading = document.createElement("h2");
+  heading.textContent = "The company name you entered already exists.";
+  const p2 = document.createElement("i");
+  p2.textContent = `You can either create a new company with the same name or join the existing company as an individual user.`;
+  popup.appendChild(heading);
+  popup.appendChild(p2);
+
+  const buttonsContainer = document.createElement("div");
+  buttonsContainer.classList.add("buttons");
+  buttonsContainer.style.display = "flex";
+  buttonsContainer.style.justifyContent = "center";
+  buttonsContainer.style.marginTop = "20px";
+
+  const yesButton = document.createElement("button");
+  yesButton.textContent = "Proceed as New Company";
+  yesButton.addEventListener("click", () => {
+    // Enable the Create button and remove the popup
+    document.body.removeChild(overlay);
+  });
+  buttonsContainer.appendChild(yesButton);
+
+  const noButton = document.createElement("button");
+  noButton.textContent = "Proceed as Individual User";
+  noButton.addEventListener("click", () => {
+    showForm("individual");
+    document.body.removeChild(overlay);
+  });
+  buttonsContainer.appendChild(noButton);
+
+  popup.appendChild(buttonsContainer);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+}
+
+function scrollToTop(){
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};

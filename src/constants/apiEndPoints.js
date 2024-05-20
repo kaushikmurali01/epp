@@ -12,6 +12,9 @@ export const facilityEndPoints = {
     "/company-facility/v1/facility-characteristics",
   GET_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
+  FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
+  GET_CATEGORIES_TYPES_AND_NAICS: 'company-facility/v1/facility-naic',
 };
 
 export const adminFacilityEndpoints = {
@@ -28,6 +31,8 @@ export const adminFacilityEndpoints = {
   GET_ADMIN_FACILITY_DETAILS: "/company-facility/v1/facility-details",
   GET_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   UPDATE_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
+  ADMIN_ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
+  ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
 };
 
 export const PA_MANAGEMENT = {
@@ -41,8 +46,12 @@ export const USER_MANAGEMENT = {
   GET_USER_LIST: "/enerva-user/v1/combinedusers",
   GET_USER_ROLE: "/enerva-user/v1/roles",
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
-  // GET_INVITATIONS_LIST: "/enerva-user/v1/invitations",
+  GET_FILTER_USER_LIST: "/enerva-user/v1/filteredusers",
+
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
+  GET_COMPANY_DETAILS: "/enerva-user/v1/fetch/company",
+  COMPANY_SEND_ALERT: "/enerva-user/v1/company/sendAlert",
+  UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
@@ -56,6 +65,9 @@ export const USER_MANAGEMENT = {
   GET_USER_DETAILS: "enerva-user/v1/user",
 
   EDIT_PROFILE: "/enerva-user/v1/users",
+
+  GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
+  ACCEPT_REJECT_INVITE: "enerva-user/v1/acceptuserinvitation",
 };
 
 export const ENERVA_USER_MANAGEMENT = {
@@ -70,13 +82,30 @@ export const ENERVA_USER_MANAGEMENT = {
   GET_EV_USER_PERMISSONS_BY_ID: "/enerva-user/v1/program/user/permissions",
   // POST REQUEST
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
-  JOIN_EV_REQUEST: "",
-  ACCEPT_EV_USER_REQUEST: "",
-  REJECT_EV_USER_REQUEST: "",
+
+  SEND_USER_ALERT: "/enerva-user/v1/alert/send",
   // DELETE REQUEST
-  DELETE_EV_USER_REQUEST: "",
+  // DELETE_EV_USER_REQUEST: "",
+  VIEW_USER_PROFILE: "/enerva-user/v1/usercompanybyuser",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
+};
+
+export const ROLES_PERMISSIONS_MANAGEMENT = {
+  ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
+  USER_TYPES: "/enerva-user/v1/program/usertypes",
+  GET_ROLE_PERMISSIONS_BY_ID: "/enerva-user/v1/program/rolepermissiondetail",
+  GET_ALL_PERMISSIONS_LIST: "enerva-user/v1/program/allpermissions",
+
+  // GET_ROLES_PERMISSIONS_LIST: "/enerva-user/v1/program/rolepermission",
+
+  // // POST REQUEST
+  // ADD_ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
+
+  // // DELETE REQUEST
+  // DELETE_EV_USER_REQUEST: "/enerva-user/v1/program/rolepermission",
+  // // EDIT REQUEST
+  // EDIT_ROLES_PERMISSIONS: "/enerva-user/v1/program/rolepermission",
 };
 
 export const LANDING_PAGE = {

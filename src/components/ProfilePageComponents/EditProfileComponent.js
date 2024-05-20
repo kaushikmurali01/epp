@@ -2,15 +2,17 @@ import React from 'react';
 import InputField from "components/FormBuilder/InputField";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { validationSchemaProfileDetails } from "utils/validations/formValidation";
+import { validationSchemaUserProfile, validationSchemaPUserCompanyrofileDetails } from "utils/validations/formValidation";
 import { Box, Grid, Typography } from '@mui/material';
 
-const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
+const EditProfileComponent = ({tabStyle, handleSubmit, initialValues, userProfileData}) => {
+  const isCompanyProfileEditPermission = (initialValues?.type == 2 && initialValues.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
+
   return (
     <Grid marginBlockStart={"3.25rem"} gap={"3.25rem"}>
       <Formik
         initialValues={{ ...initialValues }}
-        validationSchema={validationSchemaProfileDetails}
+        validationSchema={isCompanyProfileEditPermission ? validationSchemaPUserCompanyrofileDetails : validationSchemaUserProfile}
         enableReinitialize={true}
         onSubmit={handleSubmit}
       >
@@ -40,12 +42,12 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
               </Grid>
 
               <Grid item xs={12} sm={4}>
-                <InputField name="email" label="Email Address*" type="text" />
+                <InputField isDisabled={true} name="email" label="Email Address*" type="text" />
               </Grid>
             </Grid>
           </Grid>
 
-          <Grid>
+          {isCompanyProfileEditPermission ? <Grid>
             <Typography variant="h6" sx={tabStyle} mb={"1.25rem"}>
               Company details
             </Typography>
@@ -115,7 +117,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues}) => {
                 />
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> : null}
           <Box mt={6} rowGap={4}>
             <ButtonWrapper
               type="submit"

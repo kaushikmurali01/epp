@@ -108,7 +108,7 @@ const Table = ({
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
-
+  
   return (
     <TableContainer>
       <MUITable {...getTableProps()}>
@@ -126,131 +126,133 @@ const Table = ({
           ))}
         </TableHead>
         <TableBody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            const { id } = row.original;
-            return (
-              <TableRow
-                {...row.getRowProps()}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#DBFFE2",
-                  },
-                }}
-              >
-                {row.cells.map((cell) => {
-                  return (
-                    <TableCell
-                      {...cell.getCellProps()}
-                      onClick={() => {
-                        if (onClick) {
-                          onClick(id, row?.original);
-                        }
-                      }}
-                      sx={{
-                        cursor: "pointer",
-                        color: "text.primary2",
-                        textAlign: "center",
-                        fontSize: "0.875rem",
-                        padding: "1.5rem 0.5rem",
-                        "&:first-of-type": {
-                          fontWeight: 600,
-                        },
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TableCell
-              colSpan={columns.length}
-              sx={
-                {
-                  // borderBottom: "none",
-                }
-              }
-            >
-              <Box
-                container
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: isSmallScreen ? "flex-start" : "flex-end",
-                  flexDirection: isSmallScreen && "column",
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="small"
-                    color="text.secondary "
-                    sx={{
-                      textWrap: "nowrap",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    Rows per Page:{" "}
-                  </Typography>
-                  <Select
-                    value={pageInfo?.pageSize}
-                    onChange={handleRowsPerPageChange}
-                    variant="outlined"
-                    size="small"
-                    style={{
-                      marginLeft: "auto",
-                      height: "2rem",
-                      fontSize: "0.875rem",
-                    }}
-                  >
-                    {rowsPerPageArr.map((item) => (
-                      <MenuItem value={item} sx={{ fontSize: "0.875rem" }}>
-                        {item}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                  <Typography
-                    variant="small"
-                    color="text.secondary "
-                    sx={{
-                      textWrap: "nowrap",
-                      marginLeft: "1rem",
-                    }}
-                  >
-                    Page {pageInfo?.page} of {totalPages}
-                  </Typography>
-                </Box>
-                <ButtonGroup
-                  size="small"
-                  variant="text"
-                  style={{
-                    height: "20px",
-                    marginLeft: !isSmallScreen && "1rem",
-                    marginTop: isSmallScreen && "1rem",
+          {rows?.length > 0 ? 
+              rows.map((row) => {
+              prepareRow(row);
+              const { id } = row.original;
+              return (
+                <TableRow
+                  {...row.getRowProps()}
+                  sx={{
+                    "&:hover": {
+                      backgroundColor: "#DBFFE2",
+                    },
                   }}
                 >
-                  <IconButton onClick={handleFirstPage} disableRipple>
-                    <FirstPageIcon />
-                  </IconButton>
-                  <IconButton onClick={handlePrevPage} disableRipple>
-                    <KeyboardArrowLeftIcon />
-                  </IconButton>
-                  {pageButtons}
-                  <IconButton onClick={handleNextPage} disableRipple>
-                    <KeyboardArrowRightIcon />
-                  </IconButton>
-                  <IconButton onClick={handleLastPage} disableRipple>
-                    <LastPageIcon />
-                  </IconButton>
-                </ButtonGroup>
-              </Box>
-            </TableCell>
+                  {row.cells.map((cell) => {
+                    return (
+                      <TableCell
+                        {...cell.getCellProps()}
+                        onClick={() => {
+                          if (onClick) {
+                            onClick(id, row?.original);
+                          }
+                        }}
+                        sx={{
+                          color: "text.primary2",
+                          textAlign: "center",
+                          fontSize: "0.875rem",
+                          padding: "1.5rem 0.5rem",
+                          "&:first-of-type": {
+                            fontWeight: 600,
+                          },
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })
+          : 
+          <TableRow>
+             <TableCell colSpan={columns.length} sx={{textAlign: 'center !important'}}>No Data found.</TableCell>
           </TableRow>
-        </TableFooter>
+        }
+        </TableBody>
+        {(pageInfo?.pageSize && rows?.length > 0 ) && 
+          <TableFooter>
+            <TableRow>
+              <TableCell
+                colSpan={columns.length}
+              >
+                <Box
+                  container
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: isSmallScreen ? "flex-start" : "flex-end",
+                    flexDirection: isSmallScreen && "column",
+                  }}
+                >
+                  <Box>
+                    <Typography
+                      variant="small"
+                      color="text.secondary "
+                      sx={{
+                        textWrap: "nowrap",
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      Rows per Page:{" "}
+                    </Typography>
+                    <Select
+                      value={pageInfo?.pageSize}
+                      onChange={handleRowsPerPageChange}
+                      variant="outlined"
+                      size="small"
+                      style={{
+                        marginLeft: "auto",
+                        height: "2rem",
+                        fontSize: "0.875rem",
+                      }}
+                    >
+                      {rowsPerPageArr.map((item) => (
+                        <MenuItem value={item} sx={{ fontSize: "0.875rem" }}>
+                          {item}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    <Typography
+                      variant="small"
+                      color="text.secondary "
+                      sx={{
+                        textWrap: "nowrap",
+                        marginLeft: "1rem",
+                      }}
+                    >
+                      Page {pageInfo?.page} of {totalPages}
+                    </Typography>
+                  </Box>
+                  <ButtonGroup
+                    size="small"
+                    variant="text"
+                    style={{
+                      height: "20px",
+                      marginLeft: !isSmallScreen && "1rem",
+                      marginTop: isSmallScreen && "1rem",
+                    }}
+                  >
+                    <IconButton onClick={handleFirstPage} disableRipple>
+                      <FirstPageIcon />
+                    </IconButton>
+                    <IconButton onClick={handlePrevPage} disableRipple>
+                      <KeyboardArrowLeftIcon />
+                    </IconButton>
+                    {pageButtons}
+                    <IconButton onClick={handleNextPage} disableRipple>
+                      <KeyboardArrowRightIcon />
+                    </IconButton>
+                    <IconButton onClick={handleLastPage} disableRipple>
+                      <LastPageIcon />
+                    </IconButton>
+                  </ButtonGroup>
+                </Box>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+        }
       </MUITable>
     </TableContainer>
   );

@@ -31,9 +31,20 @@ import {
   updateAdminFacilityStatusRequest,
   updateAdminFacilityStatusSuccess,
   updateAdminFacilityStatusFailure,
+  adminAssignFacilityRequest,
+  adminAssignFacilitySuccess,
+  adminAssignFacilityFailure,
+  fetchAdminFacilitiesDropdownRequest,
+  fetchAdminFacilitiesDropdownSuccess,
+  fetchAdminFacilitiesDropdownFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
-export const fetchAdminFacilityListing = (pageInfo, status) => {
+export const fetchAdminFacilityListing = (
+  pageInfo,
+  status,
+  search = "",
+  compFilter = ""
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminFacilityListRequest());
@@ -41,7 +52,7 @@ export const fetchAdminFacilityListing = (pageInfo, status) => {
         adminFacilityEndpoints.ADMIN_FACILITY_LIST
       }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
         pageInfo.pageSize
-      }?status=${status}`;
+      }?status=${status}&search=${search}&col_name=${""}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));
@@ -201,6 +212,48 @@ export const updateAdminFacilityStatus = (facilityId, status) => {
     } catch (error) {
       console.error(error);
       dispatch(updateAdminFacilityStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminAssignFacilities = (assignData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAssignFacilityRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_ASSIGN_FACILITIES;
+      const response = await POST_REQUEST(endpoint, assignData);
+      const data = response.data;
+      dispatch(adminAssignFacilitySuccess(data));
+      NotificationsToast({
+        message: "Facility assigned successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAssignFacilityFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilitiesDropdown = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilitiesDropdownRequest());
+      const endpoint = `${adminFacilityEndpoints.ADMIN_FACILITIES_DROPDOWN}`;
+      const response = await GET_REQUEST(endpoint);
+      const data = response.data;
+      dispatch(fetchAdminFacilitiesDropdownSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilitiesDropdownFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

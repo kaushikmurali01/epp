@@ -13,7 +13,7 @@ const ButtonWrapper = ({ children, variant, width, height, edit, ...otherProps }
   }
 
   useEffect(() => {
-    if (Object.keys(formikProps.errors).length === 0 && formikProps.dirty) {
+    if ((Object.keys(formikProps.errors).length === 0 && formikProps.dirty) || formikProps.isValid) {
       setButtonState(true);
     } else {
       setButtonState(false);

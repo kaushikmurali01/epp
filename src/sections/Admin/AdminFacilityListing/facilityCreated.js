@@ -10,16 +10,26 @@ import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
+import debounce from "lodash.debounce";
 
-const FacilityCreated = () => {
+const FacilityCreated = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
+  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
+    dispatch(
+      fetchAdminFacilityListing(pageInfo, 0, searchString, company_filter)
+    );
+  }, 300);
+
   useEffect(() => {
-    dispatch(fetchAdminFacilityListing(pageInfo, 0));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize]);
+    debouncedSearch(pageInfo, searchVal, companyFilter);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -132,7 +142,9 @@ const FacilityCreated = () => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() =>
+              navigate(`/facility-list/facility-details/${item?.id}`)
+            }
           >
             View
           </Button>
@@ -144,7 +156,7 @@ const FacilityCreated = () => {
               minWidth: "unset",
               marginLeft: "1rem",
             }}
-            // onClick={() => openRequestModal(true, item)}
+            onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>

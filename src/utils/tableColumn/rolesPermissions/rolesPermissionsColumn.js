@@ -8,7 +8,7 @@ import {
     Typography,
 } from "@mui/material";
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
-import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
+import { ENERVA_USER_MANAGEMENT, ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 
@@ -57,14 +57,14 @@ const DeleteModelContent = () => {
 
 
 
-const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (getUserRole,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "Role name",
-        accessor: 'id',
+        accessor: 'rolename',
     },
     {
         Header: "Role Type",
-        accessor: "rolename",
+        accessor: "userType",
     },
     {
         Header: "Created date",
@@ -80,7 +80,7 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (handleAPISuccessCallBack, setVisibl
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Edit
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
+                <Typography disabled={hasDefaultPermission(getUserRole,item.role_id)}  variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
                 </Typography>
 
@@ -89,9 +89,13 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (handleAPISuccessCallBack, setVisibl
     },
 ];
 
+const hasDefaultPermission = (permissions,roleId) => {
+    const isDefault = permissions.some((perm) => perm.id === roleId);
+    return isDefault;
+  };
 
 const handelDefaultPermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    const apiURL = ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
     setInvitePageInfo({title:'Set Default Permissions', type: 'default' }) 
@@ -99,7 +103,7 @@ const handelDefaultPermission = (item, setVisibleInvitePage, setSelectTableRow,s
 }
 
 const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    const apiURL = ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
     setInvitePageInfo({title:'Edit Role', type: 'edit' }) 
@@ -123,11 +127,12 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    const apiURL = ROLES_PERMISSIONS_MANAGEMENT.ROLES_PERMISSIONS + '/' + item.role_id;
     // return;
     DELETE_REQUEST(apiURL)
-        .then((_response) => {
-            NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+        .then((response) => {
+            console.log(response, "check response");
+            NotificationsToast({ message: response?.message ||  "Role and records deleted successfully", type: "success" });
             handleSuccessCallback();
             // close the modal
             setModalConfig((prevState) => ({

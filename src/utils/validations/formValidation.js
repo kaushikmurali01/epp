@@ -1,5 +1,9 @@
 import * as Yup from "yup";
-import { emailRegExp, phoneUSFormatRegExp } from "../../config/regex";
+import {
+  emailRegExp,
+  phoneUSFormatRegExp,
+  postalCodeCanadaFormatRegExp,
+} from "../../config/regex";
 
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
@@ -62,7 +66,9 @@ export const validationSchemaAddFacility = Yup.object().shape({
   city: Yup.string().required("City is required"),
   province: Yup.string().required("Province/State is required"),
   country: Yup.string().required("Country is required"),
-  postal_code: Yup.string().required("Postal Code is required"),
+  postal_code: Yup.string()
+    .required("Postal Code is required")
+    .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
 });
 
 export const validationSchemaLandingPageForm = Yup.object({
@@ -75,6 +81,10 @@ export const validationSchemaLandingPageForm = Yup.object({
   phone: Yup.string()
     .required("Please enter phone number")
     .matches(phoneUSFormatRegExp, "Invalid Phone Number"),
+});
+
+export const validationSchemaAlertPopUp = Yup.object({
+  comment: Yup.string().required("Please enter comment"),
 });
 
 export const validationSchemaFacilitySummary = Yup.object().shape({
@@ -101,8 +111,27 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
-  meter_id: Yup.string().required("Meter Id is required"),
-
+  meter_id: Yup.number()
+    .required("Meter Id is required")
+    .min(0, "Meter Id must be a positive number"),
+  meter_active: Yup.date().max(
+    new Date(),
+    "Date meter became active cannot be in the future"
+  ),
+  meter_inactive: Yup.date().when("stil_in_use", {
+    is: false,
+    then: (schema) =>
+      schema
+        .min(
+          Yup.ref("meter_active"),
+          "Date meter became inactive cannot be earlier than date meter became active"
+        )
+        .max(new Date(), "Date meter became inactive cannot be in the future")
+        .required(
+          "Date meter became inactive is required when meter is not in use"
+        ),
+    otherwise: (schema) => schema.notRequired().nullable(),
+  }),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -115,7 +144,15 @@ export const validationSchemaEntry = Yup.object().shape({
 
 export default validationSchemaAddMeter;
 
-export const validationSchemaProfileDetails = Yup.object().shape({
+export const validationSchemaUserProfile = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+  last_name: Yup.string().required("Last Name is required"),
+  // businessLandline: Yup.string().required("Business Landline is required"),
+  phonenumber: Yup.string().required("Business Mobile is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+});
+
+export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   first_name: Yup.string().required("First Name is required"),
   last_name: Yup.string().required("Last Name is required"),
   // businessLandline: Yup.string().required("Business Landline is required"),
@@ -134,8 +171,14 @@ export const validationSchemaProfileDetails = Yup.object().shape({
   postal_code: Yup.string().required("Postal Code/Zip Code is required"),
   country: Yup.string().required("Country is required"),
 });
+
 export const validationSchemaFacilityDetails = Yup.object().shape({
-  unique_features_that_impact_energy_usage: Yup.string().required(
+  year_of_construction: Yup.date().required("Year of construction is required"),
+  number_of_storeys: Yup.number().min(
+    0,
+    "Number of Storeys must be a positive number"
+  ),
+  unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
   space_cooling_fuel_source: Yup.string().required(
@@ -147,13 +190,122 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   space_heating_fuel_source: Yup.string().required(
     "Space heating fuel source is required"
   ),
-  // space_heating_technology: Yup.string().required(
-  //   "Space heating technology is required"
-  // ),
   water_heating_fuel_source: Yup.string().required(
     "Water heating fuel source is required"
   ),
   water_heating_technology: Yup.string().required(
     "Water heating technology is required"
   ),
+  space_cooling_fuel_source_other: Yup.string().when(
+    "space_cooling_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space cooling fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_heating_fuel_source_other: Yup.string().when(
+    "space_heating_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space Heating fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  water_heating_fuel_source_other: Yup.string().when(
+    "water_heating_fuel_source",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Water Heating fuel source"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_cooling_technology_other: Yup.string().when(
+    "space_cooling_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Space cooling technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  water_heating_technology_other: Yup.string().when(
+    "water_heating_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the Water heating technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  is_lighting_controlled_for_occupancy: Yup.boolean().required(
+    "Is Lighting Controlled for Occupancy is required"
+  ),
+  is_space_heating_controlled_for_occupancy: Yup.boolean().required(
+    "Is Space Heating Controlled for Occupancy is required"
+  ),
+  is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
+    "Is Space Cooling Controlled for Occupancy is required"
+  ),
+  space_cooling_technology_capacity: Yup.number().min(
+    0,
+    "Space cooling technology capacity must be a positive number"
+  ),
+  space_heating_technology_capacity: Yup.number().min(
+    0,
+    "Space heating technology capacity must be a positive number"
+  ),
+  water_heating_technology_capacity: Yup.number().min(
+    0,
+    "Water heating technology capacity must be a positive number"
+  ),
+  space_cooling_technology_age: Yup.number().min(
+    0,
+    "Space cooling technology age must be a positive number"
+  ),
+  space_heating_technology_age: Yup.number().min(
+    0,
+    "Space heating technology age must be a positive number"
+  ),
+  water_heating_technology_age: Yup.number().min(
+    0,
+    "Water heating technology age must be a positive number"
+  ),
+  maximum_number_of_occupants: Yup.number().min(
+    0,
+    "Maximum number of occupants must be a positive number"
+  ),
+  average_number_of_occupants: Yup.number().min(
+    0,
+    "Average number of occupants must be a positive number"
+  ),
+});
+
+export const validationSchemaAssignFacility = Yup.object().shape({
+  email: Yup.string()
+    .required("Email is required")
+    .matches(
+      /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
+      "Invalid email"
+    )
+    .test("At least one email is required", (value) => {
+      return value.split(",").some((email) => email.trim() !== "");
+    }),
+  facilityId: Yup.array()
+    .of(Yup.number())
+    .required("Facility is required")
+    .min(1, "At least one facility is required"),
+});
+
+// Change Password Validation schema
+export const changePasswordValidationSchema = Yup.object().shape({
+  newPassword: Yup.string()
+    .required("New Password is required")
+    .min(8, "Password should be at least 8 characters long"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('newPassword'), null], "Passwords must match")
+    .required("Confirm Password is required")
 });
