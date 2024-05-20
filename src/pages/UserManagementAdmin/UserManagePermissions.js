@@ -289,7 +289,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                             <Grid item>
                                 <Typography variant='span' sx={{ letterSpacing: '1px', }}> 
                                 {(selectRoleType === '' )  &&  "Please select role type"}
-                                {(selectRoleType !== '' && permissions?.length === 0 )  &&  "The list of permissions is not available for this user."}
+                                {(selectRoleType !== '' && permissions?.length === 0 )  &&  "The list of permissions is not available for this role."}
                                 
                                  </Typography>
                             </Grid>
