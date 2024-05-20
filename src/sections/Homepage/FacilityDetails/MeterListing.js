@@ -44,8 +44,8 @@ const MeterListing = ({
 
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
-    { id: 2, value: "Natural Gas" },
-    { id: 3, value: "Water" },
+    { id: 2, value: "Water" },
+    { id: 3, value: "Natural Gas" },
   ];
   const getMeterTypeValue = (array, meter_type) => {
     const foundType = array.find((type) => type.id === meter_type);

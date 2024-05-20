@@ -37,6 +37,9 @@ import {
   fetchAdminFacilitiesDropdownRequest,
   fetchAdminFacilitiesDropdownSuccess,
   fetchAdminFacilitiesDropdownFailure,
+  fetchAdminStatisticsRequest,
+  fetchAdminStatisticsSuccess,
+  fetchAdminStatisticsFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
 export const fetchAdminFacilityListing = (
@@ -48,11 +51,10 @@ export const fetchAdminFacilityListing = (
   return async (dispatch) => {
     try {
       dispatch(fetchAdminFacilityListRequest());
-      const endpointWithParams = `${
-        adminFacilityEndpoints.ADMIN_FACILITY_LIST
-      }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
-        pageInfo.pageSize
-      }?status=${status}&search=${search}&col_name=${""}`;
+      let endpointWithParams = `${adminFacilityEndpoints.ADMIN_FACILITY_LIST}/${
+        (pageInfo.page - 1) * pageInfo.pageSize
+      }/${pageInfo.pageSize}?search=${search}&company_id=${compFilter}`;
+      endpointWithParams += status ? `&status=${status}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));
@@ -254,6 +256,25 @@ export const fetchAdminFacilitiesDropdown = () => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminFacilitiesDropdownFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminStatistic = (companyFilter, facilityFilter) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminStatisticsRequest());
+      const endpointWithParam = `${adminFacilityEndpoints.ADMIN_STATISTICS}?company_id=${companyFilter}&facility_id=${facilityFilter}`;
+      const response = await GET_REQUEST(endpointWithParam);
+      const data = response.data;
+      dispatch(fetchAdminStatisticsSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminStatisticsFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

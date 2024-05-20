@@ -1,10 +1,8 @@
 import {
   Box,
-  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
-  FormLabel,
   Grid,
   InputLabel,
   Radio,
@@ -14,7 +12,6 @@ import {
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import axios from "axios";
 import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import { Field, Form, Formik } from "formik";
@@ -155,7 +152,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         : new Date(values?.meter_inactive),
       meter_active: new Date(values?.meter_active),
     };
-    if (values.meter_type === 2) {
+    if (values.meter_type !== 1) {
       delete newValues.purchased_from_the_grid;
     }
     if (meterId2) {
@@ -220,8 +217,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         }}
                       >
                         <ToggleButton value={1}>Electricty</ToggleButton>
-                        <ToggleButton value={2}>Natural Gas</ToggleButton>
-                        <ToggleButton value={3}>Water</ToggleButton>
+                        <ToggleButton value={3}>Natural Gas</ToggleButton>
+                        <ToggleButton value={2}>Water</ToggleButton>
                       </ToggleButtonGroup>
                     )}
                   </Field>
@@ -276,7 +273,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   <InputField
                     name="meter_active"
                     type="date"
-                    label="Date meter became active"
+                    label="Date meter became active *"
                     inputProps={{
                       max: format(new Date(), "yyyy-MM-dd"),
                     }}
@@ -287,7 +284,11 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     <InputField
                       name="meter_inactive"
                       type="date"
-                      label=" Date meter became inactive"
+                      label={
+                        values.stil_in_use
+                          ? "Date meter became inactive"
+                          : "Date meter became inactive *"
+                      }
                       inputProps={{
                         max: format(new Date(), "yyyy-MM-dd"),
                         min:
@@ -310,12 +311,18 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Is meter still in use?"
+                            label="Is meter still in use? *"
                           />
                         )}
                       </Field>
                     }
-                    label="Is meter still in use?"
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        {values.meter_inactive && !values.stil_in_use
+                          ? "Is meter still in use?"
+                          : "Is meter still in use? *"}
+                      </Typography>
+                    }
                   />
                 </Grid>
               </Grid>
@@ -354,7 +361,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                 </Grid>
                 <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
                   <InputLabel>
-                    {values.meter_type === 3
+                    {values.meter_type === 2
                       ? "Upload the most recent utility bill"
                       : "Meter specification as per Measurement Canada S-E-04"}
                   </InputLabel>
@@ -386,7 +393,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           handleFileChange(event, values.meter_type)
                         }
                         accept={
-                          values.meter_type === 3
+                          values.meter_type === 2
                             ? ".xlsx,.xls,.csv"
                             : "image/png, image/gif, image/jpeg, image/jpg"
                         }
@@ -411,7 +418,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                           onClick={handleButtonClick}
                         >
-                          {values.meter_type === 3
+                          {values.meter_type === 2
                             ? "Change File"
                             : "Change Picture"}
                         </Typography>
@@ -423,7 +430,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             handleFileChange(event, values.meter_type)
                           }
                           accept={
-                            values.meter_type === 3
+                            values.meter_type === 2
                               ? ".xlsx,.xls,.csv"
                               : "image/png, image/gif, image/jpeg, image/jpg"
                           }
@@ -437,7 +444,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           }}
                           onClick={deletePicture}
                         >
-                          {values.meter_type === 3
+                          {values.meter_type === 2
                             ? "Delete File"
                             : "Delete Picture"}
                         </Typography>

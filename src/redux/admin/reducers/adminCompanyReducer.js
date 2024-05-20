@@ -11,11 +11,15 @@ import {
   ADMIN_COMPANY_UPDATE_STATUS_REQUEST,
   ADMIN_COMPANY_UPDATE_STATUS_SUCCESS,
   ADMIN_COMPANY_UPDATE_STATUS_FAILURE,
+  FETCH_ADMIN_COMPANIES_DROPDOWN_REQUEST,
+  FETCH_ADMIN_COMPANIES_DROPDOWN_SUCCESS,
+  FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
   companyList: [],
   companyDetails: [],
+  companiesDropdown: [],
   loading: false,
   error: null,
 };
@@ -91,6 +95,25 @@ const adminCompanyReducer = (state = initialState, action) => {
         error: null,
       };
     case ADMIN_COMPANY_UPDATE_STATUS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_COMPANIES_DROPDOWN_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_COMPANIES_DROPDOWN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        companiesDropdown: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE:
       return {
         ...state,
         loading: false,

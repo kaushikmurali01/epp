@@ -8,6 +8,9 @@ import {
   adminCompanyUpdateStatusFailure,
   adminCompanyUpdateStatusRequest,
   adminCompanyUpdateStatusSuccess,
+  fetchAdminCompaniesDropdownFailure,
+  fetchAdminCompaniesDropdownRequest,
+  fetchAdminCompaniesDropdownSuccess,
   fetchAdminCompanyDetailsFailure,
   fetchAdminCompanyDetailsRequest,
   fetchAdminCompanyDetailsSuccess,
@@ -99,6 +102,25 @@ export const adminCompanyUpdateStatus = (companyId, newStatus) => {
     } catch (error) {
       console.error(error);
       dispatch(adminCompanyUpdateStatusFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminCompaniesDropdown = () => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminCompaniesDropdownRequest());
+      const endpoint = `${USER_MANAGEMENT.COMPANIES_DROPDOWN}`;
+      const response = await GET_REQUEST(endpoint);
+      const data = response.data;
+      dispatch(fetchAdminCompaniesDropdownSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminCompaniesDropdownFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
