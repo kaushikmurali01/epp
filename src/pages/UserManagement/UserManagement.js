@@ -73,7 +73,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData(pageInfo, searchString);
   };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
     company: '',

@@ -53,7 +53,7 @@ const UserManagementColumn = () => {
         )
     }
 
-    const USER_MANAGEMENT_COLUMN_ACTION = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+    const USER_MANAGEMENT_COLUMN_ACTION = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
         {
             Header: "Name",
             accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
@@ -97,7 +97,7 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                         Manage permission
                     </Typography>
                     <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
@@ -151,7 +151,11 @@ const UserManagementColumn = () => {
             })
     }
 
-    const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+    const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+        if(userData?.user?.id === item?.id){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
         const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)

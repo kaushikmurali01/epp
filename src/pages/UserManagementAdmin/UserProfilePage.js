@@ -30,7 +30,7 @@ const UserProfilePage = () => {
   const [profilePicture, setProfilePicture] = useState("");
   const [userProfileData, setUserProfileData] = useState();
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
-
+const [getCompanyList, setCompanyList] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
@@ -129,6 +129,16 @@ const UserProfilePage = () => {
       });
   }
 
+  const getComapanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setCompanyList(res.data?.data?.rows);
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
   const getUserProfileData = () => {
     dispatch({ type: "SHOW_LOADER", payload: true });
     const apiURL = `${ENERVA_USER_MANAGEMENT.VIEW_USER_PROFILE}/${companyId}/${userId} `;
@@ -149,6 +159,7 @@ const UserProfilePage = () => {
   useEffect(() => {
     getUserProfileData();
     getUserRoleData();
+    getComapanyListData()
   }, []);
 
 
@@ -164,6 +175,7 @@ const UserProfilePage = () => {
               invitePageInfo={invitePageInfo}
               selectTableRow={selectTableRow}
               inviteAPIURL={inviteAPIURL}
+              getCompanyList={getCompanyList}
             />
             :
             <Container sx={{ position: "relative" }}>
