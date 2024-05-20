@@ -125,10 +125,31 @@ export async function ListCompanies(request: HttpRequest, context: InvocationCon
     try {
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
-        const companyFilter = request.query.get('company');
+        const companyFilter = request.query.get('company_type');
 
         // Get all companies
         const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(companies);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+/**
+ * Retrieves all companies for dropDown.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all companies.
+ */
+export async function DropDownCompanies(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const companies = await CompanyController.DropDownCompanies();
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
@@ -172,22 +193,22 @@ export async function CheckCompanyByName(request: HttpRequest, context: Invocati
     try {
 
         const { company_name } = request.params;
-       // const company = await Company.findOne({ where: { company_name: company_name } });
+        // const company = await Company.findOne({ where: { company_name: company_name } });
 
-        const company = await Company.findOne({ 
+        const company = await Company.findOne({
             where: sequelize.where(sequelize.fn('LOWER', sequelize.col('company_name')), company_name.toLowerCase())
         });
-        let resp:object;
-        if(company) {
+        let resp: object;
+        if (company) {
             resp = {
                 status: 200,
-                exists:true
+                exists: true
             }
         } else {
             resp = {
                 status: 200,
-                exists:false
-            }  
+                exists: false
+            }
         }
 
         // Prepare response body
@@ -270,6 +291,12 @@ app.http('ListCompanies', {
     authLevel: 'anonymous',
     handler: ListCompanies,
     route: 'companies/{pageOffset}/{pageLimit}'
+});
+app.http('CompaniesDropDown', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: DropDownCompanies,
+    route: 'dropDown/companies'
 });
 
 app.http('GetCompanyAdmin', {
