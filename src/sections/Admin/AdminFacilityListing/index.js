@@ -42,7 +42,7 @@ const AdminFacilityListing = () => {
   };
   const dispatch = useDispatch();
   const [searchString, setSearchString] = useState("");
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 1000 });
 
   useEffect(() => {
     dispatch(fetchAdminFacilitiesDropdown());
@@ -241,8 +241,11 @@ const AdminFacilityListing = () => {
                 <MenuItem value="" disabled>
                   <em>Company name</em>
                 </MenuItem>
+                <MenuItem value="">
+                  <em>All companies</em>
+                </MenuItem>
                 {companyListDropdownData?.map((item) => (
-                  <MenuItem key={item?.id} value={item?.company_name}>
+                  <MenuItem key={item?.id} value={item?.id}>
                     {item?.company_name}
                   </MenuItem>
                 ))}

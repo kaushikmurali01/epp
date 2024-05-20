@@ -51,6 +51,7 @@ export const USER_MANAGEMENT = {
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
   GET_COMPANY_DETAILS: "/enerva-user/v1/fetch/company",
   COMPANY_SEND_ALERT: "/enerva-user/v1/company/sendAlert",
+  COMPANIES_DROPDOWN: "/company-facility/v1/program/",
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   // POST REQUEST
