@@ -1,40 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { TextField,FormControl, FormGroup, List,ListItem, FormLabel } from '@mui/material';
+import {
+  TextField,
+  FormControl,
+  FormGroup,
+  FormLabel,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import { useField } from "formik";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
-const InputFieldPassword = ({ name, label, type, showpasswordHints, isLabelBlack, isRequiredField, ...otherProps }) => {
-  const [pwdError, setPwdError] = useState({});
+const InputFieldPassword = ({
+  name,
+  label,
+  showpasswordHints,
+  isLabelBlack,
+  isRequiredField,
+  ...otherProps
+}) => {
   const [field, meta] = useField(name);
+  const [showPassword, setShowPassword] = useState(false);
+
   const configTextfield = {
     ...field,
     ...otherProps,
     fullWidth: true,
-    variant: 'outlined'
+    variant: "outlined",
+    type: showPassword ? "text" : "password",
   };
-
-  const [inputType, setinputType] = useState(type);
 
   if (meta && meta.touched && meta.error) {
     configTextfield.error = true;
     configTextfield.helperText = meta.error;
   }
 
-  useEffect(() => {
-    const hasMinumLength = /^.{8,}$/.test(configTextfield.value);
-    const hasUpperCase = /[A-Z]/.test(configTextfield.value);
-    const hasLowerCase = /[a-z]/.test(configTextfield.value);
-    const hasNumber = /\d/.test(configTextfield.value);
-    
-
-    setPwdError({
-      ...pwdError,
-      hasUpperCase,
-      hasLowerCase,
-      hasNumber,
-     
-      hasMinumLength,
-    });
-  }, [configTextfield.value]);
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <FormGroup
@@ -43,107 +46,33 @@ const InputFieldPassword = ({ name, label, type, showpasswordHints, isLabelBlack
       } `}
     >
       <FormControl>
-        <FormLabel sx={{ color: isLabelBlack ? "#54585A" : "#2E813E" }}>
-          {label}
-          {isRequiredField ? <span style={{ color: "#F00" }}>*</span> : null}
-        </FormLabel>
+        {label && (
+          <FormLabel sx={{ color: isLabelBlack ? "#54585A" : "#2E813E" }}>
+            {label}
+            {isRequiredField ? <span style={{ color: "#F00" }}>*</span> : null}
+          </FormLabel>
+        )}
         <div className="form-field">
-          {/* <FormLabel component="legend" sx={{ color: '#2E813E' }}>{label}</FormLabel> */}
-          <TextField {...configTextfield} type={inputType} xs={12} />
-
-          {configTextfield.showeyeicon === "true" ? (
-            <span
-              className="eye-icon"
-              onClick={() => {
-                if (
-                  inputType === "password" &&
-                  configTextfield.showeyeicon === "true"
-                ) {
-                  setinputType("text");
-                } else {
-                  setinputType("password");
-                }
-              }}
-            >
-              {inputType !== "password" ? (
-                <img
-                  width="24"
-                  height="29"
-                  src="/images/eyeShow.svg"
-                  alt="eye-Show"
-                />
-              ) : (
-                <img
-                  width="24"
-                  height="22"
-                  src="/images/eyeCrossed.svg"
-                  alt="eye-Crossed"
-                />
-              )}
-            </span>
-          ) : null}
+          <TextField
+            {...configTextfield}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+            error={meta.touched && Boolean(meta.error)}
+            helperText={meta.touched && meta.error ? meta.error : ""}
+          />
         </div>
       </FormControl>
-
-      {showpasswordHints === "true" && (
-        <List
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "8px",
-          }}
-          className="error-list"
-        >
-          <ListItem
-            sx={{ width: "auto", padding: "0" }}
-            className={`${
-              configTextfield.value.length === 0
-                ? ""
-                : pwdError.hasMinumLength
-                ? "valid"
-                : "invalid"
-            }`}
-          >
-            8 Characters -
-          </ListItem>
-          <ListItem
-            sx={{ width: "auto", padding: "0" }}
-            className={`${
-              configTextfield.value.length === 0
-                ? ""
-                : pwdError.hasUpperCase
-                ? "valid"
-                : "in-valid"
-            }`}
-          >
-            1 Uppercase -
-          </ListItem>
-          <ListItem
-            sx={{ width: "auto", padding: "0" }}
-            className={`${
-              configTextfield.value.length === 0
-                ? ""
-                : pwdError.hasLowerCase
-                ? "valid"
-                : "in-valid"
-            }`}
-          >
-            1 Lowercase -
-          </ListItem>
-          <ListItem
-            sx={{ width: "auto", padding: "0" }}
-            className={`${
-              configTextfield.value.length === 0
-                ? ""
-                : pwdError.hasNumber
-                ? "valid"
-                : "in-valid"
-            }`}
-          >
-            1 Number
-          </ListItem>
-        </List>
-      )}
     </FormGroup>
   );
 };
