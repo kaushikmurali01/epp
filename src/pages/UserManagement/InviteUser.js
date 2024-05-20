@@ -175,7 +175,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
 
-        if (invitePageInfo?.type !== null) {
+        if (invitePageInfo?.type === "2") {
             setIsFormValid(isValidEmail && selectRoleType !== '' && selectCompanyType !== '')
         } else {
             setIsFormValid(isValidEmail && selectRoleType !== '')
@@ -345,7 +345,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     <Box component='div' >
                         <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
-                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
+                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> 
+                                {(selectRoleType === '' )  &&  "Please select role type"}
+                                {(selectRoleType !== '' && permissions?.length === 0 )  &&  "The list of permissions is not available for this user."}
+                                
+
+                                </Typography>
                             </Grid>
                         </Grid>
                     </Box>

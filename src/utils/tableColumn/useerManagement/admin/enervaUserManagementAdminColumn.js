@@ -63,7 +63,7 @@ const DeleteModelContent = () => {
 
 
 
-const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "User ID",
         accessor: 'id',
@@ -102,10 +102,10 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibl
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
-                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`) } >
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
                     View
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
@@ -122,7 +122,20 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (handleAPISuccessCallBack, setVisibl
 ];
 
 
-const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+const handelNavigateProfile = (item)=> {
+    console.log(item, "item status")
+    if(item.status === 'pending'){
+        NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        return;
+    }
+    navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
+}
+
+const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
+    if(userData?.user?.id === item?.id){
+        NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        return;
+    }
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
