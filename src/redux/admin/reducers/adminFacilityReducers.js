@@ -29,6 +29,9 @@ import {
   FETCH_ADMIN_FACILITIES_DROPDOWN_REQUEST,
   FETCH_ADMIN_FACILITIES_DROPDOWN_SUCCESS,
   FETCH_ADMIN_FACILITIES_DROPDOWN_FAILURE,
+  FETCH_ADMIN_STATISTICS_REQUEST,
+  FETCH_ADMIN_STATISTICS_SUCCESS,
+  FETCH_ADMIN_STATISTICS_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -37,6 +40,7 @@ const initialState = {
   facilityDetails: [],
   facilityStatus: [],
   facilitiesDropdown: [],
+  facilityStatistics: [],
   loading: false,
   error: null,
 };
@@ -228,6 +232,26 @@ const adminFacilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    case FETCH_ADMIN_STATISTICS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_STATISTICS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityStatistics: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_STATISTICS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
     default:
       return state;
   }

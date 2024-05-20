@@ -514,6 +514,10 @@ const Details = () => {
                     name="number_of_storeys"
                     label="Number of Storeys"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
               </Grid>
@@ -841,6 +845,10 @@ const Details = () => {
                     name="space_cooling_technology_age"
                     label="Space Cooling Technology Age(Years)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
               </Grid>
@@ -850,6 +858,10 @@ const Details = () => {
                     name="space_cooling_technology_capacity"
                     label="Space Cooling Technology Capacity(Tons)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -857,6 +869,9 @@ const Details = () => {
                     name="space_cooling_efficiency"
                     label="Space Cooling Efficiency(EER, SEER, COP)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                    }
                     fullWidth
                     InputProps={{
                       endAdornment: (
@@ -892,6 +907,10 @@ const Details = () => {
                     name="space_heating_technology_age"
                     label="Space Heating Technology Age(Years)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
               </Grid>
@@ -901,6 +920,10 @@ const Details = () => {
                     name="space_heating_technology_capacity"
                     label="Space Heating Technology Capacity(MBH)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -908,6 +931,9 @@ const Details = () => {
                     name="space_heating_efficiency"
                     label="Space Heating Efficiency(EER, SEER, COP)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                    }
                     fullWidth
                     InputProps={{
                       endAdornment: (
@@ -943,6 +969,10 @@ const Details = () => {
                     name="water_heating_technology_age"
                     label="Water Heating Technology Age(Years)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
               </Grid>
@@ -952,6 +982,10 @@ const Details = () => {
                     name="water_heating_technology_capacity"
                     label="Water Heating Technology Capacity(MBH)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -959,6 +993,9 @@ const Details = () => {
                     name="water_heating_efficiency"
                     label="Water Heating Efficiency(%, COP)"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                    }
                     fullWidth
                     InputProps={{
                       endAdornment: (
@@ -981,21 +1018,20 @@ const Details = () => {
                   />
                 </Grid>
               </Grid>
-              <Grid container spacing={4}>
-                <Typography
-                  my={4}
-                  variant="small"
+              <Grid item spacing={4}>
+                <Box
+                  my={1}
                   sx={{
-                    textAlign: "center",
-                    alignContent: "center",
-                    backgroundColor: "#EBEBEB",
-                    width: "7.25rem",
+                    cursor: "default",
                     borderRadius: "2rem",
-                    height: "37px",
+                    background: "#EBEBEB",
+                    border: "1px solid #D0D0D0",
+                    textWrap: "nowrap",
+                    padding: "0.375rem 1rem",
                   }}
                 >
-                  Characteristics
-                </Typography>
+                  <Typography variant="small">Characterstics</Typography>
+                </Box>
               </Grid>
               <Grid container spacing={4}>
                 <Grid item sm={4}>
@@ -1003,6 +1039,10 @@ const Details = () => {
                     name="maximum_number_of_occupants"
                     label="Maximum Number of Occupants"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
                 <Grid item sm={4}>
@@ -1010,6 +1050,10 @@ const Details = () => {
                     name="average_number_of_occupants"
                     label="Average Number of Occupants"
                     type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
               </Grid>

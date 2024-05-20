@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteFacility } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
+import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -97,15 +98,24 @@ const FacilityHeader = () => {
                 justifyContent: "center",
               }}
             >
-              <img
-                src={facilityDetails?.display_pic_url}
-                alt="FacilityImage"
-                style={{
-                  borderRadius: "50%",
-                  height: "7.5rem",
-                  width: "7.5rem",
-                }}
-              />
+              {facilityDetails?.display_pic_url ? (
+                <img
+                  src={facilityDetails?.display_pic_url}
+                  alt="FacilityImage"
+                  style={{
+                    borderRadius: "50%",
+                    height: "7.5rem",
+                    width: "7.5rem",
+                  }}
+                />
+              ) : (
+                <MapsHomeWorkIcon
+                  sx={{
+                    fontSize: "7.5rem",
+                    color: "#757575",
+                  }}
+                />
+              )}
             </Box>
 
             <Box

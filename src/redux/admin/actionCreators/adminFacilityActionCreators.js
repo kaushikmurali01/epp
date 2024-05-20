@@ -29,6 +29,9 @@ import {
   FETCH_ADMIN_FACILITIES_DROPDOWN_REQUEST,
   FETCH_ADMIN_FACILITIES_DROPDOWN_SUCCESS,
   FETCH_ADMIN_FACILITIES_DROPDOWN_FAILURE,
+  FETCH_ADMIN_STATISTICS_REQUEST,
+  FETCH_ADMIN_STATISTICS_SUCCESS,
+  FETCH_ADMIN_STATISTICS_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -168,5 +171,19 @@ export const fetchAdminFacilitiesDropdownSuccess = (data) => ({
 
 export const fetchAdminFacilitiesDropdownFailure = (error) => ({
   type: FETCH_ADMIN_FACILITIES_DROPDOWN_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminStatisticsRequest = () => ({
+  type: FETCH_ADMIN_STATISTICS_REQUEST,
+});
+
+export const fetchAdminStatisticsSuccess = (data) => ({
+  type: FETCH_ADMIN_STATISTICS_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminStatisticsFailure = (error) => ({
+  type: FETCH_ADMIN_STATISTICS_FAILURE,
   payload: error,
 });
