@@ -65,7 +65,7 @@ class CompanyController {
      * @returns Promise<HttpResponse>
      * @description Handles the update of an existing company by extracting necessary data from the request body and parameters, invoking the CompanyService to update the company, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async updateCompany(req, companyId): Promise<any> {
+    static async updateCompany(companyId, req): Promise<any> {
         try {
             //  const companyId = parseInt(req.id);
             const updatedData = req;

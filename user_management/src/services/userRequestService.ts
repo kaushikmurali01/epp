@@ -14,8 +14,9 @@ class UserRequestService {
      */
     static async createUserRequest(userRequestDetails, resp): Promise<Response> {
         try {
-            await testDatabaseConnection();
-            userRequestDetails.user_id = resp.user_id;
+            //await testDatabaseConnection();
+           // userRequestDetails.user_id = resp.user_id;
+            console.log("USerDetails",userRequestDetails );
            // console.log("userRequestDetails",userRequestDetails);
             const userRequest = await UserRequest.create(userRequestDetails);
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };

@@ -12,6 +12,7 @@ import { sequelize } from "../services/database";
 import { UserInvitation } from "../models/user-invitation";
 import { Op } from "sequelize";
 import { UserResourceFacilityPermission } from "../models/user-resource-permission";
+import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 
 /**
  * Registers a new user based on the provided request data.
@@ -339,6 +340,7 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                     ]
                 },
                 attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+                [sequelize.col('company'), 'company_id'],
                     [sequelize.col('Role.rolename'), 'rolename'],
                     [sequelize.col('Role.id'), 'role_id']
                 ],
@@ -469,29 +471,14 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 }
 
 export async function SendEnervaInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-    // try {
-    //     // Parse request data
-    //     const requestData = await request.json(); 
-    //     const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-
-    //     const data = await UserInvitationService.sendInvitation(requestData, resp);
-
-    //     // Prepare response body
-    //     const responseBody = JSON.stringify(data);
-
-    //     // Return success response
-    //     return { body: responseBody };
-    // } catch (error) {
-    //     // Return error response
-    //     return { status: 500, body: `${error.message}` };
-    // }
-
     try {
         // Parse request data
-        const requestData = await request.json();
+        const requestData:any = await request.json();
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+       if(requestData.type != 2) {
         resp.company_id = null;
+       }
         const data = await UserInvitationService.sendInvitation(requestData, resp);
 
         // Prepare response body
@@ -535,10 +522,12 @@ export async function AdAssignPermissions(request: HttpRequest, context: Invocat
     try {
         // Parse request data
         const requestData: any = await request.json();
+        if(requestData.type != 2) {
         requestData.company_id = null;
+        }
 
         // Create role
-        const role = await RoleController.assignPermissions(requestData);
+        const role = await RoleController.assignPermissions(requestData, context);
 
         // Prepare response body
         const responseBody = JSON.stringify(role);
@@ -563,21 +552,94 @@ export async function GetPermissionsByUserAdmin(request: HttpRequest, context: I
         // Extract role ID from request
         const user_id = parseInt(request.params.user_id);
         const type = parseInt(request.params.type);
-        //  const company_id = parseInt(request.params.company_id);
-
-        // Get permissions by role ID
-        const userInvitations = await UserInvitation.findAll({
-            where: {
-                type: type,
-                id: user_id
-            }
-        });
-
-        // Prepare response body
+        const company_id = parseInt(request.params.company_id);
+        const entry_type = parseInt(request.params.entry_type);
+        let userInvitations;
+       if(entry_type == 2) {
+        if(type == 2) {
+            userInvitations = await UserInvitation.findOne({
+                where: {
+                  company: company_id,
+                  id: user_id
+                }
+            });
+        } else {
+            userInvitations = await UserInvitation.findOne({
+                where: {
+                  company: null,
+                  id: user_id
+                }
+            });
+        }
         const responseBody = JSON.stringify(userInvitations);
 
         // Return success response
         return { body: responseBody, status: 200 };
+        }
+        else if(type == 2) {
+            const userPermissions:any = await UserCompanyRolePermission.findAll({
+                where: {
+                  user_id: user_id,
+                  company_id: company_id
+                },
+                include:[
+                    {
+                        model:User,
+                        attributes: ['email']
+                    }
+                ]
+              });
+          
+              // Aggregate permissions into an array
+              const permissionsArray = userPermissions.map(permission => permission.permission_id);
+              context.log("permissionsArray",userPermissions);
+          
+              // Return a single object
+              let permissions =  {
+                id: user_id,
+                email: userPermissions.length > 0 ? userPermissions[0].User.email : null,
+                role: userPermissions.length > 0 ? userPermissions[0].role_id : null,
+                company: company_id,
+                permissions: permissionsArray
+              };
+
+             // console.log("Obj",  obj);
+              const responseBody = JSON.stringify(permissions);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+        } else {
+        const userPermissions:any = await UserCompanyRolePermission.findAll({
+            where: {
+              user_id: user_id,
+              company_id: null
+            },
+            include:[
+                {
+                    model:User,
+                    attributes: ['email']
+                }
+            ]
+          });
+      
+          // Aggregate permissions into an array
+          const permissionsArray = userPermissions.map(permission => permission.permission_id);
+          context.log("permissionsArray",userPermissions);
+      
+          // Return a single object
+          let permissions =  {
+            id: user_id,
+            email: userPermissions.length > 0 ? userPermissions[0].User.email : null,
+            role: userPermissions.length > 0 ? userPermissions[0].role_id : null,
+            permissions: permissionsArray
+          };
+
+         // console.log("Obj",  obj);
+          const responseBody = JSON.stringify(permissions);
+
+        // Return success response
+         return { body: responseBody, status: 200 };
+    }
     } catch (error) {
         // Return error response
         return { status: 500, body: `${error.message}` };
@@ -688,7 +750,7 @@ app.http('GetAdmnPermissionsByRoleId', {
 });
 
 app.http('GetPermissionsByUserAdmin', {
-    route: 'program/user/permissions/{user_id}/{type}',
+    route: 'program/user/permissions/{user_id}/{type}/{company_id}/{entry_type}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetPermissionsByUserAdmin
