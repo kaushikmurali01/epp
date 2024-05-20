@@ -70,9 +70,9 @@ class UserController {
       const { first_name, last_name, phonenumber, landline, profile_pic } = req.user;
       userData = await UserService.updateUser(parseInt(id), { first_name, last_name, phonenumber, landline, profile_pic });
 
-      if (userData.type === 2) {
+      if (userData.type === 2 && req.company) {
         // Update company
-        companyData = await CompanyController.updateCompany(req.company, companyId);
+        companyData = await CompanyController.updateCompany(req.company.company_id, req.company);
       }
 
       if (userData) {

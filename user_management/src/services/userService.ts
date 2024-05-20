@@ -267,7 +267,10 @@ class UserService {
           [sequelize.col('Role.rolename'), 'rolename'],
           [sequelize.col('Role.id'), 'role_id'],
           [sequelize.col('Company.company_name'), 'company_name'],
-          [sequelize.col('Company.id'), 'company_id']
+          [sequelize.col('Company.id'), 'company_id'],
+          [sequelize.col('User.first_name'), 'first_name'],
+          [sequelize.col('User.last_name'), 'last_name'],
+          [sequelize.col('User.email'), 'email']
         ],
         include: [{
           model: Role,
@@ -275,6 +278,10 @@ class UserService {
         },
         {
           model: Company,
+          attributes: []
+        },
+        {
+          model: User,
           attributes: []
         }
         ]
@@ -313,8 +320,8 @@ class UserService {
       const requests = requestsResult?.rows?.map(request => ({
         entry_type: 3,
         facility: "Sample",
-        first_name: "Test",
-        last_name: "Test",
+       // first_name: "Test",
+       // last_name: "Test",
         ...request.toJSON()
       })) || []
 

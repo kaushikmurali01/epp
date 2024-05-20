@@ -21,10 +21,10 @@ class RoleController {
         }
     }
 
-    static async assignPermissions(requestData): Promise<Object> {
+    static async assignPermissions(requestData, context): Promise<Object> {
         try {
             //  const requestData = req.body;
-            const perm = await RoleService.assignPermissions(requestData);
+            const perm = await RoleService.assignPermissions(requestData, context);
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
 
         } catch (error) {
@@ -56,9 +56,9 @@ class RoleController {
      * @returns Promise<HttpResponse>
      * @description Handles the retrieval of a list of roles, invoking the RoleService to retrieve the roles, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async listRoles(req: HttpRequest): Promise<Object> {
+    static async listRoles(req: HttpRequest, type): Promise<Object> {
         try {
-            const roles = await RoleService.listRoles();
+            const roles = await RoleService.listRoles(type);
             return { status: 200, body: roles };
         } catch (error) {
             return { status: 500, body: { error: error.message } };

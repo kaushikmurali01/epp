@@ -38,15 +38,6 @@ class CompanyService {
      */
     static async getCompanyAdmin(companyId: number): Promise<any> {
         try {
-            //await testDatabaseConnection();
-            // const company = await Company.findByPk(companyId);
-
-
-            // if (!company) {
-            //     throw new Error(RESPONSE_MESSAGES.Success);
-            // }
-            // return { status: HTTP_STATUS_CODES.SUCCESS, data: company };
-
             const adminUsers = await User.findOne({
                 include: [
                     {
@@ -97,6 +88,10 @@ class CompanyService {
      */
     static async updateCompany(companyId: number, updatedDetails): Promise<any> {
         try {
+            delete updatedDetails.company_id;
+            console.log("AAAAA", updatedDetails.company_id);
+            console.log("BBBBB", updatedDetails);
+            console.log("CCCCC", companyId);
             //await testDatabaseConnection();
             const company = await Company.findByPk(companyId);
             if (!company) {

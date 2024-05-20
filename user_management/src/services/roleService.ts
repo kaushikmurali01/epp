@@ -97,7 +97,7 @@ class RoleService {
      * @returns Promise<any[]>
      * @description Retrieves a list of roles from the database.
      */
-    static async listRoles(): Promise<any[]> {
+    static async listRoles(type): Promise<any[]> {
         try {
             // const roles = await Role.findAll();
             const roles = await Role.findAll({
@@ -105,7 +105,8 @@ class RoleService {
                    // rolename: { [Op.iLike]: `%${searchPromt}%` },
                     id: {
                         [Op.ne]: 1 // Op.ne means "not equal to"
-                    }
+                    },
+                    user_type: type
                 }
             });
 
@@ -122,14 +123,16 @@ class RoleService {
      * @returns Promise<Response> - A promise resolving to a response indicating the status of role creation.
      * @description Creates a new role by creating a role record in the database with specified role details. Returns a response indicating the success or failure of the creation process.
     */
-    static async assignPermissions(data): Promise<any> {
+    static async assignPermissions(data, context): Promise<any> {
         try {
-            console.log("data001", data);
+            context.log("1111", data);
             let email = data.email;
             let permissions = data.permissions;
             const user = await User.findOne({ where: { email } });
+            context.log("2222", user.dataValues.id);
             if (data.entry_type == 1) {
-                await this.deletePermissions(user.id, data.company_id);
+                context.log("3333", data.id);
+                await this.deletePermissions(user.dataValues.id, data.company_id);
                 for (const permissionId of data.permissions) {
                     // Create a new record for each permission
                     await UserCompanyRolePermission.create({
@@ -141,6 +144,7 @@ class RoleService {
                     });
                 }
             } else {
+                context.log("4444", data);
                 await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });
             }
             console.log('Permissions inserted successfully.');

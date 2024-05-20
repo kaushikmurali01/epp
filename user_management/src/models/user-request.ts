@@ -98,3 +98,4 @@ export { UserRequest };
 // Define associations
 UserRequest.belongsTo(Role, { foreignKey: 'role' }); 
 UserRequest.belongsTo(Company, { foreignKey: 'company_id' }); 
+UserRequest.belongsTo(User, { foreignKey: 'user_id' });

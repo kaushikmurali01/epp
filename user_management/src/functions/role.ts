@@ -70,8 +70,10 @@ export async function GetRole(request: HttpRequest, context: InvocationContext):
  */
 export async function ListRoles(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
+
+        const type = parseInt(request.params.user_type);
         // List roles
-        const roles = await RoleController.listRoles(request);
+        const roles = await RoleController.listRoles(request, type);
 
         // Prepare response body
         const responseBody = JSON.stringify(roles);
@@ -167,7 +169,7 @@ export async function AssignPermissions(request: HttpRequest, context: Invocatio
 
         requestData.company_id = resp.company_id;
         // Create role
-        const role = await RoleController.assignPermissions(requestData);
+        const role = await RoleController.assignPermissions(requestData, context);
        
         // Prepare response body
         const responseBody = JSON.stringify(role);
@@ -249,6 +251,7 @@ export async function GetPermissionsByUser(request: HttpRequest, context: Invoca
         const company_id = parseInt(request.params.company_id);
         let entry_type = parseInt(request.params.entry_type);
         let userInvitations;
+        context.log("Entry Type", entry_type);
         if(entry_type == 1) {
 
             const userPermissions:any = await UserCompanyRolePermission.findAll({
@@ -266,6 +269,7 @@ export async function GetPermissionsByUser(request: HttpRequest, context: Invoca
           
               // Aggregate permissions into an array
               const permissionsArray = userPermissions.map(permission => permission.permission_id);
+              context.log("permissionsArray",userPermissions);
           
               // Return a single object
               let permissions =  {
@@ -328,7 +332,7 @@ app.http('GetRole', {
     handler: GetRole
 });
 app.http('GetPermissionsByUser', {
-    route: 'user/permissions/{user_id}/{company_id}/{entry-type}',
+    route: 'user/permissions/{user_id}/{company_id}/{entry_type}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetPermissionsByUser
@@ -344,7 +348,7 @@ app.http('GetUserPermissions', {
 app.http('ListRoles', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'roles',
+    route: 'roles/{user_type}',
     handler: ListRoles
 });
 

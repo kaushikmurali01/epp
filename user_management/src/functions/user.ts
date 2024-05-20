@@ -49,7 +49,10 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
             source_of_discovery: data[`extension_${ext}_Howdoyouhearaboutus`] || null,
             website: data[`extension_${ext}_WebsiteURL`] || null,
             postal_code: data.postalCode,
-            country: data.country
+            country: data.country,
+            unit_number: data[`extension_${ext}_UnitNumber`],
+            street_number: data[`extension_${ext}_StreetNo`],
+            street_name: data.streetAddress,
         }
         //context.log("userData02",companyData);
 
@@ -83,7 +86,8 @@ export async function UserUpdate(request: HttpRequest, context: InvocationContex
 
         // Parse request data
         const requestData = await request.json();
-
+        //resp.id = 84;
+        
         // Update user
         userData = await UserController.updateUser(requestData, resp.id, resp.company_id);
 
@@ -198,7 +202,9 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         
 
        let userPermissions = null;
-       if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
+       if ([1,2,6,7,11,12].includes(user.user.dataValues.role_id)) {
+
+     //  if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
          userPermissions = await Permission.findAll(
             {
                 attributes: ['id', 'permission', 'permission_type']
@@ -425,7 +431,8 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json();
+        const requestData:any = await request.json();
+        requestData.type = 2;
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const data = await UserInvitationService.sendInvitation(requestData, resp);
@@ -451,12 +458,15 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
 export async function GetCombinedUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { offset, limit, entrytype } = request.params;
+        const { offset, limit, entrytype, company_id } = request.params;
         const search = request.query.get('search') || "";
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-        if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-        // Get all users
-        const users = await UserController.getCombinedUsers(offset, limit, resp.company_id, entrytype, search);
+       // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+       //let companyId;
+       let companyId = company_id ? company_id : resp.company_id;
+
+       // Get all users
+        const users = await UserController.getCombinedUsers(offset, limit, companyId, entrytype, search);
 
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -472,14 +482,15 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
 export async function GetFilteredUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
-        const { offset, limit, entrytype } = request.params;
+        const { offset, limit, entrytype, company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         // resp.company_id = 1;
-        if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+       // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
         const search = request.query.get('search') || "";
+        let companyId = company_id ? company_id : resp.company_id;
 
-        const users = await UserController.getFilteredUsers(offset, limit, resp.company_id, entrytype,search);
+        const users = await UserController.getFilteredUsers(offset, limit, companyId, entrytype,search);
 
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -635,14 +646,14 @@ app.http('CreateUserRequest', {
 app.http('GetCombinedUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'combinedusers/{offset}/{limit}/{entrytype}',
+    route: 'combinedusers/{offset}/{limit}/{entrytype}/{company_id}',
     handler: GetCombinedUsers
 });
 
 app.http('GetFilteredUsers', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'filteredusers/{offset}/{limit}/{entrytype}',
+    route: 'filteredusers/{offset}/{limit}/{entrytype}/{company_id}',
     handler: GetFilteredUsers
 });
 

@@ -42,38 +42,68 @@ class UserInvitationService {
   static async sendInvitation(details:any, resp:any): Promise<Response> {
     try {
         const email = details.email;
-       // details.company = resp.company_id;
         const invitation = await UserInvitation.create(details);
         const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
-        //console.log("Existing User",existingUser);
         let company;
-       // details.company = 22;
-        if(details.company) {
+        let admin_name = "";
+        let company_name = "";
+        if(details.company && details.type == 2 ) {
         company = await CompanyService.getCompanyAdmin(details.company);
-       // console.log("Company111", company.dataValues.company_name);
+        admin_name = company?.first_name +' '+company?.last_name
+        company_name = company?.dataValues?.company_name;
         }
+        console.log('company0987', company);
         let body:string, emailContent:string;
         let landing_page = process.env.LANDING_PAGE;
-        //console.log("landing_page",landing_page);
         if(existingUser) {
+          if(details.type == 2) {
             emailContent =  template
            .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
            .replace('#name#', existingUser.first_name)
-           .replace('#admin#', company.first_name +' '+company.last_name)
+           .replace('#admin#', admin_name)
            .replace('#heading#', '')
            .replace('#link#', landing_page)
-           .replace('#company#', company.dataValues.company_name);
+           .replace('#company#', company_name);
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
+
+           // Send email to admin
+          // let adminTemp =  await EmailTemplate.getEmailTemplate();
+          // adminTemp.replace('#content#', EmailContent.invitationEmailForAdmins.content) 
+          // .replace('#user#', "USer")
+          // .replace('#admin#', "Admin")
+          // .replace('#company#', "Company Name");
+           // Send email to admin
+          } else {
+            emailContent =  template
+           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
+           .replace('#name#', existingUser.first_name)
+           .replace('#admin#', "Enerva Admin")
+           .replace('#heading#', '')
+           .replace('#link#', landing_page)
+           .replace('#company#', "Enerva");
+           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
+          }
         } else {
+          if(details.type == 2) {
           emailContent =  template
           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
           .replace('#name#', " ")
-          .replace('#admin#', company.first_name +' '+company.last_name)
+          .replace('#admin#', admin_name)
           .replace('#heading#', '')
           .replace('#link#', landing_page)
-          .replace('#company#', company.dataValues.company_name);
+          .replace('#company#', company_name);
           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
+          } else {
+            emailContent =  template
+          .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
+          .replace('#name#', " ")
+          .replace('#admin#', "Enerva Admin")
+          .replace('#heading#', '')
+          .replace('#link#', landing_page)
+          .replace('#company#', "Enerva");
+          Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
+          }
         }
        
         return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
