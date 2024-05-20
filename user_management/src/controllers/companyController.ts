@@ -57,6 +57,21 @@ class CompanyController {
         }
     }
 
+    /**
+* Retrieves a list of companies.
+* 
+* @param req - The HTTP request object.
+* @returns Promise<Response>
+* @description Handles the retrieval of a list of companies, invoking the CompanyService to retrieve the companies, and returning an HTTP response with appropriate status and JSON data.
+*/
+    static async DropDownCompanies(): Promise<any> {
+        try {
+            const result = await CompanyService.DropDownCompanies();
+            return { status: 204, data: result };
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
 
     /**
      * Updates an existing company.

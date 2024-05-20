@@ -77,11 +77,11 @@ class CompanyService {
                 ]
             });
 
-            console.log("AdminUsers2345",adminUsers);
+            console.log("AdminUsers2345", adminUsers);
 
             return adminUsers;
             // return adminUsers.dataValues;
-           // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
+            // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
@@ -139,13 +139,17 @@ class CompanyService {
      */
     static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any[]> {
         try {
+            let filterCheck = ""
+            if (companyFilter && companyFilter > 0) {
+                filterCheck = `AND c.company_type=${companyFilter}`
+            }
             let [count, rows]: any = await Promise.all([rawQuery(`SELECT COUNT(*) AS count FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 AND (c.company_name LIKE '%${searchPromt}%' or u.first_name LIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
+            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 AND (c.company_name LIKE '%${searchPromt}%' or u.first_name LIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
+            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
                 limit: limit,
                 offset: offset
             })])
@@ -190,6 +194,15 @@ class CompanyService {
             //     ...user.toJSON()
             // }));
             return [count[0].count, rows];
+        } catch (error) {
+            throw error;
+        }
+    }
+    static async DropDownCompanies(): Promise<any[]> {
+        try {
+
+            let result = await Company.findAll({ attributes: ["company_name", "id"] })
+            return result;
         } catch (error) {
             throw error;
         }
