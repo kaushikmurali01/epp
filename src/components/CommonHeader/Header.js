@@ -180,9 +180,8 @@ function Header(props) {
   useEffect(() => {
     if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
       const companiesWithoutUserCompanies = getAllCompanyList.filter(allcompanyItem => 
-        !companyList.some(companyItem => companyItem.id === allcompanyItem.id)
+        !companyList.some(companyItem => companyItem?.id === allcompanyItem?.id)
       )
-      console.log("new array iiii", companiesWithoutUserCompanies)
       if(companiesWithoutUserCompanies.length != getAllCompanyList.length){
         setAllCompanyList([...companiesWithoutUserCompanies])
       }
