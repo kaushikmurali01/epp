@@ -21,6 +21,7 @@ class CompanyService {
         try {
             //await testDatabaseConnection();
             console.log("companyDetails", companyDetails)
+            companyDetails.is_active = 1
             const company = await Company.create(companyDetails);
             return company;
             //return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, data: company };
@@ -196,7 +197,7 @@ class CompanyService {
     static async DropDownCompanies(): Promise<any[]> {
         try {
 
-            let result = await Company.findAll({ attributes: ["company_name", "id"] })
+            let result = await Company.findAll({ attributes: ["company_name", "id", "is_active"] })
             return result;
         } catch (error) {
             throw error;
