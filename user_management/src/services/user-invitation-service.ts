@@ -39,7 +39,60 @@ class UserInvitationService {
       throw new Error(`Failed to fetch user invitations: ${error.message}`);
     }
   }
-  static async sendInvitation(details:any, resp:any): Promise<Response> {
+  static async sendInvitation(details: any, resp: any): Promise<Response> {
+    try {
+        const { email, company, type } = details;
+        await UserInvitation.create(details);
+        const template = await EmailTemplate.getEmailTemplate();
+        const existingUser = await User.findOne({ where: { email } });
+
+        let admin_name = "";
+        let company_name = "";
+        if (company && type == 2) {
+            const companyAdmin = await CompanyService.getCompanyAdmin(company);
+            admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
+            company_name = companyAdmin?.dataValues?.company_name;
+        }
+
+        const landing_page = process.env.LANDING_PAGE;
+        const sendEmail = async (content: string, subject: string, recipient: string) => {
+            const emailContent = template.replace('#content#', content)
+                                         .replace('#name#', existingUser?.first_name || "")
+                                         .replace('#admin#', admin_name || "Enerva Admin")
+                                         .replace('#heading#', '')
+                                         .replace('#link#', landing_page)
+                                         .replace('#company#', company_name || "Enerva")
+                                         .replace('#isDisplay#', 'block');
+            await Email.send(recipient, subject, emailContent);
+        }
+
+        if (existingUser) {
+            await sendEmail(EmailContent.invitationEmailForExistingUser.content, EmailContent.invitationEmailForExistingUser.title, email);
+            if (type == 2) {
+                const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
+                                                                          .replace('#user#', `${existingUser.first_name} ${existingUser.last_name}`)
+                                                                          .replace('#admin#', resp?.first_name || admin_name)
+                                                                          .replace('#company#', company_name);
+                await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
+            }
+        } else {
+            await sendEmail(EmailContent.invitationEmailForExistingUser.content, EmailContent.invitationEmailForExistingUser.title, email);
+            if (type == 2) {
+                const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
+                                                                          .replace('#user#', `User with email ${email}`)
+                                                                          .replace('#admin#', resp?.first_name || admin_name)
+                                                                          .replace('#company#', company_name);
+                await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
+            }
+        }
+
+        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    } catch (error) {
+        return { status: 500, message: error.message };
+    }
+}
+
+  static async sendInvitation2(details:any, resp:any): Promise<Response> {
     try {
         const email = details.email;
         const invitation = await UserInvitation.create(details);
@@ -53,7 +106,7 @@ class UserInvitationService {
         admin_name = company?.first_name +' '+company?.last_name
         company_name = company?.dataValues?.company_name;
         }
-        console.log('company0987', template);
+        //console.log('company0987', template);
         let body:string, emailContent:string;
         let landing_page = process.env.LANDING_PAGE;
         if(existingUser) {
@@ -68,13 +121,18 @@ class UserInvitationService {
            .replace('#isDisplay#', 'block');
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
 
-           // Send email to admin
-          // let adminTemp =  await EmailTemplate.getEmailTemplate();
-          // adminTemp.replace('#content#', EmailContent.invitationEmailForAdmins.content) 
-          // .replace('#user#', "USer")
-          // .replace('#admin#', "Admin")
-          // .replace('#company#', "Company Name");
-           // Send email to admin
+           // Send email to all admins
+           let adminTemp =  await EmailTemplate.getEmailTemplate();
+           adminTemp = adminTemp.replace('#content#', EmailContent.invitationEmailForAdmins.content)
+           .replace('#user#', existingUser.first_name + " " + existingUser.last_name) 
+           .replace('#company#', company_name)
+           .replace('#admin#', resp.first_name?resp?.first_name:admin_name)
+           .replace('#heading#', '')
+           .replace('#isDisplay#', 'block');
+
+           await CompanyService.GetAdminsAndSendEmails(details.company,EmailContent.invitationEmailForAdmins.title, adminTemp);
+            // Send email to all admins
+           
           } else {
             emailContent =  template
            .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
@@ -90,11 +148,22 @@ class UserInvitationService {
           emailContent =  template
           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
           .replace('#name#', " ")
-          .replace('#admin#', admin_name)
+          .replace('#admin#', resp.first_name?resp?.first_name:admin_name)
           .replace('#heading#', '')
           .replace('#link#', landing_page)
           .replace('#company#', company_name);
           Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
+          // Send email to all admins
+          let adminTemp =  await EmailTemplate.getEmailTemplate();
+          adminTemp = adminTemp.replace('#content#', EmailContent.invitationEmailForAdmins.content)
+          .replace('#user#', "User with email "+ email) 
+          .replace('#company#', company_name)
+          .replace('#admin#', admin_name)
+          .replace('#heading#', '')
+          .replace('#isDisplay#', 'block');
+
+          await CompanyService.GetAdminsAndSendEmails(details.company,EmailContent.invitationEmailForAdmins.title, adminTemp);
+           // Send email to all admins
           } else {
             emailContent =  template
           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
@@ -218,6 +287,12 @@ if(detail.company_id) {
 // else {
 //   await User.update({ type: 1 }, { where: { id: detail.user_id} });
 // }
+// let template =  await EmailTemplate.getEmailTemplate();
+// let emailContent =  template
+//           .replace('#content#', EmailContent.invitationAcceptForUser.content)
+//           .replace('#name#', resp.first_name)
+//           .replace('#company#', "Enerva");
+//           Email.send(resp.email, EmailContent.invitationAcceptForUser.title, emailContent);
 }
 
 

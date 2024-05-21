@@ -7,6 +7,7 @@ import { UserCompanyRole } from '../models/user-company-role';
 import { Role } from '../models/role';
 import { rawQuery, sequelize } from './database';
 import { Op } from 'sequelize';
+import { Email } from './email';
 
 class CompanyService {
 
@@ -200,6 +201,91 @@ class CompanyService {
             return result;
         } catch (error) {
             throw error;
+        }
+    }
+
+    static async SendEmailsToAllAdmins(adminData, title, body): Promise<any> {
+        console.log("adminData",adminData);
+        // Extracting the superadmin email
+        const superAdminEmail = adminData.superAdmin.email;
+       let contentAdmin =   body.replace("#name#", adminData.superAdmin.name);
+        // Sending email to the superadmin
+        Email.send(superAdminEmail, title, contentAdmin);
+
+        // Extracting subadmin emails and sending emails
+        adminData.subAdmins.forEach(subAdmin => {
+            const subAdminEmail = subAdmin.email;
+            let content =  body.replace("#name#", subAdmin.name);
+            Email.send(subAdminEmail, title, content);
+        });
+
+    }
+
+    static async GetAdminsAndSendEmails(company_id, title, body): Promise<any> {
+        
+       const adminData = await this.GetAdminsOfCompany(company_id);
+       await this.SendEmailsToAllAdmins(adminData, title, body)
+
+    }
+
+    static async GetAdminsOfCompany(company_id): Promise<any> {
+        try {
+            // Fetch the company details
+            const company = await Company.findByPk(company_id);
+            if (!company) {
+              throw new Error('Company not found');
+            }
+        
+            // Fetch the user roles related to the company
+            const userRoles = await UserCompanyRole.findAll({
+              where: { company_id },
+              include: [
+                {
+                  model: User,
+                  attributes: ['id', 'first_name', 'last_name', 'email'],
+                },
+                {
+                  model: Role,
+                  attributes: ['id', 'rolename'],
+                },
+                {
+                  model: Company,
+                  attributes: ['company_name'],
+                },
+              ],
+            });
+        
+            // Filter the super admin and sub admins
+            const superAdmin:any = userRoles.find(
+              (userRole) => userRole.role_id === 1 // Super admin role ID is 1
+            );
+            const subAdmins:any = userRoles.filter(
+              (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
+            );
+        
+            // Prepare the response
+            const result = {
+              company: company.company_name,
+              superAdmin: superAdmin
+                ? {
+                    email: superAdmin.User.email,
+                    name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
+                    role: superAdmin.Role.rolename,
+                  }
+                : null,
+              subAdmins: subAdmins.map((admin) => ({
+                email: admin.User.email,
+                name: `${admin.User.first_name} ${admin.User.last_name}`,
+                role: admin.Role.rolename,
+              })),
+            };
+
+            return result;
+    
+        }
+         catch (error) {
+            // Return error response
+            return { status: 500, body: `${error.message}` };
         }
     }
 

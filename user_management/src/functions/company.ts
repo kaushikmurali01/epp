@@ -6,6 +6,7 @@ import { sequelize } from "../services/database";
 import { UserCompanyRole } from "../models/user-company-role";
 import { User } from "../models/user";
 import { Role } from "../models/role";
+import { CompanyService } from "../services/companyService";
 
 
 
@@ -224,67 +225,9 @@ export async function CheckCompanyByName(request: HttpRequest, context: Invocati
 
 export async function GetCompanyAdmins(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const { company_id } = request.params;
-    try {
-        // Fetch the company details
-        const company = await Company.findByPk(company_id);
-        if (!company) {
-          throw new Error('Company not found');
-        }
-    
-        // Fetch the user roles related to the company
-        const userRoles = await UserCompanyRole.findAll({
-          where: { company_id },
-          include: [
-            {
-              model: User,
-              attributes: ['id', 'first_name', 'last_name', 'email'],
-            },
-            {
-              model: Role,
-              attributes: ['id', 'rolename'],
-            },
-            {
-              model: Company,
-              attributes: ['company_name'],
-            },
-          ],
-        });
-    
-        // Filter the super admin and sub admins
-        const superAdmin:any = userRoles.find(
-          (userRole) => userRole.role_id === 1 // Super admin role ID is 1
-        );
-        const subAdmins:any = userRoles.filter(
-          (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
-        );
-    
-        // Prepare the response
-        const result = {
-          company: company.company_name,
-          superAdmin: superAdmin
-            ? {
-                email: superAdmin.User.email,
-                name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
-                role: superAdmin.Role.rolename,
-              }
-            : null,
-          subAdmins: subAdmins.map((admin) => ({
-            email: admin.User.email,
-            name: `${admin.User.first_name} ${admin.User.last_name}`,
-            role: admin.Role.rolename,
-          })),
-        };
-
-        const responseBody = JSON.stringify(result);
-
-        // Return success response
-        return { body: responseBody };
-
-    }
-     catch (error) {
-        // Return error response
-        return { status: 500, body: `${error.message}` };
-    }
+    const result = await CompanyService.GetAdminsOfCompany(company_id);
+    const responseBody = JSON.stringify(result);
+    return { body: responseBody };
 }
 app.http('ListCompanies', {
     methods: ['GET'],

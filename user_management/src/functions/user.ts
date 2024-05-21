@@ -190,12 +190,12 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         
         resp.company_id = company_id;
 
-        console.log("company_id",resp.company_id);
+        context.log("company_id",resp.company_id);
         const user = await UserController.getUserById(resp);
 
         
 
-        console.log("testing",user.user);
+        context.log("testing",user.user);
 
         // Get User Permissions start
         const user_id = resp.id;
@@ -224,6 +224,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
             }],
             attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
           });
+          context.log("userPermissions",userPermissions);
         } else if(user.user.dataValues.type == 1) {
             userPermissions = await UserCompanyRolePermission.findAll({
                 where: {
