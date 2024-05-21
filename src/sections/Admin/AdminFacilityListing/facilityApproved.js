@@ -7,6 +7,7 @@ import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import debounce from "lodash.debounce";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const FacilityApproved = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
@@ -39,15 +40,19 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
       accessor: "id",
     },
     {
+      Header: "Facility name",
+      accessor: "facility_name",
+    },
+    {
       Header: "Submitted by",
       accessor: "submitted_by",
     },
     {
-      Header: "Company Name",
+      Header: "Company name",
       accessor: "company_name",
     },
     {
-      Header: "Business Email",
+      Header: "Business mail",
       accessor: "email",
     },
     {
@@ -60,7 +65,9 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted on",
-      accessor: "submitted_on",
+      accessor: (item) => (
+        <>{item?.submitted_on && format(item?.submitted_on, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "Actions",

@@ -28,7 +28,7 @@ const AdminFacilityDetails = () => {
       case 0:
         return <AdminSummary />;
       case 1:
-        return <AdminDetails />;
+        return <AdminDetails setTab={setSelectedTab} />;
       case 2:
         return <AdminEnergyAndWater />;
       case 3:
