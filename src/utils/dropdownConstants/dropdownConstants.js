@@ -106,7 +106,13 @@ export const SPACE_COOLING_UNIT_ARRAY = [
   },
   { value: "COP", label: "COP" },
 ];
-
+export const SPACE_HEATING_UNIT_ARRAY = [
+  { value: "%", label: "%" },
+  {
+    value: "HSPF",
+    label: "HSPF",
+  },
+];
 export const WATER_HEATING_UNIT_ARRAY = [
   { value: "%", label: "%" },
   { value: "COP", label: "COP" },

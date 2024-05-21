@@ -8,13 +8,13 @@ import {
   useMediaQuery,
   styled,
 } from "@mui/material";
-import FacilityStatus from "components/FacilityStatus";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { deleteFacility } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -140,9 +140,9 @@ const FacilityHeader = () => {
                   `${facilityDetails?.postal_code} `}
               </Typography>
               <Box>
-                <FacilityStatus>
+                <AdminFacilityStatus>
                   {facilityDetails?.facility_id_submission_status}
-                </FacilityStatus>
+                </AdminFacilityStatus>
               </Box>
               <Box>
                 <Button

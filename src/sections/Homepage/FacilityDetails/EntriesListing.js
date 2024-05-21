@@ -21,7 +21,6 @@ import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
-import FacilityStatus from "components/FacilityStatus";
 import { format, getYear } from "date-fns";
 import { entriesEndPoints } from "constants/apiEndPoints";
 import {
