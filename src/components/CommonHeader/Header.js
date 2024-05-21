@@ -30,6 +30,7 @@ import EvModal from 'utils/modal/EvModal';
 import SelectBox from 'components/FormBuilder/Select';
 import { Form, Formik } from 'formik';
 import ButtonWrapper from 'components/FormBuilder/Button';
+import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
 
 const settings = ["Profile", "Logout"];
 
@@ -313,7 +314,7 @@ function Header(props) {
         initialValues={{
           ...initialValues
         }}
-        // validationSchema={}
+        validationSchema={requestToJoinCompanyFormValidationSchema}
         onSubmit={formSubmit}
       >
         <Form >

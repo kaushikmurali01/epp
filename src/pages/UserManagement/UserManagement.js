@@ -16,6 +16,7 @@ import UserManagementColumn from 'utils/tableColumn/useerManagement/userManageme
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
 import { useSelector } from 'react-redux';
+import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -128,7 +129,7 @@ const UserManagement = () => {
         initialValues={{
           ...initialValues
         }}
-        // validationSchema={}
+        validationSchema={requestToJoinCompanyFormValidationSchema}
         onSubmit={formSubmit}
       >
         <Form >
