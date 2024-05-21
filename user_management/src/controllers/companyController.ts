@@ -105,9 +105,9 @@ class CompanyController {
             if (!requestData.first_name) requestData.first_name = '';
             template = template.replace('#heading#', 'Alert from admin')
                 .replace('#content#', requestData.message)
-                .replace('#name#', company?.data.first_name)
+                .replace('#name#', company?.first_name)
                 .replace('#logo#', logo);
-            Email.send(company?.data?.email, EmailContent.alertEmail.title, template);
+            Email.send(company?.email, EmailContent.alertEmail.title, template);
             const resp = { status: 200, body: 'Alert Sent successfully' };
             return resp;
         } catch (error) {
