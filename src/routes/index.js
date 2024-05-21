@@ -93,6 +93,19 @@ const RoutesComp = () => {
 
   console.log("user info", userDetails)
 
+  useEffect(() => {
+    instance.handleRedirectPromise()
+        .then((response) => {
+            if (response) {
+                // Handle successful login or password change
+                console.log('Password change successful:', response);
+            }
+        })
+        .catch((error) => {
+            console.error('Error during authentication:', error);
+        });
+  }, []);
+
   return userDetails?.type ? (
     <>
       <CommonLayout>
