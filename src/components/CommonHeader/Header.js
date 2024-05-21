@@ -200,8 +200,10 @@ function Header(props) {
   }
 
   useEffect(() => {
-    getAllComapanyListData();
-    getUserRoleData();
+    if(props.page == "authenticated" && (userData?.user?.type && (userData?.user?.type != 1 || userData?.user?.type != 4 || userData?.user?.type != 5))){
+      getAllComapanyListData();
+      getUserRoleData();
+    }
   }, [userData]);
 
   const getCompanyListData = () => {
