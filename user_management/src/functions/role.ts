@@ -291,7 +291,7 @@ export async function GetPermissionsByUser(request: HttpRequest, context: Invoca
         }
         else {
         // Get permissions by role ID
-        userInvitations = await UserInvitation.findAll({
+        userInvitations = await UserInvitation.findOne({
             where: {
               company: company_id,
               id: user_id

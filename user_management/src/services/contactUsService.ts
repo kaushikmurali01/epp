@@ -20,7 +20,7 @@ class ContactUsService {
       const body = await EmailTemplate.getContactUsTemplate(contactDetails);
       let template = await EmailTemplate.getEmailTemplate();
       template = template.replace('#content#', body).
-      replace('#name#', '').replace('#heading#', 'Contact Us details');
+      replace('#name#', '').replace('#heading#', 'Contact Us details').replace('#isDisplay#', 'none');
       //console.log('testing2', template);
       Email.send(process.env["CONTACT_EMAIL_TO"], "Enerva Contact Us", template);
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
