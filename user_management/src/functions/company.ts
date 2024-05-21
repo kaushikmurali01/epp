@@ -228,51 +228,51 @@ export async function GetCompanyAdmins(request: HttpRequest, context: Invocation
         // Fetch the company details
         const company = await Company.findByPk(company_id);
         if (!company) {
-          throw new Error('Company not found');
+            throw new Error('Company not found');
         }
-    
+
         // Fetch the user roles related to the company
         const userRoles = await UserCompanyRole.findAll({
-          where: { company_id },
-          include: [
-            {
-              model: User,
-              attributes: ['id', 'first_name', 'last_name', 'email'],
-            },
-            {
-              model: Role,
-              attributes: ['id', 'rolename'],
-            },
-            {
-              model: Company,
-              attributes: ['company_name'],
-            },
-          ],
+            where: { company_id },
+            include: [
+                {
+                    model: User,
+                    attributes: ['id', 'first_name', 'last_name', 'email'],
+                },
+                {
+                    model: Role,
+                    attributes: ['id', 'rolename'],
+                },
+                {
+                    model: Company,
+                    attributes: ['company_name'],
+                },
+            ],
         });
-    
+
         // Filter the super admin and sub admins
-        const superAdmin:any = userRoles.find(
-          (userRole) => userRole.role_id === 1 // Super admin role ID is 1
+        const superAdmin: any = userRoles.find(
+            (userRole) => userRole.role_id === 1 // Super admin role ID is 1
         );
-        const subAdmins:any = userRoles.filter(
-          (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
+        const subAdmins: any = userRoles.filter(
+            (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
         );
-    
+
         // Prepare the response
         const result = {
-          company: company.company_name,
-          superAdmin: superAdmin
-            ? {
-                email: superAdmin.User.email,
-                name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
-                role: superAdmin.Role.rolename,
-              }
-            : null,
-          subAdmins: subAdmins.map((admin) => ({
-            email: admin.User.email,
-            name: `${admin.User.first_name} ${admin.User.last_name}`,
-            role: admin.Role.rolename,
-          })),
+            company: company.company_name,
+            superAdmin: superAdmin
+                ? {
+                    email: superAdmin.User.email,
+                    name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
+                    role: superAdmin.Role.rolename,
+                }
+                : null,
+            subAdmins: subAdmins.map((admin) => ({
+                email: admin.User.email,
+                name: `${admin.User.first_name} ${admin.User.last_name}`,
+                role: admin.Role.rolename,
+            })),
         };
 
         const responseBody = JSON.stringify(result);
@@ -281,7 +281,29 @@ export async function GetCompanyAdmins(request: HttpRequest, context: Invocation
         return { body: responseBody };
 
     }
-     catch (error) {
+    catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function CheckCompanyStatus(company_id: number): Promise<any> {
+    try {
+        // Fetch the company details
+        const company = await Company.findOne({ where: { id: company_id, is_active: true } });
+        if (company) {
+            return true
+        } else {
+            throw new Error('Company not found');
+        }
+
+
+
+        // Return success response
+        return {};
+
+    }
+    catch (error) {
         // Return error response
         return { status: 500, body: `${error.message}` };
     }

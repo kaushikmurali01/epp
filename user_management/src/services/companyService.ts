@@ -197,7 +197,7 @@ class CompanyService {
     static async DropDownCompanies(): Promise<any[]> {
         try {
 
-            let result = await Company.findAll({ attributes: ["company_name", "id"] })
+            let result = await Company.findAll({ attributes: ["company_name", "id", "is_active"] })
             return result;
         } catch (error) {
             throw error;
