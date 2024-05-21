@@ -28,7 +28,7 @@ const FacilityDetails = () => {
       case 0:
         return <Summary />;
       case 1:
-        return <Details />;
+        return <Details setTab={setSelectedTab} />;
       case 2:
         return <EnergyAndWater />;
       case 3:

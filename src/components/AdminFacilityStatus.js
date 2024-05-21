@@ -7,7 +7,7 @@ const AdminFacilityStatus = ({ children }) => {
       case 0:
         return "#E9E9E9";
       case 1:
-        return "#DCFF88";
+        return "#d48fe3";
       case 2:
         return "#8e78de";
       case 3:

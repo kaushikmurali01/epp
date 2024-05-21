@@ -4,6 +4,7 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  IconButton,
   InputLabel,
   Radio,
   RadioGroup,
@@ -26,14 +27,18 @@ import {
 import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { format } from "date-fns";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [imgUrl, setImgUrl] = useState("");
+  const [utilityImgUrl, setUtilityImgUrl] = useState("");
+  const [specImgUrl, setSpecImgUrl] = useState("");
   const { id } = useParams();
   const dispatch = useDispatch();
-  const fileInputRef = useRef(null);
-  const [selectedFile, setSelectedFile] = useState();
+  const utilityFileInputRef = useRef(null);
+  const specFileInputRef = useRef(null);
+  const [utilitySelectedFile, setUtilitySelectedFile] = useState();
+  const [specSelectedFile, setSpecSelectedFile] = useState();
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState(false);
 
@@ -55,7 +60,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           });
           setMeterAlignment(meterDetails?.meter_type);
           setRevenueAlignment(meterDetails?.is_rg_meter);
-          setSelectedFile(meterDetails?.meter_specification_url);
+          setUtilitySelectedFile(meterDetails?.meter_specification_url);
         })
         .catch((error) => {
           console.error("Error fetching meter details:", error);
@@ -74,66 +79,100 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     is_rg_meter: "",
   });
 
-  const handleFileChange = (event, meterType) => {
+  const handleUtilityFileChange = (event) => {
     const acceptedImageTypes = [
       "image/png",
       "image/gif",
       "image/jpeg",
       "image/jpg",
     ];
-    const acceptedDocTypes = [".xlsx", ".xls", ".csv"];
+    const acceptedDocTypes = [".xlsx", ".xls", ".csv", ".pdf"];
 
     const selectedFile = event.target.files[0];
-    const fileExtension = selectedFile.name.split(".").pop().toLowerCase();
+    const fileExtension = `.${selectedFile.name
+      .split(".")
+      .pop()
+      .toLowerCase()}`;
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-    if (meterType === 3) {
-      if (!acceptedDocTypes.includes("." + fileExtension)) {
-        alert(
-          "Invalid file type. Only .xlsx, .xls, and .csv files are allowed"
-        );
-        event.target.value = "";
-        return;
-      }
-    } else {
-      if (
-        !acceptedImageTypes.includes(selectedFile.type) &&
-        !acceptedImageTypes.includes("." + fileExtension)
-      ) {
-        alert(
-          "Invalid file type. Only images (png, gif, jpeg, jpg) are allowed"
-        );
-        event.target.value = "";
-        return;
-      }
-
-      const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
+    if (acceptedImageTypes.includes(selectedFile.type)) {
       if (selectedFile.size > MAX_FILE_SIZE) {
         alert(
-          "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
+          "Selected file is an image and it exceeds the maximum limit of 5 MB. Please select a smaller image file."
         );
         event.target.value = "";
         return;
       }
+    } else if (!acceptedDocTypes.includes(fileExtension)) {
+      event.target.value = "";
+      return;
     }
 
-    setSelectedFile(URL.createObjectURL(selectedFile));
+    setUtilitySelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
-        setImgUrl(data?.sasTokenUrl);
+        setUtilityImgUrl(data?.sasTokenUrl);
       })
       .catch((error) => {
         console.error("Error uploading file:", error);
       });
   };
 
-  const handleButtonClick = () => {
-    fileInputRef.current.click();
+  const handleUtilityButtonClick = () => {
+    utilityFileInputRef.current.click();
   };
 
-  const deletePicture = () => {
-    setSelectedFile("");
+  const deleteUtilityPicture = () => {
+    setUtilitySelectedFile("");
   };
 
+  const handleSpecFileChange = (event) => {
+    const acceptedImageTypes = [
+      "image/png",
+      "image/gif",
+      "image/jpeg",
+      "image/jpg",
+    ];
+    const acceptedDocTypes = [".xlsx", ".xls", ".csv", ".pdf"];
+
+    const selectedFile = event.target.files[0];
+    const fileExtension = `.${selectedFile.name
+      .split(".")
+      .pop()
+      .toLowerCase()}`;
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+    if (acceptedImageTypes.includes(selectedFile.type)) {
+      if (selectedFile.size > MAX_FILE_SIZE) {
+        alert(
+          "Selected file is an image and it exceeds the maximum limit of 5 MB. Please select a smaller image file."
+        );
+        event.target.value = "";
+        return;
+      }
+    } else if (!acceptedDocTypes.includes(fileExtension)) {
+      event.target.value = "";
+      return;
+    }
+
+    setSpecSelectedFile(URL.createObjectURL(selectedFile));
+    dispatch(fileUploadAction(selectedFile))
+      .then((data) => {
+        setSpecImgUrl(data?.sasTokenUrl);
+      })
+      .catch((error) => {
+        console.error("Error uploading file:", error);
+      });
+  };
+
+  const handleSpecButtonClick = () => {
+    specFileInputRef.current.click();
+  };
+
+  const deleteSpecPicture = () => {
+    setSpecSelectedFile("");
+  };
+  
   const handleSubmit = (values) => {
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
       if (typeof value === "string" && value.trim() === "") {
@@ -145,7 +184,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     }, {});
     const newValues = {
       ...updatedValues,
-      meter_specification_url: imgUrl,
+      meter_specification_url: utilityImgUrl,
       facility_id: +id,
       meter_inactive: values?.stil_in_use
         ? null
@@ -191,9 +230,28 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         marginTop: isSmallScreen && "2rem",
       }}
     >
-      <Typography variant="h4">
-        {meterId2 ? "Edit Meter" : "Add Meter"}
-      </Typography>
+      <Grid container alignItems="center">
+        <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+          }}
+          onClick={onAddMeterSuccess}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
+        <Typography variant="h4">
+          {meterId2 ? "Edit Meter" : "Add Meter"}
+        </Typography>
+      </Grid>
       <Formik
         initialValues={{ ...initialValues }}
         validationSchema={validationSchemaAddMeter}
@@ -242,14 +300,22 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         <FormControlLabel
                           value="true"
                           control={<Radio />}
-                          label="Purchased from the Grid"
                           name="purchased_from_the_grid"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Purchased from the Grid
+                            </Typography>
+                          }
                         />
                         <FormControlLabel
                           value="false"
                           control={<Radio />}
-                          label="Behind-the-Meter Generation"
                           name="purchased_from_the_grid"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Behind-the-Meter Generation
+                            </Typography>
+                          }
                         />
                       </RadioGroup>
                     )}
@@ -329,7 +395,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this an revenue-grade meter
+                    Is this a revenue-grade meter?
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
@@ -359,13 +425,11 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </Field>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
-                  <InputLabel>
-                    {values.meter_type === 2
-                      ? "Upload the most recent utility bill"
-                      : "Meter specification as per Measurement Canada S-E-04"}
-                  </InputLabel>
-                  {!selectedFile ? (
+              </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4} sx={{ marginTop: "10px" }}>
+                  <InputLabel>Upload the most recent utility bill</InputLabel>
+                  {!utilitySelectedFile ? (
                     <>
                       <Typography
                         my={1}
@@ -381,21 +445,17 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           height: "40px",
                           cursor: "pointer",
                         }}
-                        onClick={handleButtonClick}
+                        onClick={handleUtilityButtonClick}
                       >
                         Upload
                       </Typography>
                       <input
                         type="file"
-                        ref={fileInputRef}
+                        ref={utilityFileInputRef}
                         style={{ display: "none" }}
-                        onChange={(event) =>
-                          handleFileChange(event, values.meter_type)
-                        }
+                        onChange={handleUtilityFileChange}
                         accept={
-                          values.meter_type === 2
-                            ? ".xlsx,.xls,.csv"
-                            : "image/png, image/gif, image/jpeg, image/jpg"
+                          ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
                         }
                       />
                     </>
@@ -403,7 +463,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     <div style={{ display: "flex" }}>
                       <div>
                         <img
-                          src={selectedFile}
+                          src={utilitySelectedFile}
                           alt="Preview"
                           style={{ maxWidth: "100%", maxHeight: "200px" }}
                         />
@@ -416,23 +476,17 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                           }}
-                          onClick={handleButtonClick}
+                          onClick={handleUtilityButtonClick}
                         >
-                          {values.meter_type === 2
-                            ? "Change File"
-                            : "Change Picture"}
+                          Change File
                         </Typography>
                         <input
                           type="file"
-                          ref={fileInputRef}
+                          ref={utilityFileInputRef}
                           style={{ display: "none" }}
-                          onChange={(event) =>
-                            handleFileChange(event, values.meter_type)
-                          }
+                          onChange={handleUtilityFileChange}
                           accept={
-                            values.meter_type === 2
-                              ? ".xlsx,.xls,.csv"
-                              : "image/png, image/gif, image/jpeg, image/jpg"
+                            ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
                           }
                         />
                         <Typography
@@ -442,30 +496,107 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                           }}
-                          onClick={deletePicture}
+                          onClick={deleteUtilityPicture}
                         >
-                          {values.meter_type === 2
-                            ? "Delete File"
-                            : "Delete Picture"}
+                          Delete File
                         </Typography>
                       </div>
                     </div>
                   )}
                 </Grid>
-
-                <Grid item xs={12} sm={5}>
-                  <Box mt={4} rowGap={4}>
-                    <ButtonWrapper
-                      type="submit"
-                      color="neutral"
-                      width="165px"
-                      height="48px"
-                      onClick={handleSubmit}
-                    >
-                      {meterId2 ? "Save" : "Add Meter"}
-                    </ButtonWrapper>
-                  </Box>
+                <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
+                  <InputLabel>
+                    Meter specification as per measurement Canada S-E-04
+                  </InputLabel>
+                  {!specSelectedFile ? (
+                    <>
+                      <Typography
+                        my={1}
+                        sx={{
+                          color: "#696969",
+                          fontWeight: "500",
+                          fontSize: "18px",
+                          border: "1px solid #D0D0D0",
+                          backgroundColor: "#D1FFDA",
+                          padding: "6px 34px",
+                          borderRadius: "8px",
+                          width: "140px",
+                          height: "40px",
+                          cursor: "pointer",
+                        }}
+                        onClick={handleSpecButtonClick}
+                      >
+                        Upload
+                      </Typography>
+                      <input
+                        type="file"
+                        ref={specFileInputRef}
+                        style={{ display: "none" }}
+                        onChange={handleSpecFileChange}
+                        accept={
+                          ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
+                        }
+                      />
+                    </>
+                  ) : (
+                    <div style={{ display: "flex" }}>
+                      <div>
+                        <img
+                          src={specSelectedFile}
+                          alt="Preview"
+                          style={{ maxWidth: "100%", maxHeight: "200px" }}
+                        />
+                      </div>
+                      <div style={{ marginLeft: "20px" }}>
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#2C77E9",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                          }}
+                          onClick={handleSpecButtonClick}
+                        >
+                          Change File
+                        </Typography>
+                        <input
+                          type="file"
+                          ref={specFileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleSpecFileChange}
+                          accept={
+                            ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
+                          }
+                        />
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#FF5858",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                          }}
+                          onClick={deleteSpecPicture}
+                        >
+                          Delete File
+                        </Typography>
+                      </div>
+                    </div>
+                  )}
                 </Grid>
+              </Grid>
+
+              <Grid container xs={12} sm={5}>
+                <Box mt={4} rowGap={4}>
+                  <ButtonWrapper
+                    type="submit"
+                    color="neutral"
+                    width="165px"
+                    height="48px"
+                    onClick={handleSubmit}
+                  >
+                    {meterId2 ? "Save" : "Add Meter"}
+                  </ButtonWrapper>
+                </Box>
               </Grid>
             </Grid>
           </Form>

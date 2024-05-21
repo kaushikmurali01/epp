@@ -32,11 +32,12 @@ import {
   SOURCE_ARRAY,
   SPACE_COOLING_ARRAY,
   SPACE_COOLING_UNIT_ARRAY,
+  SPACE_HEATING_UNIT_ARRAY,
   WATER_HEATING_ARRAY,
   WATER_HEATING_UNIT_ARRAY,
 } from "../../../utils/dropdownConstants/dropdownConstants";
 
-const AdminDetails = () => {
+const AdminDetails = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -244,14 +245,14 @@ const AdminDetails = () => {
     is_space_heating_controlled_for_occupancy: false,
     is_space_cooling_controlled_for_occupancy: false,
     space_cooling_efficiency_unit: "EER",
-    space_heating_efficiency_unit: "EER",
+    space_heating_efficiency_unit: "%",
     water_heating_efficiency_unit: "%",
   });
 
   const handleSubmit = (values) => {
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
       if (typeof value === "string" && value.trim() === "") {
-        acc[key] = null;
+        delete acc[key];
       } else {
         acc[key] = value;
       }
@@ -292,9 +293,21 @@ const AdminDetails = () => {
       facility_site_layout_media_url: facilityImgUrl,
     };
     if (facilityCharacterstics) {
-      dispatch(updateAdminFacilityCharacteristic(id, newValues));
+      dispatch(updateAdminFacilityCharacteristic(id, newValues))
+        .then(() => {
+          setTab(2);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     } else {
-      dispatch(addAdminFacilityCharacteristic(newValues));
+      dispatch(addAdminFacilityCharacteristic(newValues))
+        .then(() => {
+          setTab(2);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     }
   };
 
@@ -476,7 +489,11 @@ const AdminDetails = () => {
                   <InputField
                     name="operational_hours"
                     label="Operational Hours"
-                    type="text"
+                    type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -870,7 +887,8 @@ const AdminDetails = () => {
                     label="Space Cooling Efficiency(EER, SEER, COP)"
                     type="number"
                     onKeyDown={(evt) =>
-                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
                     }
                     fullWidth
                     InputProps={{
@@ -929,10 +947,11 @@ const AdminDetails = () => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="space_heating_efficiency"
-                    label="Space Heating Efficiency(EER, SEER, COP)"
+                    label="Space Heating Efficiency(%, HSPF)"
                     type="number"
                     onKeyDown={(evt) =>
-                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
                     }
                     fullWidth
                     InputProps={{
@@ -941,7 +960,7 @@ const AdminDetails = () => {
                           name="space_heating_efficiency_unit"
                           valueKey="value"
                           labelKey="label"
-                          value={values.space_cooling_heating_unit}
+                          value={values.space_heating_efficiency_unit}
                           sx={{
                             "& .MuiOutlinedInput-root": {
                               fieldset: {
@@ -949,7 +968,7 @@ const AdminDetails = () => {
                               },
                             },
                           }}
-                          options={SPACE_COOLING_UNIT_ARRAY}
+                          options={SPACE_HEATING_UNIT_ARRAY}
                         />
                       ),
                     }}
@@ -994,7 +1013,8 @@ const AdminDetails = () => {
                     label="Water Heating Efficiency(%, COP)"
                     type="number"
                     onKeyDown={(evt) =>
-                      ["e", "E", "+"].includes(evt.key) && evt.preventDefault()
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
                     }
                     fullWidth
                     InputProps={{
