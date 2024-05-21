@@ -25,7 +25,6 @@ import {
 } from "../../../redux/superAdmin/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
-import FacilityStatus from "components/FacilityStatus";
 import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
 import { Form, Formik } from "formik";
@@ -34,6 +33,7 @@ import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
 import debounce from "lodash.debounce";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
@@ -106,7 +106,7 @@ const Facility = () => {
     {
       Header: "Facility Status",
       accessor: (item) => (
-        <FacilityStatus>{item.facility_id_submission_status}</FacilityStatus>
+        <AdminFacilityStatus>{item.facility_id_submission_status}</AdminFacilityStatus>
       ),
     },
     {

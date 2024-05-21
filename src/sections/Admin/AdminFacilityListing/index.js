@@ -31,7 +31,7 @@ import {
   fetchAdminFacilitiesDropdown,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
-import { fetchAdminCompanyListing } from "../../../redux/admin/actions/adminCompanyAction";
+import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
@@ -42,19 +42,19 @@ const AdminFacilityListing = () => {
   };
   const dispatch = useDispatch();
   const [searchString, setSearchString] = useState("");
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 1000 });
 
   useEffect(() => {
     dispatch(fetchAdminFacilitiesDropdown());
-    dispatch(fetchAdminCompanyListing(pageInfo));
+    dispatch(fetchAdminCompaniesDropdown());
   }, [dispatch]);
 
   const adminFacilitiesDropdownData = useSelector(
     (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
   );
-  const companyListDropdownData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+  const adminCompaniesDropdownData = useSelector(
+    (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
   );
+
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -238,13 +238,10 @@ const AdminFacilityListing = () => {
                 value={companyFilter}
                 onChange={(e) => setCompanyFilter(e.target.value)}
               >
-                <MenuItem value="" disabled>
+                <MenuItem value="">
                   <em>Company name</em>
                 </MenuItem>
-                <MenuItem value="">
-                  <em>All companies</em>
-                </MenuItem>
-                {companyListDropdownData?.map((item) => (
+                {adminCompaniesDropdownData?.map((item) => (
                   <MenuItem key={item?.id} value={item?.id}>
                     {item?.company_name}
                   </MenuItem>

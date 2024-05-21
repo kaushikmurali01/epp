@@ -116,7 +116,7 @@ const CompanyListing = () => {
             }}
             onClick={() => openStatusModal(item?.id, item?.is_active)}
           >
-            {item?.is_active === 1 ? "InActive" : "Active"}
+            {item?.is_active === 1 ? "Inactive" : "Active"}
           </Button>
         </Box>
       ),
@@ -321,7 +321,12 @@ const CompanyListing = () => {
         <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
           <Button
             onClick={handleCStatusChange}
-            sx={{ color: activityStatus === 1 ? "danger" : "primary" }}
+            sx={{
+              background: activityStatus === 1 ? "#FF5858" : "#2E813E",
+              "&:hover": {
+                background: activityStatus === 1 ? "#FF3D3D" : "#296F38",
+              },
+            }}
             variant="contained"
           >
             Yes
@@ -381,7 +386,7 @@ const CompanyListing = () => {
                 value={companyFilter}
                 onChange={(e) => setCompanyFilter(e.target.value)}
               >
-                <MenuItem value="" disabled>
+                <MenuItem value="">
                   <em>Company type</em>
                 </MenuItem>
                 {userTypes?.map((item) => (

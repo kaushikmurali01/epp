@@ -1,6 +1,7 @@
 import { Box, Button, Modal, Typography, useMediaQuery } from "@mui/material";
 import React, { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const ESignature = ({ isOpen, onClose, onSubmit }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -12,6 +13,10 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const handleSubmit = () => {
+    if(signatureRef.current.isEmpty()){
+      NotificationsToast({ message: "Signature can't be blank while signing PA", type: "error" });
+      return
+    }
     const signature = signatureRef.current.toDataURL();
     onSubmit(signature);
     onClose();
@@ -91,7 +96,7 @@ const ESignature = ({ isOpen, onClose, onSubmit }) => {
               marginLeft: "1rem",
             }}
           >
-            Sign the PA with your sign
+            Sign the PA
           </Button>
         </Box>
       </Box>

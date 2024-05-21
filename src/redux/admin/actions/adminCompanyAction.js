@@ -29,7 +29,7 @@ export const fetchAdminCompanyListing = (
       dispatch(fetchAdminCompanyListRequest());
       const endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}?search=${search}&company_type=${""}`;
+      }/${pageInfo.pageSize}?search=${search}&company_type=${company_type_filter}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));
