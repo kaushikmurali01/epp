@@ -177,7 +177,6 @@ function Header(props) {
       });
   }
 
-  console.log(props, 'getting props on header')
 
   useEffect(() => {
     if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
