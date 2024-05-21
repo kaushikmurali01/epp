@@ -377,7 +377,9 @@ const ProfilePage = () => {
                     wrap="nowrap"
                     gap="1.25rem"
                   >
-                    <Button sx={profileButtonStyle} onClick={() => navigate('/change-password')}>Change Password</Button>
+                    <Button sx={profileButtonStyle}
+                    // onClick={() => navigate('/change-password')}
+                    >Change Password</Button>
                     <Button
                       sx={profileButtonStyle}
                       onClick={() => setShowEditPage(true)}
