@@ -177,6 +177,7 @@ function Header(props) {
       });
   }
 
+
   useEffect(() => {
     if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
       const companiesWithoutUserCompanies = getAllCompanyList.filter(allcompanyItem => 
@@ -187,6 +188,8 @@ function Header(props) {
       }
     }
   }, [companyList, getAllCompanyList]);
+
+  console.log(companyList, getAllCompanyList, "getAllCompanyList")
 
   const getUserRoleData = () => {
     const userType = "2" // for customers
