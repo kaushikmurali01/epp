@@ -167,7 +167,7 @@ function Header(props) {
   const [getAllCompanyList, setAllCompanyList] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
 
-  const getAllComapanyListData = () => {
+  const getAllCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -201,7 +201,7 @@ function Header(props) {
 
   useEffect(() => {
     if(props.page == "authenticated" && (userData?.user?.type && (userData?.user?.type != 1 || userData?.user?.type != 4 || userData?.user?.type != 5))){
-      getAllComapanyListData();
+      getAllCompanyListData();
       getUserRoleData();
     }
   }, [userData]);
