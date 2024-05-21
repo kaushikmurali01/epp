@@ -2,21 +2,12 @@ import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
 import { PowerBIEmbed } from "powerbi-client-react";
 import { models } from "powerbi-client";
 import { useSelector } from "react-redux";
-import { FACILITY_CATEGORY_ARRAY } from "utils/dropdownConstants/dropdownConstants";
 
 const Summary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-
-  const checkCategoryMatches = (categoryId) => {
-    const foundItem = FACILITY_CATEGORY_ARRAY.find(
-      (item) => item.id === categoryId
-    );
-    return foundItem ? foundItem.value : null;
-  };
-
   return (
     <Box
       sx={{
@@ -67,8 +58,7 @@ const Summary = () => {
             >
               <Typography variant="small">Facility Category</Typography>
               <Typography variant="h6" gutterBottom>
-                {facilityData?.facility_category &&
-                  checkCategoryMatches(facilityData?.facility_category)}
+                {facilityData?.facility_category}
               </Typography>
             </Box>
           </Box>

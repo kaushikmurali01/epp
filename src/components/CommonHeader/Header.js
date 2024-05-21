@@ -177,6 +177,17 @@ function Header(props) {
       });
   }
 
+  useEffect(() => {
+    if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
+      const companiesWithoutUserCompanies = getAllCompanyList.filter(allcompanyItem => 
+        !companyList.some(companyItem => companyItem?.id === allcompanyItem?.id)
+      )
+      if(companiesWithoutUserCompanies.length != getAllCompanyList.length){
+        setAllCompanyList([...companiesWithoutUserCompanies])
+      }
+    }
+  }, [companyList, getAllCompanyList]);
+
   const getUserRoleData = () => {
     const userType = "2" // for customers
     const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
@@ -191,7 +202,7 @@ function Header(props) {
   useEffect(() => {
     getAllComapanyListData();
     getUserRoleData();
-  }, []);
+  }, [userData]);
 
   const getCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
@@ -290,7 +301,6 @@ function Header(props) {
           // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
         })
-
     }
 
     return (

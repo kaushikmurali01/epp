@@ -12,7 +12,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
-    const [selectCompanyType, setSelectCompanyType] = useState(selectTableRow?.company_id || '');
+    const [selectCompanyType, setSelectCompanyType] = useState(selectTableRow?.companyId   || '');
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -201,7 +201,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                             </FormControl>
 
                         </FormGroup>
-                        {selectTableRow?.type === "2" && 
+                        {selectTableRow?.type.toString() === "2" && 
                             <FormGroup className='theme-form-group'>
                                 <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Company* </FormLabel>
                                 <FormControl sx={{ minWidth: '12rem' }} >
@@ -209,7 +209,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                         value={selectCompanyType}
                                         onChange={(e) => handleSelectCompanyChange(e)}
                                         displayEmpty={true}
-                                        disabled={isEdited}
+                                        // disabled={isEdited}
                                     >
                                         <MenuItem value="" disabled>
                                                 <em>Select</em>
@@ -287,7 +287,11 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                     <Box component='div' >
                         <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
-                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> Please select role type </Typography>
+                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> 
+                                {(selectRoleType === '' )  &&  "Please select role type"}
+                                {(selectRoleType !== '' && permissions?.length === 0 )  &&  "The list of permissions is not available for this role."}
+                                
+                                 </Typography>
                             </Grid>
                         </Grid>
                     </Box>

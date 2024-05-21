@@ -73,7 +73,7 @@ const UserManagement = () => {
     // Call the API to get all user data
     getUserManagementData(pageInfo, searchString);
   };
-  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
+  const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
     company: '',
@@ -162,7 +162,7 @@ const UserManagement = () => {
 
   const filterByData = [
     {
-      label: 'All User',
+      label: 'All users',
       id: '0',
       defaultSelected: true,
     },
@@ -172,7 +172,7 @@ const UserManagement = () => {
       defaultSelected: false,
     },
     {
-      label: 'Request sent',
+      label: 'Request received',
       id: '2',
       defaultSelected: false,
     }
@@ -291,7 +291,7 @@ const UserManagement = () => {
                       className="transparent-border"
                     >
                       <MenuItem value="" disabled>
-                        Filter By
+                        Filter by
                       </MenuItem>
                       {filterByData?.map((item) => (
                         <MenuItem key={`${item.id}`} value={item?.id}>
