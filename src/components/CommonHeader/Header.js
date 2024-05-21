@@ -316,10 +316,10 @@ function Header(props) {
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            <SelectBox required name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
-            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+            <SelectBox required name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
           </Stack>
 
 
