@@ -128,9 +128,10 @@ class RoleService {
             context.log("1111", data);
             let email = data.email;
             let permissions = data.permissions;
-            const user = await User.findOne({ where: { email } });
-            context.log("2222", user.dataValues.id);
+            context.log("99999", data);
             if (data.entry_type == 1) {
+                const user = await User.findOne({ where: { email } });
+            context.log("2222", user.dataValues.id);
                 context.log("3333", data.id);
                 await this.deletePermissions(user.dataValues.id, data.company_id);
                 for (const permissionId of data.permissions) {

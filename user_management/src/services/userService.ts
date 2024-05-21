@@ -73,7 +73,7 @@ class UserService {
         };
         await UserCompanyRole.create(newUserCompanyRole);
       }
-      await UserRequest.update({ is_active: 0 }, { where: { id } });
+      await UserRequest.update({ status: 'accepted' }, { where: { id } });
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
     } catch (error) {
       throw new Error(`${error.message}`);

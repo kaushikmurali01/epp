@@ -53,7 +53,7 @@ class UserInvitationService {
         admin_name = company?.first_name +' '+company?.last_name
         company_name = company?.dataValues?.company_name;
         }
-        console.log('company0987', company);
+        console.log('company0987', template);
         let body:string, emailContent:string;
         let landing_page = process.env.LANDING_PAGE;
         if(existingUser) {
@@ -63,8 +63,9 @@ class UserInvitationService {
            .replace('#name#', existingUser.first_name)
            .replace('#admin#', admin_name)
            .replace('#heading#', '')
-           .replace('#link#', landing_page)
-           .replace('#company#', company_name);
+           .replace('#lnk#', landing_page)
+           .replace('#company#', company_name)
+           .replace('#isDisplay#', 'block');
            Email.send(details.email, EmailContent.invitationEmailForExistingUser.title, emailContent);
 
            // Send email to admin
