@@ -312,3 +312,8 @@ export const changePasswordValidationSchema = Yup.object().shape({
     .oneOf([Yup.ref("newPassword"), null], "Passwords must match")
     .required("Confirm Password is required"),
 });
+
+export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
+  company: Yup.string().required("Company is required"),
+  role: Yup.string().required("Role is required"),
+});

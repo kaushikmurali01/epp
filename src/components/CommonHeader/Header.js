@@ -30,6 +30,7 @@ import EvModal from 'utils/modal/EvModal';
 import SelectBox from 'components/FormBuilder/Select';
 import { Form, Formik } from 'formik';
 import ButtonWrapper from 'components/FormBuilder/Button';
+import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
 
 const settings = ["Profile", "Logout"];
 
@@ -310,16 +311,16 @@ function Header(props) {
         initialValues={{
           ...initialValues
         }}
-        // validationSchema={}
+        validationSchema={requestToJoinCompanyFormValidationSchema}
         onSubmit={formSubmit}
       >
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox required name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
-            <SelectBox required name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
           </Stack>
 
 
