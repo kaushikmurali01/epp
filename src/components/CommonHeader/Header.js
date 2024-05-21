@@ -167,7 +167,7 @@ function Header(props) {
   const [getAllCompanyList, setAllCompanyList] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
 
-  const getAllComapanyListData = () => {
+  const getAllCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -176,6 +176,7 @@ function Header(props) {
         console.log(error)
       });
   }
+
 
   useEffect(() => {
     if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
@@ -187,6 +188,8 @@ function Header(props) {
       }
     }
   }, [companyList, getAllCompanyList]);
+
+  console.log(companyList, getAllCompanyList, "getAllCompanyList")
 
   const getUserRoleData = () => {
     const userType = "2" // for customers
@@ -200,8 +203,10 @@ function Header(props) {
   }
 
   useEffect(() => {
-    getAllComapanyListData();
-    getUserRoleData();
+    if(props.page == "authenticated" && (userData?.user?.type && (userData?.user?.type != 1 || userData?.user?.type != 4 || userData?.user?.type != 5))){
+      getAllCompanyListData();
+      getUserRoleData();
+    }
   }, [userData]);
 
   const getCompanyListData = () => {

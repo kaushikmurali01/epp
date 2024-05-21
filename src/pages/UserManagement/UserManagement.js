@@ -27,7 +27,8 @@ const UserManagement = () => {
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
-  const [getCompanyList, setCompanyList] = useState([]);
+  const [getAllCompanyList, setAllCompanyList] = useState([]);
+  const [getIndividualCompanyList, setIndividualCompanyList] = useState([]);
   const [tabValue, setTabValue] = useState('allUsers');
   const [selectTableRow, setSelectTableRow] = useState({});
   const [invitePageInfo, setInvitePageInfo] = useState({});
@@ -38,6 +39,7 @@ const UserManagement = () => {
   const [pageCount, setPageCount] = useState('');
 
   // selector 
+  const hasToken = localStorage.getItem("accessToken");
   const userCompanyId = useSelector((state) => state?.facilityReducer?.userDetails?.user?.company_id);
   const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
 
@@ -63,8 +65,8 @@ const UserManagement = () => {
       cancelButtonClass: "",
 
     },
-    headerText: "Request to join other company",
-    headerSubText: 'Please enter the following details to send request to join other company',
+    headerText: "",
+    headerSubText: '',
     modalBodyContent: "",
   });
 
@@ -132,7 +134,7 @@ const UserManagement = () => {
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getCompanyList} valueKey="id" labelKey="company_name" />
+            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
@@ -156,6 +158,13 @@ const UserManagement = () => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
+      buttonsUI: {
+        ...prevState.buttonsUI,
+        saveButton: false,
+        cancelButton: false,
+    },
+    headerText: "Request to join other company",
+    headerSubText: 'Please enter the following details to send request to join other company',
       modalBodyContent: <RequestToJoinForm />
     }));
   }
@@ -232,15 +241,36 @@ const UserManagement = () => {
       });
   }
 
-  const getComapanyListData = () => {
+  const getIndividualCompanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setIndividualCompanyList(res?.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getAllCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
-        setCompanyList(res.data?.data?.rows);
+        setAllCompanyList(res.data?.data?.rows);
       }).catch((error) => {
         console.log(error)
       });
   }
+  useEffect(() => {
+    if(getIndividualCompanyList.length > 0 && getAllCompanyList.length > 0) {
+      const companiesWithoutUserCompanies = getAllCompanyList.filter(allcompanyItem => 
+        !getIndividualCompanyList.some(companyItem => companyItem?.id === allcompanyItem?.id)
+      )
+      if(companiesWithoutUserCompanies.length != getAllCompanyList.length){
+        setAllCompanyList([...companiesWithoutUserCompanies])
+      }
+    }
+  }, [getIndividualCompanyList, getAllCompanyList]);
 
   const debouncedSearch = debounce((pageInfo, searchString) => {
     getUserManagementData(pageInfo, searchString);
@@ -254,12 +284,19 @@ const UserManagement = () => {
   }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType]);
 
 
+  useEffect(() => {
+    if(userData?.user?.id && hasToken){
+      getIndividualCompanyListData();
+    }
+  }, [userData, hasToken, userCompanyId]);
 
   useEffect(() => {
     getUserRoleData()
-    getComapanyListData()
+    getAllCompanyListData()
   }, [])
 
+
+console.log(getAllCompanyList, 'getting getAllCompanyList');  
 
   return (
     <React.Fragment>
