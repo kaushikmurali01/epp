@@ -4,7 +4,7 @@ import {
   setOption,
   setOption2,
 } from "../../../redux/superAdmin/actions/simpleActions";
-import { Box, Container, Grid, Typography, InputLabel } from "@mui/material";
+import { Box, Container, Grid, Typography, InputLabel, Slider } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation";
@@ -234,38 +234,43 @@ const AddFacilityComponent = (props) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [categoriesTypesAndNAICS ,setCategoriesTypesAndNAICS] = useState([])
+  const [categoriesTypesAndNAICS, setCategoriesTypesAndNAICS] = useState([])
   const [facilityCategories, setFacilityCategories] = useState([])
-  const [facilityTypes, setFacilityTypes] = useState([])
+  const [facilityTypes, setFacilityTypes] = useState([]);
+  const [sliderValue, setSliderValue] = useState(1);
+
+  const handleSliderValueChange = (event, newValue) => {
+    setSliderValue(newValue);
+  };
 
   useEffect(() => {
     getCategoriesTypesAndNAICS();
   }, []);
 
   useEffect(() => {
-    
+
     const distinctCategories = [...new Set(categoriesTypesAndNAICS.map(obj => {
       return obj['facility_category'] != "" ? obj['facility_category'] : null
-    }))].filter(c => c!=null).map((element, index) => {
+    }))].filter(c => c != null).map((element, index) => {
       return { id: element, name: element, label: element, value: element }
-  });
+    });
     setFacilityCategories(distinctCategories)
   }, [categoriesTypesAndNAICS]);
 
   useEffect(() => {
-    if(facilityCategories.length > 0 && id){
+    if (facilityCategories.length > 0 && id) {
       getFacilityDetailsById()
     }
   }, [facilityCategories])
 
   const getFacilityType = (value, formValues, isReset) => {
     const facilitiesType = [...categoriesTypesAndNAICS].map((item) => {
-      return item['facility_category'] == value ? item : null  
-    }).filter(c => c!=null).map((element, index) => {
+      return item['facility_category'] == value ? item : null
+    }).filter(c => c != null).map((element, index) => {
       return { id: element['facility_type'], name: element['facility_type'], label: element['facility_type'], value: element['facility_type'] }
     })
     setFacilityTypes(facilitiesType)
-    if(!isReset){
+    if (!isReset) {
       setInitialValues((prevValues) => {
         return {
           ...formValues,
@@ -275,13 +280,13 @@ const AddFacilityComponent = (props) => {
         };
       });
     }
-    
+
   }
 
   const getNAICS = (value, formValues) => {
     const NAICS = [...categoriesTypesAndNAICS].map((item) => {
-      return (item['facility_type'] == value) ? item : null  
-    }).filter(c => c!=null).map((element, index) => {
+      return (item['facility_type'] == value) ? item : null
+    }).filter(c => c != null).map((element, index) => {
       return { id: element['naic_code'], name: element['naic_code'], label: element['naic_code'], value: element['naic_code'] }
     })
     setInitialValues((prevValues) => {
@@ -295,13 +300,13 @@ const AddFacilityComponent = (props) => {
 
   const getCategoriesTypesAndNAICS = () => {
     GET_REQUEST(facilityEndPoints.GET_CATEGORIES_TYPES_AND_NAICS)
-     .then((response) => {
+      .then((response) => {
         if (response.data.statusCode == 200) {
           setCategoriesTypesAndNAICS(response.data.data);
           ;
         }
       })
-     .catch((error) => { });
+      .catch((error) => { });
   }
 
   const getFacilityDetailsById = () => {
@@ -324,6 +329,8 @@ const AddFacilityComponent = (props) => {
             };
           });
           setSelectedFile(response.data.data.display_pic_url);
+          let sliderValue = response.data.data.target_saving.split('%');
+          setSliderValue(sliderValue.split('%')[0]);
         }
       })
       .catch((error) => { });
@@ -505,27 +512,27 @@ const AddFacilityComponent = (props) => {
           enableReinitialize={true}
           onSubmit={handleSubmit}
         >
-           {({ values }) => (
-          <Form>
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12} sm={4}>
-                <SelectBox
-                  name="facility_construction_status"
-                  label="Facility construction status*"
-                  options={FacilityConstructionStatusArray}
-                />
+          {({ values }) => (
+            <Form>
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                <Grid item xs={12} sm={4}>
+                  <SelectBox
+                    name="facility_construction_status"
+                    label="Facility construction status*"
+                    options={FacilityConstructionStatusArray}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="facility_name"
+                    label="Facility Name*"
+                    type="text"
+                  />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="facility_name"
-                  label="Facility Name*"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-
-            {/* <Grid item xs={12} sm={12} my={2}>
+              {/* <Grid item xs={12} sm={12} my={2}>
                                 <InputLabel sx={{ color: '#2E813E' }}>{buildingFacilitystr}</InputLabel>
                                 <Box sx={{ display: 'flex' }} my={2}>
                                     <Typography sx={{ color: '#ffffff', fontWeight: '600', fontSize: '14px', width: '57px', height: '32px', backgroundColor: '#2E813E', borderRadius: '8px 0px 0px 8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -537,93 +544,82 @@ const AddFacilityComponent = (props) => {
                                 </Box>
                             </Grid> */}
 
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
 
-              <Grid item xs={12} sm={4}>
-                <SelectBox
-                  name="facility_category"
-                  label="Facility Category*"
-                  options={facilityCategories || []}
-                  onChange={(e) => {
-                    getFacilityType(e.target.value, values)
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4}>
-                <SelectBox
-                  name="facility_type"
-                  label="Facility Type*"
-                  options={facilityTypes || []}
-                  onChange={(e) => {
-                   getNAICS(e.target.value, values)
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={4}>
-                <InputField isDisabled={true} name="naic_code" label="NAIC’s Code*" type="text" />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="target_saving"
-                  label="What is your target energy savings for this facility?*"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-
-            <Grid item xs={12} sm={12} sx={{ marginTop: "10px" }}>
-              <InputLabel sx={{ color: "#2E813E" }}>Facility photo</InputLabel>
-              {!selectedFile ? (
-                <>
-                  <Typography
-                    my={1}
-                    sx={{
-                      color: "#2E813E",
-                      fontWeight: "500",
-                      fontSize: "18px",
-                      backgroundColor: "#D1FFDA",
-                      padding: "6px 34px",
-                      borderRadius: "8px",
-                      width: "140px",
-                      height: "40px",
+                <Grid item xs={12} sm={4}>
+                  <SelectBox
+                    name="facility_category"
+                    label="Facility Category*"
+                    options={facilityCategories || []}
+                    onChange={(e) => {
+                      getFacilityType(e.target.value, values)
                     }}
-                    onClick={handleButtonClick}
-                  >
-                    Upload
-                  </Typography>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                    accept="image/jpg, image/jpeg, image/png"
                   />
-                </>
-              ) : (
-                <div style={{ display: "flex" }}>
-                  <div>
-                    <img
-                      src={selectedFile}
-                      alt="Preview"
-                      style={{ maxWidth: "100%", maxHeight: "200px" }}
-                    />
-                  </div>
-                  <div style={{ marginLeft: "20px" }}>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <SelectBox
+                    name="facility_type"
+                    label="Facility Type*"
+                    options={facilityTypes || []}
+                    onChange={(e) => {
+                      getNAICS(e.target.value, values)
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField isDisabled={true} name="naic_code" label="NAIC’s Code*" type="text" />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                <Grid item xs={12} sm={4}>
+                  {/* <InputField
+                    name="target_saving"
+                    label="What is your target energy savings for this facility?*"
+                    type="text"
+                  /> */}
+                  <Typography
+                    my={4}
+                    sx={{
+                      color: "#696969",
+                      fontWeight: "500",
+                      fontSize: "0.875rem !important",
+                    }}
+                  >
+                    What is your target energy savings for this facility?*
+                  </Typography>
+                  <Slider
+                    value={sliderValue}
+                    min={1}
+                    max={100}
+                    onChange={handleSliderValueChange}
+                    valueLabelDisplay="auto"
+                    aria-labelledby="number-slider"
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid item xs={12} sm={12} sx={{ marginTop: "10px" }}>
+                <InputLabel sx={{ color: "#2E813E" }}>Facility photo</InputLabel>
+                {!selectedFile ? (
+                  <>
                     <Typography
                       my={1}
                       sx={{
-                        color: "#2C77E9",
+                        color: "#2E813E",
                         fontWeight: "500",
-                        fontSize: "16px !important",
+                        fontSize: "18px",
+                        backgroundColor: "#D1FFDA",
+                        padding: "6px 34px",
+                        borderRadius: "8px",
+                        width: "140px",
+                        height: "40px",
                       }}
                       onClick={handleButtonClick}
                     >
-                      Change Picture
+                      Upload
                     </Typography>
                     <input
                       type="file"
@@ -632,42 +628,71 @@ const AddFacilityComponent = (props) => {
                       onChange={handleFileChange}
                       accept="image/jpg, image/jpeg, image/png"
                     />
-                    <Typography
-                      my={1}
-                      sx={{
-                        color: "#FF5858",
-                        fontWeight: "500",
-                        fontSize: "16px !important",
-                      }}
-                      onClick={deletePicture}
-                    >
-                      Delete Picture
-                    </Typography>
+                  </>
+                ) : (
+                  <div style={{ display: "flex" }}>
+                    <div>
+                      <img
+                        src={selectedFile}
+                        alt="Preview"
+                        style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                    </div>
+                    <div style={{ marginLeft: "20px" }}>
+                      <Typography
+                        my={1}
+                        sx={{
+                          color: "#2C77E9",
+                          fontWeight: "500",
+                          fontSize: "16px !important",
+                        }}
+                        onClick={handleButtonClick}
+                      >
+                        Change Picture
+                      </Typography>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        style={{ display: "none" }}
+                        onChange={handleFileChange}
+                        accept="image/jpg, image/jpeg, image/png"
+                      />
+                      <Typography
+                        my={1}
+                        sx={{
+                          color: "#FF5858",
+                          fontWeight: "500",
+                          fontSize: "16px !important",
+                        }}
+                        onClick={deletePicture}
+                      >
+                        Delete Picture
+                      </Typography>
+                    </div>
                   </div>
-                </div>
-              )}
-            </Grid>
+                )}
+              </Grid>
 
-            {/* </Grid> */}
+              {/* </Grid> */}
 
-            <Typography
-              my={4}
-              sx={{
-                color: "#696969",
-                fontWeight: "500",
-                fontSize: "14px",
-                border: "1px solid #D0D0D0",
-                backgroundColor: "#EBEBEB",
-                padding: "4px 16px",
-                borderRadius: "10px",
-                width: "100px",
-                height: "37px",
-              }}
-            >
-              Address
-            </Typography>
+              <Typography
+                my={4}
+                sx={{
+                  color: "#696969",
+                  fontWeight: "500",
+                  fontSize: "14px",
+                  border: "1px solid #D0D0D0",
+                  backgroundColor: "#EBEBEB",
+                  padding: "4px 16px",
+                  borderRadius: "10px",
+                  width: "100px",
+                  height: "37px",
+                }}
+              >
+                Address
+              </Typography>
 
-            {/* <Grid container spacing={2} sx={{ marginTop: '10px' }}>
+              {/* <Grid container spacing={2} sx={{ marginTop: '10px' }}>
 
                             <Grid item xs={12} sm={8}>
                                 <InputField name="address" label="Address line 1*" type="text" />
@@ -675,78 +700,78 @@ const AddFacilityComponent = (props) => {
 
                         </Grid> */}
 
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="unit_number"
-                  label="Unit number*"
-                  type="text"
-                />
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="unit_number"
+                    label="Unit number*"
+                    type="text"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="street_number"
+                    label="Street number*"
+                    type="text"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="street_name"
+                    label="Street name*"
+                    type="text"
+                  />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="street_number"
-                  label="Street number*"
-                  type="text"
-                />
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    name="city"
+                    label="City*"
+                    type="text" />
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    name="province"
+                    label="Province/State*"
+                    type="text"
+                    isDisabled={true}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    name="country"
+                    label="Country*"
+                    type="text"
+                    isDisabled={true} />
+                </Grid>
+
+                <Grid item xs={12} sm={3}>
+                  <InputField
+                    name="postal_code"
+                    label="Zip code/Postal code*"
+                    type="text"
+                  />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sm={4}>
-                <InputField
-                  name="street_name"
-                  label="Street name*"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12} sm={3}>
-                <InputField
-                  name="city"
-                  label="City*"
-                  type="text" />
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <InputField
-                  name="province"
-                  label="Province/State*"
-                  type="text"
-                  isDisabled={true}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <InputField
-                  name="country"
-                  label="Country*"
-                  type="text"
-                  isDisabled={true} />
-              </Grid>
-
-              <Grid item xs={12} sm={3}>
-                <InputField
-                  name="postal_code"
-                  label="Zip code/Postal code*"
-                  type="text"
-                />
-              </Grid>
-            </Grid>
-
-            <Box mt={4} rowGap={4}>
-              <ButtonWrapper
-                type="submit"
-                color="neutral"
-                width="165px"
-                height="48px"
-                onClick={handleSubmit}
-              >
-                {id ? "Edit Facility" : "Add Facility"}
-              </ButtonWrapper>
-            </Box>
-          </Form>
+              <Box mt={4} rowGap={4}>
+                <ButtonWrapper
+                  type="submit"
+                  color="neutral"
+                  width="165px"
+                  height="48px"
+                  onClick={handleSubmit}
+                >
+                  {id ? "Edit Facility" : "Add Facility"}
+                </ButtonWrapper>
+              </Box>
+            </Form>
           )}
         </Formik>
       </Container>

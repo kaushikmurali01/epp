@@ -564,13 +564,13 @@ const AdminEntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button
+          {tabValue == "monthlyEntries" ? <Button
             variant="contained"
             sx={{ marginLeft: "2rem" }}
             onClick={() => openRequestModal(false)}
           >
             Add Entry
-          </Button>
+          </Button> : null }
         </Grid>
       </Grid>
 
