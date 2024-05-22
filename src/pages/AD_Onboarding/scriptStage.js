@@ -658,23 +658,53 @@ function scrollToTop() {
 
 // Get the password input fields
 
-const newPasswordLi = document.querySelector(".newPassword_li");
-const reenterPasswordLi = document.querySelector(".reenterPassword_li");
-const newPasswordInput = document.getElementById('newPassword');
-const reenterPasswordInput = document.getElementById('reenterPassword');
-newPasswordLi.style.position = "relative";
-reenterPasswordLi.style.position = "relative";
+// const newPasswordLi = document.querySelector(".newPassword_li");
+// const reenterPasswordLi = document.querySelector(".reenterPassword_li");
+// const newPasswordInput = document.getElementById('newPassword');
+// const reenterPasswordInput = document.getElementById('reenterPassword');
+// newPasswordLi.style.position = "relative";
+// reenterPasswordLi.style.position = "relative";
+
+// // Function to toggle password visibility
+// function togglePasswordVisibility(input, eyeIcon) {
+//   if (input.type === 'password') {
+//     input.type = 'text';
+//     eyeIcon.style.color = 'green'; // Change eye icon color when showing password
+//   } else {
+//     input.type = 'password';
+//     eyeIcon.style.color = 'grey'; // Change eye icon color when hiding password
+//   }
+// }
+
+// // Create eye icons and add event listeners
+// const newPasswordEyeIcon = document.createElement('i');
+// newPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
+// newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+
+// const reenterPasswordEyeIcon = document.createElement('i');
+// reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
+// reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+
+
+// Following code will not show the Checks on Password therefore not showing as of now
+
+// Get the password input fields
+const newPasswordInput = document.getElementById("newPassword");
+const reenterPasswordInput = document.getElementById("reenterPassword");
 
 // Function to toggle password visibility
 function togglePasswordVisibility(input, eyeIcon) {
-  if (input.type === 'password') {
-    input.type = 'text';
-    eyeIcon.style.color = 'green'; // Change eye icon color when showing password
+  if (input.type === "password") {
+    input.type = "text";
+    eyeIcon.style.color = "#2E813E"; // Change eye icon color when showing password
   } else {
-    input.type = 'password';
-    eyeIcon.style.color = 'grey'; // Change eye icon color when hiding password
+    input.type = "password";
+    eyeIcon.style.color = "grey"; // Change eye icon color when hiding password
   }
 }
+
 
 // Create eye icons and add event listeners
 const newPasswordEyeIcon = document.createElement('i');
@@ -688,61 +718,191 @@ reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
 reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
 
 
-// Following code will not show the Checks on Password therefore not showing as of now
 
-// Get the password input fields
-// const newPasswordInput = document.getElementById("newPassword");
-// const reenterPasswordInput = document.getElementById("reenterPassword");
+// Create a new div element
+const field1 = document.createElement('div');
+field1.classList.add('field1');
 
-// // Function to toggle password visibility
-// function togglePasswordVisibility(input, eyeIcon) {
-//   if (input.type === "password") {
-//     input.type = "text";
-//     eyeIcon.style.color = "green"; // Change eye icon color when showing password
-//   } else {
-//     input.type = "password";
-//     eyeIcon.style.color = "grey"; // Change eye icon color when hiding password
+
+// Append the input and icon elements to the new div
+field1.appendChild(newPasswordInput);
+field1.appendChild(newPasswordEyeIcon);
+
+// Find the parent element of the input and icon elements
+const parentElement1 = document.querySelector('.newPassword_li .attrEntry');
+
+// Append the new div to the parent element
+parentElement1.appendChild(field1);
+
+const field2 = document.createElement("div");
+field2.classList.add("field2");
+
+// Append the input and icon elements to the new div
+field2.appendChild(reenterPasswordInput);
+field2.appendChild(reenterPasswordEyeIcon);
+
+// Find the parent element of the input and icon elements
+const parentElement2 = document.querySelector(".reenterPassword_li .attrEntry");
+
+// Append the new div to the parent element
+parentElement2.appendChild(field2);
+
+
+// validation for password and confirm password
+// newPasswordInput.addEventListener('input', validateNewPassword);
+// reenterPasswordInput.addEventListener("input", validateConfirmPassword);
+
+// newPasswordInput.setAttribute("max", 64);
+// reenterPasswordInput.setAttribute("max", 64);
+  
+// const newPasswordError = document.querySelector(
+//   ".newPassword_li .attrEntry .error.itemLevel"
+// );
+// const confirmPasswordError = document.querySelector(
+//   ".reenterPassword_li .attrEntry .error.itemLevel"
+// );
+
+//   function validateNewPassword() {
+//     const password = newPasswordInput.value;
+//     let errorMessage = '';
+
+//     if (password) {
+//       if (!/[A-Z]/.test(password)) {
+//         errorMessage =
+//           "The password must contain at least one uppercase letter.";
+//       } else if (!/\d/.test(password)) {
+//         errorMessage = "The password must contain at least one digit.";
+//       } else if (!/[^a-zA-Z0-9]/.test(password)) {
+//         errorMessage = "The password must contain at least one symbol.";
+//       } else if (!/[a-z]/.test(password)) {
+//         errorMessage =
+//           "The password must contain at least one lowercase letter.";
+//       } else if (password.length < 8) {
+//         errorMessage = "The password must be at least 8 characters long.";
+//       } else if (password.length > 64) {
+//         errorMessage = "The password must be no more than 64 characters long.";
+//       }
+//     } else {
+//       errorMessage = "";
+//     }
+
+//     newPasswordError.textContent = errorMessage;
+//     // newPasswordError.classList.toggle('show', !!errorMessage);
 //   }
-// }
 
+//   function validateConfirmPassword() {
+//     const password = newPasswordInput.value;
+//     const confirmPassword = reenterPasswordInput.value;
+//     let errorMessage = '';
 
-// Create eye icons and add event listeners
-// const newPasswordEyeIcon = document.createElement('i');
-// newPasswordEyeIcon.classList.add('fa', 'fa-eye');
-// newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
-// newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+//     if (password !== confirmPassword) {
+//       errorMessage = 'The passwords do not match.';
+//     }
 
-// const reenterPasswordEyeIcon = document.createElement('i');
-// reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
-// reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
-// reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+//     confirmPasswordError.textContent = errorMessage;
+//     // confirmPasswordError.classList.toggle('show', !!errorMessage);
+//   }
+// });
 
+// document.addEventListener("DOMContentLoaded", function () {
+  // const newPasswordInput = document.getElementById("newPassword");
+  // const confirmPasswordInput = document.getElementById("reenterPassword");
+// const confirmPasswordError = document.getElementById("reenterPassword_error");
+const confirmPasswordError = document.querySelector(
+  ".reenterPassword_li .attrEntry .error.itemLevel"
+);
 
+const newPasswordError = document.querySelector(
+  ".newPassword_li .attrEntry .error.itemLevel"
+);
 
-// // Create a new div element
-// const field1 = document.createElement('div');
-// field1.classList.add('field1');
+// Create and append the criteria container
+const newPasswordCriteria = document.createElement("div");
+newPasswordCriteria.id = "newPassword_criteria";
+newPasswordCriteria.classList.add("criteria");
 
+// Criteria to check
+const criteria = [
+  { id: "length", regex: /^.{8,64}$/, message: "8 characters" },
+  { id: "lowercase", regex: /[a-z]/, message: "1 lowercase" },
+  { id: "uppercase", regex: /[A-Z]/, message: "1 uppercase" },
+  { id: "digit", regex: /\d/, message: "1 digit" },
+  { id: "symbol", regex: /[^a-zA-Z0-9]/, message: "1 symbol" },
+];
 
-// // Append the input and icon elements to the new div
-// field1.appendChild(newPasswordInput);
-// field1.appendChild(newPasswordEyeIcon);
+// Create and append each criterion element
+criteria.forEach((criterion) => {
+  const span = document.createElement("span");
+  span.id = `criteria_${criterion.id}`;
+  span.classList.add("invalid");
+  span.textContent = criterion.message;
+  newPasswordCriteria.appendChild(span);
+  newPasswordCriteria.appendChild(document.createTextNode(" - ")); // Add a dash separator
+});
 
-// // Find the parent element of the input and icon elements
-// const parentElement1 = document.querySelector('.newPassword_li .attrEntry');
+// Remove the last separator
+newPasswordCriteria.lastChild.remove();
 
-// // Append the new div to the parent element
-// parentElement1.appendChild(field1);
+// Append the criteria container after the new password input field
+const newPasswordContainer = newPasswordInput.parentNode;
+newPasswordContainer.insertBefore(
+  newPasswordCriteria,
+  newPasswordInput.nextSibling
+);
 
-// const field2 = document.createElement("div");
-// field2.classList.add("field2");
+// Add event listeners
+newPasswordInput.addEventListener("input", validateNewPassword);
+reenterPasswordInput.addEventListener("input", validateConfirmPassword);
 
-// // Append the input and icon elements to the new div
-// field2.appendChild(reenterPasswordInput);
-// field2.appendChild(reenterPasswordEyeIcon);
+document.getElementById("newPassword_criteria").classList.add("hidden");
 
-// // Find the parent element of the input and icon elements
-// const parentElement2 = document.querySelector(".reenterPassword_li .attrEntry");
+function validateNewPassword() {
+  const password = newPasswordInput.value;
+  let validCount = 0;
 
-// // Append the new div to the parent element
-// parentElement2.appendChild(field2);
+  if (password) {
+    document.getElementById("newPassword_criteria").classList.remove("hidden");
+    newPasswordError.textContent = "";
+
+    // Check each criterion
+    criteria.forEach((criterion) => {
+      const element = document.getElementById(`criteria_${criterion.id}`);
+      if (criterion.regex.test(password)) {
+        element.classList.add("valid");
+        element.classList.remove("invalid");
+        if (criterion.id !== "length") validCount++;
+      } else {
+        element.classList.add("invalid");
+        element.classList.remove("valid");
+      }
+    });
+
+    // Check if length criterion is met and at least 3 other criteria are met
+    const lengthElement = document.getElementById("criteria_length");
+    const lengthValid = criteria[0].regex.test(password);
+    lengthElement.classList.toggle("valid", lengthValid);
+    lengthElement.classList.toggle("invalid", !lengthValid);
+
+    const overallValid = lengthValid && validCount >= 3;
+    newPasswordCriteria.classList.toggle("valid", overallValid);
+  } else {
+    document.getElementById("newPassword_criteria").classList.add("hidden");
+    newPasswordError.textContent = "This field is required.";
+  }
+}
+
+function validateConfirmPassword() {
+  const password = newPasswordInput.value;
+  const confirmPassword = reenterPasswordInput.value;
+  let errorMessage = "";
+
+  if (confirmPassword) {
+    if (password !== confirmPassword) {
+      errorMessage = "The passwords do not match.";
+    }
+
+    confirmPasswordError.textContent = errorMessage;
+  } else {
+    confirmPasswordError.textContent = "This field is required.";
+  }
+}
