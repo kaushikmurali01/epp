@@ -388,6 +388,23 @@ select.dull{
   gap: 2rem;
 }
 
+.field1,.field2{
+  position: relative;
+  display: flex;
+
+  input{
+    width: 100%;
+  }
+}
+
+.fa{
+  position: absolute;
+  cursor: pointer;
+  right: 18px;
+  bottom: 18px;
+  color: grey;
+}
+
 .hidden {
   display: none !important;
 }

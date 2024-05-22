@@ -1,3 +1,63 @@
+// Select all radio inputs within the specified list item
+const radioButtons = document.querySelectorAll(
+  '.RadioSingleSelect.extension_UserType_li input[type="radio"]'
+);
+
+// Iterate through each radio button and remove the 'disabled' attribute
+radioButtons.forEach(function (radioButton) {
+  radioButton.removeAttribute("disabled");
+  radioButton.removeAttribute("aria-disabled");
+});
+
+function processCheckboxListItem(className, labelContent) {
+  // Select the <li> element with the specified class
+  let listItem = document.querySelector("." + className);
+
+  // Select the <fieldset> element
+  let fieldset = listItem.querySelector("fieldset");
+
+  // Select the <legend> element
+  let legend = fieldset.querySelector("legend");
+
+  // Create a new <label> element with the same content and attributes as the <legend>
+  let newLabel = document.createElement("label");
+  newLabel.id = legend.id;
+  newLabel.setAttribute(
+    "for",
+    listItem.querySelector('input[type="checkbox"]').id
+  ); // Pointing to the checkbox
+  newLabel.className = legend.className;
+  newLabel.innerHTML = labelContent; // Set the label content
+
+  // Replace the <legend> with the new <label>
+  fieldset.replaceChild(newLabel, legend);
+
+  // Move all children of <fieldset> (except the new <label>) out of <fieldset>
+  while (fieldset.firstChild) {
+    listItem
+      .querySelector(".attrEntry")
+      .insertBefore(fieldset.firstChild, listItem.querySelector(".helpLink"));
+  }
+
+  // Remove the now empty <fieldset>
+  fieldset.remove();
+}
+
+// Call the function for each checkbox list item with appropriate content
+processCheckboxListItem(
+  "extension_Policy1_li",
+  'I have read and agree to the provisions of the <a href="https://eppdevstorage.blob.core.windows.net/assets/epp-portal-services-agreement.pdf" id="agreement" class="agreement" target="_blank">Portal Services Agreement</a>, which includes limitations on Enerva and IESO warranties and liability.'
+);
+processCheckboxListItem(
+  "extension_Policy2_li",
+  "I agree that the information submitted in the sign up form and in other communications and forms as part of the Program consists solely of business or commercial information and is not personal information of any individual."
+);
+processCheckboxListItem(
+  "extension_Policy3_li",
+  "I consent to being contacted by IESO or Enerva (IESO Service Provider) by email, text or other electronic means for program-related matters or about energy efficiency and greenhouse gas reducing programs, technologies, products, and services that IESO or Enerva offers."
+);
+
+
 function showForm(userRole) {
   if (userRole === "super_administrator") {
     // resetForm();
@@ -301,18 +361,35 @@ const postalCodePattern =
   /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/;
 
 if (postalCodeInput) {
+  // Create the error div once and append it to the parent element
+  const errorDiv = document.createElement("div");
+  errorDiv.classList.add("error");
+  errorDiv.style.display = "none"; // Hide the error div initially
+
+  const parentElement = document.querySelector(".postalCode_li .attrEntry");
+
+  // parentElement.appendChild(errorDiv);
+
+  // Insert the error div before the input element
+  parentElement.insertBefore(errorDiv, postalCodeInput);
+
   postalCodeInput.addEventListener("input", function (event) {
     // Convert the value to uppercase
     event.target.value = event.target.value.toUpperCase();
 
-    const errorDiv = document.querySelector(".postalCode_li .error");
-
     // Validate the postal code pattern
     const value = event.target.value;
-    if (!postalCodePattern.test(value)) {
-      errorDiv.textContent = "Please enter a valid Canadian postal code.";
+
+    if (value) {
+      if (!postalCodePattern.test(value)) {
+        errorDiv.style.display = "block";
+        errorDiv.textContent = "Please enter a valid Canadian postal code.";
+      } else {
+        errorDiv.textContent = "";
+        errorDiv.style.display = "none";
+      }
     } else {
-      errorDiv.textContent = "";
+        errorDiv.style.display = "none";
     }
   });
 }
@@ -501,8 +578,8 @@ function checkCompanyName() {
 
 // Function to show an error message
 // function showErrorMessage(message, cls = ".extension_CompanyName_li") {
-  // You can display the error message in the desired way
-  // For example, you can use the provided error div with the class "error itemLevel"
+// You can display the error message in the desired way
+// For example, you can use the provided error div with the class "error itemLevel"
 //   const companyli = document.querySelector(cls);
 //   const errorDiv = companyli.querySelector(".error.itemLevel");
 //   errorDiv.textContent = message;
@@ -572,9 +649,100 @@ function showPopup() {
   document.body.appendChild(overlay);
 }
 
-function scrollToTop(){
+function scrollToTop() {
   window.scrollTo({
     top: 0,
     behavior: "smooth",
   });
-};
+}
+
+// Get the password input fields
+
+const newPasswordLi = document.querySelector(".newPassword_li");
+const reenterPasswordLi = document.querySelector(".reenterPassword_li");
+const newPasswordInput = document.getElementById('newPassword');
+const reenterPasswordInput = document.getElementById('reenterPassword');
+newPasswordLi.style.position = "relative";
+reenterPasswordLi.style.position = "relative";
+
+// Function to toggle password visibility
+function togglePasswordVisibility(input, eyeIcon) {
+  if (input.type === 'password') {
+    input.type = 'text';
+    eyeIcon.style.color = 'green'; // Change eye icon color when showing password
+  } else {
+    input.type = 'password';
+    eyeIcon.style.color = 'grey'; // Change eye icon color when hiding password
+  }
+}
+
+// Create eye icons and add event listeners
+const newPasswordEyeIcon = document.createElement('i');
+newPasswordEyeIcon.classList.add('fa', 'fa-eye');
+newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
+newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+
+const reenterPasswordEyeIcon = document.createElement('i');
+reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
+reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
+reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+
+
+// Following code will not show the Checks on Password therefore not showing as of now
+
+// Get the password input fields
+// const newPasswordInput = document.getElementById("newPassword");
+// const reenterPasswordInput = document.getElementById("reenterPassword");
+
+// // Function to toggle password visibility
+// function togglePasswordVisibility(input, eyeIcon) {
+//   if (input.type === "password") {
+//     input.type = "text";
+//     eyeIcon.style.color = "green"; // Change eye icon color when showing password
+//   } else {
+//     input.type = "password";
+//     eyeIcon.style.color = "grey"; // Change eye icon color when hiding password
+//   }
+// }
+
+
+// Create eye icons and add event listeners
+// const newPasswordEyeIcon = document.createElement('i');
+// newPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
+// newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+
+// const reenterPasswordEyeIcon = document.createElement('i');
+// reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
+// reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+
+
+
+// // Create a new div element
+// const field1 = document.createElement('div');
+// field1.classList.add('field1');
+
+
+// // Append the input and icon elements to the new div
+// field1.appendChild(newPasswordInput);
+// field1.appendChild(newPasswordEyeIcon);
+
+// // Find the parent element of the input and icon elements
+// const parentElement1 = document.querySelector('.newPassword_li .attrEntry');
+
+// // Append the new div to the parent element
+// parentElement1.appendChild(field1);
+
+// const field2 = document.createElement("div");
+// field2.classList.add("field2");
+
+// // Append the input and icon elements to the new div
+// field2.appendChild(reenterPasswordInput);
+// field2.appendChild(reenterPasswordEyeIcon);
+
+// // Find the parent element of the input and icon elements
+// const parentElement2 = document.querySelector(".reenterPassword_li .attrEntry");
+
+// // Append the new div to the parent element
+// parentElement2.appendChild(field2);
