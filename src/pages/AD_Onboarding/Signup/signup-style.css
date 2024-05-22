@@ -405,6 +405,31 @@ select.dull{
   color: grey;
 }
 
+.error.itemLevel.show {
+  display: block;
+}
+
+.criteria {
+  position: absolute;
+  top: 105%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.criteria span {
+  padding: 0 2px;
+}
+
+.criteria .valid {
+  color: #2E813E;
+}
+
+.criteria .invalid {
+  color: #da0606;
+}
+
 .hidden {
   display: none !important;
 }
