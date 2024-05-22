@@ -7,6 +7,7 @@ import { UserCompanyRole } from "../models/user-company-role";
 import { User } from "../models/user";
 import { Role } from "../models/role";
 import { CompanyService } from "../services/companyService";
+import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 
 
 
@@ -75,12 +76,10 @@ export async function UpdateCompanyStatus(request: HttpRequest, context: Invocat
         // Parse request data
         const requestData = await request.json();
         const { id } = request.params;
-        const company = await CompanyController.updateCompany(requestData, id);
+        const company = await CompanyController.UpdateCompanyStatus(id, requestData);
 
-        // Prepare response body
         const responseBody = JSON.stringify(company);
-
-        // Return success response
+        // Prepare response body
         return { body: responseBody, status: 201 };
     } catch (error) {
 
@@ -100,6 +99,10 @@ export async function sendAlertForCompany(request: HttpRequest, context: Invocat
     try {
         // Parse request data
         const { id } = request.params;
+        let checkStatus = await CheckCompanyStatus(id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
         const requestData = await request.json();
         const company = await CompanyController.sendAlertForCompany(requestData, id);
 
@@ -173,8 +176,11 @@ export async function DropDownCompanies(request: HttpRequest, context: Invocatio
 export async function GetCompanyAdmin(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { id } = request.params;
-
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        let checkStatus = await CheckCompanyStatus(id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
+        await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         // Get all companies
         const company = await CompanyController.getCompanyAdmin(id);
@@ -225,9 +231,27 @@ export async function CheckCompanyByName(request: HttpRequest, context: Invocati
 
 export async function GetCompanyAdmins(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const { company_id } = request.params;
+    let checkStatus = await CheckCompanyStatus(company_id)
+    if (!checkStatus) {
+        return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+    }
     const result = await CompanyService.GetAdminsOfCompany(company_id);
     const responseBody = JSON.stringify(result);
     return { body: responseBody };
+}
+export async function CheckCompanyStatus(company_id: string | number): Promise<any> {
+    try {
+        // Fetch the company details
+        const company = await Company.findOne({ where: { id: company_id, is_active: 1 } });
+        if (company) {
+            return true
+        } else {
+            return false
+        }
+    }
+    catch (error) {
+        return { status: 500, body: `${error.message}` }
+    }
 }
 app.http('ListCompanies', {
     methods: ['GET'],

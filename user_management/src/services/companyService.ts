@@ -91,15 +91,20 @@ class CompanyService {
     static async updateCompany(companyId: number, updatedDetails): Promise<any> {
         try {
             delete updatedDetails.company_id;
-            console.log("AAAAA", updatedDetails.company_id);
-            console.log("BBBBB", updatedDetails);
-            console.log("CCCCC", companyId);
             //await testDatabaseConnection();
             const company = await Company.findByPk(companyId);
             if (!company) {
                 throw new Error(RESPONSE_MESSAGES.notFound404);
             }
             console.log(updatedDetails, { where: { id: companyId } })
+            let result = await Company.update(updatedDetails, { where: { id: Number(companyId) } });
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, company: result };
+        } catch (error) {
+            throw new Error(`${error.message}`);
+        }
+    }
+    static async UpdateCompanyStatus(companyId: number, updatedDetails): Promise<any> {
+        try {
             let result = await Company.update(updatedDetails, { where: { id: Number(companyId) } });
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, company: result };
         } catch (error) {
@@ -206,26 +211,26 @@ class CompanyService {
     }
 
     static async SendEmailsToAllAdmins(adminData, title, body): Promise<any> {
-        console.log("adminData",adminData);
+        console.log("adminData", adminData);
         // Extracting the superadmin email
         const superAdminEmail = adminData.superAdmin.email;
-       let contentAdmin =   body.replace("#name#", adminData.superAdmin.name);
+        let contentAdmin = body.replace("#name#", adminData.superAdmin.name);
         // Sending email to the superadmin
         Email.send(superAdminEmail, title, contentAdmin);
 
         // Extracting subadmin emails and sending emails
         adminData.subAdmins.forEach(subAdmin => {
             const subAdminEmail = subAdmin.email;
-            let content =  body.replace("#name#", subAdmin.name);
+            let content = body.replace("#name#", subAdmin.name);
             Email.send(subAdminEmail, title, content);
         });
 
     }
 
     static async GetAdminsAndSendEmails(company_id, title, body): Promise<any> {
-        
-       const adminData = await this.GetAdminsOfCompany(company_id);
-       await this.SendEmailsToAllAdmins(adminData, title, body)
+
+        const adminData = await this.GetAdminsOfCompany(company_id);
+        await this.SendEmailsToAllAdmins(adminData, title, body)
 
     }
 
@@ -234,57 +239,57 @@ class CompanyService {
             // Fetch the company details
             const company = await Company.findByPk(company_id);
             if (!company) {
-              throw new Error('Company not found');
+                throw new Error('Company not found');
             }
-        
+
             // Fetch the user roles related to the company
             const userRoles = await UserCompanyRole.findAll({
-              where: { company_id },
-              include: [
-                {
-                  model: User,
-                  attributes: ['id', 'first_name', 'last_name', 'email'],
-                },
-                {
-                  model: Role,
-                  attributes: ['id', 'rolename'],
-                },
-                {
-                  model: Company,
-                  attributes: ['company_name'],
-                },
-              ],
+                where: { company_id },
+                include: [
+                    {
+                        model: User,
+                        attributes: ['id', 'first_name', 'last_name', 'email'],
+                    },
+                    {
+                        model: Role,
+                        attributes: ['id', 'rolename'],
+                    },
+                    {
+                        model: Company,
+                        attributes: ['company_name'],
+                    },
+                ],
             });
-        
+
             // Filter the super admin and sub admins
-            const superAdmin:any = userRoles.find(
-              (userRole) => userRole.role_id === 1 // Super admin role ID is 1
+            const superAdmin: any = userRoles.find(
+                (userRole) => userRole.role_id === 1 // Super admin role ID is 1
             );
-            const subAdmins:any = userRoles.filter(
-              (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
+            const subAdmins: any = userRoles.filter(
+                (userRole) => userRole.role_id === 2 // Sub admin role ID is 2
             );
-        
+
             // Prepare the response
             const result = {
-              company: company.company_name,
-              superAdmin: superAdmin
-                ? {
-                    email: superAdmin.User.email,
-                    name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
-                    role: superAdmin.Role.rolename,
-                  }
-                : null,
-              subAdmins: subAdmins.map((admin) => ({
-                email: admin.User.email,
-                name: `${admin.User.first_name} ${admin.User.last_name}`,
-                role: admin.Role.rolename,
-              })),
+                company: company.company_name,
+                superAdmin: superAdmin
+                    ? {
+                        email: superAdmin.User.email,
+                        name: `${superAdmin.User.first_name} ${superAdmin.User.last_name}`,
+                        role: superAdmin.Role.rolename,
+                    }
+                    : null,
+                subAdmins: subAdmins.map((admin) => ({
+                    email: admin.User.email,
+                    name: `${admin.User.first_name} ${admin.User.last_name}`,
+                    role: admin.Role.rolename,
+                })),
             };
 
             return result;
-    
+
         }
-         catch (error) {
+        catch (error) {
             // Return error response
             return { status: 500, body: `${error.message}` };
         }

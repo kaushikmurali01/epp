@@ -1,5 +1,6 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
 import { CompanyService } from '../services/companyService';
+import { rawQuery } from "../services/database";
 import { Email } from "../services/email";
 import { EmailContent } from "../utils/emailContent";
 import { EmailTemplate } from "../utils/emailTemplate";
@@ -85,6 +86,35 @@ class CompanyController {
             //  const companyId = parseInt(req.id);
             const updatedData = req;
             const updatedCompany = await CompanyService.updateCompany(companyId, updatedData);
+            return updatedCompany;
+        } catch (error) {
+            return { status: 400, body: { error: error.message } };
+        }
+    }
+    static async UpdateCompanyStatus(companyId, req): Promise<any> {
+        try {
+            const updatedData = req;
+            const findData: any = await rawQuery(`select "u"."first_name","u"."email","c"."company_name" from "users" as "u" INNER join "user_company_role" as ucr on
+            "ucr"."user_id" ="u"."id" INNER join "company" 
+            as c on "c"."id"="ucr"."company_id" where "c".id=${companyId}`)
+            const updatedCompany = await CompanyService.UpdateCompanyStatus(companyId, updatedData);
+            let template = await EmailTemplate.getEmailTemplate();
+            let logo: any = EmailTemplate.getLogo();
+            let text = updatedData.is_active ? "Activated" : "Deactivated";
+            let mails = []
+            findData.map(ele => {
+                mails.push({ address: ele.email })
+            })
+            template = template.replace('#heading#', 'Company Edited for Energy Performance Program Portal')
+                .replace('#content#', `
+Your company <b>${findData[0].company_id}</b> has been ${text}.<br/> 
+If you believe you received this email in error, please contact Customer Service for assistance.<br/>
+Thank You,<br/>
+                Energy Performance Program`)
+                .replace('#name#', "")
+                .replace('#logo#', logo);
+            console.log(findData)
+            Email.multipleSend(mails, EmailContent.activeInactiveEmail.title, template);
             return updatedCompany;
         } catch (error) {
             return { status: 400, body: { error: error.message } };

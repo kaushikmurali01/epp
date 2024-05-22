@@ -1,24 +1,27 @@
 export const EmailContent = {
- invitationEmailForExistingUser : {
-    content: `You have been invited to join #company# by #admin#. 
+   invitationEmailForExistingUser: {
+      content: `You have been invited to join #company# by #admin#. 
       <br/>
     To accept this invitation, please click this link.`,
-    title: 'User Invitation to Energy Performance Program'
- },
- invitationEmailForAdmins : {
-   content: `#user# has been invited to join #company# by #admin#.`,
-   title: 'User Invitation Sent for Energy Performance Program Portal'
-},
-invitationAcceptForUser : {
-   content: `You have joined #company#`,
-   title: 'User Invitation Accepted for Energy Performance Program Portal'
-},
- invitationEmailForNewUser : {
-    content: 'Your are invited to join company',
-    title: 'Invited to join company'
- },
- alertEmail : {
-   title: 'Alert from admin'
-}
+      title: 'User Invitation to Energy Performance Program'
+   },
+   invitationEmailForAdmins: {
+      content: `#user# has been invited to join #company# by #admin#.`,
+      title: 'User Invitation Sent for Energy Performance Program Portal'
+   },
+   invitationAcceptForUser: {
+      content: `You have joined #company#`,
+      title: 'User Invitation Accepted for Energy Performance Program Portal'
+   },
+   invitationEmailForNewUser: {
+      content: 'Your are invited to join company',
+      title: 'Invited to join company'
+   },
+   alertEmail: {
+      title: 'Alert from admin'
+   },
+   activeInactiveEmail: {
+      title: 'Company Edited for Energy Performance Program Portal'
+   }
 
 }
