@@ -89,7 +89,7 @@ const UserManagementColumn = () => {
                         </Box>
                     );
                 } else if (item.status === 'pending') {
-                    return 'Request received'
+                    return 'Invitation sent'
                 }
                 else {
                     return capitalizeSentence(item.status); // Display status text for other status types
