@@ -144,7 +144,7 @@ const UserManagement = () => {
 
 
           {/* <SelectBox /> */}
-          <Grid display="flex" sx={{ marginTop: '1rem' }}>
+          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
               Submit
             </ButtonWrapper>
@@ -318,10 +318,10 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               <Grid item xs={12} md={4} >
                 <Typography variant='h4'>User Management</Typography>
               </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+              <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}, gap: {xs: '0.5rem', md: '2rem'}, marginTop: {xs: '1rem' ,md: '0'} }}>
                 <FormGroup className="theme-form-group theme-select-form-group" >
 
-                  <FormControl sx={{ minWidth: '6rem' }}>
+                  <FormControl sx={{ minWidth: '6rem', maxWidth: '8rem', flexGrow: '1' }}>
                     <Select
                       value={selectFilterType}
                       onChange={(e) => handleSelectChange(e)}
@@ -367,7 +367,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                 <Button
                   color="primary"
                   variant="contained"
-                  sx={{ alignSelf: 'center' }}
+                  sx={{ alignSelf: 'flex-start', marginTop: {xs: '1rem', md: '0'} }}
                   onClick={() => handelInviteUser()}
                 >
                   Invite User
@@ -377,14 +377,12 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
             </Grid>
 
             <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-              <Grid item xs={6}  >
+              <Grid item xs={4}  >
                 <Tabs
                   className='theme-tabs-list'
                   value={tabValue}
                   onChange={handleChange}
                   sx={{ display: 'inline-flex' }}
-
-
                 >
                   <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
                   {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />

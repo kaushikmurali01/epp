@@ -80,7 +80,7 @@ const UserManagementColumn = () => {
                 if (item.status === 'Initiated') {
                     return (
                         <Box >
-                            <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAccept(item, handleAPISuccessCallBack)} >
+                            <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAcceptManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)} >
                                 <CheckCircleIcon /> Accept
                             </Typography>
                             <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelReject(item, handleAPISuccessCallBack)} >
@@ -100,7 +100,7 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                         Manage permission
                     </Typography>
                     <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
@@ -112,27 +112,41 @@ const UserManagementColumn = () => {
         },
     ];
 
+    const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
+        // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
+        //     NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        //     return;
+        // }
 
-    const handelAccept = (item, handleSuccessCallback) => {
+        const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
+        setVisibleInvitePage(true);
+        setSelectTableRow(item)
+        setInvitePageInfo({title:'Manage permission', type: null, handelAccept: true })
+        setInviteAPIURL(apiURL)
 
-        const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
-        const requestBody = {
-            "user_id": item.id,
-            "company_id": item.company_id
-        }
-
-        POST_REQUEST(apiURL, requestBody)
-            .then((response) => {
-                NotificationsToast({ message: "You have accepted the request!", type: "success" });
-                handleSuccessCallback();
-
-            })
-            .catch((error) => {
-                console.log(error, 'error')
-                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
-            })
     }
+
+
+    // const handelAccept = (item, handleSuccessCallback) => {
+
+    //     const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
+    //     const requestBody = {
+    //         "user_id": item.id,
+    //         "company_id": item.company_id
+    //     }
+
+    //     POST_REQUEST(apiURL, requestBody)
+    //         .then((response) => {
+    //             NotificationsToast({ message: "You have accepted the request!", type: "success" });
+    //             handleSuccessCallback();
+
+    //         })
+    //         .catch((error) => {
+    //             console.log(error, 'error')
+    //             NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+    //         })
+    // }
 
     const handelReject = (item, handleSuccessCallback) => {
         const apiURL = USER_MANAGEMENT.REJECT_USER_REQUEST;
@@ -155,7 +169,7 @@ const UserManagementColumn = () => {
     }
 
     const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-        if(userData?.user?.id === item?.id){
+        if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
             NotificationsToast({ message: "You don't have permission for this!", type: "error" });
             return;
         }
