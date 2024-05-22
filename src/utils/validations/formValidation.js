@@ -183,6 +183,12 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
+  facility_electricity_service_size: Yup.number()
+    .nullable()
+    .min(0, "Facility electricty service size must be a positive number"),
+  facility_service_entrance_voltage: Yup.number()
+    .nullable()
+    .min(0, "Facility service entrance voltage must be a positive number"),
   space_cooling_fuel_source: Yup.string().required(
     "Space cooling fuel source is required"
   ),

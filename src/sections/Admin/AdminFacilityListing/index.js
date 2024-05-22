@@ -210,7 +210,7 @@ const AdminFacilityListing = () => {
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
             name="search"
-            label="Search by Facility name"
+            label="Search by facility name"
             type="text"
             fullWidth
             size="small"
