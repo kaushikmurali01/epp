@@ -9,6 +9,7 @@ import { sequelize } from "../services/database";
 import { User } from "../models/user";
 import { Company } from "../models/company";
 import { Model } from "sequelize";
+import { UserRequest } from "../models/user-request";
 /**
  * Creates a new role based on the provided request data.
  * 
@@ -247,12 +248,25 @@ export async function GetUserPermissions(request: HttpRequest, context: Invocati
 export async function GetPermissionsByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Extract role ID from request
-        const user_id = parseInt(request.params.user_id);
+        let user_id = parseInt(request.params.user_id);
         const company_id = parseInt(request.params.company_id);
         let entry_type = parseInt(request.params.entry_type);
         let userInvitations;
         context.log("Entry Type", entry_type);
-        if(entry_type == 1) {
+        context.log("User Id", user_id);
+        context.log("company id", company_id);
+        
+        if(entry_type == 1 || entry_type == 3) {
+            context.log("entry_type");
+            if(entry_type == 3) {
+            let usData = await UserRequest.findOne({
+                where: {
+                  id: user_id
+                }
+            });
+            user_id = usData.user_id;
+            context.log("usDATA",usData);
+        }
 
             const userPermissions:any = await UserCompanyRolePermission.findAll({
                 where: {

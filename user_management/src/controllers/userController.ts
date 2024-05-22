@@ -6,6 +6,9 @@ import { CompanyService } from "../services/companyService";
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { UserCompanyRole } from "../models/user-company-role";
 import { CompanyController } from "./companyController";
+import { EmailTemplate } from "../utils/emailTemplate";
+import { EmailContent } from "../utils/emailContent";
+import { Email } from "../services/email";
 
 class UserController {
 
@@ -61,6 +64,8 @@ class UserController {
 */
   static async updateUser(req, userId, companyId): Promise<any> {
     try {
+      console.log("COmps111", req.company);
+      const c_id = req.company.company_id;
       // const { id } = req.params;
       // const { first_name, last_name, email, password, address, phonenumber } = req.body;
       // const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
@@ -76,6 +81,32 @@ class UserController {
       }
 
       if (userData) {
+
+      // Send Email For User Starts
+      let template =  await EmailTemplate.getEmailTemplate();
+      console.log("COmps", c_id);
+      const company:any = await CompanyService.GetCompanyById(c_id);
+      console.log("company9999", userData.email);
+     //const userDet:any = await UserService.getUserDataById(userData?.dataValues?.user_id);
+      let emailContent =  template
+                .replace('#content#', EmailContent.editDetailForUser.content)
+                .replace('#name#', userData.first_name)
+                .replace('#company#', company.company_name)
+                .replace('#isDisplay#', 'none')
+                .replace('#heading#', '');
+       Email.send(userData.email, EmailContent.editDetailForUser.title, emailContent);
+    // Send Email For User Ends
+
+    // Send Email to Admins
+    const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.editDetailForAdmins.content)
+    .replace('#user#', `${userData.first_name}`)
+    .replace('#company#', company.company_name)
+    .replace('#isDisplay#', 'none')
+    .replace('#heading#', '');
+    await CompanyService.GetAdminsAndSendEmails(c_id, EmailContent.editDetailForAdmins.title, adminContent);
+    // Send Email to Admins
+
+
         return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success, user: userData, company: companyData };
 
       } else {

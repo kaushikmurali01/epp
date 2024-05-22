@@ -177,7 +177,7 @@ export class EmailTemplate {
                                     text-transform: lowercase;
                                     display: #isDisplay#
                                   ">
-                                  <a href="https://eppdevstorage.z14.web.core.windows.net/" target="_blank" style="
+                                  <a href="https://eppstgstorage.z14.web.core.windows.net/" target="_blank" style="
                                     border: transparent;
                                     padding: 0.5rem 0.75rem;
                                     border-radius: 0.25rem;

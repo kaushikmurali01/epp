@@ -290,6 +290,14 @@ class CompanyService {
         }
     }
 
+    static async GetCompanyById(company_id): Promise<any> {
+        
+        const company = await Company.findByPk(company_id);
+        return company;
+
+ 
+     }
+
 }
 
 

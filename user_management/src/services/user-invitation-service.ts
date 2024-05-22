@@ -239,7 +239,7 @@ static async acceptUserInvitation(detail, resp, context): Promise<Object> {
 
   context.log("Listing1234",invitationList);
 
-  context.log("Listing",invitationList.dataValues.permissions);
+  context.log("Listing",invitationList?.dataValues?.permissions);
 
   await UserCompanyRole.destroy({
     where: {
@@ -287,12 +287,29 @@ if(detail.company_id) {
 // else {
 //   await User.update({ type: 1 }, { where: { id: detail.user_id} });
 // }
-// let template =  await EmailTemplate.getEmailTemplate();
-// let emailContent =  template
-//           .replace('#content#', EmailContent.invitationAcceptForUser.content)
-//           .replace('#name#', resp.first_name)
-//           .replace('#company#', "Enerva");
-//           Email.send(resp.email, EmailContent.invitationAcceptForUser.title, emailContent);
+
+// Send Email Starts
+ let template =  await EmailTemplate.getEmailTemplate();
+ const company:any = await CompanyService.GetCompanyById(detail.company_id);
+ console.log('company88888', company);
+ let emailContent =  template
+           .replace('#content#', EmailContent.invitationAcceptForUser.content)
+           .replace('#name#', resp.first_name)
+           .replace('#company#', company.company_name)
+           .replace('#isDisplay#', 'none')
+           .replace('#heading#', '');
+           
+            Email.send(detail.email, EmailContent.invitationAcceptForUser.title, emailContent);
+// Send Email Ends
+
+// Send Email to Admins
+const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationAcceptForAdmins.content)
+                                                                          .replace('#user#', `${resp.first_name}`)
+                                                                          .replace('#company#', company.company_name)
+                                                                          .replace('#isDisplay#', 'none')
+                                                                          .replace('#heading#', '');
+                await CompanyService.GetAdminsAndSendEmails(detail.company_id, EmailContent.invitationAcceptForAdmins.title, adminContent);
+// Send Email to Admins
 }
 
 

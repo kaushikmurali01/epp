@@ -15,6 +15,7 @@ import { EmailContent } from "../utils/emailContent";
 import { EmailTemplate } from "../utils/emailTemplate";
 import { Company } from "../models/company";
 import { Role } from "../models/role";
+import { CompanyService } from "../services/companyService";
 
 /**
  * Registers a new user based on the provided request data.
@@ -388,6 +389,31 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         const type: any = request.params.type;
         if (type == 1) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
+
+            if(request.params.company_id) {
+            // Send Email For User Starts
+      let template =  await EmailTemplate.getEmailTemplate();
+      const company:any = await CompanyService.GetCompanyById(request.params.company_id);
+      const userDet:any = await UserService.getUserDataById(userId);
+      let emailContent =  template
+                .replace('#content#', EmailContent.deleteDetailForUser.content)
+                .replace('#name#', userDet.first_name)
+                .replace('#company#', company.company_name)
+                .replace('#isDisplay#', 'none')
+                .replace('#heading#', '');
+       Email.send(userDet.email, EmailContent.deleteDetailForUser.title, emailContent);
+    // Send Email For User Ends
+
+    // Send Email to Admins
+    const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.deleteDetailForAdmins.content)
+    .replace('#user#', `${userDet.first_name}`)
+    .replace('#company#', company.company_name)
+    .replace('#isDisplay#', 'none')
+    .replace('#heading#', '');
+    await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
+    // Send Email to Admins
+            }
+
         } else if (type == 2) {
             await UserInvitation.update({ is_active: 0 }, { where: { id: userId } });
         } else if (type == 3) {

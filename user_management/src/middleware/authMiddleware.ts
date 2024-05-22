@@ -37,10 +37,10 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
         // };
        // return userData;
 
-        console.log("values", user.dataValues)
+        console.log("values", user?.dataValues)
 
         // Call the next function
-        return user.dataValues;
+        return user?.dataValues;
     } catch (error) {
         return { status: 500, body: `${error.message}` };
     }
