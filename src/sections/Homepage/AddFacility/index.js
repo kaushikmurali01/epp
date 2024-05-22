@@ -704,7 +704,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="unit_number"
-                    label="Unit number*"
+                    label="Unit number"
                     type="text"
                   />
                 </Grid>
