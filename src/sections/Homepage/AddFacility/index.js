@@ -328,9 +328,9 @@ const AddFacilityComponent = (props) => {
               ...response.data.data,
             };
           });
-          setSelectedFile(response.data.data.display_pic_url);
-          let sliderValue = response.data.data.target_saving.split('%');
-          setSliderValue(sliderValue.split('%')[0]);
+          setSelectedFile(response.data.data.display_pic_url ? response.data.data.display_pic_url : '');
+          let sliderValue = (response.data.data.target_saving ? response.data.data.target_saving.split('%') : '');
+          setSliderValue(sliderValue[0]);
         }
       })
       .catch((error) => { });
@@ -357,7 +357,7 @@ const AddFacilityComponent = (props) => {
   );
 
   const handleSubmit = (values) => {
-    const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
+    const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId, target_saving: sliderValue };
     console.log(newValues);
     if (values.facility_construction_status == "Existing") {
       values.facility_construction_status = 1;
