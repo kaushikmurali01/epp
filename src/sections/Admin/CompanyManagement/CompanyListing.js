@@ -330,8 +330,8 @@ const CompanyListing = () => {
         <Grid container sx={{ justifyContent: "center" }}>
           <Typography variant="h4">
             {activityStatus === 1
-              ? "Are you sure you would like to deactivate the Company Details"
-              : "Are you sure you would like to Activate Company Details?"}
+              ? "Are you sure you would like to deactivate the company details?"
+              : "Are you sure you would like to activate company details?"}
           </Typography>
         </Grid>
         <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
