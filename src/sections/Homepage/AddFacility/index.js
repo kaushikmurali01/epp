@@ -20,6 +20,18 @@ import {
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import SliderWrapper from "components/FormBuilder/Slider";
+
+const marksForEnergyTarget = [
+  {
+    value: 0,
+    label: '0 %',
+  },
+  {
+    value: 100,
+    label: '100 %',
+  },
+];
 
 const AddFacilityComponent = (props) => {
   const [imgUrl, setImgUrl] = useState("");
@@ -237,11 +249,6 @@ const AddFacilityComponent = (props) => {
   const [categoriesTypesAndNAICS, setCategoriesTypesAndNAICS] = useState([])
   const [facilityCategories, setFacilityCategories] = useState([])
   const [facilityTypes, setFacilityTypes] = useState([]);
-  const [sliderValue, setSliderValue] = useState(1);
-
-  const handleSliderValueChange = (event, newValue) => {
-    setSliderValue(newValue);
-  };
 
   useEffect(() => {
     getCategoriesTypesAndNAICS();
@@ -329,8 +336,6 @@ const AddFacilityComponent = (props) => {
             };
           });
           setSelectedFile(response.data.data.display_pic_url ? response.data.data.display_pic_url : '');
-          let sliderValue = (response.data.data.target_saving ? response.data.data.target_saving.split('%') : '');
-          setSliderValue(sliderValue[0]);
         }
       })
       .catch((error) => { });
@@ -357,8 +362,7 @@ const AddFacilityComponent = (props) => {
   );
 
   const handleSubmit = (values) => {
-    const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId, target_saving: sliderValue };
-    console.log(newValues);
+    const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
     if (values.facility_construction_status == "Existing") {
       values.facility_construction_status = 1;
     } else if (values.facility_construction_status == "New") {
@@ -590,14 +594,14 @@ const AddFacilityComponent = (props) => {
                   >
                     What is your target energy savings for this facility?*
                   </Typography>
-                  <Slider
-                    value={sliderValue}
-                    min={1}
-                    max={100}
-                    onChange={handleSliderValueChange}
-                    valueLabelDisplay="auto"
-                    aria-labelledby="number-slider"
-                  />
+                    <SliderWrapper 
+                      name="target_saving"
+                      min={0}
+                      max={100}
+                      aria-labelledby="number-slider"
+                      valueLabelDisplay="on"
+                      marks={marksForEnergyTarget}
+                    />
                 </Grid>
               </Grid>
 
