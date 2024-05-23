@@ -98,7 +98,7 @@ function Header(props) {
       cancelButtonClass: "",
 
     },
-    headerText: "Request to join other company",
+    headerText: "Request to join company",
     headerSubText: 'Please enter the following details to send request to join other company',
     modalBodyContent: "",
   });
@@ -462,7 +462,7 @@ function Header(props) {
             >
               {userDetails?.type == 2 || userDetails?.type == 3 ? <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
                 <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join other company
+                  Request to join company
                 </Typography>
               </Grid> : null}
               <Button

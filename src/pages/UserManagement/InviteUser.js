@@ -342,7 +342,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 </Grid>
 
                 {permissions?.length > 0 ?
-                    <Box component='div' sx={{ width: { xs: '100%', sm: '75%' } }} >
+                    <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
                         <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                             <Grid item>
                                 <Typography variant='small'>List of Permissions</Typography>
@@ -356,7 +356,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 const isPermissionSelected = permissionStates?.includes(permission.permission_id);
                                 return (
                                     <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item >
+                                        <Grid item xs={12} md={10}>
                                             <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>

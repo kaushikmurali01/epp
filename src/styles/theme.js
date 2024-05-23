@@ -249,6 +249,7 @@ const theme = createTheme({
 
       [getTheme.breakpoints.up("md")]: {
         fontSize: "1rem",
+        lineHeight: '1.5rem'
       },
     },
 

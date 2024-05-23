@@ -164,7 +164,7 @@ const UserManagement = () => {
         saveButton: false,
         cancelButton: false,
     },
-    headerText: "Request to join other company",
+    headerText: "Request to join company",
     headerSubText: 'Please enter the following details to send request to join other company',
       modalBodyContent: <RequestToJoinForm />
     }));
@@ -391,7 +391,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               </Grid>
               <Grid item sx={{ justifySelf: 'flex-end' }}>
                 <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join other company
+                Request to join company
                 </Typography>
               </Grid>
             </Grid>
