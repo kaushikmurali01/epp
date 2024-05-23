@@ -13,7 +13,7 @@ import {
 import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
-import { Field, Form, Formik } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
@@ -32,10 +32,12 @@ import {
   SOURCE_ARRAY,
   SPACE_COOLING_ARRAY,
   SPACE_COOLING_UNIT_ARRAY,
+  SPACE_HEATING_ARRAY,
   SPACE_HEATING_UNIT_ARRAY,
   WATER_HEATING_ARRAY,
   WATER_HEATING_UNIT_ARRAY,
 } from "../../../utils/dropdownConstants/dropdownConstants";
+import EvModal from "utils/modal/EvModal";
 
 const Details = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -54,6 +56,81 @@ const Details = ({ setTab }) => {
   const facilityCharacterstics = useSelector(
     (state) => state?.facilityReducer?.characteristics?.data
   );
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: true,
+      saveButtonClass: "",
+      cancelButtonClass: "",
+      cancelButtonStyle: {
+        backgroundColor: "primary.main",
+        "&:hover": { backgroundColor: "primary.main" },
+        color: "#fff",
+      },
+      cancelButtonName: "Okay",
+    },
+    headerText: "Facility details",
+    headerSubText: "",
+    modalBodyContent: "The facility details have been updated successfully.",
+  });
+
+  const [fieldInstructions, setFieldInstructions] = useState({
+    space_cooling_technology_age: "",
+    space_cooling_technology_capacity: "",
+    space_cooling_efficiency: "",
+    space_heating_technology_age: "",
+    space_heating_technology_capacity: "",
+    space_heating_efficiency: "",
+    water_heating_technology_age: "",
+    water_heating_technology_capacity: "",
+    water_heating_efficiency: "",
+  });
+
+  const instructions = {
+    space_cooling_technology_age:
+      "Space cooling technology age must be a number",
+    space_cooling_technology_capacity:
+      "Space cooling technology capacity must be a number",
+    space_cooling_efficiency: "Space cooling efficiency must be a number",
+    space_heating_technology_age: "Space heating technology age must be number",
+    space_heating_technology_capacity:
+      "Space heating technology capacity must be number",
+    space_heating_efficiency: "Space heating effeciency must be number",
+    water_heating_technology_age: "Water heating technology age must be number",
+    water_heating_technology_capacity:
+      "Water heating technology capacity must be number",
+    water_heating_efficiency: "Water heating efficiency must be number",
+  };
+
+  const handleFocus = (field) => {
+    setFieldInstructions((prevInstructions) => ({
+      ...prevInstructions,
+      [field]: instructions[field],
+    }));
+  };
+
+  const handle_blur = (field, handleBlur) => (e) => {
+    handleBlur(e);
+    setFieldInstructions((prevInstructions) => ({
+      ...prevInstructions,
+      [field]: "",
+    }));
+  };
 
   function checkAndReturnFromArray(array, value) {
     for (let item of array) {
@@ -113,6 +190,12 @@ const Details = ({ setTab }) => {
                 SPACE_COOLING_ARRAY,
                 charactersticsDetails?.space_cooling_technology
               ),
+            space_heating_technology:
+              charactersticsDetails?.space_heating_technology &&
+              checkValueNotExist(
+                SPACE_HEATING_ARRAY,
+                charactersticsDetails?.space_heating_technology
+              ),
             water_heating_technology:
               charactersticsDetails?.water_heating_technology &&
               checkValueNotExist(
@@ -124,6 +207,12 @@ const Details = ({ setTab }) => {
               checkAndReturnFromArray(
                 SPACE_COOLING_ARRAY,
                 charactersticsDetails?.space_cooling_technology
+              ),
+            space_heating_technology_other:
+              charactersticsDetails?.space_heating_technology &&
+              checkAndReturnFromArray(
+                SPACE_HEATING_ARRAY,
+                charactersticsDetails?.space_heating_technology
               ),
             water_heating_technology_other:
               charactersticsDetails?.water_heating_technology &&
@@ -187,6 +276,7 @@ const Details = ({ setTab }) => {
   const [initialValues, setInitialValues] = useState({
     operational_hours: "",
     year_of_construction: "",
+    gross_floor_area_size_category: "",
     gross_floor_area: "",
     number_of_storeys: "",
     conditioned_gross_floor_area_including_common_area: "",
@@ -201,6 +291,8 @@ const Details = ({ setTab }) => {
     space_cooling_technology_other: "",
     space_heating_fuel_source: "",
     space_heating_fuel_source_other: "",
+    space_heating_technology: "",
+    space_heating_technology_other: "",
     water_heating_fuel_source: "",
     water_heating_fuel_source_other: "",
     water_heating_technology: "",
@@ -297,7 +389,10 @@ const Details = ({ setTab }) => {
     if (facilityCharacterstics) {
       dispatch(updateFacilityCharacteristic(id, newValues))
         .then(() => {
-          setTab(2);
+          setModalConfig((prev) => ({
+            ...prev,
+            modalVisible: true,
+          }));
         })
         .catch((error) => {
           console.log(error);
@@ -305,7 +400,10 @@ const Details = ({ setTab }) => {
     } else {
       dispatch(addFacilityCharacteristic(newValues))
         .then(() => {
-          setTab(2);
+          setModalConfig((prev) => ({
+            ...prev,
+            modalVisible: true,
+          }));
         })
         .catch((error) => {
           console.log(error);
@@ -426,195 +524,240 @@ const Details = ({ setTab }) => {
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
-        {({ values, setFieldValue }) => (
-          <Form>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexDirection: isSmallScreen ? "column" : "row",
-              }}
-            >
-              <Box
-                sx={{
-                  cursor: "default",
-                  borderRadius: "2rem",
-                  background: "#EBEBEB",
-                  border: "1px solid #D0D0D0",
-                  textWrap: "nowrap",
-                  padding: "0.375rem 1rem",
-                }}
-              >
-                <Typography variant="small">Characterstics</Typography>
-              </Box>
+        {({ handleBlur, values, setFieldValue }) => {
+          const handleCheckboxChange = (field, value) => {
+            if (field === "not_standard_hvac_equipment.none" && value) {
+              setFieldValue(
+                "not_standard_hvac_equipment.industrial_Process",
+                false
+              );
+              setFieldValue("not_standard_hvac_equipment.refrigeration", false);
+              setFieldValue(
+                "not_standard_hvac_equipment.compressed_air",
+                false
+              );
+              setFieldValue(
+                "not_standard_hvac_equipment.commercial_kitchen",
+                false
+              );
+              setFieldValue("not_standard_hvac_equipment.swimming_pool", false);
+              setFieldValue("not_standard_hvac_equipment.other", false);
+            } else if (field !== "not_standard_hvac_equipment.none" && value) {
+              setFieldValue("not_standard_hvac_equipment.none", false);
+            }
+            setFieldValue(field, value);
+          };
+          return (
+            <Form>
               <Box
                 sx={{
                   display: "flex",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: isSmallScreen && "1.5rem",
+                  flexDirection: isSmallScreen ? "column" : "row",
                 }}
               >
                 <Box
                   sx={{
                     cursor: "default",
                     borderRadius: "2rem",
-                    background:
-                      facilityCharacterstics === null ? "#EBEBEB" : "#D8FFDC",
+                    background: "#EBEBEB",
+                    border: "1px solid #D0D0D0",
                     textWrap: "nowrap",
                     padding: "0.375rem 1rem",
                   }}
                 >
-                  <Typography variant="small">
-                    status:{" "}
-                    <Typography variant="span" sx={{ color: "text.primary" }}>
-                      {facilityCharacterstics === null ? "Draft" : "Existing"}
-                    </Typography>
-                  </Typography>
+                  <Typography variant="h6">Characterstics</Typography>
                 </Box>
-                <ButtonWrapper
-                  type="submit"
-                  color="neutral"
-                  width="165px"
-                  height="48px"
-                  onClick={handleSubmit}
-                  style={{ marginLeft: "2rem" }}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginTop: isSmallScreen && "1.5rem",
+                  }}
                 >
-                  Save
-                </ButtonWrapper>
-              </Box>
-            </Box>
-            <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="operational_hours"
-                    label="Operational Hours"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel
-                    htmlFor="year_of_construction"
-                    style={{ whiteSpace: "initial" }}
-                  >
-                    Year of construction *
-                  </InputLabel>
-                  <DatePicker
-                    id="year_of_construction"
-                    name="year_of_construction"
-                    views={["year"]}
-                    sx={{ width: "100%" }}
-                    value={values.year_of_construction}
-                    onChange={(date) => {
-                      setFieldValue("year_of_construction", date);
+                  <Box
+                    sx={{
+                      cursor: "default",
+                      borderRadius: "2rem",
+                      background:
+                        facilityCharacterstics === null ? "#EBEBEB" : "#D8FFDC",
+                      textWrap: "nowrap",
+                      padding: "0.375rem 1rem",
                     }}
-                    disableFuture
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="gross_floor_area"
-                    label="Gross Floor Area(Sqft)"
-                    valueKey="value"
-                    labelKey="label"
-                    options={FLOOR_AREA_ARRAY}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="number_of_storeys"
-                    label="Number of Storeys"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="conditioned_gross_floor_area_including_common_area"
-                    label="Conditioned gross floor area including common area(Sqft)"
-                    valueKey="value"
-                    labelKey="label"
-                    options={FLOOR_AREA_ARRAY}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="unonditioned_gross_floor_area"
-                    label="Unconditioned gross floor area such as parking lots(Sqft)"
-                    valueKey="value"
-                    labelKey="label"
-                    options={FLOOR_AREA_ARRAY}
-                  />
-                </Grid>
-              </Grid>
-
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel
-                    htmlFor="unique_features_that_impact_energy_usage"
-                    style={{ whiteSpace: "initial" }}
                   >
-                    Are there unique features of your facility that may impact
-                    energy usage?*
-                  </InputLabel>
-                  <FormControl>
-                    <Field name="unique_features_that_impact_energy_usage">
-                      {({ field, form }) => (
-                        <ToggleButtonGroup
-                          id="unique_features_that_impact_energy_usage"
-                          value={energyUsageAlignment}
-                          exclusive
-                          onChange={(event, newAlignment) => {
-                            handleEnergyUsageTypeChange(
-                              event,
-                              newAlignment,
-                              form
-                            );
-                          }}
-                        >
-                          <ToggleButton
-                            value={true}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            Yes
-                          </ToggleButton>
-                          <ToggleButton
-                            value={false}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            No
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      )}
-                    </Field>
-                  </FormControl>
-                </Grid>
-                {energyUsageAlignment && (
+                    <Typography variant="small">
+                      status:{" "}
+                      <Typography variant="span" sx={{ color: "text.primary" }}>
+                        {facilityCharacterstics === null ? "Draft" : "Existing"}
+                      </Typography>
+                    </Typography>
+                  </Box>
+                  <ButtonWrapper
+                    type="submit"
+                    color="neutral"
+                    width="165px"
+                    height="48px"
+                    onClick={handleSubmit}
+                    style={{ marginLeft: "2rem" }}
+                  >
+                    Save
+                  </ButtonWrapper>
+                </Box>
+              </Box>
+              <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
+                <Grid container spacing={4}>
                   <Grid item xs={12} sm={4}>
                     <InputField
-                      name="unique_features_of_facility"
-                      label="Describe unique features of your facility that may impact energy usage"
-                      type="text"
-                      style={{ textWrap: "nowrap" }}
+                      name="operational_hours"
+                      label="Annual operational hours *"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
                     />
                   </Grid>
-                )}
-              </Grid>
-              {/* <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel
+                      htmlFor="year_of_construction"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Year of construction *
+                    </InputLabel>
+                    <DatePicker
+                      id="year_of_construction"
+                      name="year_of_construction"
+                      views={["year"]}
+                      sx={{ width: "100%" }}
+                      value={values.year_of_construction}
+                      onChange={(date) => {
+                        setFieldValue("year_of_construction", date);
+                      }}
+                      disableFuture
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="gross_floor_area_size_category"
+                      label="Gross floor area size category (Sqft) *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={FLOOR_AREA_ARRAY}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="gross_floor_area"
+                      label="Gross floor area (Sqft) *"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="conditioned_gross_floor_area_including_common_area"
+                      label="Conditioned gross floor area including common area (Sqft)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="unonditioned_gross_floor_area"
+                      label="Unconditioned gross floor area such as parking lots (Sqft)"
+                      value={
+                        values.gross_floor_area &&
+                        values.gross_floor_area -
+                          values.conditioned_gross_floor_area_including_common_area
+                      }
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="number_of_storeys"
+                      label="Number of storeys *"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel
+                      htmlFor="unique_features_that_impact_energy_usage"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Are there unique features of your facility that may impact
+                      energy usage? *
+                    </InputLabel>
+                    <FormControl>
+                      <Field name="unique_features_that_impact_energy_usage">
+                        {({ field, form }) => (
+                          <ToggleButtonGroup
+                            id="unique_features_that_impact_energy_usage"
+                            value={
+                              values.unique_features_that_impact_energy_usage
+                            }
+                            exclusive
+                            onChange={(event, newAlignment) => {
+                              handleEnergyUsageTypeChange(
+                                event,
+                                newAlignment,
+                                form
+                              );
+                            }}
+                          >
+                            <ToggleButton
+                              value={true}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              Yes
+                            </ToggleButton>
+                            <ToggleButton
+                              value={false}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              No
+                            </ToggleButton>
+                          </ToggleButtonGroup>
+                        )}
+                      </Field>
+                    </FormControl>
+                  </Grid>
+                  {energyUsageAlignment && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="unique_features_of_facility"
+                        label="Describe unique features of your facility that may impact energy usage"
+                        type="text"
+                        style={{ textWrap: "nowrap" }}
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                {/* <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="facility_electricity_service_size"
@@ -638,855 +781,1033 @@ const Details = ({ setTab }) => {
                   />
                 </Grid>
               </Grid> */}
-              <Grid container spacing={4} mt={1}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="space_cooling_fuel_source"
-                    label="Space Cooling Fuel Source *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={SOURCE_ARRAY}
-                  />
+                <Grid container spacing={4} mt={1}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="space_cooling_fuel_source"
+                      label="Space cooling fuel source *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={SOURCE_ARRAY}
+                    />
+                  </Grid>
+                  {values.space_cooling_fuel_source === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="space_cooling_fuel_source_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
                 </Grid>
-                {values.space_cooling_fuel_source === "other" && (
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="space_cooling_technology"
+                      label="Space cooling technology *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={SPACE_COOLING_ARRAY}
+                    />
+                  </Grid>
+                  {values.space_cooling_technology === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="space_cooling_technology_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="space_heating_fuel_source"
+                      label="Space heating fuel source *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={SOURCE_ARRAY}
+                    />
+                  </Grid>
+                  {values.space_heating_fuel_source === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="space_heating_fuel_source_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="space_heating_technology"
+                      label="Space heating technology *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={SPACE_HEATING_ARRAY}
+                    />
+                  </Grid>
+                  {values.space_heating_technology === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="space_heating_technology_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="water_heating_fuel_source"
+                      label="Water heating fuel source *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={SOURCE_ARRAY}
+                    />
+                  </Grid>
+                  {values.water_heating_fuel_source === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="water_heating_fuel_source_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <SelectBox
+                      name="water_heating_technology"
+                      label="Water heating technology *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={WATER_HEATING_ARRAY}
+                    />
+                  </Grid>
+                  {values.water_heating_technology === "other" && (
+                    <Grid item xs={12} sm={4}>
+                      <InputField
+                        name="water_heating_technology_other"
+                        label="If other, describe *"
+                        type="text"
+                      />
+                    </Grid>
+                  )}
+                </Grid>
+                <Grid container spacing={4} mt={1}>
+                  <Grid item xs={12}>
+                    <InputLabel>
+                      Does facility have energy using equipment that is not
+                      standard HVAC?
+                    </InputLabel>
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.industrial_Process"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={
+                            values.not_standard_hvac_equipment
+                              .industrial_Process
+                          }
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.industrial_Process`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="industrial_Process"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Industrial/Process
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.refrigeration"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={
+                            values.not_standard_hvac_equipment.refrigeration
+                          }
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.refrigeration`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="refrigeration"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Refrigeration
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.compressed_air"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={
+                            values.not_standard_hvac_equipment.compressed_air
+                          }
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.compressed_air`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="compressed_air"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Compressed air
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.commercial_kitchen"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={
+                            values.not_standard_hvac_equipment
+                              .commercial_kitchen
+                          }
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.commercial_kitchen`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="commercial_kitchen"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Commercial kitchen
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.swimming_pool"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={
+                            values.not_standard_hvac_equipment.swimming_pool
+                          }
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.swimming_pool`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="swimming_pool"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Swimming pool
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.other"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={values.not_standard_hvac_equipment.other}
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.other`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="other"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Other
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name="not_standard_hvac_equipment.none"
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={values.not_standard_hvac_equipment.none}
+                          onChange={(event) =>
+                            handleCheckboxChange(
+                              `not_standard_hvac_equipment.none`,
+                              event.target.checked
+                            )
+                          }
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="none"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          None
+                        </Typography>
+                      }
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={4}>
                   <Grid item xs={12} sm={4}>
                     <InputField
-                      name="space_cooling_fuel_source_other"
-                      label="If other, describe *"
+                      name="space_cooling_technology_description"
+                      label="Space cooling technology description"
                       type="text"
                     />
                   </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="space_cooling_technology"
-                    label="Space Cooling Technology *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={SPACE_COOLING_ARRAY}
-                  />
-                </Grid>
-                {values.space_cooling_technology === "other" && (
                   <Grid item xs={12} sm={4}>
                     <InputField
-                      name="space_cooling_technology_other"
-                      label="If other, describe *"
-                      type="text"
+                      name="space_cooling_technology_age"
+                      label="Space cooling technology age (Years)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("space_cooling_technology_age")
+                      }
+                      onBlur={handle_blur(
+                        "space_cooling_technology_age",
+                        handleBlur
+                      )}
                     />
+                    {fieldInstructions.space_cooling_technology_age &&
+                      (values.space_cooling_technology_age === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_cooling_technology_age}
+                        </Typography>
+                      )}
                   </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="space_heating_fuel_source"
-                    label="Space Heating Fuel Source *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={SOURCE_ARRAY}
-                  />
                 </Grid>
-                {values.space_heating_fuel_source === "other" && (
+                <Grid container spacing={4}>
                   <Grid item xs={12} sm={4}>
                     <InputField
-                      name="space_heating_fuel_source_other"
-                      label="If other, describe *"
-                      type="text"
+                      name="space_cooling_technology_capacity"
+                      label="Space cooling technology capacity (Tons)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("space_cooling_technology_capacity")
+                      }
+                      onBlur={handle_blur(
+                        "space_cooling_technology_capacity",
+                        handleBlur
+                      )}
                     />
+                    {fieldInstructions.space_cooling_technology_capacity &&
+                      (values.space_cooling_technology_capacity === "" ||
+                        null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_cooling_technology_capacity}
+                        </Typography>
+                      )}
                   </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="water_heating_fuel_source"
-                    label="Water Heating Fuel Source *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={SOURCE_ARRAY}
-                  />
-                </Grid>
-                {values.water_heating_fuel_source === "other" && (
                   <Grid item xs={12} sm={4}>
                     <InputField
-                      name="water_heating_fuel_source_other"
-                      label="If other, describe *"
-                      type="text"
-                    />
-                  </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <SelectBox
-                    name="water_heating_technology"
-                    label="Water Heating Technology *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={WATER_HEATING_ARRAY}
-                  />
-                </Grid>
-                {values.water_heating_technology === "other" && (
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="water_heating_technology_other"
-                      label="If other, describe *"
-                      type="text"
-                    />
-                  </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4} mt={1}>
-                <Grid item xs={12}>
-                  <InputLabel>
-                    Does Facility have energy-using equipment that is not
-                    standard HVAC?
-                  </InputLabel>
-                </Grid>
-              </Grid>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.industrial_Process"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="industrial_Process"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Industrial/Process
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.refrigeration"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="refrigeration"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Refrigeration
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.compressed_air"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="compressed_air"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Compressed Air
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.commercial_kitchen"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="commercial_kitchen"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Commercial Kitchen
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.swimming_pool"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="swimming_pool"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Swimming Pool
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.other"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="other"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Other
-                      </Typography>
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Field
-                        name="not_standard_hvac_equipment.none"
-                        type="checkbox"
-                        as={Checkbox}
-                      />
-                    }
-                    sx={{ color: "text.secondary2" }}
-                    name="none"
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        None
-                      </Typography>
-                    }
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_cooling_technology_description"
-                    label="Space Cooling Technology Description"
-                    type="text"
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_cooling_technology_age"
-                    label="Space Cooling Technology Age(Years)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_cooling_technology_capacity"
-                    label="Space Cooling Technology Capacity(Tons)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_cooling_efficiency"
-                    label="Space Cooling Efficiency(EER, SEER, COP)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                    fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <SelectBox
-                          name="space_cooling_efficiency_unit"
-                          valueKey="value"
-                          labelKey="label"
-                          value={values.space_cooling_efficiency_unit}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              fieldset: {
-                                border: "none",
+                      name="space_cooling_efficiency"
+                      label="Space cooling efficiency (EER, SEER, COP)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <SelectBox
+                            name="space_cooling_efficiency_unit"
+                            valueKey="value"
+                            labelKey="label"
+                            value={values.space_cooling_efficiency_unit}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                fieldset: {
+                                  border: "none",
+                                },
                               },
-                            },
-                          }}
-                          options={SPACE_COOLING_UNIT_ARRAY}
-                        />
-                      ),
-                    }}
-                  />
+                            }}
+                            options={SPACE_COOLING_UNIT_ARRAY}
+                          />
+                        ),
+                      }}
+                      onFocus={() => handleFocus("space_cooling_efficiency")}
+                      onBlur={handle_blur(
+                        "space_cooling_efficiency",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.space_cooling_efficiency &&
+                      (values.space_cooling_efficiency === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_cooling_efficiency}
+                        </Typography>
+                      )}
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_heating_technology_description"
-                    label="Space Heating Technology Description"
-                    type="text"
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="space_heating_technology_description"
+                      label="Space heating technology description"
+                      type="text"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="space_heating_technology_age"
+                      label="Space heating technology age (Years)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("space_heating_technology_age")
+                      }
+                      onBlur={handle_blur(
+                        "space_heating_technology_age",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.space_heating_technology_age &&
+                      (values.space_heating_technology_age === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_heating_technology_age}
+                        </Typography>
+                      )}
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_heating_technology_age"
-                    label="Space Heating Technology Age(Years)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_heating_technology_capacity"
-                    label="Space Heating Technology Capacity(MBH)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="space_heating_efficiency"
-                    label="Space Heating Efficiency(%, HSPF)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                    fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <SelectBox
-                          name="space_heating_efficiency_unit"
-                          valueKey="value"
-                          labelKey="label"
-                          value={values.space_heating_efficiency_unit}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              fieldset: {
-                                border: "none",
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="space_heating_technology_capacity"
+                      label="Space heating technology capacity (MBH)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("space_heating_technology_capacity")
+                      }
+                      onBlur={handle_blur(
+                        "space_heating_technology_capacity",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.space_heating_technology_capacity &&
+                      (values.space_heating_technology_capacity === "" ||
+                        null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_heating_technology_capacity}
+                        </Typography>
+                      )}
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="space_heating_efficiency"
+                      label="Space heating efficiency (%, HSPF, COP)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <SelectBox
+                            name="space_heating_efficiency_unit"
+                            valueKey="value"
+                            labelKey="label"
+                            value={values.space_heating_efficiency_unit}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                fieldset: {
+                                  border: "none",
+                                },
                               },
-                            },
-                          }}
-                          options={SPACE_HEATING_UNIT_ARRAY}
-                        />
-                      ),
-                    }}
-                  />
+                            }}
+                            options={SPACE_HEATING_UNIT_ARRAY}
+                          />
+                        ),
+                      }}
+                      onFocus={() => handleFocus("space_heating_efficiency")}
+                      onBlur={handle_blur(
+                        "space_heating_efficiency",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.space_heating_efficiency &&
+                      (values.space_heating_efficiency === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.space_heating_efficiency}
+                        </Typography>
+                      )}
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="water_heating_technology_description"
-                    label="Water Heating Technology Description"
-                    type="text"
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="water_heating_technology_description"
+                      label="Water heating technology description"
+                      type="text"
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="water_heating_technology_age"
+                      label="Water heating technology age (Years)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("water_heating_technology_age")
+                      }
+                      onBlur={handle_blur(
+                        "water_heating_technology_age",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.water_heating_technology_age &&
+                      (values.water_heating_technology_age === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.water_heating_technology_age}
+                        </Typography>
+                      )}
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="water_heating_technology_age"
-                    label="Water Heating Technology Age(Years)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="water_heating_technology_capacity"
-                    label="Water Heating Technology Capacity(MBH)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="water_heating_efficiency"
-                    label="Water Heating Efficiency(%, COP)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                    fullWidth
-                    InputProps={{
-                      endAdornment: (
-                        <SelectBox
-                          name="water_heating_efficiency_unit"
-                          valueKey="value"
-                          labelKey="label"
-                          value={values.water_heating_efficiency_unit}
-                          sx={{
-                            "& .MuiOutlinedInput-root": {
-                              fieldset: {
-                                border: "none",
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="water_heating_technology_capacity"
+                      label="Water heating technology capacity (MBH)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      onFocus={() =>
+                        handleFocus("water_heating_technology_capacity")
+                      }
+                      onBlur={handle_blur(
+                        "water_heating_technology_capacity",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.water_heating_technology_capacity &&
+                      (values.water_heating_technology_capacity === "" ||
+                        null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.water_heating_technology_capacity}
+                        </Typography>
+                      )}
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="water_heating_efficiency"
+                      label="Water heating efficiency (%, COP)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                      fullWidth
+                      InputProps={{
+                        endAdornment: (
+                          <SelectBox
+                            name="water_heating_efficiency_unit"
+                            valueKey="value"
+                            labelKey="label"
+                            value={values.water_heating_efficiency_unit}
+                            sx={{
+                              "& .MuiOutlinedInput-root": {
+                                fieldset: {
+                                  border: "none",
+                                },
                               },
-                            },
-                          }}
-                          options={WATER_HEATING_UNIT_ARRAY}
-                        />
-                      ),
+                            }}
+                            options={WATER_HEATING_UNIT_ARRAY}
+                          />
+                        ),
+                      }}
+                      onFocus={() => handleFocus("water_heating_efficiency")}
+                      onBlur={handle_blur(
+                        "water_heating_efficiency",
+                        handleBlur
+                      )}
+                    />
+                    {fieldInstructions.water_heating_efficiency &&
+                      (values.water_heating_efficiency === "" || null) && (
+                        <Typography variant="small" color="primary">
+                          {fieldInstructions.water_heating_efficiency}
+                        </Typography>
+                      )}
+                  </Grid>
+                </Grid>
+                <Grid item spacing={4}>
+                  <Box
+                    my={1}
+                    sx={{
+                      cursor: "default",
+                      borderRadius: "2rem",
+                      background: "#EBEBEB",
+                      border: "1px solid #D0D0D0",
+                      textWrap: "nowrap",
+                      padding: "0.375rem 1rem",
                     }}
-                  />
+                  >
+                    <Typography variant="small">Characterstics</Typography>
+                  </Box>
                 </Grid>
-              </Grid>
-              <Grid item spacing={4}>
-                <Box
-                  my={1}
-                  sx={{
-                    cursor: "default",
-                    borderRadius: "2rem",
-                    background: "#EBEBEB",
-                    border: "1px solid #D0D0D0",
-                    textWrap: "nowrap",
-                    padding: "0.375rem 1rem",
-                  }}
-                >
-                  <Typography variant="small">Characterstics</Typography>
-                </Box>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item sm={4}>
-                  <InputField
-                    name="maximum_number_of_occupants"
-                    label="Maximum Number of Occupants"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-                <Grid item sm={4}>
-                  <InputField
-                    name="average_number_of_occupants"
-                    label="Average Number of Occupants"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item sm={4}>
-                  <SelectBox
-                    name="year_round_or_seasonal"
-                    label="Year Round or Seasonal"
-                    valueKey="value"
-                    labelKey="label"
-                    options={NUMBER_OF_ARRAY_2}
-                  />
-                </Grid>
-              </Grid>
-              {values?.year_round_or_seasonal === 2 && (
-                <Grid container spacing={2} mt={1}>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.jan"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="jan"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Jan
-                        </Typography>
+                <Grid container spacing={4}>
+                  <Grid item sm={4}>
+                    <InputField
+                      name="maximum_number_of_occupants"
+                      label="Maximum number of occupants"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
                       }
                     />
                   </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.feb"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="feb"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Feb
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.march"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="march"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          march
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.april"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="april"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          April
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.may"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="may"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          May
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.june"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="june"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          June
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.july"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="july"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          July
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.aug"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="aug"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Aug
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.sep"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="sep"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Sep
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.oct"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="oct"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Oct
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.nov"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="nov"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Nov
-                        </Typography>
-                      }
-                    />
-                  </Grid>
-                  <Grid item>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="occupants_months_detail.dec"
-                          type="checkbox"
-                          as={Checkbox}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="dec"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Dec
-                        </Typography>
+                  <Grid item sm={4}>
+                    <InputField
+                      name="average_number_of_occupants"
+                      label="Average number of occupants"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
                       }
                     />
                   </Grid>
                 </Grid>
-              )}
+                <Grid container spacing={4}>
+                  <Grid item sm={4}>
+                    <SelectBox
+                      name="year_round_or_seasonal"
+                      label="Year round or seasonal"
+                      valueKey="value"
+                      labelKey="label"
+                      options={NUMBER_OF_ARRAY_2}
+                    />
+                  </Grid>
+                </Grid>
+                {values?.year_round_or_seasonal === 2 && (
+                  <Grid container spacing={2} mt={1}>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.jan"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="jan"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Jan
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.feb"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="feb"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Feb
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.march"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="march"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            march
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.april"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="april"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            April
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.may"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="may"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            May
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.june"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="june"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            June
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.july"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="july"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            July
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.aug"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="aug"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Aug
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.sep"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="sep"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Sep
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.oct"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="oct"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Oct
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.nov"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="nov"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Nov
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                    <Grid item>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name="occupants_months_detail.dec"
+                            type="checkbox"
+                            as={Checkbox}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        name="dec"
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            Dec
+                          </Typography>
+                        }
+                      />
+                    </Grid>
+                  </Grid>
+                )}
 
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel htmlFor="is_lighting_controlled_for_occupancy">
-                    Is Lighting Controlled for Occupancy?
-                  </InputLabel>
-                  <FormControl>
-                    <Field name="is_lighting_controlled_for_occupancy">
-                      {({ field, form }) => (
-                        <ToggleButtonGroup
-                          id="is_lighting_controlled_for_occupancy"
-                          value={values.is_lighting_controlled_for_occupancy}
-                          exclusive
-                          onChange={(event, newAlignment) => {
-                            handleLightingTypeChange(event, newAlignment, form);
-                          }}
-                        >
-                          <ToggleButton
-                            value={true}
-                            sx={{ fontSize: "0.875rem" }}
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel htmlFor="is_lighting_controlled_for_occupancy">
+                      Is lighting controlled for occupancy?
+                    </InputLabel>
+                    <FormControl>
+                      <Field name="is_lighting_controlled_for_occupancy">
+                        {({ field, form }) => (
+                          <ToggleButtonGroup
+                            id="is_lighting_controlled_for_occupancy"
+                            value={values.is_lighting_controlled_for_occupancy}
+                            exclusive
+                            onChange={(event, newAlignment) => {
+                              handleLightingTypeChange(
+                                event,
+                                newAlignment,
+                                form
+                              );
+                            }}
                           >
-                            Yes
-                          </ToggleButton>
-                          <ToggleButton
-                            value={false}
-                            sx={{ fontSize: "0.875rem" }}
+                            <ToggleButton
+                              value={true}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              Yes
+                            </ToggleButton>
+                            <ToggleButton
+                              value={false}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              No
+                            </ToggleButton>
+                          </ToggleButtonGroup>
+                        )}
+                      </Field>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel htmlFor="is_space_heating_controlled_for_occupancy">
+                      Is space heating controlled for occupancy?
+                    </InputLabel>
+                    <FormControl>
+                      <Field name="is_space_heating_controlled_for_occupancy">
+                        {({ field, form }) => (
+                          <ToggleButtonGroup
+                            id="is_space_heating_controlled_for_occupancy"
+                            value={
+                              values.is_space_heating_controlled_for_occupancy
+                            }
+                            exclusive
+                            onChange={(event, newAlignment) => {
+                              handleHeatingTypeChange(
+                                event,
+                                newAlignment,
+                                form
+                              );
+                            }}
                           >
-                            No
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      )}
-                    </Field>
-                  </FormControl>
+                            <ToggleButton
+                              value={true}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              Yes
+                            </ToggleButton>
+                            <ToggleButton
+                              value={false}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              No
+                            </ToggleButton>
+                          </ToggleButtonGroup>
+                        )}
+                      </Field>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel htmlFor="is_space_cooling_controlled_for_occupancy">
+                      Is space cooling controlled for occupancy?
+                    </InputLabel>
+                    <FormControl>
+                      <Field name="is_space_cooling_controlled_for_occupancy">
+                        {({ field, form }) => (
+                          <ToggleButtonGroup
+                            id="is_space_cooling_controlled_for_occupancy"
+                            value={
+                              values.is_space_cooling_controlled_for_occupancy
+                            }
+                            exclusive
+                            onChange={(event, newAlignment) => {
+                              handleCoolingTypeChange(
+                                event,
+                                newAlignment,
+                                form
+                              );
+                            }}
+                          >
+                            <ToggleButton
+                              value={true}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              Yes
+                            </ToggleButton>
+                            <ToggleButton
+                              value={false}
+                              sx={{ fontSize: "0.875rem" }}
+                            >
+                              No
+                            </ToggleButton>
+                          </ToggleButtonGroup>
+                        )}
+                      </Field>
+                    </FormControl>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel htmlFor="is_space_heating_controlled_for_occupancy">
-                    Is Space Heating Controlled for Occupancy?
-                  </InputLabel>
-                  <FormControl>
-                    <Field name="is_space_heating_controlled_for_occupancy">
-                      {({ field, form }) => (
-                        <ToggleButtonGroup
-                          id="is_space_heating_controlled_for_occupancy"
-                          value={
-                            values.is_space_heating_controlled_for_occupancy
-                          }
-                          exclusive
-                          onChange={(event, newAlignment) => {
-                            handleHeatingTypeChange(event, newAlignment, form);
-                          }}
-                        >
-                          <ToggleButton
-                            value={true}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            Yes
-                          </ToggleButton>
-                          <ToggleButton
-                            value={false}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            No
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      )}
-                    </Field>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel htmlFor="is_space_cooling_controlled_for_occupancy">
-                    Is Space Cooling Controlled for Occupancy?
-                  </InputLabel>
-                  <FormControl>
-                    <Field name="is_space_cooling_controlled_for_occupancy">
-                      {({ field, form }) => (
-                        <ToggleButtonGroup
-                          id="is_space_cooling_controlled_for_occupancy"
-                          value={
-                            values.is_space_cooling_controlled_for_occupancy
-                          }
-                          exclusive
-                          onChange={(event, newAlignment) => {
-                            handleCoolingTypeChange(event, newAlignment, form);
-                          }}
-                        >
-                          <ToggleButton
-                            value={true}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            Yes
-                          </ToggleButton>
-                          <ToggleButton
-                            value={false}
-                            sx={{ fontSize: "0.875rem" }}
-                          >
-                            No
-                          </ToggleButton>
-                        </ToggleButtonGroup>
-                      )}
-                    </Field>
-                  </FormControl>
-                </Grid>
-              </Grid>
-              <Grid container spacing={4} mt={2}>
-                <Grid item xs={12} sm={4}>
-                  <InputLabel>Facility Site Layout</InputLabel>
-                  {!selectedFacilityFile ? (
-                    <>
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#696969",
-                          fontWeight: "500",
-                          fontSize: "18px",
-                          border: "1px solid #D0D0D0",
-                          backgroundColor: "#D1FFDA",
-                          padding: "6px 34px",
-                          borderRadius: "8px",
-                          width: "140px",
-                          height: "40px",
-                          cursor: "pointer",
-                        }}
-                        onClick={handleFacilityButtonClick}
-                      >
-                        Upload
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={fileFacilityInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleFacilityFileChange}
-                        accept="image/png, image/gif, image/jpeg, image/jpg"
-                      />
-                    </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <div>
-                        <img
-                          src={selectedFacilityFile}
-                          alt="Preview"
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
-                        />
-                      </div>
-                      <div style={{ marginLeft: "20px" }}>
+                <Grid container spacing={4} mt={2}>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel>Facility site layout</InputLabel>
+                    {!selectedFacilityFile ? (
+                      <>
                         <Typography
                           my={1}
                           sx={{
-                            color: "#2C77E9",
+                            color: "#696969",
                             fontWeight: "500",
-                            fontSize: "16px !important",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
+                            cursor: "pointer",
                           }}
                           onClick={handleFacilityButtonClick}
                         >
-                          Change Picture
+                          Upload
                         </Typography>
                         <input
                           type="file"
@@ -1495,73 +1816,73 @@ const Details = ({ setTab }) => {
                           onChange={handleFacilityFileChange}
                           accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
+                      </>
+                    ) : (
+                      <div style={{ display: "flex" }}>
+                        <div>
+                          <img
+                            src={selectedFacilityFile}
+                            alt="Preview"
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
+                          />
+                        </div>
+                        <div style={{ marginLeft: "20px" }}>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2C77E9",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={handleFacilityButtonClick}
+                          >
+                            Change picture
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={fileFacilityInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleFacilityFileChange}
+                            accept="image/png, image/gif, image/jpeg, image/jpg"
+                          />
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#FF5858",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={deleteFacilityPicture}
+                          >
+                            Delete picture
+                          </Typography>
+                        </div>
+                      </div>
+                    )}
+                  </Grid>
+                  <Grid item xs={12} sm={5}>
+                    <InputLabel>
+                      Facility wall assembly and ceiling assembly
+                    </InputLabel>
+                    {!selectedAssemblyFile ? (
+                      <>
                         <Typography
                           my={1}
                           sx={{
-                            color: "#FF5858",
+                            color: "#696969",
                             fontWeight: "500",
-                            fontSize: "16px !important",
-                          }}
-                          onClick={deleteFacilityPicture}
-                        >
-                          Delete Picture
-                        </Typography>
-                      </div>
-                    </div>
-                  )}
-                </Grid>
-                <Grid item xs={12} sm={5}>
-                  <InputLabel>
-                    Facility Wall Assembly and Ceiling Assembly
-                  </InputLabel>
-                  {!selectedAssemblyFile ? (
-                    <>
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#696969",
-                          fontWeight: "500",
-                          fontSize: "18px",
-                          border: "1px solid #D0D0D0",
-                          backgroundColor: "#D1FFDA",
-                          padding: "6px 34px",
-                          borderRadius: "8px",
-                          width: "140px",
-                          height: "40px",
-                          cursor: "pointer",
-                        }}
-                        onClick={handleAssemblyButtonClick}
-                      >
-                        Upload
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={fileAssemblyInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleAssemblyFileChange}
-                        accept="image/png, image/gif, image/jpeg, image/jpg"
-                      />
-                    </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <div>
-                        <img
-                          src={selectedAssemblyFile}
-                          alt="Preview"
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
-                        />
-                      </div>
-                      <div style={{ marginLeft: "20px" }}>
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#2C77E9",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
+                            cursor: "pointer",
                           }}
                           onClick={handleAssemblyButtonClick}
                         >
-                          Change Picture
+                          Upload
                         </Typography>
                         <input
                           type="file"
@@ -1570,40 +1891,71 @@ const Details = ({ setTab }) => {
                           onChange={handleAssemblyFileChange}
                           accept="image/png, image/gif, image/jpeg, image/jpg"
                         />
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#FF5858",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
-                          }}
-                          onClick={deleteAssemblyPicture}
-                        >
-                          Delete Picture
-                        </Typography>
+                      </>
+                    ) : (
+                      <div style={{ display: "flex" }}>
+                        <div>
+                          <img
+                            src={selectedAssemblyFile}
+                            alt="Preview"
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
+                          />
+                        </div>
+                        <div style={{ marginLeft: "20px" }}>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2C77E9",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={handleAssemblyButtonClick}
+                          >
+                            Change picture
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={fileAssemblyInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleAssemblyFileChange}
+                            accept="image/png, image/gif, image/jpeg, image/jpg"
+                          />
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#FF5858",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={deleteAssemblyPicture}
+                          >
+                            Delete picture
+                          </Typography>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </Grid>
                 </Grid>
-              </Grid>
 
-              <Grid container spacing={4} mt={2}>
-                <Grid item xs={12} sm={4}>
-                  <ButtonWrapper
-                    type="submit"
-                    color="neutral"
-                    width="165px"
-                    height="48px"
-                    onClick={handleSubmit}
-                  >
-                    Save
-                  </ButtonWrapper>
+                <Grid container spacing={4} mt={2}>
+                  <Grid item xs={12} sm={4}>
+                    <ButtonWrapper
+                      type="submit"
+                      color="neutral"
+                      width="165px"
+                      height="48px"
+                      onClick={handleSubmit}
+                    >
+                      Save
+                    </ButtonWrapper>
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-          </Form>
-        )}
+            </Form>
+          );
+        }}
       </Formik>
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </Box>
   );
 };

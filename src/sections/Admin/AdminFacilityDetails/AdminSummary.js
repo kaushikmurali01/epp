@@ -29,7 +29,7 @@ const AdminSummary = () => {
               padding: "0.375rem 1rem",
             }}
           >
-            <Typography variant="small">Summary</Typography>
+            <Typography variant="h6">Summary</Typography>
           </Box>
         </Grid>
         <Grid container mt={3}>

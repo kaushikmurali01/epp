@@ -62,11 +62,13 @@ export const validationSchemaAddFacility = Yup.object().shape({
   ),
   // unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
-  street_name: Yup.string().required("Street Name is required")
-  .max(100, "Street name should be maximum 100 characters"),
+  street_name: Yup.string()
+    .required("Street Name is required")
+    .max(100, "Street name should be maximum 100 characters"),
   // address: Yup.string().required("Address is required"),
-  city: Yup.string().required("City is required")
-  .matches(onlyCharactersRegExp, "Numbers are not allowed"),
+  city: Yup.string()
+    .required("City is required")
+    .matches(onlyCharactersRegExp, "Numbers are not allowed"),
   province: Yup.string().required("Province is required"),
   country: Yup.string().required("Country is required"),
   postal_code: Yup.string()
@@ -176,13 +178,35 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
 
 export const validationSchemaFacilityDetails = Yup.object().shape({
   operational_hours: Yup.number()
+    .required("Annual operational hours is required")
+    .min(0, "Operational hours must be a positive number between 0 and 8760")
+    .max(8760, "Operational hours cannot exceed 8760 hours per year"),
+  gross_floor_area_size_category: Yup.number().required(
+    "Gross floor area size category is required"
+  ),
+  gross_floor_area: Yup.number()
     .nullable()
-    .min(0, "Operational hours must be a positive number between 0 and 870")
-    .max(870, "Operational hours cannot exceed 870 hours per year"),
+    .min(0, "Gross floor area must be a positive number")
+    .max(3000000, "Gross floor area cannot exceed 3000000 sqft"),
+  conditioned_gross_floor_area_including_common_area: Yup.number()
+    .nullable()
+    .min(
+      0,
+      "Conditioned gross floor area including common area must be a positive number"
+    )
+    .max(
+      Yup.ref("gross_floor_area"),
+      "Conditioned gross floor area including common area cannot be more than gross floor area"
+    ),
+  unonditioned_gross_floor_area: Yup.number()
+    .min(0, "Unconditioned gross floor area  must be a positive number")
+    .max(3000000, "Unconditioned gross floor area cannot exceed 3000000 sqft"),
+
   year_of_construction: Yup.date().required("Year of construction is required"),
   number_of_storeys: Yup.number()
-    .nullable()
-    .min(0, "Number of Storeys must be a positive number"),
+    .required("Number of storeys is required")
+    .min(0, "Number of Storeys must be a positive number")
+    .max(200, "Number of Storeys must between 0 to 200"),
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
@@ -197,6 +221,9 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   ),
   space_cooling_technology: Yup.string().required(
     "Space cooling technology is required"
+  ),
+  space_heating_technology: Yup.string().required(
+    "Space heating technology is required"
   ),
   space_heating_fuel_source: Yup.string().required(
     "Space heating fuel source is required"
@@ -221,7 +248,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space Heating fuel source"),
+        schema.required("Please mention the space heating fuel source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -230,7 +257,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Water Heating fuel source"),
+        schema.required("Please mention the water heating fuel source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -239,7 +266,16 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space cooling technology"),
+        schema.required("Please mention the space cooling technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_heating_technology_other: Yup.string().when(
+    "space_heating_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the space heating technology"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -248,18 +284,18 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Water heating technology"),
+        schema.required("Please mention the water heating technology"),
       otherwise: (schema) => schema.optional(),
     }
   ),
   is_lighting_controlled_for_occupancy: Yup.boolean().required(
-    "Is Lighting Controlled for Occupancy is required"
+    "Is lighting controlled for occupancy is required"
   ),
   is_space_heating_controlled_for_occupancy: Yup.boolean().required(
-    "Is Space Heating Controlled for Occupancy is required"
+    "Is space Heating controlled for occupancy is required"
   ),
   is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
-    "Is Space Cooling Controlled for Occupancy is required"
+    "Is space Cooling controlled for occupancy is required"
   ),
   space_cooling_technology_capacity: Yup.number()
     .nullable()

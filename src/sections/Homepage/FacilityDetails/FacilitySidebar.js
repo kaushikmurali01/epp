@@ -4,13 +4,13 @@ import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
 export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const menuItems = [
-    { label: "Summary", id: 0 },
-    { label: "Details", id: 1 },
-    { label: "Energy and Water", id: 2 },
-    { label: "Weather & Independent Variables", id: 3 },
-    { label: "Reports and Studies", id: 4 },
-    { label: "Baseline Model", id: 5 },
-    { label: "Performance", id: 6 },
+    { label: "Summary (O/P)", id: 0 },
+    { label: "Details (I/P)", id: 1 },
+    { label: "Energy and Water (I/P)", id: 2 },
+    // { label: "Weather & Independent Variables", id: 3 },
+    // { label: "Reports and Studies", id: 4 },
+    // { label: "Baseline Model", id: 5 },
+    // { label: "Performance", id: 6 },
   ];
 
   const handleTabChange = (event, newValue) => {
