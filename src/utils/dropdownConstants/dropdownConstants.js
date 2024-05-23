@@ -36,8 +36,8 @@ export const FLOOR_AREA_ARRAY = [
 
 export const SOURCE_ARRAY = [
   {
-    label: "Electricty",
-    value: "electricty",
+    label: "Electricity",
+    value: "electricity",
   },
   {
     label: "Natural gas",
@@ -70,6 +70,7 @@ export const SPACE_COOLING_ARRAY = [
 export const SPACE_HEATING_ARRAY = [
   { value: "boiler", label: "Boiler" },
   { value: "furnance", label: "Furnance" },
+  { value: "radiator", label: "Radiator" },
   {
     value: "baseboard_heating",
     label: "Baseboard heating",
@@ -80,11 +81,7 @@ export const SPACE_HEATING_ARRAY = [
   },
   {
     value: "air_source_heat_pump_VRF",
-    label: "air source heat pump/VRF",
-  },
-  {
-    value: "rooftoop_unit",
-    label: "Rooftoop unit",
+    label: "Air source heat pump/VRF",
   },
   { value: "other", label: "Other" },
 ];
@@ -112,6 +109,7 @@ export const SPACE_HEATING_UNIT_ARRAY = [
     value: "HSPF",
     label: "HSPF",
   },
+  { value: "COP", label: "COP" },
 ];
 export const WATER_HEATING_UNIT_ARRAY = [
   { value: "%", label: "%" },

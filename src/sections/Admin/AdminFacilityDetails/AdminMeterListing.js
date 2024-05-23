@@ -251,7 +251,7 @@ const AdminMeterListing = ({
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current energy date
+                    Current date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (
