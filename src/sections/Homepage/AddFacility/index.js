@@ -56,7 +56,12 @@ const AddFacilityComponent = (props) => {
     "Is . the building/facility in the tariff class GS > 50KW?*";
 
   const FacilityConstructionStatusArray = [
-    { id: 1, name: "Existing", label: "Existing", value: "Existing" },
+    {
+      id: 1,
+      name: "Existing Building",
+      label: "Existing Building",
+      value: "Existing Building"
+    },
     {
       id: 2,
       name: "New Construction",
@@ -497,14 +502,14 @@ const AddFacilityComponent = (props) => {
           my={4}
           sx={{
             color: "#696969",
-            fontWeight: "500",
+            fontWeight: "bold",
             fontSize: "14px",
-            border: "1px solid #D0D0D0",
-            backgroundColor: "#EBEBEB",
-            padding: "4px 16px",
-            borderRadius: "10px",
-            width: "175px",
-            height: "38px",
+            // border: "1px solid #D0D0D0",
+            // backgroundColor: "#EBEBEB",
+            // padding: "4px 16px",
+            // borderRadius: "10px",
+            // width: "175px",
+            // height: "38px",
           }}
         >
           Facility Details
@@ -530,7 +535,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={4}>
                   <InputField
                     name="facility_name"
-                    label="Facility Name*"
+                    label="Facility name*"
                     type="text"
                   />
                 </Grid>
@@ -553,7 +558,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="facility_category"
-                    label="Facility Category*"
+                    label="Facility category*"
                     options={facilityCategories || []}
                     onChange={(e) => {
                       getFacilityType(e.target.value, values)
@@ -564,7 +569,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={4}>
                   <SelectBox
                     name="facility_type"
-                    label="Facility Type*"
+                    label="Facility type*"
                     options={facilityTypes || []}
                     onChange={(e) => {
                       getNAICS(e.target.value, values)
@@ -573,7 +578,11 @@ const AddFacilityComponent = (props) => {
                 </Grid>
 
                 <Grid item xs={12} sm={4}>
-                  <InputField isDisabled={true} name="naic_code" label="NAIC’s Code*" type="text" />
+                  <InputField
+                    isDisabled={true}
+                    name="naic_code"
+                    label="NAIC’s code*"
+                    type="text" />
                 </Grid>
               </Grid>
 
@@ -594,19 +603,29 @@ const AddFacilityComponent = (props) => {
                   >
                     What is your target energy savings for this facility?*
                   </Typography>
-                    <SliderWrapper 
-                      name="target_saving"
-                      min={0}
-                      max={100}
-                      aria-labelledby="number-slider"
-                      valueLabelDisplay="on"
-                      marks={marksForEnergyTarget}
-                    />
+                  <SliderWrapper
+                    name="target_saving"
+                    min={0}
+                    max={100}
+                    aria-labelledby="number-slider"
+                    valueLabelDisplay="on"
+                    marks={marksForEnergyTarget}
+                  />
                 </Grid>
               </Grid>
 
               <Grid item xs={12} sm={12} sx={{ marginTop: "10px" }}>
-                <InputLabel sx={{ color: "#2E813E" }}>Facility photo</InputLabel>
+                {/* <InputLabel sx={{ color: "#2E813E" }}>Facility photo</InputLabel> */}
+                <Typography
+                    my={4}
+                    sx={{
+                      color: "#696969",
+                      fontWeight: "500",
+                      fontSize: "0.875rem !important",
+                    }}
+                  >
+                    Facility photo
+                  </Typography>
                 {!selectedFile ? (
                   <>
                     <Typography
@@ -652,7 +671,7 @@ const AddFacilityComponent = (props) => {
                         }}
                         onClick={handleButtonClick}
                       >
-                        Change Picture
+                        Change picture
                       </Typography>
                       <input
                         type="file"
@@ -670,7 +689,7 @@ const AddFacilityComponent = (props) => {
                         }}
                         onClick={deletePicture}
                       >
-                        Delete Picture
+                        Delete picture
                       </Typography>
                     </div>
                   </div>
@@ -683,14 +702,14 @@ const AddFacilityComponent = (props) => {
                 my={4}
                 sx={{
                   color: "#696969",
-                  fontWeight: "500",
+                  fontWeight: "bold",
                   fontSize: "14px",
-                  border: "1px solid #D0D0D0",
-                  backgroundColor: "#EBEBEB",
-                  padding: "4px 16px",
-                  borderRadius: "10px",
-                  width: "100px",
-                  height: "37px",
+                  // border: "1px solid #D0D0D0",
+                  // backgroundColor: "#EBEBEB",
+                  // padding: "4px 16px",
+                  // borderRadius: "10px",
+                  // width: "100px",
+                  // height: "37px",
                 }}
               >
                 Address
@@ -741,7 +760,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={3}>
                   <InputField
                     name="province"
-                    label="Province/State*"
+                    label="Province*"
                     type="text"
                     isDisabled={true}
                   />
@@ -758,7 +777,7 @@ const AddFacilityComponent = (props) => {
                 <Grid item xs={12} sm={3}>
                   <InputField
                     name="postal_code"
-                    label="Zip code/Postal code*"
+                    label="Postal code*"
                     type="text"
                   />
                 </Grid>
