@@ -74,24 +74,28 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#007398",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
             Download
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2E813E",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
