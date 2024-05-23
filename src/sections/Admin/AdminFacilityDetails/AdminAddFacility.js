@@ -369,8 +369,8 @@ const AdminAddFacilityComponent = (props) => {
     );
 
     const handleSubmit = (values) => {
+        delete values.facility_id_submission_status;
         const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
-        console.log(newValues);
         if (values.facility_construction_status == "Existing") {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == "New") {

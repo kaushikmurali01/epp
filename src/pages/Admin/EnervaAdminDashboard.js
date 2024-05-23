@@ -9,7 +9,9 @@ import {
   Typography,
 } from "@mui/material";
 import { dateFilterTypes } from "constants/allDefault";
-import { useState } from "react";
+import { USER_MANAGEMENT, dashboardEndPoints } from "constants/apiEndPoints";
+import { useEffect, useState } from "react";
+import { GET_REQUEST } from "utils/HTTPRequests";
 
 export const DashboardCard = ({ heading, count }) => {
   return (
@@ -54,14 +56,42 @@ export const DashboardCard = ({ heading, count }) => {
 };
 
 const EnervaAdminDashboard = (props) => {
-  const [totalsByListFilter, setTotalsByListFilter] = useState("1");
-  const [dateFilter, setDateFilter] = useState("1");
-
   const totalsByList = [
     { id: 1, value: "All" },
     { id: 2, value: "Customer 1" },
     { id: 3, value: "Customer 2" },
   ];
+  const [totalsByListFilter, setTotalsByListFilter] = useState('');
+  const [dateFilter, setDateFilter] = useState("1");
+  const [dashboardData, setDashboardData] = useState();
+  const [companyData, setCompanyData] = useState([]);
+
+  useEffect(() => {
+    getDashboardData('');
+    getCompanyListData();
+  }, []);
+
+  const getDashboardData = (companyId) => {
+    GET_REQUEST(dashboardEndPoints.ADMIN_DASHBOARD_STATS + '?company_id=' + companyId)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          setDashboardData(response.data.data);
+          ;
+        }
+      })
+      .catch((error) => { });
+  }
+
+  const getCompanyListData = () => {
+    GET_REQUEST(USER_MANAGEMENT.GET_DROPDOWN_COMPANY_LIST)
+      .then((response) => {
+        if (response.data.status == 204) {
+          setCompanyData(response.data.data);
+          ;
+        }
+      })
+      .catch((error) => { });
+  }
 
   return (
     <>
@@ -97,7 +127,7 @@ const EnervaAdminDashboard = (props) => {
               industry.
             </Typography>
           </Grid>
-          <Grid item display={"flex"} sx={{flexWrap: "wrap", gap: {xs:"1rem", sm:"2.5rem"},   }}>
+          <Grid item display={"flex"} sx={{ flexWrap: "wrap", gap: { xs: "1rem", sm: "2.5rem" }, }}>
             <Grid
               item
               display="flex"
@@ -117,11 +147,14 @@ const EnervaAdminDashboard = (props) => {
                     displayEmpty={true}
                     className="transparent-border"
                     value={totalsByListFilter}
-                    onChange={(e) => setTotalsByListFilter(e.target.value)}
+                    onChange={(e) => { setTotalsByListFilter(e.target.value); getDashboardData(e.target.value) }}
                   >
-                    {totalsByList?.map((item) => (
+                    <MenuItem key='' value=''>
+                      All
+                    </MenuItem>
+                    {companyData?.map((item) => (
                       <MenuItem key={item?.id} value={item?.id}>
-                        {item?.value}
+                        {item?.company_name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -172,8 +205,8 @@ const EnervaAdminDashboard = (props) => {
       >
         <Container>
           <Grid container gap={"0.31rem"}>
-            <DashboardCard heading="Number of customers" count="1234" />
-            <DashboardCard heading="Total number of users" count="1365" />
+            <DashboardCard heading="Number of customers" count={dashboardData?.all_company} />
+            <DashboardCard heading="Total number of users" count={dashboardData?.all_user} />
           </Grid>
         </Container>
       </Box>
