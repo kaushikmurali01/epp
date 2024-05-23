@@ -79,7 +79,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     meter_active: "",
     meter_inactive: "",
     stil_in_use: false,
-    is_rg_meter: "",
+    is_rg_meter: false,
   });
 
   const handleUtilityFileChange = (event) => {
@@ -248,14 +248,18 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         }}
                       >
                         <ToggleButton value={1}>Electricty</ToggleButton>
-                        <ToggleButton value={3}>Natural Gas</ToggleButton>
-                        <ToggleButton value={2}>Water</ToggleButton>
+                        <ToggleButton value={3} disabled>
+                          Natural Gas
+                        </ToggleButton>
+                        <ToggleButton value={2} disabled>
+                          Water
+                        </ToggleButton>
                       </ToggleButtonGroup>
                     )}
                   </Field>
                 </Grid>
               </Grid>
-              {meterAlignment === 1 && (
+              {meterAlignment <= 1 && (
                 <Grid item spacing={4}>
                   <Field name="purchased_from_the_grid">
                     {({ field, form }) => (
@@ -365,14 +369,14 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this a revenue-grade meter?
+                    Is this a revenue-grade meter? *
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
                       {({ field, form }) => (
                         <ToggleButtonGroup
                           id="is_rg_meter"
-                          value={revenueAlignment}
+                          value={values.is_rg_meter}
                           exclusive
                           onChange={(event, newAlignment) => {
                             handleRevenueTypeChange(event, newAlignment, form);
@@ -476,58 +480,31 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </Typography>
                   )}
                 </Grid>
-                <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
-                  <InputLabel style={{ whiteSpace: "initial" }}>
-                    Upload meter specification as per Measurement Canada S-E-04
-                  </InputLabel>
-                  {!specSelectedFile ? (
-                    <>
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#696969",
-                          fontWeight: "500",
-                          fontSize: "18px",
-                          border: "1px solid #D0D0D0",
-                          backgroundColor: "#D1FFDA",
-                          padding: "6px 34px",
-                          borderRadius: "8px",
-                          width: "140px",
-                          height: "40px",
-                          cursor: "pointer",
-                        }}
-                        onClick={handleSpecButtonClick}
-                      >
-                        Upload
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={specFileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleSpecFileChange}
-                        accept={".pdf"}
-                      />
-                    </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <div>
-                        <img
-                          src={specSelectedFile}
-                          alt="Preview"
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
-                        />
-                      </div>
-                      <div style={{ marginLeft: "20px" }}>
+                {!values.is_rg_meter && (
+                  <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
+                    <InputLabel style={{ whiteSpace: "initial" }}>
+                      Upload meter specification as per Measurement Canada
+                      S-E-04
+                    </InputLabel>
+                    {!specSelectedFile ? (
+                      <>
                         <Typography
                           my={1}
                           sx={{
-                            color: "#2C77E9",
+                            color: "#696969",
                             fontWeight: "500",
-                            fontSize: "16px !important",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
+                            cursor: "pointer",
                           }}
                           onClick={handleSpecButtonClick}
                         >
-                          Change File
+                          Upload
                         </Typography>
                         <input
                           type="file"
@@ -536,21 +513,57 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           onChange={handleSpecFileChange}
                           accept={".pdf"}
                         />
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#FF5858",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
-                          }}
-                          onClick={deleteSpecPicture}
-                        >
-                          Delete File
-                        </Typography>
+                      </>
+                    ) : (
+                      <div style={{ display: "flex" }}>
+                        <div>
+                          <img
+                            src={specSelectedFile}
+                            alt="Preview"
+                            style={{ maxWidth: "100%", maxHeight: "200px" }}
+                          />
+                        </div>
+                        <div style={{ marginLeft: "20px" }}>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2C77E9",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={handleSpecButtonClick}
+                          >
+                            Change File
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={specFileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleSpecFileChange}
+                            accept={".pdf"}
+                          />
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#FF5858",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                            }}
+                            onClick={deleteSpecPicture}
+                          >
+                            Delete File
+                          </Typography>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Grid>
+                    )}
+                    {!specSelectedFile && (
+                      <Typography variant="small" color="primary">
+                        Meter specification as per Measurement Canada S-E-04 is
+                        required
+                      </Typography>
+                    )}
+                  </Grid>
+                )}
               </Grid>
 
               <Grid container xs={12} sm={5}>

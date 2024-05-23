@@ -136,6 +136,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
         ),
     otherwise: (schema) => schema.notRequired().nullable(),
   }),
+  is_rg_meter:Yup.bool().required("Revenue-grade meter is required"),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
