@@ -71,9 +71,51 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }
 
+    const permissionUpDate = (apiURL,requestBody,handelAccept)=> {
+        POST_REQUEST(apiURL, requestBody)
+        .then((response) => {
+            handleAPISuccessCallBack();
+            setVisibleInvitePage(false);
+            if(handelAccept){
+                NotificationsToast({ message: 'You have accepted the request and updated the invite permissions.', type: "success" });
+            } else {
+                NotificationsToast({ message: 'The Invite has been updated', type: "success" });
+            }
+            
+        })
+        .catch((error) => {
+            console.log(error, 'error')
+            NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        });
+    }
+
+    const handelAccept = (item,handelAccept, permissionEditAPI, reqBody ) => {
+
+        const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
+        const requestBody = {
+            "user_id": item.id,
+            "company_id": item.company_id
+        }
+
+        POST_REQUEST(apiURL, requestBody)
+            .then((_response) => {
+                permissionUpDate(permissionEditAPI,reqBody,handelAccept)
+
+            })
+            .catch((error) => {
+                console.log(error, 'error')
+                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+
+            })
+    }
+
 
 
     const handelInviteSubmit = () => {
+        if(!isFormValid){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
 
         // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const apiURL = inviteAPIURL;
@@ -99,17 +141,15 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 requestBody.company_id = selectTableRow.company_id
             }
 
-            POST_REQUEST(apiURL, requestBody)
-                .then((response) => {
+            
+            if(invitePageInfo?.handelAccept ){
+                handelAccept(selectTableRow,invitePageInfo?.handelAccept, apiURL,requestBody,);
+                
+            } else {
+                permissionUpDate(apiURL,requestBody,false)
+            }
 
-                    NotificationsToast({ message: 'The Invite has been updated', type: "success" });
-                    setVisibleInvitePage(false);
-                    handleAPISuccessCallBack();
-                })
-                .catch((error) => {
-                    console.log(error, 'error')
-                    NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-                });
+               
         } else {
             const requestBody = {
                 "email": userEmail,
@@ -174,14 +214,15 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
+        const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
 
         if (invitePageInfo?.type === "2") {
-            setIsFormValid(isValidEmail && selectRoleType !== '' && selectCompanyType !== '')
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '')
         } else {
-            setIsFormValid(isValidEmail && selectRoleType !== '')
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
         }
 
-    }, [userEmail, selectRoleType, selectCompanyType])
+    }, [userEmail, selectRoleType, selectCompanyType,selectedPermissions])
 
 
     useEffect(() => {
@@ -193,7 +234,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log(getUserRole, invitePageInfo, selectTableRow, getCompanyList, 'getCompanyList,getUserRole,selectTableRow')
+    console.log(getUserRole, invitePageInfo, selectTableRow, getCompanyList, selectedPermissions, 'invite page all data')
 
     return (
         <Box component="section">
@@ -301,7 +342,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 </Grid>
 
                 {permissions?.length > 0 ?
-                    <Box component='div' sx={{ width: { xs: '100%', sm: '75%' } }} >
+                    <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
                         <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                             <Grid item>
                                 <Typography variant='small'>List of Permissions</Typography>
@@ -315,7 +356,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 const isPermissionSelected = permissionStates?.includes(permission.permission_id);
                                 return (
                                     <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item >
+                                        <Grid item xs={12} md={10}>
                                             <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>
