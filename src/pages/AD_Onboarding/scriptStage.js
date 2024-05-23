@@ -1,3 +1,63 @@
+// Select all radio inputs within the specified list item
+const radioButtons = document.querySelectorAll(
+  '.RadioSingleSelect.extension_UserType_li input[type="radio"]'
+);
+
+// Iterate through each radio button and remove the 'disabled' attribute
+radioButtons.forEach(function (radioButton) {
+  radioButton.removeAttribute("disabled");
+  radioButton.removeAttribute("aria-disabled");
+});
+
+function processCheckboxListItem(className, labelContent) {
+  // Select the <li> element with the specified class
+  let listItem = document.querySelector("." + className);
+
+  // Select the <fieldset> element
+  let fieldset = listItem.querySelector("fieldset");
+
+  // Select the <legend> element
+  let legend = fieldset.querySelector("legend");
+
+  // Create a new <label> element with the same content and attributes as the <legend>
+  let newLabel = document.createElement("label");
+  newLabel.id = legend.id;
+  newLabel.setAttribute(
+    "for",
+    listItem.querySelector('input[type="checkbox"]').id
+  ); // Pointing to the checkbox
+  newLabel.className = legend.className;
+  newLabel.innerHTML = labelContent; // Set the label content
+
+  // Replace the <legend> with the new <label>
+  fieldset.replaceChild(newLabel, legend);
+
+  // Move all children of <fieldset> (except the new <label>) out of <fieldset>
+  while (fieldset.firstChild) {
+    listItem
+      .querySelector(".attrEntry")
+      .insertBefore(fieldset.firstChild, listItem.querySelector(".helpLink"));
+  }
+
+  // Remove the now empty <fieldset>
+  fieldset.remove();
+}
+
+// Call the function for each checkbox list item with appropriate content
+processCheckboxListItem(
+  "extension_Policy1_li",
+  'I have read and agree to the provisions of the <a href="https://eppdevstorage.blob.core.windows.net/assets/epp-portal-services-agreement.pdf" id="agreement" class="agreement" target="_blank">Portal Services Agreement</a>, which includes limitations on Enerva and IESO warranties and liability.'
+);
+processCheckboxListItem(
+  "extension_Policy2_li",
+  "I agree that the information submitted in the sign up form and in other communications and forms as part of the Program consists solely of business or commercial information and is not personal information of any individual."
+);
+processCheckboxListItem(
+  "extension_Policy3_li",
+  "I consent to being contacted by IESO or Enerva (IESO Service Provider) by email, text or other electronic means for program-related matters or about energy efficiency and greenhouse gas reducing programs, technologies, products, and services that IESO or Enerva offers."
+);
+
+
 function showForm(userRole) {
   if (userRole === "super_administrator") {
     // resetForm();
@@ -301,18 +361,35 @@ const postalCodePattern =
   /^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$/;
 
 if (postalCodeInput) {
+  // Create the error div once and append it to the parent element
+  const errorDiv = document.createElement("div");
+  errorDiv.classList.add("error");
+  errorDiv.style.display = "none"; // Hide the error div initially
+
+  const parentElement = document.querySelector(".postalCode_li .attrEntry");
+
+  // parentElement.appendChild(errorDiv);
+
+  // Insert the error div before the input element
+  parentElement.insertBefore(errorDiv, postalCodeInput);
+
   postalCodeInput.addEventListener("input", function (event) {
     // Convert the value to uppercase
     event.target.value = event.target.value.toUpperCase();
 
-    const errorDiv = document.querySelector(".postalCode_li .error");
-
     // Validate the postal code pattern
     const value = event.target.value;
-    if (!postalCodePattern.test(value)) {
-      errorDiv.textContent = "Please enter a valid Canadian postal code.";
+
+    if (value) {
+      if (!postalCodePattern.test(value)) {
+        errorDiv.style.display = "block";
+        errorDiv.textContent = "Please enter a valid Canadian postal code.";
+      } else {
+        errorDiv.textContent = "";
+        errorDiv.style.display = "none";
+      }
     } else {
-      errorDiv.textContent = "";
+        errorDiv.style.display = "none";
     }
   });
 }
@@ -501,8 +578,8 @@ function checkCompanyName() {
 
 // Function to show an error message
 // function showErrorMessage(message, cls = ".extension_CompanyName_li") {
-  // You can display the error message in the desired way
-  // For example, you can use the provided error div with the class "error itemLevel"
+// You can display the error message in the desired way
+// For example, you can use the provided error div with the class "error itemLevel"
 //   const companyli = document.querySelector(cls);
 //   const errorDiv = companyli.querySelector(".error.itemLevel");
 //   errorDiv.textContent = message;
@@ -572,9 +649,260 @@ function showPopup() {
   document.body.appendChild(overlay);
 }
 
-function scrollToTop(){
+function scrollToTop() {
   window.scrollTo({
     top: 0,
     behavior: "smooth",
   });
-};
+}
+
+// Get the password input fields
+
+// const newPasswordLi = document.querySelector(".newPassword_li");
+// const reenterPasswordLi = document.querySelector(".reenterPassword_li");
+// const newPasswordInput = document.getElementById('newPassword');
+// const reenterPasswordInput = document.getElementById('reenterPassword');
+// newPasswordLi.style.position = "relative";
+// reenterPasswordLi.style.position = "relative";
+
+// // Function to toggle password visibility
+// function togglePasswordVisibility(input, eyeIcon) {
+//   if (input.type === 'password') {
+//     input.type = 'text';
+//     eyeIcon.style.color = 'green'; // Change eye icon color when showing password
+//   } else {
+//     input.type = 'password';
+//     eyeIcon.style.color = 'grey'; // Change eye icon color when hiding password
+//   }
+// }
+
+// // Create eye icons and add event listeners
+// const newPasswordEyeIcon = document.createElement('i');
+// newPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
+// newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+
+// const reenterPasswordEyeIcon = document.createElement('i');
+// reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
+// reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
+// reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+
+
+// Following code will not show the Checks on Password therefore not showing as of now
+
+// Get the password input fields
+const newPasswordInput = document.getElementById("newPassword");
+const reenterPasswordInput = document.getElementById("reenterPassword");
+
+// Function to toggle password visibility
+function togglePasswordVisibility(input, eyeIcon) {
+  if (input.type === "password") {
+    input.type = "text";
+    eyeIcon.style.color = "#2E813E"; // Change eye icon color when showing password
+  } else {
+    input.type = "password";
+    eyeIcon.style.color = "grey"; // Change eye icon color when hiding password
+  }
+}
+
+
+// Create eye icons and add event listeners
+const newPasswordEyeIcon = document.createElement('i');
+newPasswordEyeIcon.classList.add('fa', 'fa-eye');
+newPasswordInput.parentNode.appendChild(newPasswordEyeIcon);
+newPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(newPasswordInput, newPasswordEyeIcon));
+
+const reenterPasswordEyeIcon = document.createElement('i');
+reenterPasswordEyeIcon.classList.add('fa', 'fa-eye');
+reenterPasswordInput.parentNode.appendChild(reenterPasswordEyeIcon);
+reenterPasswordEyeIcon.addEventListener('click', () => togglePasswordVisibility(reenterPasswordInput, reenterPasswordEyeIcon));
+
+
+
+// Create a new div element
+const field1 = document.createElement('div');
+field1.classList.add('field1');
+
+
+// Append the input and icon elements to the new div
+field1.appendChild(newPasswordInput);
+field1.appendChild(newPasswordEyeIcon);
+
+// Find the parent element of the input and icon elements
+const parentElement1 = document.querySelector('.newPassword_li .attrEntry');
+
+// Append the new div to the parent element
+parentElement1.appendChild(field1);
+
+const field2 = document.createElement("div");
+field2.classList.add("field2");
+
+// Append the input and icon elements to the new div
+field2.appendChild(reenterPasswordInput);
+field2.appendChild(reenterPasswordEyeIcon);
+
+// Find the parent element of the input and icon elements
+const parentElement2 = document.querySelector(".reenterPassword_li .attrEntry");
+
+// Append the new div to the parent element
+parentElement2.appendChild(field2);
+
+
+// validation for password and confirm password
+// newPasswordInput.addEventListener('input', validateNewPassword);
+// reenterPasswordInput.addEventListener("input", validateConfirmPassword);
+
+// newPasswordInput.setAttribute("max", 64);
+// reenterPasswordInput.setAttribute("max", 64);
+  
+// const newPasswordError = document.querySelector(
+//   ".newPassword_li .attrEntry .error.itemLevel"
+// );
+// const confirmPasswordError = document.querySelector(
+//   ".reenterPassword_li .attrEntry .error.itemLevel"
+// );
+
+//   function validateNewPassword() {
+//     const password = newPasswordInput.value;
+//     let errorMessage = '';
+
+//     if (password) {
+//       if (!/[A-Z]/.test(password)) {
+//         errorMessage =
+//           "The password must contain at least one uppercase letter.";
+//       } else if (!/\d/.test(password)) {
+//         errorMessage = "The password must contain at least one digit.";
+//       } else if (!/[^a-zA-Z0-9]/.test(password)) {
+//         errorMessage = "The password must contain at least one symbol.";
+//       } else if (!/[a-z]/.test(password)) {
+//         errorMessage =
+//           "The password must contain at least one lowercase letter.";
+//       } else if (password.length < 8) {
+//         errorMessage = "The password must be at least 8 characters long.";
+//       } else if (password.length > 64) {
+//         errorMessage = "The password must be no more than 64 characters long.";
+//       }
+//     } else {
+//       errorMessage = "";
+//     }
+
+//     newPasswordError.textContent = errorMessage;
+//     // newPasswordError.classList.toggle('show', !!errorMessage);
+//   }
+
+//   function validateConfirmPassword() {
+//     const password = newPasswordInput.value;
+//     const confirmPassword = reenterPasswordInput.value;
+//     let errorMessage = '';
+
+//     if (password !== confirmPassword) {
+//       errorMessage = 'The passwords do not match.';
+//     }
+
+//     confirmPasswordError.textContent = errorMessage;
+//     // confirmPasswordError.classList.toggle('show', !!errorMessage);
+//   }
+// });
+
+// document.addEventListener("DOMContentLoaded", function () {
+  // const newPasswordInput = document.getElementById("newPassword");
+  // const confirmPasswordInput = document.getElementById("reenterPassword");
+// const confirmPasswordError = document.getElementById("reenterPassword_error");
+const confirmPasswordError = document.querySelector(
+  ".reenterPassword_li .attrEntry .error.itemLevel"
+);
+
+const newPasswordError = document.querySelector(
+  ".newPassword_li .attrEntry .error.itemLevel"
+);
+
+// Create and append the criteria container
+const newPasswordCriteria = document.createElement("div");
+newPasswordCriteria.id = "newPassword_criteria";
+newPasswordCriteria.classList.add("criteria");
+
+// Criteria to check
+const criteria = [
+  { id: "length", regex: /^.{8,64}$/, message: "8 characters" },
+  { id: "lowercase", regex: /[a-z]/, message: "1 lowercase" },
+  { id: "uppercase", regex: /[A-Z]/, message: "1 uppercase" },
+  { id: "digit", regex: /\d/, message: "1 digit" },
+  { id: "symbol", regex: /[^a-zA-Z0-9]/, message: "1 symbol" },
+];
+
+// Create and append each criterion element
+criteria.forEach((criterion) => {
+  const span = document.createElement("span");
+  span.id = `criteria_${criterion.id}`;
+  span.classList.add("invalid");
+  span.textContent = criterion.message;
+  newPasswordCriteria.appendChild(span);
+  newPasswordCriteria.appendChild(document.createTextNode(" - ")); // Add a dash separator
+});
+
+// Remove the last separator
+newPasswordCriteria.lastChild.remove();
+
+// Append the criteria container after the new password input field
+const newPasswordContainer = newPasswordInput.parentNode;
+newPasswordContainer.insertBefore(
+  newPasswordCriteria,
+  newPasswordInput.nextSibling
+);
+
+// Add event listeners
+newPasswordInput.addEventListener("input", validateNewPassword);
+reenterPasswordInput.addEventListener("input", validateConfirmPassword);
+
+document.getElementById("newPassword_criteria").classList.add("hidden");
+
+function validateNewPassword() {
+  const password = newPasswordInput.value;
+  let validCount = 0;
+
+  if (password) {
+    document.getElementById("newPassword_criteria").classList.remove("hidden");
+    newPasswordError.textContent = "";
+
+    // Check each criterion
+    criteria.forEach((criterion) => {
+      const element = document.getElementById(`criteria_${criterion.id}`);
+      if (criterion.regex.test(password)) {
+        element.classList.add("valid");
+        element.classList.remove("invalid");
+        if (criterion.id !== "length") validCount++;
+      } else {
+        element.classList.add("invalid");
+        element.classList.remove("valid");
+      }
+    });
+
+    // Check if length criterion is met and at least 3 other criteria are met
+    const lengthElement = document.getElementById("criteria_length");
+    const lengthValid = criteria[0].regex.test(password);
+    lengthElement.classList.toggle("valid", lengthValid);
+    lengthElement.classList.toggle("invalid", !lengthValid);
+
+    const overallValid = lengthValid && validCount >= 3;
+    newPasswordCriteria.classList.toggle("valid", overallValid);
+  } else {
+    document.getElementById("newPassword_criteria").classList.add("hidden");
+    newPasswordError.textContent = "This field is required.";
+  }
+}
+
+function validateConfirmPassword() {
+  const password = newPasswordInput.value;
+  const confirmPassword = reenterPasswordInput.value;
+  let errorMessage = "";
+
+  if (confirmPassword) {
+    if (password !== confirmPassword) {
+      errorMessage = "The passwords do not match.";
+    }
+
+    confirmPasswordError.textContent = errorMessage;
+  } else {
+    confirmPasswordError.textContent = "This field is required.";
+  }
+}

@@ -388,6 +388,48 @@ select.dull{
   gap: 2rem;
 }
 
+.field1,.field2{
+  position: relative;
+  display: flex;
+
+  input{
+    width: 100%;
+  }
+}
+
+.fa{
+  position: absolute;
+  cursor: pointer;
+  right: 18px;
+  bottom: 18px;
+  color: grey;
+}
+
+.error.itemLevel.show {
+  display: block;
+}
+
+.criteria {
+  position: absolute;
+  top: 105%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.criteria span {
+  padding: 0 2px;
+}
+
+.criteria .valid {
+  color: #2E813E;
+}
+
+.criteria .invalid {
+  color: #da0606;
+}
+
 .hidden {
   display: none !important;
 }

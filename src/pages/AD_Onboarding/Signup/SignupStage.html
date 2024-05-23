@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Asap:ital,wght@0,100..900;1,100..900&display=swap"
     rel="stylesheet">
-
-  <script type="text/javascript" src="../script1.js" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <script type="text/javascript" src="../scriptStage.js" defer></script>
 </head>
-
 <body>
   <header>
     <div class="wrapper">
@@ -38,35 +37,40 @@
             <button id="individual" class="tab" onclick="showForm('individual')">Individual</button>
           </div>
           <div class="steps">
-            <div class="step step1 complete"><span>1</span>Company information</div>
-            <img src="https://enervalogin.z14.web.core.windows.net/assets/arrow.svg" alt="arrow">
+            <div class="step step1 complete"><span>1</span>Contact Information</div>
+            <img src="https://enervaloginstg.z13.web.core.windows.net/assets/arrow.svg" alt="arrow">
             <div class="step step2"><span>2</span>Company Details</div>
           </div>
         </div>
         <div id="api" data-name="SelfAsserted" action="">
+          <div class="heading">
+            <h1 role="heading">User Details</h1>
+          </div>
           <div class="buttons">
           </div>
           <div class="intro">
             <p>Please provide the following details.</p>
           </div>
-          <form id="attributeVerification" action="JavaScript:void(0);">
-            <div id="passwordEntryMismatch" class="error pageLevel" style="display: none;" aria-hidden="true">The password entry
-              fields do not match. Please enter the same password in both fields and try again.</div>
-            <div id="requiredFieldMissing" class="error pageLevel" style="display: none;" aria-hidden="true">A required field is
-              missing. Please fill out all required fields and try again.</div>
-            <div id="fieldIncorrect" class="error pageLevel" style="display: none;" aria-hidden="true">One or more fields are
-              filled out incorrectly. Please check your entries and try again.</div>
-            <div id="claimVerificationServerError" class="error pageLevel" style="display: none;" aria-hidden="true"></div>
+          <form id="attributeVerification">
+            <div id="requiredFieldMissing" class="error pageLevel" style="display: none;" aria-hidden="true">A required
+              field is missing. Please fill out all required fields and try again.</div>
+            <div id="fieldIncorrect" class="error pageLevel" style="display: none;" aria-hidden="true">One or more fields
+              are filled out incorrectly. Please check your entries and try again.</div>
+            <div id="captchaUnresolved" class="error pageLevel" style="display: none;" aria-hidden="true">Captcha
+              challenge is not resolved. Please solve it to proceed.</div>
+            <div id="claimVerificationServerError" class="error pageLevel" style="display: none;" aria-hidden="true">
+            </div>
             <div id="attributeList" class="attr">
               <ul>
                 <li class="VerificationControl emailVerificationControl_li">
-                  <div class="attrEntry"><label id="emailVerificationControl_label" for="emailVerificationControl"></label>
+                  <div class="attrEntry"><label id="emailVerificationControl_label" for="emailVerificationControl"
+                      class=""></label>
                     <div class="error itemLevel" role="alert"></div>
                     <div class="verificationControlContent" id="emailVerificationControl">
                       <div class="verificationInfoText">
                         <div id="emailVerificationControl_info_message" aria-hidden="true" role="alert"
-                          aria-label="Verification is necessary. Please click Send button." style="display: none;">Verification
-                          is necessary. Please click Send button.</div>
+                          aria-label="Verification is necessary. Please click Send button." style="display: none;">
+                          Verification is necessary. Please click Send button.</div>
                       </div>
                       <div class="verificationSuccessText">
                         <div id="emailVerificationControl_success_message" aria-hidden="true" role="alert" aria-label=""
@@ -77,157 +81,180 @@
                           style="display: none;"></div>
                       </div>
                       <ul>
-                        <li class="TextBox email_li email" aria-hidden="false" style="display: inline;">
-                          <div class="attrEntry"><label id="email_label" for="email">Email Address *</label>
-                            <div class="error itemLevel" role="alert"></div><input id="email" class="textInput" type="text"
-                              placeholder="Email Address *" aria-label="Email Address *"
+                        <li class="EmailBox email_li email" aria-hidden="false" style="display: inline;">
+                          <div class="attrEntry"><label id="email_label" for="email" class="required">Email Address
+                              *</label>
+                            <div class="error itemLevel" role="alert"></div><input id="email" class="textInput"
+                              type="email" placeholder="Email Address *"
                               pattern="^[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+(?:\.[a-zA-Z0-9!#$%&amp;'+^_`{}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$"
                               title="Email address that can be used to contact you." aria-required="true"
                               autofocus="autofocus"><a class="helpLink tiny" href="javascript:void(0)"
                               data-help="Email address that can be used to contact you.">What is this?</a>
                           </div>
                         </li>
-                        <li class="TextBox emailVerificationCode_li VerificationCode" aria-hidden="true" style="display: none;">
-                          <div class="attrEntry"><label id="emailVerificationCode_label"
-                              for="emailVerificationCode">Verification Code</label>
-                            <div class="error itemLevel" role="alert"></div><input id="emailVerificationCode" class="textInput"
-                              type="text" placeholder="Verification Code" aria-label="Verification Code"
+                        <li class="TextBox emailVerificationCode_li VerificationCode" aria-hidden="true"
+                          style="display: none;">
+                          <div class="attrEntry"><label id="emailVerificationCode_label" for="emailVerificationCode"
+                              class="required">Verification Code</label>
+                            <div class="error itemLevel" role="alert"></div><input id="emailVerificationCode"
+                              class="textInput" type="text" placeholder="Verification Code"
                               title="Enter your verification code" aria-required="true" autocomplete="off" disabled=""><a
-                              class="helpLink tiny" href="javascript:void(0)" data-help="Enter your verification code">What is
-                              this?</a>
+                              class="helpLink tiny" href="javascript:void(0)"
+                              data-help="Enter your verification code">What is this?</a>
                           </div>
                         </li>
                       </ul>
                       <div class="working" style="display: none;" aria-hidden="true"></div>
-                      <div class="buttons"><button class="sendCode" id="emailVerificationControl_but_send_code" type="button"
-                          aria-label="Send verification code" aria-hidden="false" style="display: inline;">Send verification
-                          code</button><button class="verifyCode" id="emailVerificationControl_but_verify_code" type="button"
-                          aria-label="Verify code" aria-hidden="true" style="display: none;">Verify code</button><button
-                          class="sendNewCode" id="emailVerificationControl_but_send_new_code" type="button"
-                          aria-label="Send new code" aria-hidden="true" style="display: none;">Send new code</button><button
-                          class="changeClaims" id="emailVerificationControl_but_change_claims" type="button"
-                          aria-label="Change e-mail Email Address *" aria-hidden="true" style="display: none;">Change
-                          e-mail</button></div>
+                      <div class="buttons"><button class="sendCode" id="emailVerificationControl_but_send_code"
+                          type="button" aria-label="Send verification code" aria-hidden="false"
+                          style="display: inline;">Send verification code</button><button class="verifyCode"
+                          id="emailVerificationControl_but_verify_code" type="button" aria-label="Verify code"
+                          aria-hidden="true" style="display: none;">Verify code</button><button class="sendNewCode"
+                          id="emailVerificationControl_but_send_new_code" type="button" aria-label="Send new code"
+                          aria-hidden="true" style="display: none;">Send new code</button><button class="changeClaims"
+                          id="emailVerificationControl_but_change_claims" type="button" aria-label="Change e-mail"
+                          aria-hidden="true" style="display: none;">Change e-mail</button></div>
                     </div><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
                 <li class="Password newPassword_li">
-                  <div class="attrEntry"><label id="newPassword_label" for="newPassword">New Password</label>
-                    <div class="error itemLevel" role="alert"></div><input id="newPassword" class="textInput" type="password"
-                      placeholder="New Password" aria-label="New Password" title="Enter new password"
-                      autocomplete="new-password" aria-required="true" aria-autocomplete="list"><a class="helpLink tiny"
-                      href="javascript:void(0)" data-help="Enter new password">What is this?</a>
+                  <div class="attrEntry"><label id="newPassword_label" for="newPassword" class="required">New
+                      Password</label>
+                    <div class="error itemLevel" role="alert"></div><input id="newPassword" class="textInput"
+                      type="password" placeholder="New Password" title="Enter new password" autocomplete="new-password"
+                      aria-required="true" aria-disabled="true"  tabindex="-1"
+                      aria-autocomplete="list"><a class="helpLink tiny" href="javascript:void(0)"
+                      data-help="Enter new password">What is this?</a>
                   </div>
                 </li>
                 <li class="Password reenterPassword_li">
-                  <div class="attrEntry"><label id="reenterPassword_label" for="reenterPassword">Confirm New Password</label>
+                  <div class="attrEntry"><label id="reenterPassword_label" for="reenterPassword" class="required">Confirm
+                      New Password</label>
                     <div class="error itemLevel" role="alert"></div><input id="reenterPassword" class="textInput"
-                      type="password" placeholder="Confirm New Password" aria-label="Confirm New Password"
-                      title="Confirm new password" autocomplete="new-password" aria-required="true"><a class="helpLink tiny"
-                      href="javascript:void(0)" data-help="Confirm new password">What is this?</a>
+                      type="password" placeholder="Confirm New Password" title="Confirm new password"
+                      autocomplete="new-password" aria-required="true" aria-disabled="true" 
+                      tabindex="-1"><a class="helpLink tiny" href="javascript:void(0)"
+                      data-help="Confirm new password">What is this?</a>
                   </div>
                 </li>
                 <li class="TextBox extension_FirstName_li">
-                  <div class="attrEntry"><label id="extension_FirstName_label" for="extension_FirstName">First Name *</label>
+                  <div class="attrEntry"><label id="extension_FirstName_label" for="extension_FirstName"
+                      class="required">First Name *</label>
                     <div class="error itemLevel" role="alert"></div><input id="extension_FirstName" class="textInput"
-                      type="text" placeholder="First Name *" aria-label="First Name *" aria-required="true"><a
-                      class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                      type="text" placeholder="First Name *" aria-required="true" aria-disabled="true" disabled="disabled"
+                      tabindex="-1"><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
                 <li class="TextBox extension_LastName_li">
-                  <div class="attrEntry"><label id="extension_LastName_label" for="extension_LastName">Last Name *</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_LastName" class="textInput" type="text"
-                      placeholder="Last Name *" aria-label="Last Name *" aria-required="true"><a class="helpLink tiny"
-                      href="javascript:void(0)">What is this?</a>
+                  <div class="attrEntry"><label id="extension_LastName_label" for="extension_LastName"
+                      class="required">Last Name *</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_LastName" class="textInput"
+                      type="text" placeholder="Last Name *" aria-required="true" aria-disabled="true" disabled="disabled"
+                      tabindex="-1"><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
                 <li class="TextBox extension_BusinessMobile_li">
-                  <div class="attrEntry"><label id="extension_BusinessMobile_label" for="extension_BusinessMobile">Business
-                      Mobile*</label>
+                  <div class="attrEntry"><label id="extension_BusinessMobile_label" for="extension_BusinessMobile"
+                      class="required">Business Mobile*</label>
                     <div class="error itemLevel" role="alert"></div><input id="extension_BusinessMobile" class="textInput"
-                      type="text" placeholder="Business Mobile*" aria-label="Business Mobile*" aria-required="true"><a
-                      class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                      type="text" placeholder="Business Mobile*" aria-required="true" aria-disabled="true"
+                      disabled="disabled" tabindex="-1" pattern="^[0-9]*$" maxlength="10"><a class="helpLink tiny"
+                      href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
                 <li class="TextBox extension_BusinessLandline_li">
-                  <div class="attrEntry"><label id="extension_BusinessLandline_label" for="extension_BusinessLandline">Business
-                      Landline</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_BusinessLandline" class="textInput"
-                      type="text" placeholder="Business Landline" aria-label="Business Landline"><a class="helpLink tiny"
+                  <div class="attrEntry"><label id="extension_BusinessLandline_label" for="extension_BusinessLandline"
+                      class="">Business Landline</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_BusinessLandline"
+                      class="textInput" type="text" placeholder="Business Landline" aria-disabled="true"
+                      disabled="disabled" tabindex="-1" pattern="^[0-9]*$" maxlength="10"><a class="helpLink tiny"
                       href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox extension_CompanyName_li">
-                  <div class="attrEntry"><label id="extension_CompanyName_label" for="extension_CompanyName">Company Name
-                      *</label>
+                <li class="TextBox extension_CompanyName_li hidden">
+                  <div class="attrEntry"><label id="extension_CompanyName_label" for="extension_CompanyName"
+                      class="required">Company Name *</label>
                     <div class="error itemLevel" role="alert"></div><input id="extension_CompanyName" class="textInput"
-                      type="text" placeholder="Company Name *" aria-label="Company Name *" aria-required="true"><a
-                      class="helpLink tiny" href="javascript:void(0)">What is this?</a>
-                  </div>
-                </li>
-                <li class="TextBox extension_WebsiteURL_li">
-                  <div class="attrEntry"><label id="extension_WebsiteURL_label" for="extension_WebsiteURL">Website URL</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_WebsiteURL" class="textInput"
-                      type="text" placeholder="Website URL" aria-label="Website URL"><a class="helpLink tiny"
-                      href="javascript:void(0)">What is this?</a>
-                  </div>
-                </li>
-                <li class="DropdownSingleSelect extension_Howdoyouhearaboutus_li">
-                  <div class="attrEntry"><label id="extension_Howdoyouhearaboutus_label" for="extension_Howdoyouhearaboutus">How
-                      did you hear about us?</label>
-                    <div class="error itemLevel" role="alert"></div><select class="dropdown_single"
-                      id="extension_Howdoyouhearaboutus" aria-label="How did you hear about us?">
-                      <option style="display:none" disabled="disabled" value="" selected="selected">How did you hear about us?
-                      </option>
-                      <option value="1">Youtube</option>
-                      <option value="2">Facebook</option>
-                    </select><a class="helpLink tiny" href="javascript:void(0)" data-help="How did you hear about us?">What is
+                      type="text" placeholder="Company Name *" aria-required="true" aria-disabled="true"
+                      disabled="disabled" tabindex="-1"><a class="helpLink tiny" href="javascript:void(0)">What is
                       this?</a>
                   </div>
                 </li>
-                <li class="TextBox extension_UnitNumber_li">
-                  <div class="attrEntry"><label id="extension_UnitNumber_label" for="extension_UnitNumber">Unit Number</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_UnitNumber" class="textInput"
-                      type="text" placeholder="Unit Number" aria-label="Unit Number" aria-required="true"><a
+                <li class="TextBox extension_WebsiteURL_li hidden">
+                  <div class="attrEntry"><label id="extension_WebsiteURL_label" for="extension_WebsiteURL"
+                      class="">Website URL</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_WebsiteURL" class="textInput"
+                      type="text" placeholder="Website URL" aria-disabled="true" disabled="disabled" tabindex="-1"><a
                       class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox extension_StreetNo_li">
-                  <div class="attrEntry"><label id="extension_StreetNo_label" for="extension_StreetNo">Street No *</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_StreetNo" class="textInput" type="text"
-                      placeholder="Street No *" aria-label="Street No *" aria-required="true"><a class="helpLink tiny"
-                      href="javascript:void(0)">What is this?</a>
+                <li class="DropdownSingleSelect extension_Howdoyouhearaboutus_li hidden">
+                  <div class="attrEntry"><label id="extension_Howdoyouhearaboutus_label"
+                      for="extension_Howdoyouhearaboutus" class="">How did you hear about us?</label>
+                    <div class="error itemLevel" role="alert"></div><select class="dropdown_single"
+                      id="extension_Howdoyouhearaboutus" aria-label="How did you hear about us?" aria-disabled="true"
+                      disabled="disabled" tabindex="-1">
+                      <option style="display:none" disabled="disabled" value="" selected="selected">How did you hear about
+                        us?</option>
+                      <option value="1">Website</option>
+                      <option value="2">E-Blast</option>
+                      <option value="3">Webinar</option>
+                      <option value="4">Event</option>
+                      <option value="5">Program Staff</option>
+                      <option value="6">Referral</option>
+                      <option value="7">Other</option>
+                    </select><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox streetAddress_li">
-                  <div class="attrEntry"><label id="streetAddress_label" for="streetAddress">Street Name *</label>
-                    <div class="error itemLevel" role="alert"></div><input id="streetAddress" class="textInput" type="text"
-                      placeholder="Street Name *" aria-label="Street Name *"
-                      title="The street address at which you are located." aria-required="true"><a class="helpLink tiny"
+                <li class="TextBox extension_UnitNumber_li hidden">
+                  <div class="attrEntry"><label id="extension_UnitNumber_label" for="extension_UnitNumber"
+                      class="required">Unit Number *</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_UnitNumber" class="textInput"
+                      type="text" placeholder="Unit Number *" aria-required="true" aria-disabled="true"
+                      disabled="disabled" tabindex="-1"><a class="helpLink tiny" href="javascript:void(0)">What is
+                      this?</a>
+                  </div>
+                </li>
+                <li class="TextBox extension_StreetNo_li hidden">
+                  <div class="attrEntry"><label id="extension_StreetNo_label" for="extension_StreetNo"
+                      class="required">Street No *</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_StreetNo" class="textInput"
+                      type="text" placeholder="Street No *" aria-required="true" aria-disabled="true" disabled="disabled"
+                      tabindex="-1" pattern="\d*"><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                  </div>
+                </li>
+                <li class="TextBox streetAddress_li hidden">
+                  <div class="attrEntry"><label id="streetAddress_label" for="streetAddress" class="required">Street
+                      Address *</label>
+                    <div class="error itemLevel" role="alert"></div><input id="streetAddress" class="textInput"
+                      type="text" placeholder="Street Address *" title="The street address at which you are located."
+                      aria-required="true" aria-disabled="true" disabled="disabled" tabindex="-1"><a class="helpLink tiny"
                       href="javascript:void(0)" data-help="The street address at which you are located.">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox city_li">
-                  <div class="attrEntry"><label id="city_label" for="city">City *</label>
+                <li class="TextBox city_li hidden">
+                  <div class="attrEntry"><label id="city_label" for="city" class="required">City *</label>
                     <div class="error itemLevel" role="alert"></div><input id="city" class="textInput" type="text"
-                      placeholder="City *" aria-label="City *" title="The city in which you are located."
-                      aria-required="true"><a class="helpLink tiny" href="javascript:void(0)"
-                      data-help="The city in which you are located.">What is this?</a>
+                      placeholder="City *" title="The city in which you are located." aria-required="true"
+                      aria-disabled="true" disabled="disabled" tabindex="-1"><a class="helpLink tiny"
+                      href="javascript:void(0)" data-help="The city in which you are located.">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox state_li">
-                  <div class="attrEntry"><label id="state_label" for="state">State/Province *</label>
+                <li class="TextBox state_li hidden">
+                  <div class="attrEntry"><label id="state_label" for="state" class="required">State/Province *</label>
                     <div class="error itemLevel" role="alert"></div><input id="state" class="textInput" type="text"
-                      placeholder="State/Province *" aria-label="State/Province *" title="Your residential state or province."
-                      aria-required="true"><a class="helpLink tiny" href="javascript:void(0)"
-                      data-help="Your residential state or province.">What is this?</a>
+                      placeholder="State/Province *" title="Your residential state or province." aria-required="true"
+                      aria-disabled="true" disabled="disabled" tabindex="-1"><a class="helpLink tiny"
+                      href="javascript:void(0)" data-help="Your residential state or province.">What is this?</a>
                   </div>
                 </li>
-                <li class="DropdownSingleSelect country_li">
-                  <div class="attrEntry"><label id="country_label" for="country">Country/Region *</label>
+                <li class="DropdownSingleSelect country_li hidden">
+                  <div class="attrEntry"><label id="country_label" for="country" class="required">Country *</label>
                     <div class="error itemLevel" role="alert"></div><select class="dropdown_single" id="country"
-                      aria-label="Country/Region *" aria-required="true">
-                      <option style="display:none" disabled="disabled" value="" selected="selected">Country/Region *</option>
+                      aria-label="Country *" aria-required="true" aria-disabled="true" disabled="disabled" tabindex="-1">
+                      <option style="display:none" disabled="disabled" value="" selected="selected">Country *</option>
+                      <option value="United States">United States</option>
+                      <option value="Canada">Canada</option>
                       <option value="Afghanistan">Afghanistan</option>
                       <option value="Åland Islands">Åland Islands</option>
                       <option value="Albania">Albania</option>
@@ -269,7 +296,6 @@
                       <option value="Cabo Verde">Cabo Verde</option>
                       <option value="Cambodia">Cambodia</option>
                       <option value="Cameroon">Cameroon</option>
-                      <option value="Canada">Canada</option>
                       <option value="Cayman Islands">Cayman Islands</option>
                       <option value="Central African Republic">Central African Republic</option>
                       <option value="Chad">Chad</option>
@@ -437,12 +463,13 @@
                       <option value="Solomon Islands">Solomon Islands</option>
                       <option value="Somalia">Somalia</option>
                       <option value="South Africa">South Africa</option>
-                      <option value="South Georgia and the South Sandwich Islands">South Georgia and the South Sandwich Islands
-                      </option>
+                      <option value="South Georgia and the South Sandwich Islands">South Georgia and the South Sandwich
+                        Islands</option>
                       <option value="South Sudan">South Sudan</option>
                       <option value="Spain">Spain</option>
                       <option value="Sri Lanka">Sri Lanka</option>
-                      <option value="St Helena, Ascension, Tristan da Cunha">St Helena, Ascension, Tristan da Cunha</option>
+                      <option value="St Helena, Ascension, Tristan da Cunha">St Helena, Ascension, Tristan da Cunha
+                      </option>
                       <option value="Sudan">Sudan</option>
                       <option value="Suriname">Suriname</option>
                       <option value="Svalbard">Svalbard</option>
@@ -470,7 +497,6 @@
                       <option value="Ukraine">Ukraine</option>
                       <option value="United Arab Emirates">United Arab Emirates</option>
                       <option value="United Kingdom">United Kingdom</option>
-                      <option value="United States">United States</option>
                       <option value="Uruguay">Uruguay</option>
                       <option value="Uzbekistan">Uzbekistan</option>
                       <option value="Vanuatu">Vanuatu</option>
@@ -485,73 +511,99 @@
                       data-help="The country/region in which you are located.">What is this?</a>
                   </div>
                 </li>
-                <li class="TextBox postalCode_li">
-                  <div class="attrEntry"><label id="postalCode_label" for="postalCode">Postal Code *</label>
+                <li class="TextBox postalCode_li hidden">
+                  <div class="attrEntry"><label id="postalCode_label" for="postalCode" class="required">Postal Code
+                      *</label>
                     <div class="error itemLevel" role="alert"></div><input id="postalCode" class="textInput" type="text"
-                      placeholder="Postal Code *" aria-label="Postal Code *" title="The postal code of your address."
-                      aria-required="true"><a class="helpLink tiny" href="javascript:void(0)"
-                      data-help="The postal code of your address.">What is this?</a>
-                  </div>
-                </li>
-                <li class="CheckboxMultiSelect extension_Policy1_li">
-                  <div class="attrEntry"><label id="extension_Policy1_label" for="extension_Policy1">I have read and agree to
-                      the provisions of the Portal Services Agreement, which includes limitations on Enerva and IESO warranties
-                      and liability.</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_Policy1_1" name="extension_Policy1"
-                      type="checkbox" aria-labelledby="extension_Policy1_label extension_Policy1_1_option" value="1"><label
-                      id="1_option" for="extension_Policy1_1">Y</label><a class="helpLink tiny" href="javascript:void(0)">What
-                      is this?</a>
-                  </div>
-                </li>
-                <li class="CheckboxMultiSelect extension_Policy2_li">
-                  <div class="attrEntry"><label id="extension_Policy2_label" for="extension_Policy2">I agree that the
-                      information submitted in the sign up form and in other communications and forms as per of the Program
-                      consists solely of business or commercial information and is not personal information of any
-                      individual.</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_Policy2_1" name="extension_Policy2"
-                      type="checkbox" aria-labelledby="extension_Policy2_label extension_Policy2_1_option" value="1"><label
-                      id="1_option" for="extension_Policy2_1">Y</label><a class="helpLink tiny" href="javascript:void(0)">What
-                      is this?</a>
-                  </div>
-                </li>
-                <li class="CheckboxMultiSelect extension_Policy3_li">
-                  <div class="attrEntry"><label id="extension_Policy3_label" for="extension_Policy3">I consent to being
-                      contacted by IESO or Enerva (IESO Service Provider) by email, text or other electronic means for program
-                      related matters or about energy efficiency and greenhouse gas reducing programs, technologies, products
-                      and services that IESO or Enerva offers.</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_Policy3_1" name="extension_Policy3"
-                      type="checkbox" aria-labelledby="extension_Policy3_label extension_Policy3_1_option" value="1"><label
-                      id="1_option" for="extension_Policy3_1">Y</label><a class="helpLink tiny" href="javascript:void(0)">What
-                      is this?</a>
-                  </div>
-                </li>
-                <li class="RadioSingleSelect extension_UserType_li">
-                  <div class="attrEntry"><label id="extension_UserType_label" for="extension_UserType">User Type</label>
-                    <div class="error itemLevel" role="alert"></div><input id="extension_UserType_2" name="extension_UserType"
-                      type="radio" aria-labelledby="extension_UserType_label extension_UserType_2_option" value="2"><label
-                      id="2_option" for="extension_UserType_2">Super admin</label><input id="extension_UserType_3"
-                      name="extension_UserType" type="radio"
-                      aria-labelledby="extension_UserType_label extension_UserType_3_option" value="3"><label id="3_option"
-                      for="extension_UserType_3">Individual</label><a class="helpLink tiny" href="javascript:void(0)">What is
+                      placeholder="Postal Code *" title="The postal code of your address." aria-required="true"
+                      aria-disabled="true" disabled="disabled" tabindex="-1" maxlength="6"
+                      pattern="^[ABCEGHJ-NPRSTVXY]\d[ABCEGHJ-NPRSTV-Z][ -]?\d[ABCEGHJ-NPRSTV-Z]\d$"><a
+                      class="helpLink tiny" href="javascript:void(0)" data-help="The postal code of your address.">What is
                       this?</a>
+                  </div>
+                </li>
+                <li class="CheckboxMultiSelect extension_Policy1_li hidden">
+                  <div class="attrEntry">
+                    <fieldset>
+                      <legend id="extension_Policy1_label" for="extension_Policy1" class="required">I have read and agree
+                        to the provisions of the <a
+                          href="https://eppdevstorage.blob.core.windows.net/assets/epp-portal-services-agreement.pdf"
+                          id="agreement" class="agreement" target="_blank">Portal Services Agreement</a>, which includes
+                        limitations on Enerva and IESO warranties and liability.</legend>
+                      <div class="error itemLevel" role="alert"></div>
+                      <div id="group_placeholder" hidden="">group</div><input id="extension_Policy1_1"
+                        name="extension_Policy1" type="checkbox"
+                        aria-labelledby="extension_Policy1_label group_placeholder extension_Policy1_1" value="1"
+                        aria-disabled="true" disabled="disabled" tabindex="-1"><label id="1_option"
+                        for="extension_Policy1_1">Y</label>
+                    </fieldset><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                  </div>
+                </li>
+                <li class="CheckboxMultiSelect extension_Policy2_li hidden">
+                  <div class="attrEntry">
+                    <fieldset>
+                      <legend id="extension_Policy2_label" for="extension_Policy2" class="required">I agree that the
+                        information submitted in the sign up form and in other communications and forms as per of the
+                        Program consists solely of business or commercial information and is not personal information of
+                        any individual.</legend>
+                      <div class="error itemLevel" role="alert"></div>
+                      <div id="group_placeholder" hidden="">group</div><input id="extension_Policy2_1"
+                        name="extension_Policy2" type="checkbox"
+                        aria-labelledby="extension_Policy2_label group_placeholder extension_Policy2_1" value="1"
+                        aria-disabled="true" disabled="disabled" tabindex="-1"><label id="1_option"
+                        for="extension_Policy2_1">Y</label>
+                    </fieldset><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                  </div>
+                </li>
+                <li class="CheckboxMultiSelect extension_Policy3_li hidden">
+                  <div class="attrEntry">
+                    <fieldset>
+                      <legend id="extension_Policy3_label" for="extension_Policy3" class="required">I consent to being
+                        contacted by IESO or Enerva (IESO Service Provider) by email, text or other electronic means for
+                        program related matters or about energy efficiency and greenhouse gas reducing programs,
+                        technologies, products and services that IESO or Enerva offers.</legend>
+                      <div class="error itemLevel" role="alert"></div>
+                      <div id="group_placeholder" hidden="">group</div><input id="extension_Policy3_1"
+                        name="extension_Policy3" type="checkbox"
+                        aria-labelledby="extension_Policy3_label group_placeholder extension_Policy3_1" value="1"
+                        aria-disabled="true" disabled="disabled" tabindex="-1"><label id="1_option"
+                        for="extension_Policy3_1">Y</label>
+                    </fieldset><a class="helpLink tiny" href="javascript:void(0)">What is this?</a>
+                  </div>
+                </li>
+                <li class="RadioSingleSelect extension_UserType_li hidden">
+                  <div class="attrEntry"><label id="extension_UserType_label" for="extension_UserType"
+                      class="required">User Type</label>
+                    <div class="error itemLevel" role="alert"></div><input id="extension_UserType_2"
+                      name="extension_UserType" type="radio"
+                      aria-labelledby="extension_UserType_label group_placeholder extension_UserType_2" value="2"
+                      tabindex="-1"><label id="2_option" for="extension_UserType_2">Super admin</label><input
+                      id="extension_UserType_3" name="extension_UserType" type="radio"
+                      aria-labelledby="extension_UserType_label group_placeholder extension_UserType_3" value="3"
+                      tabindex="-1"><label id="3_option" for="extension_UserType_3">Individual</label><input
+                      id="extension_UserType_1" name="extension_UserType" type="radio"
+                      aria-labelledby="extension_UserType_label group_placeholder extension_UserType_1" value="1"
+                      tabindex="-1"><label id="1_option" for="extension_UserType_1">Enerva Admin</label><a
+                      class="helpLink tiny" href="javascript:void(0)">What is this?</a>
                   </div>
                 </li>
               </ul>
             </div>
             <div class="buttons">
-              <button id="continue" type="submit" form="attributeVerification" aria-disabled="false"
-                aria-label="Create">Create</button><button id="cancel" aria-label="Cancel" formnovalidate="">Cancel</button>
+              <button id="continue" type="submit" form="attributeVerification" aria-disabled="true" aria-label="Create"
+                tabindex="-1" class="hidden">Create</button><button id="cancel" aria-label="Cancel" formnovalidate=""
+                class="hidden grey-btn">Cancel</button>
             </div>
-        
-            <div class="verifying-modal">
+  
+            <div class="verifying-modal" aria-live="assertive" aria-labelledby="verifying_blurb">
               <div id="verifying_blurb"></div>
             </div>
           </form>
-        
+  
         </div>
-
+  
         <div id="next_btn" class="buttons">
-          <button id="next" class="hidden" type="button" onclick="showCompanyDetailsForm()">Next</button>
+          <button id="next" class="" type="button" onclick="showCompanyDetailsForm()">Next</button>
           <button id="back_btn" class="success-btn hidden" type="button" onclick="backBtnAction()">Back</button>
         </div>
       </div>
@@ -565,18 +617,15 @@
         <div class="footer-block">
           <span>This Save on Energy program is delivered by Enerva and brought to you by the Independent Electricity
             System Operator.
-            Subject to additional terms and conditions found at <a href="https://www.saveonenergy.ca/" target="_blank">SaveOnEnergy.ca</a>
+            Subject to additional terms and conditions found at <a href="">SaveOnEnergy.ca</a>
           </span>
           <div class="secondary-footer">
             <span>Copyright ©2024 Enerva Energy Solutions Inc. All rights reserved.</span>
-            <a href="https://www.ieso.ca/en/privacy" target="_blank">Privacy</a>
+            <a href="#">Privacy</a>
           </div>
         </div>
       </div>
     </div>
   </footer>
 </body>
-
-</html>
-
 </html>

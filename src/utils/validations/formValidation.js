@@ -3,6 +3,7 @@ import {
   emailRegExp,
   phoneUSFormatRegExp,
   postalCodeCanadaFormatRegExp,
+  onlyCharactersRegExp,
 } from "../../config/regex";
 
 export const validationSchemaLogIn = Yup.object({
@@ -59,11 +60,13 @@ export const validationSchemaAddFacility = Yup.object().shape({
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
   ),
-  unit_number: Yup.string().required("Unit Number is required"),
+  // unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
-  street_name: Yup.string().required("Street Name is required"),
+  street_name: Yup.string().required("Street Name is required")
+  .max(100, "Street name should be maximum 100 characters"),
   // address: Yup.string().required("Address is required"),
-  city: Yup.string().required("City is required"),
+  city: Yup.string().required("City is required")
+  .matches(onlyCharactersRegExp, "Numbers are not allowed"),
   province: Yup.string().required("Province/State is required"),
   country: Yup.string().required("Country is required"),
   postal_code: Yup.string()
@@ -320,4 +323,9 @@ export const changePasswordValidationSchema = Yup.object().shape({
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("newPassword"), null], "Passwords must match")
     .required("Confirm Password is required"),
+});
+
+export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
+  company: Yup.string().required("Company is required"),
+  role: Yup.string().required("Role is required"),
 });

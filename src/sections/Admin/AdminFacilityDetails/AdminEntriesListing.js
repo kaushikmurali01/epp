@@ -14,6 +14,7 @@ import {
   Tab,
   Typography,
   Stack,
+  IconButton,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
@@ -37,6 +38,7 @@ import {
   fetchAdminMeterDetails,
 } from "../../../redux/admin/actions/adminMeterActions";
 import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntriesAction";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -438,6 +440,26 @@ const AdminEntriesListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
+           <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+            // padding: "0 20px 0 20px",
+            width: "40px",
+            height: "40px",
+          }}
+          onClick={onAddMeterSuccess}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
         <Box
           sx={{
             borderRight: "1px solid black",
@@ -564,13 +586,13 @@ const AdminEntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button
+          {tabValue == "monthlyEntries" ? <Button
             variant="contained"
             sx={{ marginLeft: "2rem" }}
             onClick={() => openRequestModal(false)}
           >
             Add Entry
-          </Button>
+          </Button> : null }
         </Grid>
       </Grid>
 

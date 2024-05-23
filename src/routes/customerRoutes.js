@@ -113,7 +113,7 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
     />,
     <Route path="*" element={<Error404 />} />,
     <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,
-    <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
+    // <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
   ];
 
   for (let i = 0; i < userPermissions.length; i++) {

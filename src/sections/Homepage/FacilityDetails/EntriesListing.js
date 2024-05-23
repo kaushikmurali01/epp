@@ -14,6 +14,7 @@ import {
   Tab,
   Typography,
   Stack,
+  IconButton,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -39,6 +40,7 @@ import {
   fetchMeterDetails,
 } from "../../../redux/superAdmin/actions/metersActions";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -437,6 +439,23 @@ const EntriesListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
+         <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+          }}
+          onClick={onAddMeterSuccess}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
         <Box
           sx={{
             borderRight: "1px solid black",
@@ -563,13 +582,13 @@ const EntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button
+         {tabValue == "monthlyEntries" ? <Button
             variant="contained"
             sx={{ marginLeft: "2rem" }}
             onClick={() => openRequestModal(false)}
           >
             Add Entry
-          </Button>
+          </Button> : null }
         </Grid>
       </Grid>
 

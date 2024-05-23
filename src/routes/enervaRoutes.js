@@ -45,7 +45,7 @@ export const EnervaRoutes = () => {
         <Route path={enervaEndPoints.clientManagement} element={<DashboardSectionComponent />} />
         <Route path={profilePageEndPoints.profilePage} element={<ProfilePage />} />
         <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>
-        <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
+        {/* <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/> */}
         <Route path='*' element={<Error404 />} />
       </Routes>
     );
