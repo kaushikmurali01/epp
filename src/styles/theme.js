@@ -48,7 +48,12 @@ const theme = createTheme({
         root: {
           ".MuiDialog-paper": {
             padding: "1.5rem",
+            // ".MuiDialogContent-root":{
+            //   color: 'inherit',
+            //   lineHeight: '1.5rem',
+            // }
           },
+         
         },
       },
     },
@@ -249,6 +254,7 @@ const theme = createTheme({
 
       [getTheme.breakpoints.up("md")]: {
         fontSize: "1rem",
+        lineHeight: '1.5rem'
       },
     },
 

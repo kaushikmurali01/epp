@@ -54,7 +54,7 @@ export const validationSchemaAddFacility = Yup.object().shape({
   ),
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
-  naic_code: Yup.string().required("NAIC's Code is required"),
+  // naic_code: Yup.string().required("NAIC's Code is required"),
   facility_category: Yup.string().required("Facility Category is required"),
   facility_type: Yup.string().required("Facility Type is required"),
   target_saving: Yup.string().required(
@@ -69,7 +69,7 @@ export const validationSchemaAddFacility = Yup.object().shape({
   city: Yup.string()
     .required("City is required")
     .matches(onlyCharactersRegExp, "Numbers are not allowed"),
-  province: Yup.string().required("Province/State is required"),
+  province: Yup.string().required("Province is required"),
   country: Yup.string().required("Country is required"),
   postal_code: Yup.string()
     .required("Postal Code is required")
@@ -171,8 +171,8 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   street_name: Yup.string().required("Street Name is required"),
 
   city: Yup.string().required("City is required"),
-  province: Yup.string().required("Province/State is required"),
-  postal_code: Yup.string().required("Postal Code/Zip Code is required"),
+  province: Yup.string().required("Province is required"),
+  postal_code: Yup.string().required("Postal Code is required"),
   country: Yup.string().required("Country is required"),
 });
 
