@@ -296,7 +296,7 @@ function Header(props) {
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           // handleAPISuccessCallBack();
-          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
@@ -370,7 +370,7 @@ function Header(props) {
         cancelButton: false,
     },
     headerText: "Request to join company",
-    headerSubText: 'Please enter the following details to send request to join other company',
+    headerSubText: 'Please enter the following details to send request to join company',
       modalBodyContent: <RequestToJoinForm />
     }));
   }
