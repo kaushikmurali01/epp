@@ -62,6 +62,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           setRevenueAlignment(meterDetails?.is_rg_meter);
           setUtilitySelectedFile(meterDetails?.meter_specification_url);
           setUtilityImgUrl(meterDetails?.meter_specification_url);
+          setSpecImgUrl(meterDetails?.meter_spec_as_per_measurement);
+          setSpecSelectedFile(meterDetails?.meter_spec_as_per_measurement);
         })
         .catch((error) => {
           console.error("Error fetching meter details:", error);
@@ -81,30 +83,15 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   });
 
   const handleUtilityFileChange = (event) => {
-    const acceptedImageTypes = [
-      "image/png",
-      "image/gif",
-      "image/jpeg",
-      "image/jpg",
-    ];
-    const acceptedDocTypes = [".xlsx", ".xls", ".csv", ".pdf"];
-
+    const acceptedDocTypes = [".pdf"];
     const selectedFile = event.target.files[0];
     const fileExtension = `.${selectedFile.name
       .split(".")
       .pop()
       .toLowerCase()}`;
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-    if (acceptedImageTypes.includes(selectedFile.type)) {
-      if (selectedFile.size > MAX_FILE_SIZE) {
-        alert(
-          "Selected file is an image and it exceeds the maximum limit of 5 MB. Please select a smaller image file."
-        );
-        event.target.value = "";
-        return;
-      }
-    } else if (!acceptedDocTypes.includes(fileExtension)) {
+    if (!acceptedDocTypes.includes(fileExtension)) {
+      alert(`Selected file type is not supported. Please select a PDF file.`);
       event.target.value = "";
       return;
     }
@@ -128,34 +115,18 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleSpecFileChange = (event) => {
-    const acceptedImageTypes = [
-      "image/png",
-      "image/gif",
-      "image/jpeg",
-      "image/jpg",
-    ];
-    const acceptedDocTypes = [".xlsx", ".xls", ".csv", ".pdf"];
-
+    const acceptedDocTypes = [".pdf"];
     const selectedFile = event.target.files[0];
     const fileExtension = `.${selectedFile.name
       .split(".")
       .pop()
       .toLowerCase()}`;
-    const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
-    if (acceptedImageTypes.includes(selectedFile.type)) {
-      if (selectedFile.size > MAX_FILE_SIZE) {
-        alert(
-          "Selected file is an image and it exceeds the maximum limit of 5 MB. Please select a smaller image file."
-        );
-        event.target.value = "";
-        return;
-      }
-    } else if (!acceptedDocTypes.includes(fileExtension)) {
+    if (!acceptedDocTypes.includes(fileExtension)) {
+      alert(`Selected file type is not supported. Please select a PDF file.`);
       event.target.value = "";
       return;
     }
-
     setSpecSelectedFile(URL.createObjectURL(selectedFile));
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
@@ -186,6 +157,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     const newValues = {
       ...updatedValues,
       meter_specification_url: utilityImgUrl,
+      meter_spec_as_per_measurement: specImgUrl,
       facility_id: +id,
       meter_inactive: values?.stil_in_use
         ? null
@@ -337,37 +309,6 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="meter_active"
-                    type="date"
-                    label="Date meter became active *"
-                    inputProps={{
-                      max: format(new Date(), "yyyy-MM-dd"),
-                    }}
-                  />
-                </Grid>
-                {!values.stil_in_use && (
-                  <Grid item xs={12} sm={4}>
-                    <InputField
-                      name="meter_inactive"
-                      type="date"
-                      label={
-                        values.stil_in_use
-                          ? "Date meter became inactive"
-                          : "Date meter became inactive *"
-                      }
-                      inputProps={{
-                        max: format(new Date(), "yyyy-MM-dd"),
-                        min:
-                          values?.meter_active &&
-                          format(values?.meter_active, "yyyy-MM-dd"),
-                      }}
-                    />
-                  </Grid>
-                )}
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
                   <FormControlLabel
                     control={
                       <Field name="stil_in_use">
@@ -393,6 +334,34 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   />
                 </Grid>
               </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="meter_active"
+                    type="date"
+                    label="Date meter became active *"
+                    inputProps={{
+                      max: format(new Date(), "yyyy-MM-dd"),
+                    }}
+                  />
+                </Grid>
+                {!values.stil_in_use && (
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="meter_inactive"
+                      type="date"
+                      label="Date meter became inactive"
+                      inputProps={{
+                        max: format(new Date(), "yyyy-MM-dd"),
+                        min:
+                          values?.meter_active &&
+                          format(values?.meter_active, "yyyy-MM-dd"),
+                      }}
+                    />
+                  </Grid>
+                )}
+              </Grid>
+
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
@@ -455,9 +424,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         ref={utilityFileInputRef}
                         style={{ display: "none" }}
                         onChange={handleUtilityFileChange}
-                        accept={
-                          ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
-                        }
+                        accept={".pdf"}
                       />
                     </>
                   ) : (
@@ -486,9 +453,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           ref={utilityFileInputRef}
                           style={{ display: "none" }}
                           onChange={handleUtilityFileChange}
-                          accept={
-                            ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
-                          }
+                          accept={".pdf"}
                         />
                         <Typography
                           my={1}
@@ -504,10 +469,16 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       </div>
                     </div>
                   )}
+                  {!utilitySelectedFile && (
+                    <Typography variant="small" color="primary">
+                      The most recent electric utility bill is required for
+                      submitting for baseline modelling
+                    </Typography>
+                  )}
                 </Grid>
-                <Grid item xs={12} sm={5} sx={{ marginTop: "10px" }}>
-                  <InputLabel>
-                    Meter specification as per measurement Canada S-E-04
+                <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
+                  <InputLabel style={{ whiteSpace: "initial" }}>
+                    Upload meter specification as per Measurement Canada S-E-04
                   </InputLabel>
                   {!specSelectedFile ? (
                     <>
@@ -534,9 +505,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         ref={specFileInputRef}
                         style={{ display: "none" }}
                         onChange={handleSpecFileChange}
-                        accept={
-                          ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
-                        }
+                        accept={".pdf"}
                       />
                     </>
                   ) : (
@@ -565,9 +534,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           ref={specFileInputRef}
                           style={{ display: "none" }}
                           onChange={handleSpecFileChange}
-                          accept={
-                            ".xlsx,.xls,.csv,.pdf,image/png,image/gif,image/jpeg,image/jpg"
-                          }
+                          accept={".pdf"}
                         />
                         <Typography
                           my={1}

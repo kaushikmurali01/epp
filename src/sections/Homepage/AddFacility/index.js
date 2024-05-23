@@ -367,6 +367,7 @@ const AddFacilityComponent = (props) => {
   );
 
   const handleSubmit = (values) => {
+    delete values.facility_id_submission_status;
     const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
     if (values.facility_construction_status == "Existing") {
       values.facility_construction_status = 1;
@@ -617,15 +618,15 @@ const AddFacilityComponent = (props) => {
               <Grid item xs={12} sm={12} sx={{ marginTop: "10px" }}>
                 {/* <InputLabel sx={{ color: "#2E813E" }}>Facility photo</InputLabel> */}
                 <Typography
-                    my={4}
-                    sx={{
-                      color: "#696969",
-                      fontWeight: "500",
-                      fontSize: "0.875rem !important",
-                    }}
-                  >
-                    Facility photo
-                  </Typography>
+                  my={4}
+                  sx={{
+                    color: "#696969",
+                    fontWeight: "500",
+                    fontSize: "0.875rem !important",
+                  }}
+                >
+                  Facility photo
+                </Typography>
                 {!selectedFile ? (
                   <>
                     <Typography

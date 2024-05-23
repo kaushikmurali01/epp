@@ -54,6 +54,7 @@ export const USER_MANAGEMENT = {
   COMPANIES_DROPDOWN: "/enerva-user/v1/dropDown/companies",
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
+  GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -148,4 +149,8 @@ export const adminEntriesEndPoints = {
 
 export const fileUploadEndPoints = {
   FILE_UPLOAD: "company-facility/v1/upload",
+};
+
+export const dashboardEndPoints = {
+  ADMIN_DASHBOARD_STATS: "company-facility/v1/dashboard/statistics",
 };
