@@ -208,7 +208,7 @@ const UserManagementColumn = () => {
     }
 
     const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+        const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/'+ item.id + '/' + item.entry_type+'/'+ item.company_id;
         // return;
         DELETE_REQUEST(apiURL)
             .then((_response) => {

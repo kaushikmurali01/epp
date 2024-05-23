@@ -177,7 +177,8 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    const company_id = 0; // for enerva and Ieso
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + company_id;
     // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {
