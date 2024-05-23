@@ -105,15 +105,35 @@ const UserManagement = () => {
       }
 
 
+
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           handleAPISuccessCallBack();
-          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
-          setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-            modalBodyContent: ''
-          }));
+          // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: true,
+              modalUI: {
+                ...prevState.modalUI,
+                crossIcon: false,
+                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem'},
+                fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+              },
+              buttonsUI: {
+                ...prevState.buttonsUI,
+                saveButton: false,
+                cancelButton: true,
+                cancelButtonStyle: {
+                  backgroundColor: "primary.main",
+                  "&:hover": { backgroundColor: "primary.main" },
+                  color: "#fff",
+                },
+                cancelButtonName: "Okay",
+            },
+            headerText: "",
+            headerSubText: '',
+            modalBodyContent: 'Your request to join has been submitted. The company’s administrators will review your request and approve as needed.'
+            }));
 
         })
         .catch((error) => {
@@ -144,7 +164,7 @@ const UserManagement = () => {
 
 
           {/* <SelectBox /> */}
-          <Grid display="flex" sx={{ marginTop: '1rem' }}>
+          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
               Submit
             </ButtonWrapper>
@@ -164,8 +184,8 @@ const UserManagement = () => {
         saveButton: false,
         cancelButton: false,
     },
-    headerText: "Request to join other company",
-    headerSubText: 'Please enter the following details to send request to join other company',
+    headerText: "Request to join company",
+    headerSubText: 'Please enter the following details to send request to join company',
       modalBodyContent: <RequestToJoinForm />
     }));
   }
@@ -318,10 +338,10 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               <Grid item xs={12} md={4} >
                 <Typography variant='h4'>User Management</Typography>
               </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+              <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}, gap: {xs: '0.5rem', md: '2rem'}, marginTop: {xs: '1rem' ,md: '0'} }}>
                 <FormGroup className="theme-form-group theme-select-form-group" >
 
-                  <FormControl sx={{ minWidth: '6rem' }}>
+                  <FormControl sx={{ minWidth: '6rem', maxWidth: '8rem', flexGrow: '1' }}>
                     <Select
                       value={selectFilterType}
                       onChange={(e) => handleSelectChange(e)}
@@ -367,7 +387,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                 <Button
                   color="primary"
                   variant="contained"
-                  sx={{ alignSelf: 'center' }}
+                  sx={{ alignSelf: 'flex-start', marginTop: {xs: '1rem', md: '0'} }}
                   onClick={() => handelInviteUser()}
                 >
                   Invite User
@@ -377,14 +397,12 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
             </Grid>
 
             <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-              <Grid item xs={6}  >
+              <Grid item xs={4}  >
                 <Tabs
                   className='theme-tabs-list'
                   value={tabValue}
                   onChange={handleChange}
                   sx={{ display: 'inline-flex' }}
-
-
                 >
                   <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
                   {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
@@ -393,7 +411,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               </Grid>
               <Grid item sx={{ justifySelf: 'flex-end' }}>
                 <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join other company
+                Request to join company
                 </Typography>
               </Grid>
             </Grid>
