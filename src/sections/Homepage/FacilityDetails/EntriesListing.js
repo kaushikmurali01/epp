@@ -633,7 +633,7 @@ const EntriesListing = ({
             ref={fileInputRef}
             style={{ display: "none" }}
             onChange={handleFileChange}
-            accept=".xlsx"
+            accept=".xlsx,.csv"
           />
           <Button
             type="button"
