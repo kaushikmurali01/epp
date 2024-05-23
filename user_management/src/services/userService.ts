@@ -16,6 +16,10 @@ import { Permission } from '../models/permission';
 import { Op, UpsertOptions } from 'sequelize';
 import { Facility } from '../models/facility';
 import { UserResourceFacilityPermission } from '../models/user-resource-permission';
+import { EmailTemplate } from '../utils/emailTemplate';
+import { CompanyService } from './companyService';
+import { EmailContent } from '../utils/emailContent';
+import { Email } from './email';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
 
 
@@ -47,6 +51,8 @@ class UserService {
         }
       });
 
+      console.log('11111', userData);
+
       const existingUserCompanyRole = await UserCompanyRole.findOne({
         where: {
           company_id: data.company_id,
@@ -54,8 +60,11 @@ class UserService {
         }
       });
 
+      console.log('222222');
+
       // If the record exists, update it; otherwise, create a new one
       if (existingUserCompanyRole) {
+        console.log('3333');
         await UserCompanyRole.update({
           role_id: userData?.dataValues?.role
         }, {
@@ -64,7 +73,9 @@ class UserService {
             user_id: userData?.dataValues?.user_id
           }
         });
+        console.log('4444');
       } else {
+        console.log('5555');
         const newUserCompanyRole: any = {
           company_id: data.company_id,
           role_id: userData?.dataValues?.role,
@@ -72,13 +83,47 @@ class UserService {
           is_active: 1
         };
         await UserCompanyRole.create(newUserCompanyRole);
+        console.log('6666');
       }
       await UserRequest.update({ status: 'accepted' }, { where: { id } });
+      console.log('77777');
+      // Send Email For User Starts
+      let template =  await EmailTemplate.getEmailTemplate();
+            const company:any = await CompanyService.GetCompanyById(data.company_id);
+           const userDet:any = await this.getUserDataById(userData?.dataValues?.user_id);
+            let emailContent =  template
+                      .replace('#content#', EmailContent.joinCompanyApprovalForUser.content)
+                      .replace('#name#', userDet.first_name)
+                      .replace('#company#', company.company_name)
+                      .replace('#isDisplay#', 'none')
+                      .replace('#heading#', '');
+             Email.send(userDet.email, EmailContent.joinCompanyApprovalForUser.title, emailContent);
+      // Send Email For User Ends
+
+       // Send Email to Admins
+       const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.joinCompanyApprovalForAdmins.content)
+       .replace('#user#', `${userDet.first_name}`)
+       .replace('#company#', company.company_name)
+       .replace('#isDisplay#', 'none')
+       .replace('#heading#', ''); 
+       await CompanyService.GetAdminsAndSendEmails(data.company_id, EmailContent.joinCompanyApprovalForAdmins.title, adminContent);
+       // Send Email to Admins
+
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
     } catch (error) {
       throw new Error(`${error.message}`);
     }
   }
+  static async getUserDataById(userId: number): Promise<any> {
+    try {
+      const user = await User.findByPk(userId);
+      return user;
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+      throw error;
+    }
+  }
+  
 
   static async rejectInvitation(data): Promise<Response> {
     try {

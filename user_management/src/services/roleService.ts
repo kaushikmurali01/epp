@@ -129,7 +129,7 @@ class RoleService {
             let email = data.email;
             let permissions = data.permissions;
             context.log("99999", data);
-            if (data.entry_type == 1) {
+            if (data.entry_type == 1 || data.entry_type == 3) {
                 const user = await User.findOne({ where: { email } });
             context.log("2222", user.dataValues.id);
                 context.log("3333", data.id);

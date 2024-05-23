@@ -2,6 +2,10 @@ import { UserRequest } from '../models/user-request';
 import { Response } from 'enerva-utils/interfaces/response';
 import { testDatabaseConnection } from 'enerva-utils/utils/database';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
+import { EmailTemplate } from '../utils/emailTemplate';
+import { CompanyService } from './companyService';
+import { EmailContent } from '../utils/emailContent';
+import { Email } from './email';
 
 class UserRequestService {
 
@@ -19,6 +23,29 @@ class UserRequestService {
             console.log("USerDetails",userRequestDetails );
            // console.log("userRequestDetails",userRequestDetails);
             const userRequest = await UserRequest.create(userRequestDetails);
+            
+            // Send email who initiated request start
+            let template =  await EmailTemplate.getEmailTemplate();
+            const company:any = await CompanyService.GetCompanyById(userRequestDetails.company_id);
+            let emailContent =  template
+                      .replace('#content#', EmailContent.joinCompanyRequestForUser.content)
+                      .replace('#name#', resp.first_name)
+                      .replace('#company#', company.company_name)
+                      .replace('#isDisplay#', 'none')
+                      .replace('#heading#', '');
+                      
+                       Email.send(resp.email, EmailContent.joinCompanyRequestForUser.title, emailContent);
+            // Send email who initiated request end
+
+            // Send Email to Admins
+            const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.joinCompanyRequestForAdmins.content)
+            .replace('#user#', `${resp.first_name}`)
+            .replace('#company#', company.company_name)
+            .replace('#isDisplay#', 'none')
+            .replace('#heading#', '');
+            await CompanyService.GetAdminsAndSendEmails(userRequestDetails.company_id, EmailContent.joinCompanyRequestForAdmins.title, adminContent);
+            // Send Email to Admins
+
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
             throw new Error(`${error.message}`);
