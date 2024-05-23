@@ -105,15 +105,35 @@ const UserManagement = () => {
       }
 
 
+
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           handleAPISuccessCallBack();
           NotificationsToast({ message: "You have successfully submitted!", type: "success" });
-          setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-            modalBodyContent: ''
-          }));
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: true,
+              modalUI: {
+                ...prevState.modalUI,
+                crossIcon: false,
+                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem'},
+                fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+              },
+              buttonsUI: {
+                ...prevState.buttonsUI,
+                saveButton: false,
+                cancelButton: true,
+                cancelButtonStyle: {
+                  backgroundColor: "primary.main",
+                  "&:hover": { backgroundColor: "primary.main" },
+                  color: "#fff",
+                },
+                cancelButtonName: "Okay",
+            },
+            headerText: "",
+            headerSubText: '',
+            modalBodyContent: 'Your request to join has been submitted. The company’s administrators will review your request and approve as needed.'
+            }));
 
         })
         .catch((error) => {

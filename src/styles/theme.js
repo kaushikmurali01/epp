@@ -48,7 +48,12 @@ const theme = createTheme({
         root: {
           ".MuiDialog-paper": {
             padding: "1.5rem",
+            // ".MuiDialogContent-root":{
+            //   color: 'inherit',
+            //   lineHeight: '1.5rem',
+            // }
           },
+         
         },
       },
     },
