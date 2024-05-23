@@ -169,7 +169,7 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   street_name: Yup.string().required("Street Name is required"),
 
   city: Yup.string().required("City is required"),
-  province: Yup.string().required("Province/State is required"),
+  province: Yup.string().required("Province is required"),
   postal_code: Yup.string().required("Postal Code is required"),
   country: Yup.string().required("Country is required"),
 });
