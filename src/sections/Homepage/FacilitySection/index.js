@@ -106,7 +106,9 @@ const Facility = () => {
     {
       Header: "Facility Status",
       accessor: (item) => (
-        <AdminFacilityStatus>{item.facility_id_submission_status}</AdminFacilityStatus>
+        <AdminFacilityStatus>
+          {item.facility_id_submission_status}
+        </AdminFacilityStatus>
       ),
     },
     {
@@ -114,10 +116,12 @@ const Facility = () => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
@@ -125,11 +129,13 @@ const Facility = () => {
           </Button>
           <Button
             color="error"
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => {
               openDeleteFacilityModal(item?.id);

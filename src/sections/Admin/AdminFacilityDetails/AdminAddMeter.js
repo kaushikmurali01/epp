@@ -61,6 +61,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           setMeterAlignment(meterDetails?.meter_type);
           setRevenueAlignment(meterDetails?.is_rg_meter);
           setUtilitySelectedFile(meterDetails?.meter_specification_url);
+          setUtilityImgUrl(meterDetails?.meter_specification_url);
         })
         .catch((error) => {
           console.error("Error fetching meter details:", error);

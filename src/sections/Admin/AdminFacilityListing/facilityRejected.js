@@ -74,12 +74,14 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#F26D04",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
