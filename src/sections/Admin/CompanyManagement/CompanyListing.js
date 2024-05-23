@@ -6,7 +6,6 @@ import {
   Container,
   FormControl,
   FormGroup,
-  FormLabel,
   Grid,
   MenuItem,
   Select,
@@ -26,9 +25,19 @@ import {
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { format } from "date-fns";
-import { userTypes } from "constants/allDefault";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import { debounce } from "lodash";
+
+const companyTypes = [
+  {
+    id: 1,
+    userType: "Aggregator",
+  },
+  {
+    id: 2,
+    userType: "Customer",
+  },
+];
 
 const CompanyListing = () => {
   const columns = [
@@ -47,7 +56,7 @@ const CompanyListing = () => {
     {
       Header: "Company type",
       accessor: (item) => {
-        const userType = userTypes.find(
+        const userType = companyTypes.find(
           (type) => type.id === item?.company_type
         );
         return userType ? userType.userType : "";
@@ -72,35 +81,40 @@ const CompanyListing = () => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#56B2AE",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
-              // textWrap: "nowrap",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/companies/company-agreement/${item?.id}`)}
           >
             View Participant Agreement
           </Button>
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/companies/company-profile/${item?.id}`)}
           >
             View
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2C77E9",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openRequestModal(item?.id)}
           >
@@ -108,11 +122,13 @@ const CompanyListing = () => {
           </Button>
           <Button
             color={item?.is_active === 1 ? "error" : "primary"}
+            disableRipple
             style={{
+              minWidth: "unset",
               backgroundColor: "transparent",
               padding: 0,
-              minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openStatusModal(item?.id, item?.is_active)}
           >
@@ -314,8 +330,8 @@ const CompanyListing = () => {
         <Grid container sx={{ justifyContent: "center" }}>
           <Typography variant="h4">
             {activityStatus === 1
-              ? "Are you sure you would like to deactivate the Company Details"
-              : "Are you sure you would like to Activate Company Details?"}
+              ? "Are you sure you would like to deactivate the company details?"
+              : "Are you sure you would like to activate company details?"}
           </Typography>
         </Grid>
         <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
@@ -357,7 +373,7 @@ const CompanyListing = () => {
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
             name="search"
-            label="Search by username & ID"
+            label="Search by name"
             type="text"
             fullWidth
             size="small"
@@ -389,8 +405,12 @@ const CompanyListing = () => {
                 <MenuItem value="">
                   <em>Company type</em>
                 </MenuItem>
-                {userTypes?.map((item) => (
-                  <MenuItem key={item?.id} value={item?.id}>
+                {companyTypes?.map((item) => (
+                  <MenuItem
+                    key={item?.id}
+                    value={item?.id}
+                    disabled={item?.id === 1}
+                  >
                     {item?.userType}
                   </MenuItem>
                 ))}

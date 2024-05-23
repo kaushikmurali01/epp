@@ -143,14 +143,16 @@ const AdminMeterListing = ({
       ),
     },
     {
-      Header: "Action",
+      Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
+              fontSize: "0.875rem",
             }}
             onClick={() => handleEditButtonClick(item.id)}
           >
@@ -158,11 +160,13 @@ const AdminMeterListing = ({
           </Button>
           <Button
             color="error"
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openDeleteMeterModal(item.id)}
           >
@@ -220,7 +224,7 @@ const AdminMeterListing = ({
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Meter Type
+                    Meter type
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((type, index) => (
