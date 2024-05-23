@@ -67,7 +67,7 @@ const ParticipantAgreement = (props) => {
             fontWeight: "400",
           }}
         >
-          {isSigned ? 'You have successfully signed the participant agreement.' : 'Read and sign the participant agreement to enrol your facilities.'}
+          {isSigned ? 'You have successfully signed the participant agreement.' : 'Read and sign the Participant Agreement to enrol your facilities. If you are going to e-sign, please scroll to the bottom to activate the click to e-sign button'}
         </Typography>
       </Box>
       <ParticipantAgreementContent onScrollToBottom={handleScrollToBottom} pdfUrl={pdfUrl} />
