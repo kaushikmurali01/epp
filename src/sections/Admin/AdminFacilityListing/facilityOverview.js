@@ -179,7 +179,7 @@ const FacilityOverview = () => {
               <TableBody>
                 <TableRow>
                   <TableCell>1</TableCell>
-                  <TableCell>Total Companies</TableCell>
+                  <TableCell>Total companies</TableCell>
                   <TableCell>{viewDataForFacility?.all_company}</TableCell>
                 </TableRow>
                 <TableRow>

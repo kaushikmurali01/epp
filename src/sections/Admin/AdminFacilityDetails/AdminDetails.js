@@ -193,6 +193,8 @@ const AdminDetails = ({ setTab }) => {
     unonditioned_gross_floor_area: "",
     unique_features_that_impact_energy_usage: false,
     unique_features_of_facility: "",
+    // facility_electricity_service_size: "",
+    // facility_service_entrance_voltage: "",
     space_cooling_fuel_source: "",
     space_cooling_fuel_source_other: "",
     space_cooling_technology: "",
@@ -612,7 +614,30 @@ const AdminDetails = ({ setTab }) => {
                   </Grid>
                 )}
               </Grid>
-
+              {/* <Grid container spacing={4}>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="facility_electricity_service_size"
+                    label="Facility electricity service size (Amps)"
+                    type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <InputField
+                    name="facility_service_entrance_voltage"
+                    label="Facility service entrance voltage (Volts)"
+                    type="number"
+                    onKeyDown={(evt) =>
+                      ["e", "E", "+", "-"].includes(evt.key) &&
+                      evt.preventDefault()
+                    }
+                  />
+                </Grid>
+              </Grid> */}
               <Grid container spacing={4} mt={1}>
                 <Grid item xs={12} sm={4}>
                   <SelectBox

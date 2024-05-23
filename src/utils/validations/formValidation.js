@@ -67,7 +67,7 @@ export const validationSchemaAddFacility = Yup.object().shape({
   // address: Yup.string().required("Address is required"),
   city: Yup.string().required("City is required")
   .matches(onlyCharactersRegExp, "Numbers are not allowed"),
-  province: Yup.string().required("Province/State is required"),
+  province: Yup.string().required("Province is required"),
   country: Yup.string().required("Country is required"),
   postal_code: Yup.string()
     .required("Postal Code is required")
@@ -169,8 +169,8 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   street_name: Yup.string().required("Street Name is required"),
 
   city: Yup.string().required("City is required"),
-  province: Yup.string().required("Province/State is required"),
-  postal_code: Yup.string().required("Postal Code/Zip Code is required"),
+  province: Yup.string().required("Province is required"),
+  postal_code: Yup.string().required("Postal Code is required"),
   country: Yup.string().required("Country is required"),
 });
 
@@ -186,6 +186,12 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
+  facility_electricity_service_size: Yup.number()
+    .nullable()
+    .min(0, "Facility electricty service size must be a positive number"),
+  facility_service_entrance_voltage: Yup.number()
+    .nullable()
+    .min(0, "Facility service entrance voltage must be a positive number"),
   space_cooling_fuel_source: Yup.string().required(
     "Space cooling fuel source is required"
   ),
