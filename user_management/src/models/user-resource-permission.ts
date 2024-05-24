@@ -7,6 +7,7 @@ class UserResourceFacilityPermission extends Model {
     public email: string;
     public resource_permission_id: number;
     public facility_id: number;
+    public company_id: number;
     public createdAt!: Date;
     public updatedAt!: Date;
 }
@@ -30,6 +31,10 @@ UserResourceFacilityPermission.init(
         facility_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
+        },
+        company_id: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         },
         createdAt: {
             type: DataTypes.DATE,

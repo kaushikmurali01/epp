@@ -15,6 +15,8 @@ import { EmailContent } from "../utils/emailContent";
 import { EmailTemplate } from "../utils/emailTemplate";
 import { Company } from "../models/company";
 import { Role } from "../models/role";
+import { CheckCompanyStatus } from "./company";
+import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { CompanyService } from "../services/companyService";
 
 /**
@@ -88,7 +90,7 @@ export async function UserUpdate(request: HttpRequest, context: InvocationContex
         // Parse request data
         const requestData = await request.json();
         //resp.id = 84;
-        
+
         // Update user
         userData = await UserController.updateUser(requestData, resp.id, resp.company_id);
 
@@ -186,47 +188,47 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         // Extract user ID from request
         const { company } = request.params;
         let company_id;
-        if(company) company_id = company; else company_id = resp.company_id;
-        if(company_id == 0) company_id = resp.company_id;
-        
+        if (company) company_id = company; else company_id = resp.company_id;
+        if (company_id == 0) company_id = resp.company_id;
+
         resp.company_id = company_id;
 
-        context.log("company_id",resp.company_id);
+        context.log("company_id", resp.company_id);
         const user = await UserController.getUserById(resp);
 
-        
 
-        context.log("testing",user.user);
+
+        context.log("testing", user.user);
 
         // Get User Permissions start
         const user_id = resp.id;
-        
 
-       let userPermissions = null;
-       if ([1,2,6,7,11,12].includes(user.user.dataValues.role_id)) {
 
-     //  if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
-         userPermissions = await Permission.findAll(
-            {
-                attributes: ['id', 'permission', 'permission_type']
-            }
-         );
-       }
-       else if(user.user.dataValues.type == 2) {
-           userPermissions = await UserCompanyRolePermission.findAll({
-            where: {
-              user_id: user_id,
-              company_id: user.user.dataValues.company_id,
-            },
-            include: [{
-              model: Permission,
-              required: true,
-              
-            }],
-            attributes: ['id',[sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']], 
-          });
-          context.log("userPermissions",userPermissions);
-        } else if(user.user.dataValues.type == 1) {
+        let userPermissions = null;
+        if ([1, 2, 6, 7, 11, 12].includes(user.user.dataValues.role_id)) {
+
+            //  if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
+            userPermissions = await Permission.findAll(
+                {
+                    attributes: ['id', 'permission', 'permission_type']
+                }
+            );
+        }
+        else if (user.user.dataValues.type == 2) {
+            userPermissions = await UserCompanyRolePermission.findAll({
+                where: {
+                    user_id: user_id,
+                    company_id: user.user.dataValues.company_id,
+                },
+                include: [{
+                    model: Permission,
+                    required: true,
+
+                }],
+                attributes: ['id', [sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']],
+            });
+            context.log("userPermissions", userPermissions);
+        } else if (user.user.dataValues.type == 1) {
             userPermissions = await UserCompanyRolePermission.findAll({
                 where: {
                     user_id: user_id
@@ -242,58 +244,58 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
         user.permissions = userPermissions;
 
-        
 
-       user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
 
-       if(!company_id) {
-       const responseBody1 = JSON.stringify(user);
+        user.invitations = await UserInvitationService.getUserInvitation(resp.email, user_id);
 
-        // Return success response
-        return { body: responseBody1 };
-       }
+        if (!company_id) {
+            const responseBody1 = JSON.stringify(user);
 
-       // Associated
-       if(company_id){
-       const associatedCompaniesRaw:any = await UserCompanyRole.findAll({
-        where: { user_id: user_id },
-        attributes: [],
-        include: [
-          {
-            model: Company,
-            attributes: [
-              'id', 
-              'company_name', 
-              'website', 
-              'address1', 
-              'address2', 
-              'city', 
-              'state', 
-              'postal_code', 
-              'country', 
-              'unit_number', 
-              'street_number', 
-              'street_name'
-            ]
-          },
-          {
-            model: Role,
-            attributes: ['rolename', 'id'] // Include the role_name attribute
-          }
-        ],
-      });
-      
-      console.log("Test", associatedCompaniesRaw);
-      
-      // Map the results to include the company data and the role name
-      const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
-        ...assocCompany.Company.get(), 
-        role_name: assocCompany.Role.rolename,
-        role_id: assocCompany.Role.id  
-      }));
-      user.associatedCompanies = associatedCompanies;
-       // Associated
-    }
+            // Return success response
+            return { body: responseBody1 };
+        }
+
+        // Associated
+        if (company_id) {
+            const associatedCompaniesRaw: any = await UserCompanyRole.findAll({
+                where: { user_id: user_id },
+                attributes: [],
+                include: [
+                    {
+                        model: Company,
+                        attributes: [
+                            'id',
+                            'company_name',
+                            'website',
+                            'address1',
+                            'address2',
+                            'city',
+                            'state',
+                            'postal_code',
+                            'country',
+                            'unit_number',
+                            'street_number',
+                            'street_name'
+                        ]
+                    },
+                    {
+                        model: Role,
+                        attributes: ['rolename', 'id'] // Include the role_name attribute
+                    }
+                ],
+            });
+
+            console.log("Test", associatedCompaniesRaw);
+
+            // Map the results to include the company data and the role name
+            const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
+                ...assocCompany.Company.get(),
+                role_name: assocCompany.Role.rolename,
+                role_id: assocCompany.Role.id
+            }));
+            user.associatedCompanies = associatedCompanies;
+            // Associated
+        }
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -458,7 +460,7 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData:any = await request.json();
+        const requestData: any = await request.json();
         requestData.type = 2;
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
@@ -488,11 +490,15 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
         const { offset, limit, entrytype, company_id } = request.params;
         const search = request.query.get('search') || "";
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
-       //let companyId;
-       let companyId = company_id ? company_id : resp.company_id;
+        // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        //let companyId;
+        let companyId = company_id ? company_id : resp.company_id;
+        let checkStatus = await CheckCompanyStatus(company_id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
 
-       // Get all users
+        // Get all users
         const users = await UserController.getCombinedUsers(offset, limit, companyId, entrytype, search);
 
         // Prepare response body
@@ -511,13 +517,17 @@ export async function GetFilteredUsers(request: HttpRequest, context: Invocation
 
         const { offset, limit, entrytype, company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        let checkStatus = await CheckCompanyStatus(company_id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
         // resp.company_id = 1;
-       // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         // Get all users
         const search = request.query.get('search') || "";
         let companyId = company_id ? company_id : resp.company_id;
 
-        const users = await UserController.getFilteredUsers(offset, limit, companyId, entrytype,search);
+        const users = await UserController.getFilteredUsers(offset, limit, companyId, entrytype, search);
 
         // Prepare response body
         const responseBody = JSON.stringify(users);
@@ -584,6 +594,10 @@ export async function GetUserAndCompanyDetails(request: HttpRequest, context: In
     try {
 
         const { company_id } = request.params;
+        let checkStatus = await CheckCompanyStatus(company_id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         //resp.id = 1;
@@ -605,6 +619,10 @@ export async function GetUserAndCompanyDetailsByUserId(request: HttpRequest, con
     try {
 
         const { company_id, user_id } = request.params;
+        let checkStatus = await CheckCompanyStatus(company_id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
         //  const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         //resp.id = 1;
