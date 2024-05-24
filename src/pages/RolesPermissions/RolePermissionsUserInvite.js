@@ -25,7 +25,12 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     }
 
 
-    const handleAlignment = (event, index) => {
+    const handleAlignment = (event, index,permission) => {
+        if(permission.is_active === 0){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
             const permissionId = permissions[index]?.id;
@@ -251,7 +256,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                 </Grid>
 
                 {permissions?.length > 0 ?
-                    <Box component='div' sx={{ width: { xs: '100%', sm: '75%' } }} >
+                    <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
                         <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
                             <Grid item>
                                 <Typography variant='small'>List of Permissions</Typography>
@@ -265,7 +270,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                 const isPermissionSelected = permissionStates?.includes(permission?.id);
                                 return (
                                     <Grid key={permission?.id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item >
+                                        <Grid item xs={12} md={10}>
                                             <Typography variant='body2'>{permission.permission_description} </Typography>
                                         </Grid>
                                         <Grid item>
@@ -273,14 +278,14 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
                                                 value={isPermissionSelected ? 'yes' : 'no'}
                                                 exclusive
-                                                onChange={(event) => handleAlignment(event, index)}
+                                                onChange={(event) => handleAlignment(event, index,permission)}
                                                 aria-label="text alignment"
                                                 key={permission?.id}
                                             >
-                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>

@@ -79,12 +79,15 @@ const theme = createTheme({
             textAlign: 'left',
             padding: '1rem',
             minWidth: '8rem',
+            maxWidth: '16rem',
+            wordBreak: 'break-word',
             "&:first-of-type": {
               fontWeight: 600,
               minWidth: '5rem',
             },
             "&:last-child": {
-              textAlign: 'right'
+              textAlign: 'right',
+              maxWidth: 'auto',
             },
           },
         },
@@ -103,6 +106,11 @@ const theme = createTheme({
             "&.theme-toggle-yes" : {
               backgroundColor: '#2E813E',
               color: '#fff',
+              "&:disabled": {
+                pointerEvents: 'none',
+                opacity: '0.55',
+                cursor: 'text'
+              },
               "&:hover": {
                 backgroundColor: '#2E813E',
               },
@@ -110,6 +118,11 @@ const theme = createTheme({
             "&.theme-toggle-no" : {
                 backgroundColor: '#54585A',
                 color: '#fff',
+                "&:disabled": {
+                  pointerEvents: 'none',
+                  opacity: '0.55',
+                  cursor: 'text'
+                },
                 "&:hover": {
                   backgroundColor: '#54585A',
                 },
@@ -135,7 +148,10 @@ const theme = createTheme({
           },
           "&:disabled": {
             backgroundColor: "#9E9D9D",
-            color: '#fff'
+            color: '#fff',
+            pointerEvents: 'none',
+            opacity: '0.55',
+            cursor: 'text',
           },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
