@@ -48,6 +48,7 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
                 : "0.625rem 0 0 0.625rem",
               backgroundColor:
                 item.type === "input" ? "#2E8B5770" : "#058dcf70",
+              margin: "0.125rem",
               "&.Mui-selected": {
                 color: "white",
                 backgroundColor: item.type === "input" ? "#2E8B57" : "#058dcf",
