@@ -418,6 +418,12 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
 
             <Grid container>
               {getAllUser && <Table
+                customTableStyles={{
+                  "tbody td:nth-child(3n)": {
+                    maxWidth: '16rem',
+                    wordBreak: 'break-word',
+                  },
+                }}
                 columns={columns} data={getAllUser || []}
                 count={pageCount}
                 pageInfo={pageInfo}

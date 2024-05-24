@@ -79,15 +79,12 @@ const theme = createTheme({
             textAlign: 'left',
             padding: '1rem',
             minWidth: '8rem',
-            maxWidth: '16rem',
-            wordBreak: 'break-word',
             "&:first-of-type": {
               fontWeight: 600,
               minWidth: '5rem',
             },
             "&:last-child": {
               textAlign: 'right',
-              maxWidth: 'auto',
             },
           },
         },
