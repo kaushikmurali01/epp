@@ -86,7 +86,13 @@ class UserService {
         console.log('6666');
       }
       await UserRequest.update({ status: 'accepted' }, { where: { id } });
+      await UserRequest.destroy({ where: { id: id }});
+      if(data.company_id) {
+        await User.update({ type: 2 }, { where: { id: userData?.dataValues?.user_id} });
+      } 
       console.log('77777');
+      (async () => {
+      
       // Send Email For User Starts
       let template =  await EmailTemplate.getEmailTemplate();
             const company:any = await CompanyService.GetCompanyById(data.company_id);
@@ -108,6 +114,7 @@ class UserService {
        .replace('#heading#', ''); 
        await CompanyService.GetAdminsAndSendEmails(data.company_id, EmailContent.joinCompanyApprovalForAdmins.title, adminContent);
        // Send Email to Admins
+      })();
 
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
     } catch (error) {
@@ -234,6 +241,71 @@ class UserService {
     }
   }
 
+  static async findAllRegisteredUsers2(offset, limit, company, entrytype, search?) {
+    if (entrytype == 0 || entrytype == 1) {
+      return UserCompanyRole.findAndCountAll({
+        where: { company_id: company },
+        offset: offset,
+        limit: limit,
+        include: [
+          {
+            model: User,
+            attributes: [],
+          },
+          {
+            model: Role,
+            attributes: [],
+          },
+          {
+            model: Company,
+            attributes: [],
+          },
+        ],
+        attributes: [
+          [sequelize.col('User.id'), 'id'],
+          [sequelize.col('User.email'), 'email'],
+          [sequelize.col('User.first_name'), 'first_name'],
+          [sequelize.col('User.last_name'), 'last_name'],
+          [sequelize.col('Role.rolename'), 'rolename'],
+          [sequelize.col('Role.id'), 'role_id'],
+          'status',
+          'company_id',
+          [sequelize.col('Company.company_name'), 'company_name'],
+        ],
+      });
+      // return User.findAndCountAll({
+      //   include: [{
+      //     model: UserCompanyRole,
+      //     attributes: [],
+      //     where: {
+      //       company_id: company
+      //     },
+      //     include: [{
+      //       model: Role,
+      //       attributes: []
+      //     }]
+      //   }],
+      //   offset: offset,
+      //   limit: limit,
+      //   where: {
+      //     type: 2,
+      //     is_active: 1,
+      //     [Op.or]: [
+      //       { first_name: { [Op.iLike]: `%${search}%` } },
+      //       { last_name: { [Op.iLike]: `%${search}%` } },
+      //       { email: { [Op.iLike]: `%${search}%` } },
+      //     ]
+      //   },
+      //   attributes: ["id", "email", "first_name", "last_name",
+      //     [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
+      //     [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
+      //     [sequelize.col('UserCompanyRole.status'), 'status'],
+      //     [sequelize.col('UserCompanyRole.company_id'), 'company_id']
+      //   ],
+      // });
+    }
+  }
+
   static async findAllRegisteredUsers(offset, limit, company, entrytype, search?) {
     if (entrytype == 0 || entrytype == 1) {
       return User.findAndCountAll({
@@ -341,7 +413,7 @@ class UserService {
     try {
       const [usersResult, invitationsResult, requestsResult]: any = await Promise.all([
 
-        await this.findAllRegisteredUsers(offset, limit, company, entrytype, search),
+        await this.findAllRegisteredUsers2(offset, limit, company, entrytype, search),
         await this.findAllInvitedUsers(offset, limit, company, entrytype, search),
         await this.findAllRequestReceived(offset, limit, company, entrytype, search),
       ]);

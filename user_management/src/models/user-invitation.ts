@@ -51,11 +51,11 @@ UserInvitation.init(
       //   name: 'UniqueEmailConstraint',
       //   msg: 'Email address already exists.',
       // },
-      validate: {
-        isEmail: {
-          msg: 'Invalid email format.',
-        },
-      },
+      // validate: {
+      //   isEmail: {
+      //     msg: 'Invalid email format.',
+      //   },
+      // },
     },
     role: {
       type: DataTypes.INTEGER,

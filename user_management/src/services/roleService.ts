@@ -7,6 +7,7 @@ import { User } from '../models/user';
 import { UserInvitation } from '../models/user-invitation';
 import { sequelize } from './database';
 import { Op } from 'sequelize';
+import { UserCompanyRole } from '../models/user-company-role';
 
 
 class RoleService {
@@ -144,6 +145,11 @@ class RoleService {
                         is_active: 1,
                     });
                 }
+                // Update company role start
+                if(data.company_id) {
+                    const [affectedRows] = await UserCompanyRole.update({ role_id:data.role_id }, { where: { user_id:user.id, company_id:data.company_id } });
+                }
+                // Update company role ends
             } else {
                 context.log("4444", data);
                 await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });

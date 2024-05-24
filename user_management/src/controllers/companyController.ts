@@ -99,6 +99,7 @@ class CompanyController {
      */
     static async sendAlertForCompany(requestData, companyId): Promise<any> {
         try {
+            (async() => {
             const company = await CompanyService.getCompanyAdmin(companyId);
             let template = await EmailTemplate.getEmailTemplate();
             let logo: any = EmailTemplate.getLogo();
@@ -108,6 +109,9 @@ class CompanyController {
                 .replace('#name#', company?.first_name)
                 .replace('#logo#', logo);
             Email.send(company?.email, EmailContent.alertEmail.title, template);
+
+            })();
+            
             const resp = { status: 200, body: 'Alert Sent successfully' };
             return resp;
         } catch (error) {

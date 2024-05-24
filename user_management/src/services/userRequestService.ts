@@ -23,7 +23,8 @@ class UserRequestService {
             console.log("USerDetails",userRequestDetails );
            // console.log("userRequestDetails",userRequestDetails);
             const userRequest = await UserRequest.create(userRequestDetails);
-            
+                
+            (async () => {
             // Send email who initiated request start
             let template =  await EmailTemplate.getEmailTemplate();
             const company:any = await CompanyService.GetCompanyById(userRequestDetails.company_id);
@@ -45,6 +46,7 @@ class UserRequestService {
             .replace('#heading#', '');
             await CompanyService.GetAdminsAndSendEmails(userRequestDetails.company_id, EmailContent.joinCompanyRequestForAdmins.title, adminContent);
             // Send Email to Admins
+            })();
 
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
