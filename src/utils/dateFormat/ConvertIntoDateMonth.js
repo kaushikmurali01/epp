@@ -29,6 +29,8 @@ export const parseUTCDateToLocalDate = (utcdate) => {
 
   // Now we can access our time at date[1], and monthdayyear @ date[0]
   let time = date[1];
+  const [hours, minutes] = time.split(":")
+  const t = hours + ":" + minutes
   let mdy = date[0];
 
   // We then parse  the mdy into parts
@@ -38,6 +40,6 @@ export const parseUTCDateToLocalDate = (utcdate) => {
   let year = parseInt(mdy[2]);
 
   // Putting it all together
-  let formattedDate = year + '-' + month + '-' + day + ' ' + time;
+  let formattedDate = year + '-' + month + '-' + day + ' ' +  t;
   return formattedDate
 }
