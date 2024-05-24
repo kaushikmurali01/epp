@@ -666,12 +666,14 @@ export async function AddResourceFacilityPermission(request: HttpRequest, contex
         const requestData: any = await request.json()
         let emails = requestData.email.split(",")
         let facilityId = requestData.facilityId
+        let company_id = requestData.companyId
         for (let i = 0; i < emails.length; i++) {
             for (let j = 0; j < facilityId.length; j++) {
                 let alreadyCheck = await UserResourceFacilityPermission.findOne({
                     where: {
                         email: emails[i],
                         facility_id: facilityId[j],
+                        company_id,
                         resource_permission_id: 5,   // default for 5 for full crud operation
                     }, attributes: ["id", "resource_permission_id", "email", "facility_id"]
                 })
@@ -680,6 +682,7 @@ export async function AddResourceFacilityPermission(request: HttpRequest, contex
                         email: emails[i],
                         facility_id: facilityId[j],
                         resource_permission_id: 5,
+                        company_id
                     })
                 }
             }
