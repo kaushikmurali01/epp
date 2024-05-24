@@ -331,24 +331,49 @@ const AdminEntriesListing = ({
           enableReinitialize={true}
           onSubmit={formSubmit}
         >
+        {({ values, setFieldValue }) => (
           <Form>
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="start_date" type="date" label="Start Date*" />
+              <InputField 
+              name="start_date" 
+              type="date" 
+              label="Start Date*"
+              inputProps={{
+                max: format(new Date(), "yyyy-MM-dd"),
+              }} />
             </Stack>
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="end_date" type="date" label="End Date*" />
+              <InputField 
+              name="end_date" 
+              type="date" 
+              label="End Date*"
+              inputProps={{
+                max: format(new Date(), "yyyy-MM-dd"),
+                min:
+                  values?.start_date &&
+                  format(values?.start_date, "yyyy-MM-dd"),
+              }} />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="usage" label="Usage (KWh)*" type="text" />
+              <InputField 
+              name="usage" 
+              label="Usage (KWh)*" 
+              type="number" />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="demand" label="Demand (KW)*" type="text" />
+              <InputField 
+              name="demand" 
+              label="Demand (KW)*" 
+              type="number" />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="total_cost" label="Total cost*" type="text" />
+              <InputField 
+              name="total_cost" 
+              label="Total cost*" 
+              type="number" />
             </Stack>
 
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -357,6 +382,7 @@ const AdminEntriesListing = ({
               </ButtonWrapper>
             </Grid>
           </Form>
+        )}
         </Formik>
       </>
     );
@@ -432,6 +458,24 @@ const AdminEntriesListing = ({
 
   return (
     <>
+      <IconButton
+        sx={{
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "primary.main",
+          },
+          marginLeft: "1rem",
+          marginBottom: "1rem",
+        }}
+        onClick={onAddMeterSuccess}
+      >
+        <ArrowBackIcon
+          sx={{
+            color: "#fff",
+            fontSize: "1.25rem",
+          }}
+        />
+      </IconButton>
       <Box
         sx={{
           display: "flex",
@@ -440,26 +484,6 @@ const AdminEntriesListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
-           <IconButton
-          sx={{
-            backgroundColor: "primary.main",
-            "&:hover": {
-              backgroundColor: "primary.main",
-            },
-            marginRight: "1rem",
-            // padding: "0 20px 0 20px",
-            width: "40px",
-            height: "40px",
-          }}
-          onClick={onAddMeterSuccess}
-        >
-          <ArrowBackIcon
-            sx={{
-              color: "#fff",
-              fontSize: "1.25rem",
-            }}
-          />
-        </IconButton>
         <Box
           sx={{
             borderRight: "1px solid black",
@@ -495,10 +519,10 @@ const AdminEntriesListing = ({
             {meterData?.meter_type == 1
               ? "Electricty"
               : meterData?.meter_type == 2
-              ? "Natural Gas"
-              : meterData?.meter_type == 3
-              ? "Water"
-              : ""}
+                ? "Natural Gas"
+                : meterData?.meter_type == 3
+                  ? "Water"
+                  : ""}
           </Typography>
         </Box>
 
@@ -592,7 +616,7 @@ const AdminEntriesListing = ({
             onClick={() => openRequestModal(false)}
           >
             Add Entry
-          </Button> : null }
+          </Button> : null}
         </Grid>
       </Grid>
 
@@ -627,6 +651,7 @@ const AdminEntriesListing = ({
               width: "170px",
               height: "40px",
               marginTop: "20px",
+              cursor: "pointer",
             }}
             onClick={handleButtonClick}
           >

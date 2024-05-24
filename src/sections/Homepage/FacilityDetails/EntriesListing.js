@@ -286,7 +286,7 @@ const EntriesListing = ({
             NotificationsToast({
               message: "Entry added successfully!",
               type: "success",
-          });
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
@@ -306,7 +306,7 @@ const EntriesListing = ({
             NotificationsToast({
               message: "Entry updated successfully!",
               type: "success",
-          });
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
             setModalConfig((prevState) => ({
               ...prevState,
@@ -330,24 +330,49 @@ const EntriesListing = ({
           enableReinitialize={true}
           onSubmit={formSubmit}
         >
+          {({ values, setFieldValue }) => (
           <Form>
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="start_date" type="date" label="Start Date*" />
+              <InputField 
+              name="start_date" 
+              type="date" 
+              label="Start Date*"
+              inputProps={{
+                max: format(new Date(), "yyyy-MM-dd"),
+              }} />
             </Stack>
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="end_date" type="date" label="End Date*" />
+              <InputField 
+              name="end_date" 
+              type="date" 
+              label="End Date*"
+              inputProps={{
+                max: format(new Date(), "yyyy-MM-dd"),
+                min:
+                  values?.start_date &&
+                  format(values?.start_date, "yyyy-MM-dd"),
+              }} />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="usage" label="Usage (KWh)*" type="text" />
+              <InputField 
+              name="usage" 
+              label="Usage (KWh)*" 
+              type="number" />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="demand" label="Demand (KW)*" type="text" />
+              <InputField 
+              name="demand" 
+              label="Demand (KW)*" 
+              type="number" />
             </Stack>
 
             <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="total_cost" label="Total cost*" type="text" />
+              <InputField 
+              name="total_cost" 
+              label="Total cost*" 
+              type="number" />
             </Stack>
 
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -356,6 +381,7 @@ const EntriesListing = ({
               </ButtonWrapper>
             </Grid>
           </Form>
+          )}
         </Formik>
       </>
     );
@@ -431,6 +457,24 @@ const EntriesListing = ({
 
   return (
     <>
+      <IconButton
+        sx={{
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "primary.main",
+          },
+          marginLeft: "1rem",
+          marginBottom: "1rem",
+        }}
+        onClick={onAddMeterSuccess}
+      >
+        <ArrowBackIcon
+          sx={{
+            color: "#fff",
+            fontSize: "1.25rem",
+          }}
+        />
+      </IconButton>
       <Box
         sx={{
           display: "flex",
@@ -439,23 +483,6 @@ const EntriesListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
-         <IconButton
-          sx={{
-            backgroundColor: "primary.main",
-            "&:hover": {
-              backgroundColor: "primary.main",
-            },
-            marginRight: "1rem",
-          }}
-          onClick={onAddMeterSuccess}
-        >
-          <ArrowBackIcon
-            sx={{
-              color: "#fff",
-              fontSize: "1.25rem",
-            }}
-          />
-        </IconButton>
         <Box
           sx={{
             borderRight: "1px solid black",
@@ -491,10 +518,10 @@ const EntriesListing = ({
             {meterData?.meter_type == 1
               ? "Electricty"
               : meterData?.meter_type == 2
-              ? "Natural Gas"
-              : meterData?.meter_type == 3
-              ? "Water"
-              : ""}
+                ? "Natural Gas"
+                : meterData?.meter_type == 3
+                  ? "Water"
+                  : ""}
           </Typography>
         </Box>
 
@@ -582,13 +609,13 @@ const EntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-         {tabValue == "monthlyEntries" ? <Button
+          {tabValue == "monthlyEntries" ? <Button
             variant="contained"
             sx={{ marginLeft: "2rem" }}
             onClick={() => openRequestModal(false)}
           >
             Add Entry
-          </Button> : null }
+          </Button> : null}
         </Grid>
       </Grid>
 
@@ -623,6 +650,7 @@ const EntriesListing = ({
               width: "170px",
               height: "40px",
               marginTop: "20px",
+              cursor: "pointer",
             }}
             onClick={handleButtonClick}
           >
