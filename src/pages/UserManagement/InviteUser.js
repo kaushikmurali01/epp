@@ -84,7 +84,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             if(handelAccept){
                 NotificationsToast({ message: 'You have accepted the request and updated the invite permissions.', type: "success" });
             } else {
-                NotificationsToast({ message: 'The Invite has been updated', type: "success" });
+                NotificationsToast({ message: 'The permission has been updated successfully', type: "success" });
             }
             
         })
@@ -180,9 +180,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                         NotificationsToast({ message: 'The Invite has been sent', type: "success" });
                         setVisibleInvitePage(false);
                         handleAPISuccessCallBack();
-                    } else if (response.data.status === 500) {
+                    } else if (response.data.status === 500 || response.data.status === 409) {
                         NotificationsToast({ message: response.data.message, type: "error" });
                     }
+                    //  else if (response.data.status === 409) {
+                    //     NotificationsToast({ message: response.data.message, type: "error" });
+                    // }
                 })
                 .catch((error) => {
                     console.log(error, 'error')
