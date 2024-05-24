@@ -159,6 +159,7 @@ const AdminFacilityListing = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: null,
     };
     const formSubmit = (values) => {
       dispatch(adminAssignFacilities(values)).then(() => {

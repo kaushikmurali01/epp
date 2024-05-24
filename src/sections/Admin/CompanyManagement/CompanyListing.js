@@ -299,6 +299,9 @@ const CompanyListing = () => {
             ...prevState,
             modalVisible: false,
           }));
+          dispatch(
+            fetchAdminCompanyListing(pageInfo, searchString, companyFilter)
+          );
         })
         .catch((error) => {});
     };
