@@ -139,11 +139,27 @@ export const validationSchemaAddMeter = Yup.object().shape({
 });
 
 export const validationSchemaEntry = Yup.object().shape({
-  start_date: Yup.string().required("Start Date is required"),
-  end_date: Yup.string().required("End Date is required"),
-  usage: Yup.string().required("Usage is required"),
-  demand: Yup.string().required("Demand is required"),
-  total_cost: Yup.date().required("Total cost is required"),
+  start_date: Yup.date()
+    .max(new Date(), "Start Date cannot be in the future")
+    .required("Start Date is required"),
+  end_date: Yup.date()
+    .min(
+      Yup.ref("start_date"),
+      "End Date cannot be earlier than Start Date"
+    )
+    .max(new Date(), "End Date cannot be in the future")
+    .required(
+      "End Date is required"
+    ),
+  usage: Yup.string()
+    .required("Usage is required")
+    .min(0, "Usage must be a positive number"),
+  demand: Yup.string()
+    .required("Demand is required")
+    .min(0, "Demand must be a positive number"),
+  total_cost: Yup.string()
+    .required("Total cost is required")
+    .min(0, "Total cost must be a positive number"),
 });
 
 export default validationSchemaAddMeter;
