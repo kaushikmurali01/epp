@@ -32,6 +32,9 @@ const Table = ({
   count,
   pageInfo,
   setPageInfo,
+  tableClass="",
+  customTableStyles={},
+  cursorStyle
 }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -110,8 +113,8 @@ const Table = ({
 
   
   return (
-    <TableContainer>
-      <MUITable {...getTableProps()}>
+    <TableContainer className={tableClass}>
+      <MUITable {...getTableProps()} sx={{...customTableStyles}}>
         <TableHead sx={{ backgroundColor: headbgColor || 'rgba(217, 217, 217, 0.2)' }}>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
@@ -153,6 +156,8 @@ const Table = ({
                           textAlign: "center",
                           fontSize: "0.875rem",
                           padding: "1.5rem 0.5rem",
+                          // cursor: 'pointer',
+                          cursor: cursorStyle ? cursorStyle: 'default',
                           "&:first-of-type": {
                             fontWeight: 600,
                           },

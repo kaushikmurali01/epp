@@ -421,6 +421,7 @@ const Facility = () => {
       </Grid>
       <Box sx={{ marginTop: "2rem" }}>
         <Table
+          cursorStyle="pointer"
           columns={columns}
           data={facilityListData}
           count={facilityCount}
