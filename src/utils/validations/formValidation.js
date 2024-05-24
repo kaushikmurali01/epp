@@ -136,7 +136,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
         ),
     otherwise: (schema) => schema.notRequired().nullable(),
   }),
-  is_rg_meter:Yup.bool().required("Revenue-grade meter is required"),
+  is_rg_meter: Yup.bool().required("Revenue-grade meter is required"),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -186,7 +186,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     "Gross floor area size category is required"
   ),
   gross_floor_area: Yup.number()
-    .nullable()
+    .required("Gross floor area is required")
     .min(0, "Gross floor area must be a positive number")
     .max(3000000, "Gross floor area cannot exceed 3000000 sqft"),
   conditioned_gross_floor_area_including_common_area: Yup.number()
@@ -200,6 +200,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
       "Conditioned gross floor area including common area cannot be more than gross floor area"
     ),
   unonditioned_gross_floor_area: Yup.number()
+    .nullable()
     .min(0, "Unconditioned gross floor area  must be a positive number")
     .max(3000000, "Unconditioned gross floor area cannot exceed 3000000 sqft"),
 
@@ -218,7 +219,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .nullable()
     .min(0, "Facility service entrance voltage must be a positive number"),
   space_cooling_fuel_source: Yup.string().required(
-    "Space cooling fuel source is required"
+    "Space cooling energy source is required"
   ),
   space_cooling_technology: Yup.string().required(
     "Space cooling technology is required"
@@ -227,10 +228,10 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     "Space heating technology is required"
   ),
   space_heating_fuel_source: Yup.string().required(
-    "Space heating fuel source is required"
+    "Space heating energy source is required"
   ),
   water_heating_fuel_source: Yup.string().required(
-    "Water heating fuel source is required"
+    "Water heating energy source is required"
   ),
   water_heating_technology: Yup.string().required(
     "Water heating technology is required"
@@ -240,7 +241,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space cooling fuel source"),
+        schema.required("Please mention the Space cooling energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -249,7 +250,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the space heating fuel source"),
+        schema.required("Please mention the space heating energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -258,7 +259,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the water heating fuel source"),
+        schema.required("Please mention the water heating energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),

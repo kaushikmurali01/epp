@@ -693,7 +693,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="space_cooling_fuel_source"
-                      label="Space cooling fuel source *"
+                      label="Space cooling energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
@@ -733,7 +733,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="space_heating_fuel_source"
-                      label="Space heating fuel source *"
+                      label="Space heating energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
@@ -773,7 +773,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="water_heating_fuel_source"
-                      label="Water heating fuel source *"
+                      label="Water heating energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
