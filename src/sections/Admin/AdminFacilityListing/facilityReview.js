@@ -9,7 +9,12 @@ import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 import { format } from "date-fns";
 
-const FacilityReview = ({ searchVal, companyFilter }) => {
+const FacilityReview = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+}) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -83,7 +88,7 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
               marginLeft: "1rem",
               fontSize: "0.875rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() => onDownloadRowClick(item?.id, item?.facility_name)}
           >
             Download
           </Button>
@@ -146,6 +151,7 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo, 3)}
                 >
                   Download Bulk
                 </Button>

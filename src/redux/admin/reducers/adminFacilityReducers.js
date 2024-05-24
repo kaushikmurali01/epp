@@ -32,6 +32,12 @@ import {
   FETCH_ADMIN_STATISTICS_REQUEST,
   FETCH_ADMIN_STATISTICS_SUCCESS,
   FETCH_ADMIN_STATISTICS_FAILURE,
+  DOWNLOAD_FACILITIES_BULK_REQUEST,
+  DOWNLOAD_FACILITIES_BULK_SUCCESS,
+  DOWNLOAD_FACILITIES_BULK_FAILURE,
+  DOWNLOAD_FACILITY_ROW_REQUEST,
+  DOWNLOAD_FACILITY_ROW_SUCCESS,
+  DOWNLOAD_FACILITY_ROW_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -41,6 +47,8 @@ const initialState = {
   facilityStatus: [],
   facilitiesDropdown: [],
   facilityStatistics: [],
+  downloadFacilitiesBulkData: [],
+  downloadFacilityRowData: [],
   loading: false,
   error: null,
 };
@@ -251,7 +259,44 @@ const adminFacilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-
+    case DOWNLOAD_FACILITIES_BULK_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DOWNLOAD_FACILITIES_BULK_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        downloadFacilitiesBulkData: action.payload,
+        error: null,
+      };
+    case DOWNLOAD_FACILITIES_BULK_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DOWNLOAD_FACILITY_ROW_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DOWNLOAD_FACILITY_ROW_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        downloadFacilityRowData: action.payload,
+        error: null,
+      };
+    case DOWNLOAD_FACILITY_ROW_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     default:
       return state;
   }
