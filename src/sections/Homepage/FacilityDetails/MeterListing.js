@@ -298,6 +298,7 @@ const MeterListing = ({
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
+          cursorStyle="pointer"
         />
       </Box>
       <EvModal

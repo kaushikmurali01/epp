@@ -195,6 +195,7 @@ const FacilityApproved = ({
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>
