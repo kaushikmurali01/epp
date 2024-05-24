@@ -23,11 +23,14 @@ export class FacilityService {
 
     try {
       let findRole: any = {}
+      console.log("usertokn", userToken)
       if (companyId) {
         findRole = await UserCompanyRole.findOne({ where: { user_id: userToken.id, company_id: companyId } })
       } else {
         findRole.role_id = userToken.type
       }
+      console.log("findRole", findRole)
+
       let result;
       if (userToken && (findRole.role_id === userType.ADMIN || findRole.role_id === userType.SUPER_ADMIN)) {
         result = await Facility.findAndCountAll({
@@ -47,32 +50,43 @@ export class FacilityService {
           order: [[colName, order]]
         });
       } else {
+        console.log("findRolefindRolefindRolefindRole inside")
+
         let findPermission = await UserResourceFacilityPermission.findAll({ where: { company_id: companyId, email: userToken?.email } })
+        console.log("findPermission inside", findPermission)
+
         let allFacilityId = findPermission.map(ele => ele.facility_id)
+        console.log("allFacilityId inside", allFacilityId)
+
         result = await Facility.findAndCountAll({
           where: {
             company_id: companyId,
-            // created_by: userToken.id,
             is_active: STATUS.IS_ACTIVE,
-            id: {
-              [Op.in]: allFacilityId,
-            },
-            [Op.or]: [
-              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { city: { [Op.iLike]: `%${searchPromt}%` } },
-              { country: { [Op.iLike]: `%${searchPromt}%` } }
+            [Op.and]: [
+              {
+                [Op.or]: [
+                  { id: { [Op.in]: allFacilityId } },
+                  { created_by: userToken.id }
+                ]
+              },
+              {
+                [Op.or]: [
+                  { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+                  { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+                  { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+                  { city: { [Op.iLike]: `%${searchPromt}%` } },
+                  { country: { [Op.iLike]: `%${searchPromt}%` } }
+                ]
+              }
             ]
           },
           offset: offset,
           limit: limit,
           order: [[colName, order]]
         });
+        console.log("result inside", result)
 
       }
-
-
       if (result) {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
