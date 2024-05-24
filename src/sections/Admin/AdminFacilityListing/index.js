@@ -59,47 +59,46 @@ const AdminFacilityListing = () => {
   );
 
   const onDownloadBulkClick = (page_info, status) => {
-    dispatch(downloadFacilitiesBulkData(page_info, companyFilter, status))
-      .then((response) => {
+    dispatch(downloadFacilitiesBulkData(page_info, companyFilter, status)).then(
+      (response) => {
         const data = response?.data;
-        fetch(data)
-          .then((res) => {
-            res.blob().then((blob) => {
-              const fileURL = window.URL.createObjectURL(blob);
-              let alink = document.createElement("a");
-              alink.href = fileURL;
-              let fileName = "Facilities_Bulk_Data";
-              alink.download = fileName;
-              alink.click();
+        if (data) {
+          fetch(data)
+            .then((res) => {
+              res.blob().then((blob) => {
+                const fileURL = window.URL.createObjectURL(blob);
+                let alink = document.createElement("a");
+                alink.href = fileURL;
+                let fileName = "Facilities_Bulk_Data";
+                alink.download = fileName;
+                alink.click();
+              });
+              NotificationsToast({
+                message: "Downloading facilities bulk data completed",
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
             });
-          })
-          .then(() => {
-            NotificationsToast({
-              message: "Downloading facilities bulk data completed",
-              type: "success",
-            });
-          })
-          .catch((error) => {
-            NotificationsToast({
-              message: error?.message
-                ? error.message
-                : "Something went wrong while downloading!",
-              type: "error",
-            });
-          });
-      })
-      .catch((error) => {
-        console.error("Error downloading facility data:", error);
-      });
+        }
+      }
+    );
   };
 
   const onDownloadRowClick = (facility_id, facility_name) => {
-    dispatch(downloadFacilityRowData(facility_id))
-      .then((response) => {
-        const data = response?.data;
-        fetch(data)
-          .then((res) => {
-            res.blob().then((blob) => {
+    dispatch(downloadFacilityRowData(facility_id)).then((response) => {
+      const data = response?.data;
+      if (data) {
+        fetch(data).then((res) => {
+          res
+            .blob()
+            .then((blob) => {
               const fileURL = window.URL.createObjectURL(blob);
               let alink = document.createElement("a");
               alink.href = fileURL;
@@ -109,26 +108,22 @@ const AdminFacilityListing = () => {
               }
               alink.download = fileName;
               alink.click();
+              NotificationsToast({
+                message: `Downloading facility data for ${facility_name} completed`,
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
             });
-          })
-          .then(() => {
-            NotificationsToast({
-              message: `Downloading facility data for ${facility_name} completed`,
-              type: "success",
-            });
-          })
-          .catch((error) => {
-            NotificationsToast({
-              message: error?.message
-                ? error.message
-                : "Something went wrong while downloading!",
-              type: "error",
-            });
-          });
-      })
-      .catch((error) => {
-        console.error("Error downloading facility data:", error);
-      });
+        });
+      }
+    });
   };
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
