@@ -4,6 +4,7 @@ import Table from "../../../components/Table";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAdminFacility,
+  downloadFacilityRowData,
   fetchAdminFacilityListing,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -12,8 +13,14 @@ import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 import { format } from "date-fns";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
-const FacilityCreated = ({ searchVal, companyFilter }) => {
+const FacilityCreated = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+}) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -139,7 +146,7 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
               marginLeft: "1rem",
               fontSize: "0.875rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() => onDownloadRowClick(item?.id, item?.facility_name)}
           >
             Download
           </Button>
@@ -232,6 +239,7 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo)}
                 >
                   Download Bulk
                 </Button>
@@ -245,6 +253,7 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>

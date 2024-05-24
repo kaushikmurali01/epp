@@ -40,6 +40,12 @@ import {
   fetchAdminStatisticsRequest,
   fetchAdminStatisticsSuccess,
   fetchAdminStatisticsFailure,
+  downloadFacilitiesBulkRequest,
+  downloadFacilitiesBulkSuccess,
+  downloadFacilitiesBulkFailure,
+  downloadFacilityRowRequest,
+  downloadFacilityRowSuccess,
+  downloadFacilityRowFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 
 export const fetchAdminFacilityListing = (
@@ -275,6 +281,63 @@ export const fetchAdminStatistic = (companyFilter, facilityFilter) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminStatisticsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const downloadFacilitiesBulkData = (
+  pageInfo,
+  compFilter = "",
+  status
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(downloadFacilitiesBulkRequest());
+      let endpointWithParams = `${
+        adminFacilityEndpoints.DOWNLOAD_BULK_FACILITIES
+      }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }?company_id=${compFilter}`;
+      endpointWithParams += status ? `&status=${status}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(downloadFacilitiesBulkSuccess(data));
+      NotificationsToast({
+        message: "Downloading started",
+        type: "info",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(downloadFacilitiesBulkFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const downloadFacilityRowData = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(downloadFacilityRowRequest());
+      let endpointWithParams = `${adminFacilityEndpoints.DOWNLOAD_FACILITY_BY_ID}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(downloadFacilityRowSuccess(data));
+      NotificationsToast({
+        message: "Downloading started",
+        type: "info",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(downloadFacilityRowFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

@@ -119,6 +119,7 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>
