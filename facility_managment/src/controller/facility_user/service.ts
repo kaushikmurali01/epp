@@ -52,17 +52,36 @@ export class FacilityService {
         result = await Facility.findAndCountAll({
           where: {
             company_id: companyId,
-            // created_by: userToken.id,
             is_active: STATUS.IS_ACTIVE,
-            id: {
-              [Op.in]: allFacilityId,
-            },
-            [Op.or]: [
-              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { city: { [Op.iLike]: `%${searchPromt}%` } },
-              { country: { [Op.iLike]: `%${searchPromt}%` } }
+            // [Op.or]: [
+            //   {
+            //     id: {
+            //       [Op.in]: allFacilityId,
+            //     }
+            //   },
+            //   { created_by: userToken.id },
+            //   { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+            //   { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+            //   { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+            //   { city: { [Op.iLike]: `%${searchPromt}%` } },
+            //   { country: { [Op.iLike]: `%${searchPromt}%` } }
+            // ]
+            [Op.and]: [
+              {
+                [Op.or]: [
+                  { id: { [Op.in]: allFacilityId } },
+                  { created_by: userToken.id }
+                ]
+              },
+              {
+                [Op.or]: [
+                  { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+                  { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+                  { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+                  { city: { [Op.iLike]: `%${searchPromt}%` } },
+                  { country: { [Op.iLike]: `%${searchPromt}%` } }
+                ]
+              }
             ]
           },
           offset: offset,
