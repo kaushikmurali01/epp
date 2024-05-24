@@ -1,22 +1,51 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS } from "../../../utils/status";
-import { ResponseHandler } from '../../../utils/responseHandler';
+import { ResponseHandler } from '../../../utils/response-handler';
 import { Facility } from "../../../models/facility.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../../interfaces/baseline.interface";
-import { decodeToken } from "../../../helper/authantication";
+import { decodeToken } from "../../../helper/authantication.helper";
 import { IUserToken } from "../../../interfaces/usertoken.interface";
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from "../../../utils/facility_status";
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from "../../../utils/facility-status";
 import { Company } from "../../../models/company.model";
 import { ParticipantAgreement } from "../../../models/participant_agreement.model";
 import { User } from "../../../models/user.model";
-import { creatSignDocumentUrlForUser } from "../../../helper/create-doc";
+import { creatSignDocumentUrlForUser } from "../../../helper/create-doc.helper";
+import { Op } from "sequelize";
+import { EmailContent, adminDetails } from "../../../utils/email-content";
+import { getEmailTemplate } from "../../../helper/mail-template.helper";
+import { Email } from "../../../helper/email-sender.helper";
 
 export class AdminFacilityService {
 
 
-  static async getFacility(userToken: IUserToken, offset:number, limit:number, status:number, colName:string, order:string): Promise<Facility[]> {
+  static async getFacility(userToken: IUserToken, offset:number, limit:number, status:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
     try {
-      const result = await Facility.findAndCountAll({where:{facility_id_submission_status:status, is_active: STATUS.IS_ACTIVE} ,offset:offset, limit:limit, order: [[colName, order]]}) 
+      const whereClause:any = {
+        is_active: STATUS.IS_ACTIVE,
+        [Op.or]: [
+            { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+            { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+            { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+            { city: { [Op.iLike]: `%${searchPromt}%` } },
+            { country: { [Op.iLike]: `%${searchPromt}%` } }
+        ]
+    };
+    
+    if (companyId) {
+        whereClause.company_id = companyId;
+    }
+
+    if(status){
+      whereClause.facility_id_submission_status = status
+    }
+    
+    const result = await Facility.findAndCountAll({
+        where: whereClause,
+        offset: offset,
+        limit: limit,
+        order: [[colName, order]]
+    });
+    
       if(result){
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
@@ -189,16 +218,7 @@ export class AdminFacilityService {
 
       if(oldData){
 
-        // const obj = {
-        //   company_id : body.company_id,
-        //   unsigned_doc : body.unsigned_doc,
-        //   is_signed : false,
-        //   signed_on : new Date(),
-        //   is_active : STATUS.IS_ACTIVE
-        // }
-        
-         result = oldData;
-
+      result = oldData;
 
       }else{
         const obj = {
@@ -211,6 +231,7 @@ export class AdminFacilityService {
         }
         
          result = await ParticipantAgreement.create(obj)
+       
 
       }
       
@@ -223,19 +244,70 @@ export class AdminFacilityService {
     }
   }
 
-  static async getDashboardStats(userToken: IUserToken): Promise<Facility[]> {
+  static async getDashboardStats(userToken: IUserToken, facilityId: number, companyId:number): Promise<Facility[]> {
     try {
-      
-      const allFacility = await Facility.count({where:{is_active:STATUS.IS_ACTIVE}})
-      const allUser = await User.count()
-      const allCompany = await Company.count()
-      const allPaSigned = await ParticipantAgreement.count({where:{is_signed:true}})
-      const allpa = await ParticipantAgreement.count({where:{is_active:STATUS.IS_ACTIVE}})
-     
 
-      const result = {all_user: allUser,  all_facility: allFacility, all_company: allCompany, all_pa_signed: allPaSigned, all_pa: allpa}
+      const whereClauseForPa:any = {
+        is_active:STATUS.IS_ACTIVE
+      }
+
+      const whereClauseForSignPa:any = {
+        is_active:STATUS.IS_ACTIVE
+      }
+
+      const whereClauseCompany:any = {
+        is_active:STATUS.IS_ACTIVE
+      }
+      const whereClauseBasicFacility:any = {
+        is_active:STATUS.IS_ACTIVE
+      }
+
+      const whereClauseendrolledFacility:any = {
+        is_active:STATUS.IS_ACTIVE, 
+        facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.APPROVED
+      }
+
+      const whereClauseBaselineApproval:any = {
+        is_active:STATUS.IS_ACTIVE,
+        facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED
+      }
+
+      if(facilityId){
+        console.log(facilityId, "243443s")
+        whereClauseBasicFacility.id = facilityId;
+        whereClauseBaselineApproval.id = facilityId;
+        whereClauseendrolledFacility.id = facilityId;
+      }
+
+      if(companyId){
+        console.log(companyId, "erflknerf")
+        whereClauseCompany.id = companyId;
+        whereClauseForSignPa.company_id = companyId;
+        whereClauseForPa.company_id = companyId;
+
+        whereClauseBasicFacility.company_id = companyId;
+        whereClauseBaselineApproval.company_id = companyId;
+        whereClauseendrolledFacility.company_id = companyId;
+
+      }
+
+
+      
+      const allFacility = await Facility.count({where:whereClauseBasicFacility})
+      const allUser = await User.count()
+      const allCompany = await Company.count({where:whereClauseCompany})
+      const allPaSigned = await ParticipantAgreement.count({where:whereClauseForSignPa})
+      const allpa = await ParticipantAgreement.count({where:whereClauseForPa})
+      const allFacilityWithBaselineApproval = await Facility.count({where:whereClauseBaselineApproval})
+      const allFacilityEndrolled = await Facility.count({where:whereClauseendrolledFacility})
+      const allFacilityInY1 = await Facility.count({where:whereClauseBasicFacility})
+      const allFacilityInY2 = await Facility.count({where:whereClauseBasicFacility})
+      const allFacilityInY3 = await Facility.count({where:whereClauseBasicFacility})
+
+      const result = { all_user: allUser,  all_facility: allFacility, all_company: allCompany, all_pa_signed: allPaSigned, all_pa: allpa, all_acility_with_baseline_approval: allFacilityWithBaselineApproval,  all_facility_endrolled: allFacilityEndrolled, all_facility_in_y1: allFacilityInY1, all_facility_in_y2: allFacilityInY2, all_facility_in_y3: allFacilityInY3}
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+     
       return resp;
     } catch (error) {
       throw error;
@@ -263,6 +335,43 @@ export class AdminFacilityService {
             };
             
           const result = await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+
+          if(result){
+
+        
+            const userDetails = await User.findOne({ where: { id: userToken.id } });
+            const companyDetails = await Company.findOne({ where: { id: companyId}})
+            const bindingAuthorityDetails = {
+              name: "Enerva Test Binding Authority"
+            }
+            const version = 'V1'
+    
+            if(userDetails.email){
+              const template = await getEmailTemplate();
+              let userEmailContent =  template
+                .replace('#heading#', EmailContent.paCreatedForCompany.title)
+                .replace('#content#', EmailContent.paCreatedForCompany.content)
+                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#version#', version ? version : 'version')
+                .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+              
+              let adminEmailContent =  template
+                .replace('#heading#', EmailContent.paCreatedForAdmin.title)
+                .replace('#content#', EmailContent.paCreatedForAdmin.content)
+                .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
+                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#version#', version ? version : 'version')
+                .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+      
+              Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
+              Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
+    
+            }
+           
+    
+          }
           
           const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
           return resp;
@@ -284,6 +393,44 @@ export class AdminFacilityService {
             };
     
           const result =  await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+
+          if(result){
+
+        
+            const userDetails = await User.findOne({ where: { id: userToken.id } });
+            const companyDetails = await Company.findOne({ where: { id: companyId}})
+            const bindingAuthorityDetails = {
+              name: "Enerva Test Binding Authority"
+            }
+            const version = 'V1'
+    
+            if(userDetails.email){
+              const template = await getEmailTemplate();
+              let userEmailContent =  template
+                .replace('#heading#', EmailContent.paCreatedForCompany.title)
+                .replace('#content#', EmailContent.paCreatedForCompany.content)
+                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#version#', version ? version : 'version')
+                .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+              
+              let adminEmailContent =  template
+                .replace('#heading#', EmailContent.paCreatedForAdmin.title)
+                .replace('#content#', EmailContent.paCreatedForAdmin.content)
+                .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
+                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#version#', version ? version : 'version')
+                .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+      
+              Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
+              Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
+    
+            }
+           
+    
+          }
+
           const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
           return resp;
         }else{
@@ -310,6 +457,40 @@ export class AdminFacilityService {
    
   }
 
+
+  static async getFacilityDropDown(userToken: IUserToken, companyId:number): Promise<Facility[]> {
+    try {
+      let whereClause:any = {
+        is_active: STATUS.IS_ACTIVE
+    };
+    
+    if (companyId) {
+        whereClause.company_id = companyId;
+    }
+    
+    const result = await Facility.findAll({
+        attributes: ['id', 'facility_name'],
+        where: whereClause
+    });
+    
+     
+      if(result){
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+        return resp;
+      }else{
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
+        return resp;
+      }   
+      
+    } catch (error) {
+      throw error;
+      
+    }
+    
+  }
+
+
+  
   
 
   

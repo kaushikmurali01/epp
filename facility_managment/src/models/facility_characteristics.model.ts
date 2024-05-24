@@ -10,7 +10,7 @@ class FacilityCharacteristics extends Model<IFacilityCharacteristicsAttributes, 
     public id!: number;
     public facility_id!: number;
     public operational_hours?: string | null;
-    public year_of_construction?: number | null;
+    public year_of_construction?: Date | null;
     public gross_floor_area?: string | null;
     public number_of_storeys?: number | null;
     public conditioned_gross_floor_area_including_common_area?: string | null;
@@ -67,7 +67,7 @@ FacilityCharacteristics.init(
             allowNull: true,
         },
         year_of_construction: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DATE,
             allowNull: true,
         },
         space_cooling_fuel_source: {

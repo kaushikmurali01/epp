@@ -1,5 +1,5 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { FacilityEnervaService } from "./service";
 import { HttpRequest } from "@azure/functions";
 import { Facility } from "../../models/facility.model";

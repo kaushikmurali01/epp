@@ -1,21 +1,46 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
-import { ResponseHandler } from '../../utils/responseHandler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility_status';
+import { ResponseHandler } from '../../utils/response-handler';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS, userType} from '../../utils/status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { IBaseInterface } from '../../interfaces/baseline.interface';
 import { Op } from 'sequelize';
+import { FacilityNAIC } from '../../models/facility_naic.model';
+import { getEmailTemplate } from '../../helper/mail-template.helper';
+import { EmailContent, adminDetails } from '../../utils/email-content';
+import { User } from '../../models/user.model';
+import { Company } from '../../models/company.model';
+import { Email } from '../../helper/email-sender.helper';
 
 
 export class FacilityService {
 
 
-  static async getFacility(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string): Promise<Facility[]> {
+  static async getFacility(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
 
     try {
-    // const result = await Facility.findAndCountAll({where:{is_active:STATUS.IS_ACTIVE},offset:offset, limit:limit, order: [[colName, order]]})  
-    const result = await Facility.findAndCountAll({
+    let result;
+    if(userToken && (userToken.type === userType.ADMIN || userToken.type === userType.SUPER_ADMIN)){
+      result = await Facility.findAndCountAll({
+        where: {
+            company_id: companyId,
+            is_active: STATUS.IS_ACTIVE,
+            [Op.or]: [
+                { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+                { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+                { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+                { city: { [Op.iLike]: `%${searchPromt}%` } },
+                { country: { [Op.iLike]: `%${searchPromt}%` } }
+            ]
+        },
+        offset: offset,
+        limit: limit,
+        order: [[colName, order]]
+    });  
+    }else{
+      result = await Facility.findAndCountAll({
       where: {
+          company_id: companyId,
           created_by: userToken.id,
           is_active: STATUS.IS_ACTIVE,
           [Op.or]: [
@@ -30,6 +55,9 @@ export class FacilityService {
       limit: limit,
       order: [[colName, order]]
   });  
+
+    }
+
 
   if(result){
     const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
@@ -85,8 +113,8 @@ export class FacilityService {
         occupancy: body.occupancy,
         number_of_building: body.number_of_building,
         company_id: body.company_id,
-        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
-        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION),
+        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY),
+        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
         ng_distribution_company: body.ng_distribution_company,
         ng_distribution_company_data_extraction:body.ng_distribution_company_data_extraction,
         longitude: body.longitude,
@@ -99,6 +127,7 @@ export class FacilityService {
         updated_by: userToken.id
       };
       const result = await Facility.create(obj);
+     
       return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
     } catch (error) {
       throw error;
@@ -173,11 +202,47 @@ export class FacilityService {
     try {
       
       const obj = {
-        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.SUBMITTED, 
+        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.SUBMITTED,
+        facility_id_general_status: FACILITY_ID_GENERAL_STATUS.SUBMIT_FACILITY, 
         is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
         is_active: Number(STATUS.IS_ACTIVE),
       }
       const result = await Facility.update(obj,{where:{id:facilityId}})
+      if(result){
+        const facilityDetails = await Facility.findOne({where: { id: facilityId } })
+        const companyDetails = await Company.findOne({ where: { id: facilityDetails.company_id}})
+        const userDetails = await User.findOne({ where: { id: userToken.id } });
+        
+        
+
+        if(userDetails.email){
+          const template = await getEmailTemplate();
+
+          const usernameRegEx = new RegExp('#userName#', "g");
+ 
+          let userEmailContent =  template
+            .replace('#heading#', EmailContent.facilityCreatedForUser.title)
+            .replace('#content#', EmailContent.facilityCreatedForUser.content)
+            .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+            .replace('#facilityName#', facilityDetails?.facility_name ? facilityDetails.facility_name : "Facility")
+            .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+          
+          let adminEmailContent =  template
+            .replace('#heading#', EmailContent.facilityCreatedForAdmin.title)
+            .replace('#content#', EmailContent.facilityCreatedForAdmin.content)
+            .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
+            .replace(usernameRegEx, userDetails ? userDetails?.first_name : 'User')
+            .replace('#facilityName#', facilityDetails?.facility_name ? facilityDetails.facility_name : "Facility")
+            .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
+  
+          Email.send(userDetails.email, EmailContent.facilityCreatedForUser.title, userEmailContent);
+          Email.send(adminDetails.adminEmail, EmailContent.facilityCreatedForAdmin.title, adminEmailContent);
+
+        }
+       
+
+      }
+      
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
     } catch (error) {
@@ -217,7 +282,32 @@ export class FacilityService {
    
   }
 
+  static async getFacilityNaicCode(userToken: IUserToken, facilityCategory:string, facilityType:string): Promise<Facility[]> {
+    try {
+      
+      let whereClause = {};
 
+      if (facilityCategory && facilityType) {
+          whereClause = { facility_category: facilityCategory, facility_type: facilityType };
+      } else if (facilityCategory) {
+          whereClause = { facility_category: facilityCategory };
+      } else if (facilityType) {
+          whereClause = { facility_type: facilityType };
+      } else {
+          // Neither facilityCategory nor facilityType is present
+      }
+      
+      const result = await FacilityNAIC.findAll({ where: whereClause });
+      
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      return resp;
+    } catch (error) {
+      throw error;
+      
+    }
+  }
+
+  
  
   
 }

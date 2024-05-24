@@ -2,7 +2,7 @@
 
 export interface IUserToken {
   id: number;
-  type?: string | null;
+  type?: number | null;
   company_id?: number | null;
   emails?: any;
 }

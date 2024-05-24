@@ -43,3 +43,10 @@ export const HTTP_STATUS_CODES = {
     IS_BLOCKED : 2,
     IS_DELETED : 3,
   }
+
+  export const userType = {
+    ADMIN : 1,
+    SUPER_ADMIN : 2,
+    USER : 3,
+  }
+

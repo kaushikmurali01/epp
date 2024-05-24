@@ -2,7 +2,7 @@ export interface IFacilityCharacteristicsAttributes {
     id: number;
     facility_id: number;
     operational_hours?: string | null;
-    year_of_construction?: number | null;
+    year_of_construction?: Date | null;
     gross_floor_area?: string | null;
     number_of_storeys?: number | null;
     conditioned_gross_floor_area_including_common_area?: string | null;

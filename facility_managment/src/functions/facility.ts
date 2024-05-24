@@ -2,15 +2,16 @@ import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/fu
 import { FacilityController } from "../controller/facility_user/controller";
 
 
-import { uploadBlob } from "../helper/azure-storage";
+import { uploadBlob } from "../helper/azure-storage.helper";
 import { FacilityEnervaController } from "../controller/facility_enerva/controller";
 import { FacilityMeterController } from "../controller/facility_meter/controller";
 import { FacilityMeterEntriesController } from "../controller/facility_meter_entries/controller";
 import { FacilityCharacteristicsController } from "../controller/facility_characteristics/controller";
 import { AdminFacilityController } from "../controller/admin/admin-facility/controller";
-import { FACILITY_ID_SUBMISSION_STATUS } from "../utils/facility_status";
+import { FACILITY_ID_SUBMISSION_STATUS } from "../utils/facility-status";
 import { object } from "yup";
-import { decodeToken } from "../helper/authantication";
+import { decodeToken } from "../helper/authantication.helper";
+import { HTTP_STATUS_CODES } from "../utils/status";
 
 // Facility User CRUD
 
@@ -20,12 +21,13 @@ import { decodeToken } from "../helper/authantication";
           const colName = request.query.get('col_name') || 'id';
           const order = request.query.get('order') || 'ASC';
           const searchPromt = request.query.get('search' || "");
+          const companyId = request.query.get('company_id' || "");
           const {offset, limit} = request.params
 
           // Fetch values from decoded token
           const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-          const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt): "");
+          const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt): "", Number(companyId));
            
           // Prepare response body
           const responseBody = JSON.stringify(result);
@@ -34,7 +36,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
         } catch (error) {
             // Return error response
-            return { status: 500, body: `${error.message}` };
+             return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
     }
 
@@ -54,7 +56,7 @@ import { decodeToken } from "../helper/authantication";
             return { body: responseBody };
         } catch (error) {
             // Return error response
-            return { status: 500, body: `${error.message}` };
+             return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
     }
 
@@ -73,7 +75,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
         } catch (error) {
             // Return error response
-            return { status: 500, body: `${error.message}` };
+             return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
     }
 
@@ -92,7 +94,7 @@ import { decodeToken } from "../helper/authantication";
             return { body: responseBody };
         } catch (error) {
             // Return error response
-            return { status: 500, body: `${error.message}` };
+             return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
     }
 
@@ -113,7 +115,7 @@ import { decodeToken } from "../helper/authantication";
             return { body: responseBody };
         } catch (error) {
             // Return error response
-            return { status: 500, body: `${error.message}` };
+             return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
     }
 
@@ -172,7 +174,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
     }
 
@@ -191,7 +193,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -211,9 +213,33 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
+
+  export async function getFacilityNaicCode(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+      // Fetch params
+      const facilityCategory = request.query.get('facility_category' || "");
+      const facilityType = request.query.get('facility_type' || "");
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+      const result = await FacilityController.getFacilityNaic(decodedToken, facilityCategory ? String(facilityCategory) : "",facilityType ?  String(facilityType) : "");
+       
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+    } catch (error) {
+        // Return error response
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+    }
+}
+
+  
 
     
       
@@ -233,7 +259,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -258,7 +284,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -278,7 +304,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -300,7 +326,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -320,7 +346,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -342,7 +368,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
     }
 
@@ -362,7 +388,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
       }
 
@@ -389,7 +415,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
     }
   
@@ -411,7 +437,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
     }
   
@@ -431,7 +457,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
     }
   
@@ -453,7 +479,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
     }
 
@@ -477,7 +503,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
   
@@ -499,7 +525,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
   
@@ -519,10 +545,11 @@ import { decodeToken } from "../helper/authantication";
   
           // Return success response
           return { body: responseBody };
-      } catch (error) {
+          } catch (error) {
+        
           // Return error response
-          return { status: 500, body: `${error.message}` };
-      }
+          return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+          }
   }
 
 
@@ -533,7 +560,9 @@ import { decodeToken } from "../helper/authantication";
 
         const colName = request.query.get('col_name') || 'id';
         const order = request.query.get('order') || 'ASC';
-        const status = request.query.get('status') || FACILITY_ID_SUBMISSION_STATUS.DRAFT;
+        const status = request.query.get('status') || "";
+        const searchPromt = request.query.get('search' || "");
+        const companyId = request.query.get('company_id' || "");
 
         // Fetch values from decoded token
         const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
@@ -541,7 +570,7 @@ import { decodeToken } from "../helper/authantication";
           const {offset, limit} = request.params
 
 
-          const result = await AdminFacilityController.getFacility(decodedToken, Number(offset), Number(limit), Number(status), String(colName), String(order));
+          const result = await AdminFacilityController.getFacility(decodedToken, Number(offset), Number(limit), Number(status), String(colName), String(order), searchPromt ? String(searchPromt): "", Number(companyId));
          
           // Prepare response body
           const responseBody = JSON.stringify(result);
@@ -550,7 +579,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -569,7 +598,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -588,7 +617,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -607,7 +636,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -629,7 +658,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -649,19 +678,21 @@ import { decodeToken } from "../helper/authantication";
       return { body: responseBody };
   } catch (error) {
       // Return error response
-      return { status: 500, body: `${error.message}` };
+       return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
   }
   }
-  
 
   export async function  adminDashboradStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
     try {
+
+      const companyId = request.query.get('company_id');
+      const facilityId = request.query.get('facility_id');
 
       // Fetch values from decoded token
       const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
         // Get all result
-        const result = await AdminFacilityController.getDashboardStats(decodedToken, request);
+        const result = await AdminFacilityController.getDashboardStats(decodedToken, request, Number(facilityId), Number(companyId));
        
         // Prepare response body
         const responseBody = JSON.stringify(result);
@@ -670,7 +701,7 @@ import { decodeToken } from "../helper/authantication";
         return { body: responseBody };
     } catch (error) {
         // Return error response
-        return { status: 500, body: `${error.message}` };
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
   }
   
@@ -690,7 +721,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
 
@@ -712,7 +743,7 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
   
@@ -732,9 +763,35 @@ import { decodeToken } from "../helper/authantication";
           return { body: responseBody };
       } catch (error) {
           // Return error response
-          return { status: 500, body: `${error.message}` };
+           return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
   }
+
+  export async function getFacilityDropDown(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      const companyId = request.query.get('company_id');
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+        const {offset, limit} = request.params
+
+
+        const result = await AdminFacilityController.getFacilityDropDown(decodedToken, Number(companyId));
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+    }
+}
+
+  
   
 
 
@@ -801,6 +858,15 @@ app.http("edit-facility-status", {
   authLevel: "anonymous",
   handler: editFacilityStatusById,
 });
+
+app.http("facility-naic", {
+  methods: ["GET"],
+  route: "facility-naic",
+  authLevel: "anonymous",
+  handler: getFacilityNaicCode,
+});
+
+
 
 // Facility Enerva
 
@@ -959,6 +1025,15 @@ app.http("admin-facility-statistics", {
   authLevel: "anonymous",
   handler: adminFacilityStatistics,
 });
+
+app.http("admin-facility-dropdown", {
+  methods: ["GET"],
+  route: "program/facility-dropdown",
+  authLevel: "anonymous",
+  handler: getFacilityDropDown,
+});
+
+
 
 // pA
 

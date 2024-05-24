@@ -1,12 +1,12 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../../utils/status";
 import { AdminFacilityService } from "./service";
-import { ResponseHandler } from '../../../utils/responseHandler';
+import { ResponseHandler } from '../../../utils/response-handler';
 import { Facility } from "../../../models/facility.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../../interfaces/baseline.interface";
-import { createSignedPDF } from "../../../helper/signDocument";
+import { createSignedPDF } from "../../../helper/signDocument.helper";
 import { IUserToken } from "../../../interfaces/usertoken.interface";
-import { creatSignDocumentUrlForUser } from "../../../helper/create-doc";
+import { creatSignDocumentUrlForUser } from "../../../helper/create-doc.helper";
 
 
 
@@ -20,9 +20,9 @@ export class AdminFacilityController {
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
-  static async  getFacility (decodedToken: IUserToken, offset:number, limit:number, status:number, colName:string, order:string): Promise<Facility[]> {
+  static async  getFacility (decodedToken: IUserToken, offset:number, limit:number, status:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
     try {
-      const result = await AdminFacilityService.getFacility(Object(decodedToken), offset, limit, status, colName, order);  
+      const result = await AdminFacilityService.getFacility(Object(decodedToken), offset, limit, status, colName, order, searchPromt, companyId);  
       return result
     } catch (error) {
       this.errorMessage = {
@@ -181,9 +181,9 @@ export class AdminFacilityController {
    * @returns {object[]} response_data - API Response Data
    */
   //  static async  getDashboardStats (event:HttpRequest): Promise<Facility[]> {
-    static async  getDashboardStats (decodedToken: IUserToken, event:HttpRequest): Promise<any> {
+    static async  getDashboardStats (decodedToken: IUserToken, event:HttpRequest, facilityId: number, companyId: number): Promise<any> {
     try {      
-      const result = await AdminFacilityService.getDashboardStats(Object(decodedToken));
+      const result = await AdminFacilityService.getDashboardStats(Object(decodedToken), Number(facilityId), Number(companyId));
       return result
     } catch (error) {
       this.errorMessage = {
@@ -207,6 +207,26 @@ export class AdminFacilityController {
       
       const requestData = await event.json(); 
       const result = await AdminFacilityService.signPaById(Object(decodedToken), Object(requestData) , Number(event.params.id));
+      return result
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  };
+
+
+   /**
+   * Get List Of created facility by the user.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+   static async  getFacilityDropDown (decodedToken: IUserToken, companyId:number): Promise<Facility[]> {
+    try {
+      const result = await AdminFacilityService.getFacilityDropDown(Object(decodedToken), companyId);  
       return result
     } catch (error) {
       this.errorMessage = {

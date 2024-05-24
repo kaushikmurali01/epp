@@ -1,11 +1,13 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { FacilityMeterService } from "./service";
 import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
 import { FacilityMeterDetail } from "../../models/facility_meter_details.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { IUserToken } from "../../interfaces/usertoken.interface";
+import { validatorApiResponse } from "../../helper/validator.handler";
+import { addMeterSchema, editMeterSchema } from "../../validator/validator.schema";
 
 
 
@@ -39,6 +41,7 @@ export class FacilityMeterController {
    */
  static async addNewMeter (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityMeterDetail[]> {
   try {
+    await validatorApiResponse(addMeterSchema, body);
     const result = await FacilityMeterService.createNewMeterInFacility(Object(decodedToken), body);
     return result
   } catch (error) {
@@ -60,6 +63,7 @@ export class FacilityMeterController {
    */
  static async editFacilityMeterDetailsById (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityMeterDetail[]> {
   try {
+    await validatorApiResponse(editMeterSchema, body);
     const result = await FacilityMeterService.editMeterDetails(Object(decodedToken), body, Number(event.params.id));
     return result
   } catch (error) {

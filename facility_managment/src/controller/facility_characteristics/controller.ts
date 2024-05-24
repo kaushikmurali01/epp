@@ -1,11 +1,13 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
 import { FacilityCharacteristicsService } from "./service";
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { Facility } from "../../models/facility.model";
 import { FacilityCharacteristics } from "../../models/facility_characteristics.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { IUserToken } from '../../interfaces/usertoken.interface';
+import { addFacilityCharSchema, editFacilityCharSchema } from "../../validator/validator.schema";
+import { validatorApiResponse } from "../../helper/validator.handler";
 
 
 
@@ -43,9 +45,12 @@ export class FacilityCharacteristicsController {
    */
   static async  addFacilityCharacteristics (decodedToken: IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityCharacteristics[]> {
     try {
+      await validatorApiResponse(addFacilityCharSchema, body);
       const result = await FacilityCharacteristicsService.addFacilityCharacteristics(Object(decodedToken), body);
       return result
     } catch (error) {
+      console.log(error,"wefwef");
+      
       this.errorMessage = {
         message: error,
         statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
@@ -63,6 +68,7 @@ export class FacilityCharacteristicsController {
    */
   static async  editFacilityDetailsById (decodedToken: IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityCharacteristics[]> {
     try {
+      await validatorApiResponse(editFacilityCharSchema, body);
       const result = await FacilityCharacteristicsService.editFacilityCharacteristics(Object(decodedToken), body, Number(event.params.id));
       return result
     } catch (error) {

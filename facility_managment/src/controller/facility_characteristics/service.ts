@@ -1,7 +1,7 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility_status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { FacilityCharacteristics } from '../../models/facility_characteristics.model';
 import { IBaseInterface } from '../../interfaces/baseline.interface';
@@ -75,10 +75,14 @@ export class FacilityCharacteristicsService {
       };
      
         const result = await FacilityCharacteristics.create(obj);
+
+        await Facility.update({facility_id_general_status:FACILITY_ID_GENERAL_STATUS.ENETR_FACILITY_DATA },{where:{id:body.facility_id}});
+
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       }
     } catch (error) {
-      throw error;
+      console.log(error,"wefojweif");
+      return ResponseHandler.getResponse(HTTP_STATUS_CODES.BAD_REQUEST, error, []);
     }
 
   }

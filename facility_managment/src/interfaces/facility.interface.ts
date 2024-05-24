@@ -16,7 +16,7 @@ export interface IFacilityAttributes {
     postal_code?: string | null;
     address?: string | null;
     sector?: string | null;
-    year_of_construction?: number | null;
+    year_of_construction?: Date | null;
     gross_floor_area?: string | null;
     number_of_storeys?: number | null;
     occupancy?: number | null;

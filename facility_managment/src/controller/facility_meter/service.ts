@@ -1,7 +1,7 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS, FACILITY_METER_TYPE, FACILITY_METER_TYPE_TEXT } from '../../utils/facility_status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS, FACILITY_METER_TYPE, FACILITY_METER_TYPE_TEXT } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { FacilityMeterDetail } from '../../models/facility_meter_details.model';
 import { IBaseInterface } from '../../interfaces/baseline.interface';
@@ -108,9 +108,9 @@ export class FacilityMeterService {
   static async getMeterStatistics(userToken: IUserToken, facilityId:number): Promise<FacilityMeterDetail[]> {
     try {
 
-      const totalElectricMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.ELECTRICITY}})
-      const totalWaterMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.WATER}})
-      const totalNGMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.NATURAL_GAS}})
+      const totalElectricMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.ELECTRICITY, facility_id: facilityId}})
+      const totalWaterMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.WATER, facility_id: facilityId}})
+      const totalNGMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.NATURAL_GAS, facility_id: facilityId}})
       const result = [
         {"Meter type": FACILITY_METER_TYPE_TEXT.ELECTRICITY, "Total meters": totalElectricMeter, "Current energy date": new Date()},
         {"Meter type": FACILITY_METER_TYPE_TEXT.WATER, "Total meters": totalWaterMeter, "Current energy date": new Date()},

@@ -1,8 +1,4 @@
 import * as Yup from "yup";
-import {
-  FACILITY_ID_GENERAL_STATUS,
-  FACILITY_ID_SUBMISSION_STATUS,
-} from "../utils/facility_status";
 
 export const cacilitySchema = Yup.object({
   facility_construction_status: Yup.string().required(),
@@ -21,22 +17,123 @@ export const cacilitySchema = Yup.object({
   postal_code: Yup.string().required(),
   address: Yup.string().required(),
   sector: Yup.string().required(),
-  year_of_construction: Yup.number().required(),
+  year_of_construction: Yup.date().nullable(),
   gross_floor_area: Yup.number().required(),
   number_of_storeys: Yup.number().required(),
   occupancy: Yup.string().required(),
   number_of_building: Yup.number().required(),
   company_id: Yup.string().required(),
-  // facility_id_general_status: Yup.number().oneOf(
-  //     Object.values(FACILITY_ID_GENERAL_STATUS)
-  //   ).required(),
-  // facility_id_submission_status:Yup.number().oneOf(
-  //     Object.values(FACILITY_ID_SUBMISSION_STATUS)
-  //   ).required(),
   ng_distribution_company: Yup.string().required(),
   ng_distribution_company_data_extraction: Yup.string().required(),
   longitude: Yup.number().required(),
   latitude: Yup.number().required(),
   facility_bas: Yup.string().required(),
   facility_bas_connectivity: Yup.string().required(),
+});
+
+
+
+export const addMeterSchema = Yup.object({
+  facility_id: Yup.number().required(),
+  meter_name: Yup.string().nullable(),
+  meter_type: Yup.number().nullable(),
+  meter_id: Yup.number().nullable(),
+  meter_active: Yup.date().nullable(),
+  meter_inactive: Yup.date().nullable(),
+  stil_in_use: Yup.boolean().nullable(),
+  is_rg_meter: Yup.boolean().nullable(),
+  meter_specification_url: Yup.string().nullable(),
+  purchased_from_the_grid: Yup.boolean().nullable(),
+});
+
+export const editMeterSchema = Yup.object({
+  meter_name: Yup.string().nullable(),
+  meter_type: Yup.number().nullable(),
+  meter_id: Yup.number().nullable(),
+  meter_active: Yup.date().nullable(),
+  meter_inactive: Yup.date().nullable(),
+  stil_in_use: Yup.boolean().nullable(),
+  is_rg_meter: Yup.boolean().nullable(),
+  meter_specification_url: Yup.string().nullable(),
+  purchased_from_the_grid: Yup.boolean().nullable(),
+});
+
+
+
+export const addFacilityCharSchema = Yup.object({
+  facility_id: Yup.number().required(),
+  operational_hours: Yup.string().nullable(),
+  year_of_construction: Yup.date().nullable(),
+  gross_floor_area: Yup.string().nullable(),
+  number_of_storeys: Yup.number().nullable(),
+  conditioned_gross_floor_area_including_common_area: Yup.string().nullable(),
+  unonditioned_gross_floor_area: Yup.string().nullable(),
+  unique_features_that_impact_energy_usage: Yup.boolean().nullable(),
+  unique_features_of_facility: Yup.string().nullable(),
+  space_cooling_fuel_source: Yup.string().nullable(),
+  space_cooling_technology: Yup.string().nullable(),
+  space_heating_fuel_source: Yup.string().nullable(),
+  water_heating_fuel_source: Yup.string().nullable(),
+  water_heating_technology: Yup.string().nullable(),
+  not_standard_hvac_equipment: Yup.string().nullable(),
+  space_cooling_technology_description: Yup.string().nullable(),
+  space_cooling_technology_age: Yup.number().nullable(),
+  space_cooling_technology_capacity: Yup.string().nullable(),
+  space_cooling_efficiency: Yup.string().nullable(),
+  space_heating_technology_description: Yup.string().nullable(),
+  space_heating_technology_age: Yup.number().nullable(),
+  space_heating_technology_capacity: Yup.string().nullable(),
+  space_heating_efficiency: Yup.string().nullable(),
+  water_heating_technology_description: Yup.string().nullable(),
+  water_heating_technology_age: Yup.number().nullable(),
+  water_heating_technology_capacity: Yup.string().nullable(),
+  water_heating_efficiency: Yup.string().nullable(),
+  maximum_number_of_occupants: Yup.number().nullable(),
+  average_number_of_occupants: Yup.number().nullable(),
+  year_round_or_seasonal: Yup.number().nullable(),
+  occupants_months_detail: Yup.string().nullable(),
+  is_lighting_controlled_for_occupancy: Yup.boolean().nullable(),
+  is_space_heating_controlled_for_occupancy: Yup.boolean().nullable(),
+  is_space_cooling_controlled_for_occupancy: Yup.boolean().nullable(),
+  facility_site_layout_media_url: Yup.string().nullable(),
+  facility_wall_assembly_and_ceiling_assembly_media_url: Yup.string().nullable(),
+});
+
+
+export const editFacilityCharSchema = Yup.object({
+  operational_hours: Yup.string().nullable(),
+  year_of_construction: Yup.date().nullable(),
+  gross_floor_area: Yup.string().nullable(),
+  number_of_storeys: Yup.number().nullable(),
+  conditioned_gross_floor_area_including_common_area: Yup.string().nullable(),
+  unonditioned_gross_floor_area: Yup.string().nullable(),
+  unique_features_that_impact_energy_usage: Yup.boolean().nullable(),
+  unique_features_of_facility: Yup.string().nullable(),
+  space_cooling_fuel_source: Yup.string().nullable(),
+  space_cooling_technology: Yup.string().nullable(),
+  space_heating_fuel_source: Yup.string().nullable(),
+  water_heating_fuel_source: Yup.string().nullable(),
+  water_heating_technology: Yup.string().nullable(),
+  not_standard_hvac_equipment: Yup.string().nullable(),
+  space_cooling_technology_description: Yup.string().nullable(),
+  space_cooling_technology_age: Yup.number().nullable(),
+  space_cooling_technology_capacity: Yup.string().nullable(),
+  space_cooling_efficiency: Yup.string().nullable(),
+  space_heating_technology_description: Yup.string().nullable(),
+  space_heating_technology_age: Yup.number().nullable(),
+  space_heating_technology_capacity: Yup.string().nullable(),
+  space_heating_efficiency: Yup.string().nullable(),
+  water_heating_technology_description: Yup.string().nullable(),
+  water_heating_technology_age: Yup.number().nullable(),
+  water_heating_technology_capacity: Yup.string().nullable(),
+  water_heating_efficiency: Yup.string().nullable(),
+  maximum_number_of_occupants: Yup.number().nullable(),
+  average_number_of_occupants: Yup.number().nullable(),
+  year_round_or_seasonal: Yup.number().nullable(),
+  occupants_months_detail: Yup.string().nullable(),
+  is_lighting_controlled_for_occupancy: Yup.boolean().nullable(),
+  is_space_heating_controlled_for_occupancy: Yup.boolean().nullable(),
+  is_space_cooling_controlled_for_occupancy: Yup.boolean().nullable(),
+  facility_site_layout_media_url: Yup.string().nullable(),
+  facility_wall_assembly_and_ceiling_assembly_media_url: Yup.string().nullable(),
 });

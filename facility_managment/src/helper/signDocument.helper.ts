@@ -35,6 +35,26 @@ export async function createSignedPDF(originalPdfBlobUrl: string, signatureImage
         color: rgb(0, 0, 0), // Black color
     });
 
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    const formatedDate =  `${year}-${month}-${day} ${hours}:${minutes}`;
+
+    lastPage.drawText(formatedDate, {
+        x: 60, // Adjust the x coordinate as needed
+        y: 10, // Adjust the y coordinate as needed
+        size: 10, // Adjust the font size as needed
+        color: rgb(0, 0, 0), // Black color
+    });
+
+
+
+   
+
     // Add the signature image to the last page, positioned at the right bottom
     lastPage.drawImage(signatureImage, {
         x: lastPage.getWidth() - signatureImageWidth - 50, // Adjust the x coordinate as needed

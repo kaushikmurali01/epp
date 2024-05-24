@@ -1,6 +1,6 @@
 import { HTTP_STATUS_CODES } from "../utils/status";
-import { uploadBlob } from "./azure-storage";
-import { createSignedPDF } from "./signDocument";
+import { uploadBlob } from "./azure-storage.helper";
+import { createSignedPDF } from "./signDocument.helper";
 const fs = require('fs');
 
 export async function creatSignDocumentUrlForUser(originalPdfPath:string, signatureImagePath:string, username:string, userrole:string): Promise<any> {

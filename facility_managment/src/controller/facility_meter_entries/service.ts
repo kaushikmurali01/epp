@@ -1,7 +1,7 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
-import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility_status';
+import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { FacilityMeterMonthlyEntries } from '../../models/facility_meter_monthly_entries';
 import { IBaseInterface } from '../../interfaces/baseline.interface';
@@ -44,8 +44,8 @@ export class FacilityMeterEntriesService {
             is_active: STATUS.IS_ACTIVE,
             created_by: userToken.id
         };
-        console.log(obj)
         const result = await FacilityMeterMonthlyEntries.create(obj);
+        await Facility.update({facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},{where:{id:body.facility_id}});
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
     
         

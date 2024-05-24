@@ -2,9 +2,9 @@ import { HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functio
 import * as jwt from 'jsonwebtoken';
 import { sequelize } from "../services/database";
 import { User } from "../models/user.model";
-import { Token } from "./toekn";
+import { Token } from "./toekn.helper";
 import { UserCompanyRole } from "../models/user-company-role";
-import { ResponseHandler } from "../utils/responseHandler";
+import { ResponseHandler } from "../utils/response-handler";
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../utils/status";
 
 // Middleware to decode JWT token

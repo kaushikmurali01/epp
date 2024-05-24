@@ -23,7 +23,7 @@ class Facility extends Model<IFacilityAttributes, FacilityCreationAttributes> im
     public postal_code !: string;
     public address !: string;
     public sector !: string;
-    public year_of_construction !: number;
+    public year_of_construction !: Date;
     public gross_floor_area !: string;
     public number_of_storeys !: number;
     public occupancy !: number;
@@ -150,7 +150,7 @@ Facility.init(
             type: DataTypes.STRING(255),
         },
         year_of_construction: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.DATE,
         },
         gross_floor_area: {
             type: DataTypes.STRING(255),

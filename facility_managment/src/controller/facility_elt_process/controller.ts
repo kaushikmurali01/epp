@@ -1,14 +1,14 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
 import { ResponseHandler } from '../../utils/response-handler';
-import { FacilityMeterEntriesService } from "./service";
 import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { IUserToken } from "../../interfaces/usertoken.interface";
+import { FacilityEtlService } from "./service";
 
 
 
-export class FacilityMeterEntriesController {
+export class FacilityEtlController {
   static errorMessage: { message: string; statusCode: number; };
 
  /**
@@ -17,9 +17,9 @@ export class FacilityMeterEntriesController {
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
- static async  getFacilityMetersEntries (decodedToken:IUserToken, offset:number, limit:number, colName:string, order:string, facilityMeterId:number): Promise<FacilityMeterMonthlyEntries[]> {
+ static async  getFacilityMetersMonthlyEntries (decodedToken:IUserToken, offset:number, limit:number, colName:string, order:string, facilityId:number): Promise<FacilityMeterMonthlyEntries[]> {
   try {
-    const result = await FacilityMeterEntriesService.getFacilityMeterEntriesListing(Object(decodedToken), offset, limit, colName, order, facilityMeterId);  
+    const result = await FacilityEtlService.getFacilityMeterMonthlyEntriesListing(Object(decodedToken), offset, limit, colName, order, facilityId);  
     return result
   } catch (error) {
     this.errorMessage = {
@@ -31,14 +31,14 @@ export class FacilityMeterEntriesController {
 };
 
  /**
-   * Post add new meter entry by the user in facility.
+   * Get List Of meter entry by Id of facility by the user.
    * @returns {number} response_code - API Response Code
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
- static async addNewEntry (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityMeterMonthlyEntries[]> {
+ static async  getFacilityMetersMonthlyEntryById (decodedToken:IUserToken, event:HttpRequest): Promise<FacilityMeterMonthlyEntries[]> {
   try {
-    const result = await FacilityMeterEntriesService.createNewMeterEntry(Object(decodedToken), body);
+    const result = await FacilityEtlService.getFacilityMeterMonthlyEntryById(Object(decodedToken),  Number(event.params.id));  
     return result
   } catch (error) {
     this.errorMessage = {
@@ -48,18 +48,16 @@ export class FacilityMeterEntriesController {
     throw this.errorMessage;
   }
 };
-
 
  /**
-   * Patch edit facility meter entry detail by the user.
-   * @param {number} event.params.facilityId - Facility Id.
+   * Get List Of meter entry of facility by the user.
    * @returns {number} response_code - API Response Code
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
- static async editFacilityMeterEntryById (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityMeterMonthlyEntries[]> {
+ static async  getFacilityMetersHourlyEntries (decodedToken:IUserToken, offset:number, limit:number, colName:string, order:string, facilityId:number): Promise<FacilityMeterMonthlyEntries[]> {
   try {
-    const result = await FacilityMeterEntriesService.editMeterDetails(Object(decodedToken), body, Number(event.params.id)); 
+    const result = await FacilityEtlService.getFacilityMeterHourlyEntriesListing(Object(decodedToken), offset, limit, colName, order, facilityId);  
     return result
   } catch (error) {
     this.errorMessage = {
@@ -69,25 +67,35 @@ export class FacilityMeterEntriesController {
     throw this.errorMessage;
   }
 };
+
+ /**
+   * Get List Of meter entry by Id of facility by the user.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+ static async  getFacilityMetersHourlyEntryById (decodedToken:IUserToken, event:HttpRequest): Promise<FacilityMeterMonthlyEntries[]> {
+  try {
+    const result = await FacilityEtlService.getFacilityMeterHourlyEntryById(Object(decodedToken),  Number(event.params.id));
+    return result
+  } catch (error) {
+    this.errorMessage = {
+      message: error,
+      statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+    };
+    throw this.errorMessage;
+  }
+};
+
+
+
+
  
 
 
-  /**
-   * Delete facility meter entry by the user.
-   * @returns {number} response_code - API Response Code
-   * @returns {string} response_message - API Response Message
-   * @returns {object[]} response_data - API Response Data
-   */
-  static async deleteFacilityMeterEntry (decodedToken:IUserToken, event:HttpRequest): Promise<FacilityMeterMonthlyEntries[]> {
-    try {
-      const result = await FacilityMeterEntriesService.removeMeter(Object(decodedToken), Number(event.params.id));
-      return result
-    } catch (error) {
-      this.errorMessage = {
-        message: error,
-        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
-      };
-      throw this.errorMessage;
-    }
-  };
+
+
+
+
+
 }

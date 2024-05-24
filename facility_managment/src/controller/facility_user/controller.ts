@@ -1,10 +1,10 @@
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
 import { FacilityService } from "./service";
-import { ResponseHandler } from '../../utils/responseHandler';
+import { ResponseHandler } from '../../utils/response-handler';
 import { Facility } from "../../models/facility.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
-import { decodeToken } from "../../helper/authantication";
+import { decodeToken } from "../../helper/authantication.helper";
 import { IUserToken } from "../../interfaces/usertoken.interface";
 
 
@@ -18,9 +18,9 @@ export class FacilityController {
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
-  static async  getFacility (decodedToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string): Promise<Facility[]> {
+  static async  getFacility (decodedToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
     try {
-      const result = await FacilityService.getFacility(Object(decodedToken), offset, limit, colName, order, searchPromt);  
+      const result = await FacilityService.getFacility(Object(decodedToken), offset, limit, colName, order, searchPromt, companyId);  
       return result
     } catch (error) {
       this.errorMessage = {
@@ -123,7 +123,6 @@ export class FacilityController {
    */
   static async  submitForApproval (decodedToken: IUserToken, event:HttpRequest): Promise<Facility[]> {
     try {
-      const decodedToken = {};
       const result = await FacilityService.submitForapprovalByUser(Object(decodedToken), Number(event.params.id));
       return result
     } catch (error) {
@@ -168,6 +167,26 @@ export class FacilityController {
     try {
       const requestData = await event.json(); 
       const result = await FacilityService.editStatusOfFacility(Object(decodedToken), Object(requestData) , Number(event.params.id));
+      return result
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  };
+
+
+   /**
+   * User facility naic code.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+   static async  getFacilityNaic (decodedToken: IUserToken, facilityCategory:string, facilityType:string): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getFacilityNaicCode(Object(decodedToken), facilityCategory, facilityType );
       return result
     } catch (error) {
       this.errorMessage = {
