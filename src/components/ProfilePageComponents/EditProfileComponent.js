@@ -62,7 +62,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues, userProfil
               </Grid>
 
               <Grid item xs={12} sm={4}>
-                <InputField name="website" label="Website URL*" type="text" />
+                <InputField name="website" label="Website URL" type="text" />
               </Grid>
             </Grid>
 
@@ -70,7 +70,7 @@ const EditProfileComponent = ({tabStyle, handleSubmit, initialValues, userProfil
               <Grid item xs={12} sm={4}>
                 <InputField
                   name="unit_number"
-                  label="Unit number*"
+                  label="Unit number"
                   type="text"
                 />
               </Grid>

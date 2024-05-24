@@ -19,18 +19,15 @@ const AdminSummary = () => {
     >
       <Grid container>
         <Grid item>
-          <Box
+          <Typography
             sx={{
-              cursor: "default",
-              borderRadius: "2rem",
-              background: "#EBEBEB",
-              border: "1px solid #D0D0D0",
-              textWrap: "nowrap",
-              padding: "0.375rem 1rem",
+              color: "#696969",
+              fontWeight: "bold",
+              fontSize: "14px",
             }}
           >
-            <Typography variant="h6">Summary</Typography>
-          </Box>
+            Summary
+          </Typography>
         </Grid>
         <Grid container mt={3}>
           <Box

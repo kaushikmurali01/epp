@@ -72,8 +72,8 @@ export const SPACE_HEATING_ARRAY = [
   { value: "furnance", label: "Furnance" },
   { value: "radiator", label: "Radiator" },
   {
-    value: "baseboard_heating",
-    label: "Baseboard heating",
+    value: "baseboard",
+    label: "Baseboard",
   },
   {
     value: "ground_source_heat_pump",

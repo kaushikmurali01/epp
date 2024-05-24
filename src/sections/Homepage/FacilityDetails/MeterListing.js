@@ -143,7 +143,11 @@ const MeterListing = ({
     {
       Header: "Actions",
       accessor: (item) => (
-        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+        <Box
+          display="flex"
+          onClick={(e) => e.stopPropagation()}
+          justifyContent="flex-end"
+        >
           <Button
             disableRipple
             style={{

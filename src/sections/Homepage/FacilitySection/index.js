@@ -277,6 +277,7 @@ const Facility = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: userCompanyId,
     };
     const formSubmit = (values) => {
       dispatch(assignFacilities(values)).then(() => {
