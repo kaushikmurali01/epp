@@ -38,7 +38,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             // Return error response
              return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
-    }
+  }
 
   export async function  getFacilityById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
         try {
@@ -58,7 +58,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             // Return error response
              return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
-    }
+  }
 
   export async function  editFacilityDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
@@ -77,7 +77,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             // Return error response
              return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
-    }
+  }
 
   export async function  removeFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
@@ -96,7 +96,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             // Return error response
              return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
-    }
+  }
 
   export async function  createNewFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
         try {
@@ -117,7 +117,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             // Return error response
              return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
         }
-    }
+  }
 
   export async function postUploadAnyFile(
         request: HttpRequest,
@@ -157,7 +157,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
             sasTokenUrl
           }
         };
-    }
+  }
 
   export async function  submitForApprovalByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
       try {
@@ -176,7 +176,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
           // Return error response
            return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
       }
-    }
+  }
 
   export async function  getCurrentStatusByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
     try {
@@ -195,7 +195,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
         // Return error response
          return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
-    }
+  }
 
   export async function  editFacilityStatusById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
       try {
@@ -237,7 +237,52 @@ import { HTTP_STATUS_CODES } from "../utils/status";
         // Return error response
          return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
     }
-}
+  }
+
+  export async function getDownloadedCsvFacilities(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+      // Fetch params
+      const colName = request.query.get('col_name') || 'id';
+      const order = request.query.get('order') || 'ASC';
+      const searchPromt = request.query.get('search' || "");
+      const companyId = request.query.get('company_id' || "");
+      const {offset, limit} = request.params
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+      const result = await FacilityController.getDownloadedCsvFacilities(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt): "", Number(companyId));
+       
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+    } catch (error) {
+        // Return error response
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+    }
+  }
+
+  export async function  getDonwloadedCsvFacilityById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
+    try {
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+        
+        // Get facility by Id
+
+        const result = await FacilityController.getDonwloadedCsvFacilityById(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+    }
+  }
 
   
 
@@ -864,6 +909,20 @@ app.http("facility-naic", {
   route: "facility-naic",
   authLevel: "anonymous",
   handler: getFacilityNaicCode,
+});
+
+app.http(`csv-download-facilities`, {
+  methods: ["GET"],
+  route: "csv-facilities/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getDownloadedCsvFacilities,
+});
+
+app.http("csv-download-facility", {
+  methods: ["GET"],
+  route: "csv-facility/{id}",
+  authLevel: "anonymous",
+  handler: getDonwloadedCsvFacilityById,
 });
 
 

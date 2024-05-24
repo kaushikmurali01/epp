@@ -11,6 +11,7 @@ import { EmailContent, adminDetails } from '../../utils/email-content';
 import { User } from '../../models/user.model';
 import { Company } from '../../models/company.model';
 import { Email } from '../../helper/email-sender.helper';
+import { saveCsvToFile } from '../../helper/download-csv-from-json.helper';
 
 
 export class FacilityService {
@@ -78,6 +79,7 @@ export class FacilityService {
   static async getFacilityById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
     try {
       const result = await Facility.findOne({where:{id:facilityId, is_active: STATUS.IS_ACTIVE}})
+      
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
       
@@ -305,6 +307,83 @@ export class FacilityService {
       throw error;
       
     }
+  }
+
+  static async downloadFacilities(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
+
+    try {
+    let result;
+    if(userToken && (userToken.type === userType.ADMIN || userToken.type === userType.SUPER_ADMIN)){
+      result = await Facility.findAll({
+        where: {
+            company_id: companyId,
+            is_active: STATUS.IS_ACTIVE,
+            [Op.or]: [
+                { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+                { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+                { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+                { city: { [Op.iLike]: `%${searchPromt}%` } },
+                { country: { [Op.iLike]: `%${searchPromt}%` } }
+            ]
+        },
+        offset: offset,
+        limit: limit,
+        order: [[colName, order]],
+        raw: true
+    });  
+    }else{
+      result = await Facility.findAll({
+      where: {
+          company_id: companyId,
+          created_by: userToken.id,
+          is_active: STATUS.IS_ACTIVE,
+          [Op.or]: [
+              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { city: { [Op.iLike]: `%${searchPromt}%` } },
+              { country: { [Op.iLike]: `%${searchPromt}%` } }
+          ]
+      },
+      offset: offset,
+      limit: limit,
+      order: [[colName, order]],
+      raw: true
+  });  
+
+    }
+
+
+  if(result){
+    const csvUrl = await saveCsvToFile(result, "facilitiesData")
+    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, csvUrl);
+    return resp;
+  }else{
+    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
+    return resp;
+  }
+   
+      
+    } catch (error) {
+      throw error;
+      
+    }
+    
+  }
+
+  static async downloadFacilityById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+    try {
+      const result = await Facility.findOne({where:{id:facilityId, is_active: STATUS.IS_ACTIVE}})
+      const csvUrl = await saveCsvToFile([result.dataValues], "facilityData")
+      
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, csvUrl);
+      return resp;
+      
+    } catch (error) {
+      throw error;
+      
+    }
+   
   }
 
   

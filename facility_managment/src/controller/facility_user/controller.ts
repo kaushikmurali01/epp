@@ -198,6 +198,46 @@ export class FacilityController {
   };
 
 
+    /**
+   * Download List Of created facilities CSV by the user.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+    static async  getDownloadedCsvFacilities (decodedToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
+      try {
+        const result = await FacilityService.downloadFacilities(Object(decodedToken), offset, limit, colName, order, searchPromt, companyId);  
+        return result
+      } catch (error) {
+        this.errorMessage = {
+          message: error,
+          statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+        };
+        throw this.errorMessage;
+      }
+    };
+  
+  
+    /**
+     * Download facility csv by ID.
+     * @param {number} event.params.facilityId - Facility Id.
+     * @returns {number} response_code - API Response Code
+     * @returns {string} response_message - API Response Message
+     * @returns {object[]} response_data - API Response Data
+     */
+    static async  getDonwloadedCsvFacilityById (decodedToken: IUserToken, event:HttpRequest): Promise<Facility[]> {
+      try {
+        const result = await FacilityService.downloadFacilityById(Object(decodedToken), Number(event.params.id));
+        return result
+      } catch (error) {
+        this.errorMessage = {
+          message: error,
+          statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+        };
+        throw this.errorMessage;
+      }
+    };
+
  
 
 

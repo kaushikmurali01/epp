@@ -4,7 +4,7 @@ import { ResponseHandler } from '../../../utils/response-handler';
 import { Facility } from "../../../models/facility.model";
 import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../../interfaces/baseline.interface";
-import { createSignedPDF } from "../../../helper/signDocument.helper";
+import { createSignedPDF } from "../../../helper/sign-document.helper";
 import { IUserToken } from "../../../interfaces/usertoken.interface";
 import { creatSignDocumentUrlForUser } from "../../../helper/create-doc.helper";
 
