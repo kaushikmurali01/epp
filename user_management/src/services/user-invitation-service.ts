@@ -42,6 +42,73 @@ class UserInvitationService {
   static async sendInvitation(details: any, resp: any): Promise<Response> {
     try {
         const { email, company, type } = details;
+
+        
+        await UserInvitation.create(details);
+
+        // Return the response immediately
+        const response = { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+
+        // Process the email sending in the background
+        (async () => {
+            try {
+                const template = await EmailTemplate.getEmailTemplate();
+                const existingUser = await User.findOne({ where: { email } });
+
+                let admin_name = "";
+                let company_name = "";
+                if (company && type == 2) {
+                    const companyAdmin = await CompanyService.getCompanyAdmin(company);
+                    admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
+                    company_name = companyAdmin?.dataValues?.company_name;
+                }
+
+                const landing_page = process.env.LANDING_PAGE;
+                const sendEmail = async (content: string, subject: string, recipient: string) => {
+                    const emailContent = template.replace('#content#', content)
+                                                .replace('#name#', existingUser?.first_name || "")
+                                                .replace('#admin#', admin_name || "Enerva Admin")
+                                                .replace('#heading#', '')
+                                                .replace('#link#', landing_page)
+                                                .replace('#company#', company_name || "Enerva")
+                                                .replace('#isDisplay#', 'block');
+                    await Email.send(recipient, subject, emailContent);
+                }
+
+                if (existingUser) {
+                    await sendEmail(EmailContent.invitationEmailForExistingUser.content, EmailContent.invitationEmailForExistingUser.title, email);
+                    if (type == 2) {
+                        const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
+                                                                                .replace('#user#', `${existingUser.first_name} ${existingUser.last_name}`)
+                                                                                .replace('#admin#', resp?.first_name || admin_name)
+                                                                                .replace('#company#', company_name);
+                        await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
+                    }
+                } else {
+                    await sendEmail(EmailContent.invitationEmailForExistingUser.content, EmailContent.invitationEmailForExistingUser.title, email);
+                    if (type == 2) {
+                        const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
+                                                                                .replace('#user#', `User with email ${email}`)
+                                                                                .replace('#admin#', resp?.first_name || admin_name)
+                                                                                .replace('#company#', company_name);
+                        await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
+                    }
+                }
+            } catch (error) {
+                // Log the error for further inspection
+                console.error('Error sending email:', error);
+            }
+        })();
+
+        return response;
+    } catch (error) {
+        return { status: 500, message: error.message };
+    }
+}
+
+  static async sendInvitation3(details: any, resp: any): Promise<Response> {
+    try {
+        const { email, company, type } = details;
         await UserInvitation.create(details);
         const template = await EmailTemplate.getEmailTemplate();
         const existingUser = await User.findOne({ where: { email } });
@@ -287,7 +354,7 @@ if(detail.company_id) {
 // else {
 //   await User.update({ type: 1 }, { where: { id: detail.user_id} });
 // }
-
+(async () => {
 // Send Email Starts
  let template =  await EmailTemplate.getEmailTemplate();
  const company:any = await CompanyService.GetCompanyById(detail.company_id);
@@ -310,6 +377,7 @@ const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#
                                                                           .replace('#heading#', '');
                 await CompanyService.GetAdminsAndSendEmails(detail.company_id, EmailContent.invitationAcceptForAdmins.title, adminContent);
 // Send Email to Admins
+})();
 }
 
 

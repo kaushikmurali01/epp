@@ -93,7 +93,7 @@ export class EmailTemplate {
                       <tr style="background: #FFF;">
                         <td style="width: 1.5rem;"></td>
                         <td>
-                          <img src="https://eppdevstorage.blob.core.windows.net/assets/logo.svg" alt="mailer-bg" class="mail-bg" style="display: block; max-width:100%" />
+                          <img src="https://eppdevstorage.blob.core.windows.net/assets/new_logo.png" alt="mailer-bg" class="mail-bg" style="display: block; max-width:100%" />
                         </td>
                         <td style="width: 1.5rem;"></td>
                       </tr>
@@ -222,7 +222,7 @@ export class EmailTemplate {
                             </tr>
                             <tr>
                               <td>
-                                <img src="https://eppdevstorage.blob.core.windows.net/assets/logo.svg" alt="mailer-bg" class="mail-bg"
+                                <img src="https://eppdevstorage.blob.core.windows.net/assets/new_logo.png" alt="mailer-bg" class="mail-bg"
                                   style="display: block; max-width:17%" />
                               </td>
                             </tr>

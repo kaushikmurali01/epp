@@ -389,31 +389,44 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
     try {
         const userId: any = request.params.id;
         const type: any = request.params.type;
+        const company_id: any = request.params.company_id;
         if (type == 1) {
+            if(company_id == 0) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
-
-            if(request.params.company_id) {
+            } else if(company_id > 0) {
+                await UserCompanyRole.destroy({
+                    where: {
+                        user_id: userId,
+                        company_id:company_id
+                    }
+                });
+            (async () => {
             // Send Email For User Starts
       let template =  await EmailTemplate.getEmailTemplate();
       const company:any = await CompanyService.GetCompanyById(request.params.company_id);
       const userDet:any = await UserService.getUserDataById(userId);
+      context.log("userDetail", userDet);
+      if(userDet) {
       let emailContent =  template
                 .replace('#content#', EmailContent.deleteDetailForUser.content)
-                .replace('#name#', userDet.first_name)
+                .replace('#name#', userDet?.first_name)
                 .replace('#company#', company.company_name)
                 .replace('#isDisplay#', 'none')
                 .replace('#heading#', '');
-       Email.send(userDet.email, EmailContent.deleteDetailForUser.title, emailContent);
+                context.log("userDetailEMail", userDet?.email);
+      await Email.send(userDet?.email, EmailContent.deleteDetailForUser.title, emailContent);
     // Send Email For User Ends
 
     // Send Email to Admins
     const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.deleteDetailForAdmins.content)
-    .replace('#user#', `${userDet.first_name}`)
+    .replace('#user#', `${userDet?.first_name}`)
     .replace('#company#', company.company_name)
     .replace('#isDisplay#', 'none')
     .replace('#heading#', '');
     await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
     // Send Email to Admins
+      }
+    })();
             }
 
         } else if (type == 2) {
@@ -464,6 +477,32 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         requestData.type = 2;
         console.log('requestData', requestData);
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+        // Validation starts
+        const email = requestData.email;
+        const company = requestData.company;
+        // Check if the email already exists in the company
+        const existingInvitation = await UserInvitation.findOne({ where: { email, company } });
+
+        if (existingInvitation) {
+             return {body: JSON.stringify({ status: 409, message: `This email is already invited.` })};
+        } else {
+            const user = await User.findOne({ where: { email } });
+            if(user) {
+            const existingUserCompanyRole = await UserCompanyRole.findOne({
+                where: {
+                  user_id: user.id,
+                  company_id: company
+                },
+              });
+              if (existingUserCompanyRole) {
+                //return { status: 409, body: `User is already part of company.` };
+                return {body: JSON.stringify({ status: 409, message: `User is already part of company.` })};
+              }
+            }
+        }
+        // Validation ends
+
         const data = await UserInvitationService.sendInvitation(requestData, resp);
 
         // Prepare response body
@@ -747,7 +786,7 @@ app.http('GetUserDetailById', {
 app.http('DeleteUser', {
     methods: ['DELETE'],
     authLevel: 'anonymous',
-    route: 'users/{id}/{type}',
+    route: 'users/{id}/{type}/{company_id}',
     handler: DeleteUser
 });
 

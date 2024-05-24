@@ -216,7 +216,7 @@ class CompanyService {
         const superAdminEmail = adminData.superAdmin.email;
         let contentAdmin = body.replace("#name#", adminData.superAdmin.name);
         // Sending email to the superadmin
-        Email.send(superAdminEmail, title, contentAdmin);
+        await Email.send(superAdminEmail, title, contentAdmin);
 
         // Extracting subadmin emails and sending emails
         adminData.subAdmins.forEach(subAdmin => {
