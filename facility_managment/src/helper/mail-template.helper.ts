@@ -137,24 +137,6 @@ export async function getEmailTemplate() {
                             <td style="height: 1.25rem"></td>
                           </tr>
                           <tr>
-                            <td class="common-para" style="
-                                  color: #5b5b5b;
-                                  font-size: 0.75rem;
-                                  font-weight: 400;
-                                  text-transform: lowercase;
-                                ">
-                             
-                                <a href="https://eppstgstorage.z14.web.core.windows.net/" style="
-                                  text-decoration: none;
-                                  color: #fff;
-                                  font-size: 0.875rem;
-                                  font-style: normal;
-                                  font-weight: 400;
-                                ">View application</a>
-                             
-                            </td>
-                          </tr>
-                          <tr>
                             <td style="height: 1.25rem"></td>
                           </tr>
                           <tr>
@@ -164,7 +146,8 @@ export async function getEmailTemplate() {
                                   font-weight: 400;
                                 ">
                               If you believe you received this email in error, please contact Customer Service for
-                              assistance.<br />
+                              assistance.<br/>
+                              <br/>
                               <a href="#"
                                 style="text-decoration: none; color: #2C77E9; font-size: 0.875rem; font-weight: 600; font-style: italic;">dummycontactsupport@enerva.com</a>
                             </td>

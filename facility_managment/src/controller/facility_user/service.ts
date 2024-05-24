@@ -215,6 +215,8 @@ export class FacilityService {
   
   static async submitForapprovalByUser(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
     try {
+
+     
       
       const obj = {
         facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.SUBMITTED,
@@ -228,12 +230,10 @@ export class FacilityService {
         const companyDetails = await Company.findOne({ where: { id: facilityDetails.company_id}})
         const userDetails = await User.findOne({ where: { id: userToken.id } });
         
-        
-
         if(userDetails.email){
           const template = await getEmailTemplate();
 
-          const usernameRegEx = new RegExp('#userName#', "g");
+          // const usernameRegEx = new RegExp('#userName#', "g");
  
           let userEmailContent =  template
             .replace('#heading#', EmailContent.facilityCreatedForUser.title)
@@ -246,7 +246,7 @@ export class FacilityService {
             .replace('#heading#', EmailContent.facilityCreatedForAdmin.title)
             .replace('#content#', EmailContent.facilityCreatedForAdmin.content)
             .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
-            .replace(usernameRegEx, userDetails ? userDetails?.first_name : 'User')
+            // .replace(usernameRegEx, userDetails ? userDetails?.first_name : 'User')
             .replace('#facilityName#', facilityDetails?.facility_name ? facilityDetails.facility_name : "Facility")
             .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
   

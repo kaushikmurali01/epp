@@ -323,8 +323,7 @@ export class AdminFacilityService {
       if(olResult.is_signed === true){
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.paAlreadySigned, []);
       return resp;
-      }else if(olResult.is_signed === false)
-      {
+      }else if(olResult.is_signed === false) {
         if(body.signed_doc){
           const obj = {
             signed_doc: body.signed_doc,
@@ -336,9 +335,7 @@ export class AdminFacilityService {
             
           const result = await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
 
-          if(result){
-
-        
+          if(result){        
             const userDetails = await User.findOne({ where: { id: userToken.id } });
             const companyDetails = await Company.findOne({ where: { id: companyId}})
             const bindingAuthorityDetails = {
@@ -360,14 +357,14 @@ export class AdminFacilityService {
                 .replace('#heading#', EmailContent.paCreatedForAdmin.title)
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
                 .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
-                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
       
               Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
               Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
-    
+
             }
            
     
@@ -418,7 +415,7 @@ export class AdminFacilityService {
                 .replace('#heading#', EmailContent.paCreatedForAdmin.title)
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
                 .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
-                .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+                // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
