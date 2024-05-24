@@ -164,9 +164,9 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
 
   company_name: Yup.string().required("Company Name is required"),
-  website: Yup.string().required("Website URL is required"),
+  // website: Yup.string().required("Website URL is required"),
 
-  unit_number: Yup.string().required("Unit Number is required"),
+  // unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
   street_name: Yup.string().required("Street Name is required"),
 
