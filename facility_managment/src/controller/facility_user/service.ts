@@ -12,68 +12,81 @@ import { User } from '../../models/user.model';
 import { Company } from '../../models/company.model';
 import { Email } from '../../helper/email-sender.helper';
 import { saveCsvToFile } from '../../helper/download-csv-from-json.helper';
+import { UserCompanyRole } from '../../models/user-company-role';
+import { UserResourceFacilityPermission } from '../../models/user-resource-permission';
 
 
 export class FacilityService {
 
 
-  static async getFacility(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
+  static async getFacility(userToken: IUserToken | any, offset: number, limit: number, colName: string, order: string, searchPromt: string, companyId: number): Promise<Facility[]> {
 
     try {
-    let result;
-    if(userToken && (userToken.type === userType.ADMIN || userToken.type === userType.SUPER_ADMIN)){
-      result = await Facility.findAndCountAll({
-        where: {
+      let findRole: any = {}
+      if (companyId) {
+        findRole = await UserCompanyRole.findOne({ where: { user_id: userToken.id, company_id: companyId } })
+      } else {
+        findRole.role_id = userToken.type
+      }
+      let result;
+      if (userToken && (findRole.role_id === userType.ADMIN || findRole.role_id === userType.SUPER_ADMIN)) {
+        result = await Facility.findAndCountAll({
+          where: {
             company_id: companyId,
             is_active: STATUS.IS_ACTIVE,
             [Op.or]: [
-                { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-                { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-                { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-                { city: { [Op.iLike]: `%${searchPromt}%` } },
-                { country: { [Op.iLike]: `%${searchPromt}%` } }
-            ]
-        },
-        offset: offset,
-        limit: limit,
-        order: [[colName, order]]
-    });  
-    }else{
-      result = await Facility.findAndCountAll({
-      where: {
-          company_id: companyId,
-          created_by: userToken.id,
-          is_active: STATUS.IS_ACTIVE,
-          [Op.or]: [
               { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
               { street_number: { [Op.iLike]: `%${searchPromt}%` } },
               { street_name: { [Op.iLike]: `%${searchPromt}%` } },
               { city: { [Op.iLike]: `%${searchPromt}%` } },
               { country: { [Op.iLike]: `%${searchPromt}%` } }
-          ]
-      },
-      offset: offset,
-      limit: limit,
-      order: [[colName, order]]
-  });  
+            ]
+          },
+          offset: offset,
+          limit: limit,
+          order: [[colName, order]]
+        });
+      } else {
+        let findPermission = await UserResourceFacilityPermission.findAll({ where: { company_id: companyId, email: userToken?.email } })
+        let allFacilityId = findPermission.map(ele => ele.facility_id)
+        result = await Facility.findAndCountAll({
+          where: {
+            company_id: companyId,
+            // created_by: userToken.id,
+            is_active: STATUS.IS_ACTIVE,
+            id: {
+              [Op.in]: allFacilityId,
+            },
+            [Op.or]: [
+              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+              { city: { [Op.iLike]: `%${searchPromt}%` } },
+              { country: { [Op.iLike]: `%${searchPromt}%` } }
+            ]
+          },
+          offset: offset,
+          limit: limit,
+          order: [[colName, order]]
+        });
 
-    }
+      }
 
 
-  if(result){
-    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
-    return resp;
-  }else{
-    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
-    return resp;
-  }
-   
-      
+      if (result) {
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
+        return resp;
+      }
+
+
     } catch (error) {
       throw error;
-      
+
     }
-    
+
   }
 
   static async getFacilityById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
@@ -312,61 +325,46 @@ export class FacilityService {
   static async downloadFacilities(userToken: IUserToken, offset:number, limit:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
 
     try {
-    let result;
-    if(userToken && (userToken.type === userType.ADMIN || userToken.type === userType.SUPER_ADMIN)){
-      result = await Facility.findAll({
-        where: {
-            company_id: companyId,
-            is_active: STATUS.IS_ACTIVE,
-            [Op.or]: [
-                { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-                { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-                { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-                { city: { [Op.iLike]: `%${searchPromt}%` } },
-                { country: { [Op.iLike]: `%${searchPromt}%` } }
-            ]
-        },
+      const whereClause: any = {
+        is_active: STATUS.IS_ACTIVE,
+        [Op.or]: [
+          { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+          { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+          { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+          { city: { [Op.iLike]: `%${searchPromt}%` } },
+          { country: { [Op.iLike]: `%${searchPromt}%` } },
+        ],
+      };
+
+      if (companyId) {
+        whereClause.company_id = companyId;
+      }
+
+      const result = await Facility.findAll({
+        where: whereClause,
         offset: offset,
         limit: limit,
         order: [[colName, order]],
-        raw: true
-    });  
-    }else{
-      result = await Facility.findAll({
-      where: {
-          company_id: companyId,
-          created_by: userToken.id,
-          is_active: STATUS.IS_ACTIVE,
-          [Op.or]: [
-              { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-              { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-              { city: { [Op.iLike]: `%${searchPromt}%` } },
-              { country: { [Op.iLike]: `%${searchPromt}%` } }
-          ]
-      },
-      offset: offset,
-      limit: limit,
-      order: [[colName, order]],
-      raw: true
-  });  
+      });
 
-    }
-
-
-  if(result){
-    const csvUrl = await saveCsvToFile(result, "facilitiesData")
-    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, csvUrl);
-    return resp;
-  }else{
-    const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
-    return resp;
-  }
-   
-      
+      if (result) {
+        const csvUrl = await saveCsvToFile(result, "facilitiesData");
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          csvUrl
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
     } catch (error) {
       throw error;
-      
     }
     
   }
