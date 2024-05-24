@@ -11,6 +11,7 @@ import ParticipantAgreementContent from "./ParticipantAgreementContent";
 import ESignature from "components/ESignature";
 import { FileUploader } from "react-drag-drop-files";
 import UploadIcon from "@mui/icons-material/Upload";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const fileTypes = ["PDF"];
 
@@ -66,7 +67,7 @@ const ParticipantAgreement = (props) => {
             fontWeight: "400",
           }}
         >
-          {isSigned ? 'You have successfully signed the participant agreement.' : 'Read and sign the participant agreement to enrol your facilities.'}
+          {isSigned ? 'You have successfully signed the participant agreement.' : 'Read and sign the Participant Agreement to enrol your facilities. If you are going to e-sign, please scroll to the bottom to activate the click to e-sign button'}
         </Typography>
       </Box>
       <ParticipantAgreementContent onScrollToBottom={handleScrollToBottom} pdfUrl={pdfUrl} />
@@ -107,6 +108,7 @@ const ParticipantAgreement = (props) => {
             label=" Click to Upload Signed Document or drag and drop"
             maxSize={25}
             multiple={false}
+            onTypeError={(error) => NotificationsToast({ message: "Signed PA file should only be in PDF format.", type: "error" })}
             children={
               <Button
                 sx={{

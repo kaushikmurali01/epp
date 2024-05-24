@@ -31,6 +31,7 @@ import SelectBox from 'components/FormBuilder/Select';
 import { Form, Formik } from 'formik';
 import ButtonWrapper from 'components/FormBuilder/Button';
 import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
+import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
 
 const settings = ["Profile", "Logout"];
 
@@ -57,7 +58,7 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
             For role: <b>{invitationData?.role}</b>
           </Typography>
           <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
-            Invitation date: <b>{invitationData?.createdAt}</b>
+            Invitation date: <b>{parseUTCDateToLocalDate(invitationData?.createdAt) || ""}</b>
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>

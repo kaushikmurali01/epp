@@ -33,7 +33,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
 
-    const handleAlignment = (event, index) => {
+    const handleAlignment = (event, index,permission) => {
+        if(permission.is_active === 0){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
             const permissionId = permissions[index].permission_id;
@@ -79,7 +84,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             if(handelAccept){
                 NotificationsToast({ message: 'You have accepted the request and updated the invite permissions.', type: "success" });
             } else {
-                NotificationsToast({ message: 'The Invite has been updated', type: "success" });
+                NotificationsToast({ message: 'The permission has been updated successfully', type: "success" });
             }
             
         })
@@ -175,9 +180,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                         NotificationsToast({ message: 'The Invite has been sent', type: "success" });
                         setVisibleInvitePage(false);
                         handleAPISuccessCallBack();
-                    } else if (response.data.status === 500) {
+                    } else if (response.data.status === 500 || response.data.status === 409) {
                         NotificationsToast({ message: response.data.message, type: "error" });
                     }
+                    //  else if (response.data.status === 409) {
+                    //     NotificationsToast({ message: response.data.message, type: "error" });
+                    // }
                 })
                 .catch((error) => {
                     console.log(error, 'error')
@@ -364,14 +372,14 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
                                                 value={isPermissionSelected ? 'yes' : 'no'}
                                                 exclusive
-                                                onChange={(event) => handleAlignment(event, index)}
+                                                onChange={(event) => handleAlignment(event, index, permission)}
                                                 aria-label="text alignment"
                                                 key={permission.permission_id}
                                             >
-                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
