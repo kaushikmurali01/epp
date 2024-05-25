@@ -45,15 +45,21 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted by",
-      accessor: "submitted_by",
+      accessor: (item) => (
+        <>{item?.submitted_by?.first_name}</>
+      ),
     },
     {
       Header: "Company name",
-      accessor: "company_name",
+      accessor: (item) => (
+        <>{item?.company?.company_name}</>
+      ),
     },
     {
       Header: "Business email",
-      accessor: "email",
+      accessor: (item) => (
+        <>{item?.submitted_by?.email}</>
+      ),
     },
     {
       Header: "Status",
