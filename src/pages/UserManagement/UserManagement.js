@@ -17,6 +17,7 @@ import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
 import { useSelector } from 'react-redux';
 import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
+import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -153,6 +154,7 @@ const UserManagement = () => {
         onSubmit={formSubmit}
       >
         <Form >
+         {getAllCompanyList && <AutoCompleteInputField companies={getAllCompanyList} /> } 
           <Stack sx={{ marginBottom: '1rem' }}>
             {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
             <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
