@@ -6,31 +6,31 @@ export const NUMBER_OF_ARRAY_2 = [
 export const FLOOR_AREA_ARRAY = [
   {
     label: "Less than 10000",
-    value: "1",
+    value: 1,
   },
   {
     label: "10000 - 49999",
-    value: "2",
+    value: 2,
   },
   {
     label: "50000 - 99999",
-    value: "3",
+    value: 3,
   },
   {
     label: "100000 - 249999",
-    value: "4",
+    value: 4,
   },
   {
     label: "250000 - 499999",
-    value: "5",
+    value: 5,
   },
   {
     label: "500000 - 999999",
-    value: "6",
+    value: 6,
   },
   {
     label: "Greater that 1000000",
-    value: "7",
+    value: 7,
   },
 ];
 

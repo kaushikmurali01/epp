@@ -163,10 +163,10 @@ export const addFacilityCharacteristic = (characteristic) => {
       const response = await POST_REQUEST(endpoint, characteristic);
       const data = response.data;
       dispatch(addFacilityCharacteristicSuccess(data));
-      NotificationsToast({
-        message: "Facility details added successfully!",
-        type: "success",
-      });
+      // NotificationsToast({
+      //   message: "Facility details added successfully!",
+      //   type: "success",
+      // });
     } catch (error) {
       console.error(error);
       dispatch(addFacilityCharacteristicFailure(error));
@@ -206,10 +206,10 @@ export const updateFacilityCharacteristic = (facilityId, characteristic) => {
       const response = await PATCH_REQUEST(endpointWithParams, characteristic);
       const data = response.data;
       dispatch(updateFacilityCharacteristicSuccess(data));
-      NotificationsToast({
-        message: "Facility details updated successfully!",
-        type: "success",
-      });
+      // NotificationsToast({
+      //   message: "Facility details updated successfully!",
+      //   type: "success",
+      // });
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityCharacteristicFailure(error));
