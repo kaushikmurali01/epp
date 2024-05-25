@@ -15,9 +15,6 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
             return { status: 401, body: 'Unauthorized: Token missing' };
         }else{
         const decodedToken:any = await Token.getDataFromToken(String(token.replace("Bearer ", "")));
-
-        console.log(decodedToken,"111111");
-        
         const user = await User.findOne({
             where: {
                 email: decodedToken.emails[0]
@@ -26,8 +23,6 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
         });
 
         if(user){
-
-            console.log(user,"ppppppp");
             // Make decoded token available for subsequent functions
             req['decodedToken'] = user.dataValues;
     

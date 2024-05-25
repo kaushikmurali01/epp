@@ -8,7 +8,6 @@ export async function creatSignDocumentUrlForUser(originalPdfPath:string, signat
       // const originalPdfPath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
       // const signatureImagePath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/img"
 
-      console.log(originalPdfPath, signatureImagePath, username, "PPPPPP");
       
       const result = await createSignedPDF(originalPdfPath, signatureImagePath, username, userrole)
       .then(async modifiedPdfBytes => {
@@ -26,7 +25,6 @@ export async function creatSignDocumentUrlForUser(originalPdfPath:string, signat
             Buffer.from(modifiedPdfBytes)
           );
 
-          console.log(fileUrl);
           
 
           console.log('Signed PDF saved successfully as signed_document.pdf');

@@ -12,6 +12,7 @@ import { FACILITY_ID_SUBMISSION_STATUS } from "../utils/facility-status";
 import { object } from "yup";
 import { decodeToken } from "../helper/authantication.helper";
 import { HTTP_STATUS_CODES } from "../utils/status";
+import { FacilityMeterHourlyEntriesController } from "../controller/facility_hourly_entries/controller";
 
 // Facility User CRUD
 
@@ -285,9 +286,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
   }
 
   
-
-    
-      
+  
 // Facility Enerva
 
     export async function  approveFacilityDetails(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit> {
@@ -438,7 +437,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
       }
 
 
-    // Facility Meter Entries
+    // Facility Meter Monthly Entries
 
     export async function getFacilityMeterEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
       try {
@@ -528,6 +527,98 @@ import { HTTP_STATUS_CODES } from "../utils/status";
       }
     }
 
+ // Facility Meter Monthly Entries
+
+    export async function getFacilityMeterHourlyEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+      try {
+        const { offset, limit } = request.params;
+        const colName = request.query.get("col_name") || "id";
+        const order = request.query.get("order") || "ASC";
+        const facilityMeterId = request.query.get("facility_meter_detail_id");
+
+        // Fetch values from decoded token
+        const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+
+        const result = await FacilityMeterHourlyEntriesController.getFacilityMetersHourlyEntries(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityMeterId));
+     
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+      // Return error response
+       return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+      }
+  }
+
+    export async function  editFacilityMeterEntryHourlyDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+  try {
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+      
+      const requestData = await request.json(); 
+
+      // Get all result
+      const result = await FacilityMeterHourlyEntriesController.editFacilityMeterHourlyEntryById(decodedToken, request, Object(requestData));
+     
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+  } catch (error) {
+      // Return error response
+       return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+  }
+    }
+
+    export async function  removeFacilityMeterHourlyEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+  try {
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+      // Get all result
+      const result = await FacilityMeterHourlyEntriesController.deleteFacilityMeterHourlyEntry(decodedToken, request);
+     
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+  } catch (error) {
+      // Return error response
+       return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+  }
+    }
+
+    export async function  addNewMeterHourlyEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+try {
+
+  // Fetch values from decoded token
+  const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+      const requestData = await request.json(); 
+
+      // Get all result
+      const result = await FacilityMeterHourlyEntriesController.addNewHourlyEntry(decodedToken, request, Object(requestData));
+     
+      // Prepare response body
+      const responseBody = JSON.stringify(result);
+
+      // Return success response
+      return { body: responseBody };
+  } catch (error) {
+      // Return error response
+       return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+  }
+    }
+
+
+    
 
     // Facility Characteristics
 
@@ -991,7 +1082,6 @@ app.http(`facility-meter-entry-listing`, {
   handler: getFacilityMeterEntriesListing,
 });
 
-
 app.http("edit-facility-meter-entries", {
   methods: ["PATCH"],
   route: "facility-meter-entry/{id}",
@@ -1013,11 +1103,38 @@ app.http("facility-meter-entry", {
   handler:  addNewMeterEntry,
 });
 
+// Facility Meter Hourly entries
+
+app.http(`facility-meter-hourly-entry-listing`, {
+  methods: ["GET"],
+  route: "facility-meter-hourly-entries/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getFacilityMeterHourlyEntriesListing,
+});
+
+app.http("edit-facility-meter-hourly-entries", {
+  methods: ["PATCH"],
+  route: "facility-meter-hourly-entry/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityMeterEntryHourlyDetailsById
+});
+
+app.http("remove-facility-meter-hourly-entries", {
+  methods: ["DELETE"],
+  route: "facility-meter-hourly-entry/{id}",
+  authLevel: "anonymous",
+  handler: removeFacilityMeterHourlyEntry,
+});
+
+app.http("facility-meter-hourly-entry", {
+  methods: ["POST"],
+  route: "facility-meter-hourly-entry",
+  authLevel: "anonymous",
+  handler:  addNewMeterHourlyEntry,
+});
+
 
 // Facility Charateristicks
-
-
-
 app.http("facility-characteristics-details", {
   methods: ["GET"],
   route: "facility-characteristics/{id}",

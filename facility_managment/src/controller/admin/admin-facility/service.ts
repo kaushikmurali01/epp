@@ -273,14 +273,12 @@ export class AdminFacilityService {
       }
 
       if(facilityId){
-        console.log(facilityId, "243443s")
         whereClauseBasicFacility.id = facilityId;
         whereClauseBaselineApproval.id = facilityId;
         whereClauseendrolledFacility.id = facilityId;
       }
 
       if(companyId){
-        console.log(companyId, "erflknerf")
         whereClauseCompany.id = companyId;
         whereClauseForSignPa.company_id = companyId;
         whereClauseForPa.company_id = companyId;

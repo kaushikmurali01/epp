@@ -53,24 +53,11 @@ export class FacilityService {
           where: {
             company_id: companyId,
             is_active: STATUS.IS_ACTIVE,
-            // [Op.or]: [
-            //   {
-            //     id: {
-            //       [Op.in]: allFacilityId,
-            //     }
-            //   },
-            //   { created_by: userToken.id },
-            //   { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-            //   { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-            //   { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-            //   { city: { [Op.iLike]: `%${searchPromt}%` } },
-            //   { country: { [Op.iLike]: `%${searchPromt}%` } }
-            // ]
             [Op.and]: [
               {
                 [Op.or]: [
-                  { id: { [Op.in]: allFacilityId } },
-                  { created_by: userToken.id }
+                  { created_by: userToken.id },
+                  { id: { [Op.in]: allFacilityId } }
                 ]
               },
               {
@@ -88,10 +75,7 @@ export class FacilityService {
           limit: limit,
           order: [[colName, order]]
         });
-
       }
-
-
       if (result) {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
@@ -392,7 +376,6 @@ export class FacilityService {
     try {
       const result = await Facility.findOne({where:{id:facilityId, is_active: STATUS.IS_ACTIVE}})
       const csvUrl = await saveCsvToFile([result.dataValues], "facilityData")
-      
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, csvUrl);
       return resp;
       
