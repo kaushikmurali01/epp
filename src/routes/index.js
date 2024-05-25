@@ -56,7 +56,7 @@ const RoutesComp = () => {
       case 1:
         return (<EnervaRoutes />);
       case 3:
-        return (<IndividualUserRoutes />);
+        return (<IndividualUserRoutes userDetails={userDetails} userPermissions={userPermissions}/>);
     //   default:
     //     return <UnprotectedRouter />;
     }

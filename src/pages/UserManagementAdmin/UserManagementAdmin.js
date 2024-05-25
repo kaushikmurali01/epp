@@ -368,7 +368,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
             <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between', }} >
               <Grid item xs={12} md={6} >
                 <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management </Typography>
-                <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
+                {/* <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
               </Grid>
               <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
                 <FormGroup sx={{ minWidth: '14rem' }}>

@@ -187,7 +187,7 @@ const CompanyListing = () => {
     },
     headerText: "Alert",
     headerSubText:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      "",
     modalBodyContent: "",
     saveButtonAction: "",
   });
