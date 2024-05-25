@@ -388,7 +388,7 @@ const Facility = () => {
           <Button
             variant="contained"
             sx={{
-              padding: 0,
+              padding: '4px 8px',
               minWidth: "5rem!important",
               // bgcolor: "#2C77E9",
             }}
