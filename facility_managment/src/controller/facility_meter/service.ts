@@ -37,6 +37,7 @@ export class FacilityMeterService {
           stil_in_use: body.stil_in_use,
           is_rg_meter: body.is_rg_meter,
           meter_specification_url: body.meter_specification_url,
+          meter_spec_as_per_measurement: body.meter_spec_as_per_measurement,
           is_active: STATUS.IS_ACTIVE,
           created_by: userToken.id,
           purchased_from_the_grid: body.purchased_from_the_grid
@@ -61,6 +62,7 @@ export class FacilityMeterService {
         meter_inactive: body.meter_inactive,
         stil_in_use: body.stil_in_use,
         is_rg_meter: body.is_rg_meter,
+        meter_spec_as_per_measurement: body.meter_spec_as_per_measurement,
         meter_specification_url: body.meter_specification_url,
         is_active: STATUS.IS_ACTIVE,
         updated_by: userToken.id,

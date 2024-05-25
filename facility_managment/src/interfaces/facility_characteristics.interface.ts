@@ -19,6 +19,12 @@ export interface IFacilityCharacteristicsAttributes {
     space_cooling_technology_age?: number | null;
     space_cooling_technology_capacity?: string | null;
     space_cooling_efficiency?: string | null;
+    facility_electricity_service_size?: string | null;
+    facility_service_entrance_voltage?: string | null;
+    space_cooling_efficiency_unit?: string | null;
+    space_heating_efficiency_unit?: string | null;
+    water_heating_efficiency_unit?: string | null;
+    gross_floor_area_size_category?: number | null;
     space_heating_technology_description?: string | null;
     space_heating_technology_age?: number | null;
     space_heating_technology_capacity?: string | null;

@@ -8,6 +8,7 @@ export interface IFacilityMeterDetailAttributes {
     meter_inactive?: Date | null;
     stil_in_use?: boolean | null;
     is_rg_meter?: boolean | null;
+    meter_spec_as_per_measurement?: boolean | null
     meter_specification_url?: string | null;
     is_active?: number | null;
     created_at?: Date | null;

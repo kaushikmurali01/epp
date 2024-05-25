@@ -4,9 +4,9 @@ import { IFacilityCharacteristicsAttributes } from '../interfaces/facility_chara
 
 
 
-interface FacilityCharacteristicsCreationAttributes extends Optional<IFacilityCharacteristicsAttributes, 'id'> {}
+interface FacilityCharacteristicsCreationAttributes extends Optional<IFacilityCharacteristicsAttributes, 'id'> { }
 
-class FacilityCharacteristics extends Model<IFacilityCharacteristicsAttributes, FacilityCharacteristicsCreationAttributes> implements IFacilityCharacteristicsAttributes  {
+class FacilityCharacteristics extends Model<IFacilityCharacteristicsAttributes, FacilityCharacteristicsCreationAttributes> implements IFacilityCharacteristicsAttributes {
     public id!: number;
     public facility_id!: number;
     public operational_hours?: string | null;
@@ -31,6 +31,12 @@ class FacilityCharacteristics extends Model<IFacilityCharacteristicsAttributes, 
     public space_heating_technology_age?: number | null;
     public space_heating_technology_capacity?: string | null;
     public space_heating_efficiency?: string | null;
+    public facility_electricity_service_size?: string | null;
+    public facility_service_entrance_voltage?: string | null;
+    public space_cooling_efficiency_unit?: string | null;
+    public space_heating_efficiency_unit?: string | null;
+    public water_heating_efficiency_unit?: string | null;
+    public gross_floor_area_size_category?: number | null;
     public water_heating_technology_description?: string | null;
     public water_heating_technology_age?: number | null;
     public water_heating_technology_capacity?: string | null;
@@ -72,6 +78,30 @@ FacilityCharacteristics.init(
         },
         space_cooling_fuel_source: {
             type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        space_cooling_efficiency_unit: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        facility_service_entrance_voltage: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        space_heating_efficiency_unit: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        water_heating_efficiency_unit: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        facility_electricity_service_size: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        gross_floor_area_size_category: {
+            type: DataTypes.INTEGER,
             allowNull: true,
         },
         space_cooling_technology: {
@@ -206,6 +236,7 @@ FacilityCharacteristics.init(
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+
         conditioned_gross_floor_area_including_common_area: {
             type: DataTypes.STRING(255),
             allowNull: true,
@@ -222,7 +253,7 @@ FacilityCharacteristics.init(
             type: DataTypes.STRING(255),
             allowNull: true,
         }
-        
+
     },
     {
         sequelize,

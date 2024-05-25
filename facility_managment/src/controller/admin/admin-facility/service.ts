@@ -18,62 +18,79 @@ import { Email } from "../../../helper/email-sender.helper";
 export class AdminFacilityService {
 
 
-  static async getFacility(userToken: IUserToken, offset:number, limit:number, status:number, colName:string, order:string, searchPromt:string, companyId:number): Promise<Facility[]> {
+  static async getFacility(userToken: IUserToken, offset: number, limit: number, status: number, colName: string, order: string, searchPromt: string, companyId: number): Promise<Facility[]> {
     try {
-      const whereClause:any = {
+      const whereClause: any = {
         is_active: STATUS.IS_ACTIVE,
         [Op.or]: [
-            { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
-            { street_number: { [Op.iLike]: `%${searchPromt}%` } },
-            { street_name: { [Op.iLike]: `%${searchPromt}%` } },
-            { city: { [Op.iLike]: `%${searchPromt}%` } },
-            { country: { [Op.iLike]: `%${searchPromt}%` } }
+          { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
+          { street_number: { [Op.iLike]: `%${searchPromt}%` } },
+          { street_name: { [Op.iLike]: `%${searchPromt}%` } },
+          { city: { [Op.iLike]: `%${searchPromt}%` } },
+          { country: { [Op.iLike]: `%${searchPromt}%` } }
         ]
-    };
-    
-    if (companyId) {
-        whereClause.company_id = companyId;
-    }
+      };
 
-    if(status){
-      whereClause.facility_id_submission_status = status
-    }
-    
-    const result = await Facility.findAndCountAll({
+      if (companyId) {
+        whereClause.company_id = companyId;
+      }
+
+      if (status) {
+        whereClause.facility_id_submission_status = status
+      }
+      Facility.belongsTo(User, {
+        foreignKey: 'created_by',
+        as: 'submitted',
+      });
+      Facility.belongsTo(Company, {
+        foreignKey: 'company_id',
+        as: 'company',
+      });
+      const result = await Facility.findAndCountAll({
+        include: [{
+          model: User,
+          as: 'submitted',
+          attributes: ['id', 'first_name', 'email'],
+        },
+        {
+          model: Company,
+          as: 'company',
+          attributes: ['id', 'company_name'],
+        }],
         where: whereClause,
         offset: offset,
         limit: limit,
         order: [[colName, order]]
-    });
-    
-      if(result){
+      });
+
+      if (result) {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
-      }else{
+      } else {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
         return resp;
-      }   
-      
+      }
+
     } catch (error) {
       throw error;
-      
+
     }
-    
+
   }
 
-  static async getFacilityById(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+  static async getFacilityById(userToken: IUserToken, facilityId: number): Promise<Facility[]> {
     try {
-      const result = await Facility.findOne({where:{id:facilityId, is_active: STATUS.IS_ACTIVE}})
+      const result = await Facility.findOne({ where: { id: facilityId, is_active: STATUS.IS_ACTIVE } })
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error;
-      
+
     }
   }
 
-  static async createFacility(userToken: IUserToken, body:IBaseInterface): Promise<Facility[]> {
+  static async createFacility(userToken: IUserToken, body: IBaseInterface): Promise<Facility[]> {
     try {
       const obj = {
         facility_construction_status: body.facility_construction_status,
@@ -101,7 +118,7 @@ export class AdminFacilityService {
         facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
         facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
         ng_distribution_company: body.ng_distribution_company,
-        ng_distribution_company_data_extraction:body.ng_distribution_company_data_extraction,
+        ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
         longitude: body.longitude,
         latitude: body.latitude,
         facility_bas: body.facility_bas,
@@ -110,22 +127,22 @@ export class AdminFacilityService {
         is_active: STATUS.IS_ACTIVE,
         created_by: userToken.id,
         updated_by: userToken.id
-  
+
       };
-  
-      
-   
+
+
+
       const result = await Facility.create(obj);
       return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
-  
-      
+
+
     } catch (error) {
       throw error;
     }
 
   }
 
-  static async editFacility(userToken: IUserToken, body:IBaseInterface, facilityId:number): Promise<Facility[]> {
+  static async editFacility(userToken: IUserToken, body: IBaseInterface, facilityId: number): Promise<Facility[]> {
     try {
       const obj = {
         facility_construction_status: body.facility_construction_status,
@@ -153,7 +170,7 @@ export class AdminFacilityService {
         facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
         facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
         ng_distribution_company: body.ng_distribution_company,
-        ng_distribution_company_data_extraction:body.ng_distribution_company_data_extraction,
+        ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
         longitude: body.longitude,
         latitude: body.latitude,
         facility_bas: body.facility_bas,
@@ -161,124 +178,124 @@ export class AdminFacilityService {
         is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
         is_active: STATUS.IS_ACTIVE,
         updated_by: userToken.id,
-        updated_at : new Date()
-        };
-      const result = await Facility.update(obj,{where:{id:facilityId}})
-  
-      
+        updated_at: new Date()
+      };
+      const result = await Facility.update(obj, { where: { id: facilityId } })
+
+
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error;
     }
-   
+
   }
 
-  static async deleteFacility(userToken: IUserToken, facilityId:number): Promise<Facility[]> {
+  static async deleteFacility(userToken: IUserToken, facilityId: number): Promise<Facility[]> {
     try {
-      const result = await Facility.update({is_active:STATUS.IS_DELETED} ,{where:{id:facilityId}})
+      const result = await Facility.update({ is_active: STATUS.IS_DELETED }, { where: { id: facilityId } })
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error
-      
+
     }
-   
+
   }
 
   static async getFacilityStats(userToken: IUserToken): Promise<Facility[]> {
     try {
-      
-      const allFacility = await Facility.count({where:{is_active:STATUS.IS_ACTIVE}})
-      const allCompany = await Company.count()
-      const allPaSigned = await ParticipantAgreement.count({where:{is_signed:true}})
-      const allFacilityWithBaselineApproval = await Facility.count({where:{is_active:STATUS.IS_ACTIVE, facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED}})
-      const allFacilityEndrolled = await Facility.count({where:{is_active:STATUS.IS_ACTIVE, facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.APPROVED}})
-      const allFacilityInY1 = await Facility.count({where:{is_active:STATUS.IS_ACTIVE}})
-      const allFacilityInY2 = await Facility.count({where:{is_active:STATUS.IS_ACTIVE}})
-      const allFacilityInY3 = await Facility.count({where:{is_active:STATUS.IS_ACTIVE}})
 
-      const result = { all_pa_signed: allPaSigned, all_company: allCompany, all_facility: allFacility, all_acility_with_baseline_approval: allFacilityWithBaselineApproval,  all_facility_endrolled: allFacilityEndrolled, all_facility_in_y1: allFacilityInY1, all_facility_in_y2: allFacilityInY2, all_facility_in_y3: allFacilityInY3}
+      const allFacility = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE } })
+      const allCompany = await Company.count()
+      const allPaSigned = await ParticipantAgreement.count({ where: { is_signed: true } })
+      const allFacilityWithBaselineApproval = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE, facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED } })
+      const allFacilityEndrolled = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE, facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.APPROVED } })
+      const allFacilityInY1 = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE } })
+      const allFacilityInY2 = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE } })
+      const allFacilityInY3 = await Facility.count({ where: { is_active: STATUS.IS_ACTIVE } })
+
+      const result = { all_pa_signed: allPaSigned, all_company: allCompany, all_facility: allFacility, all_acility_with_baseline_approval: allFacilityWithBaselineApproval, all_facility_endrolled: allFacilityEndrolled, all_facility_in_y1: allFacilityInY1, all_facility_in_y2: allFacilityInY2, all_facility_in_y3: allFacilityInY3 }
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
     } catch (error) {
       throw error;
-      
+
     }
   }
 
-  static async getPaData(userToken: IUserToken, body:IBaseInterface): Promise<Facility[]> {
+  static async getPaData(userToken: IUserToken, body: IBaseInterface): Promise<Facility[]> {
     try {
 
-      const oldData = await ParticipantAgreement.findOne({where:{company_id: body.company_id, is_active:STATUS.IS_ACTIVE}})
+      const oldData = await ParticipantAgreement.findOne({ where: { company_id: body.company_id, is_active: STATUS.IS_ACTIVE } })
       let result;
 
-      if(oldData){
+      if (oldData) {
 
-      result = oldData;
+        result = oldData;
 
-      }else{
+      } else {
         const obj = {
 
-          company_id : body.company_id,
-          unsigned_doc : body.unsigned_doc,
-          is_signed : false,
-          signed_on : new Date(),
-          is_active : STATUS.IS_ACTIVE
+          company_id: body.company_id,
+          unsigned_doc: body.unsigned_doc,
+          is_signed: false,
+          signed_on: new Date(),
+          is_active: STATUS.IS_ACTIVE
         }
-        
-         result = await ParticipantAgreement.create(obj)
-       
+
+        result = await ParticipantAgreement.create(obj)
+
 
       }
-      
+
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
     } catch (error) {
       throw error;
-      
+
     }
   }
 
-  static async getDashboardStats(userToken: IUserToken, facilityId: number, companyId:number): Promise<Facility[]> {
+  static async getDashboardStats(userToken: IUserToken, facilityId: number, companyId: number): Promise<Facility[]> {
     try {
 
-      const whereClauseForPa:any = {
-        is_active:STATUS.IS_ACTIVE
+      const whereClauseForPa: any = {
+        is_active: STATUS.IS_ACTIVE
       }
 
-      const whereClauseForSignPa:any = {
-        is_active:STATUS.IS_ACTIVE
+      const whereClauseForSignPa: any = {
+        is_active: STATUS.IS_ACTIVE
       }
 
-      const whereClauseCompany:any = {
-        is_active:STATUS.IS_ACTIVE
+      const whereClauseCompany: any = {
+        is_active: STATUS.IS_ACTIVE
       }
-      const whereClauseBasicFacility:any = {
-        is_active:STATUS.IS_ACTIVE
-      }
-
-      const whereClauseendrolledFacility:any = {
-        is_active:STATUS.IS_ACTIVE, 
-        facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.APPROVED
+      const whereClauseBasicFacility: any = {
+        is_active: STATUS.IS_ACTIVE
       }
 
-      const whereClauseBaselineApproval:any = {
-        is_active:STATUS.IS_ACTIVE,
-        facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED
+      const whereClauseendrolledFacility: any = {
+        is_active: STATUS.IS_ACTIVE,
+        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.APPROVED
       }
 
-      if(facilityId){
+      const whereClauseBaselineApproval: any = {
+        is_active: STATUS.IS_ACTIVE,
+        facility_id_submission_status: FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED
+      }
+
+      if (facilityId) {
         whereClauseBasicFacility.id = facilityId;
         whereClauseBaselineApproval.id = facilityId;
         whereClauseendrolledFacility.id = facilityId;
       }
 
-      if(companyId){
+      if (companyId) {
         whereClauseCompany.id = companyId;
         whereClauseForSignPa.company_id = companyId;
         whereClauseForPa.company_id = companyId;
@@ -290,145 +307,145 @@ export class AdminFacilityService {
       }
 
 
-      
-      const allFacility = await Facility.count({where:whereClauseBasicFacility})
-      const allUser = await User.count()
-      const allCompany = await Company.count({where:whereClauseCompany})
-      const allPaSigned = await ParticipantAgreement.count({where:whereClauseForSignPa})
-      const allpa = await ParticipantAgreement.count({where:whereClauseForPa})
-      const allFacilityWithBaselineApproval = await Facility.count({where:whereClauseBaselineApproval})
-      const allFacilityEndrolled = await Facility.count({where:whereClauseendrolledFacility})
-      const allFacilityInY1 = await Facility.count({where:whereClauseBasicFacility})
-      const allFacilityInY2 = await Facility.count({where:whereClauseBasicFacility})
-      const allFacilityInY3 = await Facility.count({where:whereClauseBasicFacility})
 
-      const result = { all_user: allUser,  all_facility: allFacility, all_company: allCompany, all_pa_signed: allPaSigned, all_pa: allpa, all_acility_with_baseline_approval: allFacilityWithBaselineApproval,  all_facility_endrolled: allFacilityEndrolled, all_facility_in_y1: allFacilityInY1, all_facility_in_y2: allFacilityInY2, all_facility_in_y3: allFacilityInY3}
+      const allFacility = await Facility.count({ where: whereClauseBasicFacility })
+      const allUser = await User.count()
+      const allCompany = await Company.count({ where: whereClauseCompany })
+      const allPaSigned = await ParticipantAgreement.count({ where: whereClauseForSignPa })
+      const allpa = await ParticipantAgreement.count({ where: whereClauseForPa })
+      const allFacilityWithBaselineApproval = await Facility.count({ where: whereClauseBaselineApproval })
+      const allFacilityEndrolled = await Facility.count({ where: whereClauseendrolledFacility })
+      const allFacilityInY1 = await Facility.count({ where: whereClauseBasicFacility })
+      const allFacilityInY2 = await Facility.count({ where: whereClauseBasicFacility })
+      const allFacilityInY3 = await Facility.count({ where: whereClauseBasicFacility })
+
+      const result = { all_user: allUser, all_facility: allFacility, all_company: allCompany, all_pa_signed: allPaSigned, all_pa: allpa, all_acility_with_baseline_approval: allFacilityWithBaselineApproval, all_facility_endrolled: allFacilityEndrolled, all_facility_in_y1: allFacilityInY1, all_facility_in_y2: allFacilityInY2, all_facility_in_y3: allFacilityInY3 }
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
-     
+
       return resp;
     } catch (error) {
       throw error;
-      
+
     }
   }
 
-  static async signPaById(userToken: IUserToken, body:IBaseInterface, companyId:number): Promise<Facility[]> {
+  static async signPaById(userToken: IUserToken, body: IBaseInterface, companyId: number): Promise<Facility[]> {
     try {
 
-      const olResult = await ParticipantAgreement.findOne({where:{company_id:companyId}})
+      const olResult = await ParticipantAgreement.findOne({ where: { company_id: companyId } })
 
-      if(olResult.is_signed === true){
+      if (olResult.is_signed === true) {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.paAlreadySigned, []);
-      return resp;
-      }else if(olResult.is_signed === false) {
-        if(body.signed_doc){
+        return resp;
+      } else if (olResult.is_signed === false) {
+        if (body.signed_doc) {
           const obj = {
             signed_doc: body.signed_doc,
             is_signed: true,
             is_active: STATUS.IS_ACTIVE,
             updated_by: userToken.id,
-            updated_at : new Date()
-            };
-            
-          const result = await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+            updated_at: new Date()
+          };
 
-          if(result){        
+          const result = await ParticipantAgreement.update(obj, { where: { company_id: companyId } })
+
+          if (result) {
             const userDetails = await User.findOne({ where: { id: userToken.id } });
-            const companyDetails = await Company.findOne({ where: { id: companyId}})
+            const companyDetails = await Company.findOne({ where: { id: companyId } })
             const bindingAuthorityDetails = {
               name: "Enerva Test Binding Authority"
             }
             const version = 'V1'
-    
-            if(userDetails.email){
+
+            if (userDetails.email) {
               const template = await getEmailTemplate();
-              let userEmailContent =  template
+              let userEmailContent = template
                 .replace('#heading#', EmailContent.paCreatedForCompany.title)
                 .replace('#content#', EmailContent.paCreatedForCompany.content)
                 .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
-              
-              let adminEmailContent =  template
+
+              let adminEmailContent = template
                 .replace('#heading#', EmailContent.paCreatedForAdmin.title)
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
-                .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
+                .replace('#adminName#', adminDetails.adminName ? adminDetails.adminName : 'Admin')
                 // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
-      
+
               Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
               Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
 
             }
-           
-    
+
+
           }
-          
+
           const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
           return resp;
-  
-        }else if(body.upload_sign && body.username){
-  
+
+        } else if (body.upload_sign && body.username) {
+
           const originalPdfPath = body.unsigned_doc ? body.unsigned_doc : "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
           const signatureImagePath = body.upload_sign
-    
+
           const signURL = await creatSignDocumentUrlForUser(originalPdfPath, signatureImagePath, body.username, body.rolename)
-  
+
           const obj = {
             upload_sign: body.upload_sign,
             signed_doc: signURL,
             is_signed: true,
             is_active: STATUS.IS_ACTIVE,
             updated_by: userToken.id,
-            updated_at : new Date()
-            };
-    
-          const result =  await ParticipantAgreement.update(obj,{where:{company_id:companyId}})
+            updated_at: new Date()
+          };
 
-          if(result){
+          const result = await ParticipantAgreement.update(obj, { where: { company_id: companyId } })
 
-        
+          if (result) {
+
+
             const userDetails = await User.findOne({ where: { id: userToken.id } });
-            const companyDetails = await Company.findOne({ where: { id: companyId}})
+            const companyDetails = await Company.findOne({ where: { id: companyId } })
             const bindingAuthorityDetails = {
               name: "Enerva Test Binding Authority"
             }
             const version = 'V1'
-    
-            if(userDetails.email){
+
+            if (userDetails.email) {
               const template = await getEmailTemplate();
-              let userEmailContent =  template
+              let userEmailContent = template
                 .replace('#heading#', EmailContent.paCreatedForCompany.title)
                 .replace('#content#', EmailContent.paCreatedForCompany.content)
                 .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
-              
-              let adminEmailContent =  template
+
+              let adminEmailContent = template
                 .replace('#heading#', EmailContent.paCreatedForAdmin.title)
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
-                .replace('#adminName#',  adminDetails.adminName ? adminDetails.adminName: 'Admin')
+                .replace('#adminName#', adminDetails.adminName ? adminDetails.adminName : 'Admin')
                 // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
                 .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
-      
+
               Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
               Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
-    
+
             }
-           
-    
+
+
           }
 
           const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
           return resp;
-        }else{
+        } else {
           const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.CONFLICT_ERROR, RESPONSE_MESSAGES.invalidJson, []);
           return resp;
         }
@@ -436,58 +453,58 @@ export class AdminFacilityService {
     } catch (error) {
       throw error;
     }
-   
+
   }
 
-  static async getPaDataById(userToken: IUserToken, conpanyId:number): Promise<Facility[]> {
+  static async getPaDataById(userToken: IUserToken, conpanyId: number): Promise<Facility[]> {
     try {
-      const result = await ParticipantAgreement.findOne({where:{company_id:conpanyId}})
-      
+      const result = await ParticipantAgreement.findOne({ where: { company_id: conpanyId } })
+
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error;
     }
-   
+
   }
 
 
-  static async getFacilityDropDown(userToken: IUserToken, companyId:number): Promise<Facility[]> {
+  static async getFacilityDropDown(userToken: IUserToken, companyId: number): Promise<Facility[]> {
     try {
-      let whereClause:any = {
+      let whereClause: any = {
         is_active: STATUS.IS_ACTIVE
-    };
-    
-    if (companyId) {
+      };
+
+      if (companyId) {
         whereClause.company_id = companyId;
-    }
-    
-    const result = await Facility.findAll({
+      }
+
+      const result = await Facility.findAll({
         attributes: ['id', 'facility_name'],
         where: whereClause
-    });
-    
-     
-      if(result){
+      });
+
+
+      if (result) {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
-      }else{
+      } else {
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.noContent, []);
         return resp;
-      }   
-      
+      }
+
     } catch (error) {
       throw error;
-      
+
     }
-    
+
   }
 
 
-  
-  
 
-  
-  
+
+
+
+
 }

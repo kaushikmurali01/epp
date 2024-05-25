@@ -3,7 +3,7 @@ import { sequelize } from '../utils/database';
 import { IFacilityMeterDetailAttributes } from '../interfaces/facility_meter_detail.interface';
 
 
-interface FacilityMeterDetailCreationAttributes extends Optional<IFacilityMeterDetailAttributes, 'id'> {}
+interface FacilityMeterDetailCreationAttributes extends Optional<IFacilityMeterDetailAttributes, 'id'> { }
 
 class FacilityMeterDetail extends Model<IFacilityMeterDetailAttributes, FacilityMeterDetailCreationAttributes> implements IFacilityMeterDetailAttributes {
     public id!: number;
@@ -15,6 +15,7 @@ class FacilityMeterDetail extends Model<IFacilityMeterDetailAttributes, Facility
     public meter_inactive?: Date | null;
     public stil_in_use?: boolean | null;
     public is_rg_meter?: boolean | null;
+    public meter_spec_as_per_measurement?: boolean | null;
     public meter_specification_url?: string | null;
     public is_active?: number | null;
     public created_at?: Date | null;
@@ -59,6 +60,10 @@ FacilityMeterDetail.init(
             type: DataTypes.BOOLEAN,
             allowNull: true,
         },
+        meter_spec_as_per_measurement: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+        },
         is_rg_meter: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
@@ -96,7 +101,7 @@ FacilityMeterDetail.init(
         sequelize,
         tableName: 'facility_meter_detail',
         timestamps: true,
-        underscored: true, 
+        underscored: true,
         modelName: 'FacilityMeterDetail',
     }
 );
