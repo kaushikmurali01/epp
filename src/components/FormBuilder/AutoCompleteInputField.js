@@ -52,7 +52,7 @@ const AutoCompleteInputField = ({ companies }) => {
         onClose={handleClose}
         options={filteredCompanies.map((company) => company.company_name)}
         getOptionLabel={(option) => option || ''}
-        getOptionKey={filteredCompanies.map((company) => company.id)}
+        // getOptionKey={filteredCompanies.map((company) => company.id)}
         getOptionSelected={(option, value) => option.id === value.id}
         // noOptionsText="No search results"
         renderInput={(params) => (
