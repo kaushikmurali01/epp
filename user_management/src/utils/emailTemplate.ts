@@ -135,18 +135,8 @@ export class EmailTemplate {
                               ">
                             <caption style="visibility: hidden"></caption>
                             <th style="visibility: hidden"></th>
-                            <tr>
-                              <td class="common-para subject-heading" style="
-                                    color: #2E813E;
-                                    font-size: 1.125rem;
-                                    font-weight: 600;
-                                  ">
-                                #heading#
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="height: 1.25rem"></td>
-                            </tr>
+                           
+                           
                             <tr>
                               <td class="common-para" style="
                                     color: #242424;
@@ -156,6 +146,9 @@ export class EmailTemplate {
                                 Hello #name#,
                               </td>
                             </tr>
+                            <tr>
+                            <td style="height: 1.25rem"></td>
+                          </tr>
                             <tr>
                               <td class="common-para" style="
                                     color: #242424;
@@ -169,13 +162,12 @@ export class EmailTemplate {
                             <tr>
                               <td style="height: 1.25rem"></td>
                             </tr>
-                            <tr>
+                            <tr style="display: #isDisplay#">
                               <td class="common-para" style="
                                     color: #5b5b5b;
                                     font-size: 0.75rem;
                                     font-weight: 400;
                                     text-transform: lowercase;
-                                    display: #isDisplay#
                                   ">
                                   <a href="https://eppstgstorage.z14.web.core.windows.net/" target="_blank" style="
                                     border: transparent;
@@ -190,7 +182,7 @@ export class EmailTemplate {
                                   ">View application</a>
                               </td>
                             </tr>
-                            <tr>
+                            <tr style="display: #isDisplay#">
                               <td style="height: 1.25rem"></td>
                             </tr>
                             <tr>

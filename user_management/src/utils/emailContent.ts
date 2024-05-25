@@ -2,6 +2,7 @@ export const EmailContent = {
    invitationEmailForExistingUser: {
       content: `You have been invited to join #company# by #admin#. 
       <br/>
+      <br/>
     To accept this invitation, please click this link.`,
       title: 'User Invitation to Energy Performance Program'
    },

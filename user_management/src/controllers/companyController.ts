@@ -107,14 +107,14 @@ class CompanyController {
             })
             template = template.replace('#heading#', 'Company Edited for Energy Performance Program Portal')
                 .replace('#content#', `
-Your company <b>${findData[0].company_id}</b> has been ${text}.<br/> 
+Your company  has been ${text}.<br/> 
 If you believe you received this email in error, please contact Customer Service for assistance.<br/>
 Thank You,<br/>
                 Energy Performance Program`)
                 .replace('#name#', "")
-                .replace('#logo#', logo);
+                .replace('#logo#', logo).replace("Hello ", "Hello");
             console.log(findData)
-            Email.multipleSend(mails, EmailContent.activeInactiveEmail.title, template);
+            //Email.multipleSend(mails, EmailContent.activeInactiveEmail.title, template);
             return updatedCompany;
         } catch (error) {
             return { status: 400, body: { error: error.message } };

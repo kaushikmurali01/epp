@@ -65,13 +65,18 @@ class UserInvitationService {
 
                 const landing_page = process.env.LANDING_PAGE;
                 const sendEmail = async (content: string, subject: string, recipient: string) => {
-                    const emailContent = template.replace('#content#', content)
-                                                .replace('#name#', existingUser?.first_name || "")
+                    let emailContent = template.replace('#content#', content)
+                                               // .replace('#name#', existingUser?.first_name || "")
                                                 .replace('#admin#', admin_name || "Enerva Admin")
                                                 .replace('#heading#', '')
                                                 .replace('#link#', landing_page)
                                                 .replace('#company#', company_name || "Enerva")
                                                 .replace('#isDisplay#', 'block');
+                                                if(existingUser?.first_name) {
+                                                  emailContent =  emailContent.replace('#name#', existingUser?.first_name);
+                                                } else {
+                                                  emailContent = emailContent.replace('#name#', '').replace('Hello ', 'Hello');
+                                                }
                     await Email.send(recipient, subject, emailContent);
                 }
 
@@ -214,7 +219,7 @@ class UserInvitationService {
           if(details.type == 2) {
           emailContent =  template
           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
-          .replace('#name#', " ")
+          .replace('#name#', "")
           .replace('#admin#', resp.first_name?resp?.first_name:admin_name)
           .replace('#heading#', '')
           .replace('#link#', landing_page)
@@ -234,7 +239,7 @@ class UserInvitationService {
           } else {
             emailContent =  template
           .replace('#content#', EmailContent.invitationEmailForExistingUser.content)
-          .replace('#name#', " ")
+          .replace('#name#', "")
           .replace('#admin#', "Enerva Admin")
           .replace('#heading#', '')
           .replace('#link#', landing_page)
