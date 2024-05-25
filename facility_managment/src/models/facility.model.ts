@@ -1,6 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../utils/database';
 import { IFacilityAttributes } from '../interfaces/facility.interface';
+import { User } from './user.model';
+import { Company } from './company.model';
 
 
 interface FacilityCreationAttributes extends Optional<IFacilityAttributes, 'id'> {}
@@ -51,39 +53,6 @@ class Facility extends Model<IFacilityAttributes, FacilityCreationAttributes> im
     public benchmarking_eui!: number;
     public facility_nickname!: string;
 
-
-
-    // public id!: number;
-    // public facility_id_general_status!: number;
-    // public facility_id_submission_status!: number;
-    // public facility_name!: string;
-    // public address!: string;
-    // public city!: string;
-    // public postal_code!: string;
-    // public province!: string;
-    // public sector!: string;
-    // public ng_distribution_company!: string;
-    // public ng_distribution_company_data_extraction!: string;
-    // public primary_facility_type!: string;
-    // public all_facility_types!: string;
-    // public year_built!: number;
-    // public floor_count!: number;
-    // public facility_gfa!: number;
-    // public facility_occupied_gfa!: number;
-    // public facility_unoccupied_gfa!: number;
-    // public longitude!: number;
-    // public latitude!: number;
-    // public facility_bas!: string;
-    // public facility_bas_connectivity!: boolean;
-    // public is_approved!: boolean;
-    // public is_active!: number;
-    // public approved_by!: number;
-    // public total_facility!: number;
-    // public total_user!: number;
-    // public created_at!: Date;
-    // public updated_at!: Date;
-    // public created_by!: number;
-    // public updated_by!: number;
 }
     
 
@@ -239,6 +208,16 @@ Facility.init(
     }
 );
 
+
+Facility.belongsTo(User, {
+    foreignKey: 'created_by',
+    as: 'submitted_by',
+  });
+  
+  Facility.belongsTo(Company, {
+    foreignKey: 'company_id',
+    as: 'company',
+  });
 
 
 export { Facility };

@@ -38,18 +38,11 @@ export class AdminFacilityService {
       if (status) {
         whereClause.facility_id_submission_status = status
       }
-      Facility.belongsTo(User, {
-        foreignKey: 'created_by',
-        as: 'submitted',
-      });
-      Facility.belongsTo(Company, {
-        foreignKey: 'company_id',
-        as: 'company',
-      });
+
       const result = await Facility.findAndCountAll({
         include: [{
           model: User,
-          as: 'submitted',
+          as: 'submitted_by',
           attributes: ['id', 'first_name', 'email'],
         },
         {
