@@ -388,13 +388,13 @@ const Facility = () => {
           <Button
             variant="contained"
             sx={{
-              padding: '4px 8px',
+              padding: '4px 12px',
               minWidth: "5rem!important",
               // bgcolor: "#2C77E9",
             }}
             onClick={openRequestModal}
           >
-            Assign
+            Assign Access
           </Button>
         </Grid>
         <Grid item display="flex" alignItems="center" justifyContent="flex-end">
