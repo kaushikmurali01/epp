@@ -145,7 +145,11 @@ const AdminMeterListing = ({
     {
       Header: "Actions",
       accessor: (item) => (
-        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+        <Box
+          display="flex"
+          onClick={(e) => e.stopPropagation()}
+          justifyContent="flex-end"
+        >
           <Button
             disableRipple
             style={{
@@ -296,6 +300,7 @@ const AdminMeterListing = ({
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
+          cursorStyle="pointer"
         />
       </Box>
       <EvModal

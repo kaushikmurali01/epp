@@ -4,9 +4,9 @@ import { Box, Tab, Tabs, useMediaQuery } from "@mui/material";
 export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const menuItems = [
-    { label: "Summary (O/P)", id: 0 },
-    { label: "Details (I/P)", id: 1 },
-    { label: "Energy and Water (I/P)", id: 2 },
+    { label: "Summary", id: 0, type: "output" },
+    { label: "Details", id: 1, type: "input" },
+    { label: "Energy and Water", id: 2, type: "input" },
     // { label: "Weather & Independent Variables", id: 3 },
     // { label: "Reports and Studies", id: 4 },
     // { label: "Baseline Model", id: 5 },
@@ -46,9 +46,12 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
               borderRadius: isSmallScreen
                 ? ".625rem .625rem 0 0"
                 : "0.625rem 0 0 0.625rem",
+              backgroundColor:
+                item.type === "input" ? "#2E8B5770" : "#058dcf70",
+              margin: "0.125rem",
               "&.Mui-selected": {
-                backgroundColor: "button.primary",
                 color: "white",
+                backgroundColor: item.type === "input" ? "#2E8B57" : "#058dcf",
               },
               textTransform: "inherit",
               fontSize: ".875rem",

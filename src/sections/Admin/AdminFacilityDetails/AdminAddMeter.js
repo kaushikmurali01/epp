@@ -6,6 +6,7 @@ import {
   Grid,
   IconButton,
   InputLabel,
+  Link,
   Radio,
   RadioGroup,
   ToggleButton,
@@ -41,6 +42,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const [specSelectedFile, setSpecSelectedFile] = useState();
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState(false);
+  const [utilityUrlError, setUtilityUrlError] = useState(false);
+  const [specUrlError, setSpecUrlError] = useState(false);
 
   useEffect(() => {
     if (meterId2) {
@@ -79,7 +82,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     meter_active: "",
     meter_inactive: "",
     stil_in_use: false,
-    is_rg_meter: "",
+    is_rg_meter: false,
   });
 
   const handleUtilityFileChange = (event) => {
@@ -112,6 +115,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
 
   const deleteUtilityPicture = () => {
     setUtilitySelectedFile("");
+    setUtilityImgUrl("");
   };
 
   const handleSpecFileChange = (event) => {
@@ -143,9 +147,20 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
 
   const deleteSpecPicture = () => {
     setSpecSelectedFile("");
+    setSpecImgUrl("");
   };
 
   const handleSubmit = (values) => {
+    if (!utilityImgUrl) {
+      setUtilityUrlError(true);
+      return;
+    }
+    if (!values.is_rg_meter) {
+      if (!specImgUrl) {
+        setSpecUrlError(true);
+        return;
+      }
+    }
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
       if (typeof value === "string" && value.trim() === "") {
         acc[key] = null;
@@ -166,6 +181,9 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     };
     if (values.meter_type !== 1) {
       delete newValues.purchased_from_the_grid;
+    }
+    if (values.is_rg_meter) {
+      delete newValues.meter_spec_as_per_measurement;
     }
     if (meterId2) {
       dispatch(updateAdminMeter(meterId2, newValues))
@@ -248,14 +266,18 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         }}
                       >
                         <ToggleButton value={1}>Electricty</ToggleButton>
-                        <ToggleButton value={3}>Natural Gas</ToggleButton>
-                        <ToggleButton value={2}>Water</ToggleButton>
+                        <ToggleButton value={3} disabled>
+                          Natural Gas
+                        </ToggleButton>
+                        <ToggleButton value={2} disabled>
+                          Water
+                        </ToggleButton>
                       </ToggleButtonGroup>
                     )}
                   </Field>
                 </Grid>
               </Grid>
-              {meterAlignment === 1 && (
+              {meterAlignment <= 1 && (
                 <Grid item spacing={4}>
                   <Field name="purchased_from_the_grid">
                     {({ field, form }) => (
@@ -365,14 +387,14 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this a revenue-grade meter?
+                    Is this a revenue-grade meter? *
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
                       {({ field, form }) => (
                         <ToggleButtonGroup
                           id="is_rg_meter"
-                          value={revenueAlignment}
+                          value={values.is_rg_meter}
                           exclusive
                           onChange={(event, newAlignment) => {
                             handleRevenueTypeChange(event, newAlignment, form);
@@ -398,7 +420,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4} sx={{ marginTop: "10px" }}>
-                  <InputLabel>Upload the most recent utility bill</InputLabel>
+                  <InputLabel>Upload the most recent utility bill *</InputLabel>
                   {!utilitySelectedFile ? (
                     <>
                       <Typography
@@ -429,13 +451,18 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </>
                   ) : (
                     <div style={{ display: "flex" }}>
-                      <div>
-                        <img
-                          src={utilitySelectedFile}
-                          alt="Preview"
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
-                        />
-                      </div>
+                      <Link
+                        target="_blank"
+                        href={utilitySelectedFile}
+                        sx={{
+                          textDecoration: "none",
+                          fontSize: "2rem",
+                          marginTop: "1.7rem",
+                        }}
+                        variant="h5"
+                      >
+                        Uploaded utility bill
+                      </Link>
                       <div style={{ marginLeft: "20px" }}>
                         <Typography
                           my={1}
@@ -443,6 +470,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             color: "#2C77E9",
                             fontWeight: "500",
                             fontSize: "16px !important",
+                            cursor: "pointer",
                           }}
                           onClick={handleUtilityButtonClick}
                         >
@@ -461,6 +489,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             color: "#FF5858",
                             fontWeight: "500",
                             fontSize: "16px !important",
+                            cursor: "pointer",
                           }}
                           onClick={deleteUtilityPicture}
                         >
@@ -470,64 +499,40 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </div>
                   )}
                   {!utilitySelectedFile && (
-                    <Typography variant="small" color="primary">
+                    <Typography
+                      variant="small"
+                      sx={{ color: utilityUrlError ? "#FF5858" : "#2E813E" }}
+                    >
                       The most recent electric utility bill is required for
                       submitting for baseline modelling
                     </Typography>
                   )}
                 </Grid>
-                <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
-                  <InputLabel style={{ whiteSpace: "initial" }}>
-                    Upload meter specification as per Measurement Canada S-E-04
-                  </InputLabel>
-                  {!specSelectedFile ? (
-                    <>
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#696969",
-                          fontWeight: "500",
-                          fontSize: "18px",
-                          border: "1px solid #D0D0D0",
-                          backgroundColor: "#D1FFDA",
-                          padding: "6px 34px",
-                          borderRadius: "8px",
-                          width: "140px",
-                          height: "40px",
-                          cursor: "pointer",
-                        }}
-                        onClick={handleSpecButtonClick}
-                      >
-                        Upload
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={specFileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleSpecFileChange}
-                        accept={".pdf"}
-                      />
-                    </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <div>
-                        <img
-                          src={specSelectedFile}
-                          alt="Preview"
-                          style={{ maxWidth: "100%", maxHeight: "200px" }}
-                        />
-                      </div>
-                      <div style={{ marginLeft: "20px" }}>
+                {!values.is_rg_meter && (
+                  <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
+                    <InputLabel style={{ whiteSpace: "initial" }}>
+                      Upload meter specification as per Measurement Canada
+                      S-E-04 *
+                    </InputLabel>
+                    {!specSelectedFile ? (
+                      <>
                         <Typography
                           my={1}
                           sx={{
-                            color: "#2C77E9",
+                            color: "#696969",
                             fontWeight: "500",
-                            fontSize: "16px !important",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
+                            cursor: "pointer",
                           }}
                           onClick={handleSpecButtonClick}
                         >
-                          Change File
+                          Upload
                         </Typography>
                         <input
                           type="file"
@@ -536,21 +541,67 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           onChange={handleSpecFileChange}
                           accept={".pdf"}
                         />
-                        <Typography
-                          my={1}
+                      </>
+                    ) : (
+                      <div style={{ display: "flex" }}>
+                        <Link
+                          target="_blank"
+                          href={specSelectedFile}
                           sx={{
-                            color: "#FF5858",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
+                            textDecoration: "none",
+                            fontSize: "2rem",
+                            marginTop: "1.7rem",
                           }}
-                          onClick={deleteSpecPicture}
+                          variant="h5"
                         >
-                          Delete File
-                        </Typography>
+                          Uploaded meter specification
+                        </Link>
+                        <div style={{ marginLeft: "20px" }}>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2C77E9",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                              cursor: "pointer",
+                            }}
+                            onClick={handleSpecButtonClick}
+                          >
+                            Change File
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={specFileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleSpecFileChange}
+                            accept={".pdf"}
+                          />
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#FF5858",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                              cursor: "pointer",
+                            }}
+                            onClick={deleteSpecPicture}
+                          >
+                            Delete File
+                          </Typography>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Grid>
+                    )}
+                    {!specSelectedFile && (
+                      <Typography
+                        variant="small"
+                        sx={{ color: specUrlError ? "#FF5858" : "#2E813E" }}
+                      >
+                        Meter specification as per Measurement Canada S-E-04 is
+                        required if it is not a revenue-grade meter
+                      </Typography>
+                    )}
+                  </Grid>
+                )}
               </Grid>
 
               <Grid container xs={12} sm={5}>

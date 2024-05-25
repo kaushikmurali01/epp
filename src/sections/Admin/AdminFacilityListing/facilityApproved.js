@@ -9,7 +9,12 @@ import debounce from "lodash.debounce";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
-const FacilityApproved = ({ searchVal, companyFilter }) => {
+const FacilityApproved = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+}) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -176,6 +181,7 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo, 5)}
                 >
                   Download Bulk
                 </Button>
@@ -189,6 +195,7 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>

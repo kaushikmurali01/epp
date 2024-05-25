@@ -13,16 +13,18 @@ const StyledContentWrapper = styled(Box)(() => {
     background: "#F5FFF7",
     borderRadius: "1.25rem",
     border: "1px solid #2E813E",
-    maxHeight: "65dvh",
+    maxHeight: "150dvh",
     overflowY: "scroll",
     "&::-webkit-scrollbar": {
       width: "5px",
     },
     "&::-webkit-scrollbar-track": {
       backgroundColor: "transparent",
+      marginTop: '10px',
+     marginBottom: '10px',
     },
     "&::-webkit-scrollbar-thumb": {
-      backgroundColor: "#348D3D60",
+      backgroundColor: "#348d3d99",
       borderRadius: "1.375rem",
       "&:hover": {
         backgroundColor: "#348D3D",

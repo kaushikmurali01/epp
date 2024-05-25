@@ -14,7 +14,7 @@ export const facilityEndPoints = {
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
-  GET_CATEGORIES_TYPES_AND_NAICS: 'company-facility/v1/facility-naic',
+  GET_CATEGORIES_TYPES_AND_NAICS: "company-facility/v1/facility-naic",
 };
 
 export const adminFacilityEndpoints = {
@@ -33,6 +33,8 @@ export const adminFacilityEndpoints = {
   UPDATE_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ADMIN_ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
+  DOWNLOAD_BULK_FACILITIES: "company-facility/v1/csv-facilities",
+  DOWNLOAD_FACILITY_BY_ID: "/company-facility/v1/csv-facility",
 };
 
 export const PA_MANAGEMENT = {

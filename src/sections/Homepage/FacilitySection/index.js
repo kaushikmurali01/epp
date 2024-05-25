@@ -277,6 +277,7 @@ const Facility = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: userCompanyId,
     };
     const formSubmit = (values) => {
       dispatch(assignFacilities(values)).then(() => {
@@ -421,12 +422,14 @@ const Facility = () => {
       </Grid>
       <Box sx={{ marginTop: "2rem" }}>
         <Table
+          cursorStyle="pointer"
           columns={columns}
           data={facilityListData}
           count={facilityCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+          cursorStyle="pointer"
         />
       </Box>
       <EvModal

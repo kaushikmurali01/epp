@@ -43,12 +43,6 @@ const AdminDetails = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const dispatch = useDispatch();
   const { id } = useParams();
-  const fileAssemblyInputRef = useRef(null);
-  const fileFacilityInputRef = useRef(null);
-  const [selectedAssemblyFile, setSelectedAssemblyFile] = useState();
-  const [assemblyImgUrl, setAssemblyImgUrl] = useState("");
-  const [selectedFacilityFile, setSelectedFacilityFile] = useState();
-  const [facilityImgUrl, setFacilityImgUrl] = useState("");
   const [energyUsageAlignment, setEnergyUsageAlignment] = useState(false);
   const [lightingAlignment, setLightingAlignment] = useState(false);
   const [heatingAlignment, setHeatingAlignment] = useState(false);
@@ -107,14 +101,16 @@ const AdminDetails = ({ setTab }) => {
     space_cooling_technology_capacity:
       "Space cooling technology capacity must be a number",
     space_cooling_efficiency: "Space cooling efficiency must be a number",
-    space_heating_technology_age: "Space heating technology age must be number",
+    space_heating_technology_age:
+      "Space heating technology age must be a number",
     space_heating_technology_capacity:
-      "Space heating technology capacity must be number",
-    space_heating_efficiency: "Space heating effeciency must be number",
-    water_heating_technology_age: "Water heating technology age must be number",
+      "Space heating technology capacity must be a number",
+    space_heating_efficiency: "Space heating effeciency must be a number",
+    water_heating_technology_age:
+      "Water heating technology age must be a number",
     water_heating_technology_capacity:
-      "Water heating technology capacity must be number",
-    water_heating_efficiency: "Water heating efficiency must be number",
+      "Water heating technology capacity must be a number",
+    water_heating_efficiency: "Water heating efficiency must be a number",
   };
 
   const handleFocus = (field) => {
@@ -242,18 +238,6 @@ const AdminDetails = ({ setTab }) => {
               ? new Date(charactersticsDetails.year_of_construction)
               : null,
           });
-          setSelectedFacilityFile(
-            charactersticsDetails?.facility_site_layout_media_url
-          );
-          setFacilityImgUrl(
-            charactersticsDetails?.facility_site_layout_media_url
-          );
-          setAssemblyImgUrl(
-            charactersticsDetails?.facility_wall_assembly_and_ceiling_assembly_media_url
-          );
-          setSelectedAssemblyFile(
-            charactersticsDetails?.facility_wall_assembly_and_ceiling_assembly_media_url
-          );
           setEnergyUsageAlignment(
             charactersticsDetails?.unique_features_that_impact_energy_usage
           );
@@ -283,8 +267,8 @@ const AdminDetails = ({ setTab }) => {
     unonditioned_gross_floor_area: "",
     unique_features_that_impact_energy_usage: false,
     unique_features_of_facility: "",
-    // facility_electricity_service_size: "",
-    // facility_service_entrance_voltage: "",
+    facility_electricity_service_size: "",
+    facility_service_entrance_voltage: "",
     space_cooling_fuel_source: "",
     space_cooling_fuel_source_other: "",
     space_cooling_technology: "",
@@ -383,8 +367,6 @@ const AdminDetails = ({ setTab }) => {
         values.not_standard_hvac_equipment
       ),
       occupants_months_detail: JSON.stringify(values.occupants_months_detail),
-      facility_wall_assembly_and_ceiling_assembly_media_url: assemblyImgUrl,
-      facility_site_layout_media_url: facilityImgUrl,
     };
     if (facilityCharacterstics) {
       dispatch(updateAdminFacilityCharacteristic(id, newValues))
@@ -409,78 +391,6 @@ const AdminDetails = ({ setTab }) => {
           console.log(error);
         });
     }
-  };
-
-  const handleAssemblyFileChange = (event) => {
-    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
-    const selectedFile = event.target.files[0];
-    if (!acceptedTypes.includes(selectedFile.type)) {
-      alert(
-        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
-      );
-      event.target.value = "";
-      return;
-    }
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      alert(
-        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
-      );
-      event.target.value = "";
-      return;
-    }
-    setSelectedAssemblyFile(URL.createObjectURL(selectedFile));
-    dispatch(fileUploadAction(selectedFile))
-      .then((data) => {
-        setAssemblyImgUrl(data?.sasTokenUrl);
-      })
-      .catch((error) => {
-        console.error("Error uploading image:", error);
-      });
-  };
-
-  const handleAssemblyButtonClick = () => {
-    fileAssemblyInputRef.current.click();
-  };
-
-  const deleteAssemblyPicture = () => {
-    setSelectedAssemblyFile("");
-  };
-
-  const handleFacilityFileChange = (event) => {
-    const acceptedTypes = ["image/png", "image/gif", "image/jpeg", "image/jpg"];
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
-    const selectedFile = event.target.files[0];
-    if (!acceptedTypes.includes(selectedFile.type)) {
-      alert(
-        "Invalid file type. Please select an image file (png, gif, jpeg, jpg)."
-      );
-      event.target.value = "";
-      return;
-    }
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      alert(
-        "File size exceeds the maximum limit of 5 MB. Please select a smaller file."
-      );
-      event.target.value = "";
-      return;
-    }
-    setSelectedFacilityFile(URL.createObjectURL(selectedFile));
-    dispatch(fileUploadAction(selectedFile))
-      .then((data) => {
-        setFacilityImgUrl(data?.sasTokenUrl);
-      })
-      .catch((error) => {
-        console.error("Error uploading image:", error);
-      });
-  };
-
-  const handleFacilityButtonClick = () => {
-    fileFacilityInputRef.current.click();
-  };
-
-  const deleteFacilityPicture = () => {
-    setSelectedFacilityFile("");
   };
 
   const handleEnergyUsageTypeChange = (event, newAlignment, form) => {
@@ -557,18 +467,15 @@ const AdminDetails = ({ setTab }) => {
                   flexDirection: isSmallScreen ? "column" : "row",
                 }}
               >
-                <Box
+                <Typography
                   sx={{
-                    cursor: "default",
-                    borderRadius: "2rem",
-                    background: "#EBEBEB",
-                    border: "1px solid #D0D0D0",
-                    textWrap: "nowrap",
-                    padding: "0.375rem 1rem",
+                    color: "#696969",
+                    fontWeight: "bold",
+                    fontSize: "14px",
                   }}
                 >
-                  <Typography variant="h6">Characterstics</Typography>
-                </Box>
+                  Characterstics
+                </Typography>
                 <Box
                   sx={{
                     display: "flex",
@@ -643,7 +550,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="gross_floor_area_size_category"
-                      label="Gross floor area size category (Sqft) *"
+                      label="Gross floor area size category (Sq ft) *"
                       valueKey="value"
                       labelKey="label"
                       options={FLOOR_AREA_ARRAY}
@@ -652,7 +559,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <InputField
                       name="gross_floor_area"
-                      label="Gross floor area (Sqft) *"
+                      label="Gross floor area (Sq ft) *"
                       type="number"
                       onKeyDown={(evt) =>
                         ["e", "E", "+", "-"].includes(evt.key) &&
@@ -665,7 +572,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <InputField
                       name="conditioned_gross_floor_area_including_common_area"
-                      label="Conditioned gross floor area including common area (Sqft)"
+                      label="Conditioned gross floor area including common area (Sq ft)"
                       type="number"
                       onKeyDown={(evt) =>
                         ["e", "E", "+", "-"].includes(evt.key) &&
@@ -676,7 +583,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <InputField
                       name="unonditioned_gross_floor_area"
-                      label="Unconditioned gross floor area such as parking lots (Sqft)"
+                      label="Unconditioned gross floor area such as parking lots (Sq ft)"
                       value={
                         values.gross_floor_area &&
                         values.gross_floor_area -
@@ -687,6 +594,7 @@ const AdminDetails = ({ setTab }) => {
                         ["e", "E", "+", "-"].includes(evt.key) &&
                         evt.preventDefault()
                       }
+                      isDisabled
                     />
                   </Grid>
                 </Grid>
@@ -757,35 +665,35 @@ const AdminDetails = ({ setTab }) => {
                     </Grid>
                   )}
                 </Grid>
-                {/* <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="facility_electricity_service_size"
-                    label="Facility electricity service size (Amps)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="facility_electricity_service_size"
+                      label="Facility electricity service size (Amps)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputField
+                      name="facility_service_entrance_voltage"
+                      label="Facility service entrance voltage (Voltage)"
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <InputField
-                    name="facility_service_entrance_voltage"
-                    label="Facility service entrance voltage (Volts)"
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
-                </Grid>
-              </Grid> */}
                 <Grid container spacing={4} mt={1}>
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="space_cooling_fuel_source"
-                      label="Space cooling fuel source *"
+                      label="Space cooling energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
@@ -825,7 +733,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="space_heating_fuel_source"
-                      label="Space heating fuel source *"
+                      label="Space heating energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
@@ -865,7 +773,7 @@ const AdminDetails = ({ setTab }) => {
                   <Grid item xs={12} sm={4}>
                     <SelectBox
                       name="water_heating_fuel_source"
-                      label="Water heating fuel source *"
+                      label="Water heating energy source *"
                       valueKey="value"
                       labelKey="label"
                       options={SOURCE_ARRAY}
@@ -1401,21 +1309,6 @@ const AdminDetails = ({ setTab }) => {
                       )}
                   </Grid>
                 </Grid>
-                <Grid item spacing={4}>
-                  <Box
-                    my={1}
-                    sx={{
-                      cursor: "default",
-                      borderRadius: "2rem",
-                      background: "#EBEBEB",
-                      border: "1px solid #D0D0D0",
-                      textWrap: "nowrap",
-                      padding: "0.375rem 1rem",
-                    }}
-                  >
-                    <Typography variant="small">Characterstics</Typography>
-                  </Box>
-                </Grid>
                 <Grid container spacing={4}>
                   <Grid item sm={4}>
                     <InputField
@@ -1786,157 +1679,6 @@ const AdminDetails = ({ setTab }) => {
                     </FormControl>
                   </Grid>
                 </Grid>
-                <Grid container spacing={4} mt={2}>
-                  <Grid item xs={12} sm={4}>
-                    <InputLabel>Facility site layout</InputLabel>
-                    {!selectedFacilityFile ? (
-                      <>
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#696969",
-                            fontWeight: "500",
-                            fontSize: "18px",
-                            border: "1px solid #D0D0D0",
-                            backgroundColor: "#D1FFDA",
-                            padding: "6px 34px",
-                            borderRadius: "8px",
-                            width: "140px",
-                            height: "40px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleFacilityButtonClick}
-                        >
-                          Upload
-                        </Typography>
-                        <input
-                          type="file"
-                          ref={fileFacilityInputRef}
-                          style={{ display: "none" }}
-                          onChange={handleFacilityFileChange}
-                          accept="image/png, image/gif, image/jpeg, image/jpg"
-                        />
-                      </>
-                    ) : (
-                      <div style={{ display: "flex" }}>
-                        <div>
-                          <img
-                            src={selectedFacilityFile}
-                            alt="Preview"
-                            style={{ maxWidth: "100%", maxHeight: "200px" }}
-                          />
-                        </div>
-                        <div style={{ marginLeft: "20px" }}>
-                          <Typography
-                            my={1}
-                            sx={{
-                              color: "#2C77E9",
-                              fontWeight: "500",
-                              fontSize: "16px !important",
-                            }}
-                            onClick={handleFacilityButtonClick}
-                          >
-                            Change picture
-                          </Typography>
-                          <input
-                            type="file"
-                            ref={fileFacilityInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFacilityFileChange}
-                            accept="image/png, image/gif, image/jpeg, image/jpg"
-                          />
-                          <Typography
-                            my={1}
-                            sx={{
-                              color: "#FF5858",
-                              fontWeight: "500",
-                              fontSize: "16px !important",
-                            }}
-                            onClick={deleteFacilityPicture}
-                          >
-                            Delete picture
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </Grid>
-                  <Grid item xs={12} sm={5}>
-                    <InputLabel>
-                      Facility wall assembly and ceiling assembly
-                    </InputLabel>
-                    {!selectedAssemblyFile ? (
-                      <>
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#696969",
-                            fontWeight: "500",
-                            fontSize: "18px",
-                            border: "1px solid #D0D0D0",
-                            backgroundColor: "#D1FFDA",
-                            padding: "6px 34px",
-                            borderRadius: "8px",
-                            width: "140px",
-                            height: "40px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleAssemblyButtonClick}
-                        >
-                          Upload
-                        </Typography>
-                        <input
-                          type="file"
-                          ref={fileAssemblyInputRef}
-                          style={{ display: "none" }}
-                          onChange={handleAssemblyFileChange}
-                          accept="image/png, image/gif, image/jpeg, image/jpg"
-                        />
-                      </>
-                    ) : (
-                      <div style={{ display: "flex" }}>
-                        <div>
-                          <img
-                            src={selectedAssemblyFile}
-                            alt="Preview"
-                            style={{ maxWidth: "100%", maxHeight: "200px" }}
-                          />
-                        </div>
-                        <div style={{ marginLeft: "20px" }}>
-                          <Typography
-                            my={1}
-                            sx={{
-                              color: "#2C77E9",
-                              fontWeight: "500",
-                              fontSize: "16px !important",
-                            }}
-                            onClick={handleAssemblyButtonClick}
-                          >
-                            Change picture
-                          </Typography>
-                          <input
-                            type="file"
-                            ref={fileAssemblyInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleAssemblyFileChange}
-                            accept="image/png, image/gif, image/jpeg, image/jpg"
-                          />
-                          <Typography
-                            my={1}
-                            sx={{
-                              color: "#FF5858",
-                              fontWeight: "500",
-                              fontSize: "16px !important",
-                            }}
-                            onClick={deleteAssemblyPicture}
-                          >
-                            Delete picture
-                          </Typography>
-                        </div>
-                      </div>
-                    )}
-                  </Grid>
-                </Grid>
-
                 <Grid container spacing={4} mt={2}>
                   <Grid item xs={12} sm={4}>
                     <ButtonWrapper

@@ -1,5 +1,5 @@
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
-import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
   adminCompanySendAlertFailure,
@@ -92,7 +92,7 @@ export const adminCompanyUpdateStatus = (companyId, newStatus) => {
     try {
       dispatch(adminCompanyUpdateStatusRequest());
       const endpointWithParams = `${USER_MANAGEMENT.UPDATE_COMPANY_STATUS}/${companyId}`;
-      const response = await PATCH_REQUEST(endpointWithParams, newStatus);
+      const response = await PUT_REQUEST(endpointWithParams, newStatus);
       const data = response.data;
       dispatch(adminCompanyUpdateStatusSuccess(data));
       NotificationsToast({

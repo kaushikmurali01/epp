@@ -103,7 +103,7 @@ const UserManagementColumn = () => {
                     <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                         Manage permission
                     </Typography>
-                    <Typography variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item, handleAPISuccessCallBack, setModalConfig)} >
+                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
                     </Typography>
 
@@ -180,7 +180,13 @@ const UserManagementColumn = () => {
         setInviteAPIURL(apiURL)
     }
 
-    const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
+    const handelDeleteModalOpen = (userData,item, handleAPISuccessCallBack, setModalConfig) => {
+        // return if user wants to delete self account
+        if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+
         setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,

@@ -32,6 +32,12 @@ import {
   FETCH_ADMIN_STATISTICS_REQUEST,
   FETCH_ADMIN_STATISTICS_SUCCESS,
   FETCH_ADMIN_STATISTICS_FAILURE,
+  DOWNLOAD_FACILITIES_BULK_REQUEST,
+  DOWNLOAD_FACILITIES_BULK_SUCCESS,
+  DOWNLOAD_FACILITIES_BULK_FAILURE,
+  DOWNLOAD_FACILITY_ROW_REQUEST,
+  DOWNLOAD_FACILITY_ROW_SUCCESS,
+  DOWNLOAD_FACILITY_ROW_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -185,5 +191,33 @@ export const fetchAdminStatisticsSuccess = (data) => ({
 
 export const fetchAdminStatisticsFailure = (error) => ({
   type: FETCH_ADMIN_STATISTICS_FAILURE,
+  payload: error,
+});
+
+export const downloadFacilitiesBulkRequest = () => ({
+  type: DOWNLOAD_FACILITIES_BULK_REQUEST,
+});
+
+export const downloadFacilitiesBulkSuccess = (data) => ({
+  type: DOWNLOAD_FACILITIES_BULK_SUCCESS,
+  payload: data,
+});
+
+export const downloadFacilitiesBulkFailure = (error) => ({
+  type: DOWNLOAD_FACILITIES_BULK_FAILURE,
+  payload: error,
+});
+
+export const downloadFacilityRowRequest = () => ({
+  type: DOWNLOAD_FACILITY_ROW_REQUEST,
+});
+
+export const downloadFacilityRowSuccess = (data) => ({
+  type: DOWNLOAD_FACILITY_ROW_SUCCESS,
+  payload: data,
+});
+
+export const downloadFacilityRowFailure = (error) => ({
+  type: DOWNLOAD_FACILITY_ROW_FAILURE,
   payload: error,
 });

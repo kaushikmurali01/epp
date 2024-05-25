@@ -28,10 +28,13 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   adminAssignFacilities,
+  downloadFacilitiesBulkData,
+  downloadFacilityRowData,
   fetchAdminFacilitiesDropdown,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
@@ -55,6 +58,73 @@ const AdminFacilityListing = () => {
     (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
   );
 
+  const onDownloadBulkClick = (page_info, status) => {
+    dispatch(downloadFacilitiesBulkData(page_info, companyFilter, status)).then(
+      (response) => {
+        const data = response?.data;
+        if (data) {
+          fetch(data)
+            .then((res) => {
+              res.blob().then((blob) => {
+                const fileURL = window.URL.createObjectURL(blob);
+                let alink = document.createElement("a");
+                alink.href = fileURL;
+                let fileName = "Facilities_Bulk_Data";
+                alink.download = fileName;
+                alink.click();
+              });
+              NotificationsToast({
+                message: "Downloading facilities bulk data completed",
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
+            });
+        }
+      }
+    );
+  };
+
+  const onDownloadRowClick = (facility_id, facility_name) => {
+    dispatch(downloadFacilityRowData(facility_id)).then((response) => {
+      const data = response?.data;
+      if (data) {
+        fetch(data).then((res) => {
+          res
+            .blob()
+            .then((blob) => {
+              const fileURL = window.URL.createObjectURL(blob);
+              let alink = document.createElement("a");
+              alink.href = fileURL;
+              let fileName = "Facility_Data";
+              if (facility_name) {
+                fileName += "_for_" + facility_name;
+              }
+              alink.download = fileName;
+              alink.click();
+              NotificationsToast({
+                message: `Downloading facility data for ${facility_name} completed`,
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
+            });
+        });
+      }
+    });
+  };
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -89,6 +159,7 @@ const AdminFacilityListing = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: null,
     };
     const formSubmit = (values) => {
       dispatch(adminAssignFacilities(values)).then(() => {
@@ -164,6 +235,8 @@ const AdminFacilityListing = () => {
           <FacilityCreated
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "approved":
@@ -171,6 +244,8 @@ const AdminFacilityListing = () => {
           <FacilityApproved
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "underreview":
@@ -178,6 +253,8 @@ const AdminFacilityListing = () => {
           <FacilityReview
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "rejected":
