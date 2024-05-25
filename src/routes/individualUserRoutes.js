@@ -7,7 +7,7 @@ import {
 import ProfilePage from "pages/ProfilePage";
 const Error404 = lazy(() => import("pages/Error/Error404"));
 
-export const IndividualUserRoutes = () => {
+export const IndividualUserRoutes = ({ userDetails, userPermissions }) => {
   return (
     <Routes>
       <Route
@@ -18,7 +18,7 @@ export const IndividualUserRoutes = () => {
         path={profilePageEndPoints.profilePage}
         element={<ProfilePage />}
       />
-      <Route path="*" element={<Error404 />} />
+      <Route path="*" element={<Error404 userDetails={userDetails} />} />
     </Routes>
   );
 };

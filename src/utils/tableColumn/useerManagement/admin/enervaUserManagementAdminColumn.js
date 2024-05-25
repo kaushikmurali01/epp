@@ -20,7 +20,7 @@ const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false)
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
-    content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+    content: ''
 })
 
 const buttonStyle = {

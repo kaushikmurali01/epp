@@ -32,6 +32,7 @@ import { Form, Formik } from 'formik';
 import ButtonWrapper from 'components/FormBuilder/Button';
 import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
 import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
+import "./header.scss"
 
 const settings = ["Profile", "Logout"];
 
@@ -502,6 +503,7 @@ function Header(props) {
                   alt="invitation"
                   style={{ maxWidth: "70%" }}
                 />
+                {userData?.invitations?.length? <span class="invitation-count">{userData?.invitations?.length || 0}</span> : null}
               </Button>
               {(companyList?.length > 0 && companyList[0] != null && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
               <FormGroup className="theme-form-group">

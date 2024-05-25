@@ -114,7 +114,7 @@ const EnervaAdminDashboard = (props) => {
             >
               Dashboard
             </Typography>
-            <Typography
+            {/* <Typography
               variant="h6"
               sx={{
                 fontWeight: "400",
@@ -125,7 +125,7 @@ const EnervaAdminDashboard = (props) => {
             >
               Lorem Ipsum is simply dummy text of the printing and typesetting
               industry.
-            </Typography>
+            </Typography> */}
           </Grid>
           <Grid item display={"flex"} sx={{ flexWrap: "wrap", gap: { xs: "1rem", sm: "2.5rem" }, }}>
             <Grid
