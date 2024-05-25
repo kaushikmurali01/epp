@@ -1,6 +1,6 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
 import { ResponseHandler } from '../../utils/response-handler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS} from '../../utils/status';
+import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS } from '../../utils/status';
 import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { FacilityCharacteristics } from '../../models/facility_characteristics.model';
@@ -11,28 +11,28 @@ export class FacilityCharacteristicsService {
 
 
 
-  static async getFacilityCharacteristicsById(userToken: IUserToken, facilityId:number): Promise<FacilityCharacteristics[]> {
+  static async getFacilityCharacteristicsById(userToken: IUserToken, facilityId: number): Promise<FacilityCharacteristics[]> {
     try {
-      const result = await FacilityCharacteristics.findOne({where:{facility_id: facilityId}})
-      
+      const result = await FacilityCharacteristics.findOne({ where: { facility_id: facilityId } })
+
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error;
-      
+
     }
-   
+
   }
 
-  static async addFacilityCharacteristics(userToken: IUserToken, body:IBaseInterface): Promise<FacilityCharacteristics[]> {
+  static async addFacilityCharacteristics(userToken: IUserToken, body: IBaseInterface): Promise<FacilityCharacteristics[]> {
     try {
 
-      const oldResilt = await FacilityCharacteristics.findOne({where:{facility_id: body.facility_id}})
+      const oldResilt = await FacilityCharacteristics.findOne({ where: { facility_id: body.facility_id } })
 
-      if(oldResilt){
+      if (oldResilt) {
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.CONFLICT_ERROR, RESPONSE_MESSAGES.dataUnique, []);
-      }else{
+      } else {
         const obj = {
           facility_id: body.facility_id,
           operational_hours: body.operational_hours,
@@ -51,6 +51,7 @@ export class FacilityCharacteristicsService {
           not_standard_hvac_equipment: body.not_standard_hvac_equipment,
           space_cooling_technology_description: body.space_cooling_technology_description,
           space_cooling_technology_age: body.space_cooling_technology_age,
+          space_heating_technology: body.space_heating_technology,
           space_cooling_technology_capacity: body.space_cooling_technology_capacity,
           space_cooling_efficiency: body.space_cooling_efficiency,
           facility_electricity_service_size: body.facility_electricity_service_size,
@@ -78,22 +79,22 @@ export class FacilityCharacteristicsService {
           facility_wall_assembly_and_ceiling_assembly_media_url: body.facility_wall_assembly_and_ceiling_assembly_media_url,
           is_active: STATUS.IS_ACTIVE,
           created_by: userToken.id,
-      };
-     
+        };
+
         const result = await FacilityCharacteristics.create(obj);
 
-        await Facility.update({facility_id_general_status:FACILITY_ID_GENERAL_STATUS.ENETR_FACILITY_DATA },{where:{id:body.facility_id}});
+        await Facility.update({ facility_id_general_status: FACILITY_ID_GENERAL_STATUS.ENETR_FACILITY_DATA }, { where: { id: body.facility_id } });
 
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       }
     } catch (error) {
-      console.log(error,"wefojweif");
+      console.log(error, "wefojweif");
       return ResponseHandler.getResponse(HTTP_STATUS_CODES.BAD_REQUEST, error, []);
     }
 
   }
 
-  static async editFacilityCharacteristics(userToken: IUserToken, body:IBaseInterface, facilityId:number): Promise<FacilityCharacteristics[]> {
+  static async editFacilityCharacteristics(userToken: IUserToken, body: IBaseInterface, facilityId: number): Promise<FacilityCharacteristics[]> {
     try {
       const obj = {
         operational_hours: body.operational_hours,
@@ -116,6 +117,7 @@ export class FacilityCharacteristicsService {
         water_heating_efficiency_unit: body.water_heating_efficiency_unit,
         gross_floor_area_size_category: body.gross_floor_area_size_category,
         not_standard_hvac_equipment: body.not_standard_hvac_equipment,
+        space_heating_technology: body.space_heating_technology,
         space_cooling_technology_description: body.space_cooling_technology_description,
         space_cooling_technology_age: body.space_cooling_technology_age,
         space_cooling_technology_capacity: body.space_cooling_technology_capacity,
@@ -139,22 +141,22 @@ export class FacilityCharacteristicsService {
         facility_wall_assembly_and_ceiling_assembly_media_url: body.facility_wall_assembly_and_ceiling_assembly_media_url,
         is_active: STATUS.IS_ACTIVE,
         updated_by: userToken.id
-    };
-    
-      const result = await FacilityCharacteristics.update(obj,{where:{facility_id:facilityId}})
-  
-      
+      };
+
+      const result = await FacilityCharacteristics.update(obj, { where: { facility_id: facilityId } })
+
+
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
-      
+
     } catch (error) {
       throw error;
     }
-   
+
   }
 
- 
 
 
-  
+
+
 }

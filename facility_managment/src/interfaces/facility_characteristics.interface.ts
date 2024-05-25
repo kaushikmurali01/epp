@@ -17,6 +17,7 @@ export interface IFacilityCharacteristicsAttributes {
     not_standard_hvac_equipment?: string | null;
     space_cooling_technology_description?: string | null;
     space_cooling_technology_age?: number | null;
+    space_heating_technology?: string | null;
     space_cooling_technology_capacity?: string | null;
     space_cooling_efficiency?: string | null;
     facility_electricity_service_size?: string | null;

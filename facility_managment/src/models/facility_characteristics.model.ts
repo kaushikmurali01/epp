@@ -37,6 +37,7 @@ class FacilityCharacteristics extends Model<IFacilityCharacteristicsAttributes, 
     public space_heating_efficiency_unit?: string | null;
     public water_heating_efficiency_unit?: string | null;
     public gross_floor_area_size_category?: number | null;
+    public space_heating_technology?: string | null;
     public water_heating_technology_description?: string | null;
     public water_heating_technology_age?: number | null;
     public water_heating_technology_capacity?: string | null;
@@ -81,6 +82,10 @@ FacilityCharacteristics.init(
             allowNull: true,
         },
         space_cooling_efficiency_unit: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        space_heating_technology: {
             type: DataTypes.STRING(255),
             allowNull: true,
         },
