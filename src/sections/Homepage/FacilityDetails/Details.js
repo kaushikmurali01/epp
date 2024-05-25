@@ -137,12 +137,12 @@ const Details = ({ setTab }) => {
     return value;
   }
   function checkValueNotExist(array, value) {
-    for (let item of array) {
-      if (item.value !== value) {
-        return "other";
-      } else {
-        return value;
-      }
+    const { length } = array;
+    const found = length && array.some(el => el.value === value);
+    if(found){
+      return value;
+    } else {
+      return "other";
     }
   }
 
