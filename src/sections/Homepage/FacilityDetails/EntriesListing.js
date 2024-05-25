@@ -23,9 +23,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
 import { format, getYear } from "date-fns";
-import { entriesEndPoints } from "constants/apiEndPoints";
+import { entriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
+  GET_REQUEST,
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
@@ -41,6 +42,7 @@ import {
 } from "../../../redux/superAdmin/actions/metersActions";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -53,6 +55,9 @@ const EntriesListing = ({
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [tabValue, setTabValue] = useState("monthlyEntries");
   const [entryToDelete, setEntryToDelete] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [fileName, setFileName] = useState("");
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -444,16 +449,65 @@ const EntriesListing = ({
     fileInputRef.current.click();
   };
 
+  const getHourlySubHourlyEntryData = () => {
+    GET_REQUEST(hourlyEndPoints.GET_HOURLY_DATA + facilityMeterDetailId)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          if (response.data?.data?.rows?.length > 0) {
+            setFileName(response.data?.data?.rows[0]);
+            setIsFileUploaded(true);
+          } else {
+            setIsFileUploaded(false);
+          }
+        }
+      })
+      .catch((error) => { });
+  }
+
   const handleFileChange = (event) => {
-    // // Handle the file selection here
-    // const selectedFile = event.target.files[0];
+    const selectedFile = event.target.files[0];
     // setSelectedFile(URL.createObjectURL(selectedFile));
-    // dispatch(fileUploadAction(selectedFile))
-    // .then(( data ) => setImgUrl(data?.sasTokenUrl))
-    // .catch((error) => {
-    //   console.error("Error uploading image:", error);
-    // });
+    dispatch(documentFileUploadAction(selectedFile))
+      .then((data) => {
+        setImgUrl(data?.sasTokenUrl);
+        uploadEntryFile(data)
+      })
+      .catch((error) => {
+        console.error("Error uploading document:", error);
+      });
   };
+
+  const uploadEntryFile = (data) => {
+    const body = {
+      facility_id: parseInt(id),
+      facility_meter_detail_id: parseInt(facilityMeterDetailId),
+      media_url: data?.sasTokenUrl
+    }
+    POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
+      .then((response) => {
+        getHourlySubHourlyEntryData();
+        NotificationsToast({
+          message: "File uploaded successfully!",
+          type: "success",
+        });
+      })
+      .catch((error) => {
+        NotificationsToast({
+          message: error?.message ? error.message : "Something went wrong!",
+          type: "error",
+        });
+      });
+  }
+
+  const deleteFile = () => {
+    DELETE_REQUEST(hourlyEndPoints.DELETE_HOURLY_DATA + fileName?.id)
+    .then((response) => {
+      if (response.data.statusCode == 200) {
+        getHourlySubHourlyEntryData();
+      }
+    })
+    .catch((error) => { });
+  }
 
   return (
     <>
@@ -630,7 +684,7 @@ const EntriesListing = ({
           />
         </Box>
       ) : (
-        <Box>
+        !isFileUploaded ? <Box>
           <Typography variant="h5">
             Upload data in bulk for this meter
           </Typography>
@@ -676,7 +730,14 @@ const EntriesListing = ({
           >
             Upload
           </Button>
-        </Box>
+        </Box> : <Box>
+          <Typography variant="h5" sx={{display: 'flex'}}>
+            <a href="" sx={{color: '#2C77E9 !important'}}>fileabc.xls</a>
+            <Typography sx={{ color: '#FF5858', marginLeft: '1rem' }} onClick={() => deleteFile()}>Delete</Typography>
+          </Typography>
+          <Typography variant="small2" sx={{ color: '#E93323' }} gutterBottom>
+            Uploaded file is not consistent with the Excel template.
+          </Typography> </Box>
       )}
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />

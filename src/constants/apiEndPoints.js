@@ -154,3 +154,9 @@ export const fileUploadEndPoints = {
 export const dashboardEndPoints = {
   ADMIN_DASHBOARD_STATS: "company-facility/v1/dashboard/statistics",
 };
+
+export const hourlyEndPoints = {
+  GET_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
+  ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
+  DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
+};
