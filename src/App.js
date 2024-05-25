@@ -27,7 +27,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 const store = configureStore();
 
-console.log("build updated on 22st May 7PM")
+console.log("build updated on 25th May 5PM")
 
 const App = (props) => {
   return (

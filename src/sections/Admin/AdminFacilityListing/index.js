@@ -151,7 +151,7 @@ const AdminFacilityListing = () => {
       cancelButtonClass: "",
     },
     headerText: "Assign Facility",
-    headerSubText: "Lorem Ipsum is simply dummy text of the print",
+    headerSubText: "",
     modalBodyContent: "",
   });
 
@@ -279,10 +279,10 @@ const AdminFacilityListing = () => {
           >
             Facilities Management
           </Typography>
-          <Typography variant="small2">
+          {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
-          </Typography>
+          </Typography> */}
         </Grid>
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
@@ -339,7 +339,7 @@ const AdminFacilityListing = () => {
             sx={{
               padding: 0,
               minWidth: "5rem!important",
-              bgcolor: "#2C77E9",
+              // bgcolor: "#2C77E9",
             }}
             onClick={openRequestModal}
           >

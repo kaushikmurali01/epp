@@ -153,7 +153,7 @@ const RolePermissionsUserManagement = () => {
                         <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between', flexWrap: 'wrap' }} >
                             <Grid item xs={12} md={5} >
                                 <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>Roles and Permissions Management </Typography>
-                                <Typography variant='small'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography>
+                                {/* <Typography variant='small'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
                             </Grid>
                             <Grid item xs={12} md={7} sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: {md: 'flex-end'}, alignItems: 'center', marginTop: {xs: '1rem', md: '0'}, gap: {xs: '0.5rem', md:'1.5rem'} }}>
                                 <FormGroup sx={{ minWidth: {xs: '100%', md:'14rem'} }}>

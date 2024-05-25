@@ -269,7 +269,7 @@ const Facility = () => {
       cancelButtonClass: "",
     },
     headerText: "Assign Facility",
-    headerSubText: "Lorem Ipsum is simply dummy text of the print",
+    headerSubText: "",
     modalBodyContent: "",
   });
 
@@ -390,7 +390,7 @@ const Facility = () => {
             sx={{
               padding: 0,
               minWidth: "5rem!important",
-              bgcolor: "#2C77E9",
+              // bgcolor: "#2C77E9",
             }}
             onClick={openRequestModal}
           >
@@ -429,7 +429,6 @@ const Facility = () => {
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
-          cursorStyle="pointer"
         />
       </Box>
       <EvModal
