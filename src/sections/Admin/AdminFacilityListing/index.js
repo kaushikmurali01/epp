@@ -271,8 +271,8 @@ const AdminFacilityListing = () => {
 
   return (
     <Container>
-      <Grid container spacing={2}>
-        <Grid item>
+      <Grid container spacing={2} alignItems="center" >
+        <Grid item xs={100} md={4}>
           <Typography
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
@@ -284,120 +284,128 @@ const AdminFacilityListing = () => {
             industry.
           </Typography> */}
         </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="center">
-          <TextField
-            name="search"
-            label="Search by facility name"
-            type="text"
-            fullWidth
-            size="small"
-            sx={{
-              "& .MuiInputBase-root": {
-                height: "2.9rem",
-                borderRadius: "6px",
-              },
-            }}
-            onChange={(e) => setSearchString(e.target.value)}
-          />
-        </Grid>
-        <Grid
-          item
-          sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <FormGroup className="theme-form-group theme-select-form-group">
-            <FormControl sx={{ minWidth: "6rem" }}>
-              <Select
-                displayEmpty={true}
-                className="transparent-border"
-                value={companyFilter}
-                onChange={(e) => setCompanyFilter(e.target.value)}
-              >
-                <MenuItem value="">
-                  <em>Company name</em>
-                </MenuItem>
-                {adminCompaniesDropdownData?.map((item) => (
-                  <MenuItem key={item?.id} value={item?.id}>
-                    {item?.company_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </FormGroup>
-        </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            variant="contained"
-            sx={{
-              padding: 0,
-              minWidth: "5rem!important",
-              // bgcolor: "#2C77E9",
-            }}
-            onClick={openRequestModal}
-          >
-            Assign
-          </Button>
-        </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            disableRipple
-            endIcon={
-              <AddCircleIcon
-                style={{
-                  color: "text.primary",
-                  fontSize: "2rem",
+        <Grid item xs={100} md={8}  >
+          <Grid container alignItems="center" sx={{gap: '2rem', justifyContent: {xs: 'flex-start', md: 'flex-end'}}}>
+            <Grid item >
+              <TextField
+                name="search"
+                label="Search by facility name"
+                type="text"
+                fullWidth
+                size="small"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "2.9rem",
+                    borderRadius: "6px",
+                  },
                 }}
+                onChange={(e) => setSearchString(e.target.value)}
               />
-            }
-            onClick={() => navigate("/facility-list/add-facility")}
-          >
-            Add Facility
-          </Button>
+            </Grid>
+            <Grid
+              item
+              sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <FormControl sx={{ minWidth: "6rem" }}>
+                  <Select
+                    displayEmpty={true}
+                    className="transparent-border"
+                    value={companyFilter}
+                    onChange={(e) => setCompanyFilter(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>Company name</em>
+                    </MenuItem>
+                    {adminCompaniesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.company_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FormGroup>
+            </Grid>
+            <Grid
+              item
+              // sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Button
+                variant="contained"
+                sx={{
+                  padding: '4px 8px',
+                  minWidth: "5rem!important",
+                  // bgcolor: "#2C77E9",
+                }}
+                onClick={openRequestModal}
+              >
+                Assign
+              </Button>
+            </Grid>
+            <Grid
+              item
+              // sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Button
+                style={{
+                  backgroundColor: "transparent",
+                  padding: 0,
+                  minWidth: "unset",
+                  fontSize: "0.875rem",
+                }}
+                disableRipple
+                endIcon={
+                  <AddCircleIcon
+                    style={{
+                      color: "text.primary",
+                      fontSize: "2rem",
+                    }}
+                  />
+                }
+                onClick={() => navigate("/facility-list/add-facility")}
+              >
+                Add Facility
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
-      </Grid>
-      <Grid item xs={12} md={8} mt={4}>
-        <Tabs
-          className="theme-tabs-list"
-          value={tabValue}
-          onChange={handleChange}
-          sx={{ display: "inline-flex" }}
-        >
-          <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
-          <Tab
-            value="created_facilities"
-            label="Created facilities"
-            sx={{ minWidth: "10rem" }}
-          />
 
-          <Tab value="approved" label="Approved" sx={{ minWidth: "10rem" }} />
-          <Tab
-            value="underreview"
-            label="Under Review"
-            sx={{ minWidth: "10rem" }}
-          />
-          <Tab value="rejected" label="Rejected" sx={{ minWidth: "10rem" }} />
-        </Tabs>
       </Grid>
+      <div container>
+        <Grid item xs={12} md={8} mt={4}>
+          <Tabs
+            className="theme-tabs-list"
+            value={tabValue}
+            onChange={handleChange}
+            sx={{ display: "inline-flex", width: '100%' }}
+          >
+            <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="created_facilities"
+              label="Created facilities"
+              sx={{ minWidth: "10rem" }}
+            />
+
+            <Tab value="approved" label="Approved" sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="underreview"
+              label="Under Review"
+              sx={{ minWidth: "10rem" }}
+            />
+            <Tab value="rejected" label="Rejected" sx={{ minWidth: "10rem" }} />
+          </Tabs>
+        </Grid>
+      </div>
+
       <Grid container spacing={3}>
         <Grid item xs={12}>
           {renderTabContent()}
