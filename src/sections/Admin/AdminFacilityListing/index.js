@@ -69,7 +69,7 @@ const AdminFacilityListing = () => {
                 const fileURL = window.URL.createObjectURL(blob);
                 let alink = document.createElement("a");
                 alink.href = fileURL;
-                let fileName = "Facilities_Bulk_Data";
+                let fileName = "Facilities_Bulk_Data.csv";
                 alink.download = fileName;
                 alink.click();
               });
@@ -104,7 +104,7 @@ const AdminFacilityListing = () => {
               alink.href = fileURL;
               let fileName = "Facility_Data";
               if (facility_name) {
-                fileName += "_for_" + facility_name;
+                fileName += "_for_" + facility_name + ".csv";
               }
               alink.download = fileName;
               alink.click();
