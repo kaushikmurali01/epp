@@ -54,6 +54,7 @@ const EntriesListing = ({
   const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [tabValue, setTabValue] = useState("monthlyEntries");
+  const[hourlyEntryFile, setHourlyEntryFile] = useState(null)
   const [entryToDelete, setEntryToDelete] = useState("");
   const [imgUrl, setImgUrl] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
@@ -259,6 +260,7 @@ const EntriesListing = ({
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
     dispatch(fetchMeterDetails(facilityMeterDetailId));
+    getHourlySubHourlyEntryData();
   }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
@@ -466,22 +468,25 @@ const EntriesListing = ({
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    // setSelectedFile(URL.createObjectURL(selectedFile));
+    setHourlyEntryFile(selectedFile)
     dispatch(documentFileUploadAction(selectedFile))
       .then((data) => {
         setImgUrl(data?.sasTokenUrl);
-        uploadEntryFile(data)
       })
       .catch((error) => {
         console.error("Error uploading document:", error);
       });
   };
 
+const uploadHourlyEntryFile = () => {
+  uploadEntryFile(imgUrl)
+}
+
   const uploadEntryFile = (data) => {
     const body = {
       facility_id: parseInt(id),
       facility_meter_detail_id: parseInt(facilityMeterDetailId),
-      media_url: data?.sasTokenUrl
+      media_url: data
     }
     POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
       .then((response) => {
@@ -503,11 +508,25 @@ const EntriesListing = ({
     DELETE_REQUEST(hourlyEndPoints.DELETE_HOURLY_DATA + fileName?.id)
     .then((response) => {
       if (response.data.statusCode == 200) {
+        setHourlyEntryFile(null)
         getHourlySubHourlyEntryData();
       }
     })
     .catch((error) => { });
   }
+
+  const downloadFileFromUrl = (fileUrl) => {
+    fetch(imgUrl).then((response) => {
+      response.blob().then((blob) => {
+        const fileURL = window.URL.createObjectURL(blob);
+        let alink = document.createElement("a");
+        alink.href = fileURL;
+        let fileName = `${meterData?.meter_name}_facility_meter_hourly_entries_file.csv`
+        alink.download = fileName;
+        alink.click();
+      });
+    });
+  };
 
   return (
     <>
@@ -701,14 +720,14 @@ const EntriesListing = ({
               backgroundColor: "#D1FFDA",
               padding: "7px 33px",
               borderRadius: "8px",
-              width: "170px",
               height: "40px",
               marginTop: "20px",
               cursor: "pointer",
+              maxWidth: 'fit-content'
             }}
             onClick={handleButtonClick}
           >
-            Choose File
+            {hourlyEntryFile ? hourlyEntryFile?.name : 'Choose File'}
           </Typography>
           <input
             type="file"
@@ -718,26 +737,24 @@ const EntriesListing = ({
             accept=".xlsx,.csv"
           />
           <Button
-            type="button"
-            color="neutral"
-            sx={{
-              marginTop: "20px",
+            variant="contained"
+            onClick={() => uploadHourlyEntryFile(imgUrl)}
+            style={{
+              padding: "0.2rem 1rem",
+              minWidth: "unset",
               width: "165px",
-              height: "48px",
-              color: "#ffffff",
-              backgroundColor: "#2E813E",
+              height: "40px",
             }}
+            disabled={!imgUrl}
           >
             Upload
           </Button>
         </Box> : <Box>
-          <Typography variant="h5" sx={{display: 'flex'}}>
-            <a href={fileName?.media_url} sx={{color: '#2C77E9 !important'}}>{meterData?.meter_name}_facility_meter_hourly_entries_file.xls</a>
-            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={() => deleteFile()}>Delete</Typography>
+          <Typography variant='h6' sx={{ color: 'blue.main', cursor: 'pointer', display: 'flex' }} onClick={downloadFileFromUrl}>
+            {meterData?.meter_name}_facility_meter_hourly_entries_file.xlsx
+            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={(event) => {event.stopPropagation();deleteFile()}}>Delete</Typography>
           </Typography>
-          <Typography variant="small2" sx={{ color: '#E93323' }} gutterBottom>
-            Uploaded file is not consistent with the Excel template.
-          </Typography> </Box>
+        </Box>
       )}
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
