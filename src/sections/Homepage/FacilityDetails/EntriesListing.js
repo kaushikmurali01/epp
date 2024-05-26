@@ -732,8 +732,8 @@ const EntriesListing = ({
           </Button>
         </Box> : <Box>
           <Typography variant="h5" sx={{display: 'flex'}}>
-            <a href="" sx={{color: '#2C77E9 !important'}}>fileabc.xls</a>
-            <Typography sx={{ color: '#FF5858', marginLeft: '1rem' }} onClick={() => deleteFile()}>Delete</Typography>
+            <a href="" sx={{color: '#2C77E9 !important'}}>{meterData?.meter_name}_facility_meter_hourly_entries_file.xls</a>
+            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={() => deleteFile()}>Delete</Typography>
           </Typography>
           <Typography variant="small2" sx={{ color: '#E93323' }} gutterBottom>
             Uploaded file is not consistent with the Excel template.
