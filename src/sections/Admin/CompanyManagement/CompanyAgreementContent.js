@@ -83,7 +83,7 @@ const CompanyAgreementContent = () => {
           <PDFDisplay pdfUrl={PAData?.is_signed && PAData?.signed_doc} />
         ) : (
           <Typography>
-            The company {PAData?.company_name} has not signed paticipant
+            The company {PAData?.company_name} has not signed participant
             agreement yet.
           </Typography>
         )}
