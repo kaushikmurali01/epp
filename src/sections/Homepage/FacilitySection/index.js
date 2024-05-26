@@ -347,7 +347,7 @@ const Facility = () => {
   return (
     <Container>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <Typography
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
@@ -368,58 +368,65 @@ const Facility = () => {
             is mandatory before you enrol your facility
           </Typography> */}
         </Grid>
-        <Grid item sm={3.5}>
-          <TextField
-            name="search"
-            label="Search by Facility name"
-            type="text"
-            fullWidth
-            size="small"
-            sx={{
-              "& .MuiInputBase-root": {
-                height: "3rem",
-                borderRadius: "6px",
-              },
-            }}
-            onChange={(e) => setSearchString(e.target.value)}
-          />
-        </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="center">
-          <Button
-            variant="contained"
-            sx={{
-              padding: 0,
-              minWidth: "5rem!important",
-              // bgcolor: "#2C77E9",
-            }}
-            onClick={openRequestModal}
-          >
-            Assign
-          </Button>
-        </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="flex-end">
-          <Button
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            disableRipple
-            endIcon={
-              <AddCircleIcon
-                style={{
-                  color: "text.primary",
-                  fontSize: "2rem",
+        <Grid item xs={12} sm={8}>
+          <Grid container sx={{gap: {xs: '1rem', md: '2rem'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}}}>
+            <Grid item >
+              <TextField
+                name="search"
+                label="Search by Facility name"
+                type="text"
+                fullWidth
+                size="small"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "3rem",
+                    borderRadius: "6px",
+                  },
                 }}
+                onChange={(e) => setSearchString(e.target.value)}
               />
-            }
-            onClick={() => navigate("/facility-list/add-facility")}
-          >
-            Add Facility
-          </Button>
+            </Grid>
+            <Grid item display="flex" alignItems="center" justifyContent="center">
+              <Button
+                variant="contained"
+                sx={{
+                  padding: '4px 12px',
+                  minWidth: "5rem!important",
+                  // bgcolor: "#2C77E9",
+                }}
+                onClick={openRequestModal}
+              >
+                Assign Access
+              </Button>
+            </Grid>
+            <Grid item display="flex" alignItems="center" justifyContent="flex-end">
+              <Button
+                style={{
+                  backgroundColor: "transparent",
+                  padding: 0,
+                  minWidth: "unset",
+                  fontSize: "0.875rem",
+                }}
+                disableRipple
+                endIcon={
+                  <AddCircleIcon
+                    style={{
+                      color: "text.primary",
+                      fontSize: "2rem",
+                    }}
+                  />
+                }
+                onClick={() => navigate("/facility-list/add-facility")}
+              >
+                Add Facility
+              </Button>
+            </Grid>
+
+          </Grid>
         </Grid>
+
       </Grid>
+
       <Box sx={{ marginTop: "2rem" }}>
         <Table
           cursorStyle="pointer"
