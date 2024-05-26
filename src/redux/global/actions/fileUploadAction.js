@@ -18,7 +18,7 @@ export const fileUploadAction = (uploadData) => {
       const data = response.data;
       dispatch(fileUploadSuccess(data));
       NotificationsToast({
-        message: "Image uploaded successfully!",
+        message: "File uploaded successfully!",
         type: "success",
       });
       return data;
