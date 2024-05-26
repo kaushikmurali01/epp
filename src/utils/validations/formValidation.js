@@ -380,6 +380,11 @@ export const changePasswordValidationSchema = Yup.object().shape({
 });
 
 export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
-  company: Yup.string().required("Company is required"),
+  company: Yup.object({
+    id: Yup.string().required("Company is required"),
+  }).required("Company is required"),
+  // company: Yup.object({
+  //   label: Yup.string().required("Company is required"),
+  // }).required("Company is required"),
   role: Yup.string().required("Role is required"),
 });

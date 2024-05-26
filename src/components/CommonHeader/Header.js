@@ -33,6 +33,7 @@ import ButtonWrapper from 'components/FormBuilder/Button';
 import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
 import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
 import "./header.scss"
+import AutoCompleteInputField from "components/FormBuilder/AutoCompleteInputField";
 
 const settings = ["Profile", "Logout"];
 
@@ -280,14 +281,15 @@ function Header(props) {
   const RequestToJoinForm = () => {
 
     const initialValues = {
-      company: '',
+      company: { id: '',label: '', },
       role: '',
     };
     const formSubmit = (data) => {
       console.log(data, "check role")
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
-        "company_id": data.company.toString(),
+        // "company_id": data.company.toString(),
+        "company_id": data.company.id.toString(),
         "role": data.role.toString(),
         "user_id": userData?.user?.id
       }
@@ -297,8 +299,8 @@ function Header(props) {
     
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
-          // handleAPISuccessCallBack();
-          // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
@@ -320,7 +322,7 @@ function Header(props) {
           },
           headerText: "",
           headerSubText: '',
-          modalBodyContent: 'Your request to join has been submitted. The company’s administrators will review your request and approve as needed.'
+          modalBodyContent: successMessage
           }));
 
         })
@@ -341,8 +343,8 @@ function Header(props) {
       >
         <Form >
           <Stack sx={{ marginBottom: '1rem' }}>
-            {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            {/* <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" /> */}
+            {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />

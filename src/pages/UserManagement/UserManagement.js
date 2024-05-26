@@ -17,6 +17,7 @@ import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
 import { useSelector } from 'react-redux';
 import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
+import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
   const navigate = useNavigate();
@@ -79,7 +80,7 @@ const UserManagement = () => {
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
-    company: '',
+    company: { id: '',label: '', },
     role: '',
   };
 
@@ -97,9 +98,12 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
+      console.log(data,'formSubmit');
+      // return;
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
-        "company_id": data.company.toString(),
+        // "company_id": data.company.toString(),
+        "company_id": data.company.id.toString(),
         "role": data.role.toString(),
         "user_id": userData?.user?.id
       }
@@ -110,13 +114,16 @@ const UserManagement = () => {
         .then((response) => {
           handleAPISuccessCallBack();
           // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          console.log(response, "check response");
+          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: true,
               modalUI: {
                 ...prevState.modalUI,
                 crossIcon: false,
-                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem'},
+                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem', textAlign: 'center'},
                 fotterActionStyle: { justifyContent: "center", gap: "1rem" },
               },
               buttonsUI: {
@@ -132,7 +139,7 @@ const UserManagement = () => {
             },
             headerText: "",
             headerSubText: '',
-            modalBodyContent: 'Your request to join has been submitted. The company’s administrators will review your request and approve as needed.'
+            modalBodyContent: successMessage
             }));
 
         })
@@ -153,9 +160,10 @@ const UserManagement = () => {
         onSubmit={formSubmit}
       >
         <Form >
+       
           <Stack sx={{ marginBottom: '1rem' }}>
-            {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            {/* <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" /> */}
+            {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
