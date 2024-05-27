@@ -368,10 +368,10 @@ const CompanyListing = () => {
           >
             Company List
           </Typography>
-          <Typography variant="small2">
+          {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
-          </Typography>
+          </Typography> */}
         </Grid>
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
