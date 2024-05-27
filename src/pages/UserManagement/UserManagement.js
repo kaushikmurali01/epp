@@ -15,12 +15,13 @@ import NotificationsToast from 'utils/notification/NotificationsToast';
 import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
 import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // pull functions from user management..
   const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
@@ -225,7 +226,7 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = (pageDataInfo, search) => {
-
+    dispatch({ type: "SHOW_LOADER", payload: true });
     // const allUserTypes = selectFilterType;
     const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
@@ -240,12 +241,15 @@ const UserManagement = () => {
           if (res.data?.body?.rows instanceof Array) {
             setAllUser(res.data?.body?.rows)
             setPageCount(res.data?.body?.count)
+
           } else {
             setAllUser([])
             setPageCount(0)
           }
+          dispatch({ type: "SHOW_LOADER", payload: false });
         }).catch((error) => {
           console.log(error)
+          dispatch({ type: "SHOW_LOADER", payload: false });
         });
     }
 

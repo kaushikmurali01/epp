@@ -23,6 +23,8 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
+import { useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 const Table = ({
   columns,
@@ -42,6 +44,7 @@ const Table = ({
       useSortBy
     );
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
   const handlePrevPage = () => {
     if (pageInfo?.page > 1) {
@@ -114,7 +117,7 @@ const Table = ({
   
   return (
     <TableContainer className={tableClass}>
-      <MUITable {...getTableProps()} sx={{...customTableStyles}}>
+      <MUITable {...getTableProps()} sx={{...customTableStyles, position: 'relative', minHeight: '150px'}}>
         <TableHead sx={{ backgroundColor: headbgColor || 'rgba(217, 217, 217, 0.2)' }}>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
@@ -176,6 +179,11 @@ const Table = ({
           </TableRow>
         }
         </TableBody>
+
+          {show_loader && 
+                <Loader sectionLoader={true} minHeight="200px"  />
+           }
+       
         {(pageInfo?.pageSize && rows?.length > 0 ) && 
           <TableFooter>
             <TableRow>
