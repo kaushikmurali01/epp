@@ -623,8 +623,8 @@ export async function AlertUser(request: HttpRequest, context: InvocationContext
             .replace('#content#', requestData.comment)
             .replace('#name#', requestData.first_name)
             .replace('#logo#', logo)
-            .replace('#isDisplay#', 'block')
-            .replace('#button#', 'Accept Invitation');
+            .replace('#isDisplay#', 'none')
+            .replace('#button#', 'View Application');
 
         Email.send(requestData.email, EmailContent.alertEmail.title, template);
         const resp = { status: 200, body: 'Alert Sent successfully' };

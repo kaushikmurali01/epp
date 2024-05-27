@@ -64,8 +64,8 @@ class UserController {
 */
   static async updateUser(req, userId, companyId): Promise<any> {
     try {
-      console.log("COmps111", req.company);
-      const c_id = req.company.company_id;
+      console.log("COmps111", companyId);
+      
       // const { id } = req.params;
       // const { first_name, last_name, email, password, address, phonenumber } = req.body;
       // const updatedUser = await UserService.updateUser(parseInt(id), { first_name, last_name, email, password, address, phonenumber });
@@ -83,7 +83,8 @@ class UserController {
       if (userData) {
 
         (async () => {
-
+      if(companyId) {
+      const c_id = companyId;
       // Send Email For User Starts
       let template =  await EmailTemplate.getEmailTemplate();
       console.log("COmps", c_id);
@@ -107,6 +108,7 @@ class UserController {
     .replace('#heading#', '');
     await CompanyService.GetAdminsAndSendEmails(c_id, EmailContent.editDetailForAdmins.title, adminContent);
     // Send Email to Admins
+          }
          
       })();
      

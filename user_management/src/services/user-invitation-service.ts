@@ -10,6 +10,7 @@ import { EmailContent } from '../utils/emailContent';
 import { CompanyService } from './companyService';
 import { UserCompanyRole } from '../models/user-company-role';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
+import { UserRequest } from '../models/user-request';
 
 class UserInvitationService {
   /**
@@ -42,7 +43,12 @@ class UserInvitationService {
   static async sendInvitation(details: any, resp: any): Promise<Response> {
     try {
         const { email, company, type } = details;
-
+        let company_id;
+        if(resp.company_id) {
+          company_id = resp.company_id;
+        } else {
+          company_id = company;
+        }
         
         await UserInvitation.create(details);
 
@@ -58,7 +64,7 @@ class UserInvitationService {
                 let admin_name = "";
                 let company_name = "";
                 if (company && type == 2) {
-                    const companyAdmin = await CompanyService.getCompanyAdmin(company);
+                    const companyAdmin = await CompanyService.getCompanyUser(company_id, resp.role_id);
                     admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
                     company_name = companyAdmin?.dataValues?.company_name;
                 }
@@ -124,7 +130,7 @@ class UserInvitationService {
         let admin_name = "";
         let company_name = "";
         if (company && type == 2) {
-            const companyAdmin = await CompanyService.getCompanyAdmin(company);
+            const companyAdmin = await CompanyService.getCompanyUser(company, resp.role_id);
             admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
             company_name = companyAdmin?.dataValues?.company_name;
         }
@@ -177,7 +183,7 @@ class UserInvitationService {
         let admin_name = "";
         let company_name = "";
         if(details.company && details.type == 2 ) {
-        company = await CompanyService.getCompanyAdmin(details.company);
+        company = await CompanyService.getCompanyUser(details.company, resp.role_id);
         admin_name = company?.first_name +' '+company?.last_name
         company_name = company?.dataValues?.company_name;
         }
@@ -359,6 +365,8 @@ await UserInvitation.destroy({
 if(detail.company_id) {
   await User.update({ type: 2 }, { where: { id: detail.user_id} });
 } 
+
+await UserRequest.destroy({ where: { company_id: detail.company_id, user_id: detail.user_id }});
 // else {
 //   await User.update({ type: 1 }, { where: { id: detail.user_id} });
 // }
