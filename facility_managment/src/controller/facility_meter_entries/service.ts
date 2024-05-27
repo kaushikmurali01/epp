@@ -45,7 +45,7 @@ export class FacilityMeterEntriesService {
             created_by: userToken.id
         };
         const result = await FacilityMeterMonthlyEntries.create(obj);
-        await Facility.update({facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},{where:{id:body.facility_id}});
+        // await Facility.update({facility_id_submission_status:FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},{where:{id:body.facility_id}});
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
     
         

@@ -15,7 +15,7 @@ class FacilityMeterDetail extends Model<IFacilityMeterDetailAttributes, Facility
     public meter_inactive?: Date | null;
     public stil_in_use?: boolean | null;
     public is_rg_meter?: boolean | null;
-    public meter_spec_as_per_measurement?: boolean | null;
+    public meter_spec_as_per_measurement?: string | null;
     public meter_specification_url?: string | null;
     public is_active?: number | null;
     public created_at?: Date | null;
@@ -61,7 +61,7 @@ FacilityMeterDetail.init(
             allowNull: true,
         },
         meter_spec_as_per_measurement: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         is_rg_meter: {
