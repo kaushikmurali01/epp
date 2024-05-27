@@ -355,13 +355,21 @@ const AdminAddFacilityComponent = (props) => {
 
     const handleFileChange = (event) => {
         // Handle the file selection here
-        const selectedFile = event.target.files[0];
-        setSelectedFile(URL.createObjectURL(selectedFile));
-        dispatch(fileUploadAction(selectedFile))
-            .then((data) => setImgUrl(data?.sasTokenUrl))
-            .catch((error) => {
-                console.error("Error uploading image:", error);
+        const fileSizeInMB = event.target.files[0].size / (1024 * 1024); // Convert bytes to MB
+        if (fileSizeInMB <= 5) {
+            const selectedFile = event.target.files[0];
+            setSelectedFile(URL.createObjectURL(selectedFile));
+            dispatch(fileUploadAction(selectedFile))
+                .then((data) => setImgUrl(data?.sasTokenUrl))
+                .catch((error) => {
+                    console.error("Error uploading image:", error);
+                });
+        } else {
+            NotificationsToast({
+                message: "File size should be less than 5mb!",
+                type: "error",
             });
+        }
     };
 
     const userCompanyId = useSelector(
