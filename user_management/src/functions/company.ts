@@ -99,10 +99,10 @@ export async function sendAlertForCompany(request: HttpRequest, context: Invocat
     try {
         // Parse request data
         const { id } = request.params;
-        let checkStatus = await CheckCompanyStatus(id)
-        if (!checkStatus) {
-            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
-        }
+        // let checkStatus = await CheckCompanyStatus(id)
+        // if (!checkStatus) {
+        //     return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        // }
         const requestData = await request.json();
         const company = await CompanyController.sendAlertForCompany(requestData, id);
 
@@ -176,10 +176,10 @@ export async function DropDownCompanies(request: HttpRequest, context: Invocatio
 export async function GetCompanyAdmin(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         const { id } = request.params;
-        let checkStatus = await CheckCompanyStatus(id)
-        if (!checkStatus) {
-            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
-        }
+        // let checkStatus = await CheckCompanyStatus(id)
+        // if (!checkStatus) {
+        //     return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        // }
         await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         // Get all companies
@@ -231,10 +231,10 @@ export async function CheckCompanyByName(request: HttpRequest, context: Invocati
 
 export async function GetCompanyAdmins(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     const { company_id } = request.params;
-    let checkStatus = await CheckCompanyStatus(company_id)
-    if (!checkStatus) {
-        return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
-    }
+    // let checkStatus = await CheckCompanyStatus(company_id)
+    // if (!checkStatus) {
+    //     return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+    // }
     const result = await CompanyService.GetAdminsOfCompany(company_id);
     const responseBody = JSON.stringify(result);
     return { body: responseBody };

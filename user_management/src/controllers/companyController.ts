@@ -135,7 +135,7 @@ Thank You,<br/>
             let logo: any = EmailTemplate.getLogo();
             if (!requestData.first_name) requestData.first_name = '';
             template = template.replace('#heading#', 'Alert from admin')
-                .replace('#content#', requestData.message)
+                .replace('#content#', requestData.comment)
                 .replace('#name#', company?.first_name)
                 .replace('#logo#', logo);
             Email.send(company?.email, EmailContent.alertEmail.title, template);
