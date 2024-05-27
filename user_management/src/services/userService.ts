@@ -251,13 +251,12 @@ class UserService {
           {
             model: User,
             attributes: [],
-            where: {
-              [Op.or]: [
-                { first_name: { [Op.iLike]: `%${search}%` } },
-                { last_name: { [Op.iLike]: `%${search}%` } },
-                { email: { [Op.iLike]: `%${search}%` } },
-              ]
-            }
+            where: {  [Op.or]: [
+                     { first_name: { [Op.iLike]: `%${search}%` } },
+                     { last_name: { [Op.iLike]: `%${search}%` } },
+                     { email: { [Op.iLike]: `%${search}%` } },
+                   ]
+                  }
           },
           {
             model: Role,
@@ -409,7 +408,13 @@ class UserService {
 
         {
           model: User,
-          attributes: []
+          attributes: [],
+          where: {  [Op.or]: [
+            { first_name: { [Op.iLike]: `%${search}%` } },
+            { last_name: { [Op.iLike]: `%${search}%` } },
+            { email: { [Op.iLike]: `%${search}%` } },
+          ]
+         }
         }
         ]
       })

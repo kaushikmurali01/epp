@@ -582,8 +582,23 @@ export async function GetFilteredUsers(request: HttpRequest, context: Invocation
 export async function CreateUserRequest(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Parse request data
-        const requestData = await request.json();
+        const requestData:any = await request.json();
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const email = resp.email;
+        const company = requestData.company_id;
+        const user_id = requestData.user_id;
+        
+        // Validation starts
+         const existingInvitation = await UserInvitation.findOne({ where: { email, company } });
+         const existingrRequest = await UserRequest.findOne({ where: { user_id, company_id : company } });
+         if (existingInvitation) {
+            return {body: JSON.stringify({ status: 500, message: `You are already invited for this company.` })};
+         }
+        else  if (existingrRequest) {
+            return {body: JSON.stringify({ status: 500, message: `You have already sent request for this company.` })};
+         }
+        // Validation ends
+        
         const data = await UserController.createUserRequest(requestData, resp);
 
         // Prepare response body
@@ -607,7 +622,9 @@ export async function AlertUser(request: HttpRequest, context: InvocationContext
         template = template.replace('#heading#', 'Alert from admin')
             .replace('#content#', requestData.comment)
             .replace('#name#', requestData.first_name)
-            .replace('#logo#', logo);
+            .replace('#logo#', logo)
+            .replace('#isDisplay#', 'block')
+            .replace('#button#', 'Accept Invitation');
 
         Email.send(requestData.email, EmailContent.alertEmail.title, template);
         const resp = { status: 200, body: 'Alert Sent successfully' };

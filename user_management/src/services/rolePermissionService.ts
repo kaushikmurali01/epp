@@ -26,6 +26,7 @@ class RolePermissionService {
                     }
                 ],
                 attributes: ['permission_id', [sequelize.col('Permission.permission_description'), 'desc'], [sequelize.col('Permission.is_active'), 'is_active']],
+                order: [['id', 'ASC']],
                 raw: true // Return plain JSON objects
             });
             const permissionsWithAssignment = permissions.map(permission => ({

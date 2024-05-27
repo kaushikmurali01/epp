@@ -71,7 +71,8 @@ class UserInvitationService {
                                                 .replace('#heading#', '')
                                                 .replace('#link#', landing_page)
                                                 .replace('#company#', company_name || "Enerva")
-                                                .replace('#isDisplay#', 'block');
+                                                .replace('#isDisplay#', 'block')
+                                                .replace('#button#', 'Accept Invitation');
                                                 if(existingUser?.first_name) {
                                                   emailContent =  emailContent.replace('#name#', existingUser?.first_name);
                                                 } else {
@@ -86,7 +87,8 @@ class UserInvitationService {
                         const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                                 .replace('#user#', `${existingUser.first_name} ${existingUser.last_name}`)
                                                                                 .replace('#admin#', resp?.first_name || admin_name)
-                                                                                .replace('#company#', company_name);
+                                                                                .replace('#company#', company_name)
+                                                                                .replace('#button#', 'Accept Invitation');;
                         await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
                     }
                 } else {
@@ -95,7 +97,8 @@ class UserInvitationService {
                         const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                                 .replace('#user#', `User with email ${email}`)
                                                                                 .replace('#admin#', resp?.first_name || admin_name)
-                                                                                .replace('#company#', company_name);
+                                                                                .replace('#company#', company_name)
+                                                                                .replace('#button#', 'Accept Invitation');;
                         await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
                     }
                 }
@@ -326,7 +329,7 @@ static async acceptUserInvitation(detail, resp, context): Promise<Object> {
       company_id: detail.company_id,
       role_id: detail.role_id,
       is_active: 1, 
-      status: 'accepted'
+      status: 'Active'
   });
 
   await UserCompanyRolePermission.destroy({

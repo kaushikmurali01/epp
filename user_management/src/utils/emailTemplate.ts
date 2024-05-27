@@ -160,7 +160,7 @@ export class EmailTemplate {
                               </td>
                             </tr>
                             <tr>
-                              <td style="height: 1.25rem"></td>
+                              <td style="height: 1.5rem"></td>
                             </tr>
                             <tr style="display: #isDisplay#">
                               <td class="common-para" style="
@@ -168,6 +168,7 @@ export class EmailTemplate {
                                     font-size: 0.75rem;
                                     font-weight: 400;
                                     text-transform: lowercase;
+                                    padding-bottom: 1.5rem;
                                   ">
                                   <a href="https://eppstgstorage.z14.web.core.windows.net/" target="_blank" style="
                                     border: transparent;
@@ -179,12 +180,11 @@ export class EmailTemplate {
                                     font-size: 0.875rem;
                                     font-style: normal;
                                     font-weight: 400;
-                                  ">View application</a>
+                                    text-transform: capitalize;
+                                  ">#button#</a>
                               </td>
                             </tr>
-                            <tr style="display: #isDisplay#">
-                              <td style="height: 1.25rem"></td>
-                            </tr>
+                            
                             <tr>
                               <td class="common-para" style="
                                     color: #242424;
