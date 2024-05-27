@@ -63,6 +63,7 @@ const AdminFacilityDetails = () => {
               backgroundColor: "primary.main",
             },
             marginRight: "1rem",
+            mb: isSmallScreen && 6,
           }}
           onClick={() => navigate("/facility-list")}
         >
