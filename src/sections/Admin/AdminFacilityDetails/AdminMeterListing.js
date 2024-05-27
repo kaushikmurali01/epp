@@ -260,10 +260,11 @@ const AdminMeterListing = ({
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (
                       <TableCell key={index} sx={{ color: "#111" }}>
-                        {format(
-                          new Date(date?.["Current energy date"]),
-                          "yyyy-MM-dd"
-                        )}
+                        {date?.["Current energy date"] &&
+                          format(
+                            new Date(date?.["Current energy date"]),
+                            "yyyy-MM-dd"
+                          )}
                       </TableCell>
                     ))}
                 </TableRow>

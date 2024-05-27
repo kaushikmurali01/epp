@@ -360,7 +360,7 @@ const CompanyListing = () => {
 
   return (
     <Container>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} sm={7}>
           <Typography
             variant="h4"
