@@ -54,6 +54,7 @@ const AdminFacilityStatus = ({ children }) => {
           padding: "5px 15px",
           background: `${getColor(children)}`,
           textWrap: "nowrap",
+          fontStyle: 'italic'
         }}
         variant="contained"
       >
