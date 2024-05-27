@@ -112,6 +112,7 @@ If you believe you received this email in error, please contact Customer Service
 Thank You,<br/>
                 Energy Performance Program`)
                 .replace('#name#', "")
+                .replace('#isDisplay#', 'none')
                 .replace('#logo#', logo).replace("Hello ", "Hello");
             console.log(findData)
             //Email.multipleSend(mails, EmailContent.activeInactiveEmail.title, template);
@@ -129,19 +130,18 @@ Thank You,<br/>
      */
     static async sendAlertForCompany(requestData, companyId): Promise<any> {
         try {
-            (async() => {
-            const company = await CompanyService.getCompanyAdmin(companyId);
-            let template = await EmailTemplate.getEmailTemplate();
-            let logo: any = EmailTemplate.getLogo();
-            if (!requestData.first_name) requestData.first_name = '';
-            template = template.replace('#heading#', 'Alert from admin')
-                .replace('#content#', requestData.comment)
-                .replace('#name#', company?.first_name)
-                .replace('#logo#', logo);
-            Email.send(company?.email, EmailContent.alertEmail.title, template);
+            (async () => {
+                const company = await CompanyService.getCompanyAdmin(companyId);
+                let template = await EmailTemplate.getEmailTemplate();
+                if (!requestData.first_name) requestData.first_name = '';
+                template = template.replace('#heading#', 'Alert from admin')
+                    .replace('#content#', requestData.comment)
+                    .replace('#name#', company?.first_name)
+                    .replace('#isDisplay#', 'none');
+                Email.send(company?.email, EmailContent.alertEmail.title, template);
 
             })();
-            
+
             const resp = { status: 200, body: 'Alert Sent successfully' };
             return resp;
         } catch (error) {
