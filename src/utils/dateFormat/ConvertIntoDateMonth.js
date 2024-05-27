@@ -24,22 +24,16 @@ return formattedDate;
 }
 
 export const parseUTCDateToLocalDate = (utcdate) => {
-  // Parse our locale string to [date, time]
-  let date = new Date(utcdate).toLocaleString({},{hour12:false}).split(" ");
+  const localDate = new Date(utcdate.toLocaleString('en-US', {}));
 
-  // Now we can access our time at date[1], and monthdayyear @ date[0]
-  let time = date[1];
-  const [hours, minutes] = time.split(":")
-  const t = hours + ":" + minutes
-  let mdy = date[0];
+  // Format the local time in the desired format (YYYY-MM-DD HH:MM)
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(localDate.getDate()).padStart(2, '0');
+  const hours = String(localDate.getHours()).padStart(2, '0');
+  const minutes = String(localDate.getMinutes()).padStart(2, '0');
 
-  // We then parse  the mdy into parts
-  mdy = mdy.split('/');
-  let month = String(+parseInt(mdy[0])).charAt(0) == parseInt(mdy[0]) ? "0"+parseInt(mdy[0]) : parseInt(mdy[0]) 
-  let day = String(+parseInt(mdy[1])).charAt(0) == parseInt(mdy[1]) ? "0"+parseInt(mdy[1]) : parseInt(mdy[1])    ;
-  let year = parseInt(mdy[2]);
-
-  // Putting it all together
-  let formattedDate = year + '-' + month + '-' + day + ' ' +  t;
-  return formattedDate
+  const formattedLocalTime = `${year}-${month}-${day} ${hours}:${minutes}`;
+  console.log("Formatted local time:", formattedLocalTime);
+  return formattedLocalTime
 }
