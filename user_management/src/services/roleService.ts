@@ -152,7 +152,7 @@ class RoleService {
                 // Update company role ends
             } else {
                 context.log("4444", data);
-                await UserInvitation.update({ permissions }, { where: { email, company: data.company_id } });
+                await UserInvitation.update({ permissions, role: data.role_id }, { where: { email, company: data.company_id } });
             }
             console.log('Permissions inserted successfully.');
             //return perm;
