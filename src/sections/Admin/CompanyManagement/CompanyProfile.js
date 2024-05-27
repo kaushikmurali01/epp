@@ -1,10 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Grid, Box, List } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  List,
+  IconButton,
+  Button,
+} from "@mui/material";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminCompanyDetails } from "../../../redux/admin/actions/adminCompanyAction";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { userTypes } from "constants/allDefault";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
 const CompanyProfile = () => {
   const tabStyle = {
@@ -21,6 +31,7 @@ const CompanyProfile = () => {
   };
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
@@ -36,16 +47,32 @@ const CompanyProfile = () => {
   };
   return (
     <Container>
-      <Typography
-        variant="h4"
-        fontWeight={"700"}
-        marginBlockEnd={"3rem"}
-        display={"flex"}
-        alignItems={"center"}
-      >
-        Company Details
-      </Typography>
-
+      <Grid container mb={4} alignItems="center">
+        <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+          }}
+          textAlign="center"
+          onClick={() => navigate("/companies")}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
+        <Typography
+          variant="h4"
+          sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
+        >
+          Company Details
+        </Typography>
+      </Grid>
       <Grid
         container
         gap={"2rem"}
@@ -67,17 +94,30 @@ const CompanyProfile = () => {
             justifyContent: "center",
           }}
         >
-          <img
-            style={{
-              width: "12.5rem",
-              height: "12.5rem",
-              maxWidth: "100%",
-              aspectRatio: 1,
-              borderRadius: "100%",
-            }}
-            src={companyProfileData?.profile_pic}
-            alt="company-profile"
-          />
+          {companyProfileData?.profile_pic ? (
+            <img
+              style={{
+                width: "12.5rem",
+                height: "12.5rem",
+                maxWidth: "100%",
+                aspectRatio: 1,
+                borderRadius: "100%",
+              }}
+              src={companyProfileData?.profile_pic}
+              alt="company-profile"
+            />
+          ) : (
+            <AccountCircleIcon
+              sx={{
+                width: "12.5rem",
+                height: "12.5rem",
+                maxWidth: "100%",
+                aspectRatio: 1,
+                borderRadius: "100%",
+                color: "#B9B9B9",
+              }}
+            />
+          )}
         </Grid>
 
         <Grid container item sx={{ flex: "1", gap: "1.5rem" }}>
