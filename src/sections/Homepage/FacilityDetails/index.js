@@ -1,4 +1,4 @@
-import { Box, Container, useMediaQuery } from "@mui/material";
+import { Box, Container, Grid, IconButton, useMediaQuery } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import FacilityTimeline from "./FacilityTimeline";
 import FacilitySidebar from "./FacilitySidebar";
@@ -11,13 +11,15 @@ import Performance from "./Performance";
 import ReportsAndStudies from "./ReportsAndStudies";
 import Weather from "./Weather";
 import { fetchFacilityDetails } from "../../../redux/superAdmin/actions/facilityActions";
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const FacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [selectedTab, setSelectedTab] = useState(0);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
@@ -44,7 +46,29 @@ const FacilityDetails = () => {
     }
   };
   return (
-    <Container sx={{ mt: 12 }}>
+    <Container sx={{ mt: 8 }}>
+      {/* <Grid container sx={{ mb: 12 }}> */}
+      <Grid container>
+        <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+          }}
+          onClick={() => navigate("/facility-list")}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
+        {/* <Typography variant="h4">Facility management</Typography> */}
+      </Grid>
+
       <FacilityTimeline />
       <FacilityHeader />
       <Box

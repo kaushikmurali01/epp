@@ -112,7 +112,7 @@ const FacilityHeader = () => {
                 <MapsHomeWorkIcon
                   sx={{
                     fontSize: "7.5rem",
-                    color: "#757575",
+                    color: "#B9B9B9",
                   }}
                 />
               )}
