@@ -85,7 +85,11 @@ const AutoCompleteInputField = ({ optionsArray, inputFieldLabel, optionKey, opti
         onChange={handleOnChange}
         onInputChange={handleInputChange}
         onBlur={formikProps.handleBlur}
-        noOptionsText="No results found"
+        noOptionsText={
+          <Typography variant="body2">
+            {searchTerm.length === 0 ? 'Please enter company name' : 'No results found'}
+          </Typography>
+        }
         renderInput={(params) => (
           <React.Fragment>
             {inputFieldLabel && <FormLabel>{inputFieldLabel}</FormLabel>}
