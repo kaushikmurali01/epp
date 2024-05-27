@@ -86,34 +86,34 @@ class UserService {
         console.log('6666');
       }
       await UserRequest.update({ status: 'accepted' }, { where: { id } });
-      await UserRequest.destroy({ where: { id: id }});
-      if(data.company_id) {
-        await User.update({ type: 2 }, { where: { id: userData?.dataValues?.user_id} });
-      } 
+      await UserRequest.destroy({ where: { id: id } });
+      if (data.company_id) {
+        await User.update({ type: 2 }, { where: { id: userData?.dataValues?.user_id } });
+      }
       console.log('77777');
       (async () => {
-      
-      // Send Email For User Starts
-      let template =  await EmailTemplate.getEmailTemplate();
-            const company:any = await CompanyService.GetCompanyById(data.company_id);
-           const userDet:any = await this.getUserDataById(userData?.dataValues?.user_id);
-            let emailContent =  template
-                      .replace('#content#', EmailContent.joinCompanyApprovalForUser.content)
-                      .replace('#name#', userDet.first_name)
-                      .replace('#company#', company.company_name)
-                      .replace('#isDisplay#', 'none')
-                      .replace('#heading#', '');
-             Email.send(userDet.email, EmailContent.joinCompanyApprovalForUser.title, emailContent);
-      // Send Email For User Ends
 
-       // Send Email to Admins
-       const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.joinCompanyApprovalForAdmins.content)
-       .replace('#user#', `${userDet.first_name}`)
-       .replace('#company#', company.company_name)
-       .replace('#isDisplay#', 'none')
-       .replace('#heading#', ''); 
-       await CompanyService.GetAdminsAndSendEmails(data.company_id, EmailContent.joinCompanyApprovalForAdmins.title, adminContent);
-       // Send Email to Admins
+        // Send Email For User Starts
+        let template = await EmailTemplate.getEmailTemplate();
+        const company: any = await CompanyService.GetCompanyById(data.company_id);
+        const userDet: any = await this.getUserDataById(userData?.dataValues?.user_id);
+        let emailContent = template
+          .replace('#content#', EmailContent.joinCompanyApprovalForUser.content)
+          .replace('#name#', userDet.first_name)
+          .replace('#company#', company.company_name)
+          .replace('#isDisplay#', 'none')
+          .replace('#heading#', '');
+        Email.send(userDet.email, EmailContent.joinCompanyApprovalForUser.title, emailContent);
+        // Send Email For User Ends
+
+        // Send Email to Admins
+        const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.joinCompanyApprovalForAdmins.content)
+          .replace('#user#', `${userDet.first_name}`)
+          .replace('#company#', company.company_name)
+          .replace('#isDisplay#', 'none')
+          .replace('#heading#', '');
+        await CompanyService.GetAdminsAndSendEmails(data.company_id, EmailContent.joinCompanyApprovalForAdmins.title, adminContent);
+        // Send Email to Admins
       })();
 
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
@@ -130,7 +130,7 @@ class UserService {
       throw error;
     }
   }
-  
+
 
   static async rejectInvitation(data): Promise<Response> {
     try {
