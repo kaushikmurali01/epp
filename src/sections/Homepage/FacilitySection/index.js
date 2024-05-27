@@ -51,11 +51,11 @@ const Facility = () => {
           gap={2}
           onClick={(e) => e.stopPropagation()}
         >
-          <Typography>{item.facility_name}</Typography>
+          <Typography variant="body2" sx={{fontWeight: 'inherit'}}>{item.facility_name}</Typography>
           {item?.facility_id_submission_status === 1 && (
             <Button
               variant="contained"
-              sx={{ display: item.is_approved && "none" }}
+              sx={{ display: item.is_approved && "none", fontSize: {xs: '0.875rem'} }}
               onClick={() => submitForApprovalHandler(item.id)}
             >
               Submit for baseline modelling

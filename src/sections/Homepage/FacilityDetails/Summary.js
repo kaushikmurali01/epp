@@ -132,7 +132,7 @@ const Summary = () => {
               letterSpacing: "-0.01125rem",
             }}
           >
-            Data has not been uploaded yet so this visualization is not available.
+            Data has not been uploaded and verified yet so this visualization is not available.
           </Typography>}
         </Box>
       </Grid>
