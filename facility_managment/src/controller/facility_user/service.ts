@@ -256,6 +256,7 @@ export class FacilityService {
           Email.send(userDetails.email, EmailContent.facilityCreatedForUser.title, userEmailContent);
           Email.send(adminDetails.adminEmail, EmailContent.facilityCreatedForAdmin.title, adminEmailContent);
 
+
         }
        
 
@@ -348,6 +349,7 @@ export class FacilityService {
         offset: offset,
         limit: limit,
         order: [[colName, order]],
+        raw: true
       });
 
       if (result) {

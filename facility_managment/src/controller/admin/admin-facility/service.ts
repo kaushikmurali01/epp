@@ -366,12 +366,13 @@ export class AdminFacilityService {
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
                 .replace('#adminName#', adminDetails.adminName ? adminDetails.adminName : 'Admin')
                 // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
-                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#bindingAuthority#', userDetails ? userDetails?.first_name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
 
               Email.send(userDetails.email, EmailContent.paCreatedForCompany.title, userEmailContent);
               Email.send(adminDetails.adminEmail, EmailContent.paCreatedForAdmin.title, adminEmailContent);
+
 
             }
 
@@ -424,7 +425,7 @@ export class AdminFacilityService {
                 .replace('#content#', EmailContent.paCreatedForAdmin.content)
                 .replace('#adminName#', adminDetails.adminName ? adminDetails.adminName : 'Admin')
                 // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
-                .replace('#bindingAuthority#', bindingAuthorityDetails ? bindingAuthorityDetails?.name : 'Binding Authority')
+                .replace('#bindingAuthority#', userDetails ? userDetails?.first_name : 'Binding Authority')
                 .replace('#version#', version ? version : 'version')
                 .replace('#companyName#', companyDetails ? companyDetails?.company_name : "Company");
 

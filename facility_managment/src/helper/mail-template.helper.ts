@@ -1,5 +1,5 @@
 export async function getEmailTemplate() {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
     <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office">
    
     <head>
@@ -148,9 +148,28 @@ export async function getEmailTemplate() {
                               If you believe you received this email in error, please contact Customer Service for
                               assistance.<br/>
                               <br/>
-                              <a href="#"
-                                style="text-decoration: none; color: #2C77E9; font-size: 0.875rem; font-weight: 600; font-style: italic;">dummycontactsupport@enerva.com</a>
                             </td>
+                          </tr>
+                          <tr>
+                          <td style="height: 1.25rem"></td>
+                          </tr>
+                          <tr>
+                          <td class="common-para" style="
+                                 color: #242424;
+                                 font-size: 0.875rem;
+                                 font-weight: 400;
+                                 ">
+                          <b style="font-weight: 600;">Customer Service Contact Information:</b><br/><br/>
+                          Phone Number: <b style="font-weight: 600;">1-888-852-2440</b> <br/>
+                          Email: <a href="#" style="text-decoration: none; color: #2C77E9; font-size: 0.875rem; font-weight: 700; font-style: italic;">info@energyperformanceprogram.ca</a>
+                          <br/>
+                          <br/>
+                            <i style="opacity: 0.5; font-size: 12px;">Please do not reply to this message. This email address is not monitored so we are unable to respond to any messages
+                          sent to this address.</i>
+                            </td>
+                            </tr>
+                          <tr>
+                          <td style="height: 1.25rem"></td>
                           </tr>
                           <tr>
                             <td style="height: 1.25rem"></td>
