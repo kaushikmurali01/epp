@@ -11,7 +11,6 @@ export function dataURLtoFile(dataurl, filename) {
 }
 
 export const hasPermission = (userPermissions, requiredPermission) => {
-  console.log(userPermissions, requiredPermission);
   return userPermissions?.some(
     (permission) => permission?.permission === requiredPermission
   );
