@@ -39,7 +39,7 @@ import { hasPermission } from "utils/commonFunctions";
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
   const permissionList = useSelector(
-    (state) => state?.facilityReducer?.userDetails?.permission || []
+    (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
 
   const columns = [
