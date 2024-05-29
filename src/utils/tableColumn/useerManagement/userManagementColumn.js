@@ -100,8 +100,8 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
-                        Manage permission
+                    <Typography  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    {(userData?.user?.id === item?.id) || (item.status === 'Initiated') ? 'View permission' : 'Manage permission'} 
                     </Typography>
                     <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
@@ -169,10 +169,10 @@ const UserManagementColumn = () => {
     }
 
     const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-        if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
-            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-            return;
-        }
+        // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
+        //     NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        //     return;
+        // }
         const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)
