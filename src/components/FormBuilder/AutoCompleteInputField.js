@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import { Box, FormControl, FormGroup, FormLabel } from '@mui/material';
+import { Box, FormControl, FormGroup, FormLabel, Typography } from '@mui/material';
 import debounce from 'lodash.debounce';
 import { useField, useFormikContext } from 'formik';
 
@@ -85,7 +85,11 @@ const AutoCompleteInputField = ({ optionsArray, inputFieldLabel, optionKey, opti
         onChange={handleOnChange}
         onInputChange={handleInputChange}
         onBlur={formikProps.handleBlur}
-        noOptionsText="No results found"
+        noOptionsText={
+          <Typography variant="body2">
+            {searchTerm.length === 0 ? 'Please enter company name' : 'No results found'}
+          </Typography>
+        }
         renderInput={(params) => (
           <React.Fragment>
             {inputFieldLabel && <FormLabel>{inputFieldLabel}</FormLabel>}
