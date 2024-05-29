@@ -430,9 +430,10 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
             }
 
         } else if (type == 2) {
-            await UserInvitation.update({ is_active: 0 }, { where: { id: userId } });
+            await UserInvitation.destroy({ where: { id: userId } });
+            
         } else if (type == 3) {
-            await UserRequest.update({ is_active: 0 }, { where: { id: userId } });
+            await UserRequest.destroy({ where: { id: userId } });
         }
         return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
     } catch (error) {
@@ -481,6 +482,10 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         // Validation starts
         const email = requestData.email;
         const company = requestData.company;
+
+        await UserInvitation.destroy({ where: { email: email, company:company, is_active: 0  } });
+       // await UserRequest.destroy({ where: { user_id, company_id : company, status: "Rejected" } });
+
         // Check if the email already exists in the company
         const existingInvitation = await UserInvitation.findOne({ where: { email, company } });
 
@@ -587,6 +592,9 @@ export async function CreateUserRequest(request: HttpRequest, context: Invocatio
         const email = resp.email;
         const company = requestData.company_id;
         const user_id = requestData.user_id;
+
+        await UserRequest.destroy({ where: { user_id, company_id : company, status: "Rejected" } });
+        await UserInvitation.destroy({ where: { email: email, company:company, is_active: 0  } });
         
         // Validation starts
          const existingInvitation = await UserInvitation.findOne({ where: { email, company } });
