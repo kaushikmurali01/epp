@@ -151,6 +151,11 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+        },
         modalBodyContent: <DeleteModelContent />,
         saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
     }));
