@@ -14,6 +14,7 @@ import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
 import {
+    USER_MANAGEMENT,
     adminFacilityEndpoints,
     facilityEndPoints,
     imageUploadEndPoints,
@@ -36,6 +37,7 @@ const marksForEnergyTarget = [
 
 const AdminAddFacilityComponent = (props) => {
     const [imgUrl, setImgUrl] = useState("");
+    const [companyData, setCompanyData] = useState([]);
 
     const [initialValues, setInitialValues] = useState({
         facility_construction_status: "",
@@ -259,6 +261,7 @@ const AdminAddFacilityComponent = (props) => {
 
     useEffect(() => {
         getCategoriesTypesAndNAICS();
+        getCompanyListData();
     }, []);
 
     useEffect(() => {
@@ -355,22 +358,32 @@ const AdminAddFacilityComponent = (props) => {
 
     const handleFileChange = (event) => {
         // Handle the file selection here
-        const selectedFile = event.target.files[0];
-        setSelectedFile(URL.createObjectURL(selectedFile));
-        dispatch(fileUploadAction(selectedFile))
-            .then((data) => setImgUrl(data?.sasTokenUrl))
-            .catch((error) => {
-                console.error("Error uploading image:", error);
+        const fileSizeInMB = event.target.files[0].size / (1024 * 1024); // Convert bytes to MB
+        if (fileSizeInMB <= 5) {
+            const selectedFile = event.target.files[0];
+            setSelectedFile(URL.createObjectURL(selectedFile));
+            dispatch(fileUploadAction(selectedFile))
+                .then((data) => setImgUrl(data?.sasTokenUrl))
+                .catch((error) => {
+                    console.error("Error uploading image:", error);
+                });
+        } else {
+            NotificationsToast({
+                message: "File size should be less than 5mb!",
+                type: "error",
             });
+        }
     };
 
     const userCompanyId = useSelector(
         (state) => state?.facilityReducer?.userDetails?.user?.company_id
     );
 
+    console.log(userCompanyId)
+
     const handleSubmit = (values) => {
         delete values.facility_id_submission_status;
-        const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
+        const newValues = { ...values, display_pic_url: imgUrl };
         if (values.facility_construction_status == "Existing") {
             values.facility_construction_status = 1;
         } else if (values.facility_construction_status == "New") {
@@ -418,6 +431,16 @@ const AdminAddFacilityComponent = (props) => {
     const deletePicture = () => {
         setSelectedFile("");
     };
+
+    const getCompanyListData = () => {
+        GET_REQUEST(USER_MANAGEMENT.GET_DROPDOWN_COMPANY_LIST)
+            .then((response) => {
+                if (response.data.status == 204) {
+                    setCompanyData(response.data.data);
+                }
+            })
+            .catch((error) => { });
+    }
 
     return (
         <>
@@ -586,6 +609,18 @@ const AdminAddFacilityComponent = (props) => {
                                         name="naic_code"
                                         label="NAIC’s code*"
                                         type="text" />
+                                </Grid>
+                            </Grid>
+
+                            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                                <Grid item xs={12} sm={4}>
+                                    <SelectBox
+                                        name="company_id"
+                                        label="Company name*"
+                                        options={companyData}
+                                        labelKey="company_name"
+                                        valueKey="id"
+                                    />
                                 </Grid>
                             </Grid>
 
