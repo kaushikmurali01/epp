@@ -31,7 +31,7 @@ const FacilityHeader = () => {
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
   const permissionList = useSelector(
-    (state) => state?.facilityReducer?.userDetails?.permission || []
+    (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
   const navigate = useNavigate();
   const { id } = useParams();
