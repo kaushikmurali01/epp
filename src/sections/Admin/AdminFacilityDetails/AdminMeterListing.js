@@ -157,6 +157,21 @@ const AdminMeterListing = ({
               padding: 0,
               minWidth: "unset",
               fontSize: "0.875rem",
+              textWrap: "nowrap",
+            }}
+            onClick={() => handleEntriesListClick(item.id, item?.meter_id)}
+          >
+            Add data
+          </Button>
+          <Button
+            disableRipple
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+              fontSize: "0.875rem",
+              color: "#027397",
             }}
             onClick={() => handleEditButtonClick(item.id)}
           >
