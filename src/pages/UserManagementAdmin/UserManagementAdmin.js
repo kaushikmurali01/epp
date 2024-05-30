@@ -376,7 +376,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
                     <TextField
                       value={searchString}
                       placeholder="Search by Username"
-                      inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2.25rem' } }}
                       onChange={(e) => setSearchString(e.target.value)}
                     />
                      {searchString?.length > 0 &&

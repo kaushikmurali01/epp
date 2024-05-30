@@ -63,7 +63,7 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (getUserRole,handleAPISuccessCallBac
         accessor: 'rolename',
     },
     {
-        Header: "Role Type",
+        Header: "User    Type",
         accessor: "userType",
     },
     {
