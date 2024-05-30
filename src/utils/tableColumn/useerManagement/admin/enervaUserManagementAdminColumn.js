@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the Enerva user Details
                 </Typography>
             </Grid>
             <Grid item>

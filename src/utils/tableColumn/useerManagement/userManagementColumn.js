@@ -103,7 +103,7 @@ const UserManagementColumn = () => {
                     <Typography  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     {(userData?.user?.id === item?.id) || (item.status === 'Initiated') ? 'View permission' : 'Manage permission'} 
                     </Typography>
-                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated')} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
+                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated' || item.role_id === 1)} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
                     </Typography>
 
@@ -181,8 +181,9 @@ const UserManagementColumn = () => {
     }
 
     const handelDeleteModalOpen = (userData,item, handleAPISuccessCallBack, setModalConfig) => {
+        console.log(userData, item, 'check results');
         // return if user wants to delete self account
-        if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
+        if((userData?.user?.id === item?.id) || (item.status === 'Initiated' || item.role_id === 1)){
             NotificationsToast({ message: "You don't have permission for this!", type: "error" });
             return;
         }
