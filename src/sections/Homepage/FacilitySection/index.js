@@ -34,12 +34,18 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import debounce from "lodash.debounce";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
+import { hasPermission } from "utils/commonFunctions";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
+  const permissionList = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.permissions || []
+  );
+
   const columns = [
     {
       Header: "Name/Nick Name",
+      accessorKey: "facility_name",
       accessor: (item) => (
         <Box
           sx={{
@@ -51,11 +57,16 @@ const Facility = () => {
           gap={2}
           onClick={(e) => e.stopPropagation()}
         >
-          <Typography variant="body2" sx={{fontWeight: 'inherit'}}>{item.facility_name}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: "inherit" }}>
+            {item.facility_name}
+          </Typography>
           {item?.facility_id_submission_status === 1 && (
             <Button
               variant="contained"
-              sx={{ display: item.is_approved && "none", fontSize: {xs: '0.875rem'} }}
+              sx={{
+                display: item.is_approved && "none",
+                fontSize: { xs: "0.875rem" },
+              }}
               onClick={() => submitForApprovalHandler(item.id)}
             >
               Submit for baseline modelling
@@ -114,7 +125,11 @@ const Facility = () => {
     {
       Header: "Actions",
       accessor: (item) => (
-        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+        <Box
+          display="flex"
+          onClick={(e) => e.stopPropagation()}
+          justifyContent="flex-end"
+        >
           <Button
             disableRipple
             style={{
@@ -127,22 +142,24 @@ const Facility = () => {
           >
             Edit
           </Button>
-          <Button
-            color="error"
-            disableRipple
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              marginLeft: "1rem",
-              fontSize: "0.875rem",
-            }}
-            onClick={() => {
-              openDeleteFacilityModal(item?.id);
-            }}
-          >
-            Delete
-          </Button>
+          {hasPermission(permissionList, "delete-facility") && (
+            <Button
+              color="error"
+              disableRipple
+              style={{
+                backgroundColor: "transparent",
+                padding: 0,
+                minWidth: "unset",
+                marginLeft: "1rem",
+                fontSize: "0.875rem",
+              }}
+              onClick={() => {
+                openDeleteFacilityModal(item?.id);
+              }}
+            >
+              Delete
+            </Button>
+          )}
         </Box>
       ),
     },
@@ -168,6 +185,8 @@ const Facility = () => {
 
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
@@ -222,16 +241,34 @@ const Facility = () => {
     saveButtonAction: handleDeleteFacility,
   });
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, sort_Column, sort_Order) => {
+      dispatch(
+        fetchFacilityListing(
+          pageInfo,
+          searchString,
+          userCompanyId,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString, sortColumn, sortOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchString,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
@@ -369,8 +406,14 @@ const Facility = () => {
           </Typography> */}
         </Grid>
         <Grid item xs={12} sm={8}>
-          <Grid container sx={{gap: {xs: '1rem', md: '2rem'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}}}>
-            <Grid item >
+          <Grid
+            container
+            sx={{
+              gap: { xs: "1rem", md: "2rem" },
+              justifyContent: { xs: "flex-start", md: "flex-end" },
+            }}
+          >
+            <Grid item>
               <TextField
                 name="search"
                 label="Search by Facility name"
@@ -386,11 +429,16 @@ const Facility = () => {
                 onChange={(e) => setSearchString(e.target.value)}
               />
             </Grid>
-            <Grid item display="flex" alignItems="center" justifyContent="center">
+            <Grid
+              item
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
               <Button
                 variant="contained"
                 sx={{
-                  padding: '4px 12px',
+                  padding: "4px 12px",
                   minWidth: "5rem!important",
                   // bgcolor: "#2C77E9",
                 }}
@@ -399,7 +447,12 @@ const Facility = () => {
                 Assign Access
               </Button>
             </Grid>
-            <Grid item display="flex" alignItems="center" justifyContent="flex-end">
+            <Grid
+              item
+              display="flex"
+              alignItems="center"
+              justifyContent="flex-end"
+            >
               <Button
                 style={{
                   backgroundColor: "transparent",
@@ -421,10 +474,8 @@ const Facility = () => {
                 Add Facility
               </Button>
             </Grid>
-
           </Grid>
         </Grid>
-
       </Grid>
 
       <Box sx={{ marginTop: "2rem" }}>
@@ -436,6 +487,10 @@ const Facility = () => {
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal

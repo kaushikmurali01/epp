@@ -52,7 +52,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the Customer user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -151,6 +151,11 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+        },
         modalBodyContent: <DeleteModelContent />,
         saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
     }));

@@ -46,13 +46,21 @@ import {
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
-export const fetchFacilityListing = (pageInfo, search = "", companyId) => {
+export const fetchFacilityListing = (
+  pageInfo,
+  search = "",
+  companyId,
+  sortByCol,
+  sortOrder
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
-      const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
+      let endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?search=${search}&company_id=${companyId}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));

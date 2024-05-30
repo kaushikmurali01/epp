@@ -44,6 +44,7 @@ const CompanyListing = () => {
     {
       Header: "Company name",
       accessor: "company_name",
+      accessorKey: "company_name",
     },
     {
       Header: "Super admin name",
@@ -150,17 +151,44 @@ const CompanyListing = () => {
   );
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
-  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
-    dispatch(fetchAdminCompanyListing(pageInfo, searchString, company_filter));
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, company_filter, sort_Column, sort_Order) => {
+      dispatch(
+        fetchAdminCompanyListing(
+          pageInfo,
+          searchString,
+          company_filter,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString, companyFilter);
+    debouncedSearch(
+      pageInfo,
+      searchString,
+      companyFilter,
+      sortColumn,
+      sortOrder
+    );
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString, companyFilter]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchString,
+    companyFilter,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -186,8 +214,7 @@ const CompanyListing = () => {
       cancelButtonClass: "",
     },
     headerText: "Alert",
-    headerSubText:
-      "",
+    headerSubText: "",
     modalBodyContent: "",
     saveButtonAction: "",
   });
@@ -292,7 +319,6 @@ const CompanyListing = () => {
     const handleCStatusChange = () => {
       const formdata = new FormData();
       formdata.append("is_active", activityStatus === 1 ? 0 : 1);
-      console.log(formdata);
       dispatch(adminCompanyUpdateStatus(companyId, formdata))
         .then(() => {
           setStatusModalConfig((prevState) => ({
@@ -439,6 +465,10 @@ const CompanyListing = () => {
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           //   onClick={(id) => navigate(`/companies/${id}`)}
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
