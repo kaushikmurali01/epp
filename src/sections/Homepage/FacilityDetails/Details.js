@@ -138,8 +138,8 @@ const Details = ({ setTab }) => {
   }
   function checkValueNotExist(array, value) {
     const { length } = array;
-    const found = length && array.some(el => el.value === value);
-    if(found){
+    const found = length && array.some((el) => el.value === value);
+    if (found) {
       return value;
     } else {
       return "other";
@@ -434,7 +434,7 @@ const Details = ({ setTab }) => {
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
-        {({ handleBlur, values, setFieldValue }) => {
+        {({ handleBlur, values, setFieldValue, errors }) => {
           const handleCheckboxChange = (field, value) => {
             if (field === "not_standard_hvac_equipment.none" && value) {
               setFieldValue(
@@ -537,10 +537,21 @@ const Details = ({ setTab }) => {
                       id="year_of_construction"
                       name="year_of_construction"
                       views={["year"]}
-                      sx={{ width: "100%" }}
+                      sx={{ width: "100%", input: { color: "#111" } }}
                       value={values.year_of_construction}
                       onChange={(date) => {
                         setFieldValue("year_of_construction", date);
+                      }}
+                      slotProps={{
+                        textField: {
+                          helperText:
+                            errors.year_of_construction &&
+                            errors.year_of_construction,
+                        },
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
                       }}
                       disableFuture
                     />
