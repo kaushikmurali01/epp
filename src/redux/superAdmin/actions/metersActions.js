@@ -27,13 +27,15 @@ import {
 } from "utils/HTTPRequests";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
 
-export const fetchMeterListing = (pageInfo, id) => {
+export const fetchMeterListing = (pageInfo, id, sortByCol, sortOrder) => {
   return async (dispatch) => {
     try {
       dispatch(fetchMeterListRequest());
-      const endpointWithParams = `${meterEndPoints.METER_LIST}/${
+      let endpointWithParams = `${meterEndPoints.METER_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?facility_id=${id}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchMeterListSuccess(data));

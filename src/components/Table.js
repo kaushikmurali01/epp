@@ -17,13 +17,13 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useTable, useSortBy } from "react-table";
-import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
-
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import SortIcon from "@mui/icons-material/Sort";
 const Table = ({
   columns,
   data,
@@ -32,9 +32,13 @@ const Table = ({
   count,
   pageInfo,
   setPageInfo,
-  tableClass="",
-  customTableStyles={},
-  cursorStyle
+  tableClass = "",
+  customTableStyles = {},
+  cursorStyle,
+  sortColumn,
+  sortOrder,
+  setSortColumn,
+  setSortOrder,
 }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -42,6 +46,19 @@ const Table = ({
       useSortBy
     );
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+
+  const handleSortChange = (accessorKey) => {
+    if (!accessorKey || sortColumn !== accessorKey) {
+      setSortColumn(accessorKey);
+      setSortOrder("ASC");
+    } else if (sortOrder === "ASC") {
+      setSortOrder("DESC");
+    } else {
+      // Reset sorting
+      setSortColumn("");
+      setSortOrder("");
+    }
+  };
 
   const handlePrevPage = () => {
     if (pageInfo?.page > 1) {
@@ -57,28 +74,26 @@ const Table = ({
   };
 
   const handleFirstPage = () => {
-    if(pageInfo?.page){
+    if (pageInfo?.page) {
       setPageInfo({ ...pageInfo, page: 1 });
     }
-    
   };
 
   const handleLastPage = () => {
     const totalPages = Math.ceil(count / pageInfo?.pageSize);
-    if(pageInfo?.page){
+    if (pageInfo?.page) {
       setPageInfo({ ...pageInfo, page: totalPages });
     }
-    
   };
 
   const handlePageClick = (pageNumber) => {
-    if(pageInfo?.page){
+    if (pageInfo?.page) {
       setPageInfo({ ...pageInfo, page: pageNumber });
     }
   };
 
   const handleRowsPerPageChange = (event) => {
-    if(pageInfo?.page){
+    if (pageInfo?.page) {
       setPageInfo({ ...pageInfo, page: 1, pageSize: event.target.value });
     }
   };
@@ -111,26 +126,46 @@ const Table = ({
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
-  
   return (
     <TableContainer className={tableClass}>
-      <MUITable {...getTableProps()} sx={{...customTableStyles}}>
-        <TableHead sx={{ backgroundColor: headbgColor || 'rgba(217, 217, 217, 0.2)' }}>
+      <MUITable {...getTableProps()} sx={{ ...customTableStyles }}>
+        <TableHead
+          sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
+        >
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <TableCell
                   {...column.getHeaderProps(column.getSortByToggleProps())}
+                  onClick={() =>
+                    column.accessorKey && handleSortChange(column.accessorKey)
+                  }
                 >
-                  {column.render("Header")}
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {column.render("Header")}
+                    {column.accessorKey && (
+                      <>
+                        {sortColumn === column.id ||
+                        sortColumn === column.accessor ? (
+                          <>
+                            {sortOrder === "" && <SortIcon />}
+                            {sortOrder === "ASC" && <KeyboardArrowUpIcon />}
+                            {sortOrder === "DESC" && <KeyboardArrowDownIcon />}
+                          </>
+                        ) : (
+                          <SortIcon />
+                        )}
+                      </>
+                    )}
+                  </Box>
                 </TableCell>
               ))}
             </TableRow>
           ))}
         </TableHead>
         <TableBody {...getTableBodyProps()}>
-          {rows?.length > 0 ? 
-              rows.map((row) => {
+          {rows?.length > 0 ? (
+            rows.map((row) => {
               prepareRow(row);
               const { id } = row.original;
               return (
@@ -157,7 +192,7 @@ const Table = ({
                           fontSize: "0.875rem",
                           padding: "1.5rem 0.5rem",
                           // cursor: 'pointer',
-                          cursor: cursorStyle ? cursorStyle: 'default',
+                          cursor: cursorStyle ? cursorStyle : "default",
                           "&:first-of-type": {
                             fontWeight: 600,
                           },
@@ -170,18 +205,21 @@ const Table = ({
                 </TableRow>
               );
             })
-          : 
-          <TableRow>
-             <TableCell colSpan={columns.length} sx={{textAlign: 'center !important'}}>No Data found.</TableCell>
-          </TableRow>
-        }
-        </TableBody>
-        {(pageInfo?.pageSize && rows?.length > 0 ) && 
-          <TableFooter>
+          ) : (
             <TableRow>
               <TableCell
                 colSpan={columns.length}
+                sx={{ textAlign: "center !important" }}
               >
+                No Data found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+        {pageInfo?.pageSize && rows?.length > 0 && (
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={columns.length}>
                 <Box
                   container
                   sx={{
@@ -257,7 +295,7 @@ const Table = ({
               </TableCell>
             </TableRow>
           </TableFooter>
-        }
+        )}
       </MUITable>
     </TableContainer>
   );

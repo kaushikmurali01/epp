@@ -1,5 +1,10 @@
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
-import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
+import {
+  GET_REQUEST,
+  PATCH_REQUEST,
+  POST_REQUEST,
+  PUT_REQUEST,
+} from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
   adminCompanySendAlertFailure,
@@ -22,14 +27,20 @@ import {
 export const fetchAdminCompanyListing = (
   pageInfo,
   search = "",
-  company_type_filter = ""
+  company_type_filter = "",
+  sortByCol,
+  sortOrder
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminCompanyListRequest());
-      const endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
+      let endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}?search=${search}&company_type=${company_type_filter}`;
+      }/${
+        pageInfo.pageSize
+      }?search=${search}&company_type=${company_type_filter}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));
@@ -64,7 +75,6 @@ export const fetchAdminCompanyDetails = (companyId) => {
 };
 
 export const adminCompanySendAlert = (companyId, alertMessage) => {
-  console.log(companyId, alertMessage);
   return async (dispatch) => {
     try {
       dispatch(adminCompanySendAlertRequest());

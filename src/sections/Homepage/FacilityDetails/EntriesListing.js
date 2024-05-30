@@ -264,7 +264,6 @@ const EntriesListing = ({
   }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
-    console.log(id);
     OnEditMeterButton(id);
   };
 

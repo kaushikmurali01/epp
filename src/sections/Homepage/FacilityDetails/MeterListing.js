@@ -30,6 +30,8 @@ const MeterListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
@@ -109,6 +111,7 @@ const MeterListing = ({
     {
       Header: "Meter name",
       accessor: "meter_name",
+      accessorKey: "meter_name",
     },
     {
       Header: "Meter type",
@@ -119,6 +122,7 @@ const MeterListing = ({
     {
       Header: "Meter ID",
       accessor: "meter_id",
+      accessorKey: "meter_id",
     },
     {
       Header: "Status",
@@ -129,6 +133,7 @@ const MeterListing = ({
       accessor: (item) => (
         <>{item?.updated_at && format(item?.updated_at, "MM/dd/yyyy")}</>
       ),
+      accessorKey: "updated_at",
     },
     {
       Header: "In use(inactive date)",
@@ -139,6 +144,7 @@ const MeterListing = ({
             format(item?.meter_inactive, "MM/dd/yyyy")}
         </>
       ),
+      accessorKey: "meter_inactive",
     },
     {
       Header: "Actions",
@@ -202,15 +208,14 @@ const MeterListing = ({
   );
 
   useEffect(() => {
-    dispatch(fetchMeterListing(pageInfo, id));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
+    dispatch(fetchMeterListing(pageInfo, id, sortColumn, sortOrder));
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, id, sortColumn, sortOrder]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
   };
 
   const handleEntriesListClick = (id, meter_id) => {
-    console.log(id, meter_id);
     onEntriesListClick(id, meter_id);
   };
 
@@ -315,6 +320,10 @@ const MeterListing = ({
           setPageInfo={setPageInfo}
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
           cursorStyle="pointer"
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal
