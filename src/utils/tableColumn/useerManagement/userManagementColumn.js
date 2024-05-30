@@ -94,7 +94,7 @@ const UserManagementColumn = () => {
                 };
                 if (item.status === 'Initiated') {
                     return (
-                        <Box >
+                        <Box  >
                             <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAcceptManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)} >
                                 <CheckCircleIcon /> Accept
                             </Typography>
@@ -114,7 +114,7 @@ const UserManagementColumn = () => {
         {
             Header: "Action",
             accessor: (item) => (
-                <Box gap={1}>
+                <Box gap={1} >
                     <Typography disabled={item.status === 'Initiated' || item.status === 'Rejected' }  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     {((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && item?.role_id === 1) ) ? 'View permission' : 'Manage permission'} 
                     </Typography>

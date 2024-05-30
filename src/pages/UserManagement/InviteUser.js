@@ -9,7 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSelector } from 'react-redux';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
-    console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
+    // console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
@@ -131,7 +131,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
-        console.log(apiURL, permissionIds, "checked data");
         // return;
         if (isEdited) {
             const requestBody = {
@@ -205,7 +204,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + invitePageInfo?.type + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
-                console.log(res.data, "User permissions")
                 const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
@@ -247,9 +245,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log( invitePageInfo, selectTableRow, selectedPermissions, 'invite page all data')
-
-    console.log(isPagePermissionDisabled,userData, "isPagePermissionDisabled")
+   
     return (
         <Box component="section">
 
@@ -308,8 +304,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     }
                                    
                                     {getUserRole && (getUserRole).map((item) => {
-                                        // console.log(item, "Role Type");
-
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )

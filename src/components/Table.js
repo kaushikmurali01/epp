@@ -127,8 +127,8 @@ const Table = ({
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
   return (
-    <TableContainer className={tableClass}>
-      <MUITable {...getTableProps()} sx={{ ...customTableStyles }}>
+    <TableContainer >
+      <MUITable {...getTableProps()} sx={{ ...customTableStyles }} className={tableClass}>
         <TableHead
           sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
         >
@@ -141,7 +141,7 @@ const Table = ({
                     column.accessorKey && handleSortChange(column.accessorKey)
                   }
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box >
                     {column.render("Header")}
                     {column.accessorKey && (
                       <>
