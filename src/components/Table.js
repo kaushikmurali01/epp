@@ -23,7 +23,8 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import SortIcon from "@mui/icons-material/Sort";
+// import SortIcon from "@mui/icons-material/Sort";
+import { ReactComponent as SortIcon } from "../assets/images/sortIcon.svg";
 const Table = ({
   columns,
   data,
@@ -144,18 +145,12 @@ const Table = ({
                   <Box sx={{ display: "flex", alignItems: "center" }}>
                     {column.render("Header")}
                     {column.accessorKey && (
-                      <>
-                        {sortColumn === column.id ||
-                        sortColumn === column.accessor ? (
-                          <>
-                            {sortOrder === "" && <SortIcon />}
-                            {sortOrder === "ASC" && <KeyboardArrowUpIcon />}
-                            {sortOrder === "DESC" && <KeyboardArrowDownIcon />}
-                          </>
-                        ) : (
-                          <SortIcon />
-                        )}
-                      </>
+                      <SortIcon
+                        style={{
+                          width: "1rem",
+                          height: "1rem",
+                        }}
+                      />
                     )}
                   </Box>
                 </TableCell>
