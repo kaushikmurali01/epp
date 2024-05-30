@@ -23,7 +23,6 @@ const AdminEnergyAndWater = () => {
   };
 
   const handleEntriesListClick = (id, meter_id) => {
-    console.log(id, meter_id);
     setMeterId(meter_id);
     setFacilityMeterDetailId(id);
     setActiveTab("entriesListing");

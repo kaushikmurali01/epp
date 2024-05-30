@@ -5,7 +5,6 @@ const initialState = {
 };
 
 const loaderReducer = (state = initialState, action) => {
-  console.log(state, action, "reducers");
   if (action.type === SHOW_LOADER) {
       return {
         show_loader: action.payload,

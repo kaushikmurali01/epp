@@ -45,6 +45,7 @@ const Facility = () => {
   const columns = [
     {
       Header: "Name/Nick Name",
+      accessorKey: "facility_name",
       accessor: (item) => (
         <Box
           sx={{
@@ -184,6 +185,8 @@ const Facility = () => {
 
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
@@ -238,16 +241,34 @@ const Facility = () => {
     saveButtonAction: handleDeleteFacility,
   });
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, sort_Column, sort_Order) => {
+      dispatch(
+        fetchFacilityListing(
+          pageInfo,
+          searchString,
+          userCompanyId,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString, sortColumn, sortOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchString,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
@@ -466,6 +487,10 @@ const Facility = () => {
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal

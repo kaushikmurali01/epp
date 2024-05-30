@@ -17,7 +17,6 @@ export const fetchEntriesListing = (pageInfo, id) => {
       }/${pageInfo.pageSize}?facility_meter_detail_id=${id}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
-      console.log(data);
       dispatch(fetchEntriesListSuccess(data));
     } catch (error) {
       console.error(error);
