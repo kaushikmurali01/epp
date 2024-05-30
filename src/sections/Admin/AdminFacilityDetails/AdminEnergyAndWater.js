@@ -13,6 +13,7 @@ const AdminEnergyAndWater = () => {
   const [meterId2, setMeterId2] = useState();
 
   const handleAddButtonClick = () => {
+    setMeterId2("");
     setActiveTab("addMeter");
   };
 
@@ -22,7 +23,7 @@ const AdminEnergyAndWater = () => {
   };
 
   const handleEntriesListClick = (id, meter_id) => {
-    console.log(id, meter_id)
+    console.log(id, meter_id);
     setMeterId(meter_id);
     setFacilityMeterDetailId(id);
     setActiveTab("entriesListing");
@@ -49,11 +50,14 @@ const AdminEnergyAndWater = () => {
           />
         );
       case "entriesListing":
-        return <AdminEntriesListing
-          onAddMeterSuccess={handleAddMeterSuccess}
-          OnEditMeterButton={handleEditButtonClick}
-          facilityMeterDetailId={facilityMeterDetailId}
-          meterId={meterId} />;
+        return (
+          <AdminEntriesListing
+            onAddMeterSuccess={handleAddMeterSuccess}
+            OnEditMeterButton={handleEditButtonClick}
+            facilityMeterDetailId={facilityMeterDetailId}
+            meterId={meterId}
+          />
+        );
       default:
         return <div>Default Content</div>;
     }
