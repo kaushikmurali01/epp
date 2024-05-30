@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import {
     Box,
+    Button,
     Checkbox,
     FormGroup,
     FormLabel,
     Grid,
+    Tooltip,
     Typography,
 } from "@mui/material";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -65,7 +67,20 @@ const UserManagementColumn = () => {
         },
         {
             Header: "Facility",
-            accessor: "facility",
+            accessor: (item)=> {
+                return item.facility
+                // if(item.facility){
+                //     const companyList = item.facility;
+                //     const { companyNames, rest } = stringFilter(companyList);
+                //     console.log(companyNames, "company names")
+                //     console.log( rest, "company names rest")
+                //     return (
+                //         <Tooltip title={companyNames } placement="bottom">
+                //             <span>{rest}</span>
+                //         </Tooltip>
+                //     )
+                // }
+            }
         },
         {
             Header: "Role Type",
@@ -100,8 +115,8 @@ const UserManagementColumn = () => {
             Header: "Action",
             accessor: (item) => (
                 <Box gap={1}>
-                    <Typography  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
-                    {(userData?.user?.id === item?.id) || (item.status === 'Initiated') ? 'View permission' : 'Manage permission'} 
+                    <Typography disabled={item.status === 'Initiated' || item.status === 'Rejected' }  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                    {((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && item?.role_id === 1) ) ? 'View permission' : 'Manage permission'} 
                     </Typography>
                     <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated' || item.role_id === 1)} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
@@ -111,6 +126,19 @@ const UserManagementColumn = () => {
             ),
         },
     ];
+
+    const stringFilter = (str) => {
+        const [companyNames, rest] = str.split(',')
+          .reduce(([companyNames, rest], part) => {
+            if (part.includes('_')) {
+              return [[...companyNames, part], rest];
+            } else {
+              return [companyNames, [...rest, part]];
+            }
+          }, [[], []]);
+      
+        return { companyNames, rest };
+      };
 
     const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
         // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
@@ -169,14 +197,15 @@ const UserManagementColumn = () => {
     }
 
     const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-        // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
-        //     NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-        //     return;
-        // }
+        if(item.status === 'Initiated' || item.status === 'Rejected'){
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+        const pageTitle = ((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && item?.role_id === 1) ) ? "View permission" : "Manage permission"
         const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)
-        setInvitePageInfo({title:'Manage permission', type: null })
+        setInvitePageInfo({title:pageTitle, type: null })
         setInviteAPIURL(apiURL)
     }
 
