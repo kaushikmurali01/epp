@@ -24,6 +24,12 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         setRoleName(event.target.value)
     }
 
+    const scrollTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "instant",
+        });
+    };
 
     const handleAlignment = (event, index,permission) => {
         // if(permission.is_active === 0){
@@ -72,8 +78,6 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
 
     const handelInviteSubmit = () => {
-
-        // const apiURL = isEdited ? USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN : USER_MANAGEMENT.SEND_INVITATION_BY_ADMIN;
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.id);
         const requestBody = {
@@ -131,6 +135,13 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
             });
     };
 
+    useEffect(()=> {
+        scrollTop();
+        return () => {
+            scrollTop();
+        };
+    },[])
+
     useEffect(() => {
         if (Object.keys(selectTableRow).length !== 0) {
             getUserPermissionListAPI(selectTableRow);
@@ -154,6 +165,8 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         }
 
     }, [selectRoleType,]);
+
+    
 
     return (
         <Box component="section">
@@ -187,11 +200,11 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                         {invitePageInfo?.type === 'default' ?
                             <Stack flexDirection="row" sx={{display: 'flex', width: '100%', gap:'2rem'}}>
                                 <Box component='div' sx={{ borderRight: { md: '1px solid #ccc' }, paddingRight: { md: '2rem'} }}>
-                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}} >User type</Typography>
+                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}} >Role type </Typography>
                                     <Typography variant='h5'>{selectTableRow?.rolename}</Typography>
                                 </Box>
                                 <Box component='div'>
-                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}}  >Role type</Typography>
+                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}}  >User type</Typography>
                                     <Typography variant='h5'>{selectTableRow?.userType}</Typography>
                                 </Box>
                             </Stack>

@@ -257,7 +257,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                 const isPermissionSelected = permissionStates?.includes(permission.permission_id);
                                 return (
                                     <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item >
+                                        <Grid item xs={12} md={10}  >
                                             <Typography variant='body2'>{permission.desc} </Typography>
                                         </Grid>
                                         <Grid item>

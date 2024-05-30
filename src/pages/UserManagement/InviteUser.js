@@ -24,7 +24,8 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
 
-    const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
+    // const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
+    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1) );
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -246,9 +247,9 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log(getUserRole, invitePageInfo, selectTableRow, getCompanyList, selectedPermissions, 'invite page all data')
+    console.log( invitePageInfo, selectTableRow, selectedPermissions, 'invite page all data')
 
-    console.log(isPagePermissionDisabled, "isPagePermissionDisabled")
+    console.log(isPagePermissionDisabled,userData, "isPagePermissionDisabled")
     return (
         <Box component="section">
 
@@ -300,6 +301,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     <MenuItem value="" disabled>
                                         <em>Select</em>
                                     </MenuItem>
+                                    {selectTableRow?.role_id === 1 && 
+                                        <MenuItem  value="1">
+                                            Super Admin
+                                        </MenuItem>
+                                    }
+                                   
                                     {getUserRole && (getUserRole).map((item) => {
                                         // console.log(item, "Role Type");
 
@@ -341,18 +348,20 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             </FormGroup>
                         }
                     </Grid>
-                    <Grid item >
-                        <Button
-                            color="primary"
-                            variant="contained"
-                            sx={{ alignSelf: 'center' }}
-                            onClick={() => handelInviteSubmit()}
-                            disabled={!isFormValid}
-                        >
-                            {isEdited ? 'Update Permissions' : ' Send Invite'}
+                    {!isPagePermissionDisabled && 
+                        <Grid item >
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                sx={{ alignSelf: 'center' }}
+                                onClick={() => handelInviteSubmit()}
+                                disabled={!isFormValid}
+                            >
+                                {isEdited ? 'Update Permissions' : ' Send Invite'}
 
-                        </Button>
-                    </Grid>
+                            </Button>
+                        </Grid>
+                    }
                 </Grid>
 
                 {permissions?.length > 0 ?
