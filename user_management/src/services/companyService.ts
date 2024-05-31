@@ -193,7 +193,7 @@ class CompanyService {
             WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset order by ${colName} ${order}`, {
+            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`, {
                 limit: limit,
                 offset: offset
             })])
