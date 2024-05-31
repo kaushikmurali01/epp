@@ -135,7 +135,6 @@ const FacilityCreated = ({
     {
       Header: "Company name",
       accessor: (item) => <>{item?.company?.company_name}</>,
-      accessorKey: "company_name",
     },
     {
       Header: "Business email",
