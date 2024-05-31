@@ -23,7 +23,10 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import SortIcon from "@mui/icons-material/Sort";
+import { ReactComponent as SortIcon } from "../assets/images/sortIcon.svg";
+import { ReactComponent as SortIconUp } from "../assets/images/sortIconUp.svg";
+import { ReactComponent as SortIconDown } from "../assets/images/sortIconDown.svg";
+
 const Table = ({
   columns,
   data,
@@ -127,8 +130,8 @@ const Table = ({
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
   return (
-    <TableContainer className={tableClass}>
-      <MUITable {...getTableProps()} sx={{ ...customTableStyles }}>
+    <TableContainer >
+      <MUITable {...getTableProps()} sx={{ ...customTableStyles }} className={tableClass}>
         <TableHead
           sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
         >
@@ -141,21 +144,47 @@ const Table = ({
                     column.accessorKey && handleSortChange(column.accessorKey)
                   }
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box >
                     {column.render("Header")}
                     {column.accessorKey && (
-                      <>
+                      <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
                         {sortColumn === column.id ||
                         sortColumn === column.accessor ? (
                           <>
-                            {sortOrder === "" && <SortIcon />}
-                            {sortOrder === "ASC" && <KeyboardArrowUpIcon />}
-                            {sortOrder === "DESC" && <KeyboardArrowDownIcon />}
+                            {sortOrder === "" && (
+                              <SortIcon
+                                style={{
+                                  width: "16px",
+                                  height: "16px",
+                                }}
+                              />
+                            )}
+                            {sortOrder === "ASC" && (
+                              <SortIconUp
+                                style={{
+                                  width: "10px",
+                                  height: "10px",
+                                }}
+                              />
+                            )}
+                            {sortOrder === "DESC" && (
+                              <SortIconDown
+                                style={{
+                                  width: "10px",
+                                  height: "10px",
+                                }}
+                              />
+                            )}
                           </>
                         ) : (
-                          <SortIcon />
+                          <SortIcon
+                            style={{
+                              width: "16px",
+                              height: "16px",
+                            }}
+                          />
                         )}
-                      </>
+                      </Box>
                     )}
                   </Box>
                 </TableCell>

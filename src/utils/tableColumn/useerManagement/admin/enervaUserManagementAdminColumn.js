@@ -139,7 +139,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '1' }) //enervaUsers for type "1"
+    setInvitePageInfo({title:'Manage Enerva User and permissions', type: '1' }) //enervaUsers for type "1"
     setInviteAPIURL(apiURL)
 }
 
