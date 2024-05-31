@@ -174,7 +174,7 @@ const UserManagement = () => {
           {/* <SelectBox /> */}
           <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
-              Submit
+              Sent Request
             </ButtonWrapper>
 
           </Grid>

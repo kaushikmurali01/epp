@@ -66,7 +66,7 @@ const UserManagementColumn = () => {
             accessor: "email",
         },
         {
-            Header: "Facility",
+            Header: "Facility name",
             accessor: (item)=> {
                 return item.facility
                 // if(item.facility){
