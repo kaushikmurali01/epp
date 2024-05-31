@@ -130,9 +130,10 @@ export async function ListCompanies(request: HttpRequest, context: InvocationCon
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
         const companyFilter = request.query.get('company_type');
-
+        const order = request.query.get('order') || 'ASC';
+        const colName = request.query.get('col_name') || 'id';
         // Get all companies
-        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter);
+        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter, order, colName);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);

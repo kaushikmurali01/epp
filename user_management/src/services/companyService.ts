@@ -181,7 +181,7 @@ class CompanyService {
      * @returns Promise<Response>
      * @description Retrieves a list of companies from the database.
      */
-    static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any[]> {
+    static async listCompanies(offset, limit, searchPromt, companyFilter, order, colName): Promise<any[]> {
         try {
             let filterCheck = ""
             if (companyFilter && companyFilter > 0) {
@@ -193,7 +193,7 @@ class CompanyService {
             WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
+            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset order by ${colName} ${order}`, {
                 limit: limit,
                 offset: offset
             })])
@@ -338,12 +338,12 @@ class CompanyService {
     }
 
     static async GetCompanyById(company_id): Promise<any> {
-        
+
         const company = await Company.findByPk(company_id);
         return company;
 
- 
-     }
+
+    }
 
 }
 
