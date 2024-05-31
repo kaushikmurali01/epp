@@ -88,9 +88,30 @@ export class FacilityEtlController {
 };
 
 
+/**
+   * Get data by the user.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+static async  getEtlDataFromDb (decodedToken:IUserToken, event:HttpRequest): Promise<FacilityMeterMonthlyEntries[]> {
+  try {
+    const result = await FacilityEtlService.getEtlDataFromDb(Object(decodedToken),  Number(event.params.id));
+    return result
+  } catch (error) {
+    this.errorMessage = {
+      message: error,
+      statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+    };
+    throw this.errorMessage;
+  }
+};
+
+
 
 
  
+
 
 
 
