@@ -13,11 +13,14 @@ import {
   TableBody,
   Tabs,
   Tab,
-  Stack
+  Stack,
+  FormGroup,
+  FormControlLabel,
+  Checkbox
 } from "@mui/material";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
-import { Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import React, { useRef, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { validationSchemaIndependentVariable } from "utils/validations/formValidation";
@@ -32,8 +35,9 @@ const Weather = () => {
   const dispatch = useDispatch();
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
-  const[independentVariable1File, setIndependentVariable1File] = useState(null);
+  const [independentVariable1File, setIndependentVariable1File] = useState(null);
   const [imgUrl, setImgUrl] = useState("");
+  const [checked, setChecked] = useState(true);
   const initialValues = {};
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
@@ -162,6 +166,8 @@ const Weather = () => {
     });
   };
 
+  const handleCheckboxChange = (event) => { setChecked(event.target.checked); };
+
   return (
     <><Box
       sx={{
@@ -220,31 +226,31 @@ const Weather = () => {
       </Grid>
 
       {tabValue == 'weather' ? <Box>
-      <Grid
-        container
-        sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "1rem",
-          marginBottom: "3rem",
-        }}
-      >
-        <Grid item xs={12} md={6}>
-        <TableContainer
-          component={Paper}
+        <Grid
+          container
           sx={{
-            bgcolor: "#2E813E20",
-            boxShadow: "none",
-            border: "1px solid #2E813E",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "1rem",
+            marginBottom: "3rem",
           }}
         >
-          <MuiTable size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                  Latitude
-                </TableCell>
-                {/* {Array.isArray(meterStatistics) &&
+          <Grid item xs={12} md={6} sx={{ textAlign: "center"}}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                bgcolor: "#2E813E20",
+                boxShadow: "none",
+                border: "1px solid #2E813E",
+              }}
+            >
+              <MuiTable size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Latitude
+                    </TableCell>
+                    {/* {Array.isArray(meterStatistics) &&
         meterStatistics?.map((type, index) => (
           <TableCell
             key={type.meterType}
@@ -253,57 +259,199 @@ const Weather = () => {
             {type?.["Meter type"]}
           </TableCell>
         ))} */}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              <TableRow>
-                <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                  Longitude
-                </TableCell>
-                {/* {Array.isArray(meterStatistics) &&
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Longitude
+                    </TableCell>
+                    {/* {Array.isArray(meterStatistics) &&
         meterStatistics?.map((count, index) => (
           <TableCell key={index} sx={{ color: "#111" }}>
             {count?.["Total meters"]}
           </TableCell>
         ))} */}
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                  Climate ID
-                </TableCell>
-                {/* {Array.isArray(meterStatistics) &&
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Climate ID
+                    </TableCell>
+                    {/* {Array.isArray(meterStatistics) &&
         meterStatistics?.map((date, index) => (
           <TableCell key={index} sx={{ color: "#111" }}>
             {count?.["Total meters"]}
           </TableCell>
         ))} */}
-              </TableRow>
-              <TableRow>
-                <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                  Station ID
-                </TableCell>
-                {/* {Array.isArray(meterStatistics) &&
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Station ID
+                    </TableCell>
+                    {/* {Array.isArray(meterStatistics) &&
         meterStatistics?.map((count, index) => (
           <TableCell key={index} sx={{ color: "#111" }}>
             {count?.["Total meters"]}
           </TableCell>
         ))} */}
-              </TableRow>
-            </TableBody>
-          </MuiTable>
-        </TableContainer>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          
-        </Grid>
+                  </TableRow>
+                </TableBody>
+              </MuiTable>
+            </TableContainer>
+          </Grid>
+          <Grid container item xs={12} md={6} sx={{padding:" 0px 30px"}}>
+            <Typography>Select checkboxes to see graphs</Typography>
+            <Grid item xs={12} md={6}>
+              <Formik
+                initialValues={{ ...initialValues }}
+                // validationSchema={validationSchemaFacilityDetails}
+                // onSubmit={handleSubmit}
+                enableReinitialize={true}
+              >
+                <Form>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="air_temperature"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Air temprature
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="relative_humidity"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Relative humidity
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="participation"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Precipitation
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                </Form>
+              </Formik>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Formik
+                initialValues={{ ...initialValues }}
+                // validationSchema={validationSchemaFacilityDetails}
+                // onSubmit={handleSubmit}
+                enableReinitialize={true}
+              >
+                <Form>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="atmospheric_pressure"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Atmospheric pressure
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="wind_speed"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Wind speed
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <FormControlLabel
+                      control={
+                        <Field
+                          name=""
+                          type="checkbox"
+                          as={Checkbox}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                      }
+                      sx={{ color: "text.secondary2" }}
+                      name="daily_solar_radiation"
+                      label={
+                        <Typography sx={{ fontSize: "14px!important" }}>
+                          Daily solar radiation (Horizontal)
+                        </Typography>
+                      }
+                    />
+                  </FormGroup>
+                </Form>
+              </Formik>
+            </Grid>
+          </Grid>
         </Grid>
       </Box> : (
         !isFileUploaded ? <Box>
           <Typography variant="h5">
-          Upload data in bulk for independent variable 1
+            Upload data in bulk for independent variable 1
           </Typography>
           <Typography variant="small2" gutterBottom>
-          Upload the excel file, and refer to spreadsheet for the formatting details.
+            Upload the excel file, and refer to spreadsheet for the formatting details.
           </Typography>
           <Typography
             my={1}
@@ -346,10 +494,10 @@ const Weather = () => {
         </Box> : <Box>
           <Typography variant='h6' sx={{ color: 'blue.main', cursor: 'pointer', display: 'flex' }} onClick={downloadFileFromUrl}>
             _independent_variable1_file.xlsx
-            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={(event) => {event.stopPropagation()}}>Delete</Typography>
+            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={(event) => { event.stopPropagation() }}>Delete</Typography>
           </Typography>
         </Box>
-      ) }
+      )}
 
     </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
