@@ -21,8 +21,6 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { ReactComponent as SortIcon } from "../assets/images/sortIcon.svg";
 import { ReactComponent as SortIconUp } from "../assets/images/sortIconUp.svg";
 import { ReactComponent as SortIconDown } from "../assets/images/sortIconDown.svg";
