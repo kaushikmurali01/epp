@@ -120,7 +120,6 @@ export class AdminFacilityService {
         is_active: STATUS.IS_ACTIVE,
         created_by: userToken.id,
         updated_by: userToken.id
-
       };
 
 
@@ -137,47 +136,95 @@ export class AdminFacilityService {
 
   static async editFacility(userToken: IUserToken, body: IBaseInterface, facilityId: number): Promise<Facility[]> {
     try {
-      const obj = {
-        facility_construction_status: body.facility_construction_status,
-        facility_name: body.facility_name,
-        naic_code: body.naic_code,
-        facility_category: body.facility_category,
-        facility_type: body.facility_type,
-        target_saving: body.target_saving,
-        display_pic_url: body.display_pic_url,
-        unit_number: body.unit_number,
-        street_number: body.street_number,
-        street_name: body.street_name,
-        city: body.city,
-        country: body.country,
-        province: body.province,
-        postal_code: body.postal_code,
-        address: body.address,
-        sector: body.sector,
-        year_of_construction: body.year_of_construction,
-        gross_floor_area: body.gross_floor_area,
-        number_of_storeys: body.number_of_storeys,
-        occupancy: body.occupancy,
-        number_of_building: body.number_of_building,
-        company_id: body.company_id,
-        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
-        facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
-        ng_distribution_company: body.ng_distribution_company,
-        ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
-        longitude: body.longitude,
-        latitude: body.latitude,
-        facility_bas: body.facility_bas,
-        facility_bas_connectivity: body.facility_bas_connectivity,
-        is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
-        is_active: STATUS.IS_ACTIVE,
-        updated_by: userToken.id,
-        updated_at: new Date()
-      };
-      const result = await Facility.update(obj, { where: { id: facilityId } })
+      if(body.company_id){
 
+        const obj = {
+          facility_construction_status: body.facility_construction_status,
+          facility_name: body.facility_name,
+          naic_code: body.naic_code,
+          facility_category: body.facility_category,
+          facility_type: body.facility_type,
+          target_saving: body.target_saving,
+          display_pic_url: body.display_pic_url,
+          unit_number: body.unit_number,
+          street_number: body.street_number,
+          street_name: body.street_name,
+          city: body.city,
+          country: body.country,
+          province: body.province,
+          postal_code: body.postal_code,
+          address: body.address,
+          sector: body.sector,
+          year_of_construction: body.year_of_construction,
+          gross_floor_area: body.gross_floor_area,
+          number_of_storeys: body.number_of_storeys,
+          occupancy: body.occupancy,
+          number_of_building: body.number_of_building,
+          company_id: body.company_id,
+          facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
+          facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
+          ng_distribution_company: body.ng_distribution_company,
+          ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
+          longitude: body.longitude,
+          latitude: body.latitude,
+          facility_bas: body.facility_bas,
+          facility_bas_connectivity: body.facility_bas_connectivity,
+          is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
+          is_active: STATUS.IS_ACTIVE,
+          created_by: userToken.id,
+        };
 
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
-      return resp;
+        await Facility.update({is_active:STATUS.NOT_ACTIVE}, { where: { id: facilityId } })
+        const result = await Facility.create(obj);
+  
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+        return resp;
+
+      }else{
+        const obj = {
+          facility_construction_status: body.facility_construction_status,
+          facility_name: body.facility_name,
+          naic_code: body.naic_code,
+          facility_category: body.facility_category,
+          facility_type: body.facility_type,
+          target_saving: body.target_saving,
+          display_pic_url: body.display_pic_url,
+          unit_number: body.unit_number,
+          street_number: body.street_number,
+          street_name: body.street_name,
+          city: body.city,
+          country: body.country,
+          province: body.province,
+          postal_code: body.postal_code,
+          address: body.address,
+          sector: body.sector,
+          year_of_construction: body.year_of_construction,
+          gross_floor_area: body.gross_floor_area,
+          number_of_storeys: body.number_of_storeys,
+          occupancy: body.occupancy,
+          number_of_building: body.number_of_building,
+          // company_id: body.company_id,
+          facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.DRAFT),
+          facility_id_submission_status: Number(FACILITY_ID_SUBMISSION_STATUS.DRAFT),
+          ng_distribution_company: body.ng_distribution_company,
+          ng_distribution_company_data_extraction: body.ng_distribution_company_data_extraction,
+          longitude: body.longitude,
+          latitude: body.latitude,
+          facility_bas: body.facility_bas,
+          facility_bas_connectivity: body.facility_bas_connectivity,
+          is_approved: Boolean(FACILITY_APPROVAL_STATUS.INITIAL),
+          is_active: STATUS.IS_ACTIVE,
+          updated_by: userToken.id,
+          updated_at: new Date()
+        };
+        const result = await Facility.update(obj, { where: { id: facilityId } })
+  
+  
+        const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+        return resp;
+
+      }
+     
 
     } catch (error) {
       throw error;

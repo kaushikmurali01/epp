@@ -49,7 +49,6 @@ export async function  getFacilityMeterMonthlyEntryById(request: HttpRequest, co
     }
 }
 
-
 export async function getFacilityMeterHourlyEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
     try {
         const colName = request.query.get('col_name') || 'id';
@@ -96,6 +95,26 @@ export async function  getFacilityMeterHourlyEntryById(request: HttpRequest, con
     }
 }
 
+export async function  getEtlDataFromDb(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
+    try {
+
+      // Fetch values from decoded token
+      const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+       
+        const result = await FacilityEtlController.getEtlDataFromDb(decodedToken, request);
+       
+        // Prepare response body
+        const responseBody = JSON.stringify(result);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+         return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}`};
+    }
+}
+
 
 app.http("get-facility-monthly-entries", {
     methods: ["GET"],
@@ -125,3 +144,9 @@ app.http("get-facility-hourly-entry-by-id", {
     handler: getFacilityMeterHourlyEntryById,
 });
 
+app.http("get-facility-etl-data", {
+    methods: ["GET"],
+    route: "etl/get-data",
+    authLevel: "anonymous",
+    handler: getEtlDataFromDb,
+});

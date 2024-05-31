@@ -618,9 +618,7 @@ try {
     }
 
 
-    
-
-    // Facility Characteristics
+  // Facility Characteristics
 
 
   export async function  getFacilityCharacteristicsById(request: HttpRequest, context: InvocationContext) : Promise<HttpResponseInit>  {
@@ -689,7 +687,7 @@ try {
   }
 
 
-    // ADMIN Facility
+  // ADMIN Facility
 
   export async function adminGetAllFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit>  {
       try {
