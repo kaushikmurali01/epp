@@ -39,10 +39,28 @@ const Weather = () => {
   const [imgUrl, setImgUrl] = useState("");
   const [checked, setChecked] = useState(true);
   const initialValues = {};
-  const METER_TYPE_ARRAY = [
-    { id: 1, value: "Electricity" },
-    { id: 2, value: "Water" },
-    { id: 3, value: "Natural Gas" },
+  const LAT_LONG_DATA = [
+    {
+      station_name: "Toronto city centre weather station",
+      lattitude: 43.644,
+      longitude: -79.403,
+      climate_id: "",
+      station_id: ""
+    },
+    {
+      station_name: "Toronto city weather station",
+      lattitude: 43.67,
+      longitude: -79.4,
+      climate_id: "6158355",
+      station_id: "31688"
+    },
+    {
+      station_name: "Toronto INTL A weather station",
+      lattitude: 43.67,
+      longitude: -79.4,
+      climate_id: "6158731",
+      station_id: "51459"
+    }
   ];
 
   const [modalConfig, setModalConfig] = useState({
@@ -235,7 +253,7 @@ const Weather = () => {
             marginBottom: "3rem",
           }}
         >
-          <Grid item xs={12} md={6} sx={{ textAlign: "center"}}>
+          <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
             <TableContainer
               component={Paper}
               sx={{
@@ -245,20 +263,36 @@ const Weather = () => {
               }}
             >
               <MuiTable size="small">
+              <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      
+                    </TableCell>
+                    {Array.isArray(LAT_LONG_DATA) &&
+                      LAT_LONG_DATA?.map((type, index) => (
+                        <TableCell
+                          key={type.meterType}
+                          sx={{ color: "#111", fontStyle: "italic" }}
+                        >
+                          {type?.["station_name"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                </TableHead>
                 <TableHead>
                   <TableRow>
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Latitude
                     </TableCell>
-                    {/* {Array.isArray(meterStatistics) &&
-        meterStatistics?.map((type, index) => (
-          <TableCell
-            key={type.meterType}
-            sx={{ color: "#111", fontStyle: "italic" }}
-          >
-            {type?.["Meter type"]}
-          </TableCell>
-        ))} */}
+                    {Array.isArray(LAT_LONG_DATA) &&
+                      LAT_LONG_DATA?.map((type, index) => (
+                        <TableCell
+                          key={type.meterType}
+                          sx={{ color: "#111", fontStyle: "italic" }}
+                        >
+                          {type?.["lattitude"]}
+                        </TableCell>
+                      ))}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -266,40 +300,40 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Longitude
                     </TableCell>
-                    {/* {Array.isArray(meterStatistics) &&
-        meterStatistics?.map((count, index) => (
-          <TableCell key={index} sx={{ color: "#111" }}>
-            {count?.["Total meters"]}
-          </TableCell>
-        ))} */}
+                    {Array.isArray(LAT_LONG_DATA) &&
+                      LAT_LONG_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["longitude"]}
+                        </TableCell>
+                      ))}
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Climate ID
                     </TableCell>
-                    {/* {Array.isArray(meterStatistics) &&
-        meterStatistics?.map((date, index) => (
-          <TableCell key={index} sx={{ color: "#111" }}>
-            {count?.["Total meters"]}
-          </TableCell>
-        ))} */}
+                    {Array.isArray(LAT_LONG_DATA) &&
+                      LAT_LONG_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["climate_id"]}
+                        </TableCell>
+                      ))}
                   </TableRow>
                   <TableRow>
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Station ID
                     </TableCell>
-                    {/* {Array.isArray(meterStatistics) &&
-        meterStatistics?.map((count, index) => (
-          <TableCell key={index} sx={{ color: "#111" }}>
-            {count?.["Total meters"]}
-          </TableCell>
-        ))} */}
+                    {Array.isArray(LAT_LONG_DATA) &&
+                      LAT_LONG_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["lattitude"]}
+                        </TableCell>
+                      ))}
                   </TableRow>
                 </TableBody>
               </MuiTable>
             </TableContainer>
           </Grid>
-          <Grid container item xs={12} md={6} sx={{padding:" 0px 30px"}}>
+          <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
             <Typography>Select checkboxes to see graphs</Typography>
             <Grid item xs={12} md={6}>
               <Formik
