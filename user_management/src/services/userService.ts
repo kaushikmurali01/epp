@@ -9,11 +9,11 @@ import { Status } from '../models/status';
 import { UserRequest } from '../models/user-request';
 import { Role } from '../models/role';
 import { Company } from '../models/company';
-import { sequelize } from '../services/database';
+import { sequelize, rawQuery } from '../services/database';
 import { UserCompanyRole, UserCompanyRoleAttributes } from '../models/user-company-role';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { Permission } from '../models/permission';
-import { Op, UpsertOptions } from 'sequelize';
+import { Op, UpsertOptions, QueryTypes } from 'sequelize';
 import { Facility } from '../models/facility';
 import { UserResourceFacilityPermission } from '../models/user-resource-permission';
 import { EmailTemplate } from '../utils/emailTemplate';
@@ -21,6 +21,8 @@ import { CompanyService } from './companyService';
 import { EmailContent } from '../utils/emailContent';
 import { Email } from './email';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
+
+
 
 
 class UserService {
@@ -421,6 +423,108 @@ class UserService {
     } else return [];
   }
 
+  // New FUnction start
+
+ static async getCombinedResults({ company, search, offset, limit }) {
+    const searchPattern = `%${search}%`;
+    const commonQuery = `SELECT
+    1 as entry_type,
+    ucr.id AS id,
+    u.email AS email,
+    u.first_name AS first_name,
+    u.last_name AS last_name,
+    r.rolename AS rolename,
+    r.id AS role_id,
+    ucr.status AS status,
+    ucr.company_id AS company_id,
+    c.company_name AS company_name
+  FROM "user_company_role" ucr
+  JOIN "users" u ON ucr.user_id = u.id
+  JOIN "role" r ON ucr.role_id = r.id
+  JOIN "company" c ON ucr.company_id = c.id
+  WHERE ucr.company_id = $1 AND (
+    u.first_name ILIKE $2 OR
+    u.last_name ILIKE $2 OR
+    u.email ILIKE $2
+  )
+
+  UNION ALL
+
+  SELECT
+    2 as entry_type,
+    ui.id AS id,
+    ui.email AS email,
+    NULL AS first_name,
+    NULL AS last_name,
+    r.rolename AS rolename,
+    r.id AS role_id,
+    ui.status AS status,
+    ui.company AS company_id,
+    c.company_name AS company_name
+  FROM "user_invitation" ui
+  JOIN "role" r ON ui.role = r.id
+  JOIN "company" c ON ui.company = c.id
+  WHERE ui.is_active = 1 AND ui.company = $1 AND ui.email ILIKE $2
+
+  UNION ALL
+
+  SELECT
+    3 as entry_type,
+    ur.id AS id,
+    u.email AS email,
+    u.first_name AS first_name,
+    u.last_name AS last_name,
+    r.rolename AS rolename,
+    r.id AS role_id,
+    ur.status AS status,
+    ur.company_id AS company_id,
+    c.company_name AS company_name
+  FROM "user_request" ur
+  JOIN "users" u ON ur.user_id = u.id
+  JOIN "role" r ON ur.role = r.id
+  JOIN "company" c ON ur.company_id = c.id
+  WHERE ur.is_active = 1 AND ur.company_id = $1 AND (
+    u.first_name ILIKE $2 OR
+    u.last_name ILIKE $2 OR
+    u.email ILIKE $2
+  )`;
+    const combinedQuery = `
+    SELECT * FROM (
+      ${commonQuery}
+    ) AS combinedResults
+    ORDER BY id
+    OFFSET $3
+    LIMIT $4;
+  `;
+  const countQuery = `
+    SELECT count(*) as count FROM (
+      ${commonQuery}
+    ) AS combinedResults`;
+
+  console.log("combinedQuery",combinedQuery);
+  const results = await sequelize.query(combinedQuery, {
+    bind: [company, `%${searchPattern}%`, offset, limit],
+    type: QueryTypes.SELECT,
+  });
+    console.log("Results009", results);
+
+    const resultsCount:any = await sequelize.query(countQuery, {
+      bind: [company, `%${searchPattern}%`],
+      type: QueryTypes.SELECT,
+    });
+  
+    //return results;
+    return {
+      rows: results,
+      count: resultsCount[0].count
+    }
+  }
+  
+  // Example usage
+  
+  
+  // New Function ends
+
   static async getCombinedUsers(offset, limit, company, entrytype, search): Promise<any> {
     try {
       const [usersResult, invitationsResult, requestsResult]: any = await Promise.all([
@@ -811,6 +915,15 @@ class UserService {
     }
 
   }
+
+  static async CheckAndMakeUserIndividual(userId: number): Promise<void> {
+    const companyList = await UserCompanyRole.findAll({ where: { user_id: userId } });
+    console.log("CCCC", companyList);
+    if (!companyList.length) {
+        await User.update({ type: 3 }, { where: { id: userId } });
+    }
+   }
+
 
 }
 

@@ -390,21 +390,51 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         const userId: any = request.params.id;
         const type: any = request.params.type;
         const company_id: any = request.params.company_id;
+        context.log("Type", type);
+        context.log("Company Id", company_id);
+        context.log("User Id", userId);
         if (type == 1) {
             if(company_id == 0) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
             } else if(company_id > 0) {
-                await UserCompanyRole.destroy({
-                    where: {
-                        user_id: userId,
-                        company_id:company_id
-                    }
-                });
+                // find user role
+               let ucr:any = await UserCompanyRole.findOne({where: {
+                    user_id: userId,
+                    company_id:company_id
+                }});
+                context.log('1111', ucr?.role_id)
+                let user_role = ucr?.role_id;
+                const company:any = await CompanyService.GetCompanyById(request.params.company_id);
+                const userDet:any = await UserService.getUserDataById(userId);
+
+                if (user_role === 1) {
+                    const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
+                    context.log("companyUsers", companyUsers);
+                
+                    await Promise.all([
+                        UserCompanyRolePermission.destroy({ where: { company_id }}),
+                        UserCompanyRole.destroy({ where: { company_id } }),
+                        UserInvitation.destroy({ where: { company: company_id } }),
+                        UserRequest.destroy({ where: { company_id } }),
+                        Company.destroy({ where: { id: company_id } })
+                    ]);
+                
+                    await Promise.all(companyUsers.map(user => 
+                        UserService.CheckAndMakeUserIndividual(user.user_id)
+                    ));
+                } else {
+                    context.log("logging", userId);
+                    context.log("companyLogging", company_id);
+                    await UserCompanyRolePermission.destroy({ where: { user_id: userId, company_id }});
+                    await UserCompanyRole.destroy({ where: { user_id: userId, company_id } });
+                    await UserService.CheckAndMakeUserIndividual(userId);
+                }
+                
+                
             (async () => {
             // Send Email For User Starts
       let template =  await EmailTemplate.getEmailTemplate();
-      const company:any = await CompanyService.GetCompanyById(request.params.company_id);
-      const userDet:any = await UserService.getUserDataById(userId);
+      
       context.log("userDetail", userDet);
       if(userDet) {
       let emailContent =  template
@@ -423,9 +453,15 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
     .replace('#company#', company.company_name)
     .replace('#isDisplay#', 'none')
     .replace('#heading#', '');
-    await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
+    if (user_role !== 1) {
+     await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
+    }
     // Send Email to Admins
       }
+
+
+
+
     })();
             }
 
@@ -484,6 +520,14 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         const company = requestData.company;
 
         await UserInvitation.destroy({ where: { email: email, company:company, is_active: 0  } });
+        // let uData = await User.findOne({
+        //     where: {
+        //         email: email
+        //     }
+        // });
+        // if(uData) {
+        //     await UserRequest.destroy({ where: { user_id:uData.id, company_id : company, status: "Rejected" } });
+        // }
        // await UserRequest.destroy({ where: { user_id, company_id : company, status: "Rejected" } });
 
         // Check if the email already exists in the company
@@ -736,6 +780,35 @@ export async function GetUserCompanyDetail(request: HttpRequest, context: Invoca
 //app.use(decodeTokenMiddleware);
 //export default middleware([validation(schema)], functionHandler, []);
 
+export async function GetCombinedResults(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const { offset, limit, entrytype, company_id } = request.params;
+        const search = request.query.get('search') || "";
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
+        //let companyId;
+        console.log('abcd');
+        let companyId = company_id ? company_id : resp.company_id;
+        let checkStatus = await CheckCompanyStatus(company_id)
+        if (!checkStatus) {
+            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        }
+            console.log("testing3333");
+        // Get all users
+        const users = await UserService.getCombinedResults({company:companyId, search, offset, limit});
+
+        // Prepare response body
+        const responseBody = JSON.stringify(users);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 
 
 app.http('AlertUser', {
@@ -757,6 +830,12 @@ app.http('GetCombinedUsers', {
     authLevel: 'anonymous',
     route: 'combinedusers/{offset}/{limit}/{entrytype}/{company_id}',
     handler: GetCombinedUsers
+});
+app.http('GetCombinedResults', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'combinedresults/{offset}/{limit}/{entrytype}/{company_id}',
+    handler: GetCombinedResults
 });
 
 app.http('GetFilteredUsers', {

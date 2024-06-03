@@ -99,6 +99,22 @@ class RoleController {
             return { status: 400, body: { error: error.message } };
         }
     }
+
+    /**
+     * Retrieves a list of roles including super admin for user type.
+     * 
+     * @param req - The HTTP request object.
+     * @returns Promise<HttpResponse>
+     * @description Handles the retrieval of a list of roles, invoking the RoleService to retrieve the roles, and returning an HTTP response with appropriate status and JSON data.
+     */
+    static async listAllRoles(req: HttpRequest, type): Promise<Object> {
+        try {
+            const roles = await RoleService.listAllRoles(type);
+            return { status: 200, body: roles };
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
 }
 
 export { RoleController };

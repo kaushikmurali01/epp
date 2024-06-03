@@ -178,6 +178,26 @@ class RoleService {
         }
     }
 
+    /**
+     * Retrieves a list of  all roles including super admin for user type.
+     * 
+     * @returns Promise<any[]>
+     * @description Retrieves a list of roles from the database.
+     */
+    static async listAllRoles(type): Promise<any[]> {
+        try {
+            const roles = await Role.findAll({
+                where: {
+                    user_type: type
+                }
+            });
+
+            return roles;
+        } catch (error) {
+            throw error;
+        }
+    }
+
 }
 
 export { RoleService };

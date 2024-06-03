@@ -255,16 +255,18 @@ class CompanyService {
     static async SendEmailsToAllAdmins(adminData, title, body): Promise<any> {
         console.log("adminData", adminData);
         // Extracting the superadmin email
-        const superAdminEmail = adminData.superAdmin.email;
-        let contentAdmin = body.replace("#name#", adminData.superAdmin.name).replace('#isDisplay#', 'none');
+        const superAdminEmail = adminData?.superAdmin?.email;
+        let contentAdmin = body.replace("#name#", adminData?.superAdmin?.name).replace('#isDisplay#', 'none');
         // Sending email to the superadmin
         await Email.send(superAdminEmail, title, contentAdmin);
 
         // Extracting subadmin emails and sending emails
         adminData.subAdmins.forEach(subAdmin => {
+            if(subAdmin) {
             const subAdminEmail = subAdmin.email;
             let content = body.replace("#name#", subAdmin.name).replace('#isDisplay#', 'none');
             Email.send(subAdminEmail, title, content);
+            }
         });
 
     }

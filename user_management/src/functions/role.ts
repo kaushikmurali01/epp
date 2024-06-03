@@ -325,6 +325,32 @@ export async function GetPermissionsByUser(request: HttpRequest, context: Invoca
     }
 }
 
+
+/**
+ * Retrieves a list of roles including super admin.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing a list of roles.
+ */
+export async function ListAllRoles(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const type = parseInt(request.params.user_type);
+        // List roles
+        const roles = await RoleController.listAllRoles(request, type);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(roles);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 //const permissions = await Permission.findAll();
 
 app.http('CreateRole', {
@@ -384,4 +410,10 @@ app.http('GetPermissionsByRoleId', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetPermissionsByRoleId
+});
+app.http('ListAllRoles', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'all-roles/{user_type}',
+    handler: ListAllRoles
 });
