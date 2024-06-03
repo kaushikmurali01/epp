@@ -52,7 +52,9 @@ export const fetchAdminFacilityListing = (
   pageInfo,
   status,
   search = "",
-  compFilter = ""
+  compFilter = "",
+  sortByCol,
+  sortOrder
 ) => {
   return async (dispatch) => {
     try {
@@ -61,6 +63,8 @@ export const fetchAdminFacilityListing = (
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?search=${search}&company_id=${compFilter}`;
       endpointWithParams += status ? `&status=${status}` : "";
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));

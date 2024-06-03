@@ -26,9 +26,9 @@ import {
   updateAdminMeter,
 } from "../../../redux/admin/actions/adminMeterActions";
 import { validationSchemaAddMeter } from "utils/validations/formValidation";
-import { format } from "date-fns";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { DatePicker } from "@mui/x-date-pickers";
 
 const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -54,12 +54,12 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
             ...initialValues,
             ...meterDetails,
             meter_active: meterDetails?.meter_active
-              ? format(new Date(meterDetails.meter_active), "yyyy-MM-dd")
-              : "",
+              ? new Date(meterDetails.meter_active)
+              : null,
             meter_inactive:
               !meterDetails?.stil_in_Use && meterDetails?.meter_inactive
-                ? format(new Date(meterDetails.meter_inactive), "yyyy-MM-dd")
-                : "",
+                ? new Date(meterDetails.meter_inactive)
+                : null,
           });
           setMeterAlignment(meterDetails?.meter_type);
           setRevenueAlignment(meterDetails?.is_rg_meter);
@@ -249,7 +249,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
-        {({ values, setFieldValue }) => (
+        {({ values, setFieldValue, errors }) => (
           <Form>
             <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
               <Grid container spacing={4}>
@@ -358,26 +358,67 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
-                  <InputField
+                  <InputLabel
+                    htmlFor="meter_active"
+                    style={{ whiteSpace: "initial" }}
+                  >
+                    Date meter became active *
+                  </InputLabel>
+                  <DatePicker
+                    id="meter_active"
                     name="meter_active"
-                    type="date"
-                    label="Date meter became active *"
-                    inputProps={{
-                      max: format(new Date(), "yyyy-MM-dd"),
+                    sx={{
+                      width: "100%",
+                      input: { color: "#111" },
+                    }}
+                    value={values.meter_active}
+                    onChange={(date) => {
+                      setFieldValue("meter_active", date);
+                    }}
+                    disableFuture
+                    format="dd/MM/yyyy"
+                    slotProps={{
+                      textField: {
+                        helperText: errors.meter_active && errors.meter_active,
+                      },
+                      actionBar: {
+                        actions: ["clear", "accept"],
+                        className: "my-datepicker-actionbar",
+                      },
                     }}
                   />
                 </Grid>
                 {!values.stil_in_use && (
                   <Grid item xs={12} sm={4}>
-                    <InputField
+                    <InputLabel
+                      htmlFor="meter_inactive"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Date meter became inactive
+                    </InputLabel>
+                    <DatePicker
+                      id="meter_inactive"
                       name="meter_inactive"
-                      type="date"
-                      label="Date meter became inactive"
-                      inputProps={{
-                        max: format(new Date(), "yyyy-MM-dd"),
-                        min:
-                          values?.meter_active &&
-                          format(values?.meter_active, "yyyy-MM-dd"),
+                      sx={{
+                        width: "100%",
+                        input: { color: "#111" },
+                      }}
+                      value={values.meter_inactive}
+                      onChange={(date) => {
+                        setFieldValue("meter_inactive", date);
+                      }}
+                      disableFuture
+                      minDate={values?.meter_active}
+                      format="dd/MM/yyyy"
+                      slotProps={{
+                        textField: {
+                          helperText:
+                            errors.meter_inactive && errors.meter_inactive,
+                        },
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
                       }}
                     />
                   </Grid>

@@ -9,7 +9,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useSelector } from 'react-redux';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
-    console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
+    // console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
@@ -18,9 +18,14 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
 
+
+
     const [permissionStates, setPermissionStates] = useState([]);
 
     const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
+
+    // const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
+    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1) );
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -126,7 +131,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
-        console.log(apiURL, permissionIds, "checked data");
         // return;
         if (isEdited) {
             const requestBody = {
@@ -200,7 +204,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + invitePageInfo?.type + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
-                console.log(res.data, "User permissions")
                 const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
@@ -242,8 +245,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-    console.log(getUserRole, invitePageInfo, selectTableRow, getCompanyList, selectedPermissions, 'invite page all data')
-
+   
     return (
         <Box component="section">
 
@@ -290,13 +292,18 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     value={selectRoleType}
                                     onChange={(e) => handleSelectChange(e)}
                                     displayEmpty={true}
+                                    disabled={isPagePermissionDisabled}
                                 >
                                     <MenuItem value="" disabled>
                                         <em>Select</em>
                                     </MenuItem>
+                                    {selectTableRow?.role_id === 1 && 
+                                        <MenuItem  value="1">
+                                            Super Admin
+                                        </MenuItem>
+                                    }
+                                   
                                     {getUserRole && (getUserRole).map((item) => {
-                                        // console.log(item, "Role Type");
-
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
                                         )
@@ -335,18 +342,20 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             </FormGroup>
                         }
                     </Grid>
-                    <Grid item >
-                        <Button
-                            color="primary"
-                            variant="contained"
-                            sx={{ alignSelf: 'center' }}
-                            onClick={() => handelInviteSubmit()}
-                            disabled={!isFormValid}
-                        >
-                            {isEdited ? 'Update Permissions' : ' Send Invite'}
+                    {!isPagePermissionDisabled && 
+                        <Grid item >
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                sx={{ alignSelf: 'center' }}
+                                onClick={() => handelInviteSubmit()}
+                                disabled={!isFormValid}
+                            >
+                                {isEdited ? 'Update Permission' : ' Send Invite'}
 
-                        </Button>
-                    </Grid>
+                            </Button>
+                        </Grid>
+                    }
                 </Grid>
 
                 {permissions?.length > 0 ?
@@ -376,10 +385,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                                 aria-label="text alignment"
                                                 key={permission.permission_id}
                                             >
-                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton disabled={permission.is_active === 0} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>

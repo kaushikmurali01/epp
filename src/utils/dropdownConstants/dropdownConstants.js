@@ -49,8 +49,8 @@ export const SOURCE_ARRAY = [
 export const SPACE_COOLING_ARRAY = [
   { value: "chiller", label: "Chiller" },
   {
-    value: "rooftoop_unit",
-    label: "Rooftoop unit",
+    value: "rooftop_unit",
+    label: "Rooftop unit",
   },
   {
     value: "window_air_conditioner",
@@ -69,7 +69,7 @@ export const SPACE_COOLING_ARRAY = [
 
 export const SPACE_HEATING_ARRAY = [
   { value: "boiler", label: "Boiler" },
-  { value: "furnance", label: "Furnance" },
+  { value: "furnace", label: "Furnace" },
   { value: "radiator", label: "Radiator" },
   {
     value: "baseboard",

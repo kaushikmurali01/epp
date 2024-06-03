@@ -123,6 +123,19 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
   }
 
+  const commonTableStyle = {
+     minWidth: '77rem',
+    //   "&.enerva-customer-table thead th": {
+    //   minWidth: '7rem',
+    // },
+    // "&.enerva-customer-table thead th:first-child": {
+    //   minWidth: '7rem',
+    // },
+    // "&.enerva-customer-table thead th:nth-child(2n)": {
+    //   minWidth: '12rem',
+    // },
+  }
+
   const setPageInfo = (newTabValue) => {
     if (newTabValue === 'enervaUsers') {
       setInvitePageInfo({
@@ -365,18 +378,18 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
         <Box component="section">
           <Container maxWidth="lg">
-            <Grid container sx={{ paddingTop: '1.5rem', justifyContent: 'space-between', }} >
-              <Grid item xs={12} md={6} >
+            <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, justifyContent: 'space-between', }} >
+              <Grid item xs={12} sm={5}  >
                 <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management </Typography>
                 {/* <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
               </Grid>
-              <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '2rem' }}>
-                <FormGroup sx={{ minWidth: '14rem' }}>
+              <Grid item xs={12} sm={7} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
+                <FormGroup sx={{ minWidth: {xs: 'auto', sm: '14rem'} }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
                       value={searchString}
                       placeholder="Search by Username"
-                      inputProps={{ style: { color: '#242424', fontSize: '1rem' } }}
+                      inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2.25rem' } }}
                       onChange={(e) => setSearchString(e.target.value)}
                     />
                      {searchString?.length > 0 &&
@@ -429,14 +442,20 @@ const defaultPagination = { page: 1, pageSize: 10 }
                   className='theme-tabs-list'
                   value={tabValue}
                   onChange={handleChange}
-                  sx={{ display: 'inline-flex' }}
+                  sx={{ 
+                    display: 'inline-flex', flexWrap: 'wrap',
+                  '.MuiTabs-scroller' : {
+                    overflowX: {xs: 'auto !important', md: 'hidden'}
+                  }
+                   
+                }}
 
 
                 >
-                  <Tab value="enervaUsers" label="Enerva Users" sx={{ minWidth: '12rem' }} />
-                  <Tab value="iesoUsers" label="IESO Users" sx={{ minWidth: '12rem' }} />
-                  <Tab value="customerUsers" label="Customer Users" sx={{ minWidth: '12rem' }} />
-                  <Tab value="aggregatorUsers" label="Aggregator Users" sx={{ minWidth: '12rem' }} disabled />
+                  <Tab value="enervaUsers" label="Enerva Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
+                  <Tab value="iesoUsers" label="IESO Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
+                  <Tab value="customerUsers" label="Customer Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
+                  <Tab value="aggregatorUsers" label="Aggregator Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} disabled />
                 </Tabs>
               </Grid>
 
@@ -466,24 +485,24 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
               </Grid>
               {(getEnervaUser && tabValue === 'enervaUsers') &&
-                  <Table columns={enervaUsersColumns} data={getEnervaUser} headbgColor="rgba(217, 217, 217, 0.2)" 
+                  <Table customTableStyles={commonTableStyle} columns={enervaUsersColumns} data={getEnervaUser} headbgColor="rgba(217, 217, 217, 0.2)" 
                   count={pageCount.enerva}
                   pageInfo={enervaPageInfo}
                   setPageInfo={setEnervaPageInfo}
                   />
               }
-              {(getIesoUser && tabValue === 'iesoUsers') && <Table columns={iesoUsersColumns} data={getIesoUser} headbgColor="rgba(217, 217, 217, 0.2)" 
+              {(getIesoUser && tabValue === 'iesoUsers') && <Table customTableStyles={commonTableStyle} columns={iesoUsersColumns} data={getIesoUser} headbgColor="rgba(217, 217, 217, 0.2)" 
               count={pageCount.ieso}
               pageInfo={iesoPageInfo}
               setPageInfo={setIesoPageInfo}
               />}
-              {(getCustomerUser && tabValue === 'customerUsers') && <Table columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
+              {(getCustomerUser && tabValue === 'customerUsers') && <Table tableClass="enerva-customer-table" customTableStyles={commonTableStyle} columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
                 count={pageCount.customer}
                 pageInfo={customerPageInfo}
                 setPageInfo={setCustomerPageInfo}
               
               />}
-              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="rgba(217, 217, 217, 0.2)" 
+              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table customTableStyles={commonTableStyle} columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="rgba(217, 217, 217, 0.2)" 
               count={pageCount.aggregator}
               pageInfo={aggregatorPageInfo}
               setPageInfo={setAggregatorPageInfo}

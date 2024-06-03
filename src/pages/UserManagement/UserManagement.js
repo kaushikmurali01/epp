@@ -60,7 +60,7 @@ const UserManagement = () => {
     buttonsUI: {
       saveButton: false,
       cancelButton: false,
-      saveButtonName: "Sent Request",
+      saveButtonName: "Send Request",
       cancelButtonName: "Cancel",
       successButtonStyle: {},
       cancelButtonStyle: {},
@@ -175,7 +175,7 @@ const UserManagement = () => {
           {/* <SelectBox /> */}
           <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
-              Submit
+              Send Request
             </ButtonWrapper>
 
           </Grid>

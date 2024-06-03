@@ -15,6 +15,7 @@ import { deleteFacility } from "../../../redux/superAdmin/actions/facilityAction
 import EvModal from "utils/modal/EvModal";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
+import { hasPermission } from "utils/commonFunctions";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -28,6 +29,9 @@ const FacilityHeader = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
+  );
+  const permissionList = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
   const navigate = useNavigate();
   const { id } = useParams();
@@ -112,7 +116,7 @@ const FacilityHeader = () => {
                 <MapsHomeWorkIcon
                   sx={{
                     fontSize: "7.5rem",
-                    color: "#757575",
+                    color: "#B9B9B9",
                   }}
                 />
               )}
@@ -155,18 +159,20 @@ const FacilityHeader = () => {
                 >
                   Edit
                 </Button>
-                <Button
-                  color="error"
-                  style={{
-                    backgroundColor: "transparent",
-                    padding: 0,
-                    minWidth: "unset",
-                    marginLeft: "1rem",
-                  }}
-                  onClick={openDeleteFacilityModal}
-                >
-                  Delete
-                </Button>
+                {hasPermission(permissionList, "delete-facility") && (
+                  <Button
+                    color="error"
+                    style={{
+                      backgroundColor: "transparent",
+                      padding: 0,
+                      minWidth: "unset",
+                      marginLeft: "1rem",
+                    }}
+                    onClick={openDeleteFacilityModal}
+                  >
+                    Delete
+                  </Button>
+                )}
               </Box>
             </Box>
           </Box>

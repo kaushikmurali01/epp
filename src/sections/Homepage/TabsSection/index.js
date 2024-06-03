@@ -77,7 +77,7 @@ const TabsSection = (props) => {
         borderBottom: "0.0625rem",
         borderBottomColor: "#89AD90",
         borderBottomStyle: "solid",
-        marginBottom: "3.25rem",
+        marginBottom: {xs: '0.5rem', sm: '1rem', lg: "3.25rem"},
       }}
     >
       <Container>

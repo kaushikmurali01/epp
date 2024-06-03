@@ -65,7 +65,8 @@ const theme = createTheme({
             th: {
               color: '#54585A',
               fontSize: '0.75rem'
-            }
+            },
+           
           },
           ".MuiTableBody-root": {
             color: '#54585A'
