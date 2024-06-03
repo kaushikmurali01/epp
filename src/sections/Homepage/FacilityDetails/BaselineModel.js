@@ -1,10 +1,10 @@
-import { BorderAllRounded, BorderLeftRounded, BorderRight } from "@mui/icons-material";
 import { Box, Button, ButtonGroup, Checkbox, FormControlLabel, FormGroup, Grid, Tab, Tabs, Typography, styled, useMediaQuery } from "@mui/material";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
 import React, { useState } from "react";
 import CustomAccordion from "components/CustomAccordion";
+import SliderWrapper from "components/FormBuilder/Slider";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -76,8 +76,20 @@ const BaselineModel = () => {
     fontStyle: "normal",
     fontWeight: 500,
     lineHeight: "normal",
-    width: "max-content"
+    width: "max-content",
+    marginBlockEnd: "2rem",
   };
+
+  const marksForEnergyTarget = [
+    {
+      value: 0,
+      label: "0 %",
+    },
+    {
+      value: 100,
+      label: "100 %",
+    },
+  ];
 
   const modelConstructorAccordionDetails = (
     <Formik
@@ -92,22 +104,105 @@ const BaselineModel = () => {
             <Typography variant="h6" sx={headingStyleInAccordion}>
               Baseline period
             </Typography>
+            <Box
+              sx={{
+                marginInline: "auto",
+                maxWidth: "33rem",
+              }}
+            >
+              <SliderWrapper
+                name="target_saving"
+                min={0}
+                max={100}
+                aria-labelledby="number-slider"
+                valueLabelDisplay="on"
+                marks={marksForEnergyTarget}
+                disableSwap
+              />
+            </Box>
           </Grid>
           <Grid item>
             <Typography variant="h6" sx={headingStyleInAccordion}>
               Sufficiency verification
             </Typography>
+
+            <Box
+              sx={{
+                borderRadius: "0.25rem",
+                border: "1px solid #2E813E",
+                opacity: "0.7",
+                background: "#EBFFEF",
+              }}
+            >
+              <Grid
+                container
+                sx={{
+                  background: "#CBFFD5",
+                  padding: "1rem 0",
+                  borderRadius: "0.25rem 0.25rem 0 0",
+                }}
+              >
+                <Grid item sm={4}></Grid>
+                <Grid item sm={2} textAlign={"center"}>
+                  Hourly
+                </Grid>
+                <Grid item sm={2} textAlign={"center"}>
+                  Daily
+                </Grid>
+                <Grid item sm={2} textAlign={"center"}>
+                  Monthly
+                </Grid>
+                <Grid item sm={2}></Grid>
+              </Grid>
+
+              <Grid container>
+                <Grid
+                  item
+                  sm={4}
+                  sx={{
+                    textAlign: "center",
+                    background: "#CBFFD5",
+                    padding: "1rem 0",
+                    borderRadius: "0 0 0 0.25rem",
+                  }}
+                >
+                  Sufficiency verification
+                </Grid>
+                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
+                  Hourly
+                </Grid>
+                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
+                  Daily
+                </Grid>
+                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
+                  Monthly
+                </Grid>
+                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
+                  <Button
+                    variant="text"
+                    sx={{
+                      width: "max-content !important",
+                      fontSize: "0.875rem",
+                      fontStyle: "italic",
+                      fontWeight: 400,
+                    }}
+                  >
+                    See detail
+                  </Button>
+                </Grid>
+              </Grid>
+            </Box>
           </Grid>
           <Grid item display={"grid"} gap={"2rem"}>
             <Typography variant="h6" sx={headingStyleInAccordion}>
               Baseline independent variable
             </Typography>
-            <Box display={"flex"}>
+            <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
               <FormGroup>
                 <FormControlLabel
                   control={
                     <Field
-                      name=""
+                      name="Weekday_hours"
                       type="checkbox"
                       as={Checkbox}
                       checked={checked}
@@ -128,7 +223,7 @@ const BaselineModel = () => {
                 <FormControlLabel
                   control={
                     <Field
-                      name=""
+                      name="Variable-1"
                       type="checkbox"
                       as={Checkbox}
                       checked={checked}
@@ -149,7 +244,7 @@ const BaselineModel = () => {
                 <FormControlLabel
                   control={
                     <Field
-                      name=""
+                      name="Variable-2"
                       type="checkbox"
                       as={Checkbox}
                       checked={checked}
@@ -170,7 +265,7 @@ const BaselineModel = () => {
                 <FormControlLabel
                   control={
                     <Field
-                      name=""
+                      name="Variable-3"
                       type="checkbox"
                       as={Checkbox}
                       checked={checked}
@@ -191,7 +286,7 @@ const BaselineModel = () => {
                 <FormControlLabel
                   control={
                     <Field
-                      name=""
+                      name="Variable-4"
                       type="checkbox"
                       as={Checkbox}
                       checked={checked}
@@ -218,10 +313,10 @@ const BaselineModel = () => {
       </Form>
     </Formik>
   );
-  ;
 
   return (
-    <Grid container
+    <Grid
+      container
       sx={{
         width: "100%",
         padding: "0 2rem",
@@ -290,7 +385,11 @@ const BaselineModel = () => {
         </Typography>
       </Grid>
 
-
+      <Box textAlign={"end"}>
+        <Button variant="text" sx={{color : "blue.main", padding: 0, lineHeight: 1, minWidth: "max-content !important"}}>
+          Settings
+        </Button>
+      </Box>
 
       <Grid item>
         <CustomAccordion
