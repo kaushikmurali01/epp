@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the IESO user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -102,7 +102,7 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, se
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item)  } >
@@ -140,7 +140,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '4' })
+    setInvitePageInfo({title:'Manage IESO User and permissions', type: '4' })
     setInviteAPIURL(apiURL)
 }
 

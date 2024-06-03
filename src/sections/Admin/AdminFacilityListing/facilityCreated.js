@@ -22,22 +22,42 @@ const FacilityCreated = ({
   onDownloadRowClick,
 }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
-  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
-    dispatch(
-      fetchAdminFacilityListing(pageInfo, "", searchString, company_filter)
-    );
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, company_filter, sort_Column, sort_Order) => {
+      dispatch(
+        fetchAdminFacilityListing(
+          pageInfo,
+          "",
+          searchString,
+          company_filter,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchVal, companyFilter);
+    debouncedSearch(pageInfo, searchVal, companyFilter, sortColumn, sortOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchVal,
+    companyFilter,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -101,28 +121,24 @@ const FacilityCreated = ({
     {
       Header: "Facility ID",
       accessor: "id",
+      accessorKey: "id",
     },
     {
       Header: "Facility name",
       accessor: "facility_name",
+      accessorKey: "facility_name",
     },
     {
       Header: "Submitted by",
-      accessor: (item) => (
-        <>{item?.submitted_by?.first_name}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.first_name}</>,
     },
     {
       Header: "Company name",
-      accessor: (item) => (
-        <>{item?.company?.company_name}</>
-      ),
+      accessor: (item) => <>{item?.company?.company_name}</>,
     },
     {
       Header: "Business email",
-      accessor: (item) => (
-        <>{item?.submitted_by?.email}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.email}</>,
     },
     {
       Header: "Status",
@@ -260,6 +276,10 @@ const FacilityCreated = ({
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
             cursorStyle="pointer"
+            sortColumn={sortColumn}
+            sortOrder={sortOrder}
+            setSortColumn={setSortColumn}
+            setSortOrder={setSortOrder}
           />
         </Grid>
       </Grid>

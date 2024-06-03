@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the Enerva user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -139,7 +139,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '1' }) //enervaUsers for type "1"
+    setInvitePageInfo({title:'Manage Enerva User and permissions', type: '1' }) //enervaUsers for type "1"
     setInviteAPIURL(apiURL)
 }
 

@@ -52,7 +52,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the Customer user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -69,11 +69,11 @@ const DeleteModelContent = () => {
 
 const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
-        Header: "User ID",
+        Header: "Customer ID",
         accessor: 'id',
     },
     {
-        Header: "User Full Name",
+        Header: " Customer admin name",
         accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
     },
     {
@@ -106,7 +106,7 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography disabled={userData?.user?.id === item?.id}  variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled={userData?.user?.id === item?.id}  variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
@@ -142,7 +142,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Customer User and set permissions', type: "2" })
+    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     setInviteAPIURL(apiURL)
     
 }
