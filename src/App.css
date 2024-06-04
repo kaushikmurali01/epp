@@ -7,7 +7,7 @@
     overflow: hidden;
   }
 
-.welcomeModalList::after{
+/* .welcomeModalList::after{
   content: "";
   position: absolute;
   width: 90%;
@@ -24,6 +24,12 @@
     rotate: 90deg;
     width: 110px;
   }
+} */
+
+@media screen and (max-width: 899px) {
+.welcomeModalList .arrow{
+  rotate: 90deg;
+}
 }
 
 .bi-embedded {

@@ -26,8 +26,8 @@ import SliderWrapper from "components/FormBuilder/Slider";
 
 const marksForEnergyTarget = [
     {
-        value: 0,
-        label: '0 %',
+        value: 5,
+        label: '5 %',
     },
     {
         value: 100,
@@ -45,7 +45,7 @@ const AdminAddFacilityComponent = (props) => {
         naic_code: "",
         facility_category: "",
         facility_type: "",
-        target_saving: "",
+        target_saving: "5",
         unit_number: "",
         street_number: "",
         street_name: "",
@@ -64,18 +64,6 @@ const AdminAddFacilityComponent = (props) => {
             name: "Existing Building",
             label: "Existing Building",
             value: "Existing Building"
-        },
-        {
-            id: 2,
-            name: "New Construction",
-            label: "New Construction",
-            value: "New Construction",
-        },
-        {
-            id: 3,
-            name: "Test Facility",
-            label: "Test Facility",
-            value: "Test Facility",
         },
     ];
 
@@ -643,7 +631,7 @@ const AdminAddFacilityComponent = (props) => {
                                     </Typography>
                                     <SliderWrapper
                                         name="target_saving"
-                                        min={0}
+                                        min={5}
                                         max={100}
                                         aria-labelledby="number-slider"
                                         valueLabelDisplay="on"
