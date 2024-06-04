@@ -644,7 +644,7 @@ const AdminDetails = ({ setTab }) => {
                           </Field>
                         </FormControl>
                       </Grid>
-                      {energyUsageAlignment && (
+                      {values.unique_features_that_impact_energy_usage && (
                         <Grid item xs={12} sm={4}>
                           <InputField
                             name="unique_features_of_facility"
