@@ -33,7 +33,7 @@ const HeroBanner = () => {
                             <span>Earn Incentives.</span>
                         </Typography>
                         <Typography variant="span" gutterBottom>Start today with the <Typography variant="strong" component='strong'> Energy Performance Program,</Typography> get a free baseline energy model, receive an upfront incentive and annually thereafter.</Typography>
-                        <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem' }} className='action-btn'  >
+                        <Stack direction="row" sx={{ gap: 3, marginTop: theme_Md ? '3rem' : '2rem', flexWrap: "wrap" }} className='action-btn'  >
                             <Button variant="contained" color="success" onClick={handleRedirect}>
                                 Login/Sign up
                             </Button>
