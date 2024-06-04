@@ -7,7 +7,7 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
     { label: "Summary", id: 0, type: "output" },
     { label: "Details", id: 1, type: "input" },
     { label: "Energy and Water", id: 2, type: "input" },
-    { label: "Weather & Independent Variables", id: 3 },
+    { label: "Weather & Independent Variables", id: 3, type: "input"  },
     { label: "Savings Plan and Document", id: 4, type: "input" },
     { label: "Baseline Model", id: 5 },
     { label: "Performance", id: 6 },

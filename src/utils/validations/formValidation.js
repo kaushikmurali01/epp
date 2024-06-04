@@ -388,3 +388,10 @@ export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
   // }).required("Company is required"),
   role: Yup.string().required("Role is required"),
 });
+
+export const validationSchemaIndependentVariable = Yup.object().shape({
+  independentVariableName: Yup.string()
+    .required("Independent Variable Name is required"),
+    independentVariableDescription: Yup.string()
+    .required("Independent Variable Description is required"),
+});
