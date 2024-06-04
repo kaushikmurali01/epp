@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
@@ -20,7 +19,6 @@ import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/form
 import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   // pull functions from user management..

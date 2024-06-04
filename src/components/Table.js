@@ -246,7 +246,7 @@ const Table = ({
             </TableRow>
           )}
            {show_loader && 
-                <Loader sectionLoader={true} minHeight="200px"  />
+                <Loader sectionLoader={true} minHeight="100%" customStyles={{maxHeight: '400px', top: rows?.length > 0 ? '0':'20px' }} />
            }
         </TableBody>
         {pageInfo?.pageSize && rows?.length > 0 && (

@@ -4,7 +4,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { CircularProgress } from '@mui/material';
 import { useSelector } from 'react-redux';
 
-export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
+export default function Loader({fallBackLoader, sectionLoader, minHeight, customStyles }) {
   // sectionLoader is for circular loader 
   // the Loader Box's min height will be sent via prop "minHeight" so that For a particular section we can show this loader
 
@@ -21,7 +21,7 @@ export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
             width: "100%",
             zIndex: "999999",
             position: "absolute",
-            top: "0",
+            top: 0,
             left: 0,
             background: "rgba(255,255,255,0.4)",
           }}
@@ -38,9 +38,10 @@ export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
             width: "100%",
             zIndex: "999999",
             position: "absolute",
-            top: "0",
+            top: 0,
             left: 0,
             background: "rgba(255,255,255,0.4)",
+            ...customStyles,
           }}
         >
           {sectionLoader ? (
