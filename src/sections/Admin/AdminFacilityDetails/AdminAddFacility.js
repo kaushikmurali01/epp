@@ -65,18 +65,6 @@ const AdminAddFacilityComponent = (props) => {
             label: "Existing Building",
             value: "Existing Building"
         },
-        {
-            id: 2,
-            name: "New Construction",
-            label: "New Construction",
-            value: "New Construction",
-        },
-        {
-            id: 3,
-            name: "Test Facility",
-            label: "Test Facility",
-            value: "Test Facility",
-        },
     ];
 
     const FacilityTypeArray = [
@@ -643,7 +631,7 @@ const AdminAddFacilityComponent = (props) => {
                                     </Typography>
                                     <SliderWrapper
                                         name="target_saving"
-                                        min={0}
+                                        min={5}
                                         max={100}
                                         aria-labelledby="number-slider"
                                         valueLabelDisplay="on"
