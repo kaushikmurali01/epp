@@ -136,7 +136,7 @@ export class AdminFacilityService {
 
   static async editFacility(userToken: IUserToken, body: IBaseInterface, facilityId: number): Promise<Facility[]> {
     try {
-      if(body.company_id){
+      if (body.company_id) {
 
         const obj = {
           facility_construction_status: body.facility_construction_status,
@@ -174,13 +174,13 @@ export class AdminFacilityService {
           created_by: userToken.id,
         };
 
-        await Facility.update({is_active:STATUS.NOT_ACTIVE}, { where: { id: facilityId } })
+        await Facility.update({ is_active: STATUS.NOT_ACTIVE }, { where: { id: facilityId } })
         const result = await Facility.create(obj);
-  
+
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
 
-      }else{
+      } else {
         const obj = {
           facility_construction_status: body.facility_construction_status,
           facility_name: body.facility_name,
@@ -218,13 +218,13 @@ export class AdminFacilityService {
           updated_at: new Date()
         };
         const result = await Facility.update(obj, { where: { id: facilityId } })
-  
-  
+
+
         const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
         return resp;
 
       }
-     
+
 
     } catch (error) {
       throw error;
@@ -523,7 +523,8 @@ export class AdminFacilityService {
 
       const result = await Facility.findAll({
         attributes: ['id', 'facility_name'],
-        where: whereClause
+        where: whereClause,
+        order: [['facility_name', 'asc']]
       });
 
 

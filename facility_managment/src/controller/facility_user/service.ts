@@ -318,7 +318,7 @@ export class FacilityService {
         // Neither facilityCategory nor facilityType is present
       }
 
-      const result = await FacilityNAIC.findAll({ where: whereClause });
+      const result = await FacilityNAIC.findAll({ where: whereClause, order: [['facility_category', 'asc'], ['facility_type', 'asc']] });
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;
