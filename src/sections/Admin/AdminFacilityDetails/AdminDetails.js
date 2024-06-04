@@ -40,7 +40,7 @@ import {
 import EvModal from "utils/modal/EvModal";
 import CustomAccordion from "components/CustomAccordion";
 import { Persist } from "formik-persist";
-import { parseISO } from "date-fns";
+import { formatISO, parseISO } from "date-fns";
 
 const AdminDetails = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -514,7 +514,12 @@ const AdminDetails = ({ setTab }) => {
                               : values.year_of_construction
                           }
                           onChange={(date) => {
-                            setFieldValue("year_of_construction", date);
+                            setFieldValue(
+                              "year_of_construction",
+                              facilityCharacterstics === null
+                                ? formatISO(date)
+                                : date
+                            );
                           }}
                           slotProps={{
                             textField: {
