@@ -249,7 +249,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
         onSubmit={handleSubmit}
         enableReinitialize={true}
       >
-        {({ values, setFieldValue, errors }) => (
+        {({ values, setFieldValue, errors, touched }) => (
           <Form>
             <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
               <Grid container spacing={4}>
@@ -265,7 +265,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           handleMeterTypeChange(event, newAlignment, form);
                         }}
                       >
-                        <ToggleButton value={1}>Electricty</ToggleButton>
+                        <ToggleButton value={1}>Electricity</ToggleButton>
                         <ToggleButton value={3} disabled>
                           Natural Gas
                         </ToggleButton>
@@ -327,6 +327,11 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <InputField name="meter_id" label="Meter ID*" type="number" />
+                  {!touched.meter_id && (
+                    <Typography variant="small" color="primary">
+                      Meter number can be found on the electricity bill
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
               <Grid container spacing={4}>
