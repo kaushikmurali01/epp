@@ -117,7 +117,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
   meter_id: Yup.number()
-    .required("Meter Id is required")
+    .required("Meter Id is required and can be found on the electricity bill")
     .min(0, "Meter Id must be a positive number"),
   meter_active: Yup.date()
     .max(new Date(), "Date meter became active cannot be in the future")
@@ -230,7 +230,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   ),
   facility_electricity_service_size: Yup.number()
     .nullable()
-    .min(0, "Facility electricty service size must be a positive number"),
+    .min(0, "Facility electricity service size must be a positive number"),
   facility_service_entrance_voltage: Yup.number()
     .nullable()
     .min(0, "Facility service entrance voltage must be a positive number"),
@@ -387,4 +387,11 @@ export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
   //   label: Yup.string().required("Company is required"),
   // }).required("Company is required"),
   role: Yup.string().required("Role is required"),
+});
+
+export const validationSchemaIndependentVariable = Yup.object().shape({
+  independentVariableName: Yup.string()
+    .required("Independent Variable Name is required"),
+    independentVariableDescription: Yup.string()
+    .required("Independent Variable Description is required"),
 });
