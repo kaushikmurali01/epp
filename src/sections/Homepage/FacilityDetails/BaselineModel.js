@@ -5,6 +5,9 @@ import { Field, Form, Formik } from "formik";
 import React, { useState } from "react";
 import CustomAccordion from "components/CustomAccordion";
 import SliderWrapper from "components/FormBuilder/Slider";
+import DateRangeSlider from "components/DateRangeSlider";
+import SufficiencyVerificationTable from "components/BaselineModel/SufficiencyVerificationTable";
+import ButtonWrapper from "components/FormBuilder/Button";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -110,7 +113,8 @@ const BaselineModel = () => {
                 maxWidth: "33rem",
               }}
             >
-              <SliderWrapper
+              <DateRangeSlider />
+              {/* <SliderWrapper
                 name="target_saving"
                 min={0}
                 max={100}
@@ -118,7 +122,7 @@ const BaselineModel = () => {
                 valueLabelDisplay="on"
                 marks={marksForEnergyTarget}
                 disableSwap
-              />
+              /> */}
             </Box>
           </Grid>
           <Grid item>
@@ -126,7 +130,7 @@ const BaselineModel = () => {
               Sufficiency verification
             </Typography>
 
-            <Box
+            {/* <Box
               sx={{
                 borderRadius: "0.25rem",
                 border: "1px solid #2E813E",
@@ -191,7 +195,8 @@ const BaselineModel = () => {
                   </Button>
                 </Grid>
               </Grid>
-            </Box>
+            </Box> */}
+            <SufficiencyVerificationTable />
           </Grid>
           <Grid item display={"grid"} gap={"2rem"}>
             <Typography variant="h6" sx={headingStyleInAccordion}>
@@ -310,6 +315,13 @@ const BaselineModel = () => {
             </Typography>
           </Grid>
         </Grid>
+        <ButtonWrapper
+          type="submit"
+          color="neutral"
+          onClick={handleSubmit}
+        >
+          Calculate baseline
+        </ButtonWrapper>
       </Form>
     </Formik>
   );
