@@ -40,7 +40,7 @@ import {
 import EvModal from "utils/modal/EvModal";
 import CustomAccordion from "components/CustomAccordion";
 import { Persist } from "formik-persist";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 const Details = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -154,9 +154,6 @@ const Details = ({ setTab }) => {
       dispatch(fetchFacilityCharacteristics(id))
         .then((response) => {
           const charactersticsDetails = response?.data;
-          const datafromlocal = localStorage.getItem(
-            `saCharactersticsForm${id}`
-          );
           if (charactersticsDetails !== null) {
             setInitialValues({
               ...initialValues,
@@ -511,7 +508,11 @@ const Details = ({ setTab }) => {
                           name="year_of_construction"
                           views={["year"]}
                           sx={{ width: "100%", input: { color: "#111" } }}
-                          value={values.year_of_construction}
+                          value={
+                            facilityCharacterstics === null
+                              ? parseISO(values.year_of_construction)
+                              : values.year_of_construction
+                          }
                           onChange={(date) => {
                             setFieldValue("year_of_construction", date);
                           }}

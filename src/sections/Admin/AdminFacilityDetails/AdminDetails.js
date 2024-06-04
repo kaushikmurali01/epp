@@ -39,6 +39,8 @@ import {
 } from "../../../utils/dropdownConstants/dropdownConstants";
 import EvModal from "utils/modal/EvModal";
 import CustomAccordion from "components/CustomAccordion";
+import { Persist } from "formik-persist";
+import { parseISO } from "date-fns";
 
 const AdminDetails = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -152,105 +154,109 @@ const AdminDetails = ({ setTab }) => {
       dispatch(fetchAdminFacilityCharacteristics(id))
         .then((response) => {
           const charactersticsDetails = response?.data;
-          setInitialValues({
-            ...initialValues,
-            ...charactersticsDetails,
-            occupants_months_detail:
-              charactersticsDetails?.occupants_months_detail
-                ? JSON.parse(charactersticsDetails?.occupants_months_detail)
-                : "",
-            not_standard_hvac_equipment:
-              charactersticsDetails?.not_standard_hvac_equipment
-                ? JSON.parse(charactersticsDetails?.not_standard_hvac_equipment)
-                : "",
-            space_cooling_fuel_source:
-              charactersticsDetails?.space_cooling_fuel_source &&
-              checkValueNotExist(
-                SOURCE_ARRAY,
-                charactersticsDetails?.space_cooling_fuel_source
-              ),
-            space_heating_fuel_source:
-              charactersticsDetails?.space_heating_fuel_source &&
-              checkValueNotExist(
-                SOURCE_ARRAY,
-                charactersticsDetails?.space_heating_fuel_source
-              ),
-            water_heating_fuel_source:
-              charactersticsDetails?.water_heating_fuel_source &&
-              checkValueNotExist(
-                SOURCE_ARRAY,
-                charactersticsDetails?.water_heating_fuel_source
-              ),
-            space_cooling_technology:
-              charactersticsDetails?.space_cooling_technology &&
-              checkValueNotExist(
-                SPACE_COOLING_ARRAY,
-                charactersticsDetails?.space_cooling_technology
-              ),
-            space_heating_technology:
-              charactersticsDetails?.space_heating_technology &&
-              checkValueNotExist(
-                SPACE_HEATING_ARRAY,
-                charactersticsDetails?.space_heating_technology
-              ),
-            water_heating_technology:
-              charactersticsDetails?.water_heating_technology &&
-              checkValueNotExist(
-                WATER_HEATING_ARRAY,
-                charactersticsDetails?.water_heating_technology
-              ),
-            space_cooling_technology_other:
-              charactersticsDetails?.space_cooling_technology &&
-              checkAndReturnFromArray(
-                SPACE_COOLING_ARRAY,
-                charactersticsDetails?.space_cooling_technology
-              ),
-            space_heating_technology_other:
-              charactersticsDetails?.space_heating_technology &&
-              checkAndReturnFromArray(
-                SPACE_HEATING_ARRAY,
-                charactersticsDetails?.space_heating_technology
-              ),
-            water_heating_technology_other:
-              charactersticsDetails?.water_heating_technology &&
-              checkAndReturnFromArray(
-                WATER_HEATING_ARRAY,
-                charactersticsDetails?.water_heating_technology
-              ),
-            space_cooling_fuel_source_other:
-              charactersticsDetails?.space_cooling_fuel_source &&
-              checkAndReturnFromArray(
-                SOURCE_ARRAY,
-                charactersticsDetails?.space_cooling_fuel_source
-              ),
-            space_heating_fuel_source_other:
-              charactersticsDetails?.space_heating_fuel_source &&
-              checkAndReturnFromArray(
-                SOURCE_ARRAY,
-                charactersticsDetails?.space_heating_fuel_source
-              ),
-            water_heating_fuel_source_other:
-              charactersticsDetails?.water_heating_fuel_source &&
-              checkAndReturnFromArray(
-                SOURCE_ARRAY,
-                charactersticsDetails?.water_heating_fuel_source
-              ),
-            year_of_construction: charactersticsDetails?.year_of_construction
-              ? new Date(charactersticsDetails.year_of_construction)
-              : null,
-          });
-          setEnergyUsageAlignment(
-            charactersticsDetails?.unique_features_that_impact_energy_usage
-          );
-          setLightingAlignment(
-            charactersticsDetails?.is_lighting_controlled_for_occupancy
-          );
-          setHeatingAlignment(
-            charactersticsDetails?.is_space_heating_controlled_for_occupancy
-          );
-          setCoolingAlignment(
-            charactersticsDetails?.is_space_cooling_controlled_for_occupancy
-          );
+          if (charactersticsDetails !== null) {
+            setInitialValues({
+              ...initialValues,
+              ...charactersticsDetails,
+              occupants_months_detail:
+                charactersticsDetails?.occupants_months_detail
+                  ? JSON.parse(charactersticsDetails?.occupants_months_detail)
+                  : "",
+              not_standard_hvac_equipment:
+                charactersticsDetails?.not_standard_hvac_equipment
+                  ? JSON.parse(
+                      charactersticsDetails?.not_standard_hvac_equipment
+                    )
+                  : "",
+              space_cooling_fuel_source:
+                charactersticsDetails?.space_cooling_fuel_source &&
+                checkValueNotExist(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.space_cooling_fuel_source
+                ),
+              space_heating_fuel_source:
+                charactersticsDetails?.space_heating_fuel_source &&
+                checkValueNotExist(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.space_heating_fuel_source
+                ),
+              water_heating_fuel_source:
+                charactersticsDetails?.water_heating_fuel_source &&
+                checkValueNotExist(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.water_heating_fuel_source
+                ),
+              space_cooling_technology:
+                charactersticsDetails?.space_cooling_technology &&
+                checkValueNotExist(
+                  SPACE_COOLING_ARRAY,
+                  charactersticsDetails?.space_cooling_technology
+                ),
+              space_heating_technology:
+                charactersticsDetails?.space_heating_technology &&
+                checkValueNotExist(
+                  SPACE_HEATING_ARRAY,
+                  charactersticsDetails?.space_heating_technology
+                ),
+              water_heating_technology:
+                charactersticsDetails?.water_heating_technology &&
+                checkValueNotExist(
+                  WATER_HEATING_ARRAY,
+                  charactersticsDetails?.water_heating_technology
+                ),
+              space_cooling_technology_other:
+                charactersticsDetails?.space_cooling_technology &&
+                checkAndReturnFromArray(
+                  SPACE_COOLING_ARRAY,
+                  charactersticsDetails?.space_cooling_technology
+                ),
+              space_heating_technology_other:
+                charactersticsDetails?.space_heating_technology &&
+                checkAndReturnFromArray(
+                  SPACE_HEATING_ARRAY,
+                  charactersticsDetails?.space_heating_technology
+                ),
+              water_heating_technology_other:
+                charactersticsDetails?.water_heating_technology &&
+                checkAndReturnFromArray(
+                  WATER_HEATING_ARRAY,
+                  charactersticsDetails?.water_heating_technology
+                ),
+              space_cooling_fuel_source_other:
+                charactersticsDetails?.space_cooling_fuel_source &&
+                checkAndReturnFromArray(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.space_cooling_fuel_source
+                ),
+              space_heating_fuel_source_other:
+                charactersticsDetails?.space_heating_fuel_source &&
+                checkAndReturnFromArray(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.space_heating_fuel_source
+                ),
+              water_heating_fuel_source_other:
+                charactersticsDetails?.water_heating_fuel_source &&
+                checkAndReturnFromArray(
+                  SOURCE_ARRAY,
+                  charactersticsDetails?.water_heating_fuel_source
+                ),
+              year_of_construction: charactersticsDetails?.year_of_construction
+                ? new Date(charactersticsDetails.year_of_construction)
+                : null,
+            });
+            setEnergyUsageAlignment(
+              charactersticsDetails?.unique_features_that_impact_energy_usage
+            );
+            setLightingAlignment(
+              charactersticsDetails?.is_lighting_controlled_for_occupancy
+            );
+            setHeatingAlignment(
+              charactersticsDetails?.is_space_heating_controlled_for_occupancy
+            );
+            setCoolingAlignment(
+              charactersticsDetails?.is_space_cooling_controlled_for_occupancy
+            );
+          }
         })
         .catch((error) => {
           console.error("Error fetching meter details:", error);
@@ -470,6 +476,9 @@ const AdminDetails = ({ setTab }) => {
           };
           return (
             <Form>
+              {!facilityCharacterstics && (
+                <Persist name={`aCharactersticsForm${id}`} />
+              )}
               <CustomAccordion
                 summary="Characterstics"
                 panelId="characterstics"
@@ -499,7 +508,11 @@ const AdminDetails = ({ setTab }) => {
                           name="year_of_construction"
                           views={["year"]}
                           sx={{ width: "100%", input: { color: "#111" } }}
-                          value={values.year_of_construction}
+                          value={
+                            facilityCharacterstics === null
+                              ? parseISO(values.year_of_construction)
+                              : values.year_of_construction
+                          }
                           onChange={(date) => {
                             setFieldValue("year_of_construction", date);
                           }}
