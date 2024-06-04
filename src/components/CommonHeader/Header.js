@@ -35,7 +35,7 @@ import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
 import "./header.scss"
 import AutoCompleteInputField from "components/FormBuilder/AutoCompleteInputField";
 
-const settings = ["Profile", "Logout"];
+// const settings = ["Profile", "Logout"];
 
 export const InvitationList = ({invitationData, acceptRejectInvite}) => {
   return (
@@ -424,7 +424,9 @@ function Header(props) {
                 }}
               >
                 <MenuItem
-                  onClick={(event) => scrollToSection(event, "howItWorksSection")}
+                  onClick={(event) =>
+                    scrollToSection(event, "howItWorksSection")
+                  }
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -438,7 +440,9 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={(event) => scrollToSection(event, "userStorySection")}
+                  onClick={(event) =>
+                    scrollToSection(event, "userStorySection")
+                  }
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -466,7 +470,9 @@ function Header(props) {
                   </Typography>
                 </MenuItem>
                 <MenuItem
-                  onClick={(event) => scrollToSection(event, "contactUsFormSection")}
+                  onClick={(event) =>
+                    scrollToSection(event, "contactUsFormSection")
+                  }
                   sx={{ py: "6px", px: "12px" }}
                 >
                   <Typography
@@ -486,62 +492,90 @@ function Header(props) {
             <Box
               sx={{
                 flexGrow: 0,
-                display: { xs: "none", md: "flex" },
-                gap: "1.5rem",
+                display: { xs: "flex", md: "flex" },
+                gap: { xs: "0.25rem", md: "1.5rem" },
                 alignItems: "flex-end",
               }}
             >
-              {userDetails?.type == 2 || userDetails?.type == 3 ? <Grid item sx={{ webkitTransform: 'translateY(-50%)', msTransform: 'translateY(-50%)', transform: 'translateY(-50%)'}}>
-                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join company
-                </Typography>
-              </Grid> : null}
+              {userDetails?.type == 2 || userDetails?.type == 3 ? (
+                <Grid
+                  item
+                  sx={{
+                    display: { xs: "none", md: "flex" },
+                    webkitTransform: "translateY(-50%)",
+                    msTransform: "translateY(-50%)",
+                    transform: "translateY(-50%)",
+                  }}
+                >
+                  <Typography
+                    variant="small"
+                    sx={{ color: "blue.main", cursor: "pointer" }}
+                    onClick={openRequestModal}
+                  >
+                    Request to join company
+                  </Typography>
+                </Grid>
+              ) : null}
               <Button
                 onClick={() => setInvitationPopUp(true)}
-                sx={{ minWidth: "auto !important", padding: "0 !important" }}
+                sx={{
+                  minWidth: "auto !important",
+                  padding: "0 !important",
+                }}
               >
                 <img
                   src="/images/icons/invitation.svg"
                   alt="invitation"
                   style={{ maxWidth: "70%" }}
                 />
-                {userData?.invitations?.length? <span class="invitation-count">{userData?.invitations?.length || 0}</span> : null}
+                {userData?.invitations?.length ? (
+                  <span class="invitation-count">
+                    {userData?.invitations?.length || 0}
+                  </span>
+                ) : null}
               </Button>
-              {(companyList?.length > 0 && companyList[0] != null && (userData?.user?.type != 3 || userData?.user?.type != 1 || userData?.user?.type != 5) ) && (
-              <FormGroup className="theme-form-group">
-                <FormLabel
-                  sx={{
-                    marginBottom: "0.25rem",
-                    fontSize: "0.75rem !important",
-                    lineHeight: "1 !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Choose company
-                </FormLabel>
-                <FormControl sx={{ minWidth: "10rem" }}>
-                  <Select
-                    value={selectCompany}
-                    onChange={(e) => handleSelectChange(e)}
-                    displayEmpty={true}
-                    sx={{
-                      padding: 0,
-                      fontWeight: 600,
-                      background: "#F3FFF6",
-                      maxHeight: "2.25rem",
-                    }}
+              {companyList?.length > 0 &&
+                companyList[0] != null &&
+                (userData?.user?.type != 3 ||
+                  userData?.user?.type != 1 ||
+                  userData?.user?.type != 5) && (
+                  <FormGroup
+                    className="theme-form-group"
+                    sx={{ display: { xs: "none", md: "flex" } }}
                   >
-                    {companyList.map((item) => {
-                      return (
-                        <MenuItem key={item?.id} value={item?.id}>
-                          {item?.company_name}
-                        </MenuItem>
-                      );
-                    })}
-                  </Select>
-                </FormControl>
-              </FormGroup>
-              )}
+                    <FormLabel
+                      sx={{
+                        marginBottom: "0.25rem",
+                        fontSize: "0.75rem !important",
+                        lineHeight: "1 !important",
+                        fontWeight: "400",
+                      }}
+                    >
+                      Choose company
+                    </FormLabel>
+                    <FormControl sx={{ minWidth: "10rem" }}>
+                      <Select
+                        value={selectCompany}
+                        onChange={(e) => handleSelectChange(e)}
+                        displayEmpty={true}
+                        sx={{
+                          padding: 0,
+                          fontWeight: 600,
+                          background: "#F3FFF6",
+                          maxHeight: "2.25rem",
+                        }}
+                      >
+                        {companyList.map((item) => {
+                          return (
+                            <MenuItem key={item?.id} value={item?.id}>
+                              {item?.company_name}
+                            </MenuItem>
+                          );
+                        })}
+                      </Select>
+                    </FormControl>
+                  </FormGroup>
+                )}
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                   <Avatar
@@ -566,11 +600,80 @@ function Header(props) {
                 open={Boolean(anchorElUser)}
                 onClose={handleCloseUserMenu}
               >
-                {settings.map((setting) => (
+                {/* {settings.map((setting) => (
                   <MenuItem key={setting} onClick={() => clickSetting(setting)}>
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
-                ))}
+                ))} */}
+                <MenuItem onClick={() => clickSetting("Profile")}>
+                  <Typography textAlign="center">Profile</Typography>
+                </MenuItem>
+                <MenuItem sx={{ display: { xs: "flex", md: "none" } }}>
+                  {userDetails?.type == 2 || userDetails?.type == 3 ? (
+                    <Grid
+                      item
+                      sx={{
+                        transform: "none",
+                      }}
+                    >
+                      <Typography
+                        variant="small"
+                        sx={{
+                          fontSize: "1rem !important",
+                          color: "blue.main",
+                          cursor: "pointer",
+                        }}
+                        onClick={openRequestModal}
+                      >
+                        Request to join company
+                      </Typography>
+                    </Grid>
+                  ) : null}
+                </MenuItem>
+                <MenuItem sx={{ display: { xs: "flex", md: "none" } }}>
+                  {companyList?.length > 0 &&
+                    companyList[0] != null &&
+                    (userData?.user?.type != 3 ||
+                      userData?.user?.type != 1 ||
+                      userData?.user?.type != 5) && (
+                      <FormGroup className="theme-form-group">
+                        <FormLabel
+                          sx={{
+                            marginBottom: "0.25rem",
+                            fontSize: "0.75rem !important",
+                            lineHeight: "1 !important",
+                            fontWeight: "400",
+                          }}
+                        >
+                          Choose company
+                        </FormLabel>
+                        <FormControl sx={{ minWidth: "10rem" }}>
+                          <Select
+                            value={selectCompany}
+                            onChange={(e) => handleSelectChange(e)}
+                            displayEmpty={true}
+                            sx={{
+                              padding: 0,
+                              fontWeight: 600,
+                              background: "#F3FFF6",
+                              maxHeight: "2.25rem",
+                            }}
+                          >
+                            {companyList.map((item) => {
+                              return (
+                                <MenuItem key={item?.id} value={item?.id}>
+                                  {item?.company_name}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </FormGroup>
+                    )}
+                </MenuItem>
+                <MenuItem onClick={() => clickSetting("Logout")}>
+                  <Typography textAlign="center">Logout</Typography>
+                </MenuItem>
               </Menu>
             </Box>
           ) : null}
@@ -637,22 +740,30 @@ function Header(props) {
                     }}
                   >
                     <MenuItem
-                      onClick={(event) => scrollToSection(event, "howItWorksSection")}
+                      onClick={(event) =>
+                        scrollToSection(event, "howItWorksSection")
+                      }
                     >
                       How it works
                     </MenuItem>
                     <MenuItem
-                      onClick={(event) => scrollToSection(event, "userStorySection")}
+                      onClick={(event) =>
+                        scrollToSection(event, "userStorySection")
+                      }
                     >
                       Success stories
                     </MenuItem>
                     <MenuItem
-                      onClick={(event) => scrollToSection(event, "whatsNewSection")}
+                      onClick={(event) =>
+                        scrollToSection(event, "whatsNewSection")
+                      }
                     >
                       What's new
                     </MenuItem>
                     <MenuItem
-                      onClick={(event) => scrollToSection(event, "contactUsFormSection")}
+                      onClick={(event) =>
+                        scrollToSection(event, "contactUsFormSection")
+                      }
                     >
                       Contact us
                     </MenuItem>
@@ -727,16 +838,16 @@ function Header(props) {
           className={"modal-size"}
         >
           {/* Loop over the following list to show the list */}
-          {userData?.invitations?.length ? userData.invitations.map((item) => (
-            <InvitationList
-              invitationData={item}
-              acceptRejectInvite={acceptRejectInvite}
-          />
-          )) : 
-          <Typography>
-            No invitations found!
-          </Typography>
-          }
+          {userData?.invitations?.length ? (
+            userData.invitations.map((item) => (
+              <InvitationList
+                invitationData={item}
+                acceptRejectInvite={acceptRejectInvite}
+              />
+            ))
+          ) : (
+            <Typography>No invitations found!</Typography>
+          )}
         </Box>
       </Modal>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
