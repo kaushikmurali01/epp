@@ -1,4 +1,7 @@
 import { HttpRequest, HttpResponse } from "@azure/functions";
+import { Op, Sequelize } from "sequelize";
+import { User } from "../models/user";
+import { UserCompanyRole } from "../models/user-company-role";
 import { CompanyService } from '../services/companyService';
 import { rawQuery } from "../services/database";
 import { Email } from "../services/email";
@@ -55,6 +58,54 @@ class CompanyController {
             return { status: 204, data: { count, rows } };
         } catch (error) {
             return { status: 500, body: { error: error.message } };
+        }
+    }
+    static async getCompanyUser(id, company_id, user_id): Promise<any> {
+        try {
+            let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
+            if (checkExistUser) {
+                const users = await UserCompanyRole.findAll({
+                    attributes: [
+                        'user_id',
+                    ],
+                    include: [
+                        {
+                            model: User,
+                            attributes: ["id", 'first_name', 'last_name', 'email'],
+                            where: {
+                                id: {
+                                    [Op.notIn]: Sequelize.literal(
+                                        '(SELECT user_id FROM "user_company_role" WHERE role_id = 1)'
+                                    ),
+                                },
+                            },
+                        },
+                    ],
+                });
+                return { status: 204, data: users };
+            } else {
+                throw { message: "You can not update the permission" }
+            }
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+    static async changeCompanySuperUser(id, company_id, user_id): Promise<any> {
+        try {
+            let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
+            let checkOtherUser = await CompanyService.checkExistSuperAdmin(user_id, company_id)
+            if (checkOtherUser) {
+                // send error 
+                throw { message: "You can not update the permission" }
+            } else {
+                if (checkExistUser && checkExistUser.company_id == company_id) {
+                    await UserCompanyRole.update({ role_id: 2 }, { where: { id: checkExistUser.id } })
+                    await UserCompanyRole.create({ user_id: user_id, company_id, role_id: 1 })
+                }
+                return { status: 204, data: checkExistUser };
+            }
+        } catch (error) {
+            return { status: 500, body: JSON.stringify({ error: error.message }) };
         }
     }
 

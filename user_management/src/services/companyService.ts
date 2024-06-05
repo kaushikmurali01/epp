@@ -251,6 +251,14 @@ class CompanyService {
             throw error;
         }
     }
+    static async checkExistSuperAdmin(user_id, company_id): Promise<any> {
+        try {
+            let result = await UserCompanyRole.findOne({ where: { is_active: 1, user_id, company_id, role_id: 1 } })
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     static async SendEmailsToAllAdmins(adminData, title, body): Promise<any> {
         console.log("adminData", adminData);
@@ -262,10 +270,10 @@ class CompanyService {
 
         // Extracting subadmin emails and sending emails
         adminData.subAdmins.forEach(subAdmin => {
-            if(subAdmin) {
-            const subAdminEmail = subAdmin.email;
-            let content = body.replace("#name#", subAdmin.name).replace('#isDisplay#', 'none');
-            Email.send(subAdminEmail, title, content);
+            if (subAdmin) {
+                const subAdminEmail = subAdmin.email;
+                let content = body.replace("#name#", subAdmin.name).replace('#isDisplay#', 'none');
+                Email.send(subAdminEmail, title, content);
             }
         });
 
