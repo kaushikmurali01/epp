@@ -75,6 +75,9 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
 function Header(props) {
   const navigate = useNavigate()
   const dispatch = useDispatch();
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const invite = urlParams.get('invite') //to check if page is loading from 
   
   const [open, setOpen] = React.useState(false);
   const { instance } = useMsal();
@@ -136,6 +139,10 @@ function Header(props) {
       ...loginRequest,
       // prompt: 'create'
     }).catch((error)=> console.log("error in login redirect", error))
+  }
+
+  if(invite && !(props?.page == "authenticated")){
+    handleRedirect()
   }
 
   const scrollToSection = (event, sectionId) => {
