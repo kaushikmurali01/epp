@@ -58,6 +58,16 @@ class CompanyController {
         }
     }
 
+    static async MakeCompanyInActive(req): Promise<any> {
+        try {
+            const companyId = req.company_id;
+            const company = await CompanyService.MakeCompanyInActive(companyId);
+            return company;
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+
     /**
 * Retrieves a list of companies.
 * 
@@ -155,11 +165,10 @@ Thank You,<br/>
      * @returns Promise<HttpResponse>
      * @description Handles the deletion of an existing company by extracting the company ID from the request parameters, invoking the CompanyService to delete the company, and returning an HTTP response with appropriate status and JSON data.
      */
-    static async deleteCompany(req: HttpRequest): Promise<any> {
+    static async deleteCompany(companyId): Promise<any> {
         try {
-            const companyId = parseInt(req.params.id);
-            await CompanyService.deleteCompany(companyId);
-            return { status: 204 };
+            let company= await CompanyService.deleteCompany(companyId);
+            return company;
         } catch (error) {
             return { status: 400, body: { error: error.message } };
         }

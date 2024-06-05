@@ -8,6 +8,9 @@ import { Role } from '../models/role';
 import { rawQuery, sequelize } from './database';
 import { Op } from 'sequelize';
 import { Email } from './email';
+import { ParticipantAgreement } from '../models/participantAgreement';
+import { UserService } from './userService';
+import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 
 class CompanyService {
 
@@ -161,7 +164,7 @@ class CompanyService {
      * @returns Promise<Response> - A promise resolving to a response indicating the status of company deletion.
      * @description Deletes an existing company from the database. Returns a response indicating the success or failure of the deletion process.
      */
-    static async deleteCompany(companyId: number): Promise<Response> {
+    static async deleteCompanyNeedToRemove(companyId: number): Promise<Response> {
         try {
             //await testDatabaseConnection();
             const company = await Company.findByPk(companyId);
@@ -346,6 +349,98 @@ class CompanyService {
 
  
      }
+
+/**
+ * Deletes a company and associated records.
+ * 
+ * @param {number} companyId - The ID of the company to delete.
+ * @returns {Promise<any>} - A promise that resolves when the operation is complete.
+ * @throws {Error} - Throws an error if the operation fails.
+ */
+static async deleteCompany(companyId):Promise<any> {
+    let transaction;
+    
+    try {
+        // Start a transaction
+        transaction = await sequelize.transaction();
+
+        // Find all users associated with the company
+        const companyUsers = await UserCompanyRole.findAll({ 
+            where: { company_id: companyId },
+            transaction
+        });
+
+        // Perform deletions
+        await Promise.all([
+            ParticipantAgreement.destroy({
+                where: { company_id: companyId },
+                transaction
+            }),
+            UserCompanyRole.destroy({
+                where: { company_id: companyId },
+                transaction
+            }),
+            Company.destroy({
+                where: { id: companyId },
+                transaction
+            })
+        ]);
+
+
+        // Commit the transaction after successful deletions
+        await transaction.commit();
+
+        // Check and convert associated users to individual users
+        await Promise.all(companyUsers.map(user => 
+            UserService.CheckAndMakeUserIndividual(user.user_id)
+        ));
+        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+
+    } catch (error) {
+        // Rollback the transaction in case of error
+        if (transaction) {
+            await transaction.rollback();
+        }
+        
+        // Rethrow the error to be handled by the caller if necessary
+        throw new Error(`${error.message}`);
+    }
+}
+
+static async MakeCompanyInActive(companyId): Promise<any> {
+    let transaction;
+    try {
+        // Start a transaction
+        transaction = await sequelize.transaction();
+
+        // Update the company's is_active status to 0
+        await Company.update(
+            { is_active: 0 },
+            {
+                where: { id: companyId },
+                transaction
+            }
+        );
+
+        // Destroy associated user company role permissions
+        await UserCompanyRolePermission.destroy({
+            where: { company_id: companyId },
+            transaction
+        });
+
+        // Commit the transaction after successful operations
+        await transaction.commit();
+        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+    } catch (error) {
+        // Rollback the transaction in case of error
+        if (transaction) {
+            await transaction.rollback();
+        }
+        // Rethrow the error to be handled by the caller if necessary
+        throw new Error(`${error.message}`);
+    }
+
+}
 
 }
 
