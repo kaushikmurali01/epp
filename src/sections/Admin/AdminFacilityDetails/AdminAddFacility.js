@@ -45,7 +45,7 @@ const AdminAddFacilityComponent = (props) => {
         naic_code: "",
         facility_category: "",
         facility_type: "",
-        target_saving: "",
+        target_saving: "5",
         unit_number: "",
         street_number: "",
         street_name: "",
