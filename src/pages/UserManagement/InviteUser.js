@@ -8,6 +8,7 @@ import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from 'pages/Loader';
+import EvModal from 'utils/modal/EvModal';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
     const dispatch = useDispatch();
@@ -30,6 +31,34 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     // const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
     const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1));
 
+
+    const [modalConfig, setModalConfig] = useState({
+        modalVisible: false,
+        modalUI: {
+          showHeader: true,
+          crossIcon: true,
+          modalClass: "",
+          headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+          headerSubTextStyle: { marginTop: '1rem' },
+          fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+          modalBodyContentStyle: {minHeight: '110px', display: 'flex',flexWrap: 'wrap', alignItems: 'center', color: 'dark.light'}
+        },
+        buttonsUI: {
+          saveButton: true,
+          cancelButton: true,
+          saveButtonName: "Send Request",
+          cancelButtonName: "Cancel",
+          successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.main'}, color: '#fff'},
+          cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSmoke'}, color: '#fff'},
+          saveButtonClass: "",
+          cancelButtonClass: "",
+    
+        },
+        headerText: "",
+        headerSubText: '',
+        modalBodyContent: 'Are you sure you want to change the binding authority permission?'
+      });
+
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
     };
@@ -40,13 +69,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         setSelectCompanyType(event.target.value);
     };
 
-
-    const handleAlignment = (event, index, permission) => {
-        if (permission.is_active === 0) {
-            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-            return;
-        }
-
+    const setTogglePermissionsState = (event, index, permission)=> {
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
             const permissionId = permissions[index].permission_id;
@@ -70,6 +93,42 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
             return newStates;
         });
+    }
+
+    const handelPA_Permission = (event, index, permission)=> {
+        setTogglePermissionsState(event, index, permission);
+        setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+      
+       
+         
+          }));
+    }
+    const handleAlignment = (event, index, permission,isPermissionSelected) => {
+        if (permission.is_active === 0) {
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+
+        if(permission.permission_id === 4 && !isPermissionSelected){
+            setModalConfig((prevState) => ({
+                ...prevState,
+                modalVisible: true,
+                buttonsUI: {
+                  ...prevState.buttonsUI,
+                 
+              },
+              saveButtonAction: () =>  handelPA_Permission(event, index, permission),
+             
+              }));
+        } else {
+            setTogglePermissionsState(event, index, permission)
+        }
+
+      
+
+
     };
 
     const getPermissionList = (permission_id) => {
@@ -391,7 +450,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
                                                     value={isPermissionSelected ? 'yes' : 'no'}
                                                     exclusive
-                                                    onChange={(event) => handleAlignment(event, index, permission)}
+                                                    onChange={(event) => handleAlignment(event, index, permission,isPermissionSelected)}
                                                     aria-label="text alignment"
                                                     key={permission.permission_id}
                                                 >
@@ -429,8 +488,23 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     }
                 </Box>
 
+                {(!isPagePermissionDisabled && permissions.length > 0 ) &&
+                        <Grid item >
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                sx={{ alignSelf: 'center' }}
+                                onClick={() => handelInviteSubmit()}
+                                disabled={!isFormValid}
+                            >
+                                {isEdited ? 'Update Permission' : ' Send Invite'}
 
+                            </Button>
+                        </Grid>
+                    }
             </Container >
+
+            <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
         </Box >
     )
 }
