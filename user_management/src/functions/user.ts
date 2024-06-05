@@ -61,6 +61,19 @@ export async function UserRegister(request: HttpRequest, context: InvocationCont
 
         // Register user
         const user = await UserController.registerUser(userData, companyData, context);
+        context.log('user', user);
+        (async () =>{
+        if(user.status == 200)  {
+            let template = await EmailTemplate.getEmailTemplate();
+            template = template.replace('#heading#', '')
+                .replace('#content#', EmailContent.regsiterSuccess.content)
+                .replace('#name#', data[`extension_${ext}_FirstName`])
+                .replace('#isDisplay#', 'none')
+                .replace('#button#', 'View Application');
+    
+           await Email.send(data.email, EmailContent.regsiterSuccess.title, template);
+        }
+        })();
 
         // Prepare response body
         const responseBody = JSON.stringify(user);
@@ -520,18 +533,23 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         const company = requestData.company;
 
         await UserInvitation.destroy({ where: { email: email, company:company, is_active: 0  } });
-        // let uData = await User.findOne({
-        //     where: {
-        //         email: email
-        //     }
-        // });
-        // if(uData) {
-        //     await UserRequest.destroy({ where: { user_id:uData.id, company_id : company, status: "Rejected" } });
-        // }
+         let uData = await User.findOne({
+             where: {
+                 email: email
+             }
+         });
+         if(uData) {
+             await UserRequest.destroy({ where: { user_id:uData.id, company_id : company, status: "Rejected" } });
+             const existingrRequest = await UserRequest.findOne({ where: { user_id:uData.id, company_id : company } });
+             if (existingrRequest) {
+                return {body: JSON.stringify({ status: 500, message: `This user already have a request.` })};
+             }
+         }
        // await UserRequest.destroy({ where: { user_id, company_id : company, status: "Rejected" } });
 
         // Check if the email already exists in the company
         const existingInvitation = await UserInvitation.findOne({ where: { email, company } });
+        
 
         if (existingInvitation) {
              return {body: JSON.stringify({ status: 409, message: `This email is already invited.` })};

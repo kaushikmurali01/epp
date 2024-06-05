@@ -101,7 +101,7 @@ class UserService {
         const userDet: any = await this.getUserDataById(userData?.dataValues?.user_id);
         let emailContent = template
           .replace('#content#', EmailContent.joinCompanyApprovalForUser.content)
-          .replace('#name#', userDet.first_name)
+          .replace('#name#', userDet.first_name + ' ' + userDet.last_name)
           .replace('#company#', company.company_name)
           .replace('#isDisplay#', 'none')
           .replace('#heading#', '');
@@ -110,7 +110,7 @@ class UserService {
 
         // Send Email to Admins
         const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.joinCompanyApprovalForAdmins.content)
-          .replace('#user#', `${userDet.first_name}`)
+          .replace('#user#', `${userDet.first_name} ${userDet.last_name}`)
           .replace('#company#', company.company_name)
           .replace('#isDisplay#', 'none')
           .replace('#heading#', '');
@@ -136,7 +136,8 @@ class UserService {
 
   static async rejectInvitation(data): Promise<Response> {
     try {
-      const result = UserRequest.update({ status: "Rejected" }, { where: { id: data.user_id } });
+     // const result = UserRequest.update({ status: "Rejected" }, { where: { id: data.user_id } });
+      const result = UserRequest.destroy({ where: { id: data.user_id } });
       return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
     } catch (error) {
       throw new Error(`${error.message}`);

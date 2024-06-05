@@ -54,6 +54,10 @@ export const EmailContent = {
       content: 'Your are invited to join company',
       title: 'Invited to join company'
    },
+   regsiterSuccess: {
+      content: 'Congratulations! Your registration has been completed for the Energy Performance Program Portal. You can sign in at www.energyperformanceprogram.ca to access your account.',
+      title: 'Registration Confirmed for Energy Performance Program Portal'
+   },
    alertEmail: {
       title: 'Alert from admin'
    },
