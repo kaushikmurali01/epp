@@ -65,7 +65,8 @@ class UserInvitationService {
                 let company_name = "";
                 if (company && type == 2) {
                     const companyAdmin = await CompanyService.getCompanyUser(company_id, resp.role_id);
-                    admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
+                   // admin_name = `${companyAdmin?.first_name} ${companyAdmin?.last_name}`;
+                     admin_name = `${resp?.first_name} ${resp?.last_name}`;
                     company_name = companyAdmin?.dataValues?.company_name;
                 }
 
@@ -80,7 +81,7 @@ class UserInvitationService {
                                                 .replace('#isDisplay#', 'block')
                                                 .replace('#button#', 'Accept Invitation');
                                                 if(existingUser?.first_name) {
-                                                  emailContent =  emailContent.replace('#name#', existingUser?.first_name);
+                                                  emailContent =  emailContent.replace('#name#', existingUser?.first_name + ' '+existingUser?.last_name);
                                                 } else {
                                                   emailContent = emailContent.replace('#name#', '').replace('Hello ', 'Hello');
                                                 }
@@ -92,7 +93,7 @@ class UserInvitationService {
                     if (type == 2) {
                         const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                                 .replace('#user#', `${existingUser.first_name} ${existingUser.last_name}`)
-                                                                                .replace('#admin#', resp?.first_name || admin_name)
+                                                                                .replace('#admin#', resp?.first_name +' '+resp?.last_name || admin_name)
                                                                                 .replace('#company#', company_name)
                                                                                 .replace('#button#', 'Accept Invitation');;
                         await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
@@ -102,7 +103,7 @@ class UserInvitationService {
                     if (type == 2) {
                         const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                                 .replace('#user#', `User with email ${email}`)
-                                                                                .replace('#admin#', resp?.first_name || admin_name)
+                                                                                .replace('#admin#', resp?.first_name +' '+resp?.last_name || admin_name)
                                                                                 .replace('#company#', company_name)
                                                                                 .replace('#button#', 'Accept Invitation');;
                         await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
@@ -152,7 +153,7 @@ class UserInvitationService {
             if (type == 2) {
                 const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                           .replace('#user#', `${existingUser.first_name} ${existingUser.last_name}`)
-                                                                          .replace('#admin#', resp?.first_name || admin_name)
+                                                                          .replace('#admin#', resp?.first_name + ' '+resp?.last_name || admin_name)
                                                                           .replace('#company#', company_name);
                 await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
             }
@@ -161,7 +162,7 @@ class UserInvitationService {
             if (type == 2) {
                 const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.invitationEmailForAdmins.content)
                                                                           .replace('#user#', `User with email ${email}`)
-                                                                          .replace('#admin#', resp?.first_name || admin_name)
+                                                                          .replace('#admin#', resp?.first_name + ' '+resp?.last_name || admin_name)
                                                                           .replace('#company#', company_name);
                 await CompanyService.GetAdminsAndSendEmails(company, EmailContent.invitationEmailForAdmins.title, adminContent);
             }
@@ -311,7 +312,8 @@ static async acceptUserInvitation(detail, resp, context): Promise<Object> {
   try {
 
     if(detail.type == 'reject') {
-      await UserInvitation.update({ is_active: 0 }, { where: { email: detail.email, company:detail.company_id } });
+     // await UserInvitation.update({ is_active: 0 }, { where: { email: detail.email, company:detail.company_id } });
+      await UserInvitation.destroy({ where: { email: detail.email, company:detail.company_id } });
     } else {
 
     const invitationList:any = await UserInvitation.findOne({

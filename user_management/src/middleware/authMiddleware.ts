@@ -22,7 +22,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
                 attributes: [],
                 required: false
             }],
-            attributes: ['id', 'email','first_name', 'type',[sequelize.col('UserCompanyRole.role_id'), 'role_id'],[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
+            attributes: ['id', 'email', 'first_name', 'last_name', 'type',[sequelize.col('UserCompanyRole.role_id'), 'role_id'],[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
         });
         if (!decodedToken) {
             return { status: 401, body: 'Unauthorized: Invalid token' };
