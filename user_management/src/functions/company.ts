@@ -298,6 +298,32 @@ export async function CheckCompanyStatus(company_id: string | number): Promise<a
         return { status: 500, body: `${error.message}` }
     }
 }
+
+export async function DeleteCompany(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    const { company_id } = request.params;
+    const result = await CompanyController.deleteCompany(company_id);
+    const responseBody = JSON.stringify(result);
+    return { body: responseBody };
+}
+
+export async function MakeCompanyInActive(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    const requestData = await request.json();
+    const result = await CompanyController.MakeCompanyInActive(requestData);
+    const responseBody = JSON.stringify(result);
+    return { body: responseBody };
+}
+app.http('MakeCompanyInActive', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    handler: MakeCompanyInActive,
+    route: 'company/makeInctive'
+});
+app.http('DeleteCompany', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    handler: DeleteCompany,
+    route: 'company/{company_id}'
+});
 app.http('ListCompanies', {
     methods: ['GET'],
     authLevel: 'anonymous',
