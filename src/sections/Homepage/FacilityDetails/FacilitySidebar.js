@@ -52,6 +52,7 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
                 : "0.625rem 0 0 0.625rem",
               backgroundColor:
                 item.type === "input" ? "#2E8B5770" : "#058dcf70",
+              width: "166px",
               minHeight: "48px", // Ensure consistent height
               padding: "0", // Remove padding to prevent height increase
               margin: "0.125rem",
