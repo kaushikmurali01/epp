@@ -14,9 +14,13 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 
 const UserManagementColumn = () => {
+    const dispatch = useDispatch();
+    const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
     const buttonStyle = {
         display: 'inline-flex',
@@ -33,7 +37,7 @@ const UserManagementColumn = () => {
 
     const DeleteModelContent = () => {
         return (
-            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}, position: 'relative'}} >
                 <Grid item sx={{textAlign:'center'}}>
                     <figure>
                         <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -51,6 +55,9 @@ const UserManagementColumn = () => {
                     <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
                     </FormGroup>
                 </Grid>
+                {show_loader &&
+                    <Loader sectionLoader={true} minHeight="150px" />
+                }
             </Grid>
         )
     }
@@ -246,6 +253,8 @@ const UserManagementColumn = () => {
     const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
         const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/'+ item.id + '/' + item.entry_type+'/'+ item.company_id;
         // return;
+        // dispatch({ type: "SHOW_LOADER", payload: true });
+        // return;
         DELETE_REQUEST(apiURL)
             .then((_response) => {
                 NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
@@ -255,6 +264,7 @@ const UserManagementColumn = () => {
                     ...prevState,
                     modalVisible: false,
                 }));
+                // dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
             .catch((error) => {
@@ -266,6 +276,7 @@ const UserManagementColumn = () => {
                     ...prevState,
                     modalVisible: false,
                 }));
+                // dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
     }

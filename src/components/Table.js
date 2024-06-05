@@ -24,6 +24,8 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import { ReactComponent as SortIcon } from "../assets/images/sortIcon.svg";
 import { ReactComponent as SortIconUp } from "../assets/images/sortIconUp.svg";
 import { ReactComponent as SortIconDown } from "../assets/images/sortIconDown.svg";
+import { useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 const Table = ({
   columns,
@@ -47,6 +49,7 @@ const Table = ({
       useSortBy
     );
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
   const handleSortChange = (accessorKey) => {
     if (!accessorKey || sortColumn !== accessorKey) {
@@ -129,7 +132,7 @@ const Table = ({
 
   return (
     <TableContainer >
-      <MUITable {...getTableProps()} sx={{ ...customTableStyles }} className={tableClass}>
+      <MUITable {...getTableProps()} sx={{ ...customTableStyles, position: 'relative', minHeight: '150px' }} className={tableClass}>
         <TableHead
           sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
         >
@@ -242,6 +245,9 @@ const Table = ({
               </TableCell>
             </TableRow>
           )}
+           {show_loader && 
+                <Loader sectionLoader={true} minHeight="100%" customStyles={{maxHeight: '400px', top: rows?.length > 0 ? '0':'20px' }} />
+           }
         </TableBody>
         {pageInfo?.pageSize && rows?.length > 0 && (
           <TableFooter>

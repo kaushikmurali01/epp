@@ -6,9 +6,12 @@ import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Loader from 'pages/Loader';
+import EvModal from 'utils/modal/EvModal';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
+    const dispatch = useDispatch();
     // console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
@@ -23,9 +26,38 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const [permissionStates, setPermissionStates] = useState([]);
 
     const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
+    const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
     // const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
-    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1) );
+    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1));
+
+
+    const [modalConfig, setModalConfig] = useState({
+        modalVisible: false,
+        modalUI: {
+          showHeader: true,
+          crossIcon: true,
+          modalClass: "",
+          headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+          headerSubTextStyle: { marginTop: '1rem' },
+          fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+          modalBodyContentStyle: {minHeight: '110px', display: 'flex',flexWrap: 'wrap', alignItems: 'center', color: 'dark.light'}
+        },
+        buttonsUI: {
+          saveButton: true,
+          cancelButton: true,
+          saveButtonName: "Send Request",
+          cancelButtonName: "Cancel",
+          successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.main'}, color: '#fff'},
+          cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSmoke'}, color: '#fff'},
+          saveButtonClass: "",
+          cancelButtonClass: "",
+    
+        },
+        headerText: "",
+        headerSubText: '',
+        modalBodyContent: 'Are you sure you want to change the binding authority permission?'
+      });
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -37,13 +69,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         setSelectCompanyType(event.target.value);
     };
 
-
-    const handleAlignment = (event, index,permission) => {
-        if(permission.is_active === 0){
-            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-            return;
-        }
-
+    const setTogglePermissionsState = (event, index, permission)=> {
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
             const permissionId = permissions[index].permission_id;
@@ -67,39 +93,80 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
             return newStates;
         });
+    }
+
+    const handelPA_Permission = (event, index, permission)=> {
+        setTogglePermissionsState(event, index, permission);
+        setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+      
+       
+         
+          }));
+    }
+    const handleAlignment = (event, index, permission,isPermissionSelected) => {
+        if (permission.is_active === 0) {
+            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+            return;
+        }
+
+        if(permission.permission_id === 4 && !isPermissionSelected){
+            setModalConfig((prevState) => ({
+                ...prevState,
+                modalVisible: true,
+                buttonsUI: {
+                  ...prevState.buttonsUI,
+                 
+              },
+              saveButtonAction: () =>  handelPA_Permission(event, index, permission),
+             
+              }));
+        } else {
+            setTogglePermissionsState(event, index, permission)
+        }
+
+      
+
+
     };
 
     const getPermissionList = (permission_id) => {
+        dispatch({ type: "SHOW_LOADER", payload: true });
         //check if we have type or not in page info, if we have type then it is user management admin page
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
+                dispatch({ type: "SHOW_LOADER", payload: false });
             }).catch((error) => {
                 console.log(error)
+                dispatch({ type: "SHOW_LOADER", payload: false });
             });
 
     }
 
-    const permissionUpDate = (apiURL,requestBody,handelAccept)=> {
+    const permissionUpDate = (apiURL, requestBody, handelAccept) => {
         POST_REQUEST(apiURL, requestBody)
-        .then((response) => {
-            handleAPISuccessCallBack();
-            setVisibleInvitePage(false);
-            if(handelAccept){
-                NotificationsToast({ message: 'You have accepted the request and updated the invite permissions.', type: "success" });
-            } else {
-                NotificationsToast({ message: 'The permission has been updated successfully', type: "success" });
-            }
-            
-        })
-        .catch((error) => {
-            console.log(error, 'error')
-            NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-        });
+            .then((response) => {
+                handleAPISuccessCallBack();
+                setVisibleInvitePage(false);
+                if (handelAccept) {
+                    NotificationsToast({ message: 'You have accepted the request and updated the invite permissions.', type: "success" });
+                } else {
+                    NotificationsToast({ message: 'The permission has been updated successfully', type: "success" });
+                }
+                dispatch({ type: "SHOW_LOADER", payload: false });
+
+            })
+            .catch((error) => {
+                console.log(error, 'error')
+                NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                dispatch({ type: "SHOW_LOADER", payload: false });
+            });
     }
 
-    const handelAccept = (item,handelAccept, permissionEditAPI, reqBody ) => {
+    const handelAccept = (item, handelAccept, permissionEditAPI, reqBody) => {
 
         const apiURL = USER_MANAGEMENT.ACCEPT_USER_REQUEST;
         const requestBody = {
@@ -109,12 +176,14 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
         POST_REQUEST(apiURL, requestBody)
             .then((_response) => {
-                permissionUpDate(permissionEditAPI,reqBody,handelAccept)
+                permissionUpDate(permissionEditAPI, reqBody, handelAccept)
+                dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
             .catch((error) => {
                 console.log(error, 'error')
                 NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
     }
@@ -122,7 +191,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
 
     const handelInviteSubmit = () => {
-        if(!isFormValid){
+        if (!isFormValid) {
             NotificationsToast({ message: "You don't have permission for this!", type: "error" });
             return;
         }
@@ -131,6 +200,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
+        dispatch({ type: "SHOW_LOADER", payload: true });
         // return;
         if (isEdited) {
             const requestBody = {
@@ -145,20 +215,20 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 requestBody.type = invitePageInfo?.type;
             }
 
-             //  for enverva admin types
-             if (invitePageInfo?.type === "2" && selectCompanyType !== '') {
+            //  for enverva admin types
+            if (invitePageInfo?.type === "2" && selectCompanyType !== '') {
                 requestBody.company_id = selectTableRow.company_id
             }
 
-            
-            if(invitePageInfo?.handelAccept ){
-                handelAccept(selectTableRow,invitePageInfo?.handelAccept, apiURL,requestBody,);
-                
+
+            if (invitePageInfo?.handelAccept) {
+                handelAccept(selectTableRow, invitePageInfo?.handelAccept, apiURL, requestBody,);
+
             } else {
-                permissionUpDate(apiURL,requestBody,false)
+                permissionUpDate(apiURL, requestBody, false)
             }
 
-               
+
         } else {
             const requestBody = {
                 "email": userEmail,
@@ -187,13 +257,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     } else if (response.data.status === 500 || response.data.status === 409) {
                         NotificationsToast({ message: response.data.message, type: "error" });
                     }
-                    //  else if (response.data.status === 409) {
-                    //     NotificationsToast({ message: response.data.message, type: "error" });
-                    // }
+                    dispatch({ type: "SHOW_LOADER", payload: false });
                 })
                 .catch((error) => {
                     console.log(error, 'error')
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                    dispatch({ type: "SHOW_LOADER", payload: false });
 
                 })
         }
@@ -233,7 +302,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
         }
 
-    }, [userEmail, selectRoleType, selectCompanyType,selectedPermissions])
+    }, [userEmail, selectRoleType, selectCompanyType, selectedPermissions])
 
 
     useEffect(() => {
@@ -245,7 +314,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-   
+
     return (
         <Box component="section">
 
@@ -297,12 +366,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                     <MenuItem value="" disabled>
                                         <em>Select</em>
                                     </MenuItem>
-                                    {selectTableRow?.role_id === 1 && 
-                                        <MenuItem  value="1">
+                                    {selectTableRow?.role_id === 1 &&
+                                        <MenuItem value="1">
                                             Super Admin
                                         </MenuItem>
                                     }
-                                   
+
                                     {getUserRole && (getUserRole).map((item) => {
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
@@ -342,7 +411,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                             </FormGroup>
                         }
                     </Grid>
-                    {!isPagePermissionDisabled && 
+                    {!isPagePermissionDisabled &&
                         <Grid item >
                             <Button
                                 color="primary"
@@ -357,64 +426,85 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                         </Grid>
                     }
                 </Grid>
+                <Box sx={{ position: 'relative' }}>
+                    {permissions?.length > 0 ?
+                        <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
+                            <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                <Grid item>
+                                    <Typography variant='small'>List of Permissions</Typography>
+                                </Grid>
+                                <Grid item>
+                                    <Typography variant='small'>Toggle to grant</Typography>
+                                </Grid>
+                            </Grid>
+                            <Stack >
+                                {permissions && permissions.map((permission, index) => {
+                                    const isPermissionSelected = permissionStates?.includes(permission.permission_id);
+                                    return (
+                                        <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                            <Grid item xs={12} md={10}>
+                                                <Typography variant='body2'>{permission.desc} </Typography>
+                                            </Grid>
+                                            <Grid item>
+                                                <ToggleButtonGroup
 
-                {permissions?.length > 0 ?
-                    <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
-                        <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                            <Grid item>
-                                <Typography variant='small'>List of Permissions</Typography>
-                            </Grid>
-                            <Grid item>
-                                <Typography variant='small'>Toggle to grant</Typography>
-                            </Grid>
-                        </Grid>
-                        <Stack >
-                            {permissions && permissions.map((permission, index) => {
-                                const isPermissionSelected = permissionStates?.includes(permission.permission_id);
-                                return (
-                                    <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item xs={12} md={10}>
-                                            <Typography variant='body2'>{permission.desc} </Typography>
+                                                    value={isPermissionSelected ? 'yes' : 'no'}
+                                                    exclusive
+                                                    onChange={(event) => handleAlignment(event, index, permission,isPermissionSelected)}
+                                                    aria-label="text alignment"
+                                                    key={permission.permission_id}
+                                                >
+                                                    <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                        Yes
+                                                    </ToggleButton>
+                                                    <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                        No
+                                                    </ToggleButton>
+                                                </ToggleButtonGroup>
+
+                                            </Grid>
                                         </Grid>
-                                        <Grid item>
-                                            <ToggleButtonGroup
+                                    )
+                                })}
+                            </Stack>
+                        </Box>
+                        :
+                        <Box component='div' >
+                            <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
+                                <Grid item>
+                                    <Typography variant='span' sx={{ letterSpacing: '1px', }}>
+                                        {(selectRoleType === '') && "Please select role type"}
+                                        {(selectRoleType !== '' && permissions?.length === 0 && !show_loader) && "The list of permissions is not available for this role."}
 
-                                                value={isPermissionSelected ? 'yes' : 'no'}
-                                                exclusive
-                                                onChange={(event) => handleAlignment(event, index, permission)}
-                                                aria-label="text alignment"
-                                                key={permission.permission_id}
-                                            >
-                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
-                                                    Yes
-                                                </ToggleButton>
-                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
-                                                    No
-                                                </ToggleButton>
-                                            </ToggleButtonGroup>
 
-                                        </Grid>
-                                    </Grid>
-                                )
-                            })}
-                        </Stack>
-                    </Box>
-                    :
-                    <Box component='div' >
-                        <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
-                            <Grid item>
-                                <Typography variant='span' sx={{ letterSpacing: '1px', }}> 
-                                {(selectRoleType === '' )  &&  "Please select role type"}
-                                {(selectRoleType !== '' && permissions?.length === 0 )  &&  "The list of permissions is not available for this role."}
-                                
-
-                                </Typography>
+                                    </Typography>
+                                </Grid>
                             </Grid>
-                        </Grid>
-                    </Box>
-                }
+                        </Box>
+                    }
 
+                    {show_loader &&
+                        <Loader sectionLoader={true} minHeight="150px" />
+                    }
+                </Box>
+
+                {(!isPagePermissionDisabled && permissions.length > 0 ) &&
+                        <Grid item >
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                sx={{ alignSelf: 'center' }}
+                                onClick={() => handelInviteSubmit()}
+                                disabled={!isFormValid}
+                            >
+                                {isEdited ? 'Update Permission' : ' Send Invite'}
+
+                            </Button>
+                        </Grid>
+                    }
             </Container >
+
+            <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
         </Box >
     )
 }
