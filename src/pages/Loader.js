@@ -9,6 +9,7 @@ export default function Loader({
   sectionLoader,
   minHeight,
   loadingState,
+  customStyles,
   loaderPosition = "absolute",
 }) {
   // sectionLoader is for circular loader
@@ -32,7 +33,7 @@ export default function Loader({
             width: "100%",
             zIndex: "999999",
             position: "absolute",
-            top: "0",
+            top: 0,
             left: 0,
             background: "rgba(255,255,255,0.4)",
           }}
@@ -52,6 +53,7 @@ export default function Loader({
             top: "0",
             left: 0,
             background: "rgba(255,255,255,0.4)",
+            ...customStyles,
           }}
         >
           {sectionLoader ? (

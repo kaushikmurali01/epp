@@ -5,6 +5,7 @@ import {
   Button,
   Container,
   FormControl,
+  FormGroup,
   Grid,
   InputLabel,
   Link,
@@ -343,8 +344,9 @@ const Facility = () => {
               />
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+            <FormGroup className='theme-form-group theme-select-form-group'>
               <InputLabel>Assign Facility*</InputLabel>
-              <FormControl>
+              <FormControl  sx={{color: 'primary.main'}}>
                 <Select
                   fullWidth
                   name="facilityId"
@@ -353,6 +355,7 @@ const Facility = () => {
                   onChange={(e) => {
                     setFieldValue("facilityId", e.target.value);
                   }}
+                 
                 >
                   {facilitiesDropdownData?.map((item) => (
                     <MenuItem key={item?.id} value={item?.id}>
@@ -361,6 +364,7 @@ const Facility = () => {
                   ))}
                 </Select>
               </FormControl>
+              </FormGroup>
             </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
               <ButtonWrapper type="submit" variant="contained">
