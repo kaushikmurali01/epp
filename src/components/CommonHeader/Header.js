@@ -605,10 +605,10 @@ function Header(props) {
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))} */}
-                <MenuItem onClick={() => clickSetting("Profile")}>
+                <MenuItem onClick={() => clickSetting("Profile")} sx={{ minHeight: 'auto'}}>
                   <Typography textAlign="center">Profile</Typography>
                 </MenuItem>
-                <MenuItem sx={{ display: { xs: "flex", md: "none" } }}>
+                <MenuItem sx={{ display: { xs: "flex", md: "none",minHeight: 'auto' } }} >
                   {userDetails?.type == 2 || userDetails?.type == 3 ? (
                     <Grid
                       item
@@ -630,48 +630,50 @@ function Header(props) {
                     </Grid>
                   ) : null}
                 </MenuItem>
-                <MenuItem sx={{ display: { xs: "flex", md: "none" } }}>
+             
                   {companyList?.length > 0 &&
                     companyList[0] != null &&
                     (userData?.user?.type != 3 ||
                       userData?.user?.type != 1 ||
                       userData?.user?.type != 5) && (
-                      <FormGroup className="theme-form-group">
-                        <FormLabel
-                          sx={{
-                            marginBottom: "0.25rem",
-                            fontSize: "0.75rem !important",
-                            lineHeight: "1 !important",
-                            fontWeight: "400",
-                          }}
-                        >
-                          Choose company
-                        </FormLabel>
-                        <FormControl sx={{ minWidth: "10rem" }}>
-                          <Select
-                            value={selectCompany}
-                            onChange={(e) => handleSelectChange(e)}
-                            displayEmpty={true}
-                            sx={{
-                              padding: 0,
-                              fontWeight: 600,
-                              background: "#F3FFF6",
-                              maxHeight: "2.25rem",
-                            }}
-                          >
-                            {companyList.map((item) => {
-                              return (
-                                <MenuItem key={item?.id} value={item?.id}>
-                                  {item?.company_name}
-                                </MenuItem>
-                              );
-                            })}
-                          </Select>
-                        </FormControl>
-                      </FormGroup>
+                        <MenuItem sx={{ display: { xs: "flex", md: "none" }, minHeight: 'auto' }}>
+                          <FormGroup className="theme-form-group">
+                            <FormLabel
+                              sx={{
+                                marginBottom: "0.25rem",
+                                fontSize: "0.75rem !important",
+                                lineHeight: "1 !important",
+                                fontWeight: "400",
+                              }}
+                            >
+                              Choose company
+                            </FormLabel>
+                            <FormControl sx={{ minWidth: "10rem" }}>
+                              <Select
+                                value={selectCompany}
+                                onChange={(e) => handleSelectChange(e)}
+                                displayEmpty={true}
+                                sx={{
+                                  padding: 0,
+                                  fontWeight: 600,
+                                  background: "#F3FFF6",
+                                  maxHeight: "2.25rem",
+                                }}
+                              >
+                                {companyList.map((item) => {
+                                  return (
+                                    <MenuItem key={item?.id} value={item?.id}>
+                                      {item?.company_name}
+                                    </MenuItem>
+                                  );
+                                })}
+                              </Select>
+                            </FormControl>
+                          </FormGroup>
+                      </MenuItem>
                     )}
-                </MenuItem>
-                <MenuItem onClick={() => clickSetting("Logout")}>
+               
+                <MenuItem onClick={() => clickSetting("Logout")} sx={{  minHeight: 'auto'}}>
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
