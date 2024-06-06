@@ -116,6 +116,7 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
+  unit: Yup.string().required("Unit is required"),
   meter_id: Yup.number()
     .required("Meter Id is required and can be found on the electricity bill")
     .min(0, "Meter Id must be a positive number"),

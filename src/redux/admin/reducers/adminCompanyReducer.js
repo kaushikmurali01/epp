@@ -14,6 +14,9 @@ import {
   FETCH_ADMIN_COMPANIES_DROPDOWN_REQUEST,
   FETCH_ADMIN_COMPANIES_DROPDOWN_SUCCESS,
   FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE,
+  DELETE_COMPANY_REQUEST,
+  DELETE_COMPANY_SUCCESS,
+  DELETE_COMPANY_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -114,6 +117,24 @@ const adminCompanyReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_COMPANY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_COMPANY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_COMPANY_FAILURE:
       return {
         ...state,
         loading: false,

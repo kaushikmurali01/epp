@@ -4,6 +4,7 @@ import {
   PATCH_REQUEST,
   POST_REQUEST,
   PUT_REQUEST,
+  DELETE_REQUEST
 } from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
@@ -13,6 +14,9 @@ import {
   adminCompanyUpdateStatusFailure,
   adminCompanyUpdateStatusRequest,
   adminCompanyUpdateStatusSuccess,
+  deleteCompanyFailure,
+  deleteCompanyRequest,
+  deleteCompanySucess,
   fetchAdminCompaniesDropdownFailure,
   fetchAdminCompaniesDropdownRequest,
   fetchAdminCompaniesDropdownSuccess,
@@ -23,6 +27,7 @@ import {
   fetchAdminCompanyListRequest,
   fetchAdminCompanyListSuccess,
 } from "../actionCreators/adminCompanyActionCreators";
+import { DELETE_COMPANY_SUCCESS } from "../actionTypes";
 
 export const fetchAdminCompanyListing = (
   pageInfo,
@@ -131,6 +136,29 @@ export const fetchAdminCompaniesDropdown = () => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminCompaniesDropdownFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteCompanyById = (companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteCompanyRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.DELETE_COMPANY}/${companyId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteCompanySucess(data));
+      NotificationsToast({
+        message: "Company deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteCompanyFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
