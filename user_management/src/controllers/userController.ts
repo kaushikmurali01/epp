@@ -214,7 +214,7 @@ class UserController {
      // const { id } = req.params;
      let id = tokenData.id;
       const user = await UserService.getUserById(parseInt(id), tokenData.company_id);
-      console.log('user1000', user);
+     // console.log('user1000', user);
       if (user) {
         return user;
       } else {
@@ -295,6 +295,15 @@ class UserController {
   static async acceptInvitation(requestData): Promise<any> {
     try {
       const data = await UserService.acceptInvitation(requestData);
+      return data;
+    } catch (error) {
+      return { status: 500, body: { error: error.message } };
+    }
+  }
+  static async updateUserStatus(id, is_active): Promise<any> {
+    try {
+      const data = await UserService.updateUserStatus(id, is_active);
+      console.log("data", data);
       return data;
     } catch (error) {
       return { status: 500, body: { error: error.message } };

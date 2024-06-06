@@ -206,19 +206,34 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
         resp.company_id = company_id;
 
-        context.log("company_id", resp.company_id);
+       // context.log("company_id", resp.company_id);
         const user = await UserController.getUserById(resp);
+        const companyData:any = await Company.findOne({where: {
+            id: company_id
+        }});
 
 
 
-        context.log("testing", user.user);
+       // context.log("testing", user.user);
+       // context.log("companyData", companyData.is_active);
 
         // Get User Permissions start
         const user_id = resp.id;
 
+        
+
 
         let userPermissions = null;
-        if ([1, 2, 6, 7, 11, 12].includes(user.user.dataValues.role_id)) {
+         if(user.user.dataValues.is_active == 0) {
+            user.permissions = null;
+            user.invitations = [];
+            user.associatedCompanies = [];
+            return { body: JSON.stringify(user) };
+        }
+        else if(companyData.is_active == 0) {
+            userPermissions = null;
+        }
+        else if ([1, 2, 6, 7, 11, 12].includes(user.user.dataValues.role_id)) {
 
             //  if(user.user.dataValues.role_id == 1 || user.user.dataValues.role_id == 2) {
             userPermissions = await Permission.findAll(
@@ -227,6 +242,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
                 }
             );
         }
+        
         else if (user.user.dataValues.type == 2) {
             userPermissions = await UserCompanyRolePermission.findAll({
                 where: {
@@ -298,7 +314,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
                 ],
             });
 
-            console.log("Test", associatedCompaniesRaw);
+           // console.log("Test", associatedCompaniesRaw);
 
             // Map the results to include the company data and the role name
             const associatedCompanies = associatedCompaniesRaw.map(assocCompany => ({
@@ -827,7 +843,30 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
     }
 }
 
+export async function UpdateUserStatus(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData: any = await request.json();
+        const { user_id } = request.params;
+        const users = await UserController.updateUserStatus(user_id, requestData.is_active);
+        //console.log("users001", users);
+        // Prepare response body
+        const responseBody = JSON.stringify(users);
 
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+app.http('UpdateUserStatus', {
+    methods: ['PUT'],
+    authLevel: 'anonymous',
+    route: 'user/status/{user_id}',
+    handler: UpdateUserStatus
+});
 
 app.http('AlertUser', {
     methods: ['POST'],

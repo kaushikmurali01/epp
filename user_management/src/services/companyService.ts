@@ -11,6 +11,8 @@ import { Email } from './email';
 import { ParticipantAgreement } from '../models/participantAgreement';
 import { UserService } from './userService';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
+import { UserInvitation } from '../models/user-invitation';
+import { UserRequest } from '../models/user-request';
 
 class CompanyService {
 
@@ -372,6 +374,14 @@ static async deleteCompany(companyId):Promise<any> {
 
         // Perform deletions
         await Promise.all([
+            UserRequest.destroy({
+                where: { company_id: companyId },
+                transaction
+            }),
+            UserInvitation.destroy({
+                where: { company: companyId },
+                transaction
+            }),
             ParticipantAgreement.destroy({
                 where: { company_id: companyId },
                 transaction
