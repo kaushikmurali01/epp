@@ -43,6 +43,7 @@ import {
 import NotificationsToast from "utils/notification/NotificationsToast";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -487,6 +488,7 @@ const EntriesListing = ({
     POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
       .then((response) => {
         getHourlySubHourlyEntryData();
+        dispatch(fetchFacilityStatus(id));
         NotificationsToast({
           message: "File uploaded successfully!",
           type: "success",
