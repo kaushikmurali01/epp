@@ -9,15 +9,15 @@ import {
   TableHead,
   TableRow,
   useMediaQuery,
+  Grid,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useEffect, useState } from "react";
 import Table from "components/Table";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
-import { array } from "yup";
 import {
   deleteAdminMeter,
   fetchAdminMeterListing,
@@ -33,7 +33,6 @@ const AdminMeterListing = ({
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("");
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
@@ -235,13 +234,15 @@ const AdminMeterListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
-        <Box>
+        <Grid container>
           <TableContainer
             component={Paper}
             sx={{
               bgcolor: "#2E813E20",
               boxShadow: "none",
               border: "1px solid #2E813E",
+              overflowX: "scroll",
+              maxWidth: isSmallScreen ? "100%" : "60%",
             }}
           >
             <MuiTable size="small">
@@ -291,13 +292,14 @@ const AdminMeterListing = ({
               </TableBody>
             </MuiTable>
           </TableContainer>
-        </Box>
+        </Grid>
         <Button
           style={{
             backgroundColor: "transparent",
             padding: 0,
             minWidth: "unset",
             fontSize: "0.875rem",
+            textWrap: "nowrap",
           }}
           disableRipple
           endIcon={

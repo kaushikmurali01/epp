@@ -144,14 +144,9 @@ export const validationSchemaEntry = Yup.object().shape({
     .max(new Date(), "Start Date cannot be in the future")
     .required("Start Date is required"),
   end_date: Yup.date()
-    .min(
-      Yup.ref("start_date"),
-      "End Date cannot be earlier than Start Date"
-    )
+    .min(Yup.ref("start_date"), "End Date cannot be earlier than Start Date")
     .max(new Date(), "End Date cannot be in the future")
-    .required(
-      "End Date is required"
-    ),
+    .required("End Date is required"),
   usage: Yup.string()
     .required("Usage is required")
     .min(0, "Usage must be a positive number"),
@@ -390,8 +385,18 @@ export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
 });
 
 export const validationSchemaIndependentVariable = Yup.object().shape({
-  independentVariableName: Yup.string()
-    .required("Independent Variable Name is required"),
-    independentVariableDescription: Yup.string()
-    .required("Independent Variable Description is required"),
+  independentVariableName: Yup.string().required(
+    "Independent Variable Name is required"
+  ),
+  independentVariableDescription: Yup.string().required(
+    "Independent Variable Description is required"
+  ),
+});
+
+export const validationSchemaFacilityPermissions = Yup.object().shape({
+  username: Yup.string().required("Username is required"),
+  bussiness_email: Yup.string()
+    .email("Invalid email")
+    .required("Business email is required"),
+  role_type: Yup.string().required("Role type is required"),
 });

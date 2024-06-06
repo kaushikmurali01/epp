@@ -18,6 +18,7 @@ import CompanyAgreement from 'pages/Admin/Company/CompanyAgreement';
 import UserProfilePage from 'pages/UserManagementAdmin/UserProfilePage';
 import EnervaAdminDashboard from 'pages/Admin/EnervaAdminDashboard';
 import ChangePassword from 'pages/Onboarding/ChangePassword';
+import FacilityPermissionPage from 'pages/Admin/Facility/FacilityPermissionPage';
 
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
@@ -30,6 +31,7 @@ export const EnervaRoutes = () => {
         <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AdminAddFacilityComponent /> }/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AdminAddFacilityComponent /> }/>
+        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.facilityManagePermissions} element={ <FacilityPermissionPage /> }/>
         {/* <Route path= {participantAgreementEndPoints.participantAgreement} element={ <ParticipantAgreementComponent />} /> */}
         <Route path= {userManagementEndPoints.userManagement} element={ <UserManagementAdmin />} />
         <Route path= {userManagementEndPoints.userProfile} element={ <UserProfilePage />} />
