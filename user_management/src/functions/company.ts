@@ -130,15 +130,60 @@ export async function ListCompanies(request: HttpRequest, context: InvocationCon
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
         const companyFilter = request.query.get('company_type');
-
+        const order = request.query.get('order') || 'ASC';
+        const colName = request.query.get('col_name') || 'id';
         // Get all companies
-        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter);
+        const companies = await CompanyController.listCompanies(pageOffset, pageLimit, searchPromt, companyFilter, order, colName);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
 
         // Return success response
         return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
+ * Retrieves all companies user except of superUser.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all companies.
+ */
+export async function getCompanyUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const { company_id } = request.params;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const id = resp.id
+        const companies = await CompanyController.getCompanyUser(id, company_id);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(companies);
+
+        // Return success response
+        return { body: responseBody };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+/**
+ * Update change super user for company
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing all companies.
+ */
+export async function changeSuperUserForCompany(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const { company_id, user_id } = request.params;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const id = resp.id
+        const companies = await CompanyController.changeCompanySuperUser(id, company_id, user_id);
+        return companies
     } catch (error) {
         // Return error response
         return { status: 500, body: `${error.message}` };
@@ -284,6 +329,18 @@ app.http('ListCompanies', {
     authLevel: 'anonymous',
     handler: ListCompanies,
     route: 'companies/{pageOffset}/{pageLimit}'
+});
+app.http('getUserDropDownForCompany', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: getCompanyUser,
+    route: 'getCompanyUser/{company_id}'
+});
+app.http('changeCompanySuperUser', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    handler: changeSuperUserForCompany,
+    route: 'changeCompanySuperUser/{company_id}/{user_id}'
 });
 app.http('CompaniesDropDown', {
     methods: ['GET'],

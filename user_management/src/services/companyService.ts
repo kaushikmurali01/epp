@@ -186,7 +186,7 @@ class CompanyService {
      * @returns Promise<Response>
      * @description Retrieves a list of companies from the database.
      */
-    static async listCompanies(offset, limit, searchPromt, companyFilter): Promise<any[]> {
+    static async listCompanies(offset, limit, searchPromt, companyFilter, order, colName): Promise<any[]> {
         try {
             let filterCheck = ""
             if (companyFilter && companyFilter > 0) {
@@ -198,7 +198,7 @@ class CompanyService {
             WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
             INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
             INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') LIMIT :limit OFFSET :offset`, {
+            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`, {
                 limit: limit,
                 offset: offset
             })])
@@ -256,6 +256,14 @@ class CompanyService {
             throw error;
         }
     }
+    static async checkExistSuperAdmin(user_id, company_id): Promise<any> {
+        try {
+            let result = await UserCompanyRole.findOne({ where: { is_active: 1, user_id, company_id, role_id: 1 } })
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
 
     static async SendEmailsToAllAdmins(adminData, title, body): Promise<any> {
         console.log("adminData", adminData);
@@ -267,10 +275,10 @@ class CompanyService {
 
         // Extracting subadmin emails and sending emails
         adminData.subAdmins.forEach(subAdmin => {
-            if(subAdmin) {
-            const subAdminEmail = subAdmin.email;
-            let content = body.replace("#name#", subAdmin.name).replace('#isDisplay#', 'none');
-            Email.send(subAdminEmail, title, content);
+            if (subAdmin) {
+                const subAdminEmail = subAdmin.email;
+                let content = body.replace("#name#", subAdmin.name).replace('#isDisplay#', 'none');
+                Email.send(subAdminEmail, title, content);
             }
         });
 
@@ -345,12 +353,12 @@ class CompanyService {
     }
 
     static async GetCompanyById(company_id): Promise<any> {
-        
+
         const company = await Company.findByPk(company_id);
         return company;
 
- 
-     }
+
+    }
 
 /**
  * Deletes a company and associated records.
