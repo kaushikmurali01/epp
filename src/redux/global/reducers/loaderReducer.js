@@ -13,9 +13,9 @@ const loaderReducer = (state = initialState, action) => {
   // }
   //   return state;
   switch (action.type) {
-    case "SHOW_LOADER":
+    case SHOW_LOADER:
       return { ...state, show_loader: action.payload };
-    case "SHOW_EV_PAGE_LOADER":
+    case SHOW_EV_PAGE_LOADER:
       return { ...state, ev_pageLoader: action.payload };
     default:
       return state;
