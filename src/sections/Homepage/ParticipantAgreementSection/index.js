@@ -12,11 +12,12 @@ import ESignature from "components/ESignature";
 import { FileUploader } from "react-drag-drop-files";
 import UploadIcon from "@mui/icons-material/Upload";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
 
 const fileTypes = ["PDF"];
 
 const ParticipantAgreement = (props) => {
-  const {onDownloadUnsignedPA, onUploadSignature, isSigned, onDownloadSignedPA, uploadSignedPA, pdfUrl} = props
+  const {onDownloadUnsignedPA, onUploadSignature, isSigned, onDownloadSignedPA, uploadSignedPA, pdfUrl, signedOn, signedBy} = props
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [file, setFile] = useState(null);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
@@ -140,6 +141,21 @@ const ParticipantAgreement = (props) => {
             }
           />
         </Box>}
+        {isSigned ? <Box
+           sx={{
+            display: "flex",
+            gap: 1,
+            alignItems: "center",
+            flexDirection: isSmallScreen ? "column" : "row",
+          }}
+        >
+          <Typography variant="h6" ml={2} mr={2}>
+            Signed by: {signedBy?.first_name}
+          </Typography>
+          <Typography variant="h6" ml={2} mr={2}>
+            Signed on: {parseUTCDateToLocalDate(signedOn)}
+          </Typography>
+        </Box> : null}
         <Button
           sx={{ fontSize: "1rem", marginTop: isSmallScreen ? 2 : 0 }}
           disabled={!isSigned && !scrolledToBottom}

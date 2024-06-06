@@ -1,14 +1,26 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import LinearProgress from '@mui/material/LinearProgress';
-import { CircularProgress } from '@mui/material';
-import { useSelector } from 'react-redux';
+import * as React from "react";
+import Box from "@mui/material/Box";
+import LinearProgress from "@mui/material/LinearProgress";
+import { CircularProgress } from "@mui/material";
+import { useSelector } from "react-redux";
 
-export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
-  // sectionLoader is for circular loader 
+export default function Loader({
+  fallBackLoader,
+  sectionLoader,
+  minHeight,
+  loadingState,
+  customStyles,
+  loaderPosition = "absolute",
+}) {
+  // sectionLoader is for circular loader
   // the Loader Box's min height will be sent via prop "minHeight" so that For a particular section we can show this loader
+  // loaderPosition to change the Position of section loader, if "fixed" then loader will work on whole page, and if "absolute" then it will work for that section only
 
-  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
+  const reduxLoaderState = useSelector(
+    (state) => state?.loaderReducer?.show_loader
+  );
+
+  const show_loader = loadingState || reduxLoaderState;
 
   const displayType = sectionLoader ? "flex" : "block";
 
@@ -21,7 +33,7 @@ export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
             width: "100%",
             zIndex: "999999",
             position: "absolute",
-            top: "0",
+            top: 0,
             left: 0,
             background: "rgba(255,255,255,0.4)",
           }}
@@ -32,15 +44,16 @@ export default function Loader({fallBackLoader, sectionLoader, minHeight }) {
         <Box
           display={show_loader ? displayType : "none"}
           minHeight={sectionLoader ? minHeight : "auto"}
+          position={loaderPosition}
           sx={{
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
             zIndex: "999999",
-            position: "absolute",
             top: "0",
             left: 0,
             background: "rgba(255,255,255,0.4)",
+            ...customStyles,
           }}
         >
           {sectionLoader ? (

@@ -110,7 +110,7 @@ const ContactUsForm = () => {
                 sx={{ paddingRight: { md: "2rem", xs: "1rem" } }}
               >
                 <Typography variant="h3" sx={{ marginBottom: "1.5rem" }}>
-                  Contact Us
+                  Contact us
                 </Typography>
                 <Typography variant="span">
                   Contact us if you want to learn more about EPP

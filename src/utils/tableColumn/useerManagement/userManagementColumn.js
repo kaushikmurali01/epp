@@ -14,9 +14,13 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 
 const UserManagementColumn = () => {
+    const dispatch = useDispatch();
+    const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
     const buttonStyle = {
         display: 'inline-flex',
@@ -33,7 +37,7 @@ const UserManagementColumn = () => {
 
     const DeleteModelContent = () => {
         return (
-            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}, position: 'relative'}} >
                 <Grid item sx={{textAlign:'center'}}>
                     <figure>
                         <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -51,6 +55,9 @@ const UserManagementColumn = () => {
                     <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
                     </FormGroup>
                 </Grid>
+                {show_loader &&
+                    <Loader sectionLoader={true} minHeight="150px" />
+                }
             </Grid>
         )
     }
@@ -68,18 +75,28 @@ const UserManagementColumn = () => {
         {
             Header: "Facility name",
             accessor: (item)=> {
-                return item.facility
-                // if(item.facility){
-                //     const companyList = item.facility;
-                //     const { companyNames, rest } = stringFilter(companyList);
-                //     console.log(companyNames, "company names")
-                //     console.log( rest, "company names rest")
-                //     return (
-                //         <Tooltip title={companyNames } placement="bottom">
-                //             <span>{rest}</span>
-                //         </Tooltip>
-                //     )
-                // }
+                
+                if(item.facility){
+                    const companyList = item.facility;
+                    const {firstTwo,restArray}= stringFilter(companyList);
+                    return (
+                        <React.Fragment>
+                            {
+                        restArray.length !==0 ? 
+                            <Tooltip 
+                            title={<div style={{ padding: '4px', wordWrap: 'break-word',wordBreak: 'break-word', lineHeight: '1.5' }}>{restArray}</div>}
+                            placement="bottom"
+                            >
+                                <span>{firstTwo}</span>
+                            </Tooltip>
+                            : 
+                            firstTwo
+                        }
+                            </React.Fragment>
+                    )
+                }
+
+                // return item.facility
             }
         },
         {
@@ -128,16 +145,20 @@ const UserManagementColumn = () => {
     ];
 
     const stringFilter = (str) => {
-        const [companyNames, rest] = str.split(',')
-          .reduce(([companyNames, rest], part) => {
-            if (part.includes('_')) {
-              return [[...companyNames, part], rest];
-            } else {
-              return [companyNames, [...rest, part]];
-            }
-          }, [[], []]);
+        // const [companyNames, rest] = str.split(',')
+        //   .reduce(([companyNames, rest], part) => {
+        //     if (part.includes('_')) {
+        //       return [[...companyNames, part], rest];
+        //     } else {
+        //       return [companyNames, [...rest, part]];
+        //     }
+        //   }, [[], []]);
+        // Split the string into an array
+        const arrayData = str.split(',');
+        const firstTwo = arrayData.slice(0, 2).join(', ');
+        const restArray = arrayData.slice(2).join(', ');
       
-        return { companyNames, rest };
+        return { firstTwo, restArray };
       };
 
     const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
@@ -246,6 +267,8 @@ const UserManagementColumn = () => {
     const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
         const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/'+ item.id + '/' + item.entry_type+'/'+ item.company_id;
         // return;
+        // dispatch({ type: "SHOW_LOADER", payload: true });
+        // return;
         DELETE_REQUEST(apiURL)
             .then((_response) => {
                 NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
@@ -255,6 +278,7 @@ const UserManagementColumn = () => {
                     ...prevState,
                     modalVisible: false,
                 }));
+                // dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
             .catch((error) => {
@@ -266,6 +290,7 @@ const UserManagementColumn = () => {
                     ...prevState,
                     modalVisible: false,
                 }));
+                // dispatch({ type: "SHOW_LOADER", payload: false });
 
             })
     }
