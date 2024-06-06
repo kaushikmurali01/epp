@@ -42,6 +42,7 @@ import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntr
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import { fetchAdminFacilityStatus } from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -494,6 +495,7 @@ const AdminEntriesListing = ({
     POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
       .then((response) => {
         getHourlySubHourlyEntryData();
+        dispatch(fetchAdminFacilityStatus(id));
         NotificationsToast({
           message: "File uploaded successfully!",
           type: "success",
