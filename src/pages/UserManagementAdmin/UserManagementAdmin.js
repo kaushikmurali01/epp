@@ -252,7 +252,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
           setCustomerUser(res.data?.body?.rows)
           setPageCount((prevState) => ({
             ...prevState,
-            ieso: res.data?.body?.count
+            customer: res.data?.body?.count
           }));
         }
       }).catch((error) => {
