@@ -7,8 +7,8 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDispatch, useSelector } from 'react-redux';
-import Loader from 'pages/Loader';
 import EvModal from 'utils/modal/EvModal';
+import EvLoader from 'utils/loader/EvLoader';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
     const dispatch = useDispatch();
@@ -132,16 +132,16 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
     const getPermissionList = (permission_id) => {
-        dispatch({ type: "SHOW_LOADER", payload: true });
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         //check if we have type or not in page info, if we have type then it is user management admin page
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             }).catch((error) => {
                 console.log(error)
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             });
 
     }
@@ -156,13 +156,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 } else {
                     NotificationsToast({ message: 'The permission has been updated successfully', type: "success" });
                 }
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
             })
             .catch((error) => {
                 console.log(error, 'error')
                 NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             });
     }
 
@@ -177,13 +177,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         POST_REQUEST(apiURL, requestBody)
             .then((_response) => {
                 permissionUpDate(permissionEditAPI, reqBody, handelAccept)
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
             })
             .catch((error) => {
                 console.log(error, 'error')
                 NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-                dispatch({ type: "SHOW_LOADER", payload: false });
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
             })
     }
@@ -200,7 +200,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = inviteAPIURL;
         const permissionIds = selectedPermissions.map(permission => permission.permission_id);
 
-        dispatch({ type: "SHOW_LOADER", payload: true });
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         // return;
         if (isEdited) {
             const requestBody = {
@@ -257,12 +257,12 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     } else if (response.data.status === 500 || response.data.status === 409) {
                         NotificationsToast({ message: response.data.message, type: "error" });
                     }
-                    dispatch({ type: "SHOW_LOADER", payload: false });
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
                 })
                 .catch((error) => {
                     console.log(error, 'error')
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-                    dispatch({ type: "SHOW_LOADER", payload: false });
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
                 })
         }
@@ -484,7 +484,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                     }
 
                     {show_loader &&
-                        <Loader sectionLoader={true} minHeight="150px" />
+                        <EvLoader sectionLoader={true} minHeight="150px" />
                     }
                 </Box>
 
