@@ -155,10 +155,10 @@ export async function ListCompanies(request: HttpRequest, context: InvocationCon
  */
 export async function getCompanyUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const { company_id, user_id } = request.params;
+        const { company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const id = resp.id
-        const companies = await CompanyController.getCompanyUser(id, company_id, user_id);
+        const companies = await CompanyController.getCompanyUser(id, company_id);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
@@ -334,10 +334,10 @@ app.http('getUserDropDownForCompany', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: getCompanyUser,
-    route: 'getCompanyUser/{company_id}/{user_id}'
+    route: 'getCompanyUser/{company_id}'
 });
 app.http('changeCompanySuperUser', {
-    methods: ['GET'],
+    methods: ['POST'],
     authLevel: 'anonymous',
     handler: changeSuperUserForCompany,
     route: 'changeCompanySuperUser/{company_id}/{user_id}'

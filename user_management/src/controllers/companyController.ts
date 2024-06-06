@@ -60,7 +60,7 @@ class CompanyController {
             return { status: 500, body: { error: error.message } };
         }
     }
-    static async getCompanyUser(id, company_id, user_id): Promise<any> {
+    static async getCompanyUser(id, company_id): Promise<any> {
         try {
             let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
             if (checkExistUser) {
@@ -218,7 +218,7 @@ Thank You,<br/>
      */
     static async deleteCompany(companyId): Promise<any> {
         try {
-            let company= await CompanyService.deleteCompany(companyId);
+            let company = await CompanyService.deleteCompany(companyId);
             return company;
         } catch (error) {
             return { status: 400, body: { error: error.message } };
