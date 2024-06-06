@@ -20,6 +20,7 @@ import { EmailTemplate } from '../utils/emailTemplate';
 import { CompanyService } from './companyService';
 import { EmailContent } from '../utils/emailContent';
 import { Email } from './email';
+import { stat } from 'fs';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
 
 
@@ -721,7 +722,7 @@ class UserService {
               ]
             }
           ],
-          attributes: ["id", "email", "first_name", "last_name", "phonenumber", "landline", "type", "profile_pic",
+          attributes: ["id", "email", "first_name", "last_name", "phonenumber", "landline", "type", "profile_pic","is_active",
             [sequelize.col('UserCompanyRole.Role.rolename'), 'rolename'],
             [sequelize.col('UserCompanyRole.Role.id'), 'role_id'],
             [sequelize.col('UserCompanyRole.status'), 'status'],
@@ -924,6 +925,28 @@ class UserService {
         await User.update({ type: 3 }, { where: { id: userId } });
     }
    }
+
+   static async updateUserStatus(id: number, is_active): Promise<any | null> {
+    try {
+      let status:string;
+      if(is_active == 0) status = 'Inactive';
+      else status = 'Active';
+
+      console.log(status);console.log(is_active);
+      const user = await User.update({is_active:is_active, status:status}, {
+        where: { id }
+      });
+     await UserCompanyRole.update({status:status}, {where: {
+        user_id: id
+      }});
+      //if (rowsAffected === 0) return null;
+      //return updatedUsers[0];
+      return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+
+    } catch (error) {
+      throw new Error(`Failed to update status: ${error.message}`);
+    }
+  }
 
 
 }

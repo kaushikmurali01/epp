@@ -316,7 +316,7 @@ app.http('MakeCompanyInActive', {
     methods: ['POST'],
     authLevel: 'anonymous',
     handler: MakeCompanyInActive,
-    route: 'company/makeInctive'
+    route: 'company/inactive'
 });
 app.http('DeleteCompany', {
     methods: ['DELETE'],
