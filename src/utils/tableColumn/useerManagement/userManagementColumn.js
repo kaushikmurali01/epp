@@ -75,18 +75,28 @@ const UserManagementColumn = () => {
         {
             Header: "Facility name",
             accessor: (item)=> {
-                return item.facility
-                // if(item.facility){
-                //     const companyList = item.facility;
-                //     const { companyNames, rest } = stringFilter(companyList);
-                //     console.log(companyNames, "company names")
-                //     console.log( rest, "company names rest")
-                //     return (
-                //         <Tooltip title={companyNames } placement="bottom">
-                //             <span>{rest}</span>
-                //         </Tooltip>
-                //     )
-                // }
+                
+                if(item.facility){
+                    const companyList = item.facility;
+                    const {firstTwo,restArray}= stringFilter(companyList);
+                    return (
+                        <React.Fragment>
+                            {
+                        restArray.length !==0 ? 
+                            <Tooltip 
+                            title={<div style={{ padding: '4px', wordWrap: 'break-word',wordBreak: 'break-word', lineHeight: '1.5' }}>{restArray}</div>}
+                            placement="bottom"
+                            >
+                                <span>{firstTwo}</span>
+                            </Tooltip>
+                            : 
+                            firstTwo
+                        }
+                            </React.Fragment>
+                    )
+                }
+
+                // return item.facility
             }
         },
         {
@@ -135,16 +145,20 @@ const UserManagementColumn = () => {
     ];
 
     const stringFilter = (str) => {
-        const [companyNames, rest] = str.split(',')
-          .reduce(([companyNames, rest], part) => {
-            if (part.includes('_')) {
-              return [[...companyNames, part], rest];
-            } else {
-              return [companyNames, [...rest, part]];
-            }
-          }, [[], []]);
+        // const [companyNames, rest] = str.split(',')
+        //   .reduce(([companyNames, rest], part) => {
+        //     if (part.includes('_')) {
+        //       return [[...companyNames, part], rest];
+        //     } else {
+        //       return [companyNames, [...rest, part]];
+        //     }
+        //   }, [[], []]);
+        // Split the string into an array
+        const arrayData = str.split(',');
+        const firstTwo = arrayData.slice(0, 2).join(', ');
+        const restArray = arrayData.slice(2).join(', ');
       
-        return { companyNames, rest };
+        return { firstTwo, restArray };
       };
 
     const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
