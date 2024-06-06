@@ -142,6 +142,8 @@ const ParticipantAgreementComponent = () => {
         onDownloadSignedPA={onDownloadSignedPA}
         uploadSignedPA={uploadSignedPA}
         pdfUrl={PAData.is_signed ? PAData.signed_doc : PAData.unsigned_doc}
+        signedOn={PAData?.signed_on}
+        signedBy={PAData?.signed_by}
       />
     </>
   );
