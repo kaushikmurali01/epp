@@ -17,10 +17,10 @@ import EvModal from 'utils/modal/EvModal';
 import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
 import CustomerUserManagementColumn from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
 import IESOUserManagementColumn from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const UserManagementAdmin = () => {
-
+  const dispatch = useDispatch();
   const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
   const {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN} = CustomerUserManagementColumn();
   const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
@@ -204,7 +204,7 @@ const defaultPagination = { page: 1, pageSize: 10 }
 
 
   const getEnervaUserManagementData = (pageInfo,search,role) => {
-
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
     }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
@@ -217,13 +217,15 @@ const defaultPagination = { page: 1, pageSize: 10 }
             enerva: res.data?.body?.count
           }));
         }
-        
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       }).catch((error) => {
         console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
 
   const getIESOUserManagementData = (pageInfo,search,role) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
     }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
@@ -237,11 +239,14 @@ const defaultPagination = { page: 1, pageSize: 10 }
             ieso: res.data?.body?.count
           }));
         }
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       }).catch((error) => {
         console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
   const getCustomerUserManagementData = (pageInfo,search,role) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
     }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
@@ -255,8 +260,10 @@ const defaultPagination = { page: 1, pageSize: 10 }
             customer: res.data?.body?.count
           }));
         }
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       }).catch((error) => {
         console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
 
@@ -272,13 +279,16 @@ const defaultPagination = { page: 1, pageSize: 10 }
   }
 
   const getAggregatorUserManagementData = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
     const apiURL = ENERVA_USER_MANAGEMENT.GET_AGGREGATOR_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
         setAggregatorUser(res.data)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       }).catch((error) => {
         console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
 

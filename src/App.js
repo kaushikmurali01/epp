@@ -25,6 +25,7 @@ import {
 } from "@azure/msal-react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import EvLoader from "utils/loader/EvLoader";
 const store = configureStore();
 
 console.log("build updated on 26th May 23:17PM");
@@ -61,7 +62,7 @@ const App = (props) => {
           {/* <Footer /> */}
         </LocalizationProvider>
       </ThemeProvider>
-      {/* <Loader /> */}
+      <EvLoader />
     </Provider>
   );
 };

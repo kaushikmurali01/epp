@@ -16,6 +16,7 @@ import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
+import { stringFilter } from "utils/helper/helper";
 
 
 const UserManagementColumn = () => {
@@ -78,7 +79,7 @@ const UserManagementColumn = () => {
                 
                 if(item.facility){
                     const companyList = item.facility;
-                    const {firstTwo,restArray}= stringFilter(companyList);
+                    const {showItem,restArray}= stringFilter(companyList,3);
                     return (
                         <React.Fragment>
                             {
@@ -87,10 +88,10 @@ const UserManagementColumn = () => {
                             title={<div style={{ padding: '4px', wordWrap: 'break-word',wordBreak: 'break-word', lineHeight: '1.5' }}>{restArray}</div>}
                             placement="bottom"
                             >
-                                <span>{firstTwo}</span>
+                                <span>{showItem} ...</span>
                             </Tooltip>
                             : 
-                            firstTwo
+                            showItem
                         }
                             </React.Fragment>
                     )
@@ -144,22 +145,6 @@ const UserManagementColumn = () => {
         },
     ];
 
-    const stringFilter = (str) => {
-        // const [companyNames, rest] = str.split(',')
-        //   .reduce(([companyNames, rest], part) => {
-        //     if (part.includes('_')) {
-        //       return [[...companyNames, part], rest];
-        //     } else {
-        //       return [companyNames, [...rest, part]];
-        //     }
-        //   }, [[], []]);
-        // Split the string into an array
-        const arrayData = str.split(',');
-        const firstTwo = arrayData.slice(0, 2).join(', ');
-        const restArray = arrayData.slice(2).join(', ');
-      
-        return { firstTwo, restArray };
-      };
 
     const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
         // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
