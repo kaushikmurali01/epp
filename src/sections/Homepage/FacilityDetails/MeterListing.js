@@ -23,6 +23,7 @@ import {
 } from "../../../redux/superAdmin/actions/metersActions";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
+import Loader from "pages/Loader";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -44,6 +45,7 @@ const MeterListing = ({
   const meterStatistics = useSelector(
     (state) => state?.meterReducer?.meterStatistics?.data
   );
+  const loadingState = useSelector((state) => state?.meterReducer?.loading);
 
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
@@ -64,6 +66,7 @@ const MeterListing = ({
             modalVisible: false,
           }));
           dispatch(fetchMeterListing(pageInfo, id));
+          dispatch(fetchMeterStatistics(id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -334,6 +337,12 @@ const MeterListing = ({
         modalConfig={modalConfig}
         setModalConfig={setModalConfig}
         actionButtonData={meterToDelete}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </>
   );

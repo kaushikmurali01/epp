@@ -20,6 +20,7 @@ import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction
 import {
   addFacilityCharacteristic,
   fetchFacilityCharacteristics,
+  fetchFacilityStatus,
   updateFacilityCharacteristic,
 } from "../../../redux/superAdmin/actions/facilityActions";
 import { useParams } from "react-router-dom";
@@ -41,6 +42,7 @@ import EvModal from "utils/modal/EvModal";
 import CustomAccordion from "components/CustomAccordion";
 import { Persist } from "formik-persist";
 import { format, formatISO, parseISO } from "date-fns";
+import Loader from "pages/Loader";
 
 const Details = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -53,6 +55,7 @@ const Details = ({ setTab }) => {
   const facilityCharacterstics = useSelector(
     (state) => state?.facilityReducer?.characteristics?.data
   );
+  const loadingState = useSelector((state) => state?.facilityReducer?.loading);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -389,6 +392,7 @@ const Details = ({ setTab }) => {
     } else {
       dispatch(addFacilityCharacteristic(newValues))
         .then(() => {
+          dispatch(fetchFacilityStatus(id));
           setModalConfig((prev) => ({
             ...prev,
             modalVisible: true,
@@ -1333,7 +1337,7 @@ const Details = ({ setTab }) => {
                 details={
                   <Grid container rowGap={4}>
                     <Grid container spacing={4}>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <InputField
                           name="maximum_number_of_occupants"
                           label="Maximum number of occupants"
@@ -1344,7 +1348,7 @@ const Details = ({ setTab }) => {
                           }
                         />
                       </Grid>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <InputField
                           name="average_number_of_occupants"
                           label="Average number of occupants"
@@ -1357,7 +1361,7 @@ const Details = ({ setTab }) => {
                       </Grid>
                     </Grid>
                     <Grid container spacing={4}>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <SelectBox
                           name="year_round_or_seasonal"
                           label="Year round or seasonal"
@@ -1552,6 +1556,12 @@ const Details = ({ setTab }) => {
         }}
       </Formik>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Box>
   );
 };

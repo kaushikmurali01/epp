@@ -57,6 +57,7 @@ export const USER_MANAGEMENT = {
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
+  DELETE_COMPANY:"enerva-user/v1/company",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
