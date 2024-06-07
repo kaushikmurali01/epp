@@ -60,7 +60,7 @@ const ParticipantAgreement = (props) => {
           Participant Agreement
         </Typography>
         <Typography
-          variant="h4"
+          variant="h5"
           sx={{
             textAlign: `${isSmallScreen ? "center" : ""}`,
             color: "text.secondary2",
