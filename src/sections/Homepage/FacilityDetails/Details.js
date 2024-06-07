@@ -484,8 +484,8 @@ const Details = ({ setTab }) => {
                 <Persist name={`saCharactersticsForm${id}`} />
               )}
               <CustomAccordion
-                summary="Characterstics"
-                panelId="characterstics"
+                summary="Characteristics"
+                panelId="characteristics"
                 details={
                   <Grid container rowGap={4}>
                     <Grid container spacing={4}>

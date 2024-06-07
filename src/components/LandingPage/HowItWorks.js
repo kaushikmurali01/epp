@@ -66,7 +66,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/icon_1.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
-                                <Typography variant='span'>Save on <br /> energy Bills</Typography>
+                                <Typography variant='span'>Save on <br /> energy bills</Typography>
                             </Stack>
 
                         </Grid>
