@@ -20,7 +20,7 @@ export const facilityEndPoints = {
 export const adminFacilityEndpoints = {
   ADMIN_STATISTICS: "company-facility/v1/program/facility-statistics",
   ADMIN_FACILITY_LIST: "company-facility/v1/program/facility-listing",
-  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/facility",
+  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/program/facility",
   ADMIN_DELETE_FACILITY: "company-facility/v1/program/facility",
   ADD_ADMIN_FACILITY_CHARACTERISTIC:
     "/company-facility/v1/facility-characteristics",

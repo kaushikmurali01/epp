@@ -1,5 +1,18 @@
 import styled from "@emotion/styled";
-import { Box, Button, ButtonGroup, Grid, Typography, useMediaQuery } from "@mui/material";
+import { 
+  Box, 
+  Button, 
+  ButtonGroup, 
+  Grid, 
+  Paper, 
+  Table as MuiTable, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  TableBody,
+  Typography, 
+  useMediaQuery } from "@mui/material";
 import CustomAccordion from "components/CustomAccordion";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
@@ -28,6 +41,30 @@ const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(0);
   const initialValues = {};
+
+  const PERFORMANCE_PERIOD_DATA = [
+    {
+      station_name: "Parameter",
+      lattitude: 43.644,
+      longitude: -79.403,
+      climate_id: "",
+      station_id: ""
+    },
+    {
+      station_name: "Timestamp Start",
+      lattitude: 43.67,
+      longitude: -79.4,
+      climate_id: "6158355",
+      station_id: "31688"
+    },
+    {
+      station_name: "Timestamp End",
+      lattitude: 43.67,
+      longitude: -79.4,
+      climate_id: "6158731",
+      station_id: "51459"
+    }
+  ];
 
   const buttonStyle = {
     padding: "0.44rem 1.5rem",
@@ -123,6 +160,88 @@ const Performance = () => {
     </Grid>
   );
 
+  const performancePeriodDataSummaryInAccordionDetails = (
+    <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                bgcolor: "#2E813E20",
+                boxShadow: "none",
+                border: "1px solid #2E813E",
+              }}
+            >
+              <MuiTable size="small">
+              <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      
+                    </TableCell>
+                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+                      PERFORMANCE_PERIOD_DATA?.map((type, index) => (
+                        <TableCell
+                          key={type.meterType}
+                          sx={{ color: "#111", fontStyle: "italic" }}
+                        >
+                          {type?.["station_name"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                </TableHead>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Latitude
+                    </TableCell>
+                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+                      PERFORMANCE_PERIOD_DATA?.map((type, index) => (
+                        <TableCell
+                          key={type.meterType}
+                          sx={{ color: "#111", fontStyle: "italic" }}
+                        >
+                          {type?.["lattitude"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Longitude
+                    </TableCell>
+                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["longitude"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Climate ID
+                    </TableCell>
+                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["climate_id"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                  <TableRow>
+                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                      Station ID
+                    </TableCell>
+                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
+                        <TableCell key={index} sx={{ color: "#111" }}>
+                          {count?.["lattitude"]}
+                        </TableCell>
+                      ))}
+                  </TableRow>
+                </TableBody>
+              </MuiTable>
+            </TableContainer>
+          </Grid>
+  )
   return (
     <Grid container
       sx={{
@@ -170,7 +289,7 @@ const Performance = () => {
 
         <CustomAccordion
           summary="Performance period data summary"
-          details={""}
+          details={performancePeriodDataSummaryInAccordionDetails}
           panelId="performancePeriodDataSummary" />
 
         <CustomAccordion
