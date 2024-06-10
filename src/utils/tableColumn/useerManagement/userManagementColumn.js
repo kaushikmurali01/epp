@@ -16,6 +16,7 @@ import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
+import { stringFilter } from "utils/helper/helper";
 
 
 const UserManagementColumn = () => {
@@ -75,18 +76,28 @@ const UserManagementColumn = () => {
         {
             Header: "Facility name",
             accessor: (item)=> {
-                return item.facility
-                // if(item.facility){
-                //     const companyList = item.facility;
-                //     const { companyNames, rest } = stringFilter(companyList);
-                //     console.log(companyNames, "company names")
-                //     console.log( rest, "company names rest")
-                //     return (
-                //         <Tooltip title={companyNames } placement="bottom">
-                //             <span>{rest}</span>
-                //         </Tooltip>
-                //     )
-                // }
+                
+                if(item.facility){
+                    const companyList = item.facility;
+                    const {showItem,restArray}= stringFilter(companyList,3);
+                    return (
+                        <React.Fragment>
+                            {
+                        restArray.length !==0 ? 
+                            <Tooltip 
+                            title={<div style={{ padding: '4px', wordWrap: 'break-word',wordBreak: 'break-word', lineHeight: '1.5' }}>{restArray}</div>}
+                            placement="bottom"
+                            >
+                                <span>{showItem} ...</span>
+                            </Tooltip>
+                            : 
+                            showItem
+                        }
+                            </React.Fragment>
+                    )
+                }
+
+                // return item.facility
             }
         },
         {
@@ -134,18 +145,6 @@ const UserManagementColumn = () => {
         },
     ];
 
-    const stringFilter = (str) => {
-        const [companyNames, rest] = str.split(',')
-          .reduce(([companyNames, rest], part) => {
-            if (part.includes('_')) {
-              return [[...companyNames, part], rest];
-            } else {
-              return [companyNames, [...rest, part]];
-            }
-          }, [[], []]);
-      
-        return { companyNames, rest };
-      };
 
     const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
         // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){

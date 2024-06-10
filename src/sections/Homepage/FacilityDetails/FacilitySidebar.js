@@ -1,16 +1,25 @@
 import * as React from "react";
 import { Box, Tab, Tabs, Typography, useMediaQuery } from "@mui/material";
+import { useSelector } from "react-redux";
 
 export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
+  const facility_status = useSelector(
+    (state) => state?.facilityReducer?.facilityStatus?.data?.timeline
+  );
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const menuItems = [
-    { label: "Summary", id: 0, type: "output" },
-    { label: "Details", id: 1, type: "input" },
-    { label: "Energy and Water", id: 2, type: "input" },
-    { label: "Weather & Independent Variables", id: 3, type: "input"  },
-    { label: "Savings Plan and Document", id: 4, type: "input" },
-    { label: "Baseline Model", id: 5, type: "input" },
-    { label: "Performance", id: 6, type: "input" },
+    { label: "Summary", id: 0, type: "output", value: "summary" },
+    { label: "Details", id: 1, type: "input", value: "details" },
+    {
+      label: "Energy and Water",
+      id: 2,
+      type: "input",
+      value: "energy_and_water",
+    },
+    // { label: "Weather & Independent Variables", id: 3, type: "input" , value:"weather"},
+    // { label: "Reports and Studies", id: 4, type: "input", value:"reports_and_studies" },
+    // { label: "Baseline Model", id: 5, type: "input", value:"baseline_model" },
+    // { label: "Performance", id: 6, type: "input", value:"performance" },
   ];
 
   const handleTabChange = (event, newValue) => {
@@ -72,7 +81,9 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
                     width: ".55rem",
                     height: ".55rem",
                     borderRadius: "50%",
-                    background: true ? "#80FF98" : "#FFD5A4",
+                    background: facility_status?.[item?.value]
+                      ? "#80FF98"
+                      : "#FFD5A4",
                     right: ".5rem",
                     top: ".15rem",
                     margin: "0!important",

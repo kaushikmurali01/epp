@@ -15,6 +15,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { userTypes } from "constants/allDefault";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Loader from "pages/Loader";
 
 const CompanyProfile = () => {
   const tabStyle = {
@@ -40,6 +41,9 @@ const CompanyProfile = () => {
 
   const companyProfileData = useSelector(
     (state) => state?.adminCompanyReducer?.companyDetails
+  );
+  const loadingState = useSelector(
+    (state) => state?.adminCompanyReducer?.loading
   );
   const getCompanyType = (type) => {
     const companyType = userTypes.find((company) => company.id === type);
@@ -192,6 +196,12 @@ const CompanyProfile = () => {
           </Box>
         </Grid>
       </Grid>
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Container>
   );
 };

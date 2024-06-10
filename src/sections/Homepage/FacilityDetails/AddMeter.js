@@ -18,7 +18,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   addMeter,
@@ -29,6 +29,9 @@ import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DatePicker } from "@mui/x-date-pickers";
+import SelectBox from "components/FormBuilder/Select";
+import { ENERGY_AND_WATER_UNIT_ARRAY } from "utils/dropdownConstants/dropdownConstants";
+import Loader from "pages/Loader";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -44,7 +47,10 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const [revenueAlignment, setRevenueAlignment] = useState(false);
   const [utilityUrlError, setUtilityUrlError] = useState(false);
   const [specUrlError, setSpecUrlError] = useState(false);
-
+  const loadingState = useSelector((state) => state?.meterReducer?.loading);
+  const uploadLoadingState = useSelector(
+    (state) => state?.fileUploadReducer?.loading
+  );
   useEffect(() => {
     if (meterId2) {
       dispatch(fetchMeterDetails(meterId2))
@@ -77,6 +83,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const [initialValues, setInitialValues] = useState({
     meter_name: "",
     meter_type: 1,
+    unit: "",
     purchased_from_the_grid: true,
     meter_id: "",
     meter_active: "",
@@ -332,6 +339,15 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       Meter number can be found on the electricity bill
                     </Typography>
                   )}
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <SelectBox
+                    name="unit"
+                    label="Unit *"
+                    valueKey="value"
+                    labelKey="label"
+                    options={ENERGY_AND_WATER_UNIT_ARRAY}
+                  />
                 </Grid>
               </Grid>
               <Grid container spacing={4}>
@@ -668,6 +684,12 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           </Form>
         )}
       </Formik>
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState || uploadLoadingState}
+        loaderPosition="fixed"
+      />
     </Box>
   );
 };

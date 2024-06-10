@@ -224,7 +224,7 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = (pageDataInfo, search) => {
-    dispatch({ type: "SHOW_LOADER", payload: true });
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // const allUserTypes = selectFilterType;
     const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
@@ -244,10 +244,10 @@ const UserManagement = () => {
             setAllUser([])
             setPageCount(0)
           }
-          dispatch({ type: "SHOW_LOADER", payload: false });
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         }).catch((error) => {
           console.log(error)
-          dispatch({ type: "SHOW_LOADER", payload: false });
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         });
     }
 

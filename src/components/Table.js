@@ -150,7 +150,7 @@ const Table = ({
                     {column.accessorKey && (
                       <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
                         {sortColumn === column.id ||
-                        sortColumn === column.accessor ? (
+                        sortColumn === column.accessorKey ? (
                           <>
                             {sortOrder === "" && (
                               <SortIcon
