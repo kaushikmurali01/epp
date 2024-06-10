@@ -1,18 +1,19 @@
 import styled from "@emotion/styled";
-import { 
-  Box, 
-  Button, 
-  ButtonGroup, 
-  Grid, 
-  Paper, 
-  Table as MuiTable, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Grid,
+  Paper,
+  Table as MuiTable,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   TableBody,
-  Typography, 
-  useMediaQuery } from "@mui/material";
+  Typography,
+  useMediaQuery
+} from "@mui/material";
 import CustomAccordion from "components/CustomAccordion";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
@@ -40,30 +41,40 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(0);
+  const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] = useState(0);
   const initialValues = {};
 
   const PERFORMANCE_PERIOD_DATA = [
     {
-      station_name: "Parameter",
-      lattitude: 43.644,
-      longitude: -79.403,
-      climate_id: "",
-      station_id: ""
+      id: 1,
+      heading_name: "Parameter",
+      parameter: "Electricity",
+      timestamp_start: "2021-05-03  23:00",
+      timestamp_end: "2021-05-03  23:00",
+      count: 15,
+      threshold: "Upper limit",
+      type: "Global/Local",
     },
     {
-      station_name: "Timestamp Start",
-      lattitude: 43.67,
-      longitude: -79.4,
-      climate_id: "6158355",
-      station_id: "31688"
+      id: 2,
+      heading_name: "Timestamp Start",
+      parameter: "NG",
+      timestamp_start: "2021-05-03  23:00",
+      timestamp_end: "2021-05-03 23:00",
+      count: 15,
+      threshold: "Lower limit",
+      type: "",
     },
     {
-      station_name: "Timestamp End",
-      lattitude: 43.67,
-      longitude: -79.4,
-      climate_id: "6158731",
-      station_id: "51459"
-    }
+      id: 3,
+      heading_name: "Timestamp End",
+      parameter: "Temperature",
+      timestamp_start: "2021-05-03 23:00",
+      timestamp_end: "2021-05-03  23:00",
+      count: 15,
+      threshold: "",
+      type: "",
+    },
   ];
 
   const buttonStyle = {
@@ -100,6 +111,10 @@ const Performance = () => {
 
   const handleButtonClick = (index) => {
     setActiveButton(index);
+  };
+
+  const handlePerformancePeriodButtonClick = (index) => {
+    setActiveButtonPerformancePeriod(index);
   };
 
   const baselineStyleInAccordionDetails = (
@@ -161,86 +176,82 @@ const Performance = () => {
   );
 
   const performancePeriodDataSummaryInAccordionDetails = (
-    <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                bgcolor: "#2E813E20",
-                boxShadow: "none",
-                border: "1px solid #2E813E",
-              }}
-            >
-              <MuiTable size="small">
-              <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      
-                    </TableCell>
-                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-                      PERFORMANCE_PERIOD_DATA?.map((type, index) => (
-                        <TableCell
-                          key={type.meterType}
-                          sx={{ color: "#111", fontStyle: "italic" }}
-                        >
-                          {type?.["station_name"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                </TableHead>
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Latitude
-                    </TableCell>
-                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-                      PERFORMANCE_PERIOD_DATA?.map((type, index) => (
-                        <TableCell
-                          key={type.meterType}
-                          sx={{ color: "#111", fontStyle: "italic" }}
-                        >
-                          {type?.["lattitude"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Longitude
-                    </TableCell>
-                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["longitude"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Climate ID
-                    </TableCell>
-                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["climate_id"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Station ID
-                    </TableCell>
-                    {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-                      PERFORMANCE_PERIOD_DATA?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["lattitude"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                </TableBody>
-              </MuiTable>
-            </TableContainer>
-          </Grid>
+    <Grid item xs={12} md={activeButtonPerformancePeriod === 2 ? 12 : 9}>
+      <StyledButtonGroup disableElevation variant="contained" color="primary" sx={{marginBottom: "20px"}}>
+      <Button
+        sx={activeButtonPerformancePeriod === 0 ? activeButtonStyle : inactiveButtonStyle}
+        onClick={() => handlePerformancePeriodButtonClick(0)}
+      >
+        Observe data
+      </Button>
+      <Button
+        sx={activeButtonPerformancePeriod === 1 ? activeButtonStyle : inactiveButtonStyle}
+        onClick={() => handlePerformancePeriodButtonClick(1)}
+      >
+        Missing Data
+      </Button>
+      <Button
+        sx={activeButtonPerformancePeriod === 2 ? activeButtonStyle : inactiveButtonStyle}
+        onClick={() => handlePerformancePeriodButtonClick(2)}
+      >
+        Outliers
+      </Button>
+    </StyledButtonGroup>
+      <TableContainer
+        component={Paper}
+        sx={{
+          bgcolor: "#2E813E20",
+          boxShadow: "none",
+          border: "1px solid #2E813E",
+        }}
+      >
+        {activeButtonPerformancePeriod === 0 || activeButtonPerformancePeriod === 1 ? <MuiTable size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Parameter</TableCell>
+              <TableCell>Timestamp Start</TableCell>
+              <TableCell>Timestamp End</TableCell>
+              <TableCell>Count</TableCell>
+            </TableRow>
+          </TableHead>
+          {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+            PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                <TableCell key={rowIndex}>{row?.id}</TableCell>
+                <TableCell key={rowIndex}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
+                <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
+                <TableCell key={rowIndex}>{row?.count}</TableCell>
+              </TableRow>
+            ))}
+        </MuiTable> : <MuiTable size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Parameter</TableCell>
+              <TableCell>Timestamp Start</TableCell>
+              <TableCell>Timestamp End</TableCell>
+              <TableCell>Count</TableCell>
+              <TableCell>Threshold</TableCell>
+              <TableCell>Type</TableCell>
+            </TableRow>
+          </TableHead>
+          {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
+            PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                <TableCell key={rowIndex}>{row?.id}</TableCell>
+                <TableCell key={rowIndex}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
+                <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
+                <TableCell key={rowIndex}>{row?.count}</TableCell>
+                <TableCell key={rowIndex}>{row?.threshold}</TableCell>
+                <TableCell key={rowIndex}>{row?.type}</TableCell>
+              </TableRow>
+            ))}
+        </MuiTable>}
+      </TableContainer>
+    </Grid>
   )
   return (
     <Grid container
