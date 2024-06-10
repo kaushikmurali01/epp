@@ -35,6 +35,7 @@ import {
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import Loader from "pages/Loader";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
@@ -56,6 +57,9 @@ const AdminFacilityListing = () => {
   );
   const adminCompaniesDropdownData = useSelector(
     (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
+  );
+  const loadingState = useSelector(
+    (state) => state?.adminFacilityReducer?.loading
   );
 
   const onDownloadBulkClick = (page_info, status) => {
@@ -188,26 +192,25 @@ const AdminFacilityListing = () => {
               />
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
-            <FormGroup className='theme-form-group theme-select-form-group'>
-              <InputLabel>Assign Facility*</InputLabel>
-              <FormControl sx={{color: 'primary.main'}}>
-                <Select
-                  fullWidth
-                  name="facilityId"
-                  multiple
-                  value={values.facilityId}
-                  onChange={(e) => {
-                    setFieldValue("facilityId", e.target.value);
-                  }}
-                  
-                >
-                  {adminFacilitiesDropdownData?.map((item) => (
-                    <MenuItem key={item?.id} value={item?.id}>
-                      {item?.facility_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <InputLabel>Assign Facility*</InputLabel>
+                <FormControl sx={{ color: "primary.main" }}>
+                  <Select
+                    fullWidth
+                    name="facilityId"
+                    multiple
+                    value={values.facilityId}
+                    onChange={(e) => {
+                      setFieldValue("facilityId", e.target.value);
+                    }}
+                  >
+                    {adminFacilitiesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.facility_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </FormGroup>
             </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -274,7 +277,7 @@ const AdminFacilityListing = () => {
 
   return (
     <Container>
-      <Grid container spacing={2} alignItems="center" >
+      <Grid container spacing={2} alignItems="center">
         <Grid item xs={100} md={4}>
           <Typography
             variant="h4"
@@ -287,9 +290,16 @@ const AdminFacilityListing = () => {
             industry.
           </Typography> */}
         </Grid>
-        <Grid item xs={100} md={8}  >
-          <Grid container alignItems="center" sx={{gap: '2rem', justifyContent: {xs: 'flex-start', md: 'flex-end'}}}>
-            <Grid item >
+        <Grid item xs={100} md={8}>
+          <Grid
+            container
+            alignItems="center"
+            sx={{
+              gap: "2rem",
+              justifyContent: { xs: "flex-start", md: "flex-end" },
+            }}
+          >
+            <Grid item>
               <TextField
                 name="search"
                 label="Search by facility name"
@@ -342,7 +352,7 @@ const AdminFacilityListing = () => {
               <Button
                 variant="contained"
                 sx={{
-                  padding: '4px 12px',
+                  padding: "4px 12px",
                   minWidth: "5rem!important",
                   // bgcolor: "#2C77E9",
                 }}
@@ -381,15 +391,27 @@ const AdminFacilityListing = () => {
             </Grid>
           </Grid>
         </Grid>
-
       </Grid>
       <div container>
-        <Grid item xs={12} md={8} mt={4}>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          mt={4}
+          sx={{
+            overflowX: "auto!important",
+            ".MuiTabs-scroller": {
+              overflowX: { xs: "auto !important", md: "hidden" },
+            },
+          }}
+        >
           <Tabs
             className="theme-tabs-list"
             value={tabValue}
             onChange={handleChange}
-            sx={{ display: "inline-flex", width: '100%' }}
+            sx={{
+              display: "inline-flex",
+            }}
           >
             <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
             <Tab
@@ -415,6 +437,12 @@ const AdminFacilityListing = () => {
         </Grid>
       </Grid>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Container>
   );
 };

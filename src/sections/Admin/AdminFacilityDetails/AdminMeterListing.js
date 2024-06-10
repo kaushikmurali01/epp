@@ -23,6 +23,7 @@ import {
   fetchAdminMeterListing,
   fetchAdminMeterStatistics,
 } from "../../../redux/admin/actions/adminMeterActions";
+import Loader from "pages/Loader";
 
 const AdminMeterListing = ({
   onAddButtonClick,
@@ -44,6 +45,9 @@ const AdminMeterListing = ({
   const meterStatistics = useSelector(
     (state) => state?.adminMeterReducer?.meterStatistics?.data
   );
+  const loadingState = useSelector(
+    (state) => state?.adminMeterReducer?.loading
+  );
 
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
@@ -64,6 +68,7 @@ const AdminMeterListing = ({
             modalVisible: false,
           }));
           dispatch(fetchAdminMeterListing(pageInfo, id));
+          dispatch(fetchAdminMeterStatistics(id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -334,6 +339,12 @@ const AdminMeterListing = ({
         modalConfig={modalConfig}
         setModalConfig={setModalConfig}
         actionButtonData={meterToDelete}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </>
   );

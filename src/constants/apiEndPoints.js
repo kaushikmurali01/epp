@@ -20,7 +20,7 @@ export const facilityEndPoints = {
 export const adminFacilityEndpoints = {
   ADMIN_STATISTICS: "company-facility/v1/program/facility-statistics",
   ADMIN_FACILITY_LIST: "company-facility/v1/program/facility-listing",
-  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/facility",
+  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/program/facility",
   ADMIN_DELETE_FACILITY: "company-facility/v1/program/facility",
   ADD_ADMIN_FACILITY_CHARACTERISTIC:
     "/company-facility/v1/facility-characteristics",
@@ -57,6 +57,7 @@ export const USER_MANAGEMENT = {
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
+  DELETE_COMPANY:"enerva-user/v1/company",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -162,3 +163,8 @@ export const hourlyEndPoints = {
   ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
 };
+
+export const POWERBI_ENDPOINTS = {
+  GET_POWERBI_TOKEN: "/GenerateToken",
+  GET_AZURE_TOKEN_FOR_POWER_BI: 'etl/v1/etl/access-token'
+}

@@ -145,7 +145,7 @@ const RoutesComp = () => {
               Welcome to the EPP Program.
             </Typography>
             <Typography variant="small2" sx={{ color: "text.secondary2" }}>
-              You are all set to start saving energy and earn incentives.
+              You are all set to start saving energy and earning incentives.
             </Typography>
           </Box>
 

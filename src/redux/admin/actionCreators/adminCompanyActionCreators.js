@@ -13,7 +13,10 @@ import {
   FETCH_ADMIN_COMPANY_LIST_SUCCESS,
   FETCH_ADMIN_COMPANIES_DROPDOWN_REQUEST,
   FETCH_ADMIN_COMPANIES_DROPDOWN_SUCCESS,
-  FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE
+  FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE,
+  DELETE_COMPANY_REQUEST,
+  DELETE_COMPANY_SUCCESS,
+  DELETE_COMPANY_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminCompanyListRequest = () => ({
@@ -83,5 +86,19 @@ export const fetchAdminCompaniesDropdownSuccess = (data) => ({
 
 export const fetchAdminCompaniesDropdownFailure = (error) => ({
   type: FETCH_ADMIN_COMPANIES_DROPDOWN_FAILURE,
+  payload: error,
+});
+
+export const deleteCompanyRequest = () => ({
+  type: DELETE_COMPANY_REQUEST,
+});
+
+export const deleteCompanySucess = (data) => ({
+  type: DELETE_COMPANY_SUCCESS,
+  payload: data,
+});
+
+export const deleteCompanyFailure = (error) => ({
+  type: DELETE_COMPANY_FAILURE,
   payload: error,
 });
