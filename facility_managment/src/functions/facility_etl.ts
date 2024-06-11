@@ -116,37 +116,37 @@ export async function  getEtlDataFromDb(request: HttpRequest, context: Invocatio
 }
 
 
-app.http("get-facility-monthly-entries", {
-    methods: ["GET"],
-    route: "etl/monthly-entries",
-    authLevel: "anonymous",
-    handler: getFacilityMeterMonthlyEntriesListing,
-});
+// app.http("get-facility-monthly-entries", {
+//     methods: ["GET"],
+//     route: "etl/monthly-entries",
+//     authLevel: "anonymous",
+//     handler: getFacilityMeterMonthlyEntriesListing,
+// });
 
-app.http("get-facility-monthly-entry-by-id", {
-    methods: ["GET"],
-    route: "etl/monthly-entry/{id}",
-    authLevel: "anonymous",
-    handler: getFacilityMeterMonthlyEntryById,
-});
+// app.http("get-facility-monthly-entry-by-id", {
+//     methods: ["GET"],
+//     route: "etl/monthly-entry/{id}",
+//     authLevel: "anonymous",
+//     handler: getFacilityMeterMonthlyEntryById,
+// });
 
-app.http("get-facility-hourly-entries", {
-    methods: ["GET"],
-    route: "etl/hourly-entries",
-    authLevel: "anonymous",
-    handler: getFacilityMeterHourlyEntriesListing,
-});
+// app.http("get-facility-hourly-entries", {
+//     methods: ["GET"],
+//     route: "etl/hourly-entries",
+//     authLevel: "anonymous",
+//     handler: getFacilityMeterHourlyEntriesListing,
+// });
 
-app.http("get-facility-hourly-entry-by-id", {
-    methods: ["GET"],
-    route: "etl/hourly-entry/{id}",
-    authLevel: "anonymous",
-    handler: getFacilityMeterHourlyEntryById,
-});
+// app.http("get-facility-hourly-entry-by-id", {
+//     methods: ["GET"],
+//     route: "etl/hourly-entry/{id}",
+//     authLevel: "anonymous",
+//     handler: getFacilityMeterHourlyEntryById,
+// });
 
-app.http("get-facility-etl-data", {
-    methods: ["GET"],
-    route: "etl/get-data",
-    authLevel: "anonymous",
-    handler: getEtlDataFromDb,
-});
+// app.http("get-facility-etl-data", {
+//     methods: ["GET"],
+//     route: "etl/get-data",
+//     authLevel: "anonymous",
+//     handler: getEtlDataFromDb,
+// });
