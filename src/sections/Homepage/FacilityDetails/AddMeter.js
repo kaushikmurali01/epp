@@ -30,7 +30,11 @@ import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DatePicker } from "@mui/x-date-pickers";
 import SelectBox from "components/FormBuilder/Select";
-import { ENERGY_AND_WATER_UNIT_ARRAY } from "utils/dropdownConstants/dropdownConstants";
+import {
+  ELECTRICITY_UNIT_ARRAY,
+  NATURAL_GAS_UNIT_ARRAY,
+  WATER_UNIT_ARRAY,
+} from "utils/dropdownConstants/dropdownConstants";
 import Loader from "pages/Loader";
 
 const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
@@ -341,13 +345,33 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   )}
                 </Grid>
                 <Grid item xs={12} sm={3}>
-                  <SelectBox
-                    name="unit"
-                    label="Unit *"
-                    valueKey="value"
-                    labelKey="label"
-                    options={ENERGY_AND_WATER_UNIT_ARRAY}
-                  />
+                  {values.meter_type === 1 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={ELECTRICITY_UNIT_ARRAY}
+                    />
+                  )}
+                  {values.meter_type === 2 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={WATER_UNIT_ARRAY}
+                    />
+                  )}
+                  {values.meter_type === 3 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={NATURAL_GAS_UNIT_ARRAY}
+                    />
+                  )}
                 </Grid>
               </Grid>
               <Grid container spacing={4}>
