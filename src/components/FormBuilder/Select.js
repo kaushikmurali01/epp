@@ -12,6 +12,8 @@ const SelectBox = ({
   ...otherProps
 }) => {
 
+  console.log(options)
+
   const { setFieldValue } = useFormikContext();
   const [field, meta] = useField(name);
 

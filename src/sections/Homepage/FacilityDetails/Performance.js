@@ -14,9 +14,11 @@ import {
   Typography,
   useMediaQuery
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers";
 import CustomAccordion from "components/CustomAccordion";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
 
@@ -42,7 +44,34 @@ const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(0);
   const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] = useState(0);
-  const initialValues = {};
+  const savingReportDropdown = [
+    {
+      id: 1,
+      name: "Estimated",
+      label: "Estimated",
+      value: "Estimated",
+    },
+    {
+      id: 2,
+      name: "Submitted",
+      label: "Submitted",
+      value: "Submitted",
+    },
+    {
+      id: 3,
+      name: "Verified",
+      label: "Verified",
+      value: "Verified",
+    }
+  ]
+
+  const [initialValues, setInitialValues] = useState({
+    adjusted_baseline: "",
+    reporting_period_NG_consumption: "",
+    non_routine_adjustment: "",
+    NG_savings: "",
+    NG_savings_percentage: "",
+  });
 
   const PERFORMANCE_PERIOD_DATA = [
     {
@@ -102,6 +131,37 @@ const Performance = () => {
   const baselineStyleInAccordion = {
     color: "#242424",
     padding: "0.375rem 1rem",
+    fontSize: "14px",
+    fontStyle: "normal",
+    fontWeight: 500,
+  };
+
+  const performancePeriodStyleInAccordion = {
+    color: "#2E813E",
+    fontSize: "16px",
+    fontStyle: "normal",
+    fontWeight: 400,
+  };
+
+  const performancePeriodStyleInArea = {
+    // textAlign: "center",
+    // justifyContent: "center",
+    display: "flex",
+    alignItems: "center",
+    // marginTop: "12px",
+  };
+
+  const nonRoutingStyleInAccordion = {
+    color: "#242424",
+    padding: "20px",
+    fontSize: "14px",
+    fontStyle: "normal",
+    fontWeight: 500,
+  };
+
+  const eventNameStyleInAccordion = {
+    color: "#2C77E9",
+    padding: "10px 20px",
     fontSize: "14px",
     fontStyle: "normal",
     fontWeight: 500,
@@ -177,26 +237,26 @@ const Performance = () => {
 
   const performancePeriodDataSummaryInAccordionDetails = (
     <Grid item xs={12} md={activeButtonPerformancePeriod === 2 ? 12 : 9}>
-      <StyledButtonGroup disableElevation variant="contained" color="primary" sx={{marginBottom: "20px"}}>
-      <Button
-        sx={activeButtonPerformancePeriod === 0 ? activeButtonStyle : inactiveButtonStyle}
-        onClick={() => handlePerformancePeriodButtonClick(0)}
-      >
-        Observe data
-      </Button>
-      <Button
-        sx={activeButtonPerformancePeriod === 1 ? activeButtonStyle : inactiveButtonStyle}
-        onClick={() => handlePerformancePeriodButtonClick(1)}
-      >
-        Missing Data
-      </Button>
-      <Button
-        sx={activeButtonPerformancePeriod === 2 ? activeButtonStyle : inactiveButtonStyle}
-        onClick={() => handlePerformancePeriodButtonClick(2)}
-      >
-        Outliers
-      </Button>
-    </StyledButtonGroup>
+      <StyledButtonGroup disableElevation variant="contained" color="primary" sx={{ marginBottom: "20px" }}>
+        <Button
+          sx={activeButtonPerformancePeriod === 0 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handlePerformancePeriodButtonClick(0)}
+        >
+          Observe data
+        </Button>
+        <Button
+          sx={activeButtonPerformancePeriod === 1 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handlePerformancePeriodButtonClick(1)}
+        >
+          Missing Data
+        </Button>
+        <Button
+          sx={activeButtonPerformancePeriod === 2 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handlePerformancePeriodButtonClick(2)}
+        >
+          Outliers
+        </Button>
+      </StyledButtonGroup>
       <TableContainer
         component={Paper}
         sx={{
@@ -219,7 +279,7 @@ const Performance = () => {
             PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
                 <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important"}}>{row?.parameter}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
                 <TableCell key={rowIndex}>{row?.count}</TableCell>
@@ -241,7 +301,7 @@ const Performance = () => {
             PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
                 <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important"}}>{row?.parameter}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
                 <TableCell key={rowIndex}>{row?.count}</TableCell>
@@ -253,6 +313,237 @@ const Performance = () => {
       </TableContainer>
     </Grid>
   )
+
+  const performancePeriodInformationInAccordionDetails = (
+
+    <>
+      <Grid
+        container
+        sx={{
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginTop: "1rem",
+          marginBottom: "3rem",
+        }}
+      >
+        <Grid item xs={12} md={6}>
+        </Grid>
+        <Grid item sx={{ justifySelf: "flex-end" }}>
+          <Button
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              fontSize: "0.875rem",
+            }}
+            disableRipple
+            endIcon={<AddCircleIcon
+              style={{
+                color: "text.primary",
+                fontSize: "2rem",
+              }} />}
+          // onClick={() => openRequestModal(false)}
+          >
+            Add non-routine event
+          </Button>
+        </Grid>
+      </Grid>
+
+      <Grid item container>
+
+        <Grid item xs={12} md={9} sx={{ border: "1px solid #2E813E", borderRadius: "10px", padding: '20px', backgroundColor: '#CBFFD5' }}>
+          <Formik
+            enableReinitialize={true}
+            initialValues={{ ...initialValues }}
+          >
+            <Form>
+
+              <Grid item container>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    Pay-for-performance period
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        From
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <DatePicker
+                        id="from_date"
+                        name="from_date"
+                        sx={{
+                          width: "100%",
+                          input: { color: "#111" },
+                        }}
+                        disableFuture
+                        format="dd/MM/yyyy" />
+                    </Grid>
+                    <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        To
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={4}>
+                      <DatePicker
+                        id="to_date"
+                        name="to_date"
+                        sx={{
+                          width: "100%",
+                          input: { color: "#111" },
+                        }}
+                        disableFuture
+                        format="dd/MM/yyyy" />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item container sx={{ marginTop: "20px" }}>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    Adjusted baseline NG consumption
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        10,345,443
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <SelectBox
+                        name="adjusted_baseline"
+                        options={savingReportDropdown} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item container sx={{ marginTop: "20px" }}>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    Reporting period NG consumption
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        -41,137
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <SelectBox
+                        name="reporting_period_NG_consumption"
+                        options={savingReportDropdown} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item container sx={{ marginTop: "20px" }}>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    Non-routine adjustment
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        723,192
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <SelectBox
+                        name="non_routine_adjustment"
+                        options={savingReportDropdown} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item container sx={{ marginTop: "20px" }}>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    NG savings
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        10,010
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <SelectBox
+                        name="NG_savings"
+                        options={savingReportDropdown} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+              <Grid item container sx={{ marginTop: "20px" }}>
+                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
+                  <Typography variant="h6" sx={baselineStyleInAccordion}>
+                    NG savings as percentage of adjusted baseline NG consumption and non-routine adjustment
+                  </Typography>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
+                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                        6.5%
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12} sm={8}>
+                      <SelectBox
+                        name="NG_savings_percentage"
+                        options={savingReportDropdown} />
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+
+            </Form>
+          </Formik>
+        </Grid>
+
+        <Grid item xs={12} md={3} sx={{ border: "1px solid #2E813E", borderRadius: "10px", backgroundColor: '#CBFFD5' }}>
+          <Typography variant="h6" sx={nonRoutingStyleInAccordion}>
+            Non-routine event name
+          </Typography>
+          <Grid sx={{ background: "#E2F8E6" }}>
+            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+              Event name-1
+            </Typography>
+            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+              Event name-2
+            </Typography>
+            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+              Event name-3
+            </Typography>
+            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+              Event name-4
+            </Typography>
+            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+              Event name-5
+            </Typography>
+          </Grid>
+        </Grid>
+
+      </Grid>
+
+    </>
+  )
+
   return (
     <Grid container
       sx={{
@@ -305,7 +596,7 @@ const Performance = () => {
 
         <CustomAccordion
           summary="Performance period reporting Information "
-          details={""}
+          details={performancePeriodInformationInAccordionDetails}
           panelId="performancePeriodReportingInformation "
         />
 
