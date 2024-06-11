@@ -81,6 +81,9 @@ class CompanyController {
                             },
                         },
                     ],
+                    where: {
+                        company_id
+                    }
                 });
                 return { status: 204, data: users };
             } else {
