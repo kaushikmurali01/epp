@@ -1,3 +1,4 @@
+import { IFacilityMeasure } from "../models/facility_measure.model";
 import { IFacilityAttributes } from "./facility.interface";
 import { IFacilityCharacteristicsAttributes } from "./facility_characteristics.interface";
 import { IFacilityMeterDetailAttributes } from "./facility_meter_detail.interface";
