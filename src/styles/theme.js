@@ -296,6 +296,8 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#2e813e",
+      mainDarkShade: '#1e6329',
+      mainLightShade: '#3ea65c',
       light: "#F4FFF5",
       thinLight: "#F5F9F5",
       thinGrayLight: '#F7F7F5',
