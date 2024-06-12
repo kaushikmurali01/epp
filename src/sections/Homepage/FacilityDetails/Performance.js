@@ -12,7 +12,8 @@ import {
   TableRow,
   TableBody,
   Typography,
-  useMediaQuery
+  useMediaQuery,
+  FormLabel
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import CustomAccordion from "components/CustomAccordion";
@@ -21,6 +22,9 @@ import SelectBox from "components/FormBuilder/Select";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Form, Formik } from "formik";
 import React, { useState } from "react";
+import EvModal from "utils/modal/EvModal";
+import TextAreaField from "components/FormBuilder/TextAreaField";
+import ButtonWrapper from "components/FormBuilder/Button";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -106,6 +110,27 @@ const Performance = () => {
     },
   ];
 
+  const ELECTRICITY_DATA = [
+    {
+      id: 1,
+      start_date: "2023/01/01 0:18",
+      end_date: "2023/01/01 0:30",
+      usage: "148.69",
+    },
+    {
+      id: 2,
+      start_date: "2023/01/01 0:18",
+      end_date: "2023/01/01 0:30",
+      usage: "148.69",
+    },
+    {
+      id: 3,
+      start_date: "2023/01/01 0:18",
+      end_date: "2023/01/01 0:30",
+      usage: "150.22",
+    },
+  ];
+
   const buttonStyle = {
     padding: "0.44rem 1.5rem",
     lineHeight: "1",
@@ -167,6 +192,59 @@ const Performance = () => {
     fontWeight: 500,
   };
 
+  const [parameterModalConfig, setParameterModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
+
+
+  const [nonRoutinerModalConfig, setNonRoutineModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
+
   const handleSubmit = (values) => { };
 
   const handleButtonClick = (index) => {
@@ -175,6 +253,150 @@ const Performance = () => {
 
   const handlePerformancePeriodButtonClick = (index) => {
     setActiveButtonPerformancePeriod(index);
+  };
+
+  const openParameterModal = (parameterName) => {
+    setParameterModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: parameterName,
+      modalBodyContent: "",
+    }));
+    setTimeout(() => {
+      setParameterModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <ParameterListing parameterName={parameterName} />,
+      }));
+    }, 10);
+  };
+
+  const openNonRoutineModal = () => {
+    setNonRoutineModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "Non-routine Event",
+      modalBodyContent: "",
+    }));
+    setTimeout(() => {
+      setNonRoutineModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <NonRoutineModa />,
+      }));
+    }, 10);
+  };
+
+  const ParameterListing = ({ parameterName }) => {
+    return (
+      <>
+        <TableContainer
+          component={Paper}
+          sx={{
+            bgcolor: "#2E813E20",
+            boxShadow: "none",
+            border: "1px solid #2E813E",
+          }}
+        >
+          <MuiTable size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Start Date</TableCell>
+                <TableCell>End Date</TableCell>
+                <TableCell>Usage</TableCell>
+              </TableRow>
+            </TableHead>
+            {Array.isArray(ELECTRICITY_DATA) &&
+              ELECTRICITY_DATA?.map((row, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  <TableCell key={rowIndex}>{row?.start_date}</TableCell>
+                  <TableCell key={rowIndex}>{row?.end_date}</TableCell>
+                  <TableCell key={rowIndex}>{row?.usage}</TableCell>
+                </TableRow>
+              ))}
+          </MuiTable>
+        </TableContainer>
+      </>
+    );
+  };
+
+  const NonRoutineModa = () => {
+    return (
+      <>
+        <Formik
+          initialValues={{ ...initialValues }}
+          enableReinitialize={true}
+          onSubmit={handleSubmit}
+        >
+          <Form>
+            <Grid item container spacing={2}>
+
+              <Grid item xs={12} md={6}>
+                <FormLabel>Event period from</FormLabel>
+                <DatePicker
+                  id="from_date"
+                  name="from_date"
+                  sx={{
+                    width: "100%",
+                    input: { color: "#111" },
+                  }}
+                  disableFuture
+                  format="dd/MM/yyyy" />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <FormLabel>Event period to</FormLabel>
+                <DatePicker
+                  id="to_date"
+                  name="to_date"
+                  sx={{
+                    width: "100%",
+                    input: { color: "#111" },
+                  }}
+                  disableFuture
+                  format="dd/MM/yyyy" />
+              </Grid>
+
+            </Grid>
+
+            <Grid item container sx={{ marginTop: "20px" }}>
+              <Grid item xs={12} md={6}>
+                <InputField
+                  name="event_name"
+                  label="Event name"
+                  type="text"
+                />
+              </Grid>
+            </Grid>
+
+            <Grid sx={{ marginTop: "20px" }}>
+              <FormLabel>Comment</FormLabel>
+            </Grid>
+            <Grid item container>
+              <Grid item xs={12} md={6}>
+                <TextAreaField
+                  name="comment"
+                  type="text"
+                  rows={8}
+                />
+              </Grid>
+            </Grid>
+
+            <Grid item container sx={{ marginTop: "20px" }}>
+              <Grid item xs={12} md={6}>
+                <ButtonWrapper
+                  type="button"
+                  color="neutral"
+                >
+                  Create non-routine event
+                </ButtonWrapper>
+              </Grid>
+            </Grid>
+
+          </Form>
+        </Formik>
+      </>
+    );
   };
 
   const baselineStyleInAccordionDetails = (
@@ -279,7 +501,7 @@ const Performance = () => {
             PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
                 <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important"}}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important" }} onClick={() => openParameterModal(row?.parameter)}>{row?.parameter}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
                 <TableCell key={rowIndex}>{row?.count}</TableCell>
@@ -301,7 +523,7 @@ const Performance = () => {
             PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
               <TableRow key={rowIndex}>
                 <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important"}}>{row?.parameter}</TableCell>
+                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important" }} onClick={() => openParameterModal(row?.parameter)}>{row?.parameter}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
                 <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
                 <TableCell key={rowIndex}>{row?.count}</TableCell>
@@ -342,7 +564,7 @@ const Performance = () => {
                 color: "text.primary",
                 fontSize: "2rem",
               }} />}
-          // onClick={() => openRequestModal(false)}
+            onClick={() => openNonRoutineModal()}
           >
             Add non-routine event
           </Button>
@@ -545,69 +767,72 @@ const Performance = () => {
   )
 
   return (
-    <Grid container
-      sx={{
-        width: "100%",
-        padding: "0 2rem",
-        marginTop: isSmallScreen && "2rem",
-        display: "flex",
-        gap: "2rem",
-        flexDirection: "column",
-      }}
-    >
-      <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
-        <StyledButtonGroup disableElevation variant="contained" color="primary">
-          <Button
-            sx={activeButton === 0 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(0)}
+
+    <>
+      <Grid container
+        sx={{
+          width: "100%",
+          padding: "0 2rem",
+          marginTop: isSmallScreen && "2rem",
+          display: "flex",
+          gap: "2rem",
+          flexDirection: "column",
+        }}
+      >
+        <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
+          <StyledButtonGroup disableElevation variant="contained" color="primary">
+            <Button
+              sx={activeButton === 0 ? activeButtonStyle : inactiveButtonStyle}
+              onClick={() => handleButtonClick(0)}
+            >
+              Electricity
+            </Button>
+            <Button
+              sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
+              onClick={() => handleButtonClick(1)}
+            >
+              Natural gas
+            </Button>
+          </StyledButtonGroup>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "#2C77E9",
+              fontSize: "14px",
+              fontWeight: 400,
+            }}
           >
-            Electricity
-          </Button>
-          <Button
-            sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(1)}
-          >
-            Natural gas
-          </Button>
-        </StyledButtonGroup>
-        <Typography
-          variant="h6"
-          sx={{
-            color: "#2C77E9",
-            fontSize: "14px",
-            fontWeight: 400,
-          }}
-        >
-          Setting
-        </Typography>
+            Setting
+          </Typography>
+        </Grid>
+
+        <Grid item>
+          <CustomAccordion
+            summary="Baseline summary"
+            details={baselineStyleInAccordionDetails}
+            panelId="baselineSummary" />
+
+          <CustomAccordion
+            summary="Performance period data summary"
+            details={performancePeriodDataSummaryInAccordionDetails}
+            panelId="performancePeriodDataSummary" />
+
+          <CustomAccordion
+            summary="Performance period reporting Information "
+            details={performancePeriodInformationInAccordionDetails}
+            panelId="performancePeriodReportingInformation " />
+
+          <CustomAccordion
+            summary="Performance period data visualization  "
+            details={""}
+            panelId="performancePeriodDataVisualization  " />
+        </Grid>
+
       </Grid>
+      <EvModal modalConfig={parameterModalConfig} setModalConfig={setParameterModalConfig} />
+      <EvModal modalConfig={nonRoutinerModalConfig} setModalConfig={setNonRoutineModalConfig} />
+    </>
 
-      <Grid item>
-        <CustomAccordion
-          summary="Baseline summary"
-          details={baselineStyleInAccordionDetails}
-          panelId="baselineSummary"
-        />
-
-        <CustomAccordion
-          summary="Performance period data summary"
-          details={performancePeriodDataSummaryInAccordionDetails}
-          panelId="performancePeriodDataSummary" />
-
-        <CustomAccordion
-          summary="Performance period reporting Information "
-          details={performancePeriodInformationInAccordionDetails}
-          panelId="performancePeriodReportingInformation "
-        />
-
-        <CustomAccordion
-          summary="Performance period data visualization  "
-          details={""}
-          panelId="performancePeriodDataVisualization  "
-        />
-      </Grid>
-
-    </Grid>
   );
 };
 
