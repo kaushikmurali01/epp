@@ -13,7 +13,10 @@ import {
   TableBody,
   Typography,
   useMediaQuery,
-  FormLabel
+  FormLabel,
+  Tabs,
+  Tab,
+  TextField
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import CustomAccordion from "components/CustomAccordion";
@@ -21,10 +24,12 @@ import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Form, Formik } from "formik";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import EvModal from "utils/modal/EvModal";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import ButtonWrapper from "components/FormBuilder/Button";
+import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { useDispatch, useSelector } from "react-redux";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -48,6 +53,12 @@ const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(0);
   const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] = useState(0);
+  const [nonRoutineListingtabValue, setNonRoutineListingtabValue] = useState("filledData");
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [nonRoutineFile, setNonRoutineFile] = useState(null);
+  const [imgUrl, setImgUrl] = useState("");
+  const fileInputRef = useRef(null);
+  const dispatch = useDispatch();
   const savingReportDropdown = [
     {
       id: 1,
@@ -245,6 +256,32 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
+  const [nonRoutinerListingModalConfig, setNonRoutineListingModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
+
   const handleSubmit = (values) => { };
 
   const handleButtonClick = (index) => {
@@ -253,6 +290,50 @@ const Performance = () => {
 
   const handlePerformancePeriodButtonClick = (index) => {
     setActiveButtonPerformancePeriod(index);
+  };
+
+  const handleChangeOfNonRoutineListing = (event, newValue) => {
+    setNonRoutineListingtabValue(newValue);
+  };
+
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setNonRoutineFile(selectedFile);
+    dispatch(documentFileUploadAction(selectedFile))
+      .then((data) => {
+        setImgUrl(data?.sasTokenUrl);
+      })
+      .catch((error) => {
+        console.error("Error uploading document:", error);
+      });
+  };
+
+  const uploadnonRoutineFile = () => {
+    uploadRoutineFile(imgUrl);
+  };
+
+  const uploadRoutineFile = (data) => {
+  };
+
+  const deleteFile = () => {
+  };
+
+  const handleButtonClickForUpload = () => {
+    // Trigger the click event on the hidden file input element
+    fileInputRef.current.click();
+  };
+
+  const downloadFileFromUrl = (fileUrl) => {
+    fetch(imgUrl).then((response) => {
+      response.blob().then((blob) => {
+        const fileURL = window.URL.createObjectURL(blob);
+        let alink = document.createElement("a");
+        alink.href = fileURL;
+        let fileName = `nonRoutineFile.csv`;
+        alink.download = fileName;
+        alink.click();
+      });
+    });
   };
 
   const openParameterModal = (parameterName) => {
@@ -282,7 +363,35 @@ const Performance = () => {
       setNonRoutineModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
-        modalBodyContent: <NonRoutineModa />,
+        modalBodyContent: <NonRoutineModal />,
+      }));
+    }, 10);
+  };
+
+  const openNonRoutineListingModal = () => {
+    setNonRoutineListingModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: "",
+    }));
+    setTimeout(() => {
+      setNonRoutineListingModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <NonRoutineListing />,
+      }));
+    }, 10);
+  };
+
+  const closeNonRoutineModal = () => {
+    setNonRoutineModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
+    setTimeout(() => {
+      setNonRoutineModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
       }));
     }, 10);
   };
@@ -320,7 +429,7 @@ const Performance = () => {
     );
   };
 
-  const NonRoutineModa = () => {
+  const NonRoutineModal = () => {
     return (
       <>
         <Formik
@@ -384,17 +493,190 @@ const Performance = () => {
 
             <Grid item container sx={{ marginTop: "20px" }}>
               <Grid item xs={12} md={6}>
-                <ButtonWrapper
+                <Button
                   type="button"
-                  color="neutral"
-                >
+                  sx={{
+                    backgroundColor: "#2E813E", color: "#ffffff", '&:hover': {
+                      backgroundColor: '#2E813E',
+                    },
+                  }}
+                  onClick={() => { closeNonRoutineModal(); openNonRoutineListingModal() }}>
                   Create non-routine event
-                </ButtonWrapper>
+                </Button>
               </Grid>
             </Grid>
 
           </Form>
         </Formik>
+      </>
+    );
+  };
+
+  const NonRoutineListing = ({ parameterName }) => {
+    return (
+      <>
+        <Grid
+          container
+          sx={{
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginTop: "1rem",
+            marginBottom: "3rem",
+          }}
+        >
+          <Grid item xs={12} md={6}>
+            <Tabs
+              className="theme-tabs-list"
+              value={nonRoutineListingtabValue}
+              onChange={handleChangeOfNonRoutineListing}
+              sx={{ display: "inline-flex" }}
+            >
+              <Tab
+                value="filledData"
+                label="Filled data"
+                sx={{ minWidth: "10rem" }}
+              />
+              <Tab
+                value="uploadData"
+                label="Upload data in bulk"
+                sx={{ minWidth: "10rem" }}
+              />
+            </Tabs>
+          </Grid>
+        </Grid>
+        {nonRoutineListingtabValue == 'filledData' ?
+          <>
+            <TableContainer
+            >
+              <MuiTable size="small">
+                <TableHead>
+                  <TableRow sx={{ backgroundColor: "#D9D9D9" }}>
+                    <TableCell>Start date*</TableCell>
+                    <TableCell>End date*</TableCell>
+                    <TableCell>Non-routine adjustment</TableCell>
+                    <TableCell>Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                {Array.isArray(ELECTRICITY_DATA) &&
+                  ELECTRICITY_DATA?.map((row, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      <TableCell key={rowIndex}>
+                        <DatePicker
+                          id="from_date"
+                          name="from_date"
+                          value={new Date(row?.start_date)}
+                          sx={{
+                            width: "100%",
+                            input: { color: "#111" },
+                          }}
+                          disableFuture
+                          format="dd/MM/yyyy" />
+                      </TableCell>
+                      <TableCell key={rowIndex}>
+                        <DatePicker
+                          id="from_date"
+                          name="from_date"
+                          value={new Date(row?.end_date)}
+                          sx={{
+                            width: "100%",
+                            input: { color: "#111" },
+                          }}
+                          disableFuture
+                          format="dd/MM/yyyy" />
+                      </TableCell>
+                      <TableCell key={rowIndex}>
+                        <TextField />
+                      </TableCell>
+                      <TableCell sx={{ color: "#FF5858 !important", fontSize: "16px", fontWeight: "600" }}>Delete</TableCell>
+                    </TableRow>
+                  ))}
+              </MuiTable>
+            </TableContainer>
+            <Grid item container sx ={{ marginTop: "20px"}}>
+              <Button
+                type="button"
+                sx={{
+                  backgroundColor: "#2E813E", color: "#ffffff", marginRight: "20px", '&:hover': {
+                    backgroundColor: '#2E813E',
+                  },
+                }}>
+                Done
+              </Button>
+              <Button
+                type="button"
+                sx={{
+                  border: '2px solid #2E813E',
+                }}>
+                Add more row
+              </Button>
+            </Grid>
+          </> : !isFileUploaded ? (
+        <Box>
+          <Typography variant="h5">
+          Upload data in bulk for ‘non-routine event name’
+          </Typography>
+          <Typography variant="small2" gutterBottom>
+          Upload the excel file, and refer to Non-Routine Adjustment spreadsheet for the formatting details.
+          </Typography>
+          <Typography
+            my={1}
+            sx={{
+              color: "#2E813E",
+              fontWeight: "500",
+              fontSize: "18px",
+              backgroundColor: "#D1FFDA",
+              padding: "7px 33px",
+              borderRadius: "8px",
+              height: "40px",
+              marginTop: "20px",
+              cursor: "pointer",
+              maxWidth: "fit-content",
+            }}
+            onClick={handleButtonClickForUpload}
+          >
+            {nonRoutineFile ? nonRoutineFile?.name : "Choose File"}
+          </Typography>
+          <input
+            type="file"
+            ref={fileInputRef}
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+            accept=".xlsx,.csv"
+          />
+          <Button
+            variant="contained"
+            onClick={() => uploadnonRoutineFile(imgUrl)}
+            style={{
+              padding: "0.2rem 1rem",
+              minWidth: "unset",
+              width: "165px",
+              height: "40px",
+            }}
+            disabled={!imgUrl}
+          >
+            Upload
+          </Button>
+        </Box>
+      ) : (
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
+            onClick={downloadFileFromUrl}
+          >
+            NonRoutineFile.xlsx
+            <Typography
+              sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
+              onClick={(event) => {
+                event.stopPropagation();
+                deleteFile();
+              }}
+            >
+              Delete
+            </Typography>
+          </Typography>
+        </Box>
+        )}
       </>
     );
   };
@@ -831,6 +1113,7 @@ const Performance = () => {
       </Grid>
       <EvModal modalConfig={parameterModalConfig} setModalConfig={setParameterModalConfig} />
       <EvModal modalConfig={nonRoutinerModalConfig} setModalConfig={setNonRoutineModalConfig} />
+      <EvModal modalConfig={nonRoutinerListingModalConfig} setModalConfig={setNonRoutineListingModalConfig} />
     </>
 
   );
