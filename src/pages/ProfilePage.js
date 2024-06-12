@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Container,
   Typography,
@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  Stack,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -23,6 +24,10 @@ import EditProfileComponent from "components/ProfilePageComponents/EditProfileCo
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
 import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
+import EvModal from "utils/modal/EvModal";
+import NotificationsToast from "utils/notification/NotificationsToast";
+import SelectBox from "components/FormBuilder/Select";
+import { requestToJoinCompanyFormValidationSchema, updateProfilePageRoleSchema } from "utils/validations/formValidation";
 
 const ProfilePage = () => {
   const profileButtonStyle = {
@@ -73,7 +78,7 @@ const ProfilePage = () => {
     ...otherInfoStyleContentStyle,
     width: "auto",
   };
-
+  const [getUsersList, setUsersList] = useState([]);
   const dispatch = useDispatch();
   const [showEditPage, setShowEditPage] = useState(false);
   const navigate = useNavigate();
@@ -86,6 +91,24 @@ const ProfilePage = () => {
   const userPermissions = userData?.permissions || {};
 
   const [profilePicture, setProfilePicture] = useState("");
+
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "",
+      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+      headerSubTextStyle: { marginTop: '1rem' },
+      fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+      modalBodyContentStyle: {minHeight: '110px', minWidth: {xs: '100%', sm: '500px'}, display: 'flex',flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', color: 'dark.light'}
+    },
+    headerText: "",
+    headerSubText: '',
+  });
+
+
 
   // Function to handle file input change
   const handleFileInputChange = (event) => {
@@ -114,6 +137,10 @@ const ProfilePage = () => {
     setProfilePicture("");
   };
 
+  const getAvailableUserData = useMemo(() => {
+    return {getUsersList, userData };
+  }, [getUsersList,userData]);
+
   const [initialValues, setInitialValues] = useState({
     first_name: "",
     last_name: "",
@@ -131,8 +158,198 @@ const ProfilePage = () => {
     rolename: "",
     type: ""
   });
+  
 
   const [userProfileData, setUserProfileData] = useState();
+
+  const UpdateRolePermissionForm = ({userInfo}) => {
+        console.log(userInfo, "role check")
+
+    const updateRoleInitialValues = {
+      selectUser: '',
+    };
+
+
+    const handelReloadPage = () => {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+      setTimeout(() => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+        window.location.reload()
+      }, 1000);
+     
+    }
+
+    const formSubmit = (formData) => {
+      // dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+      
+      const selectedUser = formData.selectUser.toString() || '';
+      const companyId = userInfo.userData?.company?.id || '';
+
+      const apiURL = USER_MANAGEMENT.UPDATE_SUPER_ADMIN_PERMISSIONS+"/"+companyId+"/"+selectedUser;
+      // const apiURL = "https://enervauser.azurewebsites.net/api"+USER_MANAGEMENT.UPDATE_SUPER_ADMIN_PERMISSIONS+"/"+companyId+"/"+selectedUser;
+    
+     
+
+      console.log(apiURL,"check api url");
+
+      setModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalUI: {
+          ...prevState.modalUI,
+          crossIcon: true,
+          headerSubTextStyle: {...prevState.modalUI.headerSubTextStyle, textAlign: 'center' },
+          fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+        },
+        buttonsUI: {
+          ...prevState.buttonsUI,
+          saveButton: true,
+          cancelButton: false,
+          cancelButtonStyle: {
+            backgroundColor: "primary.main",
+            "&:hover": { backgroundColor: "primary.main" },
+            color: "#fff",
+          },
+          saveButtonName: "Okay",
+      },
+      headerText: "",
+      headerSubText: '',
+      modalBodyContent:  <Typography variant="h5"> Role has been updated successfully. </Typography>,
+      saveButtonAction: () =>  handelReloadPage(), 
+      }));
+      return;
+
+      POST_REQUEST(apiURL)
+        .then((response) => {
+
+          console.log(response, 'success');
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: true,
+            modalUI: {
+              ...prevState.modalUI,
+              crossIcon: true,
+              headerSubTextStyle: {...prevState.modalUI.headerSubTextStyle, textAlign: 'center' },
+              fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+            },
+            buttonsUI: {
+              ...prevState.buttonsUI,
+              saveButton: true,
+              cancelButton: false,
+              cancelButtonStyle: {
+                backgroundColor: "primary.main",
+                "&:hover": { backgroundColor: "primary.main" },
+                color: "#fff",
+              },
+              saveButtonName: "Okay",
+          },
+          headerText: "",
+          headerSubText: '',
+          modalBodyContent:  <Typography variant="h5"> Role has been updated successfully. </Typography>,
+          saveButtonAction: () =>  handelReloadPage(), 
+          }));
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+
+        })
+        .catch((error) => {
+          console.log(error, 'error')
+          NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+
+        })
+
+    }
+    return (
+      <Formik
+        initialValues={{
+          ...updateRoleInitialValues
+        }}
+        validationSchema={updateProfilePageRoleSchema}
+        onSubmit={formSubmit}
+      >
+        <Form style={{width: '100%'}}>
+       
+          <Stack sx={{ marginBottom: '1rem' }}>
+            <SelectBox name="selectUser" label="Select User" options={userInfo.getUsersList} valueKey="id" labelKey="fullName" />
+          </Stack>
+
+
+
+          {/* <SelectBox /> */}
+          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
+            <ButtonWrapper type="submit" variant="contained"  >
+              Submit
+            </ButtonWrapper>
+
+          </Grid>
+        </Form>
+      </Formik>
+    )
+  }
+
+  const handelChangeUserRolePermissions = ()=> {
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      buttonsUI: {
+        ...prevState.buttonsUI,
+        saveButton: false,
+        cancelButton: false,
+    },
+    headerText: "Change super administrator",
+    headerSubText: '',
+      modalBodyContent: <UpdateRolePermissionForm userInfo={getAvailableUserData} /> 
+
+    }));
+
+  }
+
+  const handelChangeUserRoleConfirmation = (role) => { 
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,    
+      buttonsUI: {
+        ...prevState.buttonsUI,
+        saveButton: true,
+        cancelButton: true,
+        saveButtonName: "Yes,Change",
+        cancelButtonName: "Cancel",
+        successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+        cancelButtonStyle: {backgroundColor: 'danger.main',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+        saveButtonClass: "",
+        cancelButtonClass: ""
+    },
+      headerText: '',
+      modalBodyContent: 'Are you sure you want to change your role from Super Admin?',  
+
+      saveButtonAction: () =>  handelChangeUserRolePermissions(), 
+    }));
+  }
+
+  const getUserListData = () => {
+    const companyId = userData?.company?.id;
+    if(companyId){
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+      // const apiURL = "https://enervauser.azurewebsites.net/api/getcompanyuser"+"/"+companyId;
+      const apiURL = USER_MANAGEMENT.GET_AVAILABLE_USERS_FOR_PERMISSIONS+"/"+companyId;
+      GET_REQUEST(apiURL)
+        .then((res) => {
+          console.log(res, 'res')
+          const getUsers = res.data?.data;
+          const getUpdatedUsersData = getUsers.map(({ User }) => 
+          ({
+            ...User,
+            fullName: `${User.first_name} ${User.last_name}`
+          })
+        );
+          setUsersList(getUpdatedUsersData)
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+        }).catch((error) => {
+          console.log(error)
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+        });
+    }
+  }
 
   useEffect(() => {
     console.log('adadadadad', userData)
@@ -161,6 +378,8 @@ const ProfilePage = () => {
       };
     });
     setUserProfileData(userData);
+    console.log(userData?.user?.id, "userData?.user?.id")
+   
   }, [userData]);
 
   const getUserProfileData = () => {
@@ -201,7 +420,10 @@ const ProfilePage = () => {
 
   useEffect(() => {
     // getUserProfileData();
+    
     dispatch(fetchUserDetails(localStorage.getItem('selectedCompanyId')))
+      getUserListData();
+    
   }, []);
 
   const handleSubmit = (values) => {
@@ -246,6 +468,7 @@ const ProfilePage = () => {
   // type 2 is for customer
   const isCompanyProfileViewPermission = (userProfileData?.user?.type == 2 && userProfileData?.user.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
 
+  console.log(userPermissions, userData,getUsersList, "check all permissions")
   return (
     <>
       {userProfileData ? (
@@ -386,7 +609,7 @@ const ProfilePage = () => {
                     >
                       Edit Profile
                     </Button>
-                   {userProfileData?.user?.rolename == "Super-Admin" ? <Button sx={profileButtonStyle}>
+                   {userProfileData?.user?.rolename == "Super-Admin" ? <Button sx={profileButtonStyle} onClick={()=> handelChangeUserRoleConfirmation()}>
                       Change Super administrator
                     </Button> : null}
                   </Grid>
@@ -590,6 +813,7 @@ const ProfilePage = () => {
       ) : (
         <Loader sectionLoader={true} minHeight={"50vh"} />
       )}
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </>
   );
 };

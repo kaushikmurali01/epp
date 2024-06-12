@@ -29,7 +29,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
 
     // const isPagePermissionDisabled = (userData?.user?.id === selectTableRow?.id) || (selectTableRow.status === 'Initiated');
-    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1));
+    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1 || selectTableRow?.role_id === 2));
 
 
     const [modalConfig, setModalConfig] = useState({
@@ -99,10 +99,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         setTogglePermissionsState(event, index, permission);
         setModalConfig((prevState) => ({
             ...prevState,
-            modalVisible: false,
-      
-       
-         
+            modalVisible: false,       
           }));
     }
     const handleAlignment = (event, index, permission,isPermissionSelected) => {

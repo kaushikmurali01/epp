@@ -6,6 +6,7 @@ import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useSelector } from 'react-redux';
 
 const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableRow, invitePageInfo,inviteAPIURL, getCompanyList }) => {
     
@@ -18,6 +19,11 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
     const [selectedPermissions, setSelectedPermissions] = useState([]);
 
     const [permissionStates, setPermissionStates] = useState([]);
+
+    const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
+
+    const isPagePermissionDisabled = ((userData?.user?.id === selectTableRow?.id) || (selectTableRow?.role_id === 1 || selectTableRow?.role_id === 2));
+
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -185,10 +191,16 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                     value={selectRoleType}
                                     onChange={(e) => handleSelectChange(e)}
                                     displayEmpty={true}
+                                    disabled={isPagePermissionDisabled}
                                 >
                                      <MenuItem value="" disabled>
                                             <em>Select</em>
                                         </MenuItem>
+                                        {selectTableRow?.role_id === 1 &&
+                                                <MenuItem value="1">
+                                                    Super Admin
+                                                </MenuItem>
+                                            }
                                     {getUserRole && (getUserRole).map((item) => {
                                         return (
                                             <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
@@ -228,18 +240,20 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                             </FormGroup>
                         }
                     </Grid>
-                    <Grid item >
-                        <Button
-                            color="primary"
-                            variant="contained"
-                            sx={{ alignSelf: 'center' }}
-                            onClick={() => handelInviteSubmit()}
-                            disabled={!isFormValid}
-                        >
-                            {isEdited ? 'Update Permission' : ' Send Invite'}
-                           
-                        </Button>
-                    </Grid>
+                    { !isPagePermissionDisabled && 
+                        <Grid item >
+                            <Button
+                                color="primary"
+                                variant="contained"
+                                sx={{ alignSelf: 'center' }}
+                                onClick={() => handelInviteSubmit()}
+                                disabled={!isFormValid}
+                            >
+                                {isEdited ? 'Update Permission' : ' Send Invite'}
+                            
+                            </Button>
+                        </Grid>
+                        }
                 </Grid>
 
                 {permissions?.length > 0 ?
@@ -269,10 +283,10 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                                 aria-label="text alignment"
                                                 key={permission.permission_id}
                                             >
-                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
@@ -297,6 +311,20 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                     </Box>
                 }
 
+                {(!isPagePermissionDisabled && permissions.length > 0 ) &&
+                    <Grid item >
+                        <Button
+                            color="primary"
+                            variant="contained"
+                            sx={{ alignSelf: 'center' }}
+                            onClick={() => handelInviteSubmit()}
+                            disabled={!isFormValid}
+                        >
+                            {isEdited ? 'Update Permission' : ' Send Invite'}
+                        
+                        </Button>
+                    </Grid>
+                }
             </Container >
         </Box >
     )

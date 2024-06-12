@@ -12,7 +12,7 @@ const SelectBox = ({
   ...otherProps
 }) => {
 
-  const { setFieldValue } = useFormikContext();
+  const { setFieldValue, handleBlur } = useFormikContext();
   const [field, meta] = useField(name);
 
   const handleChange = evt => {
@@ -29,6 +29,7 @@ const SelectBox = ({
     fullWidth: true,
     value: field?.value || '', // Initialize value prop with an empty string if undefined
     onChange: handleChange,
+    // onBlur: handleBlur
   };
 
   if (meta && meta.touched && meta.error) {
@@ -41,6 +42,9 @@ const SelectBox = ({
     <FormControl sx={{ width: "100%" }} >
       <FormLabel >{label}</FormLabel>
       <TextField {...configSelect}>
+      {/* <MenuItem value="" disabled>
+          <em>Select</em>
+      </MenuItem> */}
         {options?.length ? options.map((item) => (
           <MenuItem key={item[valueKey]} value={item?.[valueKey] || ''}>
             {item[labelKey]}
