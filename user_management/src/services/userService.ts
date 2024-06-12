@@ -700,8 +700,6 @@ class UserService {
    * @description Retrieves a user record from the database by its ID.
    */
   static async getUserById(id: number, company_id): Promise<any> {
-
-
     try {
       let user: any;
       if (company_id) {

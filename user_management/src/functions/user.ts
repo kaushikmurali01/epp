@@ -18,6 +18,7 @@ import { Role } from "../models/role";
 import { CheckCompanyStatus } from "./company";
 import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { CompanyService } from "../services/companyService";
+import { AuthorizationService } from "../middleware/authorizeMiddleware";
 
 /**
  * Registers a new user based on the provided request data.
@@ -224,13 +225,13 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
 
 
         let userPermissions = null;
-         if(user.user.dataValues.is_active == 0) {
+         if(user?.user?.dataValues?.is_active == 0) {
             user.permissions = null;
             user.invitations = [];
             user.associatedCompanies = [];
             return { body: JSON.stringify(user) };
         }
-        else if(companyData.is_active == 0) {
+        else if(companyData?.is_active == 0) {
             userPermissions = null;
         }
         else if ([1, 2, 6, 7, 11, 12].includes(user.user.dataValues.role_id)) {
@@ -422,6 +423,11 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         context.log("Type", type);
         context.log("Company Id", company_id);
         context.log("User Id", userId);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+        const hasPermission = await AuthorizationService.check(company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+
         if (type == 1) {
             if(company_id == 0) {
             await User.update({ is_active: 0 }, { where: { id: userId } });
@@ -548,6 +554,9 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         const email = requestData.email;
         const company = requestData.company;
 
+        const hasPermission = await AuthorizationService.check(company, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
+        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+
         await UserInvitation.destroy({ where: { email: email, company:company, is_active: 0  } });
          let uData = await User.findOne({
              where: {
@@ -615,6 +624,13 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
         // if (!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         //let companyId;
         let companyId = company_id ? company_id : resp.company_id;
+
+        const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
+        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+        
+
+
+
         let checkStatus = await CheckCompanyStatus(company_id)
         if (!checkStatus) {
             return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
