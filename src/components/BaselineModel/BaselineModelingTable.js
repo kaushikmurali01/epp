@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { styled } from "@mui/system";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -34,8 +35,8 @@ const RowCell = styled(TableCell)({
   lineHeight: "normal !important",
 });
 
-const AcceptRejectBtn = () => {
-  return <Button>accept</Button>;
+const AcceptRejectBtn = ({ label }) => {
+  return <Button>{label}</Button>;
 };
 
 const DetailLink = styled("span")({
@@ -44,21 +45,7 @@ const DetailLink = styled("span")({
   cursor: "pointer",
 });
 
-function createData(header, hourly, daily, monthly, seeDetail) {
-  return { header, hourly, daily, monthly, seeDetail };
-}
-
-const rows = [
-  createData(
-    "Sufficiency verification",
-    <AcceptRejectBtn />,
-    <AcceptRejectBtn />,
-    <AcceptRejectBtn />,
-    "See detail"
-  ),
-];
-
-export default function BasicTable() {
+const BaselineModelingTable = ({ headers, rows }) => {
   return (
     <TableContainer
       component={Paper}
@@ -70,30 +57,31 @@ export default function BasicTable() {
         background: "#EBFFEF",
       }}
     >
-      <StyledTable aria-label="simple table">
+      <StyledTable aria-label="dynamic table">
         <TableHead>
           <TableRow>
-            <HeaderCell></HeaderCell>
-            <HeaderCell>Hourly</HeaderCell>
-            <HeaderCell>Daily</HeaderCell>
-            <HeaderCell>Monthly</HeaderCell>
-            <HeaderCell></HeaderCell>
+            {headers.map((header, index) => (
+              <HeaderCell key={index}>{header}</HeaderCell>
+            ))}
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row, index) => (
-            <TableRow key={index}>
-              <HeaderCell>{row.header}</HeaderCell>
-              <RowCell>{row.hourly}</RowCell>
-              <RowCell>{row.daily}</RowCell>
-              <RowCell>{row.monthly}</RowCell>
-              <RowCell>
-                <DetailLink>{row.seeDetail}</DetailLink>
-              </RowCell>
+          {rows.map((row, rowIndex) => (
+            <TableRow key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <RowCell key={cellIndex}>{cell}</RowCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>
       </StyledTable>
     </TableContainer>
   );
-}
+};
+
+BaselineModelingTable.propTypes = {
+  headers: PropTypes.arrayOf(PropTypes.string).isRequired,
+  rows: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.node)).isRequired,
+};
+
+export default BaselineModelingTable;

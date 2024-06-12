@@ -1,330 +1,174 @@
-import { Box, Button, ButtonGroup, Checkbox, FormControlLabel, FormGroup, Grid, Tab, Tabs, Typography, styled, useMediaQuery } from "@mui/material";
-import InputField from "components/FormBuilder/InputField";
-import SelectBox from "components/FormBuilder/Select";
-import { Field, Form, Formik } from "formik";
+import { Breadcrumbs, Button, Grid, Link, Stack, Tab, Tabs, Typography, styled, useMediaQuery } from "@mui/material";
 import React, { useState } from "react";
-import CustomAccordion from "components/CustomAccordion";
-import SliderWrapper from "components/FormBuilder/Slider";
-import DateRangeSlider from "components/DateRangeSlider";
-import SufficiencyVerificationTable from "components/BaselineModel/SufficiencyVerificationTable";
-import ButtonWrapper from "components/FormBuilder/Button";
-
-const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
-  "& .MuiButtonGroup-firstButton": {
-    borderRadius: "20.8125rem 0rem 0rem 20.8125rem",
-    borderRight: "1px solid #C9C8C8",
-  },
-  "& .MuiButtonGroup-middleButton": {
-    borderRight: "1px solid #C9C8C8",
-  },
-  "& .MuiButtonGroup-lastButton": {
-    borderRadius: "0 20.8125rem 20.8125rem 0",
-  },
-  "& .MuiButton-root": {
-    "&:hover": {
-      color: "#F7F7F5",
-    },
-  },
-}));
+import EvModal from "utils/modal/EvModal";
+import { useNavigate } from "react-router-dom";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import DataExplorationTab from "components/BaselineModel/DataExplorationTab";
+import BaselineModelTab from "components/BaselineModel/BaselineModelTab";
 
 const BaselineModel = () => {
+  const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("dataExploration");
+  const [sufficiencySettingsTabValue, setSufficiencySettingsTabValue] =
+    useState("data_sufficiency_setting");
+  ;
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const initialValues = {};
-  const [checked, setChecked] = useState(true);
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)", textAlign: "center" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "1.125rem" },
+        fontWeight: 600,
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: {
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+        fontWeight: 400,
+        lineHeight: "128.571%",
+        paddingTop: "0 !important",
+      },
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Send Request",
+      cancelButtonName: "Cancel",
+      successButtonStyle: {},
+      cancelButtonStyle: {},
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+  });
 
-  const handleSubmit = (values) => { };
-  
-  const handleChange = (event, newValue) => {
+  const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleCheckboxChange = (event) => { setChecked(event.target.checked);};
-
-  const [activeButton, setActiveButton] = useState(1);
-
-  const handleButtonClick = (index) => {
-    setActiveButton(index);
+  
+  const handleSufficiencySettingsTabChange = (event, newValue) => {
+    setSufficiencySettingsTabValue(newValue);
   };
 
-  const buttonStyle = {
-    padding: "0.44rem 1.5rem",
-    lineHeight: "1",
-    height: "max-content",
+  const isAgreementSigned = true;
 
-    ".MuiButtonGroup-firstButton": {
-      BorderRight: "10px"
-    }
-  };
-
-  const activeButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#2E813E",
-    color: "#F7F7F5",
-  };
-
-  const inactiveButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: "#EBEBEB",
-    color: "#696969",
-  };
-
-  const headingStyleInAccordion = {
-    borderRadius: "138.875rem",
-    border: "1px solid #D0D0D0",
-    background: " #EBEBEB",
-    padding: "0.375rem 1rem",
-    color: "#696969",
-    fontSize: "0.875rem",
-    fontStyle: "normal",
-    fontWeight: 500,
-    lineHeight: "normal",
-    width: "max-content",
-    marginBlockEnd: "2rem",
-  };
-
-  const marksForEnergyTarget = [
-    {
-      value: 0,
-      label: "0 %",
-    },
-    {
-      value: 100,
-      label: "100 %",
-    },
-  ];
-
-  const modelConstructorAccordionDetails = (
-    <Formik
-      initialValues={{ ...initialValues }}
-      // validationSchema={validationSchemaFacilityDetails}
-      // onSubmit={handleSubmit}
-      enableReinitialize={true}
+const submitFacilityModalBodycontent = !isAgreementSigned ? (
+  "We have received your enrollment request and will review it shortly. Our team will check the facility eligibility and other criteria to approve your request. Please note that this process may take some time. We appreciate your patience and understanding. Once your request is approved, you will receive a Notice of Approval. Thank you for choosing our program!"
+) : (
+  <>
+    In order to submit your facility, signing Participant Agreement is
+    required.
+    <Button
+      sx={{ marginTop: "1rem" }}
+      variant="contained"
+      onClick={() => navigate("/participant-agreement")}
     >
-      <Form>
-        <Grid container display={"grid"} gap={"2rem"}>
-          <Grid item>
-            <Typography variant="h6" sx={headingStyleInAccordion}>
-              Baseline period
-            </Typography>
-            <Box
-              sx={{
-                marginInline: "auto",
-                maxWidth: "33rem",
-              }}
-            >
-              <DateRangeSlider />
-              {/* <SliderWrapper
-                name="target_saving"
-                min={0}
-                max={100}
-                aria-labelledby="number-slider"
-                valueLabelDisplay="on"
-                marks={marksForEnergyTarget}
-                disableSwap
-              /> */}
-            </Box>
-          </Grid>
-          <Grid item>
-            <Typography variant="h6" sx={headingStyleInAccordion}>
-              Sufficiency verification
-            </Typography>
+      Go to Participant Agreement
+    </Button>
+  </>
+);
 
-            {/* <Box
-              sx={{
-                borderRadius: "0.25rem",
-                border: "1px solid #2E813E",
-                opacity: "0.7",
-                background: "#EBFFEF",
-              }}
-            >
-              <Grid
-                container
-                sx={{
-                  background: "#CBFFD5",
-                  padding: "1rem 0",
-                  borderRadius: "0.25rem 0.25rem 0 0",
-                }}
-              >
-                <Grid item sm={4}></Grid>
-                <Grid item sm={2} textAlign={"center"}>
-                  Hourly
-                </Grid>
-                <Grid item sm={2} textAlign={"center"}>
-                  Daily
-                </Grid>
-                <Grid item sm={2} textAlign={"center"}>
-                  Monthly
-                </Grid>
-                <Grid item sm={2}></Grid>
-              </Grid>
+  const handleSubmitFacility = () => { 
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      buttonsUI: {
+        ...prevState.buttonsUI,
+        saveButton: false,
+        cancelButton: false,
+      },
+      headerText: <img src="images/new_user_popup_icon.svg" alt="popup" />,
+      headerSubText: "Thank you for your interest!",
+      modalBodyContent: submitFacilityModalBodycontent,
+    }));
+  };
 
-              <Grid container>
-                <Grid
-                  item
-                  sm={4}
-                  sx={{
-                    textAlign: "center",
-                    background: "#CBFFD5",
-                    padding: "1rem 0",
-                    borderRadius: "0 0 0 0.25rem",
-                  }}
-                >
-                  Sufficiency verification
-                </Grid>
-                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
-                  Hourly
-                </Grid>
-                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
-                  Daily
-                </Grid>
-                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
-                  Monthly
-                </Grid>
-                <Grid item sm={2} textAlign={"center"} marginBlock={"auto"}>
-                  <Button
-                    variant="text"
-                    sx={{
-                      width: "max-content !important",
-                      fontSize: "0.875rem",
-                      fontStyle: "italic",
-                      fontWeight: 400,
-                    }}
-                  >
-                    See detail
-                  </Button>
-                </Grid>
-              </Grid>
-            </Box> */}
-            <SufficiencyVerificationTable />
-          </Grid>
-          <Grid item display={"grid"} gap={"2rem"}>
-            <Typography variant="h6" sx={headingStyleInAccordion}>
-              Baseline independent variable
-            </Typography>
-            <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Field
-                      name="Weekday_hours"
-                      type="checkbox"
-                      as={Checkbox}
-                      checked={checked}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  sx={{ color: "text.secondary2" }}
-                  name="commercial_kitchen"
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Weekday_hours
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Field
-                      name="Variable-1"
-                      type="checkbox"
-                      as={Checkbox}
-                      checked={checked}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  sx={{ color: "text.secondary2" }}
-                  name="commercial_kitchen"
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Variable-1
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Field
-                      name="Variable-2"
-                      type="checkbox"
-                      as={Checkbox}
-                      checked={checked}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  sx={{ color: "text.secondary2" }}
-                  name="commercial_kitchen"
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Variable-2
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Field
-                      name="Variable-3"
-                      type="checkbox"
-                      as={Checkbox}
-                      checked={checked}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  sx={{ color: "text.secondary2" }}
-                  name="commercial_kitchen"
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Variable-3
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-
-              <FormGroup>
-                <FormControlLabel
-                  control={
-                    <Field
-                      name="Variable-4"
-                      type="checkbox"
-                      as={Checkbox}
-                      checked={checked}
-                      onChange={handleCheckboxChange}
-                    />
-                  }
-                  sx={{ color: "text.secondary2" }}
-                  name="commercial_kitchen"
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Variable-4
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-            </Box>
-          </Grid>
-          <Grid item>
-            <Typography variant="h6" sx={headingStyleInAccordion}>
-              Model granularity
-            </Typography>
-          </Grid>
-        </Grid>
-        <ButtonWrapper
-          type="submit"
-          color="neutral"
-          onClick={handleSubmit}
+  const sufficiencySettingsInModel = (
+    <>
+      <Grid item xs={12} md={6}>
+        <Tabs
+          className="theme-tabs-list"
+          value={sufficiencySettingsTabValue}
+          onChange={handleSufficiencySettingsTabChange}
+          sx={{ display: "inline-flex" }}
         >
-          Calculate baseline
-        </ButtonWrapper>
-      </Form>
-    </Formik>
+          <Tab
+            value="data_sufficiency_setting"
+            label="Data sufficiency setting"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+          <Tab
+            value="model_setting"
+            label="Model setting"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+        </Tabs>
+      </Grid>
+      <Grid></Grid>
+    </>
   );
+
+  const handleSufficiencySettingsModel = () => {
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      buttonsUI: {
+        ...prevState.buttonsUI,
+        saveButton: false,
+        cancelButton: false,
+      },
+      headerText: null,
+      headerSubText: null,
+      modalBodyContent: sufficiencySettingsInModel,
+    }));
+  };
+  
+
+  const breadcrumbs = [
+    <Link
+      underline="hover"
+      key="1"
+      color="inherit"
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        navigate("/facility-list");
+      }}
+    >
+      Facilities
+    </Link>,
+    <Link
+      underline="hover"
+      key="2"
+      color="inherit"
+      href="#"
+      onClick={(e) => {
+        e.preventDefault();
+        navigate("/");
+      }}
+    >
+      Wallmart 3
+    </Link>,
+    <Typography
+      key="3"
+      sx={{
+        color: "rgba(84, 88, 90, 1)",
+        fontSize: "0.875rem !important",
+        fontWeight: 600,
+      }}
+    >
+      Baseline modeling
+    </Typography>,
+  ];
 
   return (
     <Grid
@@ -338,85 +182,74 @@ const BaselineModel = () => {
         flexDirection: "column",
       }}
     >
-      <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
-        <Grid item xs={12} md={6}>
-          <Tabs
-            className="theme-tabs-list"
-            value={tabValue}
-            onChange={handleChange}
-            sx={{ display: "inline-flex" }}
-          >
-            <Tab
-              value="dataExploration"
-              label="Data exploration"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-            <Tab
-              value="baselineModel"
-              label="Baseline model"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-          </Tabs>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="primary">
-            Submit facility
-          </Button>
-        </Grid>
-      </Grid>
-
-      <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
-        <StyledButtonGroup disableElevation variant="contained" color="primary">
-          <Button
-            sx={activeButton === 0 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(0)}
-          >
-            Electricity
-          </Button>
-          <Button
-            sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(1)}
-          >
-            Natural gas
-          </Button>
-        </StyledButtonGroup>
-        <Typography
-          variant="h6"
+      <Stack spacing={2}>
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
           sx={{
-            padding: "0.375rem 0.5rem",
-            borderRadius: "20.8125rem",
-            background: "#CFEEFF",
-            color: "#1976AA",
-            fontSize: "0.875rem",
-            fontStyle: "italic",
+            color: "rgba(84, 88, 90, 1)",
+            fontSize: "0.875rem !important",
             fontWeight: 400,
           }}
         >
-          Electricity baseline has been successfully created on : 2020/03/05
-          13:35:01
-        </Typography>
-      </Grid>
+          {breadcrumbs}
+        </Breadcrumbs>
+      </Stack>
+      <Grid
+        container
+        sx={{
+          width: "100%",
+          display: "flex",
+          gap: "2rem",
+          flexDirection: "column",
+        }}
+      >
+        <Grid
+          item
+          display={"flex"}
+          justifyContent={"space-between"}
+          gap={"1rem"}
+        >
+          <Grid item xs={12} md={6}>
+            <Tabs
+              className="theme-tabs-list"
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{ display: "inline-flex" }}
+            >
+              <Tab
+                value="dataExploration"
+                label="Data exploration"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+              <Tab
+                value="baselineModel"
+                label="Baseline model"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+            </Tabs>
+          </Grid>
+          {tabValue === "baselineModel" && (
+            <Grid item>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmitFacility}
+              >
+                Submit facility
+              </Button>
+            </Grid>
+          )}
+        </Grid>
 
-      <Box textAlign={"end"}>
-        <Button variant="text" sx={{color : "blue.main", padding: 0, lineHeight: 1, minWidth: "max-content !important"}}>
-          Settings
-        </Button>
-      </Box>
+        {tabValue === "dataExploration" && <DataExplorationTab />}
+        {tabValue === "baselineModel" && (
+          <BaselineModelTab
+            handleSufficiencySettings={handleSufficiencySettingsModel}
+          />
+        )}
 
-      <Grid item>
-        <CustomAccordion
-          summary="Model constructor"
-          details={modelConstructorAccordionDetails}
-          panelId="modelConstructor"
-        />
-
-        <CustomAccordion summary="Summary" details={""} panelId="summary" />
-
-        <CustomAccordion
-          summary="Visualization"
-          details={""}
-          panelId="visualization"
-        />
+        <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       </Grid>
     </Grid>
   );
