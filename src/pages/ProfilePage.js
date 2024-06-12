@@ -23,6 +23,10 @@ import EditProfileComponent from "components/ProfilePageComponents/EditProfileCo
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "./Loader";
 import { fetchUserDetails } from "../redux/superAdmin/actions/facilityActions";
+import {
+  useMsal,
+} from "@azure/msal-react";
+import { b2cPolicies } from "authConfig";
 
 const ProfilePage = () => {
   const profileButtonStyle = {
@@ -75,6 +79,7 @@ const ProfilePage = () => {
   };
 
   const dispatch = useDispatch();
+  const {instance} = useMsal()
   const [showEditPage, setShowEditPage] = useState(false);
   const navigate = useNavigate();
   const [imgUrl, setImgUrl] = useState("");
@@ -243,6 +248,15 @@ const ProfilePage = () => {
     });
   };
 
+  const changePassword = () => {
+    let forgotPassPolicy = b2cPolicies.authorities.forgotPassword.authority
+     const passwordChangeRequest = {
+         authority: forgotPassPolicy,
+     };
+ 
+     instance.loginRedirect(passwordChangeRequest);
+   };
+
   // type 2 is for customer
   const isCompanyProfileViewPermission = (userProfileData?.user?.type == 2 && userProfileData?.user.rolename == "SuperAdmin") || ((userProfileData?.permissions?.some(obj => obj["permission"] == "edit-profile")))
 
@@ -377,8 +391,8 @@ const ProfilePage = () => {
                     wrap="nowrap"
                     gap="1.25rem"
                   >
-                    <Button sx={profileButtonStyle}
-                    // onClick={() => navigate('/change-password')}
+                    <Button sx={profileButtonStyle} 
+                    onClick={changePassword}
                     >Change Password</Button>
                     <Button
                       sx={profileButtonStyle}
