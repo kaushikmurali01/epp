@@ -30,19 +30,21 @@ import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
 import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
-import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
 import debounce from "lodash.debounce";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import { hasPermission } from "utils/commonFunctions";
+import Loader from "pages/Loader";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
   const permissionList = useSelector(
     (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
-
+  const loadingState = useSelector(
+    (state) => state?.facilityReducer?.loading
+  );
   const columns = [
     {
       Header: "Name/Nick Name",
@@ -505,6 +507,12 @@ const Facility = () => {
       <EvModal
         modalConfig={assignModalConfig}
         setModalConfig={setAssignModalConfig}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </Container>
   );

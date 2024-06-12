@@ -23,6 +23,7 @@ import { validationSchemaFacilityDetails } from "utils/validations/formValidatio
 import {
   addAdminFacilityCharacteristic,
   fetchAdminFacilityCharacteristics,
+  fetchAdminFacilityStatus,
   updateAdminFacilityCharacteristic,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
@@ -41,6 +42,7 @@ import EvModal from "utils/modal/EvModal";
 import CustomAccordion from "components/CustomAccordion";
 import { Persist } from "formik-persist";
 import { formatISO, parseISO } from "date-fns";
+import Loader from "pages/Loader";
 
 const AdminDetails = ({ setTab }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -52,6 +54,9 @@ const AdminDetails = ({ setTab }) => {
   const [coolingAlignment, setCoolingAlignment] = useState(false);
   const facilityCharacterstics = useSelector(
     (state) => state?.adminFacilityReducer?.characteristics?.data
+  );
+  const loadingState = useSelector(
+    (state) => state?.adminFacilityReducer?.loading
   );
 
   const [modalConfig, setModalConfig] = useState({
@@ -389,6 +394,7 @@ const AdminDetails = ({ setTab }) => {
     } else {
       dispatch(addAdminFacilityCharacteristic(newValues))
         .then(() => {
+          dispatch(fetchAdminFacilityStatus(id));
           setModalConfig((prev) => ({
             ...prev,
             modalVisible: true,
@@ -480,8 +486,8 @@ const AdminDetails = ({ setTab }) => {
                 <Persist name={`aCharactersticsForm${id}`} />
               )}
               <CustomAccordion
-                summary="Characterstics"
-                panelId="characterstics"
+                summary="Characteristics"
+                panelId="characteristics"
                 details={
                   <Grid container rowGap={4}>
                     <Grid container spacing={4}>
@@ -1332,7 +1338,7 @@ const AdminDetails = ({ setTab }) => {
                 details={
                   <Grid container rowGap={4}>
                     <Grid container spacing={4}>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <InputField
                           name="maximum_number_of_occupants"
                           label="Maximum number of occupants"
@@ -1343,7 +1349,7 @@ const AdminDetails = ({ setTab }) => {
                           }
                         />
                       </Grid>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <InputField
                           name="average_number_of_occupants"
                           label="Average number of occupants"
@@ -1356,7 +1362,7 @@ const AdminDetails = ({ setTab }) => {
                       </Grid>
                     </Grid>
                     <Grid container spacing={4}>
-                      <Grid item sm={4}>
+                      <Grid item xs={12} sm={4}>
                         <SelectBox
                           name="year_round_or_seasonal"
                           label="Year round or seasonal"
@@ -1551,6 +1557,12 @@ const AdminDetails = ({ setTab }) => {
         }}
       </Formik>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Box>
   );
 };

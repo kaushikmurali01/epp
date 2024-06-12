@@ -20,6 +20,7 @@ import EvModal from "utils/modal/EvModal";
 import {
   adminCompanySendAlert,
   adminCompanyUpdateStatus,
+  deleteCompanyById,
   fetchAdminCompanyListing,
 } from "../../../redux/admin/actions/adminCompanyAction";
 import { Form, Formik } from "formik";
@@ -27,6 +28,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { format } from "date-fns";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import { debounce } from "lodash";
+import Loader from "pages/Loader";
 
 const companyTypes = [
   {
@@ -135,6 +137,20 @@ const CompanyListing = () => {
           >
             {item?.is_active === 1 ? "Inactive" : "Active"}
           </Button>
+          <Button
+            disableRipple
+            color="error"
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+              fontSize: "0.875rem",
+            }}
+            onClick={() => openDeleteModal(item?.id)}
+          >
+            Delete
+          </Button>
         </Box>
       ),
     },
@@ -148,6 +164,9 @@ const CompanyListing = () => {
   );
   const companyCount = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.count || []
+  );
+  const loadingState = useSelector(
+    (state) => state?.adminCompanyReducer?.loading
   );
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
@@ -383,6 +402,98 @@ const CompanyListing = () => {
       </Grid>
     );
   };
+  const [deleteModalConfig, setDeleteModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openDeleteModal = (company_id) => {
+    setDeleteModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <DeleteModalContent companyId={company_id} />,
+    }));
+  };
+
+  const DeleteModalContent = ({ companyId }) => {
+    const handleDeleteCompanyButton = () => {
+      dispatch(deleteCompanyById(companyId))
+        .then(() => {
+          setDeleteModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(
+            fetchAdminCompanyListing(pageInfo, searchString, companyFilter)
+          );
+        })
+        .catch((error) => {});
+    };
+    const handleCloseButton = () => {
+      setDeleteModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    };
+    return (
+      <Grid
+        container
+        alignItems="center"
+        flexDirection="column"
+        textAlign="center"
+        sx={{ padding: { md: "0 5%" } }}
+      >
+        <Grid container sx={{ justifyContent: "center" }}>
+          <figure>
+            <img src="/images/icons/deleteIcon.svg" alt="" />
+          </figure>
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }}>
+          <Typography variant="h4">
+            Are you sure you would like to delete this company?
+          </Typography>
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
+          <Button
+            onClick={handleDeleteCompanyButton}
+            sx={{
+              background: "#FF5858",
+            }}
+            variant="contained"
+          >
+            Yes
+          </Button>
+          <Button variant="contained" onClick={handleCloseButton}>
+            No
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  };
 
   return (
     <Container>
@@ -394,10 +505,6 @@ const CompanyListing = () => {
           >
             Company List
           </Typography>
-          {/* <Typography variant="small2">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.
-          </Typography> */}
         </Grid>
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
@@ -475,6 +582,16 @@ const CompanyListing = () => {
       <EvModal
         modalConfig={statusModalConfig}
         setModalConfig={setStatusModalConfig}
+      />
+      <EvModal
+        modalConfig={deleteModalConfig}
+        setModalConfig={setDeleteModalConfig}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </Container>
   );

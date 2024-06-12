@@ -18,7 +18,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import InputField from "components/FormBuilder/InputField";
 import { Field, Form, Formik } from "formik";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
   addAdminMeter,
@@ -29,6 +29,13 @@ import { validationSchemaAddMeter } from "utils/validations/formValidation";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { DatePicker } from "@mui/x-date-pickers";
+import SelectBox from "components/FormBuilder/Select";
+import {
+  ELECTRICITY_UNIT_ARRAY,
+  NATURAL_GAS_UNIT_ARRAY,
+  WATER_UNIT_ARRAY,
+} from "utils/dropdownConstants/dropdownConstants";
+import Loader from "pages/Loader";
 
 const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -44,6 +51,12 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const [revenueAlignment, setRevenueAlignment] = useState(false);
   const [utilityUrlError, setUtilityUrlError] = useState(false);
   const [specUrlError, setSpecUrlError] = useState(false);
+  const loadingState = useSelector(
+    (state) => state?.adminMeterReducer?.loading
+  );
+  const uploadLoadingState = useSelector(
+    (state) => state?.fileUploadReducer?.loading
+  );
 
   useEffect(() => {
     if (meterId2) {
@@ -77,6 +90,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const [initialValues, setInitialValues] = useState({
     meter_name: "",
     meter_type: 1,
+    unit: "",
     purchased_from_the_grid: true,
     meter_id: "",
     meter_active: "",
@@ -331,6 +345,35 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     <Typography variant="small" color="primary">
                       Meter number can be found on the electricity bill
                     </Typography>
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  {values.meter_type === 1 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={ELECTRICITY_UNIT_ARRAY}
+                    />
+                  )}
+                  {values.meter_type === 2 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={WATER_UNIT_ARRAY}
+                    />
+                  )}
+                  {values.meter_type === 3 && (
+                    <SelectBox
+                      name="unit"
+                      label="Unit *"
+                      valueKey="value"
+                      labelKey="label"
+                      options={NATURAL_GAS_UNIT_ARRAY}
+                    />
                   )}
                 </Grid>
               </Grid>
@@ -667,6 +710,12 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           </Form>
         )}
       </Formik>
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState || uploadLoadingState}
+        loaderPosition="fixed"
+      />
     </Box>
   );
 };

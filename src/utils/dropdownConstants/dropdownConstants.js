@@ -128,3 +128,17 @@ export const FACILITY_CATEGORY_ARRAY = [
   },
   { id: "4", value: "Industrial" },
 ];
+
+export const NATURAL_GAS_UNIT_ARRAY = [
+  { value: "cf", label: "cf (cubic feet)" },
+  { value: "cm", label: "cm (cubic meter)" },
+  { value: "GJ", label: "GJ" },
+  { value: "kBtu", label: "kBtu (thousand Btu)" },
+];
+
+export const ELECTRICITY_UNIT_ARRAY = [{ value: "kWh", label: "kWh" }];
+
+export const WATER_UNIT_ARRAY = [
+  { value: "cu f", label: "cu f" },
+  { value: "cu m", label: "cu m" },
+];
