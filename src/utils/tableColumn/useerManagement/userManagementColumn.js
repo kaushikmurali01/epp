@@ -134,9 +134,9 @@ const UserManagementColumn = () => {
             accessor: (item) => (
                 <Box gap={1} >
                     <Typography disabled={item.status === 'Initiated' || item.status === 'Rejected' }  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
-                    {((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && item?.role_id === 1) ) ? 'View permission' : 'Manage permission'} 
+                    {((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && (item?.role_id === 1 ||item?.role_id === 2 )) ) ? 'View permission' : 'Manage permission'} 
                     </Typography>
-                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated' || item.role_id === 1)} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
+                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated' || (item?.role_id === 1 ||item?.role_id === 2 ))} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
                         Delete
                     </Typography>
 
@@ -207,7 +207,7 @@ const UserManagementColumn = () => {
             NotificationsToast({ message: "You don't have permission for this!", type: "error" });
             return;
         }
-        const pageTitle = ((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && item?.role_id === 1) ) ? "View permission" : "Manage permission"
+        const pageTitle = ((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && (item?.role_id === 1 ||item?.role_id === 2 )) ) ? "View permission" : "Manage permission"
         const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)
@@ -218,7 +218,7 @@ const UserManagementColumn = () => {
     const handelDeleteModalOpen = (userData,item, handleAPISuccessCallBack, setModalConfig) => {
         console.log(userData, item, 'check results');
         // return if user wants to delete self account
-        if((userData?.user?.id === item?.id) || (item.status === 'Initiated' || item.role_id === 1)){
+        if((userData?.user?.id === item?.id) || (item.status === 'Initiated' || (item?.role_id === 1 ||item?.role_id === 2 ) )){
             NotificationsToast({ message: "You don't have permission for this!", type: "error" });
             return;
         }

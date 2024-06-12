@@ -95,6 +95,7 @@ const [getCompanyList, setCompanyList] = useState([]);
     setInviteAPIURL(apiURL)
     setVisibleInvitePage(true);
     setSelectTableRow(profileData)
+    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     
 
 

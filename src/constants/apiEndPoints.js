@@ -57,7 +57,9 @@ export const USER_MANAGEMENT = {
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
+  GET_AVAILABLE_USERS_FOR_PERMISSIONS: "/enerva-user/v1/getCompanyUser",
   DELETE_COMPANY:"enerva-user/v1/company",
+  
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -70,6 +72,8 @@ export const USER_MANAGEMENT = {
   GET_USER_DETAILS: "enerva-user/v1/user",
 
   EDIT_PROFILE: "/enerva-user/v1/users",
+
+  UPDATE_SUPER_ADMIN_PERMISSIONS: "/enerva-user/v1/changeCompanySuperUser",
 
   GET_LIST_OF_COMPANIES_BY_USER: "/enerva-user/v1/usercompanies",
   ACCEPT_REJECT_INVITE: "enerva-user/v1/acceptuserinvitation",
