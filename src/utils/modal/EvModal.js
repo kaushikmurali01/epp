@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
+import { useDispatch } from 'react-redux';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -20,6 +21,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 export default function EvModal(props) {
+  const dispatch = useDispatch();
 
   const {
     modalVisible,
@@ -29,16 +31,28 @@ export default function EvModal(props) {
     headerText,
     headerSubText,
     saveButtonAction,
-    cancelButtonAction
+    cancelButtonAction,
+    onCloseReload
   } = props.modalConfig;
 
   const { setModalConfig, actionButtonData } = props;
 
+  const handelReloadPage = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    setTimeout(() => {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      window.location.reload()
+    }, 1000);
+   
+  }
   const handleClose = () => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,
     }));
+    if(onCloseReload){
+      handelReloadPage();
+    }
   };
 
   return (

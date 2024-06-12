@@ -108,6 +108,10 @@ const ProfilePage = () => {
     headerSubText: '',
   });
 
+  const [checkModalConfigUser, setModalConfigUser] = useState({
+    ...modalConfig,
+  });
+
 
 
   // Function to handle file input change
@@ -188,36 +192,7 @@ const ProfilePage = () => {
       const apiURL = USER_MANAGEMENT.UPDATE_SUPER_ADMIN_PERMISSIONS+"/"+companyId+"/"+selectedUser;
       // const apiURL = "https://enervauser.azurewebsites.net/api"+USER_MANAGEMENT.UPDATE_SUPER_ADMIN_PERMISSIONS+"/"+companyId+"/"+selectedUser;
     
-     
 
-      console.log(apiURL,"check api url");
-
-      setModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalUI: {
-          ...prevState.modalUI,
-          crossIcon: true,
-          headerSubTextStyle: {...prevState.modalUI.headerSubTextStyle, textAlign: 'center' },
-          fotterActionStyle: { justifyContent: "center", gap: "1rem" },
-        },
-        buttonsUI: {
-          ...prevState.buttonsUI,
-          saveButton: true,
-          cancelButton: false,
-          cancelButtonStyle: {
-            backgroundColor: "primary.main",
-            "&:hover": { backgroundColor: "primary.main" },
-            color: "#fff",
-          },
-          saveButtonName: "Okay",
-      },
-      headerText: "",
-      headerSubText: '',
-      modalBodyContent:  <Typography variant="h5"> Role has been updated successfully. </Typography>,
-      saveButtonAction: () =>  handelReloadPage(), 
-      }));
-      return;
 
       POST_REQUEST(apiURL)
         .then((response) => {
@@ -304,26 +279,57 @@ const ProfilePage = () => {
 
   }
 
-  const handelChangeUserRoleConfirmation = (role) => { 
-    setModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,    
-      buttonsUI: {
-        ...prevState.buttonsUI,
-        saveButton: true,
-        cancelButton: true,
-        saveButtonName: "Yes,Change",
-        cancelButtonName: "Cancel",
-        successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
-        cancelButtonStyle: {backgroundColor: 'danger.main',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
-        saveButtonClass: "",
-        cancelButtonClass: ""
-    },
-      headerText: '',
-      modalBodyContent: 'Are you sure you want to change your role from Super Admin?',  
+  const handelChangeUserRoleConfirmation = () => { 
+    const user = getAvailableUserData.getUsersList;
 
-      saveButtonAction: () =>  handelChangeUserRolePermissions(), 
-    }));
+    if(user.length > 0){
+        setModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: true,    
+          buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+            saveButtonName: "Yes,Change",
+            cancelButtonName: "Cancel",
+            successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+            cancelButtonStyle: {backgroundColor: 'danger.main',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+            saveButtonClass: "",
+            cancelButtonClass: ""
+        },
+          headerText: '',
+          modalBodyContent: 'Are you sure you want to change your role from Super Admin?',  
+    
+          saveButtonAction: () =>  handelChangeUserRolePermissions(), 
+        }));
+    }else {
+      setModalConfigUser((prevState) => ({
+        ...prevState,
+        modalVisible: true,    
+        buttonsUI: {
+          ...prevState.buttonsUI,
+          saveButton: false,
+          cancelButton: true,
+          cancelButtonName: "Okay",
+
+          cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+          saveButtonClass: "",
+          cancelButtonClass: ""
+      },
+      modalUI: {
+        ...prevState.modalUI,
+        modalBodyContentStyle: { minWidth: {xs: '100%', sm: '500px'}, display: 'flex',flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', textAlign: 'center', color: 'dark.light', lineHeight: '1.5rem'}
+       
+      },
+        headerText: '',
+        modalBodyContent: "No users exist or existing users are the super-admin of another company, so won't be able to change the role. ",  
+  
+        saveButtonAction: () =>  handelChangeUserRolePermissions(), 
+      }));
+      
+    }
+
+    
   }
 
   const getUserListData = () => {
@@ -814,6 +820,7 @@ const ProfilePage = () => {
         <Loader sectionLoader={true} minHeight={"50vh"} />
       )}
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal modalConfig={checkModalConfigUser} setModalConfig={setModalConfigUser} />
     </>
   );
 };
