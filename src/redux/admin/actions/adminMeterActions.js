@@ -27,13 +27,15 @@ import {
 } from "utils/HTTPRequests";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
 
-export const fetchAdminMeterListing = (pageInfo, id) => {
+export const fetchAdminMeterListing = (pageInfo, id, sortByCol, sortOrder) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminMeterListRequest());
-      const endpointWithParams = `${adminMeterEndPoints.METER_LIST}/${
+      let endpointWithParams = `${adminMeterEndPoints.METER_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?facility_id=${id}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminMeterListSuccess(data));

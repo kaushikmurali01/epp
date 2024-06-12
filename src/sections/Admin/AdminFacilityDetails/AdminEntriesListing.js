@@ -14,15 +14,17 @@ import {
   Tab,
   Typography,
   Stack,
+  IconButton,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format, getYear } from "date-fns";
-import { adminEntriesEndPoints } from "constants/apiEndPoints";
+import { adminEntriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
+  GET_REQUEST,
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
@@ -37,6 +39,10 @@ import {
   fetchAdminMeterDetails,
 } from "../../../redux/admin/actions/adminMeterActions";
 import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntriesAction";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import NotificationsToast from "utils/notification/NotificationsToast";
+import { fetchAdminFacilityStatus } from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -47,8 +53,12 @@ const AdminEntriesListing = ({
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const [tabValue, setTabValue] = useState("monthlyEntries");
+  const [tabValue, setTabValue] = useState("hourlyOrSub-hourlyEntries");
+  const [hourlyEntryFile, setHourlyEntryFile] = useState(null);
   const [entryToDelete, setEntryToDelete] = useState("");
+  const [imgUrl, setImgUrl] = useState("");
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [fileName, setFileName] = useState("");
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -141,11 +151,15 @@ const AdminEntriesListing = ({
   const columns = [
     {
       Header: "Start date",
-      accessor: (item) => <>{format(item.start_date, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{item?.start_date ? format(item?.start_date, "MM/dd/yyyy") : null}</>
+      ),
     },
     {
       Header: "End date",
-      accessor: (item) => <>{format(item.end_date, "MM/dd/yyyy")}</>,
+      accessor: (item) => (
+        <>{item?.end_date ? format(item?.end_date, "MM/dd/yyyy") : null}</>
+      ),
     },
     {
       Header: "Usage (KWh)",
@@ -251,6 +265,7 @@ const AdminEntriesListing = ({
   useEffect(() => {
     dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
     dispatch(fetchAdminMeterDetails(facilityMeterDetailId));
+    getHourlySubHourlyEntryData();
   }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
@@ -329,32 +344,55 @@ const AdminEntriesListing = ({
           enableReinitialize={true}
           onSubmit={formSubmit}
         >
-          <Form>
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="start_date" type="date" label="Start Date*" />
-            </Stack>
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="end_date" type="date" label="End Date*" />
-            </Stack>
+          {({ values, setFieldValue }) => (
+            <Form>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="start_date"
+                  type="date"
+                  label="Start Date*"
+                  inputProps={{
+                    max: format(new Date(), "yyyy-MM-dd"),
+                  }}
+                />
+              </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="end_date"
+                  type="date"
+                  label="End Date*"
+                  inputProps={{
+                    max: format(new Date(), "yyyy-MM-dd"),
+                    min:
+                      values?.start_date &&
+                      format(values?.start_date, "yyyy-MM-dd"),
+                  }}
+                />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="usage" label="Usage (KWh)*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField name="usage" label="Usage (KWh)*" type="number" />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="demand" label="Demand (KW)*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField name="demand" label="Demand (KW)*" type="number" />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="total_cost" label="Total cost*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="total_cost"
+                  label="Total cost*"
+                  type="number"
+                />
+              </Stack>
 
-            <Grid display="flex" sx={{ marginTop: "1rem" }}>
-              <ButtonWrapper type="submit" variant="contained">
-                Submit
-              </ButtonWrapper>
-            </Grid>
-          </Form>
+              <Grid display="flex" sx={{ marginTop: "1rem" }}>
+                <ButtonWrapper type="submit" variant="contained">
+                  Submit
+                </ButtonWrapper>
+              </Grid>
+            </Form>
+          )}
         </Formik>
       </>
     );
@@ -417,19 +455,104 @@ const AdminEntriesListing = ({
     fileInputRef.current.click();
   };
 
+  const getHourlySubHourlyEntryData = () => {
+    GET_REQUEST(hourlyEndPoints.GET_HOURLY_DATA + facilityMeterDetailId)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          if (response.data?.data?.rows?.length > 0) {
+            setFileName(response.data?.data?.rows[0]);
+            setIsFileUploaded(true);
+          } else {
+            setIsFileUploaded(false);
+          }
+        }
+      })
+      .catch((error) => {});
+  };
+
   const handleFileChange = (event) => {
-    // // Handle the file selection here
-    // const selectedFile = event.target.files[0];
-    // setSelectedFile(URL.createObjectURL(selectedFile));
-    // dispatch(fileUploadAction(selectedFile))
-    // .then(( data ) => setImgUrl(data?.sasTokenUrl))
-    // .catch((error) => {
-    //   console.error("Error uploading image:", error);
-    // });
+    const selectedFile = event.target.files[0];
+    setHourlyEntryFile(selectedFile);
+    dispatch(documentFileUploadAction(selectedFile))
+      .then((data) => {
+        setImgUrl(data?.sasTokenUrl);
+      })
+      .catch((error) => {
+        console.error("Error uploading document:", error);
+      });
+  };
+
+  const uploadHourlyEntryFile = () => {
+    uploadEntryFile(imgUrl);
+  };
+
+  const uploadEntryFile = (data) => {
+    const body = {
+      facility_id: parseInt(id),
+      facility_meter_detail_id: parseInt(facilityMeterDetailId),
+      media_url: data,
+    };
+    POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
+      .then((response) => {
+        getHourlySubHourlyEntryData();
+        dispatch(fetchAdminFacilityStatus(id));
+        NotificationsToast({
+          message: "File uploaded successfully!",
+          type: "success",
+        });
+      })
+      .catch((error) => {
+        NotificationsToast({
+          message: error?.message ? error.message : "Something went wrong!",
+          type: "error",
+        });
+      });
+  };
+
+  const deleteFile = () => {
+    DELETE_REQUEST(hourlyEndPoints.DELETE_HOURLY_DATA + fileName?.id)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          setHourlyEntryFile(null);
+          getHourlySubHourlyEntryData();
+        }
+      })
+      .catch((error) => {});
+  };
+
+  const downloadFileFromUrl = (fileUrl) => {
+    fetch(imgUrl).then((response) => {
+      response.blob().then((blob) => {
+        const fileURL = window.URL.createObjectURL(blob);
+        let alink = document.createElement("a");
+        alink.href = fileURL;
+        let fileName = `${meterData?.meter_name}_facility_meter_hourly_entries_file.csv`;
+        alink.download = fileName;
+        alink.click();
+      });
+    });
   };
 
   return (
     <>
+      <IconButton
+        sx={{
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "primary.main",
+          },
+          marginLeft: "1rem",
+          marginBottom: "1rem",
+        }}
+        onClick={onAddMeterSuccess}
+      >
+        <ArrowBackIcon
+          sx={{
+            color: "#fff",
+            fontSize: "1.25rem",
+          }}
+        />
+      </IconButton>
       <Box
         sx={{
           display: "flex",
@@ -471,7 +594,7 @@ const AdminEntriesListing = ({
           <Typography variant="small2">Meter type</Typography>
           <Typography variant="h6" gutterBottom>
             {meterData?.meter_type == 1
-              ? "Electricty"
+              ? "Electricity"
               : meterData?.meter_type == 2
               ? "Natural Gas"
               : meterData?.meter_type == 3
@@ -546,13 +669,13 @@ const AdminEntriesListing = ({
             sx={{ display: "inline-flex" }}
           >
             <Tab
-              value="monthlyEntries"
-              label="Monthly entries"
+              value="hourlyOrSub-hourlyEntries"
+              label="Hourly or Sub-hourly entries"
               sx={{ minWidth: "10rem" }}
             />
             <Tab
-              value="hourlyOrSub-hourlyEntries"
-              label="Hourly or Sub-hourly entries"
+              value="monthlyEntries"
+              label="Monthly entries"
               sx={{ minWidth: "10rem" }}
             />
           </Tabs>
@@ -564,13 +687,15 @@ const AdminEntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button
-            variant="contained"
-            sx={{ marginLeft: "2rem" }}
-            onClick={() => openRequestModal(false)}
-          >
-            Add Entry
-          </Button>
+          {tabValue == "monthlyEntries" ? (
+            <Button
+              variant="contained"
+              sx={{ marginLeft: "2rem" }}
+              onClick={() => openRequestModal(false)}
+            >
+              Add Entry
+            </Button>
+          ) : null}
         </Grid>
       </Grid>
 
@@ -584,7 +709,7 @@ const AdminEntriesListing = ({
             setPageInfo={setPageInfo}
           />
         </Box>
-      ) : (
+      ) : !isFileUploaded ? (
         <Box>
           <Typography variant="h5">
             Upload data in bulk for this meter
@@ -602,34 +727,54 @@ const AdminEntriesListing = ({
               backgroundColor: "#D1FFDA",
               padding: "7px 33px",
               borderRadius: "8px",
-              width: "170px",
               height: "40px",
               marginTop: "20px",
+              cursor: "pointer",
+              maxWidth: "fit-content",
             }}
             onClick={handleButtonClick}
           >
-            Choose File
+            {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
           </Typography>
           <input
             type="file"
             ref={fileInputRef}
             style={{ display: "none" }}
             onChange={handleFileChange}
-            accept=".xlsx"
+            accept=".xlsx,.csv"
           />
           <Button
-            type="button"
-            color="neutral"
-            sx={{
-              marginTop: "20px",
+            variant="contained"
+            onClick={() => uploadHourlyEntryFile(imgUrl)}
+            style={{
+              padding: "0.2rem 1rem",
+              minWidth: "unset",
               width: "165px",
-              height: "48px",
-              color: "#ffffff",
-              backgroundColor: "#2E813E",
+              height: "40px",
             }}
+            disabled={!imgUrl}
           >
             Upload
           </Button>
+        </Box>
+      ) : (
+        <Box>
+          <Typography
+            variant="h6"
+            sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
+            onClick={downloadFileFromUrl}
+          >
+            {meterData?.meter_name}_facility_meter_hourly_entries_file.xlsx
+            <Typography
+              sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
+              onClick={(event) => {
+                event.stopPropagation();
+                deleteFile();
+              }}
+            >
+              Delete
+            </Typography>
+          </Typography>
         </Box>
       )}
 

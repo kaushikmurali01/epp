@@ -20,7 +20,7 @@ const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false)
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
-    content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+    content: ''
 })
 
 const buttonStyle = {
@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the Enerva user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -139,7 +139,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '1' }) //enervaUsers for type "1"
+    setInvitePageInfo({title:'Manage Enerva User and permissions', type: '1' }) //enervaUsers for type "1"
     setInviteAPIURL(apiURL)
 }
 
@@ -147,6 +147,11 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+        },
         modalBodyContent: <DeleteModelContent />,
         saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
     }));
@@ -177,7 +182,8 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    const company_id = 0; // for enerva and Ieso
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type +'/'+ company_id;
     console.log(apiURL,item, 'delete user');
     DELETE_REQUEST(apiURL)
         .then((_response) => {

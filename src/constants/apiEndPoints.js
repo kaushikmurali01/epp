@@ -14,13 +14,13 @@ export const facilityEndPoints = {
   UPDATE_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
-  GET_CATEGORIES_TYPES_AND_NAICS: 'company-facility/v1/facility-naic',
+  GET_CATEGORIES_TYPES_AND_NAICS: "company-facility/v1/facility-naic",
 };
 
 export const adminFacilityEndpoints = {
   ADMIN_STATISTICS: "company-facility/v1/program/facility-statistics",
   ADMIN_FACILITY_LIST: "company-facility/v1/program/facility-listing",
-  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/facility",
+  ADMIN_ADD_EDIT_FACILITY: "/company-facility/v1/program/facility",
   ADMIN_DELETE_FACILITY: "company-facility/v1/program/facility",
   ADD_ADMIN_FACILITY_CHARACTERISTIC:
     "/company-facility/v1/facility-characteristics",
@@ -33,6 +33,8 @@ export const adminFacilityEndpoints = {
   UPDATE_ADMIN_FACILITY_STATUS: "/company-facility/v1/facility-status",
   ADMIN_ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
+  DOWNLOAD_BULK_FACILITIES: "company-facility/v1/csv-facilities",
+  DOWNLOAD_FACILITY_BY_ID: "/company-facility/v1/csv-facility",
 };
 
 export const PA_MANAGEMENT = {
@@ -51,9 +53,11 @@ export const USER_MANAGEMENT = {
   GET_COMPANY_LIST: "/enerva-user/v1/companies",
   GET_COMPANY_DETAILS: "/enerva-user/v1/fetch/company",
   COMPANY_SEND_ALERT: "/enerva-user/v1/company/sendAlert",
-  COMPANIES_DROPDOWN: "/company-facility/v1/program/",
+  COMPANIES_DROPDOWN: "/enerva-user/v1/dropDown/companies",
   UPDATE_COMPANY_STATUS: "/enerva-user/v1/company/updateStatus",
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
+  GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
+  DELETE_COMPANY:"enerva-user/v1/company",
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -149,3 +153,18 @@ export const adminEntriesEndPoints = {
 export const fileUploadEndPoints = {
   FILE_UPLOAD: "company-facility/v1/upload",
 };
+
+export const dashboardEndPoints = {
+  ADMIN_DASHBOARD_STATS: "company-facility/v1/dashboard/statistics",
+};
+
+export const hourlyEndPoints = {
+  GET_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
+  ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
+  DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
+};
+
+export const POWERBI_ENDPOINTS = {
+  GET_POWERBI_TOKEN: "/GenerateToken",
+  GET_AZURE_TOKEN_FOR_POWER_BI: 'etl/v1/etl/access-token'
+}

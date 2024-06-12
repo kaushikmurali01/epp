@@ -7,6 +7,7 @@ import Table from "components/Table";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import { format } from "date-fns";
 
 const FacilityRejected = ({ searchVal, companyFilter }) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
@@ -39,16 +40,26 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
       accessor: "id",
     },
     {
+      Header: "Facility name",
+      accessor: "facility_name",
+    },
+    {
       Header: "Submitted by",
-      accessor: "submitted_by",
+      accessor: (item) => (
+        <>{item?.submitted_by?.first_name}</>
+      ),
     },
     {
-      Header: "Company Name",
-      accessor: "company_name",
+      Header: "Company name",
+      accessor: (item) => (
+        <>{item?.company?.company_name}</>
+      ),
     },
     {
-      Header: "Business Email",
-      accessor: "email",
+      Header: "Business email",
+      accessor: (item) => (
+        <>{item?.submitted_by?.email}</>
+      ),
     },
     {
       Header: "Status",
@@ -60,19 +71,23 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted on",
-      accessor: "submitted_on",
+      accessor: (item) => (
+        <>{item?.submitted_on && format(item?.submitted_on, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#F26D04",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
@@ -110,6 +125,7 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>

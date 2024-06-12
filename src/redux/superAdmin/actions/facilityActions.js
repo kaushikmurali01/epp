@@ -46,13 +46,21 @@ import {
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "../../../utils/notification/NotificationsToast.js";
 
-export const fetchFacilityListing = (pageInfo, search = "", companyId) => {
+export const fetchFacilityListing = (
+  pageInfo,
+  search = "",
+  companyId,
+  sortByCol,
+  sortOrder
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityListRequest());
-      const endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
+      let endpointWithParams = `${facilityEndPoints.FACILITY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?search=${search}&company_id=${companyId}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityListSuccess(data));
@@ -163,10 +171,10 @@ export const addFacilityCharacteristic = (characteristic) => {
       const response = await POST_REQUEST(endpoint, characteristic);
       const data = response.data;
       dispatch(addFacilityCharacteristicSuccess(data));
-      NotificationsToast({
-        message: "Facility details added successfully!",
-        type: "success",
-      });
+      // NotificationsToast({
+      //   message: "Facility details added successfully!",
+      //   type: "success",
+      // });
     } catch (error) {
       console.error(error);
       dispatch(addFacilityCharacteristicFailure(error));
@@ -206,10 +214,10 @@ export const updateFacilityCharacteristic = (facilityId, characteristic) => {
       const response = await PATCH_REQUEST(endpointWithParams, characteristic);
       const data = response.data;
       dispatch(updateFacilityCharacteristicSuccess(data));
-      NotificationsToast({
-        message: "Facility details updated successfully!",
-        type: "success",
-      });
+      // NotificationsToast({
+      //   message: "Facility details updated successfully!",
+      //   type: "success",
+      // });
     } catch (error) {
       console.error(error);
       dispatch(updateFacilityCharacteristicFailure(error));

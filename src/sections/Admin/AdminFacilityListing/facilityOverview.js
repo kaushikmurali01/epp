@@ -17,22 +17,11 @@ import {
 } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchAdminFacilitiesDropdown,
-  fetchAdminStatistic,
-} from "../../../redux/admin/actions/adminFacilityActions";
-import {
-  fetchAdminCompaniesDropdown,
-  fetchAdminCompanyListing,
-} from "../../../redux/admin/actions/adminCompanyAction";
+import { fetchAdminStatistic } from "../../../redux/admin/actions/adminFacilityActions";
 
 const FacilityOverview = () => {
   const [companyFilter, setCompanyFilter] = useState("");
   const [facilityFilter, setFacilityFilter] = useState("");
-
-  // also remove this line later----------------------------------------------------------------
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 1000 });
-  //----------------------------------------------------------------
   const dispatch = useDispatch();
   const viewDataForFacility = useSelector(
     (state) => state?.adminFacilityReducer?.facilityStatistics?.data || []
@@ -41,23 +30,12 @@ const FacilityOverview = () => {
     dispatch(fetchAdminStatistic(companyFilter, facilityFilter));
   }, [dispatch, companyFilter, facilityFilter]);
 
-  useEffect(() => {
-    dispatch(fetchAdminFacilitiesDropdown());
-    // dispatch(fetchAdminCompaniesDropdown());
-    dispatch(fetchAdminCompanyListing(pageInfo));
-  }, [dispatch]);
-
   const adminFacilitiesDropdownData = useSelector(
     (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
   );
 
-  // const adminCompaniesDropdownData = useSelector(
-  //   (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
-  // );
-
-  //remove this one later when the above one will be working properly
-  const companyListDropdownData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+  const adminCompaniesDropdownData = useSelector(
+    (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
   );
 
   return (
@@ -119,7 +97,7 @@ const FacilityOverview = () => {
               >
                 Facilities Overview
               </Typography>
-              <Typography
+              {/* <Typography
                 variant="h5"
                 sx={{
                   marginTop: "0.500rem",
@@ -131,7 +109,7 @@ const FacilityOverview = () => {
               >
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry.
-              </Typography>
+              </Typography> */}
             </Grid>
             <Grid
               item
@@ -148,18 +126,10 @@ const FacilityOverview = () => {
                     value={companyFilter}
                     onChange={(e) => setCompanyFilter(e.target.value)}
                   >
-                    <MenuItem value="" disabled>
+                    <MenuItem value="">
                       <em>Company name</em>
                     </MenuItem>
-                    <MenuItem value="">
-                      <em>All companies</em>
-                    </MenuItem>
-                    {/* {adminCompanyDropdownData?.map((item) => (
-                      <MenuItem key={item?.id} value={item?.id}>
-                        {item?.company_name}
-                      </MenuItem>
-                    ))} */}
-                    {companyListDropdownData?.map((item) => (
+                    {adminCompaniesDropdownData?.map((item) => (
                       <MenuItem key={item?.id} value={item?.id}>
                         {item?.company_name}
                       </MenuItem>
@@ -183,11 +153,8 @@ const FacilityOverview = () => {
                     value={facilityFilter}
                     onChange={(e) => setFacilityFilter(e.target.value)}
                   >
-                    <MenuItem value="" disabled>
-                      <em>Facility name</em>
-                    </MenuItem>
                     <MenuItem value="">
-                      <em>All facility</em>
+                      <em>Facility name</em>
                     </MenuItem>
                     {adminFacilitiesDropdownData?.map((item) => (
                       <MenuItem key={item?.id} value={item?.id}>
@@ -212,7 +179,7 @@ const FacilityOverview = () => {
               <TableBody>
                 <TableRow>
                   <TableCell>1</TableCell>
-                  <TableCell>Total Companies</TableCell>
+                  <TableCell>Total companies</TableCell>
                   <TableCell>{viewDataForFacility?.all_company}</TableCell>
                 </TableRow>
                 <TableRow>

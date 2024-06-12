@@ -2,12 +2,39 @@ import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
 import { PowerBIEmbed } from "powerbi-client-react";
 import { models } from "powerbi-client";
 import { useSelector } from "react-redux";
+import { useState } from "react";
 
 const AdminSummary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState('')
   const facilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
+  let powerBiConfig = {
+    type: "report",
+    id: "a4beb0d6-3454-425f-ac0c-9b96429bc422",
+    embedUrl:
+      "https://app.powerbi.com/reportEmbed?reportId=a4beb0d6-3454-425f-ac0c-9b96429bc422&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUVBU1QtQVNJQS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
+    accessToken: process.env.REACT_APP_POWERBI_TOKEN,
+    tokenType: models.TokenType.Aad,
+    settings: {
+      panes: {
+        filters: {
+          expanded: false,
+          visible: false, // Hide the filter pane
+        },
+        pageNavigation: {
+          visible: false, // Hide the page navigation
+        },
+      },
+      background: models.BackgroundType.Transparent,
+      hideErrors: true
+    },
+  }
+
+  const getPowerBiError = (errorDetail) => {
+    console.log('Error in setIsErrorInPowerBi',errorDetail)
+  }
 
   return (
     <Box
@@ -19,18 +46,15 @@ const AdminSummary = () => {
     >
       <Grid container>
         <Grid item>
-          <Box
+          <Typography
             sx={{
-              cursor: "default",
-              borderRadius: "2rem",
-              background: "#EBEBEB",
-              border: "1px solid #D0D0D0",
-              textWrap: "nowrap",
-              padding: "0.375rem 1rem",
+              color: "#696969",
+              fontWeight: "bold",
+              fontSize: "14px",
             }}
           >
-            <Typography variant="small">Summary</Typography>
-          </Box>
+            Summary
+          </Typography>
         </Grid>
         <Grid container mt={3}>
           <Box
@@ -66,28 +90,9 @@ const AdminSummary = () => {
         </Grid>
       </Grid>
       <Grid>
-        <Box id="bi-report" mt={4}>
-          <PowerBIEmbed
-            embedConfig={{
-              type: "report",
-              id: "a4beb0d6-3454-425f-ac0c-9b96429bc422",
-              embedUrl:
-                "https://app.powerbi.com/reportEmbed?reportId=a4beb0d6-3454-425f-ac0c-9b96429bc422&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUVBU1QtQVNJQS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
-              accessToken: process.env.REACT_APP_POWERBI_TOKEN,
-              tokenType: models.TokenType.Aad,
-              settings: {
-                panes: {
-                  filters: {
-                    expanded: false,
-                    visible: false, // Hide the filter pane
-                  },
-                  pageNavigation: {
-                    visible: false, // Hide the page navigation
-                  },
-                },
-                background: models.BackgroundType.Transparent,
-              },
-            }}
+      <Box id="bi-report" mt={4}>
+          {isErrorInPowerBi ? <PowerBIEmbed
+            embedConfig={powerBiConfig}
             eventHandlers={
               new Map([
                 [
@@ -105,7 +110,8 @@ const AdminSummary = () => {
                 [
                   "error",
                   function (event) {
-                    console.log(event.detail);
+                    console.log("iiiiiiiiiii",event.detail);
+                    getPowerBiError(event.detail)
                   },
                 ],
                 ["visualClicked", () => console.log("visual clicked")],
@@ -116,7 +122,18 @@ const AdminSummary = () => {
             getEmbeddedComponent={(embeddedReport) => {
               window.report = embeddedReport;
             }}
-          />
+          /> : 
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: "700",
+              fontSize: "1.125rem !important",
+              lineHeight: "106.815%",
+              letterSpacing: "-0.01125rem",
+            }}
+          >
+            Data has not been uploaded and verified yet so this visualization is not available.
+          </Typography>}
         </Box>
       </Grid>
     </Box>

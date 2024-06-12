@@ -5,6 +5,7 @@ import {
   Button,
   Container,
   FormControl,
+  FormGroup,
   Grid,
   InputLabel,
   Link,
@@ -25,21 +26,29 @@ import {
 } from "../../../redux/superAdmin/actions/facilityActions";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
-import FacilityStatus from "components/FacilityStatus";
 import CustomSlider from "components/CustomSlider";
 import EvModal from "utils/modal/EvModal";
 import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
-import SelectBox from "components/FormBuilder/Select";
 import ButtonWrapper from "components/FormBuilder/Button";
 import debounce from "lodash.debounce";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
+import { hasPermission } from "utils/commonFunctions";
+import Loader from "pages/Loader";
 
 const Facility = () => {
   const [facilityToDelete, setFacilityToDelete] = useState("");
+  const permissionList = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.permissions || []
+  );
+  const loadingState = useSelector(
+    (state) => state?.facilityReducer?.loading
+  );
   const columns = [
     {
       Header: "Name/Nick Name",
+      accessorKey: "facility_name",
       accessor: (item) => (
         <Box
           sx={{
@@ -51,14 +60,19 @@ const Facility = () => {
           gap={2}
           onClick={(e) => e.stopPropagation()}
         >
-          <Typography>{item.facility_name}</Typography>
+          <Typography variant="body2" sx={{ fontWeight: "inherit" }}>
+            {item.facility_name}
+          </Typography>
           {item?.facility_id_submission_status === 1 && (
             <Button
               variant="contained"
-              sx={{ display: item.is_approved && "none" }}
+              sx={{
+                display: item.is_approved && "none",
+                fontSize: { xs: "0.875rem" },
+              }}
               onClick={() => submitForApprovalHandler(item.id)}
             >
-              Submit for approval
+              Submit for baseline modelling
             </Button>
           )}
           {false ? (
@@ -106,37 +120,49 @@ const Facility = () => {
     {
       Header: "Facility Status",
       accessor: (item) => (
-        <FacilityStatus>{item.facility_id_submission_status}</FacilityStatus>
+        <AdminFacilityStatus>
+          {item.facility_id_submission_status}
+        </AdminFacilityStatus>
       ),
     },
     {
       Header: "Actions",
       accessor: (item) => (
-        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+        <Box
+          display="flex"
+          onClick={(e) => e.stopPropagation()}
+          justifyContent="flex-end"
+        >
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
-          <Button
-            color="error"
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              marginLeft: "1rem",
-            }}
-            onClick={() => {
-              openDeleteFacilityModal(item?.id);
-            }}
-          >
-            Delete
-          </Button>
+          {hasPermission(permissionList, "delete-facility") && (
+            <Button
+              color="error"
+              disableRipple
+              style={{
+                backgroundColor: "transparent",
+                padding: 0,
+                minWidth: "unset",
+                marginLeft: "1rem",
+                fontSize: "0.875rem",
+              }}
+              onClick={() => {
+                openDeleteFacilityModal(item?.id);
+              }}
+            >
+              Delete
+            </Button>
+          )}
         </Box>
       ),
     },
@@ -162,6 +188,8 @@ const Facility = () => {
 
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
   const openDeleteFacilityModal = (facilityId) => {
     setFacilityToDelete(facilityId);
@@ -216,16 +244,34 @@ const Facility = () => {
     saveButtonAction: handleDeleteFacility,
   });
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    dispatch(fetchFacilityListing(pageInfo, searchString, userCompanyId));
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, sort_Column, sort_Order) => {
+      dispatch(
+        fetchFacilityListing(
+          pageInfo,
+          searchString,
+          userCompanyId,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString, sortColumn, sortOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchString,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
@@ -263,7 +309,7 @@ const Facility = () => {
       cancelButtonClass: "",
     },
     headerText: "Assign Facility",
-    headerSubText: "Lorem Ipsum is simply dummy text of the print",
+    headerSubText: "",
     modalBodyContent: "",
   });
 
@@ -271,6 +317,7 @@ const Facility = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: userCompanyId,
     };
     const formSubmit = (values) => {
       dispatch(assignFacilities(values)).then(() => {
@@ -299,8 +346,9 @@ const Facility = () => {
               />
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+            <FormGroup className='theme-form-group theme-select-form-group'>
               <InputLabel>Assign Facility*</InputLabel>
-              <FormControl>
+              <FormControl  sx={{color: 'primary.main'}}>
                 <Select
                   fullWidth
                   name="facilityId"
@@ -309,6 +357,7 @@ const Facility = () => {
                   onChange={(e) => {
                     setFieldValue("facilityId", e.target.value);
                   }}
+                 
                 >
                   {facilitiesDropdownData?.map((item) => (
                     <MenuItem key={item?.id} value={item?.id}>
@@ -317,6 +366,7 @@ const Facility = () => {
                   ))}
                 </Select>
               </FormControl>
+              </FormGroup>
             </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
               <ButtonWrapper type="submit" variant="contained">
@@ -340,7 +390,7 @@ const Facility = () => {
   return (
     <Container>
       <Grid container spacing={2}>
-        <Grid item xs={12} sm={6}>
+        <Grid item xs={12} sm={4}>
           <Typography
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
@@ -361,66 +411,92 @@ const Facility = () => {
             is mandatory before you enrol your facility
           </Typography> */}
         </Grid>
-        <Grid item sm={3.5}>
-          <TextField
-            name="search"
-            label="Search by Facility name"
-            type="text"
-            fullWidth
-            size="small"
+        <Grid item xs={12} sm={8}>
+          <Grid
+            container
             sx={{
-              "& .MuiInputBase-root": {
-                height: "3rem",
-                borderRadius: "6px",
-              },
+              gap: { xs: "1rem", md: "2rem" },
+              justifyContent: { xs: "flex-start", md: "flex-end" },
             }}
-            onChange={(e) => setSearchString(e.target.value)}
-          />
-        </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="center">
-          <Button
-            variant="contained"
-            sx={{
-              padding: 0,
-              minWidth: "5rem!important",
-              bgcolor: "#2C77E9",
-            }}
-            onClick={openRequestModal}
           >
-            Assign
-          </Button>
-        </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="flex-end">
-          <Button
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            disableRipple
-            endIcon={
-              <AddCircleIcon
-                style={{
-                  color: "text.primary",
-                  fontSize: "2rem",
+            <Grid item>
+              <TextField
+                name="search"
+                label="Search by Facility name"
+                type="text"
+                fullWidth
+                size="small"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "3rem",
+                    borderRadius: "6px",
+                  },
                 }}
+                onChange={(e) => setSearchString(e.target.value)}
               />
-            }
-            onClick={() => navigate("/facility-list/add-facility")}
-          >
-            Add Facility
-          </Button>
+            </Grid>
+            <Grid
+              item
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Button
+                variant="contained"
+                sx={{
+                  padding: "4px 12px",
+                  minWidth: "5rem!important",
+                  // bgcolor: "#2C77E9",
+                }}
+                onClick={openRequestModal}
+              >
+                Assign Access
+              </Button>
+            </Grid>
+            <Grid
+              item
+              display="flex"
+              alignItems="center"
+              justifyContent="flex-end"
+            >
+              <Button
+                style={{
+                  backgroundColor: "transparent",
+                  padding: 0,
+                  minWidth: "unset",
+                  fontSize: "0.875rem",
+                }}
+                disableRipple
+                endIcon={
+                  <AddCircleIcon
+                    style={{
+                      color: "text.primary",
+                      fontSize: "2rem",
+                    }}
+                  />
+                }
+                onClick={() => navigate("/facility-list/add-facility")}
+              >
+                Add Facility
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
+
       <Box sx={{ marginTop: "2rem" }}>
         <Table
+          cursorStyle="pointer"
           columns={columns}
           data={facilityListData}
           count={facilityCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal
@@ -431,6 +507,12 @@ const Facility = () => {
       <EvModal
         modalConfig={assignModalConfig}
         setModalConfig={setAssignModalConfig}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </Container>
   );

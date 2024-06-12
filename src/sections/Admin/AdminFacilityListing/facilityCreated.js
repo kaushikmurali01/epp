@@ -4,6 +4,7 @@ import Table from "../../../components/Table";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAdminFacility,
+  downloadFacilityRowData,
   fetchAdminFacilityListing,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -11,25 +12,52 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import { format } from "date-fns";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
-const FacilityCreated = ({ searchVal, companyFilter }) => {
+const FacilityCreated = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+}) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [facilityToDelete, setFacilityToDelete] = useState("");
 
-  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
-    dispatch(
-      fetchAdminFacilityListing(pageInfo, "", searchString, company_filter)
-    );
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, company_filter, sort_Column, sort_Order) => {
+      dispatch(
+        fetchAdminFacilityListing(
+          pageInfo,
+          "",
+          searchString,
+          company_filter,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchVal, companyFilter);
+    debouncedSearch(pageInfo, searchVal, companyFilter, sortColumn, sortOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchVal, companyFilter]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchVal,
+    companyFilter,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const adminFacilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
@@ -93,18 +121,24 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
     {
       Header: "Facility ID",
       accessor: "id",
+      accessorKey: "id",
+    },
+    {
+      Header: "Facility name",
+      accessor: "facility_name",
+      accessorKey: "facility_name",
     },
     {
       Header: "Submitted by",
-      accessor: "submitted_by",
+      accessor: (item) => <>{item?.submitted_by?.first_name}</>,
     },
     {
-      Header: "Company Name",
-      accessor: "company_name",
+      Header: "Company name",
+      accessor: (item) => <>{item?.company?.company_name}</>,
     },
     {
-      Header: "Business Email",
-      accessor: "email",
+      Header: "Business email",
+      accessor: (item) => <>{item?.submitted_by?.email}</>,
     },
     {
       Header: "Status",
@@ -116,31 +150,37 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted on",
-      accessor: "submitted_on",
+      accessor: (item) => (
+        <>{item?.submitted_on && format(item?.submitted_on, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#007398",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() => onDownloadRowClick(item?.id, item?.facility_name)}
           >
             Download
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2E813E",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() =>
               navigate(`/facility-list/facility-details/${item?.id}`)
@@ -149,24 +189,28 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
             View
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2C77E9",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
           <Button
+            disableRipple
             color="error"
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openDeleteFacilityModal(item.id)}
           >
@@ -217,6 +261,7 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo)}
                 >
                   Download Bulk
                 </Button>
@@ -230,6 +275,11 @@ const FacilityCreated = ({ searchVal, companyFilter }) => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+            cursorStyle="pointer"
+            sortColumn={sortColumn}
+            sortOrder={sortOrder}
+            setSortColumn={setSortColumn}
+            setSortOrder={setSortOrder}
           />
         </Grid>
       </Grid>

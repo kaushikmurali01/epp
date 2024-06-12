@@ -7,8 +7,14 @@ import AdminFacilityStatus from "components/AdminFacilityStatus";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
+import { format } from "date-fns";
 
-const FacilityReview = ({ searchVal, companyFilter }) => {
+const FacilityReview = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+}) => {
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -39,16 +45,26 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
       accessor: "id",
     },
     {
+      Header: "Facility name",
+      accessor: "facility_name",
+    },
+    {
       Header: "Submitted by",
-      accessor: "submitted_by",
+      accessor: (item) => (
+        <>{item?.submitted_by?.first_name}</>
+      ),
     },
     {
-      Header: "Company Name",
-      accessor: "company_name",
+      Header: "Company name",
+      accessor: (item) => (
+        <>{item?.company?.company_name}</>
+      ),
     },
     {
-      Header: "Business Email",
-      accessor: "email",
+      Header: "Business email",
+      accessor: (item) => (
+        <>{item?.submitted_by?.email}</>
+      ),
     },
     {
       Header: "Status",
@@ -60,31 +76,37 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted on",
-      accessor: "submitted_on",
+      accessor: (item) => (
+        <>{item?.submitted_on && format(item?.submitted_on, "MM/dd/yyyy")}</>
+      ),
     },
     {
       Header: "Actions",
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#007398",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
-            // onClick={() => openDeleteModal(item?.id)}
+            onClick={() => onDownloadRowClick(item?.id, item?.facility_name)}
           >
             Download
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2E813E",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
@@ -135,6 +157,7 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo, 3)}
                 >
                   Download Bulk
                 </Button>
@@ -148,6 +171,7 @@ const FacilityReview = ({ searchVal, companyFilter }) => {
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
             onClick={(id) => navigate(`/facility-list/facility-details/${id}`)}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>

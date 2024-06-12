@@ -56,7 +56,7 @@ const RoutesComp = () => {
       case 1:
         return (<EnervaRoutes />);
       case 3:
-        return (<IndividualUserRoutes />);
+        return (<IndividualUserRoutes userDetails={userDetails} userPermissions={userPermissions}/>);
     //   default:
     //     return <UnprotectedRouter />;
     }
@@ -112,7 +112,7 @@ const RoutesComp = () => {
         {/* <DashboardRoutes /> */}
         {selectRouter(userDetails?.type)}
       </CommonLayout>
-      
+
       <Modal
         open={showNewUserPopup}
         onClose={onClose}
@@ -151,13 +151,14 @@ const RoutesComp = () => {
               width: "100%",
               mt: 2,
               mb: 4,
+              textAlign: { xs: "center", md: "start" },
             }}
           >
             <Typography variant="h4" sx={{ color: "text.secondary2" }}>
               Welcome to the EPP Program.
             </Typography>
             <Typography variant="small2" sx={{ color: "text.secondary2" }}>
-              You are all set to start saving energy and earn incentives.
+              You are all set to start saving energy and earning incentives.
             </Typography>
           </Box>
 
@@ -168,7 +169,7 @@ const RoutesComp = () => {
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               alignItems: "center",
-              gap: { xs: "1.5rem", md: "0" },
+              gap: { xs: "0.5rem", md: "0" },
               width: "100%",
               mt: 2,
               mb: 2,
@@ -190,6 +191,11 @@ const RoutesComp = () => {
             >
               Create your facility
             </ListItem>
+            <img
+              src="/images/dashboard-arrow.svg"
+              alt="arrow"
+              className="arrow"
+            />
             <ListItem
               disablePadding
               sx={{
@@ -205,10 +211,15 @@ const RoutesComp = () => {
             >
               Enter facility data and submit
             </ListItem>
+            <img
+              src="/images/dashboard-arrow.svg"
+              alt="arrow"
+              className="arrow"
+            />
             <ListItem
               disablePadding
               sx={{
-                width: { xs: "max-content", md: "auto" },
+                width: { xs: "auto", sm: "max-content", md: "auto" },
                 padding: "0.25rem 0.75rem",
                 borderRadius: "208.3125rem",
                 background: "#CAFFCF",
@@ -216,9 +227,10 @@ const RoutesComp = () => {
                 fontSize: "0.875rem",
                 fontWeight: 400,
                 lineHeight: "185.714%",
+                textAlign: "center"
               }}
             >
-              Review and accept Baseline Model
+              Review and accept Baseline Energy Model
             </ListItem>
           </List>
 
@@ -226,6 +238,7 @@ const RoutesComp = () => {
             sx={{
               width: "100%",
               mt: 4,
+              textAlign: { xs: "center", md: "start" },
             }}
           >
             <Button
@@ -242,11 +255,12 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : <>
-    <CommonLayout>
-    </CommonLayout>
-    <Loader/>
-  </>;
+  ) : (
+    <>
+      <CommonLayout></CommonLayout>
+      <Loader />
+    </>
+  );
 };
 
 export default RoutesComp;

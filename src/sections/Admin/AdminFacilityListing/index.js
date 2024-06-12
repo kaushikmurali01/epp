@@ -28,10 +28,14 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   adminAssignFacilities,
+  downloadFacilitiesBulkData,
+  downloadFacilityRowData,
   fetchAdminFacilitiesDropdown,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
-import { fetchAdminCompanyListing } from "../../../redux/admin/actions/adminCompanyAction";
+import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
+import NotificationsToast from "utils/notification/NotificationsToast";
+import Loader from "pages/Loader";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
@@ -42,19 +46,89 @@ const AdminFacilityListing = () => {
   };
   const dispatch = useDispatch();
   const [searchString, setSearchString] = useState("");
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 1000 });
 
   useEffect(() => {
     dispatch(fetchAdminFacilitiesDropdown());
-    dispatch(fetchAdminCompanyListing(pageInfo));
+    dispatch(fetchAdminCompaniesDropdown());
   }, [dispatch]);
 
   const adminFacilitiesDropdownData = useSelector(
     (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
   );
-  const companyListDropdownData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyList?.data?.rows || []
+  const adminCompaniesDropdownData = useSelector(
+    (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
   );
+  const loadingState = useSelector(
+    (state) => state?.adminFacilityReducer?.loading
+  );
+
+  const onDownloadBulkClick = (page_info, status) => {
+    dispatch(downloadFacilitiesBulkData(page_info, companyFilter, status)).then(
+      (response) => {
+        const data = response?.data;
+        if (data) {
+          fetch(data)
+            .then((res) => {
+              res.blob().then((blob) => {
+                const fileURL = window.URL.createObjectURL(blob);
+                let alink = document.createElement("a");
+                alink.href = fileURL;
+                let fileName = "Facilities_Bulk_Data.csv";
+                alink.download = fileName;
+                alink.click();
+              });
+              NotificationsToast({
+                message: "Downloading facilities bulk data completed",
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
+            });
+        }
+      }
+    );
+  };
+
+  const onDownloadRowClick = (facility_id, facility_name) => {
+    dispatch(downloadFacilityRowData(facility_id)).then((response) => {
+      const data = response?.data;
+      if (data) {
+        fetch(data).then((res) => {
+          res
+            .blob()
+            .then((blob) => {
+              const fileURL = window.URL.createObjectURL(blob);
+              let alink = document.createElement("a");
+              alink.href = fileURL;
+              let fileName = "Facility_Data";
+              if (facility_name) {
+                fileName += "_for_" + facility_name + ".csv";
+              }
+              alink.download = fileName;
+              alink.click();
+              NotificationsToast({
+                message: `Downloading facility data for ${facility_name} completed`,
+                type: "success",
+              });
+            })
+            .catch((error) => {
+              NotificationsToast({
+                message: error?.message
+                  ? error.message
+                  : "Something went wrong while downloading!",
+                type: "error",
+              });
+            });
+        });
+      }
+    });
+  };
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -81,7 +155,7 @@ const AdminFacilityListing = () => {
       cancelButtonClass: "",
     },
     headerText: "Assign Facility",
-    headerSubText: "Lorem Ipsum is simply dummy text of the print",
+    headerSubText: "",
     modalBodyContent: "",
   });
 
@@ -89,6 +163,7 @@ const AdminFacilityListing = () => {
     const initialValues = {
       email: "",
       facilityId: [],
+      companyId: null,
     };
     const formSubmit = (values) => {
       dispatch(adminAssignFacilities(values)).then(() => {
@@ -117,24 +192,26 @@ const AdminFacilityListing = () => {
               />
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
-              <InputLabel>Assign Facility*</InputLabel>
-              <FormControl>
-                <Select
-                  fullWidth
-                  name="facilityId"
-                  multiple
-                  value={values.facilityId}
-                  onChange={(e) => {
-                    setFieldValue("facilityId", e.target.value);
-                  }}
-                >
-                  {adminFacilitiesDropdownData?.map((item) => (
-                    <MenuItem key={item?.id} value={item?.id}>
-                      {item?.facility_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <InputLabel>Assign Facility*</InputLabel>
+                <FormControl sx={{ color: "primary.main" }}>
+                  <Select
+                    fullWidth
+                    name="facilityId"
+                    multiple
+                    value={values.facilityId}
+                    onChange={(e) => {
+                      setFieldValue("facilityId", e.target.value);
+                    }}
+                  >
+                    {adminFacilitiesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.facility_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FormGroup>
             </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
               <ButtonWrapper type="submit" variant="contained">
@@ -164,6 +241,8 @@ const AdminFacilityListing = () => {
           <FacilityCreated
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "approved":
@@ -171,6 +250,8 @@ const AdminFacilityListing = () => {
           <FacilityApproved
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "underreview":
@@ -178,6 +259,8 @@ const AdminFacilityListing = () => {
           <FacilityReview
             searchVal={searchString}
             companyFilter={companyFilter}
+            onDownloadBulkClick={onDownloadBulkClick}
+            onDownloadRowClick={onDownloadRowClick}
           />
         );
       case "rejected":
@@ -194,142 +277,172 @@ const AdminFacilityListing = () => {
 
   return (
     <Container>
-      <Grid container spacing={2}>
-        <Grid item>
+      <Grid container spacing={2} alignItems="center">
+        <Grid item xs={100} md={4}>
           <Typography
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
             Facilities Management
           </Typography>
-          <Typography variant="small2">
+          {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
             industry.
-          </Typography>
+          </Typography> */}
         </Grid>
-        <Grid item display="flex" alignItems="center" justifyContent="center">
-          <TextField
-            name="search"
-            label="Search by Facility name"
-            type="text"
-            fullWidth
-            size="small"
+        <Grid item xs={100} md={8}>
+          <Grid
+            container
+            alignItems="center"
             sx={{
-              "& .MuiInputBase-root": {
-                height: "2.9rem",
-                borderRadius: "6px",
-              },
+              gap: "2rem",
+              justifyContent: { xs: "flex-start", md: "flex-end" },
             }}
-            onChange={(e) => setSearchString(e.target.value)}
-          />
-        </Grid>
-        <Grid
-          item
-          sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <FormGroup className="theme-form-group theme-select-form-group">
-            <FormControl sx={{ minWidth: "6rem" }}>
-              <Select
-                displayEmpty={true}
-                className="transparent-border"
-                value={companyFilter}
-                onChange={(e) => setCompanyFilter(e.target.value)}
-              >
-                <MenuItem value="" disabled>
-                  <em>Company name</em>
-                </MenuItem>
-                <MenuItem value="">
-                  <em>All companies</em>
-                </MenuItem>
-                {companyListDropdownData?.map((item) => (
-                  <MenuItem key={item?.id} value={item?.id}>
-                    {item?.company_name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </FormGroup>
-        </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            variant="contained"
-            sx={{
-              padding: 0,
-              minWidth: "5rem!important",
-              bgcolor: "#2C77E9",
-            }}
-            onClick={openRequestModal}
           >
-            Assign
-          </Button>
-        </Grid>
-        <Grid
-          item
-          // sm={2}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Button
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            disableRipple
-            endIcon={
-              <AddCircleIcon
-                style={{
-                  color: "text.primary",
-                  fontSize: "2rem",
+            <Grid item>
+              <TextField
+                name="search"
+                label="Search by facility name"
+                type="text"
+                fullWidth
+                size="small"
+                sx={{
+                  "& .MuiInputBase-root": {
+                    height: "2.9rem",
+                    borderRadius: "6px",
+                  },
                 }}
+                onChange={(e) => setSearchString(e.target.value)}
               />
-            }
-            onClick={() => navigate("/facility-list/add-facility")}
-          >
-            Add Facility
-          </Button>
+            </Grid>
+            <Grid
+              item
+              sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <FormControl sx={{ minWidth: "6rem" }}>
+                  <Select
+                    displayEmpty={true}
+                    className="transparent-border"
+                    value={companyFilter}
+                    onChange={(e) => setCompanyFilter(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>Company name</em>
+                    </MenuItem>
+                    {adminCompaniesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.company_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FormGroup>
+            </Grid>
+            <Grid
+              item
+              // sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Button
+                variant="contained"
+                sx={{
+                  padding: "4px 12px",
+                  minWidth: "5rem!important",
+                  // bgcolor: "#2C77E9",
+                }}
+                onClick={openRequestModal}
+              >
+                Assign Access
+              </Button>
+            </Grid>
+            <Grid
+              item
+              // sm={2}
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Button
+                style={{
+                  backgroundColor: "transparent",
+                  padding: 0,
+                  minWidth: "unset",
+                  fontSize: "0.875rem",
+                }}
+                disableRipple
+                endIcon={
+                  <AddCircleIcon
+                    style={{
+                      color: "text.primary",
+                      fontSize: "2rem",
+                    }}
+                  />
+                }
+                onClick={() => navigate("/facility-list/add-facility")}
+              >
+                Add Facility
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={12} md={8} mt={4}>
-        <Tabs
-          className="theme-tabs-list"
-          value={tabValue}
-          onChange={handleChange}
-          sx={{ display: "inline-flex" }}
+      <div container>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          mt={4}
+          sx={{
+            overflowX: "auto!important",
+            ".MuiTabs-scroller": {
+              overflowX: { xs: "auto !important", md: "hidden" },
+            },
+          }}
         >
-          <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
-          <Tab
-            value="created_facilities"
-            label="Created facilities"
-            sx={{ minWidth: "10rem" }}
-          />
+          <Tabs
+            className="theme-tabs-list"
+            value={tabValue}
+            onChange={handleChange}
+            sx={{
+              display: "inline-flex",
+            }}
+          >
+            <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="created_facilities"
+              label="Created facilities"
+              sx={{ minWidth: "10rem" }}
+            />
 
-          <Tab value="approved" label="Approved" sx={{ minWidth: "10rem" }} />
-          <Tab
-            value="underreview"
-            label="Under Review"
-            sx={{ minWidth: "10rem" }}
-          />
-          <Tab value="rejected" label="Rejected" sx={{ minWidth: "10rem" }} />
-        </Tabs>
-      </Grid>
+            <Tab value="approved" label="Approved" sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="underreview"
+              label="Under Review"
+              sx={{ minWidth: "10rem" }}
+            />
+            <Tab value="rejected" label="Rejected" sx={{ minWidth: "10rem" }} />
+          </Tabs>
+        </Grid>
+      </div>
+
       <Grid container spacing={3}>
         <Grid item xs={12}>
           {renderTabContent()}
         </Grid>
       </Grid>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Container>
   );
 };

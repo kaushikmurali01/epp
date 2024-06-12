@@ -2,12 +2,147 @@ import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
 import { PowerBIEmbed } from "powerbi-client-react";
 import { models } from "powerbi-client";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
 
 const Summary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false)
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
+
+  const [reportLoading, setReportLoading] = useState(true)
+
+  useEffect(() => {
+    if(!facilityData) return;
+    getPowerBiToken()
+  }, [facilityData])
+
+  const getPowerBiToken = () => {
+    const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI
+
+    GET_REQUEST(apiURL).then((response) => {
+      localStorage.setItem("powerBiAccessToken", (response?.data?.access_token));
+      getPowerBiReportToken()
+    })
+    .catch((error) => {
+      console.log(error);
+      if(error?.response?.status == 403){
+      }
+      setReportLoading(false);
+    });
+  }
+
+  const getPowerBiReportToken= () => {
+    setReportLoading(true)
+    const apiURL = POWERBI_ENDPOINTS.GET_POWERBI_TOKEN;
+    const body = {
+      "datasets": [
+        {
+          "id": "412f4b82-c380-4e00-8e50-32c04b30601c"
+        }
+      ],
+      "reports": [
+        {
+          "allowEdit": true,
+          "id": "c2ee7d2e-ec32-4404-a9f4-997528c1ac9e"
+        }
+      ]
+    }
+    POWERBI_POST_REQUEST(apiURL, body)
+      .then((res) => {
+        localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data))
+        setReportParameters();
+      })
+      .catch((error) => {
+        console.log(error);
+        if(error?.response?.status == 403){
+        }
+        setReportLoading(false);
+      });
+  }
+
+  let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
+
+  const setReportParameters = () => {
+    const apiURL = "https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/412f4b82-c380-4e00-8e50-32c04b30601c/Default.UpdateParameters"
+    const body = {
+      "updateDetails": [
+        {
+          "name": "facility_id (2)",
+          "newValue": facilityData?.id
+        },
+        {
+          "name": "created_by",
+          "newValue":facilityData?.created_by
+        },
+        {
+          "name": "meter_id",
+          "newValue": "2"
+        },
+        {
+          "name": "granularity",
+          "newValue": "daily"
+        }
+      ]
+    }
+    POWERBI_POST_REQUEST(apiURL, body)
+      .then((res) => {
+        console.log("resss after setting parameters", res)
+        refreshPowerBiReport()
+      })
+      .catch((error) => {
+        setReportLoading(false)
+        console.log(error);
+      });
+  }
+
+  const refreshPowerBiReport = () => {
+    const apiURL = "https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/412f4b82-c380-4e00-8e50-32c04b30601c/refreshes"
+    const body = {
+      retryCount: 3
+    }
+    POWERBI_POST_REQUEST(apiURL, body, )
+      .then((res) => {
+        console.log("resss after refreshing", res)
+        setReportLoading(false)
+      })
+      .catch((error) => {
+        setReportLoading(false)
+        console.log(error);
+      });
+  }
+  
+  let powerBiConfig = {
+    type: "report",
+    id: "c2ee7d2e-ec32-4404-a9f4-997528c1ac9e",
+    embedUrl:
+    "https://app.powerbi.com/reportEmbed?reportId=c2ee7d2e-ec32-4404-a9f4-997528c1ac9e&groupId=d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUNBTkFEQS1DRU5UUkFMLUItUFJJTUFSWS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
+      
+    accessToken: powerBiReportToken?.token || null,
+    tokenType: models.TokenType.Embed,
+    settings: {
+      panes: {
+        filters: {
+          expanded: false,
+          visible: false, // Hide the filter pane
+        },
+        pageNavigation: {
+          visible: false, // Hide the page navigation
+        },
+      },
+      background: models.BackgroundType.Transparent,
+      // hideErrors: true
+    },
+  }
+
+  const getPowerBiError = (errorDetail) => {
+    console.log('Error in setIsErrorInPowerBi',errorDetail)
+  }
+ 
   return (
     <Box
       sx={{
@@ -18,18 +153,15 @@ const Summary = () => {
     >
       <Grid container>
         <Grid item>
-          <Box
+          <Typography
             sx={{
-              cursor: "default",
-              borderRadius: "2rem",
-              background: "#EBEBEB",
-              border: "1px solid #D0D0D0",
-              textWrap: "nowrap",
-              padding: "0.375rem 1rem",
+              color: "#696969",
+              fontWeight: "bold",
+              fontSize: "14px",
             }}
           >
-            <Typography variant="small">Summary</Typography>
-          </Box>
+            Summary
+          </Typography>
         </Grid>
         <Grid container mt={3}>
           <Box
@@ -66,27 +198,8 @@ const Summary = () => {
       </Grid>
       <Grid>
         <Box id="bi-report" mt={4}>
-          <PowerBIEmbed
-            embedConfig={{
-              type: "report",
-              id: "a4beb0d6-3454-425f-ac0c-9b96429bc422",
-              embedUrl:
-                "https://app.powerbi.com/reportEmbed?reportId=a4beb0d6-3454-425f-ac0c-9b96429bc422&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLVNPVVRILUVBU1QtQVNJQS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
-              accessToken: process.env.REACT_APP_POWERBI_TOKEN,
-              tokenType: models.TokenType.Aad,
-              settings: {
-                panes: {
-                  filters: {
-                    expanded: false,
-                    visible: false, // Hide the filter pane
-                  },
-                  pageNavigation: {
-                    visible: false, // Hide the page navigation
-                  },
-                },
-                background: models.BackgroundType.Transparent,
-              },
-            }}
+          {(!isErrorInPowerBi && !reportLoading) ? <PowerBIEmbed
+            embedConfig={powerBiConfig}
             eventHandlers={
               new Map([
                 [
@@ -104,7 +217,8 @@ const Summary = () => {
                 [
                   "error",
                   function (event) {
-                    console.log(event.detail);
+                    console.log("iiiiiiiiiii",event.detail);
+                    getPowerBiError(event.detail)
                   },
                 ],
                 ["visualClicked", () => console.log("visual clicked")],
@@ -115,7 +229,18 @@ const Summary = () => {
             getEmbeddedComponent={(embeddedReport) => {
               window.report = embeddedReport;
             }}
-          />
+          /> : 
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: "700",
+              fontSize: "1.125rem !important",
+              lineHeight: "106.815%",
+              letterSpacing: "-0.01125rem",
+            }}
+          >
+            Either data has not been uploaded and verified yet or uploaded data is in processing state, so this visualization is not available.
+          </Typography>}
         </Box>
       </Grid>
     </Box>

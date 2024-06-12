@@ -26,7 +26,7 @@ function showForm(userRole) {
     document.getElementById("state").value = "";
     document.getElementById("postalCode").value = "";
     // Set default value for country select
-    document.getElementById("country").value = "";
+    document.getElementById("country").value = "Canada";
 
     document.getElementById("extension_UserType_2").click();
 
@@ -491,29 +491,31 @@ function checkCompanyName() {
         console.error("Error:", error);
         // Handle any errors that occur during the API call
       });
-  } else {
-    // Remove any existing error message if the input field is empty
-    removeErrorMessage();
   }
+  // else {
+  //   // Remove any existing error message if the input field is empty
+  //   removeErrorMessage();
+  //   return;
+  // }
 }
 
 // Function to show an error message
-function showErrorMessage(message, cls = ".extension_CompanyName_li") {
+// function showErrorMessage(message, cls = ".extension_CompanyName_li") {
   // You can display the error message in the desired way
   // For example, you can use the provided error div with the class "error itemLevel"
-  const companyli = document.querySelector(cls);
-  const errorDiv = companyli.querySelector(".error.itemLevel");
-  errorDiv.textContent = message;
-  errorDiv.style.display = "block";
-}
+//   const companyli = document.querySelector(cls);
+//   const errorDiv = companyli.querySelector(".error.itemLevel");
+//   errorDiv.textContent = message;
+//   errorDiv.style.display = "block";
+// }
 
 // Function to remove any existing error message
-function removeErrorMessage(cls = ".extension_CompanyName_li") {
-  const companyli = document.querySelector(cls);
-  const errorDiv = companyli.querySelector(".error.itemLevel");
-  errorDiv.textContent = "";
-  errorDiv.style.display = "none";
-}
+// function removeErrorMessage(cls = ".extension_CompanyName_li") {
+//   const companyli = document.querySelector(cls);
+//   const errorDiv = companyli.querySelector(".error.itemLevel");
+//   errorDiv.textContent = "";
+//   errorDiv.style.display = "none";
+// }
 function showPopup() {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";

@@ -20,7 +20,7 @@ const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
-    content: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.'
+    content: ''
 })
 
 const buttonStyle = {
@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the user Details
+                    the IESO user Details
                 </Typography>
             </Grid>
             <Grid item>
@@ -102,7 +102,7 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, se
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
                 <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item)  } >
@@ -140,7 +140,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: '4' })
+    setInvitePageInfo({title:'Manage IESO User and permissions', type: '4' })
     setInviteAPIURL(apiURL)
 }
 
@@ -148,6 +148,11 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+        },
         modalBodyContent: <DeleteModelContent />,
         saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
     }));
@@ -177,7 +182,8 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type;
+    const company_id = 0; // for enerva and Ieso
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + company_id;
     // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {

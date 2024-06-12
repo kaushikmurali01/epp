@@ -1,5 +1,11 @@
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
-import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import {
+  GET_REQUEST,
+  PATCH_REQUEST,
+  POST_REQUEST,
+  PUT_REQUEST,
+  DELETE_REQUEST
+} from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
   adminCompanySendAlertFailure,
@@ -8,6 +14,9 @@ import {
   adminCompanyUpdateStatusFailure,
   adminCompanyUpdateStatusRequest,
   adminCompanyUpdateStatusSuccess,
+  deleteCompanyFailure,
+  deleteCompanyRequest,
+  deleteCompanySucess,
   fetchAdminCompaniesDropdownFailure,
   fetchAdminCompaniesDropdownRequest,
   fetchAdminCompaniesDropdownSuccess,
@@ -18,18 +27,25 @@ import {
   fetchAdminCompanyListRequest,
   fetchAdminCompanyListSuccess,
 } from "../actionCreators/adminCompanyActionCreators";
+import { DELETE_COMPANY_SUCCESS } from "../actionTypes";
 
 export const fetchAdminCompanyListing = (
   pageInfo,
   search = "",
-  company_type_filter = ""
+  company_type_filter = "",
+  sortByCol,
+  sortOrder
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminCompanyListRequest());
-      const endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
+      let endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
         (pageInfo.page - 1) * pageInfo.pageSize
-      }/${pageInfo.pageSize}?search=${search}&company_type=${""}`;
+      }/${
+        pageInfo.pageSize
+      }?search=${search}&company_type=${company_type_filter}`;
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));
@@ -64,7 +80,6 @@ export const fetchAdminCompanyDetails = (companyId) => {
 };
 
 export const adminCompanySendAlert = (companyId, alertMessage) => {
-  console.log(companyId, alertMessage);
   return async (dispatch) => {
     try {
       dispatch(adminCompanySendAlertRequest());
@@ -92,7 +107,7 @@ export const adminCompanyUpdateStatus = (companyId, newStatus) => {
     try {
       dispatch(adminCompanyUpdateStatusRequest());
       const endpointWithParams = `${USER_MANAGEMENT.UPDATE_COMPANY_STATUS}/${companyId}`;
-      const response = await PATCH_REQUEST(endpointWithParams, newStatus);
+      const response = await PUT_REQUEST(endpointWithParams, newStatus);
       const data = response.data;
       dispatch(adminCompanyUpdateStatusSuccess(data));
       NotificationsToast({
@@ -121,6 +136,29 @@ export const fetchAdminCompaniesDropdown = () => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminCompaniesDropdownFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteCompanyById = (companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteCompanyRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.DELETE_COMPANY}/${companyId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteCompanySucess(data));
+      NotificationsToast({
+        message: "Company deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteCompanyFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

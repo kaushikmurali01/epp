@@ -4,7 +4,7 @@ import "../UserManagementSection/styles.css";
 import useMediaQueries from "utils/mediaQueries/mediaQueries";
 import CustomTextHeader from "components/CustomTextHeader";
 import { useState } from "react";
-import FacilityStatus from "components/FacilityStatus";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
 
 const DashboardPage = (props) => {
   const [number, setNumber] = useState("XXXX");
@@ -40,7 +40,7 @@ const DashboardPage = (props) => {
               >
                 Dashboard
                 <br />{" "}
-                <Typography
+                {/* <Typography
                   variant="h6"
                   sx={{
                     fontWeight: "400",
@@ -49,11 +49,11 @@ const DashboardPage = (props) => {
                 >
                   Lorem Ipsum is simply dummy text of the printing and
                   typesetting industry.
-                </Typography>
+                </Typography> */}
               </Typography>
             </Grid>
             <Grid width="40%" display="flex">
-              <FacilityStatus>Status: Average Savings</FacilityStatus>
+              <AdminFacilityStatus>Status: Average Savings</AdminFacilityStatus>
             </Grid>
           </Grid>
           <Box>

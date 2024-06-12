@@ -6,7 +6,6 @@ import {
   Container,
   FormControl,
   FormGroup,
-  FormLabel,
   Grid,
   MenuItem,
   Select,
@@ -21,20 +20,33 @@ import EvModal from "utils/modal/EvModal";
 import {
   adminCompanySendAlert,
   adminCompanyUpdateStatus,
+  deleteCompanyById,
   fetchAdminCompanyListing,
 } from "../../../redux/admin/actions/adminCompanyAction";
 import { Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { format } from "date-fns";
-import { userTypes } from "constants/allDefault";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import { debounce } from "lodash";
+import Loader from "pages/Loader";
+
+const companyTypes = [
+  {
+    id: 1,
+    userType: "Aggregator",
+  },
+  {
+    id: 2,
+    userType: "Customer",
+  },
+];
 
 const CompanyListing = () => {
   const columns = [
     {
       Header: "Company name",
       accessor: "company_name",
+      accessorKey: "company_name",
     },
     {
       Header: "Super admin name",
@@ -47,7 +59,7 @@ const CompanyListing = () => {
     {
       Header: "Company type",
       accessor: (item) => {
-        const userType = userTypes.find(
+        const userType = companyTypes.find(
           (type) => type.id === item?.company_type
         );
         return userType ? userType.userType : "";
@@ -72,35 +84,40 @@ const CompanyListing = () => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#56B2AE",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
-              // textWrap: "nowrap",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/companies/company-agreement/${item?.id}`)}
           >
             View Participant Agreement
           </Button>
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/companies/company-profile/${item?.id}`)}
           >
             View
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2C77E9",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openRequestModal(item?.id)}
           >
@@ -108,15 +125,31 @@ const CompanyListing = () => {
           </Button>
           <Button
             color={item?.is_active === 1 ? "error" : "primary"}
+            disableRipple
+            style={{
+              minWidth: "unset",
+              backgroundColor: "transparent",
+              padding: 0,
+              marginLeft: "1rem",
+              fontSize: "0.875rem",
+            }}
+            onClick={() => openStatusModal(item?.id, item?.is_active)}
+          >
+            {item?.is_active === 1 ? "Inactive" : "Active"}
+          </Button>
+          <Button
+            disableRipple
+            color="error"
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
-            onClick={() => openStatusModal(item?.id, item?.is_active)}
+            onClick={() => openDeleteModal(item?.id)}
           >
-            {item?.is_active === 1 ? "InActive" : "Active"}
+            Delete
           </Button>
         </Box>
       ),
@@ -132,19 +165,49 @@ const CompanyListing = () => {
   const companyCount = useSelector(
     (state) => state?.adminCompanyReducer?.companyList?.data?.count || []
   );
+  const loadingState = useSelector(
+    (state) => state?.adminCompanyReducer?.loading
+  );
   const [searchString, setSearchString] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
 
-  const debouncedSearch = debounce((pageInfo, searchString, company_filter) => {
-    dispatch(fetchAdminCompanyListing(pageInfo, searchString, company_filter));
-  }, 300);
+  const debouncedSearch = debounce(
+    (pageInfo, searchString, company_filter, sort_Column, sort_Order) => {
+      dispatch(
+        fetchAdminCompanyListing(
+          pageInfo,
+          searchString,
+          company_filter,
+          sort_Column,
+          sort_Order
+        )
+      );
+    },
+    300
+  );
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString, companyFilter);
+    debouncedSearch(
+      pageInfo,
+      searchString,
+      companyFilter,
+      sortColumn,
+      sortOrder
+    );
     return () => {
       debouncedSearch.cancel();
     };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, searchString, companyFilter]);
+  }, [
+    dispatch,
+    pageInfo.page,
+    pageInfo.pageSize,
+    searchString,
+    companyFilter,
+    sortColumn,
+    sortOrder,
+  ]);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -170,8 +233,7 @@ const CompanyListing = () => {
       cancelButtonClass: "",
     },
     headerText: "Alert",
-    headerSubText:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    headerSubText: "",
     modalBodyContent: "",
     saveButtonAction: "",
   });
@@ -276,13 +338,15 @@ const CompanyListing = () => {
     const handleCStatusChange = () => {
       const formdata = new FormData();
       formdata.append("is_active", activityStatus === 1 ? 0 : 1);
-      console.log(formdata);
       dispatch(adminCompanyUpdateStatus(companyId, formdata))
         .then(() => {
           setStatusModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
+          dispatch(
+            fetchAdminCompanyListing(pageInfo, searchString, companyFilter)
+          );
         })
         .catch((error) => {});
     };
@@ -314,14 +378,111 @@ const CompanyListing = () => {
         <Grid container sx={{ justifyContent: "center" }}>
           <Typography variant="h4">
             {activityStatus === 1
-              ? "Are you sure you would like to deactivate the Company Details"
-              : "Are you sure you would like to Activate Company Details?"}
+              ? "Are you sure you would like to deactivate the company details?"
+              : "Are you sure you would like to activate company details?"}
           </Typography>
         </Grid>
         <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
           <Button
             onClick={handleCStatusChange}
-            sx={{ color: activityStatus === 1 ? "danger" : "primary" }}
+            sx={{
+              background: activityStatus === 1 ? "#FF5858" : "#2E813E",
+              "&:hover": {
+                background: activityStatus === 1 ? "#FF3D3D" : "#296F38",
+              },
+            }}
+            variant="contained"
+          >
+            Yes
+          </Button>
+          <Button variant="contained" onClick={handleCloseButton}>
+            No
+          </Button>
+        </Grid>
+      </Grid>
+    );
+  };
+  const [deleteModalConfig, setDeleteModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openDeleteModal = (company_id) => {
+    setDeleteModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <DeleteModalContent companyId={company_id} />,
+    }));
+  };
+
+  const DeleteModalContent = ({ companyId }) => {
+    const handleDeleteCompanyButton = () => {
+      dispatch(deleteCompanyById(companyId))
+        .then(() => {
+          setDeleteModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(
+            fetchAdminCompanyListing(pageInfo, searchString, companyFilter)
+          );
+        })
+        .catch((error) => {});
+    };
+    const handleCloseButton = () => {
+      setDeleteModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    };
+    return (
+      <Grid
+        container
+        alignItems="center"
+        flexDirection="column"
+        textAlign="center"
+        sx={{ padding: { md: "0 5%" } }}
+      >
+        <Grid container sx={{ justifyContent: "center" }}>
+          <figure>
+            <img src="/images/icons/deleteIcon.svg" alt="" />
+          </figure>
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }}>
+          <Typography variant="h4">
+            Are you sure you would like to delete this company?
+          </Typography>
+        </Grid>
+        <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
+          <Button
+            onClick={handleDeleteCompanyButton}
+            sx={{
+              background: "#FF5858",
+            }}
             variant="contained"
           >
             Yes
@@ -336,7 +497,7 @@ const CompanyListing = () => {
 
   return (
     <Container>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} sm={7}>
           <Typography
             variant="h4"
@@ -344,15 +505,11 @@ const CompanyListing = () => {
           >
             Company List
           </Typography>
-          <Typography variant="small2">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry.
-          </Typography>
         </Grid>
         <Grid item display="flex" alignItems="center" justifyContent="center">
           <TextField
             name="search"
-            label="Search by username & ID"
+            label="Search by name"
             type="text"
             fullWidth
             size="small"
@@ -381,11 +538,15 @@ const CompanyListing = () => {
                 value={companyFilter}
                 onChange={(e) => setCompanyFilter(e.target.value)}
               >
-                <MenuItem value="" disabled>
+                <MenuItem value="">
                   <em>Company type</em>
                 </MenuItem>
-                {userTypes?.map((item) => (
-                  <MenuItem key={item?.id} value={item?.id}>
+                {companyTypes?.map((item) => (
+                  <MenuItem
+                    key={item?.id}
+                    value={item?.id}
+                    disabled={item?.id === 1}
+                  >
                     {item?.userType}
                   </MenuItem>
                 ))}
@@ -411,12 +572,26 @@ const CompanyListing = () => {
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           //   onClick={(id) => navigate(`/companies/${id}`)}
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       <EvModal
         modalConfig={statusModalConfig}
         setModalConfig={setStatusModalConfig}
+      />
+      <EvModal
+        modalConfig={deleteModalConfig}
+        setModalConfig={setDeleteModalConfig}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </Container>
   );

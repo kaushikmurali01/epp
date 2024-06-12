@@ -48,7 +48,12 @@ const theme = createTheme({
         root: {
           ".MuiDialog-paper": {
             padding: "1.5rem",
+            // ".MuiDialogContent-root":{
+            //   color: 'inherit',
+            //   lineHeight: '1.5rem',
+            // }
           },
+         
         },
       },
     },
@@ -60,7 +65,8 @@ const theme = createTheme({
             th: {
               color: '#54585A',
               fontSize: '0.75rem'
-            }
+            },
+           
           },
           ".MuiTableBody-root": {
             color: '#54585A'
@@ -79,7 +85,7 @@ const theme = createTheme({
               minWidth: '5rem',
             },
             "&:last-child": {
-              textAlign: 'right'
+              textAlign: 'right',
             },
           },
         },
@@ -98,6 +104,11 @@ const theme = createTheme({
             "&.theme-toggle-yes" : {
               backgroundColor: '#2E813E',
               color: '#fff',
+              "&:disabled": {
+                pointerEvents: 'none',
+                opacity: '0.55',
+                cursor: 'text'
+              },
               "&:hover": {
                 backgroundColor: '#2E813E',
               },
@@ -105,6 +116,11 @@ const theme = createTheme({
             "&.theme-toggle-no" : {
                 backgroundColor: '#54585A',
                 color: '#fff',
+                "&:disabled": {
+                  pointerEvents: 'none',
+                  opacity: '0.55',
+                  cursor: 'text'
+                },
                 "&:hover": {
                   backgroundColor: '#54585A',
                 },
@@ -130,7 +146,10 @@ const theme = createTheme({
           },
           "&:disabled": {
             backgroundColor: "#9E9D9D",
-            color: '#fff'
+            color: '#fff',
+            pointerEvents: 'none',
+            opacity: '0.55',
+            cursor: 'text',
           },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
@@ -249,6 +268,7 @@ const theme = createTheme({
 
       [getTheme.breakpoints.up("md")]: {
         fontSize: "1rem",
+        lineHeight: '1.5rem'
       },
     },
 

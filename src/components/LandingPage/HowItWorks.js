@@ -66,7 +66,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/icon_1.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
-                                <Typography variant='span'>Save on <br /> energy Bills</Typography>
+                                <Typography variant='span'>Save on <br /> energy bills</Typography>
                             </Stack>
 
                         </Grid>
@@ -149,9 +149,10 @@ const HowItWorks = () => {
                     </Grid>
                     <Grid container justifyContent= "center">
                         <Grid item>
-                            {/* <Typography variant='small' component='small'>
-                                 *You can sign the <Link href="#"  variant='a' sx={{color: 'blue.main', textDecoration: 'none'}}>Participant Agreement </Link> anytime, but it’s mandatory before you enrol your first facility into the program
-                            </Typography> */}
+                            <Typography variant='small' component='small'>
+                            *<Link target="_blank" href="https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"  variant='a' sx={{color: 'blue.main', textDecoration: 'none'}}>Participant Agreement </Link> is required to enroll any facilities in the program and receive incentives.
+                                 {/* *You can sign the <Link href="#"  variant='a' sx={{color: 'blue.main', textDecoration: 'none'}}>Participant Agreement </Link> anytime, but it’s mandatory before you enrol your first facility into the program */}
+                            </Typography>
                         </Grid>
                     </Grid>
                 </Container>

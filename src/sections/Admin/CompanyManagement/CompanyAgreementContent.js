@@ -1,9 +1,11 @@
-import { Box, Typography, styled } from "@mui/material";
+import { Box, Typography, styled, useMediaQuery, Button } from "@mui/material";
 import { PDFDisplay } from "components/pdfDisplay";
 import { PA_MANAGEMENT } from "constants/apiEndPoints";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GET_REQUEST } from "utils/HTTPRequests";
+import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const StyledContentWrapper = styled(Box)(() => {
   return {
@@ -35,6 +37,7 @@ const StyledContentWrapper = styled(Box)(() => {
 
 const CompanyAgreementContent = () => {
   const { id } = useParams();
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const [PAData, setPAData] = useState({
     company_id: id,
     unsigned_doc:
@@ -69,6 +72,25 @@ const CompanyAgreementContent = () => {
       });
   };
 
+  const onDownloadSignedPA = () => {
+    if(!PAData.signed_doc){
+      NotificationsToast({ message: "There is no signed participant agreement exist for you!", type: "error" });
+
+    } else {
+      fetch(PAData.signed_doc).then((response) => {
+        response.blob().then((blob) => {
+          const fileURL = window.URL.createObjectURL(blob);
+          let alink = document.createElement("a");
+          alink.href = fileURL;
+          let fileName = PAData?.company_name + "_signed_participant_agreement.pdf"
+          alink.download = fileName;
+          alink.click();
+        });
+      });
+    }
+    
+  }
+
   return (
     <Box
       sx={{
@@ -83,11 +105,43 @@ const CompanyAgreementContent = () => {
           <PDFDisplay pdfUrl={PAData?.is_signed && PAData?.signed_doc} />
         ) : (
           <Typography>
-            The company {PAData?.company_name} has not signed paticipant
+            The company {PAData?.company_name} has not signed participant
             agreement yet.
           </Typography>
         )}
       </StyledContentWrapper>
+      {PAData?.is_signed ? 
+       <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            mt: "2rem",
+            flexDirection: `${isSmallScreen ? "column" : "row"}`,
+            alignItems: "center",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              alignItems: "center",
+              flexDirection: isSmallScreen ? "column" : "row",
+            }}
+          >
+          <Typography variant="h6" ml={2} mr={2}>
+            Signed by: {PAData?.signed_by?.first_name}
+          </Typography>
+          <Typography variant="h6" ml={2} mr={2}>
+            Signed on: {parseUTCDateToLocalDate(PAData?.signed_on)}
+          </Typography>
+        </Box>
+        {PAData?.is_signed ? <Button
+          sx={{ fontSize: "1rem", marginTop: isSmallScreen ? 2 : 0 }}
+          onClick={onDownloadSignedPA}
+        >
+          {PAData?.is_signed ? 'Download signed participant agreement' : 'Download as PDF'}
+        </Button> : null}
+        </Box> : null}
     </Box>
   );
 };

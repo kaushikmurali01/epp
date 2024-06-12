@@ -8,13 +8,13 @@ import {
   useMediaQuery,
   styled,
 } from "@mui/material";
-import FacilityStatus from "components/FacilityStatus";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import EvModal from "utils/modal/EvModal";
 import { deleteAdminFacility } from "../../../redux/admin/actions/adminFacilityActions";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
+import AdminFacilityStatus from "components/AdminFacilityStatus";
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -87,7 +87,7 @@ const AdminFacilityHeader = () => {
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justifyContent="space-between">
         <Grid item xs={12} md={4}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
             <Box
@@ -112,7 +112,7 @@ const AdminFacilityHeader = () => {
                 <MapsHomeWorkIcon
                   sx={{
                     fontSize: "7.5rem",
-                    color: "#757575",
+                    color: "#B9B9B9",
                   }}
                 />
               )}
@@ -140,9 +140,9 @@ const AdminFacilityHeader = () => {
                   `${facilityDetails?.postal_code} `}
               </Typography>
               <Box>
-                <FacilityStatus>
+                <AdminFacilityStatus>
                   {facilityDetails?.facility_id_submission_status}
-                </FacilityStatus>
+                </AdminFacilityStatus>
               </Box>
               <Box>
                 <Button
@@ -173,20 +173,27 @@ const AdminFacilityHeader = () => {
         </Grid>
 
         {/* Graph section */}
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Paper variant="outlined" sx={{ height: 150 }}>
             <Typography variant="body2">Graph Placeholder</Typography>
           </Paper>
-        </Grid>
+        </Grid> */}
 
-        <Grid container item xs={12} md={4} spacing={1}>
+        <Grid
+          container
+          item
+          xs={12}
+          md={4}
+          spacing={1}
+          justifyContent="flex-end"
+        >
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Facility ID</Typography>
               <Typography variant="h6">{facilityDetails?.id}</Typography>
             </BoxCard>
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Total Incentive Paid</Typography>
               <Typography variant="h6">
@@ -196,7 +203,7 @@ const AdminFacilityHeader = () => {
           </Grid>
           <Grid item xs={6}>
             <BoxCard>
-              <Typography variant="small2">Electricity Consumptions</Typography>
+              <Typography variant="small2">Annual Baseline Electricity Consumption</Typography>
               <Typography variant="h6">
                 {facilityDetails?.total_electricty_consumptions}
               </Typography>
@@ -209,7 +216,7 @@ const AdminFacilityHeader = () => {
                 {facilityDetails?.benchmarking_eui}
               </Typography>
             </BoxCard>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />

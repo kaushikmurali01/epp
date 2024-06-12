@@ -9,11 +9,12 @@ import {
   TableHead,
   TableRow,
   useMediaQuery,
+  Grid,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useEffect, useState } from "react";
 import Table from "components/Table";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteMeter,
@@ -22,6 +23,7 @@ import {
 } from "../../../redux/superAdmin/actions/metersActions";
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
+import Loader from "pages/Loader";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -30,6 +32,8 @@ const MeterListing = ({
 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const dispatch = useDispatch();
   const { id } = useParams();
   const [meterToDelete, setMeterToDelete] = useState("");
@@ -41,6 +45,7 @@ const MeterListing = ({
   const meterStatistics = useSelector(
     (state) => state?.meterReducer?.meterStatistics?.data
   );
+  const loadingState = useSelector((state) => state?.meterReducer?.loading);
 
   const METER_TYPE_ARRAY = [
     { id: 1, value: "Electricity" },
@@ -61,6 +66,7 @@ const MeterListing = ({
             modalVisible: false,
           }));
           dispatch(fetchMeterListing(pageInfo, id));
+          dispatch(fetchMeterStatistics(id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -109,6 +115,7 @@ const MeterListing = ({
     {
       Header: "Meter name",
       accessor: "meter_name",
+      accessorKey: "meter_name",
     },
     {
       Header: "Meter type",
@@ -119,6 +126,7 @@ const MeterListing = ({
     {
       Header: "Meter ID",
       accessor: "meter_id",
+      accessorKey: "meter_id",
     },
     {
       Header: "Status",
@@ -129,6 +137,7 @@ const MeterListing = ({
       accessor: (item) => (
         <>{item?.updated_at && format(item?.updated_at, "MM/dd/yyyy")}</>
       ),
+      accessorKey: "updated_at",
     },
     {
       Header: "In use(inactive date)",
@@ -139,16 +148,38 @@ const MeterListing = ({
             format(item?.meter_inactive, "MM/dd/yyyy")}
         </>
       ),
+      accessorKey: "meter_inactive",
     },
     {
-      Header: "Action",
+      Header: "Actions",
       accessor: (item) => (
-        <Box display="flex" onClick={(e) => e.stopPropagation()}>
+        <Box
+          display="flex"
+          onClick={(e) => e.stopPropagation()}
+          justifyContent="flex-end"
+        >
           <Button
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
+              fontSize: "0.875rem",
+              textWrap: "nowrap",
+            }}
+            onClick={() => handleEntriesListClick(item.id, item?.meter_id)}
+          >
+            Add data
+          </Button>
+          <Button
+            disableRipple
+            style={{
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+              fontSize: "0.875rem",
+              color: "#027397",
             }}
             onClick={() => handleEditButtonClick(item.id)}
           >
@@ -156,11 +187,13 @@ const MeterListing = ({
           </Button>
           <Button
             color="error"
+            disableRipple
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => openDeleteMeterModal(item.id)}
           >
@@ -179,15 +212,14 @@ const MeterListing = ({
   );
 
   useEffect(() => {
-    dispatch(fetchMeterListing(pageInfo, id));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
+    dispatch(fetchMeterListing(pageInfo, id, sortColumn, sortOrder));
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, id, sortColumn, sortOrder]);
 
   const handleAddButtonClick = () => {
     onAddButtonClick();
   };
 
   const handleEntriesListClick = (id, meter_id) => {
-    console.log(id, meter_id);
     onEntriesListClick(id, meter_id);
   };
 
@@ -205,20 +237,22 @@ const MeterListing = ({
           flexDirection: isSmallScreen ? "column" : "row",
         }}
       >
-        <Box>
+        <Grid container>
           <TableContainer
             component={Paper}
             sx={{
               bgcolor: "#2E813E20",
               boxShadow: "none",
               border: "1px solid #2E813E",
+              overflowX: "scroll",
+              maxWidth: isSmallScreen ? "100%" : "60%",
             }}
           >
             <MuiTable size="small">
               <TableHead>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Meter Type
+                    Meter type
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((type, index) => (
@@ -245,28 +279,30 @@ const MeterListing = ({
                 </TableRow>
                 <TableRow>
                   <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                    Current energy date
+                    Current date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (
                       <TableCell key={index} sx={{ color: "#111" }}>
-                        {format(
-                          new Date(date?.["Current energy date"]),
-                          "yyyy-MM-dd"
-                        )}
+                        {date?.["Current energy date"] &&
+                          format(
+                            new Date(date?.["Current energy date"]),
+                            "yyyy-MM-dd"
+                          )}
                       </TableCell>
                     ))}
                 </TableRow>
               </TableBody>
             </MuiTable>
           </TableContainer>
-        </Box>
+        </Grid>
         <Button
           style={{
             backgroundColor: "transparent",
             padding: 0,
             minWidth: "unset",
             fontSize: "0.875rem",
+            textWrap: "nowrap",
           }}
           disableRipple
           endIcon={
@@ -290,12 +326,23 @@ const MeterListing = ({
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           onClick={(id, res) => handleEntriesListClick(id, res?.meter_id)}
+          cursorStyle="pointer"
+          sortColumn={sortColumn}
+          sortOrder={sortOrder}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
         />
       </Box>
       <EvModal
         modalConfig={modalConfig}
         setModalConfig={setModalConfig}
         actionButtonData={meterToDelete}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
       />
     </>
   );

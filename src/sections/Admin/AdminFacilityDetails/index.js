@@ -1,7 +1,14 @@
-import { Box, Container, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  Typography,
+  useMediaQuery,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AdminFacilityHeader from "./AdminFacilityHeader";
 import AdminFacilityTimeline from "./AdminFacilityTimeline";
 import AdminFacilitySidebar from "./AdminFacilitySidebar";
@@ -13,11 +20,13 @@ import AdminReportsAndStudies from "./AdminReportsAndStudies";
 import AdminBaselineModel from "./AdminBaselineModel";
 import AdminPerformance from "./AdminPerformance";
 import { fetchAdminFacilityDetails } from "../../../redux/admin/actions/adminFacilityActions";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [selectedTab, setSelectedTab] = useState(0);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   useEffect(() => {
@@ -28,7 +37,7 @@ const AdminFacilityDetails = () => {
       case 0:
         return <AdminSummary />;
       case 1:
-        return <AdminDetails />;
+        return <AdminDetails setTab={setSelectedTab} />;
       case 2:
         return <AdminEnergyAndWater />;
       case 3:
@@ -44,7 +53,30 @@ const AdminFacilityDetails = () => {
     }
   };
   return (
-    <Container sx={{ mt: 12 }}>
+    <Container sx={{ mt: 8 }}>
+      {/* <Grid container sx={{ mb: 12 }}> */}
+      <Grid container>
+        <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+            mb: isSmallScreen && 6,
+          }}
+          onClick={() => navigate("/facility-list")}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
+        {/* <Typography variant="h4">Facility management</Typography> */}
+      </Grid>
+
       <AdminFacilityTimeline />
       <AdminFacilityHeader />
       <Box

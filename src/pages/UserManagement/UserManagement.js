@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
@@ -15,10 +14,12 @@ import NotificationsToast from 'utils/notification/NotificationsToast';
 import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
+import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // pull functions from user management..
   const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
@@ -57,7 +58,7 @@ const UserManagement = () => {
     buttonsUI: {
       saveButton: false,
       cancelButton: false,
-      saveButtonName: "Sent Request",
+      saveButtonName: "Send Request",
       cancelButtonName: "Cancel",
       successButtonStyle: {},
       cancelButtonStyle: {},
@@ -78,7 +79,7 @@ const UserManagement = () => {
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
-    company: '',
+    company: { id: '',label: '', },
     role: '',
   };
 
@@ -96,23 +97,49 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
+      console.log(data,'formSubmit');
+      // return;
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
-        "company_id": data.company.toString(),
+        // "company_id": data.company.toString(),
+        "company_id": data.company.id.toString(),
         "role": data.role.toString(),
         "user_id": userData?.user?.id
       }
 
 
+
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           handleAPISuccessCallBack();
-          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
-          setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-            modalBodyContent: ''
-          }));
+          // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          console.log(response, "check response");
+          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: true,
+              modalUI: {
+                ...prevState.modalUI,
+                crossIcon: false,
+                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem', textAlign: 'center'},
+                fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+              },
+              buttonsUI: {
+                ...prevState.buttonsUI,
+                saveButton: false,
+                cancelButton: true,
+                cancelButtonStyle: {
+                  backgroundColor: "primary.main",
+                  "&:hover": { backgroundColor: "primary.main" },
+                  color: "#fff",
+                },
+                cancelButtonName: "Okay",
+            },
+            headerText: "",
+            headerSubText: '',
+            modalBodyContent: successMessage
+            }));
 
         })
         .catch((error) => {
@@ -128,13 +155,14 @@ const UserManagement = () => {
         initialValues={{
           ...initialValues
         }}
-        // validationSchema={}
+        validationSchema={requestToJoinCompanyFormValidationSchema}
         onSubmit={formSubmit}
       >
         <Form >
+       
           <Stack sx={{ marginBottom: '1rem' }}>
-            {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            {/* <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" /> */}
+            {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
             <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
@@ -143,9 +171,9 @@ const UserManagement = () => {
 
 
           {/* <SelectBox /> */}
-          <Grid display="flex" sx={{ marginTop: '1rem' }}>
+          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
-              Submit
+              Send Request
             </ButtonWrapper>
 
           </Grid>
@@ -163,8 +191,8 @@ const UserManagement = () => {
         saveButton: false,
         cancelButton: false,
     },
-    headerText: "Request to join other company",
-    headerSubText: 'Please enter the following details to send request to join other company',
+    headerText: "Request to join company",
+    headerSubText: 'Please enter the following details to send request to join company',
       modalBodyContent: <RequestToJoinForm />
     }));
   }
@@ -177,12 +205,12 @@ const UserManagement = () => {
     },
     {
       label: 'Invitation sent',
-      id: '1',
+      id: '2',
       defaultSelected: false,
     },
     {
       label: 'Request received',
-      id: '2',
+      id: '3',
       defaultSelected: false,
     }
   ]
@@ -196,7 +224,7 @@ const UserManagement = () => {
   }
 
   const getUserManagementData = (pageDataInfo, search) => {
-
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // const allUserTypes = selectFilterType;
     const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
@@ -211,12 +239,15 @@ const UserManagement = () => {
           if (res.data?.body?.rows instanceof Array) {
             setAllUser(res.data?.body?.rows)
             setPageCount(res.data?.body?.count)
+
           } else {
             setAllUser([])
             setPageCount(0)
           }
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         }).catch((error) => {
           console.log(error)
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         });
     }
 
@@ -317,10 +348,10 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               <Grid item xs={12} md={4} >
                 <Typography variant='h4'>User Management</Typography>
               </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+              <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}, gap: {xs: '0.5rem', md: '2rem'}, marginTop: {xs: '1rem' ,md: '0'} }}>
                 <FormGroup className="theme-form-group theme-select-form-group" >
 
-                  <FormControl sx={{ minWidth: '6rem' }}>
+                  <FormControl sx={{ minWidth: '6rem', maxWidth: '8rem', flexGrow: '1' }}>
                     <Select
                       value={selectFilterType}
                       onChange={(e) => handleSelectChange(e)}
@@ -366,7 +397,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                 <Button
                   color="primary"
                   variant="contained"
-                  sx={{ alignSelf: 'center' }}
+                  sx={{ alignSelf: 'flex-start', marginTop: {xs: '1rem', md: '0'} }}
                   onClick={() => handelInviteUser()}
                 >
                   Invite User
@@ -376,14 +407,12 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
             </Grid>
 
             <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-              <Grid item xs={6}  >
+              <Grid item xs={4}  >
                 <Tabs
                   className='theme-tabs-list'
                   value={tabValue}
                   onChange={handleChange}
                   sx={{ display: 'inline-flex' }}
-
-
                 >
                   <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
                   {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
@@ -392,13 +421,19 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               </Grid>
               <Grid item sx={{ justifySelf: 'flex-end' }}>
                 <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join other company
+                Request to join company
                 </Typography>
               </Grid>
             </Grid>
 
             <Grid container>
               {getAllUser && <Table
+                customTableStyles={{
+                  "tbody td:nth-child(3n)": {
+                    maxWidth: '16rem',
+                    wordBreak: 'break-word',
+                  },
+                }}
                 columns={columns} data={getAllUser || []}
                 count={pageCount}
                 pageInfo={pageInfo}

@@ -1,27 +1,73 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Grid, Box, List } from "@mui/material";
+import {
+  Container,
+  Typography,
+  Grid,
+  Box,
+  List,
+  IconButton,
+  Link,
+  useMediaQuery,
+} from "@mui/material";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminCompanyDetails } from "../../../redux/admin/actions/adminCompanyAction";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { userTypes } from "constants/allDefault";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Loader from "pages/Loader";
+import CustomAccordion from "components/CustomAccordion";
+import { MiniTable } from "components/MiniTable";
 
 const CompanyProfile = () => {
-  const tabStyle = {
-    width: "max-content",
-    padding: "0.375rem 1rem",
-    borderRadius: "138.875rem",
-    border: "1px solid #D0D0D0",
-    background: "#EBEBEB",
-    color: "#696969",
-    fontSize: "0.875rem !important",
-    fontStyle: "normal",
-    fontWeight: "500",
-    lineHeight: "normal",
-  };
-
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const userColumn = [
+    {
+      Header: "",
+      accessor: "id",
+    },
+    {
+      Header: "Participant Representative",
+      accessor: "participant_representative",
+    },
+    {
+      Header: "User id",
+      accessor: "user_id",
+    },
+    {
+      Header: "User role",
+      accessor: "user_role",
+    },
+  ];
+  const facilityColumn = [
+    {
+      Header: "",
+      accessor: "id",
+    },
+    {
+      Header: "Facility name",
+      accessor: "facility_name",
+    },
+    {
+      Header: "Facility type",
+      accessor: "facility_type",
+    },
+    {
+      Header: "Facility Category",
+      accessor: "facility_category",
+    },
+    {
+      Header: "Facility Address",
+      accessor: "facility_address",
+    },
+    {
+      Header: "Facility UBI",
+      accessor: "facility_ubi",
+    },
+  ];
 
   useEffect(() => {
     dispatch(fetchAdminCompanyDetails(id));
@@ -30,22 +76,41 @@ const CompanyProfile = () => {
   const companyProfileData = useSelector(
     (state) => state?.adminCompanyReducer?.companyDetails
   );
+  const loadingState = useSelector(
+    (state) => state?.adminCompanyReducer?.loading
+  );
   const getCompanyType = (type) => {
     const companyType = userTypes.find((company) => company.id === type);
     return companyType ? companyType.userType : "";
   };
   return (
     <Container>
-      <Typography
-        variant="h4"
-        fontWeight={"700"}
-        marginBlockEnd={"3rem"}
-        display={"flex"}
-        alignItems={"center"}
-      >
-        Company Details
-      </Typography>
-
+      <Grid container mb={4} alignItems="center">
+        <IconButton
+          sx={{
+            backgroundColor: "primary.main",
+            "&:hover": {
+              backgroundColor: "primary.main",
+            },
+            marginRight: "1rem",
+          }}
+          textAlign="center"
+          onClick={() => navigate("/companies")}
+        >
+          <ArrowBackIcon
+            sx={{
+              color: "#fff",
+              fontSize: "1.25rem",
+            }}
+          />
+        </IconButton>
+        <Typography
+          variant="h4"
+          sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
+        >
+          Company Details
+        </Typography>
+      </Grid>
       <Grid
         container
         gap={"2rem"}
@@ -56,30 +121,6 @@ const CompanyProfile = () => {
           alignItems: { xs: "center", md: "flex-start" },
         }}
       >
-        <Grid
-          container
-          item
-          sx={{
-            width: "auto",
-            flex: "none",
-            gap: "1.25rem",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <img
-            style={{
-              width: "12.5rem",
-              height: "12.5rem",
-              maxWidth: "100%",
-              aspectRatio: 1,
-              borderRadius: "100%",
-            }}
-            src={companyProfileData?.profile_pic}
-            alt="company-profile"
-          />
-        </Grid>
-
         <Grid container item sx={{ flex: "1", gap: "1.5rem" }}>
           <Grid
             container
@@ -91,22 +132,17 @@ const CompanyProfile = () => {
             wrap="nowrap"
           >
             <Grid item>
-              <Typography variant="h3">
-                {(companyProfileData?.first_name || "") +
-                  " " +
-                  (companyProfileData?.last_name || "")}
+              <Typography variant="h4">
+                {companyProfileData?.company_name}
               </Typography>
-              <Typography variant="h6">
-                Role: {companyProfileData?.role_name || ""}
+              <Typography variant="p">
+                {companyProfileData?.website || ""}
               </Typography>
             </Grid>
           </Grid>
 
           <Box display={"flex"} flexDirection={"column"} gap={"3.25rem"}>
             <Box display={"flex"} gap={"1.25rem"} flexDirection={"column"}>
-              <Typography variant="h6" sx={tabStyle}>
-                Company details
-              </Typography>
               <List
                 disablePadding
                 sx={{
@@ -117,34 +153,64 @@ const CompanyProfile = () => {
                 }}
                 className="profileLists"
               >
-                {companyProfileData?.landline && (
+                {companyProfileData?.unit_number && (
                   <MicroStyledListItemComponent
-                    primary="Business mobile"
-                    secondary={companyProfileData?.landline}
+                    primary="Unit number"
+                    secondary={companyProfileData?.unit_number}
                   />
                 )}
-                {companyProfileData?.email && (
+                {companyProfileData?.street_number && (
                   <MicroStyledListItemComponent
-                    primary="Business email"
-                    secondary={companyProfileData?.email}
+                    primary="Street number"
+                    secondary={companyProfileData?.street_number}
                   />
                 )}
-                {companyProfileData?.company_name && (
+                {companyProfileData?.street_name && (
                   <MicroStyledListItemComponent
-                    primary="Company name"
-                    secondary={companyProfileData?.company_name}
+                    primary="Street name"
+                    secondary={companyProfileData?.street_name}
                   />
                 )}
-                {companyProfileData?.company_type && (
+                {companyProfileData?.city && (
                   <MicroStyledListItemComponent
-                    primary="Company type"
-                    secondary={getCompanyType(companyProfileData?.company_type)}
+                    primary="City"
+                    secondary={companyProfileData?.city}
                   />
                 )}
-                {companyProfileData?.website && (
+                {companyProfileData?.province && (
                   <MicroStyledListItemComponent
-                    primary="Company url"
-                    secondary={companyProfileData?.website}
+                    primary="Province/state"
+                    secondary={companyProfileData?.province}
+                  />
+                )}
+
+                {companyProfileData?.country && (
+                  <MicroStyledListItemComponent
+                    primary="Country"
+                    secondary={companyProfileData?.country}
+                  />
+                )}
+                {companyProfileData?.zip_code && (
+                  <MicroStyledListItemComponent
+                    primary="Zip code/Postal code"
+                    secondary={companyProfileData?.zip_code}
+                  />
+                )}
+                {companyProfileData?.pa && (
+                  <MicroStyledListItemComponent
+                    primary="PA"
+                    secondary={
+                      <Link
+                        href={`#/companies/company-agreement/${id}`}
+                        target="_self"
+                        sx={{
+                          color: "#2C77E9!important",
+                          textDecoration: "none",
+                        }}
+                      >
+                        Link to PA
+                      </Link>
+                    }
                   />
                 )}
               </List>
@@ -152,6 +218,35 @@ const CompanyProfile = () => {
           </Box>
         </Grid>
       </Grid>
+      <Box sx={{ mt: 2 }}>
+        <CustomAccordion
+          summary="User"
+          panelId="user"
+          details={
+            <Grid container xs={12} md={8}>
+              <MiniTable columns={userColumn} data={[{ id: 1 }, { id: 2 }]} />
+            </Grid>
+          }
+        />
+        <CustomAccordion
+          summary="Facility"
+          panelId="facility"
+          details={
+            <Grid container>
+              <MiniTable
+                columns={facilityColumn}
+                data={[{ id: 1 }, { id: 2 }]}
+              />
+            </Grid>
+          }
+        />
+      </Box>
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </Container>
   );
 };

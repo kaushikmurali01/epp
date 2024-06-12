@@ -49,7 +49,7 @@ export default function EvModal(props) {
         className={`theme-modal ${modalUI.modalClass}`}
       >
         {modalUI?.showHeader && 
-          <Stack sx={{ p: 2 }}>
+          <Stack sx={{ p: headerText ? 2 : 0 }}>
             {headerText && 
               <DialogTitle variant='h4' sx={{...modalUI?.headerTextStyle, p: 0 }}>
                 {headerText}
