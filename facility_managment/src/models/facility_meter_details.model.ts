@@ -23,6 +23,8 @@ class FacilityMeterDetail extends Model<IFacilityMeterDetailAttributes, Facility
     public created_by?: number | null;
     public updated_by?: number | null;
     public purchased_from_the_grid?: boolean | null;
+    public unit?: string | null;
+    
 }
 
 FacilityMeterDetail.init(
@@ -95,7 +97,11 @@ FacilityMeterDetail.init(
         purchased_from_the_grid: {
             type: DataTypes.BOOLEAN,
             allowNull: true,
-        }
+        },
+        unit: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
     },
     {
         sequelize,

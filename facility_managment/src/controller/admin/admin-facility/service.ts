@@ -283,7 +283,6 @@ export class AdminFacilityService {
           company_id: body.company_id,
           unsigned_doc: body.unsigned_doc,
           is_signed: false,
-          signed_on: new Date(),
           is_active: STATUS.IS_ACTIVE
         }
 
@@ -384,6 +383,7 @@ export class AdminFacilityService {
             signed_doc: body.signed_doc,
             is_signed: true,
             is_active: STATUS.IS_ACTIVE,
+            signed_on: new Date(),
             updated_by: userToken.id,
             updated_at: new Date()
           };
@@ -433,13 +433,15 @@ export class AdminFacilityService {
 
           const originalPdfPath = body.unsigned_doc ? body.unsigned_doc : "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
           const signatureImagePath = body.upload_sign
+          const companyDetails = await Company.findOne({ where: { id: companyId } })
 
-          const signURL = await creatSignDocumentUrlForUser(originalPdfPath, signatureImagePath, body.username, body.rolename)
+          const signURL = await creatSignDocumentUrlForUser(originalPdfPath, signatureImagePath, body.username, companyDetails?.company_name)
 
           const obj = {
             upload_sign: body.upload_sign,
             signed_doc: signURL,
             is_signed: true,
+            signed_on: new Date(),
             is_active: STATUS.IS_ACTIVE,
             updated_by: userToken.id,
             updated_at: new Date()
@@ -499,7 +501,11 @@ export class AdminFacilityService {
 
   static async getPaDataById(userToken: IUserToken, conpanyId: number): Promise<Facility[]> {
     try {
-      const result = await ParticipantAgreement.findOne({ where: { company_id: conpanyId } })
+      const result = await ParticipantAgreement.findOne({ where: { company_id: conpanyId }, include: [{
+        model: User,
+        as: 'signed_by',
+        attributes: ['id', 'first_name', 'email', 'type'],
+      }] })
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;

@@ -1,6 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../utils/database';
 import { IParticipantAgreementAttributes } from '../interfaces/participant_agreement.interface';
+import { User } from './user.model';
 
 interface ParticipantAgreementCreationAttributes extends Optional<IParticipantAgreementAttributes, 'id'> {}
 
@@ -84,5 +85,10 @@ ParticipantAgreement.init(
         modelName: 'ParticipantAgreement',
     }
 );
+
+ParticipantAgreement.belongsTo(User, {
+    foreignKey: 'updated_by',
+    as: 'signed_by',
+  });
 
 export { ParticipantAgreement };

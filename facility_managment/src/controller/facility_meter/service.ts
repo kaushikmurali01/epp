@@ -40,7 +40,8 @@ export class FacilityMeterService {
           meter_spec_as_per_measurement: body.meter_spec_as_per_measurement,
           is_active: STATUS.IS_ACTIVE,
           created_by: userToken.id,
-          purchased_from_the_grid: body.purchased_from_the_grid
+          purchased_from_the_grid: body.purchased_from_the_grid,
+          unit: body.unit
         };
         const result = await FacilityMeterDetail.create(obj);
         return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
@@ -66,6 +67,7 @@ export class FacilityMeterService {
         meter_specification_url: body.meter_specification_url,
         is_active: STATUS.IS_ACTIVE,
         updated_by: userToken.id,
+        unit: body.unit,
         updated_at : new Date(),
         purchased_from_the_grid: body.purchased_from_the_grid
         };
@@ -110,9 +112,9 @@ export class FacilityMeterService {
   static async getMeterStatistics(userToken: IUserToken, facilityId:number): Promise<FacilityMeterDetail[]> {
     try {
 
-      const totalElectricMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.ELECTRICITY, facility_id: facilityId}})
-      const totalWaterMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.WATER, facility_id: facilityId}})
-      const totalNGMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.NATURAL_GAS, facility_id: facilityId}})
+      const totalElectricMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.ELECTRICITY, facility_id: facilityId, is_active:STATUS.IS_ACTIVE}})
+      const totalWaterMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.WATER, facility_id: facilityId, is_active:STATUS.IS_ACTIVE}})
+      const totalNGMeter = await FacilityMeterDetail.count({where:{meter_type: FACILITY_METER_TYPE.NATURAL_GAS, facility_id: facilityId, is_active:STATUS.IS_ACTIVE}})
       const result = [
         {"Meter type": FACILITY_METER_TYPE_TEXT.ELECTRICITY, "Total meters": totalElectricMeter, "Current energy date": new Date()},
         {"Meter type": FACILITY_METER_TYPE_TEXT.WATER, "Total meters": totalWaterMeter, "Current energy date": new Date()},

@@ -3,13 +3,13 @@ import { uploadBlob } from "./azure-storage.helper";
 import { createSignedPDF } from "./sign-document.helper";
 const fs = require('fs');
 
-export async function creatSignDocumentUrlForUser(originalPdfPath:string, signatureImagePath:string, username:string, userrole:string): Promise<any> {
+export async function creatSignDocumentUrlForUser(originalPdfPath:string, signatureImagePath:string, username:string, campanyName:string): Promise<any> {
     try {
       // const originalPdfPath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
       // const signatureImagePath = "https://eppdevstorage.blob.core.windows.net/agreement-docs/img"
 
       
-      const result = await createSignedPDF(originalPdfPath, signatureImagePath, username, userrole)
+      const result = await createSignedPDF(originalPdfPath, signatureImagePath, username, campanyName)
       .then(async modifiedPdfBytes => {
         // Once you have the modified PDF bytes, write them to a file
         // fs.writeFile(`${username}-signed_document-${new Date()}.pdf`, Buffer.from(modifiedPdfBytes), async (err) => {

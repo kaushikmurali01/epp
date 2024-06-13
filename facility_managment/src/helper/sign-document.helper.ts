@@ -3,7 +3,7 @@ import { BlobServiceClient, AnonymousCredential, StorageSharedKeyCredential } fr
 
 
 
-export async function createSignedPDF(originalPdfBlobUrl: string, signatureImageBlobUrl: string, username: string, userrole: string): Promise<Uint8Array> {
+export async function createSignedPDF(originalPdfBlobUrl: string, signatureImageBlobUrl: string, username: string, companyName: string): Promise<Uint8Array> {
     // Fetch the original PDF blob and the signature image blob
     const originalPdfBlob = await fetch(originalPdfBlobUrl).then(res => res.arrayBuffer());
     const signatureImageBlob = await fetch(signatureImageBlobUrl).then(res => res.arrayBuffer());
@@ -15,25 +15,25 @@ export async function createSignedPDF(originalPdfBlobUrl: string, signatureImage
     const signatureImage = await originalPdfDoc.embedPng(signatureImageBlob);
 
     // Get the last page of the original PDF
-    const lastPage = originalPdfDoc.getPages()[originalPdfDoc.getPageCount() - 1];
+    const lastPage = originalPdfDoc.getPages()[originalPdfDoc.getPageCount() - 10];
 
     // Calculate the dimensions of the signature image
     const signatureImageWidth = 140; // Adjust according to your requirement
     const signatureImageHeight = 50; // Adjust according to your requirement
 
      // Add the username text at the left bottom
-    lastPage.drawText(username, {
-        x: 60, // Adjust the x coordinate as needed
-        y: 40, // Adjust the y coordinate as needed
+    lastPage.drawText(username + " / " + companyName, {
+        x: 300, // Adjust the x coordinate as needed
+        y: 510, // Adjust the y coordinate as needed
         size: 12, // Adjust the font size as needed
         color: rgb(0, 0, 0), // Black color
     });
-    lastPage.drawText(userrole, {
-        x: 60, // Adjust the x coordinate as needed
-        y: 25, // Adjust the y coordinate as needed
-        size: 10, // Adjust the font size as needed
-        color: rgb(0, 0, 0), // Black color
-    });
+    // lastPage.drawText(userrole, {
+    //     x: 380, // Adjust the x coordinate as needed
+    //     y: 510, // Adjust the y coordinate as needed
+    //     size: 10, // Adjust the font size as needed
+    //     color: rgb(0, 0, 0), // Black color
+    // });
 
     const now = new Date();
     const year = now.getFullYear();
@@ -45,8 +45,8 @@ export async function createSignedPDF(originalPdfBlobUrl: string, signatureImage
     const formatedDate =  `${year}-${month}-${day} ${hours}:${minutes}`;
 
     lastPage.drawText(formatedDate, {
-        x: 60, // Adjust the x coordinate as needed
-        y: 10, // Adjust the y coordinate as needed
+        x: 130, // Adjust the x coordinate as needed
+        y: 418, // Adjust the y coordinate as needed
         size: 10, // Adjust the font size as needed
         color: rgb(0, 0, 0), // Black color
     });
@@ -57,8 +57,8 @@ export async function createSignedPDF(originalPdfBlobUrl: string, signatureImage
 
     // Add the signature image to the last page, positioned at the right bottom
     lastPage.drawImage(signatureImage, {
-        x: lastPage.getWidth() - signatureImageWidth - 50, // Adjust the x coordinate as needed
-        y: 0, // Adjust the y coordinate as needed
+        x: lastPage.getWidth() - signatureImageWidth - 230, // Adjust the x coordinate as needed
+        y: 440, // Adjust the y coordinate as needed
         width: signatureImageWidth,
         height: signatureImageHeight,
     });

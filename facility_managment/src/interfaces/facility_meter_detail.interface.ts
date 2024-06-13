@@ -16,4 +16,5 @@ export interface IFacilityMeterDetailAttributes {
     created_by?: number | null;
     updated_by?: number | null;
     purchased_from_the_grid?: boolean | null;
+    unit?: string | null;
 }
