@@ -13,6 +13,7 @@ import {
   addFacilityDocument,
   fetchFacilityDocumentListing,
 } from "../../../../redux/superAdmin/actions/facilityActions";
+import TextAreaField from "components/FormBuilder/TextAreaField";
 
 const DocumentForm = ({ pageInfo, setAddDocumentModalConfig }) => {
   const dispatch = useDispatch();
@@ -176,17 +177,25 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig }) => {
                 <Grid item xs={12} sm={6}>
                   <InputField
                     name="document_name"
-                    label="Document name"
+                    label="Document name *"
                     type="text"
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <SelectBox
-                    name="document_desc"
-                    label="Document description"
+                    name="document_type"
+                    label="Document type"
                     valueKey="value"
                     labelKey="label"
                     options={DOCUMENT_CATEGORY}
+                  />
+                </Grid>
+              </Grid>
+              <Grid container spacing={4}>
+                <Grid item xs={12}>
+                  <TextAreaField
+                    name="document_desc"
+                    label="Document description"
                   />
                 </Grid>
               </Grid>

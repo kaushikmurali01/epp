@@ -1,9 +1,9 @@
-import { Button, Divider, Grid, Typography } from "@mui/material";
+import { Button, Divider, Grid, Tooltip, Typography } from "@mui/material";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useState } from "react";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import {
   deleteFacilityDocument,
   fetchFacilityDocumentListing,
@@ -85,28 +85,33 @@ const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig }) => {
           background: "#EBFFEF",
           borderRadius: "1.25rem",
           width: "12.056rem",
-          minHeight: "15.946rem",
         }}
       >
-        <InsertDriveFileIcon
-          sx={{
-            color: "#2E813E60",
-            fontSize: "7.75rem",
-            transform: "scaleX(-1)",
-          }}
-        />
+        {data?.file_upload && (
+          <Tooltip title="Click to download this document">
+            <Link href={data?.file_upload} target={"_blank"}>
+              <InsertDriveFileIcon
+                sx={{
+                  color: "#2E813E60",
+                  fontSize: "7.75rem",
+                  transform: "scaleX(-1)",
+                }}
+              />
+            </Link>
+          </Tooltip>
+        )}
         <Grid
           item
           sx={{
             padding: "0 1rem 1rem 1rem",
           }}
         >
-          <Typography variant="h6">{data.document_name}</Typography>
+          <Typography variant="h6">{data?.document_name}</Typography>
+          <Typography variant="h6" mb={1} sx={{ fontSize: ".9rem" }}>
+            {data?.document_type}
+          </Typography>
           <Typography variant="body2" mb={1}>
-            {truncateText(
-              "Lorem ipsum this is the dummy data Lorem ipsum this is the dummy data",
-              14
-            )}
+            {data?.document_desc}
           </Typography>
           <Divider />
           <Grid container justifyContent="space-between" mt={1}>

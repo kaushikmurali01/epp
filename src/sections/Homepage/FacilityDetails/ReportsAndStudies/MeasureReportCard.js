@@ -7,6 +7,7 @@ import {
   Link,
   MenuItem,
   Select,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -174,15 +175,17 @@ const MeasureReportCard = ({
         )}
         {data?.file_upload && (
           <Grid container xs={12} sm={3} alignItems="center">
-            <Link href={data?.file_upload} target={"_blank"}>
-              <InsertDriveFileIcon
-                sx={{
-                  color: "#2E813E",
-                  fontSize: "2.5rem",
-                  transform: "scaleX(-1)",
-                }}
-              />
-            </Link>
+            <Tooltip title="Click to download this measure report">
+              <Link href={data?.file_upload} target={"_blank"}>
+                <InsertDriveFileIcon
+                  sx={{
+                    color: "#2E813E",
+                    fontSize: "2.5rem",
+                    transform: "scaleX(-1)",
+                  }}
+                />
+              </Link>
+            </Tooltip>
 
             <Box>
               <Typography variant="small">Uploaded file</Typography>
