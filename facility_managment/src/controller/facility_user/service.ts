@@ -3,7 +3,7 @@ import { ResponseHandler } from '../../utils/response-handler';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS, userType } from '../../utils/status';
 import { FACILITY_APPROVAL_STATUS, FACILITY_ID_GENERAL_STATUS, FACILITY_ID_SUBMISSION_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
-import { IBaseInterface } from '../../interfaces/baseline.interface';
+import { IBaseInterface, objects } from '../../interfaces/baseline.interface';
 import { Op } from 'sequelize';
 import { FacilityNAIC } from '../../models/facility_naic.model';
 import { getEmailTemplate } from '../../helper/mail-template.helper';
@@ -14,6 +14,8 @@ import { Email } from '../../helper/email-sender.helper';
 import { saveCsvToFile } from '../../helper/download-csv-from-json.helper';
 import { UserCompanyRole } from '../../models/user-company-role';
 import { UserResourceFacilityPermission } from '../../models/user-resource-permission';
+import { FacilityCharacteristics } from '../../models/facility_characteristics.model';
+import { FacilityMeterHourlyEntries } from '../../models/facility_meter_hourly_entries.model';
 
 
 export class FacilityService {
@@ -275,9 +277,30 @@ export class FacilityService {
 
   static async getCurrentStatusOfFacility(userToken: IUserToken, facilityId: number): Promise<Facility[]> {
     try {
+      const timeLineObj = {"summary":false, "details": false, "energy_and_water": false, "weather":false,  "saving_plan":false ,"baseline_modeling":false, "performance": false}
 
-      const result = await Facility.findOne({ where: { id: facilityId }, attributes: ['id', 'naic_code', 'facility_id_general_status'] })
+      const result:objects = await Facility.findOne({ where: { id: facilityId }, attributes: ['id', 'naic_code', 'facility_id_general_status'] })
+      const details = await FacilityCharacteristics.findOne({ where: { facility_id: facilityId }});
+      const energyAndWater = await FacilityMeterHourlyEntries.findOne({ where: { facility_id: facilityId }});
+
+      if(result){
+        timeLineObj.summary = true
+      }
+      if(details){
+        timeLineObj.details = true
+      }
+      if(energyAndWater){
+        timeLineObj.energy_and_water = true
+      }
+
+      result.dataValues.timeline = timeLineObj;
+
+      // console.log(result);
+
+
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      // console.log(resp);
+      
       return resp;
     } catch (error) {
       throw error;

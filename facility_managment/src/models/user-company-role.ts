@@ -2,7 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
 import { Company } from './company.model';
 import { User } from './user.model';
-import { Role } from './role..model';
+import { Role } from './role.model';
 
 interface UserCompanyRoleAttributes {
   id: number;
