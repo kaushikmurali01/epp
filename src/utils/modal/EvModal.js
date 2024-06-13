@@ -10,19 +10,20 @@ import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
   },
   '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
   },
 }));
 
 export default function EvModal(props) {
   const dispatch = useDispatch();
-
+  const navigate = useNavigate();
   const {
     modalVisible,
     modalBodyContent,
@@ -32,7 +33,8 @@ export default function EvModal(props) {
     headerSubText,
     saveButtonAction,
     cancelButtonAction,
-    onCloseReload
+    onCloseReload,
+    closeButtonRedirect
   } = props.modalConfig;
 
   const { setModalConfig, actionButtonData } = props;
@@ -52,6 +54,11 @@ export default function EvModal(props) {
     }));
     if(onCloseReload){
       handelReloadPage();
+      return;
+    }
+    if(closeButtonRedirect){
+      navigate(closeButtonRedirect)
+      return;
     }
   };
 
