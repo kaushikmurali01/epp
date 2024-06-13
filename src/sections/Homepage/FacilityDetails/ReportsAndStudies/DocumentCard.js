@@ -2,6 +2,12 @@ import { Button, Divider, Grid, Typography } from "@mui/material";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useState } from "react";
 import EvModal from "utils/modal/EvModal";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  deleteFacilityDocument,
+  fetchFacilityDocumentListing,
+} from "../../../../redux/superAdmin/actions/facilityActions";
 
 const truncateText = (text, maxWords) => {
   const words = text.split(" ");
@@ -12,7 +18,30 @@ const truncateText = (text, maxWords) => {
   }
 };
 
-const DocumentCard = () => {
+const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig }) => {
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  console.log(data);
+
+  const handleDeleteDocument = () => {
+    if (data?.id) {
+      dispatch(deleteFacilityDocument(data?.id))
+        .then(() => {
+          setAddDocumentModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          dispatch(fetchFacilityDocumentListing(pageInfo, id));
+        })
+        .catch((error) => {
+          setAddDocumentModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+        });
+    }
+  };
+
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -33,13 +62,13 @@ const DocumentCard = () => {
       cancelButton: true,
       saveButtonName: "Delete",
       cancelButtonName: "Cancel",
-      saveButtonClass: "",
+      saveButtonClass: { color: "red" },
       cancelButtonClass: "",
     },
     headerText: "Delete document",
     headerSubText: "Are you sure you want to delete this document?",
     modalBodyContent: "",
-    // saveButtonAction: handleDeleteFacility,
+    saveButtonAction: handleDeleteDocument,
   });
 
   const openDeleteDocumentModal = () => {
@@ -72,7 +101,7 @@ const DocumentCard = () => {
             padding: "0 1rem 1rem 1rem",
           }}
         >
-          <Typography variant="h6">Demtroys System</Typography>
+          <Typography variant="h6">{data.document_name}</Typography>
           <Typography variant="body2" mb={1}>
             {truncateText(
               "Lorem ipsum this is the dummy data Lorem ipsum this is the dummy data",

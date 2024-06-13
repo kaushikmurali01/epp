@@ -35,6 +35,30 @@ import {
   FETCH_FACILITIES_DROPDOWN_REQUEST,
   FETCH_FACILITIES_DROPDOWN_SUCCESS,
   FETCH_FACILITIES_DROPDOWN_FAILURE,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_FAILURE,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_FAILURE,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_REQUEST,
+  DELETE_FACILITY_MEASURE_REPORT_REQUEST,
+  DELETE_FACILITY_MEASURE_REPORT_SUCCESS,
+  DELETE_FACILITY_MEASURE_REPORT_FAILURE,
+  FETCH_FACILITY_DOCUMENT_LIST_REQUEST,
+  FETCH_FACILITY_DOCUMENT_LIST_SUCCESS,
+  FETCH_FACILITY_DOCUMENT_LIST_FAILURE,
+  FETCH_FACILITY_DOCUMENT_DETAILS_REQUEST,
+  FETCH_FACILITY_DOCUMENT_DETAILS_SUCCESS,
+  FETCH_FACILITY_DOCUMENT_DETAILS_FAILURE,
+  DELETE_FACILITY_DOCUMENT_REQUEST,
+  DELETE_FACILITY_DOCUMENT_SUCCESS,
+  DELETE_FACILITY_DOCUMENT_FAILURE,
+  UPDATE_FACILITY_MEASURE_REPORT_REQUEST,
+  UPDATE_FACILITY_MEASURE_REPORT_SUCCESS,
+  UPDATE_FACILITY_MEASURE_REPORT_FAILURE,
+  UPDATE_FACILITY_DOCUMENT_REQUEST,
+  UPDATE_FACILITY_DOCUMENT_SUCCESS,
+  UPDATE_FACILITY_DOCUMENT_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -44,6 +68,10 @@ const initialState = {
   facilityStatus: [],
   userDetails: {},
   facilitiesDropdown: [],
+  facilityMeasureReportList: [],
+  facilityMeasureReportDetails: [],
+  facilityDocumentList: [],
+  facilityDocumentDetails: [],
   loading: false,
   error: null,
 };
@@ -269,6 +297,154 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_FACILITIES_DROPDOWN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityMeasureReportList: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityMeasureReportDetails: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_MEASURE_REPORT_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_DOCUMENT_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_DOCUMENT_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityDocumentList: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_DOCUMENT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_DOCUMENT_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_DOCUMENT_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityDocumentDetails: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_DOCUMENT_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_FACILITY_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_FACILITY_DOCUMENT_FAILURE:
       return {
         ...state,
         loading: false,

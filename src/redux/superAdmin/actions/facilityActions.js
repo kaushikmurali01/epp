@@ -36,6 +36,36 @@ import {
   fetchFacilitiesDropdownRequest,
   fetchFacilitiesDropdownSuccess,
   fetchFacilitiesDropdownFailure,
+  fetchFacilityMeasureReportListRequest,
+  fetchFacilityMeasureReportListSuccess,
+  fetchFacilityMeasureReportListFailure,
+  fetchFacilityMeasureReportDetailsRequest,
+  fetchFacilityMeasureReportDetailsSuccess,
+  fetchFacilityMeasureReportDetailsFailure,
+  updateFacilityMeasureReportRequest,
+  updateFacilityMeasureReportSuccess,
+  updateFacilityMeasureReportFailure,
+  addFacilityMeasureReportRequest,
+  addFacilityMeasureReportSuccess,
+  addFacilityMeasureReportFailure,
+  deleteFacilityMeasureReportRequest,
+  deleteFacilityMeasureReportSuccess,
+  deleteFacilityMeasureReportFailure,
+  fetchFacilityDocumentListRequest,
+  fetchFacilityDocumentListSuccess,
+  fetchFacilityDocumentListFailure,
+  fetchFacilityDocumentDetailsRequest,
+  fetchFacilityDocumentDetailsSuccess,
+  fetchFacilityDocumentDetailsFailure,
+  addFacilityDocumentRequest,
+  addFacilityDocumentSuccess,
+  addFacilityDocumentFailure,
+  updateFacilityDocumentRequest,
+  updateFacilityDocumentSuccess,
+  updateFacilityDocumentFailure,
+  deleteFacilityDocumentRequest,
+  deleteFacilityDocumentSuccess,
+  deleteFacilityDocumentFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -306,6 +336,236 @@ export const fetchFacilitiesDropdown = (companyId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchFacilitiesDropdownFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilityMeasureReportListing = (pageInfo, facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityMeasureReportListRequest());
+      let endpointWithParams = `${
+        facilityEndPoints.GET_FACILITY_MEASURE_LIST
+      }/${facilityId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilityMeasureReportListSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityMeasureReportListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilityMeasureReportDetails = (measureId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityMeasureReportDetailsRequest());
+      const endpointWithParams = `${facilityEndPoints.GET_FACILITY_MEASURE_DETAILS}/${measureId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilityMeasureReportDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityMeasureReportDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const addFacilityMeasureReport = (measureReport) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addFacilityMeasureReportRequest());
+      const endpoint = facilityEndPoints.ADD_FACILITY_MEASURE;
+      const response = await POST_REQUEST(endpoint, measureReport);
+      const data = response.data;
+      dispatch(addFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report added successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(addFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateFacilityMeasureReport = (
+  measureId,
+  updatedMeasureReport
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateFacilityMeasureReportRequest());
+      const endpointWithParams = `${facilityEndPoints.UPDATE_FACILITY_MEASURE}/${measureId}`;
+      const response = await PATCH_REQUEST(
+        endpointWithParams,
+        updatedMeasureReport
+      );
+      const data = response.data;
+      dispatch(updateFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteFacilityMeasureReport = (measureId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteFacilityMeasureReportRequest());
+      const endpointWithParams = `${facilityEndPoints.DELETE_FACILITY_MEASURE_REPORT}/${measureId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilityDocumentListing = (pageInfo, facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityDocumentListRequest());
+      let endpointWithParams = `${
+        facilityEndPoints.GET_FACILITY_SAVING_DOCUMENT_LIST
+      }/${facilityId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilityDocumentListSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityDocumentListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchFacilityDocumentDetails = (documentId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityDocumentDetailsRequest());
+      const endpointWithParams = `${facilityEndPoints.GET_FACILITY_SAVING_DOCUMENT_DETAILS}/${documentId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchFacilityDocumentDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityDocumentDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const addFacilityDocument = (measureReport) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addFacilityDocumentRequest());
+      const endpoint = facilityEndPoints.ADD_FACILITY_SAVING_DOCUMENT;
+      const response = await POST_REQUEST(endpoint, measureReport);
+      const data = response.data;
+      dispatch(addFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document added successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(addFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateFacilityDocument = (measureId, updatedDocument) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateFacilityDocumentRequest());
+      const endpointWithParams = `${facilityEndPoints.UPDATE_FACILITY_SAVING_DOCUMENT}/${measureId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, updatedDocument);
+      const data = response.data;
+      dispatch(updateFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteFacilityDocument = (documentId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteFacilityDocumentRequest());
+      const endpointWithParams = `${facilityEndPoints.DELETE_FACILITY_SAVING_DOCUMENT}/${documentId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteFacilityDocumentFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
