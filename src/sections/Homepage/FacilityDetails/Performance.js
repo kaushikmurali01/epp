@@ -1,3 +1,4 @@
+import React, { useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
   Box,
@@ -24,7 +25,7 @@ import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { Form, Formik } from "formik";
-import React, { useRef, useState } from "react";
+
 import EvModal from "utils/modal/EvModal";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import ButtonWrapper from "components/FormBuilder/Button";
@@ -293,8 +294,14 @@ const Performance = () => {
   };
 
   const handleChangeOfNonRoutineListing = (event, newValue) => {
+    console.log(newValue, "check tabs value")
     setNonRoutineListingtabValue(newValue);
   };
+
+  // const getNonRoutineTabsValue = useMemo((event, newValue) => {
+  //     console.log(newValue, "check tabs new value")
+  //   return {nonRoutineListingtabValue };
+  // }, [nonRoutineListingtabValue]);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -512,7 +519,13 @@ const Performance = () => {
     );
   };
 
-  const NonRoutineListing = ({ parameterName }) => {
+  const NonRoutineListing = () => {
+    const[modalNonRoutineTabs, setModalNonRoutineTabs] = useState('filledData');
+
+    const handleNewChangeOfNonRoutineListing = (event, newValue) => {
+      console.log(newValue, "check tabs value")
+      setModalNonRoutineTabs(newValue);
+    };
     return (
       <>
         <Grid
@@ -527,9 +540,10 @@ const Performance = () => {
           <Grid item xs={12} md={6}>
             <Tabs
               className="theme-tabs-list"
-              value={nonRoutineListingtabValue}
-              onChange={handleChangeOfNonRoutineListing}
-              sx={{ display: "inline-flex" }}
+              value={modalNonRoutineTabs}
+              onChange={handleNewChangeOfNonRoutineListing}
+              sx={{ 
+                display: 'inline-flex', flexWrap: 'wrap'}}
             >
               <Tab
                 value="filledData"
@@ -544,7 +558,7 @@ const Performance = () => {
             </Tabs>
           </Grid>
         </Grid>
-        {nonRoutineListingtabValue == 'filledData' ?
+        {modalNonRoutineTabs == 'filledData' ?
           <>
             <TableContainer
             >
