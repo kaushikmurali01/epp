@@ -57,7 +57,8 @@ export class FacilityMeasureService {
           end_date: body.end_date,
           file_upload: body.file_upload,
           file_description: body.file_description,
-          created_by: userToken.id
+          created_by: userToken.id,
+          updated_by: userToken.id
         };
 
         const result = await FacilityMeasure.create(obj);

@@ -50,8 +50,11 @@ export class FacilitySavingDocumentService {
           is_active: STATUS.IS_ACTIVE,
           document_desc: body.document_desc,
           document_name: body.document_name,
+          document_type: body.document_type,
           file_upload: body.file_upload,
-          created_by: userToken.id
+          created_by: userToken.id,
+          updated_by: userToken.id
+
         };
 
         const result = await FacilitySavingDocument.create(obj);
@@ -69,6 +72,7 @@ export class FacilitySavingDocumentService {
         facility_id: body.facility_id,
         is_active: STATUS.IS_ACTIVE,
         document_desc: body.document_desc,
+        document_type: body.document_type,
         document_name: body.document_name,
         file_upload: body.file_upload,
         updated_by: userToken.id
