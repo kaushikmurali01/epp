@@ -15,6 +15,7 @@ import { HTTP_STATUS_CODES } from "../utils/status";
 import { FacilityMeterHourlyEntriesController } from "../controller/facility_hourly_entries/controller";
 import { FacilityMeasureController } from "../controller/facility_measure/controller";
 import { FacilitySavingDocumentController } from "../controller/facility_saving_document/controller";
+import { AuthorizationService } from "../helper/authorization.helper";
 
 // Facility User CRUD
 
@@ -29,6 +30,10 @@ export async function getAllFacility(request: HttpRequest, context: InvocationCo
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    if(decodedToken?.companyId) {
+     const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
+     if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+    }
 
     const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
 
@@ -47,6 +52,8 @@ export async function getFacilityById(request: HttpRequest, context: InvocationC
   try {
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+    
 
     // Get facility by Id
 
@@ -68,6 +75,7 @@ export async function editFacilityDetailsById(request: HttpRequest, context: Inv
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
+
     // Get all result
     const result = await FacilityController.editFacilityDetailsById(decodedToken, request);
 
@@ -86,6 +94,7 @@ export async function removeFacility(request: HttpRequest, context: InvocationCo
   try {
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
 
     // Get all result
     const result = await FacilityController.deleteFacility(decodedToken, request);
@@ -107,6 +116,7 @@ export async function createNewFacility(request: HttpRequest, context: Invocatio
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+       
 
     // Get all result
     const result = await FacilityController.createNewFacility(decodedToken, request, Object(requestData));
@@ -992,6 +1002,11 @@ export async function adminGetPaById(request: HttpRequest, context: InvocationCo
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+    if(decodedToken?.companyId) {
+      const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
+      if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+     }
 
     // Get facility by Id
     const result = await AdminFacilityController.getPaDataById(decodedToken, request);
