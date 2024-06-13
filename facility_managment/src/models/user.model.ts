@@ -1,16 +1,17 @@
 import { DataTypes, Model, Optional } from 'sequelize';
-import { sequelize } from '../utils/database';
+import { sequelize } from '../services/database';
 //import { UserAttributes } from 'enerva-utils/interfaces/user';
 import { isStrongPassword } from 'validator'; // Importing validator library for password complexity check
- 
- 
+import { UserCompanyRole } from './user-company-role';
+
+
 interface UserAttributes {
   id: number;
   first_name: string;
   last_name: string;
   email: string;
   password: string;
-  landline: number | null; 
+  landline: number | null;
   phonenumber: number;
   address: string;
   status: string;
@@ -123,5 +124,8 @@ User.init(
     tableName: 'users',
   }
 );
- 
+
 export { User };
+
+
+

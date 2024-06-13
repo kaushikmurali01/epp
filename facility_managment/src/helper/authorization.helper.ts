@@ -12,6 +12,7 @@ class AuthorizationService {
 
         const company = await Company.findByPk(companyId);
         const user = await User.findByPk(userId);
+       // console.log("company",company);
         if (!company || company.is_active === 0 || !user || user.is_active === 0) {
             return false;
         } else if ([1, 2].includes(role_id)) {
@@ -37,13 +38,15 @@ class AuthorizationService {
           }],
           attributes: ['permission_id']
         });
+
+        
     
         // Extract the permission strings that the user has
         const userPermissionStrings = userPermissions.map(up => up.Permission.permission);
-    
+       // console.log("Permissions", userPermissions);
         // Check if userPermissionStrings contains all the required permissions
         const hasAllPermissions = permissions.every(permission => userPermissionStrings.includes(permission));
-    
+      //  console.log("hasAllPermissions", hasAllPermissions);
         return hasAllPermissions;
     }
       } catch (error) {
