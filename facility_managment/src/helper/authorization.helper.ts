@@ -23,7 +23,6 @@ class AuthorizationService {
           where: {
             user_id: userId,
             company_id: companyId
-           // is_active: 1, // Assuming is_active 1 means active
           },
           include: [{
             model: Permission,
@@ -31,19 +30,18 @@ class AuthorizationService {
               permission: {
                 [Op.in]: permissions
               }
-             // is_active: 1 // Assuming is_active 1 means active
             },
             attributes: ['permission']
           }],
           attributes: ['permission_id']
         });
+
+        
     
         // Extract the permission strings that the user has
         const userPermissionStrings = userPermissions.map(up => up.Permission.permission);
-    
         // Check if userPermissionStrings contains all the required permissions
         const hasAllPermissions = permissions.every(permission => userPermissionStrings.includes(permission));
-    
         return hasAllPermissions;
     }
       } catch (error) {

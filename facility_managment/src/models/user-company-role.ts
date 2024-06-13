@@ -1,8 +1,9 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
-import { Company } from './company.model';
 import { User } from './user.model';
 import { Role } from './role.model';
+import { Company } from './company.model';
+
 interface UserCompanyRoleAttributes {
   id: number;
   user_id: number;
@@ -13,9 +14,9 @@ interface UserCompanyRoleAttributes {
   updated_by?: number;
   status?: string;
 }
- 
+
 interface UserCompanyRoleCreationAttributes extends Optional<UserCompanyRoleAttributes, 'id'> {}
- 
+
 class UserCompanyRole extends Model<UserCompanyRoleAttributes, UserCompanyRoleCreationAttributes> {
   public id!: number;
   public user_id!: number;
@@ -26,7 +27,7 @@ class UserCompanyRole extends Model<UserCompanyRoleAttributes, UserCompanyRoleCr
   public updated_by?: number;
   public status?: string;
 }
- 
+
 UserCompanyRole.init(
   {
     id: {
@@ -66,9 +67,10 @@ UserCompanyRole.init(
     tableName: 'user_company_role',
   }
 );
- 
+
 export { UserCompanyRole, UserCompanyRoleAttributes };
- 
-UserCompanyRole.belongsTo(User, { foreignKey: 'user_id' });
+
+UserCompanyRole.belongsTo(User, { foreignKey: 'user_id' }); 
 UserCompanyRole.belongsTo(Role, { foreignKey: 'role_id' });
-UserCompanyRole.belongsTo(Company, { foreignKey: 'company_id' });
+UserCompanyRole.belongsTo(Company, { foreignKey: 'company_id' }); 
+

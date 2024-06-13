@@ -30,11 +30,11 @@ export async function getAllFacility(request: HttpRequest, context: InvocationCo
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    console.log(decodedToken, "aaaaaaaaaaaaaaaaaaa")
-    // if (decodedToken?.companyId) {
-    //   const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
-    //   if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-    // }
+    console.log("ttt", decodedToken);
+     if (companyId) {
+       const hasPermission = await AuthorizationService.check(Number(companyId), decodedToken.id, ['facility'], decodedToken.role_id);
+       if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+     }
 
     const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
 
@@ -1032,10 +1032,10 @@ export async function adminGetPaById(request: HttpRequest, context: InvocationCo
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-    // if (decodedToken?.companyId) {
-    //   const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
-    //   if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-    // }
+     if (decodedToken?.companyId) {
+       const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['bind-company'], decodedToken.role_id);
+       if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+     }
 
     // Get facility by Id
     const result = await AdminFacilityController.getPaDataById(decodedToken, request);
