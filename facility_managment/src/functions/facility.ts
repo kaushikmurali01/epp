@@ -1196,7 +1196,7 @@ app.http("facility-measure-details", {
 });
 app.http("facility-measure-lists", {
   methods: ["GET"],
-  route: "facility-measure-lists/{facility_id}",
+  route: "facility-measure-lists/{facility_id}/{offset}/{limit}",
   authLevel: "anonymous",
   handler: getFacilityMeasure,
 });
@@ -1220,7 +1220,7 @@ app.http("facility-saving-document-details", {
 });
 app.http("facility-saving-document-lists", {
   methods: ["GET"],
-  route: "facility-saving-document-lists/{facility_id}",
+  route: "facility-saving-document-lists/{facility_id}/{offset}/{limit}",
   authLevel: "anonymous",
   handler: getFacilitySavingDocument,
 });
