@@ -10,16 +10,17 @@ interface UserAttributes {
   last_name: string;
   email: string;
   password: string;
-  landline: number | null;
+  landline: number | null; 
   phonenumber: number;
   address: string;
   status: string;
   type: number;
   is_active: number;
+  profile_pic: string
 }
- 
+
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
- 
+
 class User extends Model<UserCreationAttributes>{
   public id!: number;
   public first_name!: string;
@@ -32,9 +33,10 @@ class User extends Model<UserCreationAttributes>{
   public status!: string;
   public type!: number;
   public is_active!: number;
+  public profile_pic: string
  
 }
- 
+
 User.init(
   {
     id: {
@@ -109,8 +111,12 @@ User.init(
     is_active: {
       type: DataTypes.NUMBER,
       allowNull: true
+    },
+    profile_pic: {
+      type: DataTypes.NUMBER,
+      allowNull: true
     }
-   
+    
   },
   {
     sequelize,

@@ -1,7 +1,8 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../utils/database';
+
 interface CompanyAttributes {
-  id: number;
+  id: number | any;
   source_of_discovery: string;
   company_type: number;
   company_name: string;
@@ -15,10 +16,15 @@ interface CompanyAttributes {
   total_facility: number;
   portal_agreement_accepted: number;
   information_commercial_accepted: number;
+  unit_number: string;
+  street_number: string;
+  street_name: string;
+  is_active: number;
+
 }
- 
-interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> {}
- 
+
+interface CompanyCreationAttributes extends Optional<CompanyAttributes, 'id'> { }
+
 class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implements CompanyAttributes {
   public id!: number;
   public source_of_discovery!: string;
@@ -34,8 +40,13 @@ class Company extends Model<CompanyAttributes, CompanyCreationAttributes> implem
   public total_facility!: number;
   public portal_agreement_accepted: number;
   public information_commercial_accepted: number;
+  public unit_number: string;
+  public street_number: string;
+  public street_name: string;
+  public is_active!: number
+
 }
- 
+
 Company.init(
   {
     id: {
@@ -45,12 +56,8 @@ Company.init(
     },
     source_of_discovery: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Source of discovery is required.',
-        },
-      },
+      allowNull: true
+      
     },
     company_type: {
       type: DataTypes.INTEGER,
@@ -67,7 +74,7 @@ Company.init(
     },
     website: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
       // validate: {
       //   isUrl: {
       //     msg: 'Website must be a valid URL.',
@@ -76,12 +83,7 @@ Company.init(
     },
     address1: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Address line 1 is required.',
-        },
-      },
+      allowNull: true
     },
     address2: {
       type: DataTypes.STRING,
@@ -89,39 +91,19 @@ Company.init(
     },
     city: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'City is required.',
-        },
-      },
+      allowNull: true
     },
     state: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'State is required.',
-        },
-      },
+      allowNull: true
     },
     postal_code: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Postal code is required.',
-        },
-      },
+      allowNull: true
     },
-     country: {
+    country: {
       type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: 'Country is required.',
-        },
-      },
+      allowNull: true
     },
     total_facility: {
       type: DataTypes.INTEGER,
@@ -133,6 +115,22 @@ Company.init(
     },
     information_commercial_accepted: {
       type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    is_active: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    unit_number: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    street_number: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    street_name: {
+      type: DataTypes.STRING,
       allowNull: true
     },
   },
