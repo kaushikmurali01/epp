@@ -30,7 +30,7 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
             },
             include: [{
               model: UserCompanyRole,
-              as: 'roles', // Use the alias defined in the association
+              as: 'roles', 
               attributes: [],
               required: false
             }],
@@ -40,8 +40,8 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
               'first_name', 
               'last_name', 
               'type',
-              [sequelize.col('roles.role_id'), 'role_id'], // Use the alias 'roles'
-              [sequelize.col('roles.company_id'), 'company_id'] // Use the alias 'roles'
+              [sequelize.col('roles.role_id'), 'role_id'], 
+              [sequelize.col('roles.company_id'), 'company_id'] 
             ]
           });
           
@@ -49,14 +49,7 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
             return { status: 401, body: 'Unauthorized: Invalid token' };
         }
 
-        // const userData = {
-        //     id: user.dataValues.id,
-        //     email: user.dataValues.email,
-        //     type: user.dataValues.type,
-        //     role_id: user.get('role_id') || null,
-        //     company_id: user.get('company_id') || null
-        // };
-       // return userData;
+        
 
         console.log("values", user?.dataValues)
 
