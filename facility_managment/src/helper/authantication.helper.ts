@@ -13,48 +13,52 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
         const token = req.headers.get('Authorization');
         if (!token) {
             return { status: 401, body: 'Unauthorized: Token missing' };
-        }else{
-        const decodedToken:any = await Token.getDataFromToken(String(token.replace("Bearer ", "")));
-        // const user = await User.findOne({
-        //     where: {
-        //         email: decodedToken.emails[0]
-        //     },
-        //     attributes: ['id', 'email', 'type']
-        // });
-        if (!decodedToken) {
-            return { status: 401, body: 'Unauthorized: Invalid token' };
+        } else {
+            const decodedToken: any = await Token.getDataFromToken(String(token.replace("Bearer ", "")));
+            context.log(decodedToken, "decoded token")
+            const user = await User.findOne({
+                where: {
+                    email: decodedToken.emails[0]
+                },
+                attributes: ['id', 'email', 'type']
+            });
+            if (!decodedToken) {
+                return { status: 401, body: 'Unauthorized: Invalid token' };
+            }
+
+            // const user = await User.findOne({
+            //     where: {
+            //         email: decodedToken.emails[0]
+            //     },
+            //     // include: [{
+            //     //     model: UserCompanyRole,
+            //     //     attributes: [],
+            //     //     required: false
+            //     // }],
+            //     attributes: ['id', 'email', 'first_name', 'last_name', 'type']
+            // });
+            // console.log(user.id, "aaaaaaaaaaaaaaaaaaa")
+            // const findCompany = await UserCompanyRole.findOne({
+            //     where: { user_id: user.id }
+            // })
+            context.log(user, "check usrerr")
+            if (user) {
+                // Make decoded token available for subsequent functions
+                req['decodedToken'] = user?.dataValues
+                // Call the next function
+                return user?.dataValues
+
+            } else {
+                const errorMessage = {
+                    message: RESPONSE_MESSAGES.unauthorized,
+                    statusCode: HTTP_STATUS_CODES.UNAUTHORIZED_ACCESS,
+                };
+                throw errorMessage;
+            }
+
         }
 
-        const user = await User.findOne({
-            where: {
-                email: decodedToken.emails[0]
-            },
-            include: [{
-                model: UserCompanyRole,
-                attributes: [],
-                required: false
-            }],
-            attributes: ['id', 'email', 'first_name', 'last_name', 'type',[sequelize.col('UserCompanyRole.role_id'), 'role_id'],[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
-        });
 
-        if(user){
-            // Make decoded token available for subsequent functions
-            req['decodedToken'] = user.dataValues;
-    
-            // Call the next function
-            return user?.dataValues;
-
-        }else{
-            const errorMessage = {
-                message: RESPONSE_MESSAGES.unauthorized,
-                statusCode: HTTP_STATUS_CODES.UNAUTHORIZED_ACCESS,
-            };
-            throw errorMessage;
-        }
-
-        }
-
-       
     } catch (error) {
         return { status: 500, body: `${error.message}` };
     }
@@ -65,7 +69,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
         const token = req.headers.get('Authorization');
         if (!token) return { status: 401, body: 'Unauthorized: Token missing' };
         const tokenValue = token.substring('Bearer '.length); // Extracting token part without 'Bearer '
-        const decodedToken:any = await Token.getDataFromToken(tokenValue);
+        const decodedToken: any = await Token.getDataFromToken(tokenValue);
         console.log("DecodedToken", decodedToken);
         const user = await User.findOne({
             where: {
@@ -76,7 +80,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
                 attributes: [],
                 required: false
             }],
-            attributes: ['id', 'email', 'first_name', 'last_name', 'type',[sequelize.col('UserCompanyRole.role_id'), 'role_id'],[sequelize.col('UserCompanyRole.company_id'), 'company_id']]
+            attributes: ['id', 'email', 'first_name', 'last_name', 'type', [sequelize.col('UserCompanyRole.role_id'), 'role_id'], [sequelize.col('UserCompanyRole.company_id'), 'company_id']]
         });
         if (!decodedToken) {
             return { status: 401, body: 'Unauthorized: Invalid token' };
@@ -89,7 +93,7 @@ export async function decodeTokenMiddleware(req: HttpRequest, context: Invocatio
         //     role_id: user.get('role_id') || null,
         //     company_id: user.get('company_id') || null
         // };
-       // return userData;
+        // return userData;
 
         console.log("values", user?.dataValues)
 

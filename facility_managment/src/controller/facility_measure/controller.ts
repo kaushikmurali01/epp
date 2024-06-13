@@ -76,7 +76,7 @@ export class FacilityMeasureController {
    */
   static async editFacilityMeasure(decodedToken: IUserToken, event: HttpRequest, body: IBaseInterface): Promise<FacilityMeasure[]> {
     try {
-      await validatorApiResponse(editFacilityCharSchema, body);
+      // await validatorApiResponse(editFacilityCharSchema, body);
       const result = await FacilityMeasureService.editFacilityMeasure(Object(decodedToken), body, Number(event.params.id));
       return result
     } catch (error) {
@@ -87,6 +87,21 @@ export class FacilityMeasureController {
       throw this.errorMessage;
     }
   };
+
+  static async deleteFacilityMeasure(decodedToken: IUserToken, event: HttpRequest): Promise<FacilityMeasure[]> {
+    try {
+      const result = await FacilityMeasureService.deleteFacilityMeasure(Number(event.params.id));
+      return result
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  };
+
+
 
 
 

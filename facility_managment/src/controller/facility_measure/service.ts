@@ -48,6 +48,7 @@ export class FacilityMeasureService {
         const obj: any = {
           facility_id: body.facility_id,
           is_active: STATUS.IS_ACTIVE,
+          measure_name: body.measure_name,
           measure_category: body.measure_category,
           measure_install_cost: body.measure_install_cost,
           baseline_detail: body.baseline_detail,
@@ -73,6 +74,7 @@ export class FacilityMeasureService {
       const obj: any = {
         facility_id: body.facility_id,
         is_active: STATUS.IS_ACTIVE,
+        measure_name: body.measure_name,
         measure_category: body.measure_category,
         measure_install_cost: body.measure_install_cost,
         baseline_detail: body.baseline_detail,
@@ -95,6 +97,19 @@ export class FacilityMeasureService {
     }
 
   }
+  static async deleteFacilityMeasure(id: number): Promise<FacilityMeasure[]> {
+    try {
+      const result = await FacilityMeasure.destroy({ where: { id } })
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      return resp;
+
+    } catch (error) {
+      throw error;
+    }
+
+  }
+
+
 
 
 

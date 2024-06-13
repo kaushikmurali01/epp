@@ -30,10 +30,11 @@ export async function getAllFacility(request: HttpRequest, context: InvocationCo
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    if(decodedToken?.companyId) {
-     const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
-     if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
-    }
+    console.log(decodedToken, "aaaaaaaaaaaaaaaaaaa")
+    // if (decodedToken?.companyId) {
+    //   const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
+    //   if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    // }
 
     const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
 
@@ -53,7 +54,7 @@ export async function getFacilityById(request: HttpRequest, context: InvocationC
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-    
+
 
     // Get facility by Id
 
@@ -116,7 +117,7 @@ export async function createNewFacility(request: HttpRequest, context: Invocatio
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-       
+
 
     // Get all result
     const result = await FacilityController.createNewFacility(decodedToken, request, Object(requestData));
@@ -464,6 +465,21 @@ export async function editFacilitySavingDocument(request: HttpRequest, context: 
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function deleteFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  try {
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const result = await FacilitySavingDocumentController.deleteFacilitySavingDocument(decodedToken, request);
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function getFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
@@ -515,6 +531,21 @@ export async function addFacilityMeasure(request: HttpRequest, context: Invocati
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function deleteFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+  try {
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const result = await FacilityMeasureController.deleteFacilityMeasure(decodedToken, request);
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function editFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
 
@@ -538,8 +569,6 @@ export async function editFacilityMeasure(request: HttpRequest, context: Invocat
 }
 export async function getFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
   try {
-    const facilityId = request.query.get('facility_id');
-
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
@@ -1003,10 +1032,10 @@ export async function adminGetPaById(request: HttpRequest, context: InvocationCo
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-    if(decodedToken?.companyId) {
-      const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
-      if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
-     }
+    // if (decodedToken?.companyId) {
+    //   const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['facility'], decodedToken.role_id);
+    //   if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    // }
 
     // Get facility by Id
     const result = await AdminFacilityController.getPaDataById(decodedToken, request);
@@ -1209,6 +1238,12 @@ app.http("facility-measure-details", {
   authLevel: "anonymous",
   handler: getFacilityMeasureById,
 });
+app.http("remove-facility-measure", {
+  methods: ["DELETE"],
+  route: "facility-measure/{id}",
+  authLevel: "anonymous",
+  handler: deleteFacilityMeasure,
+});
 app.http("facility-measure-lists", {
   methods: ["GET"],
   route: "facility-measure-lists/{facility_id}/{offset}/{limit}",
@@ -1244,6 +1279,12 @@ app.http("edit-facility-saving-document-details", {
   route: "facility-saving-document/{id}",
   authLevel: "anonymous",
   handler: editFacilitySavingDocument,
+});
+app.http("remove-facility-saving-document", {
+  methods: ["DELETE"],
+  route: "facility-saving-document/{id}",
+  authLevel: "anonymous",
+  handler: deleteFacilitySavingDocument,
 });
 app.http("facility-saving-document", {
   methods: ["POST"],

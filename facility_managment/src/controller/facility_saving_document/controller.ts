@@ -75,8 +75,21 @@ export class FacilitySavingDocumentController {
    */
   static async editFacilitySavingDocument(decodedToken: IUserToken, event: HttpRequest, body: IBaseInterface): Promise<FacilitySavingDocument[]> {
     try {
-      await validatorApiResponse(editFacilityCharSchema, body);
+      // await validatorApiResponse(editFacilityCharSchema, body);
       const result = await FacilitySavingDocumentService.editFacilitySavingDocument(Object(decodedToken), body, Number(event.params.id));
+      return result
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  };
+  static async deleteFacilitySavingDocument(decodedToken: IUserToken, event: HttpRequest): Promise<FacilitySavingDocument[]> {
+    try {
+      // await validatorApiResponse(editFacilityCharSchema, body);
+      const result = await FacilitySavingDocumentService.deleteFacilitySavingDocument(Object(decodedToken), Number(event.params.id));
       return result
     } catch (error) {
       this.errorMessage = {

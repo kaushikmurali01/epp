@@ -81,6 +81,15 @@ export class FacilitySavingDocumentService {
       throw error;
     }
   }
+  static async deleteFacilitySavingDocument(userToken: IUserToken, id: number): Promise<FacilitySavingDocument[]> {
+    try {
+      const result = await FacilitySavingDocument.destroy({ where: { id } })
+      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
 
 
 

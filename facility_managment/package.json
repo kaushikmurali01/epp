@@ -11,7 +11,9 @@
     "start": "func start",
     "test": "echo \"No tests yet...\"",
     "buildUtils": "cd node_modules/enerva-utils && tsc",
-    "dev": "npm run clean && npm run build && npm run buildUtils && func start --watch"
+    "dev": "npm run clean && npm run build && npm run buildUtils && func start --watch",
+    "deploy-dev": "npm run clean && npm run build && npm run buildUtils && func azure functionapp publish CompanyFacility",
+    "deploy-stage": "npm run clean && npm run build && npm run buildUtils && func azure functionapp publish CompanyFacilitystg"
   },
   "dependencies": {
     "@azure/communication-email": "^1.0.0",

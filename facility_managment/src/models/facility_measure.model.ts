@@ -5,6 +5,7 @@ import { sequelize } from '../utils/database';
 export interface IFacilityMeasure {
     id: number | null;
     facility_id: number | null;
+    measure_name: string | null;
     measure_category: string | null;
     measure_install_cost: string | null;
     baseline_detail: string | null;
@@ -23,6 +24,7 @@ export interface IFacilityMeasure {
 class FacilityMeasure extends Model<IFacilityMeasure> implements IFacilityMeasure {
     public id!: number | null;
     public facility_id: number;
+    public measure_name: string | null;
     public measure_category!: string | null;
     public measure_install_cost!: string | null;
     public baseline_detail!: string | null;
@@ -47,6 +49,10 @@ FacilityMeasure.init(
         },
         facility_id: {
             type: DataTypes.INTEGER,
+            allowNull: true,
+        },
+        measure_name: {
+            type: DataTypes.STRING(255),
             allowNull: true,
         },
         measure_category: {
