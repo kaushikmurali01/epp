@@ -24,9 +24,13 @@ export class FacilitySavingDocumentService {
     }
 
   }
-  static async getFacilitySavingDocument(userToken: IUserToken, facilityId: number): Promise<FacilitySavingDocument[]> {
+  static async getFacilitySavingDocument(userToken: IUserToken, facilityId: number, offset: number, limit: number, queryParams: any): Promise<FacilitySavingDocument[]> {
     try {
-      const result = await FacilitySavingDocument.findAndCountAll({ where: { facility_id: facilityId } })
+      let whereObj: any = {}
+      if (queryParams.document_type) {
+        whereObj.document_type = queryParams.document_type
+      }
+      const result = await FacilitySavingDocument.findAndCountAll({ where: { facility_id: facilityId, ...whereObj }, offset, limit })
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;

@@ -24,9 +24,9 @@ export class FacilityMeasureService {
     }
 
   }
-  static async getFacilityMeasure(userToken: IUserToken, facilityId: number): Promise<FacilityMeasure[]> {
+  static async getFacilityMeasure(userToken: IUserToken, facilityId: number, offset: number, limit: number): Promise<FacilityMeasure[]> {
     try {
-      const result = await FacilityMeasure.findAndCountAll({ where: { facility_id: facilityId } })
+      const result = await FacilityMeasure.findAndCountAll({ where: { facility_id: facilityId }, offset, limit })
 
       const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
       return resp;

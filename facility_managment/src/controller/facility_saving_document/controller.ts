@@ -17,7 +17,7 @@ export class FacilitySavingDocumentController {
 
   static async getFacilitySavingDocument(decodedToken: IUserToken, event: HttpRequest): Promise<FacilitySavingDocument[]> {
     try {
-      const result = await FacilitySavingDocumentService.getFacilitySavingDocument(Object(decodedToken), Number(event.params.facility_id));
+      const result = await FacilitySavingDocumentService.getFacilitySavingDocument(Object(decodedToken), Number(event.params.facility_id), Number(event.params.offset), Number(event.params.limit),event.query);
       return result
     } catch (error) {
       this.errorMessage = {
