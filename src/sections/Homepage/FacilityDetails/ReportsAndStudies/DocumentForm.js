@@ -15,12 +15,12 @@ import {
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 
-const DocumentForm = ({ pageInfo, setAddDocumentModalConfig }) => {
+const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const documentFileInputRef = useRef(null);
   const [documentImgUrl, setDocumentImgUrl] = useState("");
-  const [documentSelectedFile, setDocumentSelectedFile] = useState();
+  const [documentSelectedFile, setDocumentSelectedFile] = useState("");
 
   const [initialValues, setInitialValues] = useState({
     document_name: "",
@@ -65,7 +65,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig }) => {
     };
     dispatch(addFacilityDocument(newValues))
       .then(() => {
-        dispatch(fetchFacilityDocumentListing(pageInfo, id));
+        dispatch(fetchFacilityDocumentListing(pageInfo, id, docsFilter));
         setAddDocumentModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,

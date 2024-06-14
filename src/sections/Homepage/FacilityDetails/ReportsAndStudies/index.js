@@ -44,12 +44,11 @@ const ReportsAndStudies = () => {
     (state) => state?.fileUploadReducer?.loading
   );
   const [tabValue, setTabValue] = useState("measureReport");
-  const [selectedDocsFilter, setSelectedDocsFilter] = useState([]);
+  const [selectedDocsFilter, setSelectedDocsFilter] = useState("");
   const [measurePageInfo, setMeasurePageInfo] = useState({
     page: 1,
     pageSize: 10,
   });
-
   const [documentPageInfo, setDocumentPageInfo] = useState({
     page: 1,
     pageSize: 10,
@@ -63,9 +62,18 @@ const ReportsAndStudies = () => {
 
   useEffect(() => {
     if (tabValue === "document") {
-      dispatch(fetchFacilityDocumentListing(documentPageInfo, id));
+      dispatch(
+        fetchFacilityDocumentListing(documentPageInfo, id, selectedDocsFilter)
+      );
     }
-  }, [dispatch, tabValue, selectedDocsFilter, documentPageInfo, id]);
+  }, [
+    dispatch,
+    tabValue,
+    selectedDocsFilter,
+    documentPageInfo,
+    id,
+    selectedDocsFilter,
+  ]);
 
   const measureReportList = useSelector(
     (state) =>
@@ -77,7 +85,7 @@ const ReportsAndStudies = () => {
   );
 
   const filterOptionsDocs = [
-    { label: "All", value: "All" },
+    { label: "All", value: "" },
     { label: "Study Report", value: "Study Report" },
     { label: "Design Report", value: "Design Report" },
     { label: "Drawing", value: "Drawing" },
@@ -87,24 +95,11 @@ const ReportsAndStudies = () => {
     { label: "Photo", value: "Photo" },
   ];
 
-  const handleDocsFilterChange = (value, isSelected) => {
-    if (value === "All") {
-      if (isSelected) {
-        setSelectedDocsFilter(["All"]);
-      } else {
-        setSelectedDocsFilter([]);
-      }
+  const handleDocsFilterChange = (value) => {
+    if (selectedDocsFilter === value) {
+      setSelectedDocsFilter(null);
     } else {
-      if (isSelected) {
-        setSelectedDocsFilter((prevSelected) => [
-          ...prevSelected.filter((item) => item !== "All"),
-          value,
-        ]);
-      } else {
-        setSelectedDocsFilter((prevSelected) =>
-          prevSelected.filter((item) => item !== value)
-        );
-      }
+      setSelectedDocsFilter(value);
     }
   };
 
@@ -193,6 +188,7 @@ const ReportsAndStudies = () => {
         <DocumentForm
           pageInfo={measurePageInfo}
           setAddDocumentModalConfig={setAddDocumentModalConfig}
+          docsFilter={selectedDocsFilter}
         />
       ),
     }));
@@ -298,10 +294,8 @@ const ReportsAndStudies = () => {
                   <CustomToggleButton
                     key={option.value}
                     value={option.value}
-                    selected={selectedDocsFilter.includes(option.value)}
-                    onChange={(isSelected) =>
-                      handleDocsFilterChange(option.value, isSelected)
-                    }
+                    selected={selectedDocsFilter === option.value}
+                    onChange={() => handleDocsFilterChange(option.value)}
                   >
                     {option.label}
                   </CustomToggleButton>
@@ -314,6 +308,7 @@ const ReportsAndStudies = () => {
                       data={item}
                       pageInfo={documentPageInfo}
                       setAddDocumentModalConfig={setAddDocumentModalConfig}
+                      docsFilter={selectedDocsFilter}
                     />
                   ))}
               </Grid>

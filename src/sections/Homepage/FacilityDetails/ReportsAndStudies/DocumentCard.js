@@ -18,10 +18,9 @@ const truncateText = (text, maxWords) => {
   }
 };
 
-const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig }) => {
+const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
-  console.log(data);
 
   const handleDeleteDocument = () => {
     if (data?.id) {
@@ -31,7 +30,9 @@ const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig }) => {
             ...prevState,
             modalVisible: false,
           }));
-          dispatch(fetchFacilityDocumentListing(pageInfo, id));
+          dispatch(
+            fetchFacilityDocumentListing(pageInfo, id, docsFilter)
+          );
         })
         .catch((error) => {
           setAddDocumentModalConfig((prevState) => ({

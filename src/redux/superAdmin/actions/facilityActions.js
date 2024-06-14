@@ -462,7 +462,11 @@ export const deleteFacilityMeasureReport = (measureId) => {
   };
 };
 
-export const fetchFacilityDocumentListing = (pageInfo, facilityId) => {
+export const fetchFacilityDocumentListing = (
+  pageInfo,
+  facilityId,
+  docsFilter
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityDocumentListRequest());
@@ -471,6 +475,7 @@ export const fetchFacilityDocumentListing = (pageInfo, facilityId) => {
       }/${facilityId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
         pageInfo.pageSize
       }`;
+      endpointWithParams += docsFilter ? `?document_type=${docsFilter}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchFacilityDocumentListSuccess(data));
