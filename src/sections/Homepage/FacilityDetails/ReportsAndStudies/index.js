@@ -113,6 +113,7 @@ const ReportsAndStudies = () => {
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
+    setSelectedDocsFilter(null);
   };
 
   const [addMeasureModalConfig, setAddMeasureModalConfig] = useState({
@@ -194,7 +195,7 @@ const ReportsAndStudies = () => {
       headerText: "Add Document",
       modalBodyContent: (
         <DocumentForm
-          pageInfo={measurePageInfo}
+          pageInfo={documentPageInfo}
           setAddDocumentModalConfig={setAddDocumentModalConfig}
           docsFilter={selectedDocsFilter}
         />
@@ -295,13 +296,11 @@ const ReportsAndStudies = () => {
                   />
                 ))}
 
-              {measureReportList.length > 0 && (
-                <CustomPagination
-                  count={measureReportCount}
-                  pageInfo={measurePageInfo}
-                  setPageInfo={setMeasurePageInfo}
-                />
-              )}
+              <CustomPagination
+                count={measureReportCount}
+                pageInfo={measurePageInfo}
+                setPageInfo={setMeasurePageInfo}
+              />
             </Grid>
           ) : (
             <Grid container>
@@ -326,13 +325,12 @@ const ReportsAndStudies = () => {
                       docsFilter={selectedDocsFilter}
                     />
                   ))}
-                {documentList?.length > 0 && (
-                  <CustomPagination
-                    count={documentCount}
-                    pageInfo={documentPageInfo}
-                    setPageInfo={setDocumentPageInfo}
-                  />
-                )}
+
+                <CustomPagination
+                  count={documentCount}
+                  pageInfo={documentPageInfo}
+                  setPageInfo={setDocumentPageInfo}
+                />
               </Grid>
             </Grid>
           )}

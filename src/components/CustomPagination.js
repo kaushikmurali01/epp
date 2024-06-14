@@ -15,7 +15,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 
 const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const totalPages = Math.ceil(count / pageInfo?.pageSize);
   const pageButtons = [];
   let startPage = Math.max(1, pageInfo?.page - 2);
@@ -69,7 +69,15 @@ const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
   return (
-    <Grid container justifyContent="flex-end">
+    <Grid
+      container
+      justifyContent="flex-end"
+      sx={{
+        borderTop: "0.063rem solid #E0E0E0",
+        borderBottom: "0.063rem solid #E0E0E0",
+        padding: "1rem 0",
+      }}
+    >
       <Box
         container
         sx={{

@@ -8,6 +8,7 @@ import {
   deleteFacilityDocument,
   fetchFacilityDocumentListing,
 } from "../../../../redux/superAdmin/actions/facilityActions";
+import { format } from "date-fns";
 
 const truncateText = (text, maxWords) => {
   const words = text.split(" ");
@@ -18,7 +19,12 @@ const truncateText = (text, maxWords) => {
   }
 };
 
-const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig, docsFilter }) => {
+const DocumentCard = ({
+  data,
+  pageInfo,
+  setAddDocumentModalConfig,
+  docsFilter,
+}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
 
@@ -30,9 +36,7 @@ const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig, docsFilter })
             ...prevState,
             modalVisible: false,
           }));
-          dispatch(
-            fetchFacilityDocumentListing(pageInfo, id, docsFilter)
-          );
+          dispatch(fetchFacilityDocumentListing(pageInfo, id, docsFilter));
         })
         .catch((error) => {
           setAddDocumentModalConfig((prevState) => ({
@@ -107,16 +111,28 @@ const DocumentCard = ({ data, pageInfo, setAddDocumentModalConfig, docsFilter })
             padding: "0 1rem 1rem 1rem",
           }}
         >
-          <Typography variant="h6">{data?.document_name}</Typography>
+          <Typography
+            variant="h6"
+            sx={{ wordWrap: "break-word", hyphens: "auto" }}
+          >
+            {data?.document_name}
+          </Typography>
           <Typography variant="h6" mb={1} sx={{ fontSize: ".9rem" }}>
             {data?.document_type}
           </Typography>
-          <Typography variant="body2" mb={1}>
+          <Typography
+            variant="body2"
+            mb={1}
+            sx={{ wordWrap: "break-word", hyphens: "auto" }}
+          >
             {data?.document_desc}
           </Typography>
           <Divider />
           <Grid container justifyContent="space-between" mt={1}>
-            <Typography variant="small">6/12/2023</Typography>
+            <Typography variant="small">
+              {data?.updated_at &&
+                format(new Date(data?.updated_at), "MM/dd/yyyy")}
+            </Typography>
             <Typography variant="small">6.1mb</Typography>
           </Grid>
         </Grid>

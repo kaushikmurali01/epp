@@ -134,7 +134,12 @@ const MeasureReportCard = ({
         {data?.measure_description && (
           <Grid item>
             <Typography variant="small">Measure description</Typography>
-            <Typography variant="body2">{data?.measure_description}</Typography>
+            <Typography
+              variant="body2"
+              sx={{ wordWrap: "break-word", hyphens: "auto" }}
+            >
+              {data?.measure_description}
+            </Typography>
           </Grid>
         )}
       </Grid>
@@ -142,7 +147,12 @@ const MeasureReportCard = ({
         {data?.baseline_detail && (
           <Grid item>
             <Typography variant="small">Baseline condition details</Typography>
-            <Typography variant="body2">{data?.baseline_detail}</Typography>
+            <Typography
+              variant="body2"
+              sx={{ wordWrap: "break-word", hyphens: "auto" }}
+            >
+              {data?.baseline_detail}
+            </Typography>
           </Grid>
         )}
       </Grid>
@@ -189,7 +199,12 @@ const MeasureReportCard = ({
 
             <Box>
               <Typography variant="small">Uploaded file</Typography>
-              <Typography variant="body2">{data?.file_description}</Typography>
+              <Typography
+                variant="body2"
+                sx={{ wordWrap: "break-word", hyphens: "auto" }}
+              >
+                {data?.file_description}
+              </Typography>
             </Box>
           </Grid>
         )}
