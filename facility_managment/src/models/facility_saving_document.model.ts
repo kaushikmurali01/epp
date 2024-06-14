@@ -81,7 +81,7 @@ FacilitySavingDocument.init(
     {
         sequelize,
         tableName: 'facility_saving_document',
-        timestamps: false,
+        timestamps: true,
         underscored: true,
         modelName: 'FacilitySavingDocument',
     }
