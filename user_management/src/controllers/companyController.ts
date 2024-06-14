@@ -103,7 +103,7 @@ class CompanyController {
             } else {
                 if (checkExistUser && checkExistUser.company_id == company_id) {
                     await UserCompanyRole.update({ role_id: 2 }, { where: { id: checkExistUser.id } })
-                    await UserCompanyRole.create({ user_id: user_id, company_id, role_id: 1 })
+                    await UserCompanyRole.update({ role_id: 1 }, { where: { user_id: user_id, company_id } })
                 }
                 return { status: 204, data: checkExistUser };
             }
