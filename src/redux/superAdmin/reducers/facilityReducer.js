@@ -59,6 +59,12 @@ import {
   UPDATE_FACILITY_DOCUMENT_REQUEST,
   UPDATE_FACILITY_DOCUMENT_SUCCESS,
   UPDATE_FACILITY_DOCUMENT_FAILURE,
+  ADD_FACILITY_MEASURE_REPORT_REQUEST,
+  ADD_FACILITY_MEASURE_REPORT_SUCCESS,
+  ADD_FACILITY_MEASURE_REPORT_FAILURE,
+  ADD_FACILITY_DOCUMENT_REQUEST,
+  ADD_FACILITY_DOCUMENT_SUCCESS,
+  ADD_FACILITY_DOCUMENT_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -321,6 +327,24 @@ const facilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    case ADD_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADD_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADD_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     case FETCH_FACILITY_MEASURE_REPORT_DETAILS_REQUEST:
       return {
         ...state,
@@ -390,6 +414,24 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_FACILITY_DOCUMENT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADD_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADD_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADD_FACILITY_DOCUMENT_FAILURE:
       return {
         ...state,
         loading: false,

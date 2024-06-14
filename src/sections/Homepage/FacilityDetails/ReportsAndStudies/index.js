@@ -23,6 +23,7 @@ import {
   fetchFacilityMeasureReportListing,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import Loader from "pages/Loader";
+import CustomPagination from "components/CustomPagination";
 
 const CustomToggleButton = styled(ToggleButton)(({ theme }) => ({
   borderRadius: "1.5rem",
@@ -79,9 +80,16 @@ const ReportsAndStudies = () => {
     (state) =>
       state?.facilityReducer?.facilityMeasureReportList?.data?.rows || []
   );
+  const measureReportCount = useSelector(
+    (state) => state?.facilityReducer?.facilityMeasureReportList?.data?.count
+  );
 
   const documentList = useSelector(
     (state) => state?.facilityReducer?.facilityDocumentList?.data?.rows || []
+  );
+
+  const documentCount = useSelector(
+    (state) => state?.facilityReducer?.facilityDocumentList?.data?.count
   );
 
   const filterOptionsDocs = [
@@ -286,20 +294,27 @@ const ReportsAndStudies = () => {
                     setAddMeasureModalConfig={setAddMeasureModalConfig}
                   />
                 ))}
+
+              {measureReportList.length > 0 && (
+                <CustomPagination
+                  count={measureReportCount}
+                  pageInfo={measurePageInfo}
+                  setPageInfo={setMeasurePageInfo}
+                />
+              )}
             </Grid>
           ) : (
             <Grid container>
-              {documentList?.length >= 2 &&
-                filterOptionsDocs.map((option) => (
-                  <CustomToggleButton
-                    key={option.value}
-                    value={option.value}
-                    selected={selectedDocsFilter === option.value}
-                    onChange={() => handleDocsFilterChange(option.value)}
-                  >
-                    {option.label}
-                  </CustomToggleButton>
-                ))}
+              {filterOptionsDocs.map((option) => (
+                <CustomToggleButton
+                  key={option.value}
+                  value={option.value}
+                  selected={selectedDocsFilter === option.value}
+                  onChange={() => handleDocsFilterChange(option.value)}
+                >
+                  {option.label}
+                </CustomToggleButton>
+              ))}
               <Grid container rowGap={4} mt={4} columnGap={4}>
                 {Array.isArray(documentList) &&
                   documentList?.map((item) => (
@@ -311,6 +326,13 @@ const ReportsAndStudies = () => {
                       docsFilter={selectedDocsFilter}
                     />
                   ))}
+                {documentList?.length > 0 && (
+                  <CustomPagination
+                    count={documentCount}
+                    pageInfo={documentPageInfo}
+                    setPageInfo={setDocumentPageInfo}
+                  />
+                )}
               </Grid>
             </Grid>
           )}
