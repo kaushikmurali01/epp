@@ -3,11 +3,7 @@ import { CompanyController } from '../controllers/companyController';
 import { decodeTokenMiddleware } from "../middleware/authMiddleware";
 import { Company } from "../models/company";
 import { sequelize } from "../services/database";
-import { UserCompanyRole } from "../models/user-company-role";
-import { User } from "../models/user";
-import { Role } from "../models/role";
 import { CompanyService } from "../services/companyService";
-import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 
 
 
