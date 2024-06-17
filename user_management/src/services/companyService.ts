@@ -13,6 +13,7 @@ import { UserService } from './userService';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { UserInvitation } from '../models/user-invitation';
 import { UserRequest } from '../models/user-request';
+import { Facility } from '../models/facility';
 
 class CompanyService {
 
@@ -87,39 +88,79 @@ class CompanyService {
      */
     static async getCompanyAdmin(companyId: number): Promise<any> {
         try {
-            const adminUsers = await User.findOne({
-                include: [
-                    {
-                        model: UserCompanyRole,
-                        where: { company_id: companyId, role_id: 1 },
-                        attributes: [],
 
-                        include: [
-                            {
-                                model: Role,
-                                where: { id: 1 },
-                                attributes: []
-                            },
-                            {
-                                model: Company,
-                                where: { id: companyId },
-                                attributes: []
-                            }
-                        ]
-                    }
-                ],
-                attributes: ['first_name', 'last_name', 'id', 'email', 'landline', 'profile_pic',
-                    [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
-                    [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
-                    [sequelize.col('UserCompanyRole.Company.company_type'), 'company_type'],
-                    [sequelize.col('UserCompanyRole.Company.website'), 'website'],
-                    [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
-                ]
+            const facilities = await Facility.findAll({
+                where: { company_id: companyId },
+                raw: true
             });
 
-            console.log("AdminUsers2345", adminUsers);
+            // Fetch company data
+            const company = await Company.findOne({
+                where: { id: companyId },
+                raw: true
+            });
 
-            return adminUsers;
+            // Fetch user roles data
+            const userRoles = await UserCompanyRole.findAll({
+                where: { company_id: companyId },
+                attributes: ['id', 'user_id', 'company_id', 'role_id',
+                    [sequelize.col('Role.rolename'), 'role_name'],
+                    [sequelize.col('User.first_name'), 'first_name'],
+                    [sequelize.col('User.last_name'), 'last_name'],
+                    [sequelize.col('User.email'), 'email'],
+                ],
+                include: [
+                    {
+                        model: User,
+                        attributes: []
+                    },
+                    {
+                        model: Role,
+                        attributes: []
+
+                    }
+                ],
+                raw: true,
+                // nest: true
+            });
+
+            // Combine the results into the desired format
+            const result = {
+                facilities: facilities,
+                company: company,
+                user_roles: userRoles
+            };
+            // const adminUsers = await User.findOne({
+            //     include: [
+            //         {
+            //             model: UserCompanyRole,
+            //             where: { company_id: companyId, role_id: 1 },
+            //             attributes: [],
+
+            //             include: [
+            //                 {
+            //                     model: Role,
+            //                     where: { id: 1 },
+            //                     attributes: []
+            //                 },
+            //                 {
+            //                     model: Company,
+            //                     where: { id: companyId },
+            //                     attributes: []
+            //                 }
+            //             ]
+            //         }
+            //     ],
+            //     attributes: ['first_name', 'last_name', 'id', 'email', 'landline', 'profile_pic',
+            //         [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
+            //         [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
+            //         [sequelize.col('UserCompanyRole.Company.company_type'), 'company_type'],
+            //         [sequelize.col('UserCompanyRole.Company.website'), 'website'],
+            //         [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
+            //     ]
+            // });
+
+            return result;
             // return adminUsers.dataValues;
             // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
         } catch (error) {
@@ -360,105 +401,105 @@ class CompanyService {
 
     }
 
-/**
- * Deletes a company and associated records.
- * 
- * @param {number} companyId - The ID of the company to delete.
- * @returns {Promise<any>} - A promise that resolves when the operation is complete.
- * @throws {Error} - Throws an error if the operation fails.
- */
-static async deleteCompany(companyId):Promise<any> {
-    let transaction;
-    
-    try {
-        // Start a transaction
-        transaction = await sequelize.transaction();
+    /**
+     * Deletes a company and associated records.
+     * 
+     * @param {number} companyId - The ID of the company to delete.
+     * @returns {Promise<any>} - A promise that resolves when the operation is complete.
+     * @throws {Error} - Throws an error if the operation fails.
+     */
+    static async deleteCompany(companyId): Promise<any> {
+        let transaction;
 
-        // Find all users associated with the company
-        const companyUsers = await UserCompanyRole.findAll({ 
-            where: { company_id: companyId },
-            transaction
-        });
+        try {
+            // Start a transaction
+            transaction = await sequelize.transaction();
 
-        // Perform deletions
-        await Promise.all([
-            UserRequest.destroy({
+            // Find all users associated with the company
+            const companyUsers = await UserCompanyRole.findAll({
                 where: { company_id: companyId },
                 transaction
-            }),
-            UserInvitation.destroy({
-                where: { company: companyId },
-                transaction
-            }),
-            ParticipantAgreement.destroy({
-                where: { company_id: companyId },
-                transaction
-            }),
-            UserCompanyRole.destroy({
-                where: { company_id: companyId },
-                transaction
-            }),
-            Company.destroy({
-                where: { id: companyId },
-                transaction
-            })
-        ]);
+            });
+
+            // Perform deletions
+            await Promise.all([
+                UserRequest.destroy({
+                    where: { company_id: companyId },
+                    transaction
+                }),
+                UserInvitation.destroy({
+                    where: { company: companyId },
+                    transaction
+                }),
+                ParticipantAgreement.destroy({
+                    where: { company_id: companyId },
+                    transaction
+                }),
+                UserCompanyRole.destroy({
+                    where: { company_id: companyId },
+                    transaction
+                }),
+                Company.destroy({
+                    where: { id: companyId },
+                    transaction
+                })
+            ]);
 
 
-        // Commit the transaction after successful deletions
-        await transaction.commit();
+            // Commit the transaction after successful deletions
+            await transaction.commit();
 
-        // Check and convert associated users to individual users
-        await Promise.all(companyUsers.map(user => 
-            UserService.CheckAndMakeUserIndividual(user.user_id)
-        ));
-        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+            // Check and convert associated users to individual users
+            await Promise.all(companyUsers.map(user =>
+                UserService.CheckAndMakeUserIndividual(user.user_id)
+            ));
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
 
-    } catch (error) {
-        // Rollback the transaction in case of error
-        if (transaction) {
-            await transaction.rollback();
-        }
-        
-        // Rethrow the error to be handled by the caller if necessary
-        throw new Error(`${error.message}`);
-    }
-}
-
-static async MakeCompanyInActive(companyId): Promise<any> {
-    let transaction;
-    try {
-        // Start a transaction
-        transaction = await sequelize.transaction();
-
-        // Update the company's is_active status to 0
-        await Company.update(
-            { is_active: 0 },
-            {
-                where: { id: companyId },
-                transaction
+        } catch (error) {
+            // Rollback the transaction in case of error
+            if (transaction) {
+                await transaction.rollback();
             }
-        );
 
-        // Destroy associated user company role permissions
-        await UserCompanyRolePermission.destroy({
-            where: { company_id: companyId },
-            transaction
-        });
-
-        // Commit the transaction after successful operations
-        await transaction.commit();
-        return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
-    } catch (error) {
-        // Rollback the transaction in case of error
-        if (transaction) {
-            await transaction.rollback();
+            // Rethrow the error to be handled by the caller if necessary
+            throw new Error(`${error.message}`);
         }
-        // Rethrow the error to be handled by the caller if necessary
-        throw new Error(`${error.message}`);
     }
 
-}
+    static async MakeCompanyInActive(companyId): Promise<any> {
+        let transaction;
+        try {
+            // Start a transaction
+            transaction = await sequelize.transaction();
+
+            // Update the company's is_active status to 0
+            await Company.update(
+                { is_active: 0 },
+                {
+                    where: { id: companyId },
+                    transaction
+                }
+            );
+
+            // Destroy associated user company role permissions
+            await UserCompanyRolePermission.destroy({
+                where: { company_id: companyId },
+                transaction
+            });
+
+            // Commit the transaction after successful operations
+            await transaction.commit();
+            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+        } catch (error) {
+            // Rollback the transaction in case of error
+            if (transaction) {
+                await transaction.rollback();
+            }
+            // Rethrow the error to be handled by the caller if necessary
+            throw new Error(`${error.message}`);
+        }
+
+    }
 
 }
 
