@@ -10,15 +10,6 @@ import {
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import { format } from "date-fns";
 
-const truncateText = (text, maxWords) => {
-  const words = text.split(" ");
-  if (words.length <= maxWords) {
-    return text;
-  } else {
-    return words.slice(0, maxWords).join(" ") + "...";
-  }
-};
-
 const DocumentCard = ({
   data,
   pageInfo,
@@ -133,7 +124,12 @@ const DocumentCard = ({
               {data?.updated_at &&
                 format(new Date(data?.updated_at), "MM/dd/yyyy")}
             </Typography>
-            <Typography variant="small">6.1mb</Typography>
+            {data?.file_upload && (
+              <Typography variant="small">
+                {(+data?.file_upload.split("_")[1] / (1024 * 1024)).toFixed(2)}
+                mb
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </Grid>
