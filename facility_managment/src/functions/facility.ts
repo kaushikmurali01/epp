@@ -8,8 +8,6 @@ import { FacilityMeterController } from "../controller/facility_meter/controller
 import { FacilityMeterEntriesController } from "../controller/facility_meter_entries/controller";
 import { FacilityCharacteristicsController } from "../controller/facility_characteristics/controller";
 import { AdminFacilityController } from "../controller/admin/admin-facility/controller";
-import { FACILITY_ID_SUBMISSION_STATUS } from "../utils/facility-status";
-import { object } from "yup";
 import { decodeToken } from "../helper/authantication.helper";
 import { HTTP_STATUS_CODES } from "../utils/status";
 import { FacilityMeterHourlyEntriesController } from "../controller/facility_hourly_entries/controller";
@@ -31,10 +29,10 @@ export async function getAllFacility(request: HttpRequest, context: InvocationCo
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
     console.log("ttt", decodedToken);
-     if (companyId) {
-       const hasPermission = await AuthorizationService.check(Number(companyId), decodedToken.id, ['facility'], decodedToken.role_id);
-       if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-     }
+    if (companyId) {
+      const hasPermission = await AuthorizationService.check(Number(companyId), decodedToken.id, ['facility'], decodedToken.role_id);
+      if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    }
 
     const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
 
@@ -139,21 +137,20 @@ export async function postUploadAnyFile(
 ): Promise<HttpResponseInit> {
   context.log(`Http function processed request for url "${request.url}"`);
 
-  const username = request.query.get('username') || 'anonymous';
-  const filename = request.query.get('filename') || 'unknown' + Date.now();
-  const path = `${username}/${filename}`;
-  context.log(path);
-
   // file content must be passed in body
   const formData = await request.formData();
   const temp: any = formData.get('file');
   const uploadedFile: File = temp as File;
-
+  let extLenth = (uploadedFile.name).split(".")
+  const ext = extLenth[extLenth.length - 1]
   // File
   const fileContents = await uploadedFile.arrayBuffer();
   const fileContentsBuffer: Buffer = Buffer.from(fileContents);
   const size = fileContentsBuffer.byteLength;
-  console.log(`lastModified = ${uploadedFile?.lastModified}, size = ${size}`);
+  const username = request.query.get('username') || 'anonymous';
+  let filename = "_" + size + "_" + (request.query.get('filename') || 'unknown' + Date.now());
+  filename += "." + ext
+  console.log(`lastModified = ${uploadedFile?.lastModified}, size = ${size}`, uploadedFile.type, uploadedFile.name, ext);
 
   const sasTokenUrl = await uploadBlob(
     process.env?.Azure_Storage_AccountName as string,
@@ -162,7 +159,7 @@ export async function postUploadAnyFile(
     username,
     fileContentsBuffer
   );
-
+  console.log(sasTokenUrl.split("_")[1], "size")
   return {
     jsonBody: {
       filename,
@@ -1032,10 +1029,10 @@ export async function adminGetPaById(request: HttpRequest, context: InvocationCo
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-     if (decodedToken?.companyId) {
-       const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['bind-company'], decodedToken.role_id);
-       if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-     }
+    if (decodedToken?.companyId) {
+      const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['bind-company'], decodedToken.role_id);
+      if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    }
 
     // Get facility by Id
     const result = await AdminFacilityController.getPaDataById(decodedToken, request);
