@@ -11,8 +11,6 @@ import { validationSchemaAddFacility } from "../../../utils/validations/formVali
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
-import { uploadFileEndPoints } from "constants/endPoints";
-import axios from "axios";
 import {
   facilityEndPoints,
   imageUploadEndPoints,
@@ -21,7 +19,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import SliderWrapper from "components/FormBuilder/Slider";
-
+let OpenLocationCode = require('open-location-code').OpenLocationCode;
+let openLocationCode = new OpenLocationCode();
 const marksForEnergyTarget = [
   {
     value: 5,
@@ -363,6 +362,13 @@ const AddFacilityComponent = (props) => {
   );
 
   const handleSubmit = (values) => {
+    // console.log("values iii", values)
+    // const query = '900 Dufferin St Toronto, ON M6H 4A9'
+    // const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`
+    // GET_REQUEST(apiURL).then((response) => {
+    //   const code = openLocationCode.encode(parseFloat(response?.data?.results[0]?.position?.lat), parseFloat(response?.data?.results[0]?.position?.lon));
+    //   console.log("code", code, response)
+    // })
     delete values.facility_id_submission_status;
     const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
     if (values.facility_construction_status == "Existing") {
