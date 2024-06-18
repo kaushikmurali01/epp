@@ -385,7 +385,7 @@ export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
   role: Yup.string().required("Role is required"),
 });
 
-export const updateProfilePageRoleSchema = Yup.object().shape({  
+export const updateProfilePageRoleSchema = Yup.object().shape({
   selectUser: Yup.string().required("Role is required"),
 });
 
@@ -404,4 +404,32 @@ export const validationSchemaFacilityPermissions = Yup.object().shape({
     .email("Invalid email")
     .required("Business email is required"),
   role_type: Yup.string().required("Role type is required"),
+});
+
+export const validationSchemaAddMeasureReport = Yup.object().shape({
+  measure_name: Yup.string().required("Measure name is required"),
+  measure_category: Yup.string().nullable(),
+  measure_install_cost: Yup.string().nullable(),
+  baseline_detail: Yup.string().nullable(),
+  measure_description: Yup.string().nullable(),
+  start_date: Yup.date()
+    .nullable()
+    .max(new Date(), "Measure installation start date cannot be in the future"),
+  end_date: Yup.date()
+    .nullable()
+    .when("start_date", {
+      is: (startDate) => startDate != null,
+      then: (schema) =>
+        schema.min(
+          Yup.ref("start_date"),
+          "Measure completion date cannot be earlier than date meter became active"
+        ),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  file_description: Yup.string().nullable(),
+});
+
+export const validationSchemaDocument = Yup.object().shape({
+  document_name: Yup.string().required("Document name is required"),
+  document_desc: Yup.string().nullable(),
 });
