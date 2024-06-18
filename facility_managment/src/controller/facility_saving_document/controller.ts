@@ -10,14 +10,13 @@ import { validatorApiResponse } from "../../helper/validator.handler";
 import { FacilitySavingDocument } from "../../models/facility_saving_document.model";
 
 
-
 export class FacilitySavingDocumentController {
   static errorMessage: { message: string; statusCode: number; };
 
 
   static async getFacilitySavingDocument(decodedToken: IUserToken, event: HttpRequest): Promise<FacilitySavingDocument[]> {
     try {
-      const result = await FacilitySavingDocumentService.getFacilitySavingDocument(Object(decodedToken), Number(event.params.facility_id));
+      const result = await FacilitySavingDocumentService.getFacilitySavingDocument(Object(decodedToken), Number(event.params.facility_id), Number(event.params.offset), Number(event.params.limit), event.query.get("document_type") || "");
       return result
     } catch (error) {
       this.errorMessage = {

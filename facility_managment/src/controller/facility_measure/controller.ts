@@ -17,7 +17,7 @@ export class FacilityMeasureController {
 
   static async getFacilityMeasure(decodedToken: IUserToken, event: HttpRequest): Promise<FacilityMeasure[]> {
     try {
-      const result = await FacilityMeasureService.getFacilityMeasure(Object(decodedToken), Number(event.params.facility_id));
+      const result = await FacilityMeasureService.getFacilityMeasure(Object(decodedToken), Number(event.params.facility_id), Number(event.params.offset), Number(event.params.limit));
       return result
     } catch (error) {
       this.errorMessage = {

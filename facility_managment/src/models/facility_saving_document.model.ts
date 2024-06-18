@@ -8,6 +8,7 @@ export interface IFacilitySavingDocument {
     document_desc: string | null;
     document_name: string | null;
     file_upload: string | null;
+    document_type: string | null;
     is_active?: number | null;
     created_at?: Date | null;
     updated_at?: Date | null;
@@ -20,6 +21,7 @@ class FacilitySavingDocument extends Model<IFacilitySavingDocument> implements I
     public facility_id: number;
     public document_desc!: string | null;
     public document_name!: string | null;
+    public document_type: string | null;
     public file_upload!: string | null;
     public is_active?: number | null;
     public created_at?: Date | null;
@@ -40,6 +42,10 @@ FacilitySavingDocument.init(
             allowNull: true,
         },
         document_name: {
+            type: DataTypes.STRING(255),
+            allowNull: true,
+        },
+        document_type: {
             type: DataTypes.STRING(255),
             allowNull: true,
         },
@@ -75,7 +81,7 @@ FacilitySavingDocument.init(
     {
         sequelize,
         tableName: 'facility_saving_document',
-        timestamps: false,
+        timestamps: true,
         underscored: true,
         modelName: 'FacilitySavingDocument',
     }
