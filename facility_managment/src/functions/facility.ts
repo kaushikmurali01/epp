@@ -1032,8 +1032,8 @@ export async function adminGetPaById(request: HttpRequest, context: InvocationCo
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
 
-     if (decodedToken?.companyId) {
-       const hasPermission = await AuthorizationService.check(decodedToken.companyId, decodedToken.id, ['bind-company'], decodedToken.role_id);
+     if (decodedToken?.company_id) {
+       const hasPermission = await AuthorizationService.check(decodedToken.company_id, decodedToken.id, ['bind-company'], decodedToken.role_id);
        if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
      }
 
@@ -1056,6 +1056,11 @@ export async function adminCreatePa(request: HttpRequest, context: InvocationCon
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+    if (decodedToken?.company_id) {
+      const hasPermission = await AuthorizationService.check(decodedToken.company_id, decodedToken.id, ['bind-company'], decodedToken.role_id);
+      if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    }
 
     const requestData = await request.json();
 
