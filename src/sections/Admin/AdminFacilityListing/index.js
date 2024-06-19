@@ -61,6 +61,9 @@ const AdminFacilityListing = () => {
   const loadingState = useSelector(
     (state) => state?.adminFacilityReducer?.loading
   );
+  const alertLoadingState = useSelector(
+    (state) => state?.adminCompanyReducer?.loading
+  );
 
   const onDownloadBulkClick = (page_info, status) => {
     dispatch(downloadFacilitiesBulkData(page_info, companyFilter, status)).then(
@@ -440,7 +443,7 @@ const AdminFacilityListing = () => {
       <Loader
         sectionLoader
         minHeight="100vh"
-        loadingState={loadingState}
+        loadingState={loadingState || alertLoadingState}
         loaderPosition="fixed"
       />
     </Container>
