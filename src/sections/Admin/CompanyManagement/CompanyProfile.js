@@ -31,14 +31,21 @@ const CompanyProfile = () => {
     },
     {
       Header: "Participant Representative",
-      accessor: "email",
+      accessor: (item) => (
+        <Link
+          href={`#/user-management/profile/${item?.company_id}/${item?.user_id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.email}
+        </Link>
+      ),
     },
     {
-      Header: "User id",
+      Header: "User Id",
       accessor: "user_id",
     },
     {
-      Header: "User role",
+      Header: "User Role",
       accessor: "role_name",
     },
   ];
@@ -49,11 +56,18 @@ const CompanyProfile = () => {
       cWidth: "1.5px",
     },
     {
-      Header: "Facility name",
-      accessor: "facility_name",
+      Header: "Facility Name",
+      accessor: (item) => (
+        <Link
+          href={`#/facility-list/facility-details/${item?.id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.facility_name}
+        </Link>
+      ),
     },
     {
-      Header: "Facility type",
+      Header: "Facility Type",
       accessor: "facility_type",
     },
     {
@@ -78,7 +92,14 @@ const CompanyProfile = () => {
     },
     {
       Header: "Facility UBI",
-      accessor: "facility_ubi",
+      accessor: (item) => (
+        <Link
+          href={`#/facility-list/facility-details/${item?.id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.facility_ubi}
+        </Link>
+      ),
     },
   ];
 
