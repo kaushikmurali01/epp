@@ -130,10 +130,22 @@ class CompanyController {
           (checkExistUser && checkExistUser.company_id == company_id) ||
           role_id == 6
         ) {
-          await UserCompanyRole.update(
-            { role_id: 2 },
-            { where: { id: checkExistUser.id } }
-          );
+          if (role_id == 6) {
+            let findSuperUser = await UserCompanyRole.findOne({
+              where: { role_id: 1, company_id },
+            });
+            if (findSuperUser) {
+              await UserCompanyRole.update(
+                { role_id: 2 },
+                { where: { id: findSuperUser.id } }
+              );
+            }
+          } else {
+            await UserCompanyRole.update(
+              { role_id: 2 },
+              { where: { id: checkExistUser.id } }
+            );
+          }
           await UserCompanyRole.update(
             { role_id: 1 },
             { where: { user_id: user_id, company_id } }
@@ -171,15 +183,19 @@ class CompanyController {
       return { status: 500, body: { error: error.message } };
     }
   }
-static async GetCompanyUser(offset, limit, company_id): Promise<any> {
+  static async GetCompanyUser(offset, limit, company_id): Promise<any> {
     try {
-      const result = await CompanyService.GetCompanyUser(offset, limit, company_id);
+      const result = await CompanyService.GetCompanyUser(
+        offset,
+        limit,
+        company_id
+      );
       return { status: 204, data: result };
     } catch (error) {
       return { status: 500, body: { error: error.message } };
     }
   }
-  
+
   /**
    * Updates an existing company.
    *

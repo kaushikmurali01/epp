@@ -347,7 +347,7 @@ class CompanyService {
   }
   static async GetCompanyUser(offset, limit, company_id): Promise<any[]> {
     try {
-      const result = await UserCompanyRole.findAll({
+      const result: any = await UserCompanyRole.findAndCountAll({
         where: { company_id: company_id },
         attributes: [
           "id",
@@ -359,10 +359,15 @@ class CompanyService {
           [sequelize.col("User.last_name"), "last_name"],
           [sequelize.col("User.email"), "email"],
           [sequelize.col("User.createdAt"), "created_at"],
+          [sequelize.col("Company.company_name"), "company_name"],
         ],
         include: [
           {
             model: User,
+            attributes: [],
+          },
+          {
+            model: Company,
             attributes: [],
           },
           {
