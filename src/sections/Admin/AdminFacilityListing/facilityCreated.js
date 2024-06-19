@@ -199,7 +199,7 @@ const FacilityCreated = ({
               label="Comment"
               rowsMin={3}
               rowsMax={5}
-              style={{ width: "85%", minHeight: "200px", padding: "5px" }}
+              textAreaStyle={{ fontSize: "1.125rem" }}
             />
           </Stack>
           <Grid display="flex" sx={{ marginTop: "1rem" }}>

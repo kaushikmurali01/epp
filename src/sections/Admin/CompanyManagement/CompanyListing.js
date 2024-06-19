@@ -77,7 +77,7 @@ const CompanyListing = () => {
       ),
     },
     {
-      Header: "users",
+      Header: "Users",
       accessor: (item) => (
         <>
           <Link
@@ -117,7 +117,7 @@ const CompanyListing = () => {
         <>
           {
             <Button
-              color={item?.is_active === 1 ? "error" : "primary"}
+              color={item?.is_active === 1 ? "primary" : "error"}
               disableRipple
               style={{
                 minWidth: "unset",
@@ -127,7 +127,7 @@ const CompanyListing = () => {
               }}
               onClick={() => openStatusModal(item?.id, item?.is_active)}
             >
-              {item?.is_active === 1 ? "Inactive" : "Active"}
+              {item?.is_active === 1 ? "Active" : "Inactive"}
             </Button>
           }
         </>
@@ -339,7 +339,7 @@ const CompanyListing = () => {
               label="Comment"
               rowsMin={3}
               rowsMax={5}
-              style={{ width: "85%", minHeight: "200px", padding: "5px" }}
+              textAreaStyle={{ fontSize: "1.125rem" }}
             />
           </Stack>
           <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -633,7 +633,8 @@ const CompanyListing = () => {
           }));
         });
     };
-    return (
+
+    return companyUserListData.length ? (
       <Formik
         initialValues={{
           ...updateRoleInitialValues,
@@ -658,6 +659,22 @@ const CompanyListing = () => {
           </Grid>
         </Form>
       </Formik>
+    ) : (
+      <Grid
+        sx={{
+          minWidth: { xs: "100%", sm: "500px" },
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          color: "dark.light",
+          lineHeight: "1.5rem",
+        }}
+      >
+        No users exist or existing users are the super-admin of another company,
+        so won't be able to change the role.
+      </Grid>
     );
   };
 
