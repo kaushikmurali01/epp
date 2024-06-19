@@ -512,6 +512,103 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
     }
 }
 
+export async function DeleteUserAdmin(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const userId: any = request.params.id;
+        const type: any = request.params.type;
+        const company_id: any = request.params.company_id;
+        context.log("Type", type);
+        context.log("Company Id", company_id);
+        context.log("User Id", userId);
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+
+      //  const hasPermission = await AuthorizationService.check(company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+       // if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+
+        if (type == 1) {
+            if(company_id == 0) {
+            await User.update({ is_active: 0 }, { where: { id: userId } });
+            } else if(company_id > 0) {
+                // find user role
+               let ucr:any = await UserCompanyRole.findOne({where: {
+                    user_id: userId,
+                    company_id:company_id
+                }});
+                context.log('1111', ucr?.role_id)
+                let user_role = ucr?.role_id;
+                const company:any = await CompanyService.GetCompanyById(request.params.company_id);
+                const userDet:any = await UserService.getUserDataById(userId);
+
+                if (user_role === 1) {
+                    const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
+                    context.log("companyUsers", companyUsers);
+                
+                    await Promise.all([
+                        UserCompanyRolePermission.destroy({ where: { company_id }}),
+                        UserCompanyRole.destroy({ where: { company_id } }),
+                        UserInvitation.destroy({ where: { company: company_id } }),
+                        UserRequest.destroy({ where: { company_id } }),
+                        Company.destroy({ where: { id: company_id } })
+                    ]);
+                
+                    await Promise.all(companyUsers.map(user => 
+                        UserService.CheckAndMakeUserIndividual(user.user_id)
+                    ));
+                } else {
+                    context.log("logging", userId);
+                    context.log("companyLogging", company_id);
+                    await UserCompanyRolePermission.destroy({ where: { user_id: userId, company_id }});
+                    await UserCompanyRole.destroy({ where: { user_id: userId, company_id } });
+                    await UserService.CheckAndMakeUserIndividual(userId);
+                }
+                
+                
+            (async () => {
+            // Send Email For User Starts
+      let template =  await EmailTemplate.getEmailTemplate();
+      
+      context.log("userDetail", userDet);
+      if(userDet) {
+      let emailContent =  template
+                .replace('#content#', EmailContent.deleteDetailForUser.content)
+                .replace('#name#', userDet?.first_name)
+                .replace('#company#', company.company_name)
+                .replace('#isDisplay#', 'none')
+                .replace('#heading#', '');
+                context.log("userDetailEMail", userDet?.email);
+      await Email.send(userDet?.email, EmailContent.deleteDetailForUser.title, emailContent);
+    // Send Email For User Ends
+
+    // Send Email to Admins
+    const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.deleteDetailForAdmins.content)
+    .replace('#user#', `${userDet?.first_name}`)
+    .replace('#company#', company.company_name)
+    .replace('#isDisplay#', 'none')
+    .replace('#heading#', '');
+    if (user_role !== 1) {
+     await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
+    }
+    // Send Email to Admins
+      }
+
+
+
+
+    })();
+            }
+
+        } else if (type == 2) {
+            await UserInvitation.destroy({ where: { id: userId } });
+            
+        } else if (type == 3) {
+            await UserRequest.destroy({ where: { id: userId } });
+        }
+        return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
+    } catch (error) {
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 
 /**
  * Azure Function to retrieve the list of user invitations.
@@ -965,6 +1062,12 @@ app.http('DeleteUser', {
     authLevel: 'anonymous',
     route: 'users/{id}/{type}/{company_id}',
     handler: DeleteUser
+});
+app.http('DeleteUserAdmin', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'usersadmin/{id}/{type}/{company_id}',
+    handler: DeleteUserAdmin
 });
 
 app.http('AcceptInvitation', {
