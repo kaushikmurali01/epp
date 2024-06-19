@@ -78,9 +78,13 @@ const DocumentCard = ({
     <Grid>
       <Grid
         sx={{
+          display: "flex",
+          flexDirection: "column",
           background: "#EBFFEF",
           borderRadius: "1.25rem",
           width: "12.056rem",
+          minHeight: "100%",
+          justifyContent: "space-between",
         }}
       >
         {data?.file_upload && (
@@ -118,8 +122,20 @@ const DocumentCard = ({
           >
             {data?.document_desc}
           </Typography>
+        </Grid>
+        <Grid
+          item
+          sx={{
+            padding: "0 1rem 0.5rem 1rem",
+          }}
+        >
           <Divider />
-          <Grid container justifyContent="space-between" mt={1}>
+          <Grid
+            container
+            justifyContent="space-between"
+            mt={1}
+            sx={{ minHeight: "25px" }}
+          >
             <Typography variant="small">
               {data?.updated_at &&
                 format(new Date(data?.updated_at), "MM/dd/yyyy")}

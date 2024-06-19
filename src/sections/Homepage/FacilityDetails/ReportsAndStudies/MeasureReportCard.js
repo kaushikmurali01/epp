@@ -179,7 +179,7 @@ const MeasureReportCard = ({
           <Grid item xs={12} sm={3}>
             <Typography variant="small">Measure cost</Typography>
             <Typography variant="body2">
-              {data?.measure_install_cost}
+              ${data?.measure_install_cost}
             </Typography>
           </Grid>
         )}

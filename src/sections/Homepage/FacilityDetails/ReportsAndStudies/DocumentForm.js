@@ -196,6 +196,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
                   <TextAreaField
                     name="document_desc"
                     label="Document description"
+                    textAreaStyle={{ fontSize: "1.125rem" }}
                   />
                 </Grid>
               </Grid>

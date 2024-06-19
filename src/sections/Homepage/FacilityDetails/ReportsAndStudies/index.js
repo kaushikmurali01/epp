@@ -30,6 +30,7 @@ const CustomToggleButton = styled(ToggleButton)(({ theme }) => ({
   margin: theme.spacing(1),
   minWidth: "48px",
   minHeight: "48px",
+  textTransform: "none",
   "&.Mui-selected": {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
@@ -113,7 +114,7 @@ const ReportsAndStudies = () => {
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
-    setSelectedDocsFilter(null);
+    setSelectedDocsFilter("");
   };
 
   const [addMeasureModalConfig, setAddMeasureModalConfig] = useState({
@@ -226,15 +227,21 @@ const ReportsAndStudies = () => {
             value={tabValue}
             onChange={handleChange}
             variant={isSmallScreen && "scrollable"}
-            sx={{ display: !isSmallScreen && "inline-flex" }}
+            sx={{
+              display: !isSmallScreen && "inline-flex",
+            }}
             scrollButtons
           >
             <Tab
               value="measureReport"
               label="Measure Report"
-              sx={{ minWidth: "10rem" }}
+              sx={{ minWidth: "10rem", textTransform: "none" }}
             />
-            <Tab value="document" label="Document" sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="document"
+              label="Document"
+              sx={{ minWidth: "10rem", textTransform: "none" }}
+            />
           </Tabs>
         </Grid>
         <Grid item sx={{ justifyContent: "flex-end", mt: isSmallScreen && 2 }}>
@@ -296,11 +303,13 @@ const ReportsAndStudies = () => {
                   />
                 ))}
 
-              <CustomPagination
-                count={measureReportCount}
-                pageInfo={measurePageInfo}
-                setPageInfo={setMeasurePageInfo}
-              />
+              {measureReportCount > 0 && (
+                <CustomPagination
+                  count={measureReportCount}
+                  pageInfo={measurePageInfo}
+                  setPageInfo={setMeasurePageInfo}
+                />
+              )}
             </Grid>
           ) : (
             <Grid container>
@@ -326,11 +335,13 @@ const ReportsAndStudies = () => {
                     />
                   ))}
 
-                <CustomPagination
-                  count={documentCount}
-                  pageInfo={documentPageInfo}
-                  setPageInfo={setDocumentPageInfo}
-                />
+                {documentCount > 0 && (
+                  <CustomPagination
+                    count={documentCount}
+                    pageInfo={documentPageInfo}
+                    setPageInfo={setDocumentPageInfo}
+                  />
+                )}
               </Grid>
             </Grid>
           )}

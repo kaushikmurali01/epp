@@ -35,7 +35,10 @@ export const MiniTable = ({ columns, data }) => {
                   {...column.getHeaderProps()}
                   size="small"
                   padding="none"
-                  sx={{ borderBottom: "none" }}
+                  sx={{
+                    borderBottom: "none",
+                    width: column.cWidth && column.cWidth,
+                  }}
                 >
                   {column.render("Header")}
                 </TableCell>

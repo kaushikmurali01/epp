@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Typography, Grid, Box, Button } from "@mui/material";
+import { Container, Typography, Grid, Box, Button, Stack } from "@mui/material";
 import Table from "../../../components/Table";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,7 +13,11 @@ import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 import { format } from "date-fns";
-import NotificationsToast from "utils/notification/NotificationsToast";
+import TextAreaField from "components/FormBuilder/TextAreaField";
+import { Field, Formik, Form } from "formik";
+import ButtonWrapper from "components/FormBuilder/Button";
+import { adminCompanySendAlert } from "../../../redux/admin/actions/adminCompanyAction";
+import * as Yup from "yup";
 
 const FacilityCreated = ({
   searchVal,
@@ -117,6 +121,97 @@ const FacilityCreated = ({
     modalBodyContent: "",
     saveButtonAction: handleDeleteFacility,
   });
+
+  const openAlertModal = (company_id) => {
+    setAlertModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <CommentForm companyId={company_id} />,
+    }));
+  };
+
+  const [alertModalConfig, setAlertModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "",
+      cancelButtonName: "",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Alert",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const CommentForm = ({ companyId }) => {
+    const initialValues = {
+      comment: "",
+    };
+
+    const validationSchemaSendAlert = Yup.object().shape({
+      comment: Yup.string().required("Comment is required"),
+    });
+
+    const formSubmit = (values) => {
+      dispatch(adminCompanySendAlert(companyId, values))
+        .then(() => {
+          setAlertModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+        })
+        .catch(() => {
+          setAlertModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+        });
+    };
+
+    return (
+      <Formik
+        initialValues={{
+          ...initialValues,
+        }}
+        onSubmit={formSubmit}
+        validationSchema={validationSchemaSendAlert}
+      >
+        <Form>
+          <Stack>
+            <TextAreaField
+              name="comment"
+              label="Comment"
+              rowsMin={3}
+              rowsMax={5}
+              style={{ width: "85%", minHeight: "200px", padding: "5px" }}
+            />
+          </Stack>
+          <Grid display="flex" sx={{ marginTop: "1rem" }}>
+            <ButtonWrapper type="submit" variant="contained">
+              Submit
+            </ButtonWrapper>
+          </Grid>
+        </Form>
+      </Formik>
+    );
+  };
+
   const columns = [
     {
       Header: "Facility ID",
@@ -204,6 +299,20 @@ const FacilityCreated = ({
           </Button>
           <Button
             disableRipple
+            style={{
+              color: "#2C77E9",
+              backgroundColor: "transparent",
+              padding: 0,
+              minWidth: "unset",
+              marginLeft: "1rem",
+              fontSize: "0.875rem",
+            }}
+            onClick={() => openAlertModal(item?.company_id)}
+          >
+            Alert
+          </Button>
+          <Button
+            disableRipple
             color="error"
             style={{
               backgroundColor: "transparent",
@@ -287,6 +396,10 @@ const FacilityCreated = ({
         modalConfig={modalConfig}
         setModalConfig={setModalConfig}
         actionButtonData={facilityToDelete}
+      />
+      <EvModal
+        modalConfig={alertModalConfig}
+        setModalConfig={setAlertModalConfig}
       />
     </Container>
   );

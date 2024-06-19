@@ -25,7 +25,7 @@ const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
     startPage = pageInfo?.page - 2;
     endPage = pageInfo?.page + 2;
   } else if (pageInfo?.page > 3 && pageInfo?.page + 2 > totalPages) {
-    startPage = totalPages - 4;
+    startPage = Math.max(1, totalPages - 4);
     endPage = totalPages;
   }
   const handlePrevPage = (pageInfo, setPageInfo) => {
