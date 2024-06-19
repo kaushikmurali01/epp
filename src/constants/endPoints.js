@@ -31,27 +31,28 @@ export const facilityEndPoints = {
   userManagement: "user-management",
   facilityDetails: "facility-details/:id",
   entriesDetails: "entries-details/:id",
-  facilityManagePermissions:"facility-manage-permissions/:id"
+  facilityManagePermissions: "facility-manage-permissions/:id",
 };
 
 export const enervaEndPoints = {
   companies: "companies",
   reportManagement: "report-management",
-  programManagement :"program-management",
+  programManagement: "program-management",
   roleAndPermissionManagement: "roles-permissions-management",
   clientManagement: "client-management",
-  companyProfile:"company-profile/:id",
-  companyAgreement: "company-agreement/:id"
-}
+  companyProfile: "company-profile/:id",
+  companyAgreement: "company-agreement/:id",
+  companyUsers: "company-users/:id",
+  companyManageAccess: "company-manage-access/:id",
+};
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
-  userProfile: "/user-management/profile/:companyId/:userId"
+  userProfile: "/user-management/profile/:companyId/:userId",
 };
 
 export const evUserManagementEndPoints = {
   evUserManagement: "ev-user-management",
-  
 };
 
 export const participantAgreementEndPoints = {

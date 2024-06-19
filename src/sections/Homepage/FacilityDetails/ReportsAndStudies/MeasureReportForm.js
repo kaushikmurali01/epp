@@ -179,7 +179,7 @@ const MeasureReportForm = ({
                 <Grid item xs={12} sm={6}>
                   <InputField
                     name="measure_install_cost"
-                    label="Measure installation cost "
+                    label="Measure installation costs "
                     type="number"
                     onKeyDown={(evt) =>
                       ["e", "E", "+", "-"].includes(evt.key) &&
@@ -202,6 +202,7 @@ const MeasureReportForm = ({
                   <TextAreaField
                     name="measure_description"
                     label="Measure description"
+                    textAreaStyle={{ fontSize: "1.125rem" }}
                   />
                 </Grid>
               </Grid>
@@ -282,7 +283,7 @@ const MeasureReportForm = ({
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={6}>
                   <InputLabel style={{ whiteSpace: "initial" }}>
-                    Measure detail
+                    Measure details
                   </InputLabel>
                   {!measureSelectedFile ? (
                     <>
@@ -366,6 +367,7 @@ const MeasureReportForm = ({
                   <TextAreaField
                     name="file_description"
                     label="File description"
+                    textAreaStyle={{ fontSize: "1.125rem" }}
                   />
                 </Grid>
               </Grid>
