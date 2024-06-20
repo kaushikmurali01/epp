@@ -74,6 +74,12 @@ export async function ListRoles(request: HttpRequest, context: InvocationContext
     try {
 
         const type = parseInt(request.params.user_type);
+
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        if(resp?.company_id) {
+         const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+         if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+        }
         // List roles
         const roles = await RoleController.listRoles(request, type);
 

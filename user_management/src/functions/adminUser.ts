@@ -294,7 +294,15 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
     try {
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
-        const role = request.query.get('role') || ""
+        const role = request.query.get('role') || "";
+        const order = request.query.get('order') || 'ASC';
+        const colName = request.query.get('col_name') || 'id';
+        let orderCriteria;
+        if (colName === 'rolename') {
+            orderCriteria = [sequelize.col('UserCompanyRole.Role.rolename'), order];
+        } else {
+            orderCriteria = [colName, order];
+        }
         let where = {}
         if (role) {
             where = { id: Number(role) }
@@ -330,29 +338,31 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                     [sequelize.col('UserCompanyRole.status'), 'status'],
                     [sequelize.col('UserCompanyRole.company_id'), 'company_id']
                 ],
-            }),
-            UserInvitation.findAndCountAll({
-                offset: parseInt(pageOffset),
-                limit: parseInt(pageLimit),
-                where: {
-                    is_active: 1,
-                    type: 2,
-                    [Op.or]: [
-                        { email: { [Op.iLike]: `%${searchPromt}%` } },
-                    ]
-                },
-                attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
-                    [sequelize.col('company'), 'company_id'],
-                    [sequelize.col('Role.rolename'), 'rolename'],
-                    [sequelize.col('Role.id'), 'role_id']
-                ],
-                include: [{
-                    model: Role,
-                    attributes: [],
-                    where
-                }
-                ]
-            })
+                order: [['first_name', 'ASC']]
+
+            }), {rows: [], count: 0}
+             //UserInvitation.findAndCountAll({
+            //     offset: parseInt(pageOffset),
+            //     limit: parseInt(pageLimit),
+            //     where: {
+            //         is_active: 1,
+            //         type: 2,
+            //         [Op.or]: [
+            //             { email: { [Op.iLike]: `%${searchPromt}%` } },
+            //         ]
+            //     },
+            //     attributes: ['id', 'email', 'invitation_sent_date', 'invitation_sent_time', 'status', "createdAt",
+            //         [sequelize.col('company'), 'company_id'],
+            //         [sequelize.col('Role.rolename'), 'rolename'],
+            //         [sequelize.col('Role.id'), 'role_id']
+            //     ],
+            //     include: [{
+            //         model: Role,
+            //         attributes: [],
+            //         where
+            //     }
+            //     ]
+            // })
 
         ]);
 
