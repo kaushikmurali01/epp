@@ -363,11 +363,11 @@ const UserManagementAdmin = () => {
 
   
   useEffect(() => {
-    debouncedSearch(enervaPageInfo, searchString,selectRoleType,);
+    debouncedSearch(enervaPageInfo, searchString,selectRoleType);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType,]);
+  }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
 
 
   useEffect(() => {
