@@ -16,10 +16,10 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
       type: "input",
       value: "energy_and_water",
     },
-    { label: "Weather & Independent Variables", id: 3, type: "input" , value:"weather"},
-    { label: "Reports and Studies", id: 4, type: "input", value:"reports_and_studies" },
-    { label: "Baseline Model", id: 5, type: "input", value:"baseline_model" },
-    { label: "Performance", id: 6, type: "input", value:"performance" },
+    // { label: "Weather & Independent Variables", id: 3, type: "input" , value:"weather"},
+    // { label: "Reports and Studies", id: 4, type: "input", value:"reports_and_studies" },
+    // { label: "Baseline Model", id: 5, type: "input", value:"baseline_model" },
+    // { label: "Performance", id: 6, type: "input", value:"performance" },
   ];
 
   const handleTabChange = (event, newValue) => {
