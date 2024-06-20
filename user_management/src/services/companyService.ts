@@ -183,7 +183,45 @@ class CompanyService {
       throw new Error(`${error.message}`);
     }
   }
+  static async getCompanyAdmin2(companyId: number): Promise<any> {
+    try {
+      const adminUsers = await User.findOne({
+          include: [
+              {
+                  model: UserCompanyRole,
+                  where: { company_id: companyId, role_id: 1 },
+                  attributes: [],
 
+                  include: [
+                      {
+                          model: Role,
+                          where: { id: 1 },
+                          attributes: []
+                      },
+                      {
+                          model: Company,
+                          where: { id: companyId },
+                          attributes: []
+                      }
+                  ]
+              }
+          ],
+          attributes: ['first_name', 'last_name', 'id', 'email', 'landline', 'profile_pic',
+              [sequelize.col('UserCompanyRole.Role.rolename'), 'role_name'],
+              [sequelize.col('UserCompanyRole.Company.company_name'), 'company_name'],
+              [sequelize.col('UserCompanyRole.Company.company_type'), 'company_type'],
+              [sequelize.col('UserCompanyRole.Company.website'), 'website'],
+              [sequelize.col('UserCompanyRole.Company.id'), 'company_id']
+          ]
+      });
+
+      return adminUsers;
+      // return adminUsers.dataValues;
+      // return { status: HTTP_STATUS_CODES.SUCCESS, data: adminUsers };
+    } catch (error) {
+      throw new Error(`${error.message}`);
+    }
+  }
   /**
    * Updates an existing company with new details.
    *
