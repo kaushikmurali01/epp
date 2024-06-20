@@ -142,3 +142,18 @@ export const WATER_UNIT_ARRAY = [
   { value: "cu f", label: "cu f" },
   { value: "cu m", label: "cu m" },
 ];
+
+export const MEASURE_REPORT_CATEGORY = [
+  { value: "m1", label: "Measure 1" },
+  { value: "m2", label: "Measure 2" },
+];
+
+export const DOCUMENT_CATEGORY = [
+  { label: "Study Report", value: "Study Report" },
+  { label: "Design Report", value: "Design Report" },
+  { label: "Drawing", value: "Drawing" },
+  { label: "Invoice", value: "Invoice" },
+  { label: "Quotation", value: "Quotation" },
+  { label: "Certification", value: "Certification" },
+  { label: "Photo", value: "Photo" },
+];

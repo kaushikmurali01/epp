@@ -4,7 +4,7 @@ import {
   PATCH_REQUEST,
   POST_REQUEST,
   PUT_REQUEST,
-  DELETE_REQUEST
+  DELETE_REQUEST,
 } from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
@@ -14,6 +14,9 @@ import {
   adminCompanyUpdateStatusFailure,
   adminCompanyUpdateStatusRequest,
   adminCompanyUpdateStatusSuccess,
+  changeCompanySuperAdminFailure,
+  changeCompanySuperAdminRequest,
+  changeCompanySuperAdminSuccess,
   deleteCompanyFailure,
   deleteCompanyRequest,
   deleteCompanySucess,
@@ -26,6 +29,12 @@ import {
   fetchAdminCompanyListFailure,
   fetchAdminCompanyListRequest,
   fetchAdminCompanyListSuccess,
+  fetchCompanyUserListFailure,
+  fetchCompanyUserListRequest,
+  fetchCompanyUserListSuccess,
+  fetchUsersByCompanyFailure,
+  fetchUsersByCompanyRequest,
+  fetchUsersByCompanySuccess,
 } from "../actionCreators/adminCompanyActionCreators";
 import { DELETE_COMPANY_SUCCESS } from "../actionTypes";
 
@@ -159,6 +168,71 @@ export const deleteCompanyById = (companyId) => {
     } catch (error) {
       console.error(error);
       dispatch(deleteCompanyFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const changeSuperAdmin = (companyId, selectedUser) => {
+  return async (dispatch) => {
+    try {
+      dispatch(changeCompanySuperAdminRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.UPDATE_SUPER_ADMIN_PERMISSIONS}/${companyId}/${selectedUser}`;
+      const response = await POST_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(changeCompanySuperAdminSuccess(data));
+      NotificationsToast({
+        message: "Super admin changed successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(changeCompanySuperAdminFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchCompanyUserList = (companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchCompanyUserListRequest());
+      const endpointWithParams = `${USER_MANAGEMENT.GET_AVAILABLE_USERS_FOR_PERMISSIONS}/${companyId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchCompanyUserListSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchCompanyUserListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchUsersByCompanyId = (pageInfo, companyId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchUsersByCompanyRequest());
+      let endpointWithParams = `${
+        USER_MANAGEMENT.GET_USER_BY_COMPANY
+      }/${companyId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchUsersByCompanySuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchUsersByCompanyFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

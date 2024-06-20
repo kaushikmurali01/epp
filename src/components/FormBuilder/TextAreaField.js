@@ -2,7 +2,7 @@ import React from 'react';
 import {Box, FormControl, FormGroup, FormLabel,FormHelperText, TextareaAutosize } from '@mui/material';
 import { useField } from 'formik';
 
-const TextAreaField = ({name,label,...otherProps}) => {
+const TextAreaField = ({name,label,textAreaStyle,...otherProps}) => {
     const [field, meta] = useField(name);
   const configTextfield = {
     ...field,
@@ -22,7 +22,7 @@ const TextAreaField = ({name,label,...otherProps}) => {
     <FormGroup className={`theme-form-group text-area-form-group ${configTextfield.error ? 'has-error' : ''} `}>
     <FormControl>
     <FormLabel> {label} </FormLabel>
-    <textarea  {...configTextfield} style={{resize: 'none'}} />
+    <textarea  {...configTextfield} style={{resize: 'none',...textAreaStyle}} />
     {/* <TextareaAutosize {...configTextfield} style={{resize:'none'}} /> */}
     <FormHelperText error={configTextfield.error} >{configTextfield.helperText}</FormHelperText>
     </FormControl>

@@ -8,7 +8,7 @@ import BaselineModel from "./BaselineModel";
 import Details from "./Details";
 import EnergyAndWater from "./EnergyAndWater";
 import Performance from "./Performance";
-import ReportsAndStudies from "./ReportsAndStudies";
+import ReportsAndStudies from "./ReportsAndStudies/index";
 import Weather from "./Weather";
 import { fetchFacilityDetails } from "../../../redux/superAdmin/actions/facilityActions";
 import { useDispatch } from "react-redux";

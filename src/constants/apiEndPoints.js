@@ -15,6 +15,16 @@ export const facilityEndPoints = {
   ASSIGN_FACILITIES: "enerva-user/v1/resource-permission/add",
   FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
   GET_CATEGORIES_TYPES_AND_NAICS: "company-facility/v1/facility-naic",
+  GET_FACILITY_MEASURE_LIST: "company-facility/v1/facility-measure-lists",
+  ADD_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  UPDATE_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  GET_FACILITY_MEASURE_DETAILS: "company-facility/v1/facility-measure-details",
+  DELETE_FACILITY_MEASURE_REPORT:"company-facility/v1/facility-measure",
+  GET_FACILITY_SAVING_DOCUMENT_LIST:"company-facility/v1/facility-saving-document-lists",
+  ADD_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  UPDATE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  GET_FACILITY_SAVING_DOCUMENT_DETAILS:"company-facility/v1/facility-saving-document-details",
+  DELETE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
 };
 
 export const adminFacilityEndpoints = {
@@ -58,8 +68,9 @@ export const USER_MANAGEMENT = {
   GET_USER_PERMISSONS_BY_ID: "/enerva-user/v1/user/permissions",
   GET_DROPDOWN_COMPANY_LIST: "enerva-user/v1/dropDown/companies",
   GET_AVAILABLE_USERS_FOR_PERMISSIONS: "/enerva-user/v1/getCompanyUser",
-  DELETE_COMPANY:"enerva-user/v1/company",
-  
+  DELETE_COMPANY: "enerva-user/v1/company",
+  GET_USER_BY_COMPANY: "/enerva-user/v1/getUserByCompany",
+
   // POST REQUEST
   SEND_INVITATION_BY_ADMIN: "/enerva-user/v1/invitations",
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
@@ -164,12 +175,13 @@ export const dashboardEndPoints = {
 };
 
 export const hourlyEndPoints = {
-  GET_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
+  GET_HOURLY_DATA:
+    "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
   ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
 };
 
 export const POWERBI_ENDPOINTS = {
   GET_POWERBI_TOKEN: "/GenerateToken",
-  GET_AZURE_TOKEN_FOR_POWER_BI: 'etl/v1/etl/access-token'
-}
+  GET_AZURE_TOKEN_FOR_POWER_BI: "etl/v1/etl/access-token",
+};
