@@ -526,76 +526,86 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
        // if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
 
         if (type == 1) {
-            if(company_id == 0) {
-            await User.update({ is_active: 0 }, { where: { id: userId } });
-            } else if(company_id > 0) {
-                // find user role
-               let ucr:any = await UserCompanyRole.findOne({where: {
-                    user_id: userId,
-                    company_id:company_id
-                }});
-                context.log('1111', ucr?.role_id)
-                let user_role = ucr?.role_id;
-                const company:any = await CompanyService.GetCompanyById(request.params.company_id);
-                const userDet:any = await UserService.getUserDataById(userId);
+            if(userId) {
+            await Promise.all([
+                UserCompanyRolePermission.destroy({ where: { user_id:userId }}),
+                UserCompanyRole.destroy({ where: { user_id:userId } }),
+               // UserInvitation.destroy({ where: { company: company_id } }),
+               // UserRequest.destroy({ where: { company_id } }),
+               // Company.destroy({ where: { id: company_id } }),
+                User.destroy({ where: { id: userId } })
+            ]);
+        }
+    //         if(company_id == 0) {
+    //         await User.update({ is_active: 0 }, { where: { id: userId } });
+    //         } else if(company_id > 0) {
+    //             // find user role
+    //            let ucr:any = await UserCompanyRole.findOne({where: {
+    //                 user_id: userId,
+    //                 company_id:company_id
+    //             }});
+    //             context.log('1111', ucr?.role_id)
+    //             let user_role = ucr?.role_id;
+    //             const company:any = await CompanyService.GetCompanyById(request.params.company_id);
+    //             const userDet:any = await UserService.getUserDataById(userId);
 
-                if (user_role === 1) {
-                    const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
-                    context.log("companyUsers", companyUsers);
+    //             if (user_role === 1) {
+    //                 const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
+    //                 context.log("companyUsers", companyUsers);
                 
-                    await Promise.all([
-                        UserCompanyRolePermission.destroy({ where: { company_id }}),
-                        UserCompanyRole.destroy({ where: { company_id } }),
-                        UserInvitation.destroy({ where: { company: company_id } }),
-                        UserRequest.destroy({ where: { company_id } }),
-                        Company.destroy({ where: { id: company_id } })
-                    ]);
+    //                 await Promise.all([
+    //                     UserCompanyRolePermission.destroy({ where: { company_id }}),
+    //                     UserCompanyRole.destroy({ where: { company_id } }),
+    //                     UserInvitation.destroy({ where: { company: company_id } }),
+    //                     UserRequest.destroy({ where: { company_id } }),
+    //                     Company.destroy({ where: { id: company_id } })
+    //                 ]);
                 
-                    await Promise.all(companyUsers.map(user => 
-                        UserService.CheckAndMakeUserIndividual(user.user_id)
-                    ));
-                } else {
-                    context.log("logging", userId);
-                    context.log("companyLogging", company_id);
-                    await UserCompanyRolePermission.destroy({ where: { user_id: userId, company_id }});
-                    await UserCompanyRole.destroy({ where: { user_id: userId, company_id } });
-                    await UserService.CheckAndMakeUserIndividual(userId);
-                }
+    //                 await Promise.all(companyUsers.map(user => 
+    //                     UserService.CheckAndMakeUserIndividual(user.user_id)
+    //                 ));
+    //             } else {
+    //                 context.log("logging", userId);
+    //                 context.log("companyLogging", company_id);
+    //                 await UserCompanyRolePermission.destroy({ where: { user_id: userId, company_id }});
+    //                 await UserCompanyRole.destroy({ where: { user_id: userId, company_id } });
+    //                 await UserService.CheckAndMakeUserIndividual(userId);
+    //             }
                 
                 
-            (async () => {
-            // Send Email For User Starts
-      let template =  await EmailTemplate.getEmailTemplate();
+    //         (async () => {
+    //         // Send Email For User Starts
+    //   let template =  await EmailTemplate.getEmailTemplate();
       
-      context.log("userDetail", userDet);
-      if(userDet) {
-      let emailContent =  template
-                .replace('#content#', EmailContent.deleteDetailForUser.content)
-                .replace('#name#', userDet?.first_name)
-                .replace('#company#', company.company_name)
-                .replace('#isDisplay#', 'none')
-                .replace('#heading#', '');
-                context.log("userDetailEMail", userDet?.email);
-      await Email.send(userDet?.email, EmailContent.deleteDetailForUser.title, emailContent);
-    // Send Email For User Ends
+    //   context.log("userDetail", userDet);
+    //   if(userDet) {
+    //   let emailContent =  template
+    //             .replace('#content#', EmailContent.deleteDetailForUser.content)
+    //             .replace('#name#', userDet?.first_name)
+    //             .replace('#company#', company.company_name)
+    //             .replace('#isDisplay#', 'none')
+    //             .replace('#heading#', '');
+    //             context.log("userDetailEMail", userDet?.email);
+    //   await Email.send(userDet?.email, EmailContent.deleteDetailForUser.title, emailContent);
+    // // Send Email For User Ends
 
-    // Send Email to Admins
-    const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.deleteDetailForAdmins.content)
-    .replace('#user#', `${userDet?.first_name}`)
-    .replace('#company#', company.company_name)
-    .replace('#isDisplay#', 'none')
-    .replace('#heading#', '');
-    if (user_role !== 1) {
-     await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
-    }
-    // Send Email to Admins
-      }
-
-
+    // // Send Email to Admins
+    // const adminContent = (await EmailTemplate.getEmailTemplate()).replace('#content#', EmailContent.deleteDetailForAdmins.content)
+    // .replace('#user#', `${userDet?.first_name}`)
+    // .replace('#company#', company.company_name)
+    // .replace('#isDisplay#', 'none')
+    // .replace('#heading#', '');
+    // if (user_role !== 1) {
+    //  await CompanyService.GetAdminsAndSendEmails(request.params.company_id, EmailContent.deleteDetailForAdmins.title, adminContent);
+    // }
+    // // Send Email to Admins
+    //   }
 
 
-    })();
-            }
+
+
+    // })();
+    //         }
 
         } else if (type == 2) {
             await UserInvitation.destroy({ where: { id: userId } });
