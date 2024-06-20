@@ -327,7 +327,6 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                 limit: parseInt(pageLimit),
                 where: {
                     type: 2,
-                    is_active: 1,
                     [Op.or]: [
                         { first_name: { [Op.iLike]: `%${searchPromt}%` } },
                         { last_name: { [Op.iLike]: `%${searchPromt}%` } },
