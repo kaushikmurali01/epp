@@ -295,8 +295,9 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
         const { pageOffset, pageLimit } = request.params;
         const searchPromt = request.query.get('search') || "";
         const role = request.query.get('role') || "";
-        const order = request.query.get('order') || 'ASC';
+        let order = request.query.get('order') || 'ASC';
         const colName = request.query.get('col_name') || 'id';
+        order = order.trim();
         console.log("colName", colName);
         let orderCriteria;
         if (colName === 'rolename') {
@@ -309,6 +310,7 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
             where = { id: Number(role) }
         }
         console.log("colName123", colName);
+        console.log("order123", order);
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
