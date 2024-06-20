@@ -297,16 +297,18 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
         const role = request.query.get('role') || "";
         const order = request.query.get('order') || 'ASC';
         const colName = request.query.get('col_name') || 'id';
+        console.log("colName", colName);
         let orderCriteria;
         if (colName === 'rolename') {
             orderCriteria = [sequelize.col('UserCompanyRole.Role.rolename'), order];
         } else {
-            orderCriteria = [colName, order];
+            orderCriteria = [colName.trim(), order];
         }
         let where = {}
         if (role) {
             where = { id: Number(role) }
         }
+        console.log("colName123", colName);
         const [usersResult, invitationsResult] = await Promise.all([
             User.findAndCountAll({
                 include: [{
@@ -338,7 +340,7 @@ export async function GetCustomerUsers(request: HttpRequest, context: Invocation
                     [sequelize.col('UserCompanyRole.status'), 'status'],
                     [sequelize.col('UserCompanyRole.company_id'), 'company_id']
                 ],
-                order: [['first_name', 'ASC']]
+                order: [orderCriteria]
 
             }), {rows: [], count: 0}
              //UserInvitation.findAndCountAll({
