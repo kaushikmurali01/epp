@@ -89,14 +89,17 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack
     {
         Header: "Customer ID",
         accessor: 'id',
+        accessorKey: "id",
     },
     {
         Header: " Customer admin name",
-        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
+        accessorKey: "first_name",
     },
     {
         Header: "Business Email",
         accessor: "email",
+        accessorKey: "email",
     },
     {
         Header: "Role Type",
