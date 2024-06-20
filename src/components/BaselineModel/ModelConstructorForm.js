@@ -1,12 +1,26 @@
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Radio, ToggleButton, ToggleButtonGroup, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Link,
+  Radio,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import DateRangeSlider from "components/DateRangeSlider";
 import { Field, Form, Formik } from "formik";
 import React, { useState } from "react";
-import BaselineModelingTable from "./BaselineModelingTable";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { headingStyleInAccordion } from "styles/commonStyles";
+import { MiniTable } from "components/MiniTable";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
 
-const ModelConstructorForm = ({onSubmit}) => {
+const ModelConstructorForm = ({ onSubmit, handleSufficiencySettings }) => {
   const initialValues = {
     Weekday_hours: false,
     Variable1: false,
@@ -14,10 +28,12 @@ const ModelConstructorForm = ({onSubmit}) => {
     Variable3: false,
     Variable4: false,
     granularity: "daily", // manage ToggleButtonGroup state
-    modelingApproach: ""
+    modelingApproach: "",
   };
- 
-  const handleSubmit = (values) => { onSubmit(values) };
+
+  const handleSubmit = (values) => {
+    onSubmit(values);
+  };
 
   const marksForEnergyTarget = [
     {
@@ -30,21 +46,68 @@ const ModelConstructorForm = ({onSubmit}) => {
     },
   ];
 
-  const AcceptRejectBtn = () => {
-    return <Button>accept</Button>;
+  const sufficiencyVerificationStatus = true;
+
+  const buttonStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.25rem",
+    padding: "0.375rem 0.5rem",
+    borderRadius: "15rem",
+    fontWeight: "400",
+    fontSize: { sm: "0.875rem" },
+    cursor: "pointer",
   };
 
-  const headers = ["", "Hourly", "Daily", "Monthly", ""];
+  const sufficiencyVerificationStatusButton = sufficiencyVerificationStatus ? (
+    <Typography
+      variant="span"
+      sx={{
+        ...buttonStyle,
+        border: "0.5px solid #2e813e",
+        color: "primary.main",
+      }}
+    >
+      <CheckCircleIcon /> Verify
+    </Typography>
+  ) : (
+    <Typography
+      variant="span"
+      sx={{
+        ...buttonStyle,
+        border: "0.5px solid #FF5858",
+        color: "danger.main",
+      }}
+    >
+      <CancelIcon /> Failed
+    </Typography>
+  );
 
-  const rows = [
-    [
-      "Sufficiency verification",
-      <AcceptRejectBtn label="Accept" />,
-      <AcceptRejectBtn label="Accept" />,
-      <AcceptRejectBtn label="Accept" />,
-      <Button>See detail</Button>,
-    ],
-    // Add more rows as needed
+  const userColumn = [
+    {
+      Header: "",
+      accessor: "id",
+    },
+    {
+      Header: "hourly",
+      accessor: "hourly",
+    },
+    {
+      Header: "Monthly",
+      accessor: "monthly",
+    },
+    {
+      Header: "Daily",
+      accessor: "daily",
+    },
+    {
+      Header: "",
+      accessor: "sufficiency_setting",
+    },
+    {
+      Header: "",
+      accessor: "see_details",
+    },
   ];
 
   return (
@@ -75,8 +138,60 @@ const ModelConstructorForm = ({onSubmit}) => {
                 Sufficiency verification
               </Typography>
 
-              <BaselineModelingTable headers={headers} rows={rows} />
-              {/* <SufficiencyVerificationTable /> */}
+              <Grid item>
+                <MiniTable
+                  columns={userColumn}
+                  data={[
+                    {
+                      id: (
+                        <Typography
+                          variant="span"
+                          sx={{
+                            color: "primary.main",
+                            fontSize: "0.875rem !important",
+                            fontStyle: "italic",
+                            fontWeight: 400,
+                          }}
+                        >
+                          Sufficiency verification
+                        </Typography>
+                      ),
+                      hourly: sufficiencyVerificationStatusButton,
+                      monthly: sufficiencyVerificationStatusButton,
+                      daily: sufficiencyVerificationStatusButton,
+                      sufficiency_setting: (
+                        <Typography
+                          variant="span"
+                          sx={{
+                            cursor: "pointer",
+                            color: "primary.main",
+                            fontSize: "0.875rem !important",
+                            fontStyle: "italic",
+                            fontWeight: 400,
+                          }}
+                          onClick={handleSufficiencySettings}
+                        >
+                          Sufficiency setting
+                        </Typography>
+                      ),
+                      see_details: (
+                        <Typography
+                          variant="span"
+                          sx={{
+                            cursor: "pointer",
+                            color: "primary.main",
+                            fontSize: "0.875rem !important",
+                            fontStyle: "italic",
+                            fontWeight: 400,
+                          }}
+                        >
+                          See details
+                        </Typography>
+                      ),
+                    },
+                  ]}
+                />
+              </Grid>
             </Grid>
             <Grid item>
               <Typography

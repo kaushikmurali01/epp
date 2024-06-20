@@ -1,17 +1,16 @@
-import { Breadcrumbs, Button, Grid, Link, Stack, Tab, Tabs, Typography, styled, useMediaQuery } from "@mui/material";
+import { Breadcrumbs, Button, Grid, Link, Stack, Tab, Tabs, Typography, styled, useMediaQuery, Slider, Box } from "@mui/material";
 import React, { useState } from "react";
 import EvModal from "utils/modal/EvModal";
 import { useNavigate } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import DataExplorationTab from "components/BaselineModel/DataExplorationTab";
 import BaselineModelTab from "components/BaselineModel/BaselineModelTab";
+import SufficiencySettingsModalForm from "components/BaselineModel/SufficiencySettingsModalForm";
 
 const BaselineModel = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("dataExploration");
-  const [sufficiencySettingsTabValue, setSufficiencySettingsTabValue] =
-    useState("data_sufficiency_setting");
-  ;
+  
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -54,14 +53,10 @@ const BaselineModel = () => {
     setTabValue(newValue);
   };
 
-  
-  const handleSufficiencySettingsTabChange = (event, newValue) => {
-    setSufficiencySettingsTabValue(newValue);
-  };
 
   const isAgreementSigned = true;
 
-const submitFacilityModalBodycontent = !isAgreementSigned ? (
+const submitFacilityModalBodyContent = !isAgreementSigned ? (
   "We have received your enrollment request and will review it shortly. Our team will check the facility eligibility and other criteria to approve your request. Please note that this process may take some time. We appreciate your patience and understanding. Once your request is approved, you will receive a Notice of Approval. Thank you for choosing our program!"
 ) : (
   <>
@@ -88,34 +83,9 @@ const submitFacilityModalBodycontent = !isAgreementSigned ? (
       },
       headerText: <img src="images/new_user_popup_icon.svg" alt="popup" />,
       headerSubText: "Thank you for your interest!",
-      modalBodyContent: submitFacilityModalBodycontent,
+      modalBodyContent: submitFacilityModalBodyContent,
     }));
   };
-
-  const sufficiencySettingsInModel = (
-    <>
-      <Grid item xs={12} md={6}>
-        <Tabs
-          className="theme-tabs-list"
-          value={sufficiencySettingsTabValue}
-          onChange={handleSufficiencySettingsTabChange}
-          sx={{ display: "inline-flex" }}
-        >
-          <Tab
-            value="data_sufficiency_setting"
-            label="Data sufficiency setting"
-            sx={{ minWidth: "10rem", textTransform: "initial" }}
-          />
-          <Tab
-            value="model_setting"
-            label="Model setting"
-            sx={{ minWidth: "10rem", textTransform: "initial" }}
-          />
-        </Tabs>
-      </Grid>
-      <Grid></Grid>
-    </>
-  );
 
   const handleSufficiencySettingsModel = () => {
     setModalConfig((prevState) => ({
@@ -128,10 +98,23 @@ const submitFacilityModalBodycontent = !isAgreementSigned ? (
       },
       headerText: null,
       headerSubText: null,
-      modalBodyContent: sufficiencySettingsInModel,
+      modalBodyContent: (
+        <SufficiencySettingsModalForm
+          handleSufficiencySettingsFormSubmit={
+            handleSufficiencySettingsFormSubmit
+          }
+        />
+      ),
     }));
   };
-  
+
+  const handleSufficiencySettingsFormSubmit = (values) => {
+    console.log(values);
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
+  };
 
   const breadcrumbs = [
     <Link

@@ -238,26 +238,15 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
         </Typography>
       </Grid>
 
-      <Box textAlign={"end"}>
-        <Button
-          type="button"
-          variant="text"
-          sx={{
-            color: "blue.main",
-            padding: 0,
-            lineHeight: 1,
-            minWidth: "max-content !important",
-          }}
-          onClick={handleSufficiencySettings}
-        >
-          Settings
-        </Button>
-      </Box>
-
       <Grid item>
         <CustomAccordion
           summary="Model constructor"
-          details={<ModelConstructorForm onSubmit={handleFormSubmit} />}
+          details={
+            <ModelConstructorForm
+              onSubmit={handleFormSubmit}
+              handleSufficiencySettings={handleSufficiencySettings}
+            />
+          }
           panelId="modelConstructor"
         />
 
