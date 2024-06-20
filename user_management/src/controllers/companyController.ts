@@ -268,7 +268,7 @@ Thank You,<br/>
   static async sendAlertForCompany(requestData, companyId): Promise<any> {
     try {
       (async () => {
-        const company = await CompanyService.getCompanyAdmin(companyId);
+        const company = await CompanyService.getCompanyAdmin2(companyId);
         let template = await EmailTemplate.getEmailTemplate();
         if (!requestData.first_name) requestData.first_name = "";
         template = template
