@@ -218,10 +218,7 @@ class UserController {
       if (user) {
         return user;
       } else {
-        return {
-          status: 404, // Not Found status code
-          body: { error: 'User not found' }
-        };
+        return null;
       }
     } catch (error) {
       return {

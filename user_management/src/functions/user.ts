@@ -198,6 +198,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         // Middleware
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         context.log("middlewareResponse", resp);
+        if(!resp) return {body: JSON.stringify({ status: 404, message: "Not Found" })};
 
         // Extract user ID from request
         const { company } = request.params;
@@ -206,9 +207,12 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
         if (company_id == 0) company_id = resp.company_id;
 
         resp.company_id = company_id;
+       
 
        // context.log("company_id", resp.company_id);
         const user = await UserController.getUserById(resp);
+        if(!user) return {body: JSON.stringify({ status: 404, message: "Not Found" })};
+
         const companyData:any = await Company.findOne({where: {
             id: company_id
         }});
