@@ -17,7 +17,8 @@ import {
   FormLabel,
   Tabs,
   Tab,
-  TextField
+  TextField,
+  IconButton
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import CustomAccordion from "components/CustomAccordion";
@@ -31,6 +32,7 @@ import TextAreaField from "components/FormBuilder/TextAreaField";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import { useDispatch, useSelector } from "react-redux";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -1062,10 +1064,128 @@ const Performance = () => {
     </>
   )
 
-  return (
+  const [isPerformanceSettingComponent, setIsPerformanceSettingComponent] = useState(false);
 
+  const PerformanceSettingComponent = () => {
+    const [tabValue, setTabValue] = useState("setting");
+    const handleTabChange = (event, newValue) => {
+      setTabValue(newValue);
+    }; 
+
+    const buttonConfig = {
+      compose_email: {
+        label: "Facility email archive",
+        onClick: () => {
+          // Handle click for Facility email archive
+        },
+      },
+      contacts: {
+        label: "Add Contact",
+        onClick: () => {
+          // Handle click for Add Contact
+        },
+      },
+      email_template: {
+        label: "Upload file",
+        onClick: () => {
+          // Handle click for Upload file
+        },
+      },
+    };
+
+    return (
+      <Grid
+        container
+        sx={{
+          width: "100%",
+          display: "flex",
+          gap: "2rem",
+          flexDirection: "column",
+        }}
+      >
+        <Grid
+          item
+          display={"flex"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+          gap={"1rem"}
+        >
+          <Grid item xs={12} md={6}>
+            <Tabs
+              className="theme-tabs-list"
+              value={tabValue}
+              onChange={handleTabChange}
+              sx={{ display: "inline-flex" }}
+            >
+              <Tab
+                value="setting"
+                label="Setting"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+              <Tab
+                value="compose_email"
+                label="Compose email"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+              <Tab
+                value="contacts"
+                label="Contacts"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+              <Tab
+                value="email_template"
+                label="Email template"
+                sx={{ minWidth: "10rem", textTransform: "initial" }}
+              />
+            </Tabs>
+          </Grid>
+          {buttonConfig[tabValue] && (
+            <Grid item>
+              <Typography
+                variant="contained"
+                color="blue.main"
+                sx={{
+                  cursor: "pointer",
+                  fontSize: "0.875rem",
+                  fontWeight: 400,
+                }}
+                onClick={buttonConfig[tabValue].onClick}
+              >
+                {buttonConfig[tabValue].label}
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+        {/* Additional Grid or other components can be added here */}
+        {tabValue === "setting" && <SettingMicroComponent />}
+        {tabValue === "compose_email" && <ComposeEmailMicroComponent />}
+        {tabValue === "contacts" && <ContactsMicroComponent />}
+        {tabValue === "email_template" && <EmailTemplateMicroComponent />}
+      </Grid>
+    );
+  };
+
+  const SettingMicroComponent = () => { 
+    return <div>SettingMicroComponent</div>;
+  };
+
+  const ComposeEmailMicroComponent = () => {
+    return <div>ComposeEmailMicroComponent</div>;
+  };
+
+  const ContactsMicroComponent = () => {
+    return <div>ContactsMicroComponent</div>;
+  };
+
+  const EmailTemplateMicroComponent = () => {
+    return <div>EmailTemplateMicroComponent</div>;
+  };
+
+  
+  return (
     <>
-      <Grid container
+      <Grid
+        container
         sx={{
           width: "100%",
           padding: "0 2rem",
@@ -1075,61 +1195,111 @@ const Performance = () => {
           flexDirection: "column",
         }}
       >
-        <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
-          <StyledButtonGroup disableElevation variant="contained" color="primary">
-            <Button
-              sx={activeButton === 0 ? activeButtonStyle : inactiveButtonStyle}
-              onClick={() => handleButtonClick(0)}
+        <Grid
+          item
+          display={"flex"}
+          justifyContent={"space-between"}
+          gap={"1rem"}
+        >
+          {isPerformanceSettingComponent ? (
+            <IconButton
+              onClick={() => setIsPerformanceSettingComponent(false)}
+              sx={{
+                backgroundColor: "primary.main",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                },
+                marginRight: "1rem",
+              }}
             >
-              Electricity
-            </Button>
-            <Button
-              sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
-              onClick={() => handleButtonClick(1)}
-            >
-              Natural gas
-            </Button>
-          </StyledButtonGroup>
-          <Typography
-            variant="h6"
-            sx={{
-              color: "#2C77E9",
-              fontSize: "14px",
-              fontWeight: 400,
-            }}
-          >
-            Setting
-          </Typography>
+              <ArrowBackIcon
+                sx={{
+                  color: "#fff",
+                  fontSize: "1.25rem",
+                }}
+              />
+            </IconButton>
+          ) : (
+            <>
+              <StyledButtonGroup
+                disableElevation
+                variant="contained"
+                color="primary"
+              >
+                <Button
+                  sx={
+                    activeButton === 0 ? activeButtonStyle : inactiveButtonStyle
+                  }
+                  onClick={() => handleButtonClick(0)}
+                >
+                  Electricity
+                </Button>
+                <Button
+                  sx={
+                    activeButton === 1 ? activeButtonStyle : inactiveButtonStyle
+                  }
+                  onClick={() => handleButtonClick(1)}
+                >
+                  Natural gas
+                </Button>
+              </StyledButtonGroup>
+              <Typography
+                variant="h6"
+                onClick={() => {
+                  setIsPerformanceSettingComponent(true)
+                }}
+                sx={{
+                  cursor: "pointer",
+                  color: "#2C77E9",
+                  fontSize: "14px",
+                  fontWeight: 400,
+                }}
+              >
+                Setting
+              </Typography>
+            </>
+          )}
         </Grid>
 
-        <Grid item>
+        {isPerformanceSettingComponent ? (<PerformanceSettingComponent />) : (<Grid item>
           <CustomAccordion
             summary="Baseline summary"
             details={baselineStyleInAccordionDetails}
-            panelId="baselineSummary" />
+            panelId="baselineSummary"
+          />
 
           <CustomAccordion
             summary="Performance period data summary"
             details={performancePeriodDataSummaryInAccordionDetails}
-            panelId="performancePeriodDataSummary" />
+            panelId="performancePeriodDataSummary"
+          />
 
           <CustomAccordion
             summary="Performance period reporting Information "
             details={performancePeriodInformationInAccordionDetails}
-            panelId="performancePeriodReportingInformation " />
+            panelId="performancePeriodReportingInformation "
+          />
 
           <CustomAccordion
             summary="Performance period data visualization  "
             details={""}
-            panelId="performancePeriodDataVisualization  " />
-        </Grid>
-
+            panelId="performancePeriodDataVisualization  "
+          />
+        </Grid>)}
       </Grid>
-      <EvModal modalConfig={parameterModalConfig} setModalConfig={setParameterModalConfig} />
-      <EvModal modalConfig={nonRoutinerModalConfig} setModalConfig={setNonRoutineModalConfig} />
-      <EvModal modalConfig={nonRoutinerListingModalConfig} setModalConfig={setNonRoutineListingModalConfig} />
+      <EvModal
+        modalConfig={parameterModalConfig}
+        setModalConfig={setParameterModalConfig}
+      />
+      <EvModal
+        modalConfig={nonRoutinerModalConfig}
+        setModalConfig={setNonRoutineModalConfig}
+      />
+      <EvModal
+        modalConfig={nonRoutinerListingModalConfig}
+        setModalConfig={setNonRoutineListingModalConfig}
+      />
     </>
-
   );
 };
 
