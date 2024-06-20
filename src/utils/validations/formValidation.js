@@ -386,7 +386,7 @@ export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
 });
 
 export const updateProfilePageRoleSchema = Yup.object().shape({  
-  selectUser: Yup.string().required("Role is required"),
+  selectUser: Yup.string().required("User is required"),
 });
 
 export const validationSchemaIndependentVariable = Yup.object().shape({

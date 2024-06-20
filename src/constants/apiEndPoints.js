@@ -93,11 +93,12 @@ export const ENERVA_USER_MANAGEMENT = {
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
 
   SEND_USER_ALERT: "/enerva-user/v1/alert/send",
-  // DELETE REQUEST
-  // DELETE_EV_USER_REQUEST: "",
+    // DELETE REQUEST
+  DELETE_ENERVA_USER_REQUEST: "/enerva-user/v1/usersadmin",
   VIEW_USER_PROFILE: "/enerva-user/v1/usercompanybyuser",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
+  USER_ACTIVE_IN_ACTIVE:"enerva-user/v1/user/status"
 };
 
 export const ROLES_PERMISSIONS_MANAGEMENT = {
