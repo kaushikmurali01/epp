@@ -43,14 +43,43 @@ const UserManagementAdmin = () => {
 
   const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
 
+  // for pagination
+  const defaultPagination = { page: 1, pageSize: 10 }
+  const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
+  const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
+  const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
+  const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
+
+  const [pageCount, setPageCount] = useState({
+    enerva: '',
+    ieso: '',
+    customer: '',
+    aggregator: ''
+  });
+
   // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
+
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
+    console.log(customerPageInfo,searchString,selectRoleType, "handleAPISuccessCallBack")
     getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
     getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
+
+  // const handleAPISuccessCallBack = useMemo(() => {
+  //   return () => {
+  //     // Call the API to get all user data
+  //     console.log(enervaPageInfo, searchString, selectRoleType, "handleAPISuccessCallBack");
+  //     getEnervaUserManagementData(enervaPageInfo, searchString, selectRoleType);
+  //     getIESOUserManagementData(iesoPageInfo, searchString, selectRoleType);
+  //     getCustomerUserManagementData(customerPageInfo, searchString, selectRoleType);
+  //     // getAggregatorUserManagementData();
+  //   };
+  // }, [enervaPageInfo, iesoPageInfo, customerPageInfo, searchString, selectRoleType]);
+
+  console.log(searchString, "handleAPISuccessCallBack searchString")
   const initialValues = {
     company: '',
     role: '',
@@ -89,19 +118,7 @@ const UserManagementAdmin = () => {
   const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
   const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
-// for pagination
-const defaultPagination = { page: 1, pageSize: 10 }
-  const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
-  const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
-  const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
-  const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
-  
-  const [pageCount, setPageCount] = useState({
-    enerva: '',
-    ieso: '',
-    customer: '',
-    aggregator: ''
-  });
+
 
 
   const handleSelectChange = (event) => {
