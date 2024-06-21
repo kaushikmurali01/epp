@@ -535,9 +535,10 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
                 UserCompanyRolePermission.destroy({ where: { user_id:userId }}),
                 UserCompanyRole.destroy({ where: { user_id:userId } }),
                // UserInvitation.destroy({ where: { company: company_id } }),
-               // UserRequest.destroy({ where: { company_id } }),
+                UserRequest.destroy({ where: { user_id:userId } }),
                // Company.destroy({ where: { id: company_id } }),
-                User.destroy({ where: { id: userId } })
+               // User.destroy({ where: { id: userId } }),
+                User.update({type: 3}, {where: {id:userId}})
             ]);
         }
     //         if(company_id == 0) {

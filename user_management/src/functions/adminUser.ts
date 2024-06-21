@@ -569,10 +569,10 @@ export async function GetPermissionsByUserAdmin(request: HttpRequest, context: I
         const type = parseInt(request.params.type);
         const company_id = parseInt(request.params.company_id);
         const entry_type = parseInt(request.params.entry_type);
-        let checkStatus = await CheckCompanyStatus(company_id)
-        if (!checkStatus) {
-            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
-        }
+        // let checkStatus = await CheckCompanyStatus(company_id)
+        // if (!checkStatus) {
+        //     return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        // }
         let userInvitations;
         if (entry_type == 2) {
             if (type == 2) {
