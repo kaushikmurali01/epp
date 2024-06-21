@@ -18,21 +18,28 @@ import {
   FormControlLabel,
   Checkbox
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { validationSchemaIndependentVariable } from "utils/validations/formValidation";
 import ButtonWrapper from "components/FormBuilder/Button";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS } from "constants/apiEndPoints";
 
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
+  const [independentVarsList, setIndependentVarList] = useState([])
   const dispatch = useDispatch();
+  const facilityData = useSelector(
+    (state) => state?.facilityReducer?.facilityDetails?.data
+  );
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [independentVariable1File, setIndependentVariable1File] = useState(null);
@@ -108,8 +115,26 @@ const Weather = () => {
     }, 10);
   };
 
+  useEffect(() => {
+    getIndependentVariales();
+  }, facilityData?.id)
+
+  const getIndependentVariales = () => {
+    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_INDEPENDENT_VARIABLE+`/${facilityData?.id}`;
+    GET_REQUEST(apiURL).then((response) => {
+      if(response?.data?.length){
+        setIndependentVarList(response?.data)
+      }
+    });
+  }
+
   const AddEditIndependentVariable = ({ isEdit, data }) => {
     const formSubmit = (data) => {
+      const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.ADD_INDEPENDENT_VARIABLE;
+      const body = {...data, facility_id: facilityData?.id};
+      POST_REQUEST(apiURL, body).then((response) => {
+        
+      });
     };
     return (
       <>
@@ -124,14 +149,14 @@ const Weather = () => {
 
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
-                  name="independentVariableName"
+                  name="name"
                   label="Independent Variable Name"
                   type="text" />
               </Stack>
 
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
-                  name="independentVariableDescription"
+                  name="description"
                   label="Independent Variable Description"
                   type="text" />
               </Stack>
@@ -204,22 +229,27 @@ const Weather = () => {
           marginBottom: "3rem",
         }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           <Tabs
             className="theme-tabs-list"
             value={tabValue}
             onChange={handleChange}
-            sx={{ display: "inline-flex" }}
+            sx={{ display: "inline-flex", maxWidth: "100%",}}
+            variant="scrollable"
+            scrollButtons="auto"
           >
             <Tab
               value="weather"
               label="Weather"
-              sx={{ minWidth: "10rem" }} />
-            <Tab
-              value="independentVariable1"
-              label="Independent variable 1"
-              sx={{ minWidth: "10rem" }}
-            />
+              sx={{ minWidth: "10rem", maxWidth: "10rem" }} />
+              {independentVarsList?.length ? independentVarsList.map((item, i) => {
+                return <Tab
+                value={item?.name}
+                label={item?.name}
+                sx={{ minWidth: "10rem",  maxWidth: "10rem"  }}
+              />
+              }) : null
+              }
           </Tabs>
         </Grid>
         <Grid item sx={{ justifySelf: "flex-end" }}>
