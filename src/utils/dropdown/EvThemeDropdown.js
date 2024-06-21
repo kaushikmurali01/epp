@@ -5,17 +5,17 @@ import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 
-export default function EvThemeDropdown({dropdownConfig,setDropdownConfig, dataRow,handleAPISuccessCallBack,disabledTitle}) {
+export default function EvThemeDropdown({dropdownConfig,setDropdownConfig, dataRow,handleAPISuccessCallBack,setRefreshTableData,disabledTitle}) {
   const createHandleMenuClick = (menuItem) => {
     return () => {
       console.log(`Clicked on ${menuItem}`);
      
-      if(dataRow && handleAPISuccessCallBack){
+      if(dataRow && setRefreshTableData){
         setDropdownConfig((prevState) => ({
             ...prevState,
             selectedValue: menuItem,
             dataRow: dataRow,
-            handleAPISuccessCallBack: handleAPISuccessCallBack
+            setRefreshTableData: setRefreshTableData
           }));
       }else {
         setDropdownConfig((prevState) => ({
