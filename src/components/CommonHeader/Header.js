@@ -200,8 +200,6 @@ function Header(props) {
     }
   }, [companyList, getAllCompanyList]);
 
-  console.log(companyList, getAllCompanyList, "getAllCompanyList")
-
   const getUserRoleData = () => {
     const userType = "2" // for customers
     const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
@@ -243,22 +241,24 @@ function Header(props) {
 
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
-    dispatch(fetchUserDetails(selectedCompanyId))
     window.location.reload();
   };
-
-  // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
 
   // Get the selected company ID
   const newlySelectedCompany = localStorage.getItem("selectedCompanyId");
 
   useEffect(() => {
-    if (newlySelectedCompany) {
-      setSelectCompany(newlySelectedCompany);
-    } else {
+    const { length } = companyList;
+    const found = length ? companyList?.some(el => el?.id == localStorage.getItem("selectedCompanyId")) : false;
+    let selectedCompany = found ? localStorage.getItem("selectedCompanyId") : 0;
+    if (selectedCompany) {
+      setSelectCompany(selectedCompany);
+    } else if(userDetails?.company_id) {
       setSelectCompany(userDetails?.company_id);
-    };
-  }, [userDetails]);
+    } else if(userDetails?.type == 2){
+      dispatch(fetchUserDetails())
+    }
+  }, [userDetails, companyList]);
 
   const acceptRejectInvite = (user_id, role_id, company_id, email, type) =>{
     const apiURL = USER_MANAGEMENT.ACCEPT_REJECT_INVITE;
@@ -301,9 +301,6 @@ function Header(props) {
         "user_id": userData?.user?.id
       }
 
-    
-
-    
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
@@ -571,6 +568,11 @@ function Header(props) {
                           background: "#F3FFF6",
                           maxHeight: "2.25rem",
                         }}
+                        renderValue={(selected) => {
+                            let selectedObject = companyList.find((obj) => obj.id == selectCompany);
+                            if(selectedObject) return selectedObject?.company_name
+                          }
+                        }
                       >
                         {companyList.map((item) => {
                           return (
@@ -666,6 +668,11 @@ function Header(props) {
                                   background: "#F3FFF6",
                                   maxHeight: "2.25rem",
                                 }}
+                                renderValue={(selected) => {
+                                  let selectedObject = companyList.find((obj) => obj.id == selectCompany);
+                                  if(selectedObject) return selectedObject?.company_name
+                                }
+                              }
                               >
                                 {companyList.map((item) => {
                                   return (
