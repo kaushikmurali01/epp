@@ -1,17 +1,98 @@
-import React, { lazy } from "react";
+import React, { lazy, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchUserDetails } from "../../redux/superAdmin/actions/facilityActions";
 import TabsSection from "sections/Homepage/TabsSection";
+import axiosInstance from "utils/interceptor";
+import EvModal from "utils/modal/EvModal";
+import { useDispatch } from "react-redux";
 
 const Header = lazy(() => import("components/CommonHeader/Header"));
 const Footer = lazy(() => import("components/CommonFooter/Footer"));
 
 const DashboardLayout = ({ children }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  //  check permissions 
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "authentication-modal",
+      headerTextStyle: "",
+      headerSubTextStyle: "",
+      fotterActionStyle: {justifyContent: "center", gap: '1rem', padding: '1rem'},
+      modalBodyContentStyle: {minHeight: '120px', minWidth: {xs: '100%', sm: '450px'}, display: 'flex',flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', color: '#242424'}
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: false,
+      saveButtonName: "Okay",
+      cancelButtonName: "",
+      successButtonStyle: {backgroundColor: '#2e813e',"&:hover": {backgroundColor: '#1e6329'}, color: '#fff'},
+      cancelButtonStyle: {},
+      saveButtonClass: "",
+      cancelButtonClass: "",
+
+    },
+    headerText: "",
+    headerSubText: '',
+    modalBodyContent: "You do not have permission to access this module.",
+    saveButtonAction: ()=> handelPermissionCheck(),
+    closeButtonRedirect: '/facility-dashboard'
+
+  });
+
+  const handelPermissionCheck = ()=> {
+    console.log('check permission')
+    if(localStorage.getItem("selectedCompanyId")){
+      dispatch(fetchUserDetails(localStorage.getItem("selectedCompanyId")));
+      navigate('/facility-dashboard')
+    } else{
+      localStorage.setItem("selectedCompanyId", 0)
+      dispatch(fetchUserDetails());
+      navigate('/facility-dashboard')
+    }
+    // window.location.reload();
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
+  }
+
+  useEffect(() => {
+    const interceptor = axiosInstance.interceptors.response.use(
+      (response) => {
+        if (response.data.status === 403) {
+          console.log(response, 'check api response');
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: true,
+          }));
+        }
+        return response;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup the interceptor when the component unmounts
+    return () => {
+      axiosInstance.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
   return (
-    <div className="site-container">
-      <Header page={"authenticated"}/>
-      <TabsSection />
-      <div className="main-inner-contianer">{children}</div>
-      <Footer/>
-    </div>
+    <React.Fragment>
+      <div className="site-container">
+        <Header page={"authenticated"} />
+        <TabsSection />
+        <div className="main-inner-contianer">{children}</div>
+        <Footer />
+      </div>
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+    </React.Fragment>
   );
 };
 export default DashboardLayout;
