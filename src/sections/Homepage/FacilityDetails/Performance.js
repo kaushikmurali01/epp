@@ -55,6 +55,8 @@ const Performance = () => {
   const [activeButton, setActiveButton] = useState(0);
   const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] = useState(0);
   const [nonRoutineListingtabValue, setNonRoutineListingtabValue] = useState("filledData");
+  const [performanceTabs, setPerformanceTabs] = useState('firstPayDay');
+  const [visualizationActiveButton, setVisualizationActiveButton] = useState(0);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [nonRoutineFile, setNonRoutineFile] = useState(null);
   const [imgUrl, setImgUrl] = useState("");
@@ -147,6 +149,7 @@ const Performance = () => {
     padding: "0.44rem 1.5rem",
     lineHeight: "1",
     height: "max-content",
+    borderRadius: "50px",
 
     ".MuiButtonGroup-firstButton": {
       BorderRight: "10px"
@@ -157,6 +160,9 @@ const Performance = () => {
     ...buttonStyle,
     backgroundColor: "#2E813E",
     color: "#F7F7F5",
+    '&:hover': {
+      backgroundColor: '#2E813E',
+    },
   };
 
   const inactiveButtonStyle = {
@@ -202,6 +208,7 @@ const Performance = () => {
     fontSize: "14px",
     fontStyle: "normal",
     fontWeight: 500,
+    cursor: "pointer",
   };
 
   const [parameterModalConfig, setParameterModalConfig] = useState({
@@ -257,7 +264,7 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
-  const [nonRoutinerListingModalConfig, setNonRoutineListingModalConfig] = useState({
+  const [nonRoutineListingModalConfig, setNonRoutineListingModalConfig] = useState({
     modalVisible: false,
     modalUI: {
       showHeader: true,
@@ -277,6 +284,32 @@ const Performance = () => {
       cancelButton: false,
       saveButtonName: "Sent Request",
       cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
+
+  const [eventNameModalConfig, setEventNameModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Edit",
+      cancelButtonName: "Download",
       saveButtonClass: "",
       cancelButtonClass: "",
     },
@@ -343,6 +376,14 @@ const Performance = () => {
     });
   };
 
+  const handleChangePerformance = (event, newValue) => {
+    setPerformanceTabs(newValue);
+  };
+
+  const handleVisualizationButtonClick = (index) => {
+    setVisualizationActiveButton(index);
+  };
+
   const openParameterModal = (parameterName) => {
     setParameterModalConfig((prevState) => ({
       ...prevState,
@@ -399,6 +440,22 @@ const Performance = () => {
       setNonRoutineModalConfig((prevState) => ({
         ...prevState,
         modalVisible: false,
+      }));
+    }, 10);
+  };
+
+  const openEventModal = (eventName) => {
+    setEventNameModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "Event Detail",
+      modalBodyContent: "",
+    }));
+    setTimeout(() => {
+      setEventNameModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: <EventPopup eventName={eventName} />,
       }));
     }, 10);
   };
@@ -520,12 +577,12 @@ const Performance = () => {
   };
 
   const NonRoutineListing = () => {
-    const[modalNonRoutineTabs, setModalNonRoutineTabs] = useState('filledData');
+    const [modalNonRoutineTabs, setModalNonRoutineTabs] = useState('filledData');
 
     const handleNewChangeOfNonRoutineListing = (event, newValue) => {
-      console.log(newValue, "check tabs value")
       setModalNonRoutineTabs(newValue);
     };
+
     return (
       <>
         <Grid
@@ -537,13 +594,14 @@ const Performance = () => {
             marginBottom: "3rem",
           }}
         >
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12}>
             <Tabs
               className="theme-tabs-list"
               value={modalNonRoutineTabs}
               onChange={handleNewChangeOfNonRoutineListing}
-              sx={{ 
-                display: 'inline-flex', flexWrap: 'wrap'}}
+              sx={{
+                display: 'inline-flex', flexWrap: 'wrap'
+              }}
             >
               <Tab
                 value="filledData"
@@ -606,7 +664,7 @@ const Performance = () => {
                   ))}
               </MuiTable>
             </TableContainer>
-            <Grid item container sx ={{ marginTop: "20px"}}>
+            <Grid item container sx={{ marginTop: "20px" }}>
               <Button
                 type="button"
                 sx={{
@@ -625,72 +683,143 @@ const Performance = () => {
               </Button>
             </Grid>
           </> : !isFileUploaded ? (
-        <Box>
-          <Typography variant="h5">
-          Upload data in bulk for ‘non-routine event name’
-          </Typography>
-          <Typography variant="small2" gutterBottom>
-          Upload the excel file, and refer to Non-Routine Adjustment spreadsheet for the formatting details.
-          </Typography>
-          <Typography
-            my={1}
-            sx={{
-              color: "#2E813E",
-              fontWeight: "500",
-              fontSize: "18px",
-              backgroundColor: "#D1FFDA",
-              padding: "7px 33px",
-              borderRadius: "8px",
-              height: "40px",
-              marginTop: "20px",
-              cursor: "pointer",
-              maxWidth: "fit-content",
-            }}
-            onClick={handleButtonClickForUpload}
-          >
-            {nonRoutineFile ? nonRoutineFile?.name : "Choose File"}
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            accept=".xlsx,.csv"
-          />
-          <Button
-            variant="contained"
-            onClick={() => uploadnonRoutineFile(imgUrl)}
-            style={{
-              padding: "0.2rem 1rem",
-              minWidth: "unset",
-              width: "165px",
-              height: "40px",
-            }}
-            disabled={!imgUrl}
-          >
-            Upload
-          </Button>
-        </Box>
-      ) : (
-        <Box>
-          <Typography
-            variant="h6"
-            sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
-            onClick={downloadFileFromUrl}
-          >
-            NonRoutineFile.xlsx
-            <Typography
-              sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
-              onClick={(event) => {
-                event.stopPropagation();
-                deleteFile();
-              }}
+            <Box>
+              <Typography variant="h5">
+                Upload data in bulk for ‘non-routine event name’
+              </Typography>
+              <Typography variant="small2" gutterBottom>
+                Upload the excel file, and refer to Non-Routine Adjustment spreadsheet for the formatting details.
+              </Typography>
+              <Typography
+                my={1}
+                sx={{
+                  color: "#2E813E",
+                  fontWeight: "500",
+                  fontSize: "18px",
+                  backgroundColor: "#D1FFDA",
+                  padding: "7px 33px",
+                  borderRadius: "8px",
+                  height: "40px",
+                  marginTop: "20px",
+                  cursor: "pointer",
+                  maxWidth: "fit-content",
+                }}
+                onClick={handleButtonClickForUpload}
+              >
+                {nonRoutineFile ? nonRoutineFile?.name : "Choose File"}
+              </Typography>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+                accept=".xlsx,.csv"
+              />
+              <Button
+                variant="contained"
+                onClick={() => uploadnonRoutineFile(imgUrl)}
+                style={{
+                  padding: "0.2rem 1rem",
+                  minWidth: "unset",
+                  width: "165px",
+                  height: "40px",
+                }}
+                disabled={!imgUrl}
+              >
+                Upload
+              </Button>
+            </Box>
+          ) : (
+            <Box>
+              <Typography
+                variant="h6"
+                sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
+                onClick={downloadFileFromUrl}
+              >
+                NonRoutineFile.xlsx
+                <Typography
+                  sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    deleteFile();
+                  }}
+                >
+                  Delete
+                </Typography>
+              </Typography>
+            </Box>
+          )}
+      </>
+    );
+  };
+
+  const EventPopup = ({ eventName }) => {
+    return (
+      <>
+        <Grid container>
+
+          <Grid container sx={{ paddingBottom: "10px", borderBottom: "1px solid #54585A" }}>
+            <Grid item xs={12} md={9}>
+              <Grid>
+                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Event period</Typography>
+                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/05/07 to 2021/07/03</Typography>
+              </Grid>
+              <Grid sx={{ marginTop: "20px" }}>
+                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Comment</Typography>
+                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>Lorem ipsum dolor sit amet consectetur. Venenatis vel sed sit duis pharetra neque quis nec. Amet convall</Typography>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+              <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Event name</Typography>
+              <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>{eventName}</Typography>
+            </Grid>
+          </Grid>
+
+          <Grid container sx={{ marginTop: "10px", paddingBottom: "10px", borderBottom: "1px solid #54585A"  }}>
+            <Grid item xs={12} md={9}>
+              <Grid>
+                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Start date</Typography>
+                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/05/07</Typography>
+              </Grid>
+              <Grid sx={{ marginTop: "20px" }}>
+                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Non-routine adjustment</Typography>
+                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>XXXXX</Typography>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+              <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>End date</Typography>
+              <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/06/07</Typography>
+            </Grid>
+          </Grid>
+
+          <Grid container sx={{ marginTop: "10px" }}>
+            <Grid item xs={12} md={12}>
+                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Upload data in bulk for ‘non-routine event name’</Typography>
+                <Typography sx={{ fontSize: "14px !important", color: "#2C77E9" }}>fileabc.xls</Typography>
+              </Grid>
+          </Grid>
+
+          <Grid sx={{ marginTop: "20px" }}>
+            <Button
+              sx={{ backgroundColor: "#2C77E9", color: "#ffffff" }}
+            >
+              Edit
+            </Button>
+
+            <Button
+              sx={{ backgroundColor: "#2E813E", color: "#ffffff", marginLeft: "15px" }}
+            >
+              Download
+            </Button>
+
+            <Button
+              sx={{ backgroundColor: "#FF5858", color: "#ffffff", marginLeft: "15px" }}
             >
               Delete
-            </Typography>
-          </Typography>
-        </Box>
-        )}
+            </Button>
+          </Grid>
+
+        </Grid>
       </>
     );
   };
@@ -830,7 +959,7 @@ const Performance = () => {
         </MuiTable>}
       </TableContainer>
     </Grid>
-  )
+  );
 
   const performancePeriodInformationInAccordionDetails = (
 
@@ -844,7 +973,31 @@ const Performance = () => {
           marginBottom: "3rem",
         }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={9}>
+          <Tabs
+            className="theme-tabs-list"
+            value={performanceTabs}
+            onChange={handleChangePerformance}
+            sx={{
+              display: 'inline-flex', flexWrap: 'wrap'
+            }}
+          >
+            <Tab
+              value="firstPayDay"
+              label="First pay-for-performance"
+              sx={{ minWidth: "10rem" }}
+            />
+            <Tab
+              value="secondPayDay"
+              label="Second pay-for-performance"
+              sx={{ minWidth: "10rem" }}
+            />
+            <Tab
+              value="thirdPayDay"
+              label="Third pay-for-performance"
+              sx={{ minWidth: "10rem" }}
+            />
+          </Tabs>
         </Grid>
         <Grid item sx={{ justifySelf: "flex-end" }}>
           <Button
@@ -1039,7 +1192,7 @@ const Performance = () => {
             Non-routine event name
           </Typography>
           <Grid sx={{ background: "#E2F8E6" }}>
-            <Typography variant="h6" sx={eventNameStyleInAccordion}>
+            <Typography variant="h6" sx={eventNameStyleInAccordion} onClick={() => openEventModal('Event name-1')}>
               Event name-1
             </Typography>
             <Typography variant="h6" sx={eventNameStyleInAccordion}>
@@ -1060,7 +1213,47 @@ const Performance = () => {
       </Grid>
 
     </>
-  )
+  );
+
+  const performancePeriodDataVisualizationInAccordionDetails = (
+
+    <>
+
+      <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
+        <Button
+          sx={visualizationActiveButton === 0 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handleVisualizationButtonClick(0)}
+        >
+          Time series
+        </Button>
+        <Button
+          sx={visualizationActiveButton === 1 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handleVisualizationButtonClick(1)}
+        >
+          Natural gas
+        </Button>
+        <Button
+          sx={visualizationActiveButton === 2 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handleVisualizationButtonClick(2)}
+        >
+          Category 1
+        </Button>
+        <Button
+          sx={visualizationActiveButton === 3 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handleVisualizationButtonClick(3)}
+        >
+          Category 2
+        </Button>
+        <Button
+          sx={visualizationActiveButton === 4 ? activeButtonStyle : inactiveButtonStyle}
+          onClick={() => handleVisualizationButtonClick(4)}
+        >
+          Category 3
+        </Button>
+      </Grid>
+    </>
+
+  );
 
   return (
 
@@ -1096,9 +1289,33 @@ const Performance = () => {
               color: "#2C77E9",
               fontSize: "14px",
               fontWeight: 400,
+              display: "flex",
+              alignItems: "center",
             }}
           >
             Setting
+          </Typography>
+          <Button
+            type="button"
+            sx={{
+              border: '2px solid #2E813E',
+            }}>
+            Refresh
+          </Button>
+          <Button
+            type="button"
+            sx={{
+              backgroundColor: "#54585A", color: "#ffffff", '&:hover': {
+                backgroundColor: '#54585A',
+              },
+            }}>
+            Submit Savings Report
+          </Button>
+        </Grid>
+
+        <Grid item display={"flex"} justifyContent={"end"}>
+          <Typography sx={{ padding: "6px", backgroundColor: "#CFEEFF", color: "#1976AA", fontStyle: "italic", fontSize: "14px !important", fontWeight: "400" }}>
+            Savings Report has been submitted on 2020/03/05 13:35:01, pending verification
           </Typography>
         </Grid>
 
@@ -1114,20 +1331,21 @@ const Performance = () => {
             panelId="performancePeriodDataSummary" />
 
           <CustomAccordion
-            summary="Performance period reporting Information "
+            summary="Performance period reporting Information"
             details={performancePeriodInformationInAccordionDetails}
-            panelId="performancePeriodReportingInformation " />
+            panelId="performancePeriodReportingInformation" />
 
           <CustomAccordion
-            summary="Performance period data visualization  "
-            details={""}
-            panelId="performancePeriodDataVisualization  " />
+            summary="Performance period data visualization"
+            details={performancePeriodDataVisualizationInAccordionDetails}
+            panelId="performancePeriodDataVisualization" />
         </Grid>
 
       </Grid>
       <EvModal modalConfig={parameterModalConfig} setModalConfig={setParameterModalConfig} />
       <EvModal modalConfig={nonRoutinerModalConfig} setModalConfig={setNonRoutineModalConfig} />
-      <EvModal modalConfig={nonRoutinerListingModalConfig} setModalConfig={setNonRoutineListingModalConfig} />
+      <EvModal modalConfig={nonRoutineListingModalConfig} setModalConfig={setNonRoutineListingModalConfig} />
+      <EvModal modalConfig={eventNameModalConfig} setModalConfig={setEventNameModalConfig} />
     </>
 
   );
