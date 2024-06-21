@@ -107,16 +107,20 @@ const [getCompanyList, setCompanyList] = useState([]);
     navigate('/user-management')
   };
   const deleteUserProfile = () => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + userProfileData?.user.id + '/' + userProfileData?.user.entry_type;
-
-    DELETE_REQUEST(apiURL)
+    const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + userProfileData?.user.id + '/' + userProfileData?.user.entry_type + '/' + userProfileData?.companyDetail?.id;
+      // const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+      // return;
+      DELETE_REQUEST(apiURL)
       .then((_response) => {
         NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
         backToUserManagement();
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
       .catch((error) => {
         console.log(error, 'error')
         NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
   }
 

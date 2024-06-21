@@ -85,7 +85,7 @@ const DeleteModelContent = () => {
 
 
 
-const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "Customer ID",
         accessor: 'id',
@@ -137,10 +137,10 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,setRefreshTableData,setModalConfig)} >
                     Delete
                 </Typography>
-                 <EvThemeDropdown dropdownConfig={dropdownConfig} setDropdownConfig={setDropdownConfig} dataRow = {item} handleAPISuccessCallBack={handleAPISuccessCallBack} disabledTitle={item.status.toLowerCase() === "pending"} />
+                 <EvThemeDropdown dropdownConfig={dropdownConfig} setDropdownConfig={setDropdownConfig} dataRow = {item} setRefreshTableData={setRefreshTableData} disabledTitle={item.status.toLowerCase() === "pending"} />
 
             </Box>
         ),
@@ -171,7 +171,7 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack
       .then((result)=> {
         console.log(result, "success");
         NotificationsToast({ message: successMessage, type: "success" });
-        dropdownConfig.handleAPISuccessCallBack();
+        dropdownConfig.setRefreshTableData(prevState => prevState + 1);;
       }).catch((error)=>{
         console.log(error, "error")
         NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
@@ -201,7 +201,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     
 }
 
-const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
+const handelDeleteModalOpen = (item,setRefreshTableData, setModalConfig) => {
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
@@ -211,7 +211,7 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
             cancelButton: true,
         },
         modalBodyContent: <DeleteModelContent />,
-        saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
+        saveButtonAction: () =>  handelDelete(item,setRefreshTableData, setModalConfig),
     }));
    
 }
@@ -237,7 +237,7 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 
-const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
+const handelDelete = (item, setRefreshTableData, setModalConfig) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // for customer we need to company_id to delete
     const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
@@ -245,7 +245,8 @@ const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
     DELETE_REQUEST(apiURL)
         .then((_response) => {
             NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
-            handleSuccessCallback();
+            // handleSuccessCallback();
+            setRefreshTableData(prevState => prevState + 1);
             // close the modal
             setModalConfig((prevState) => ({
                 ...prevState,
