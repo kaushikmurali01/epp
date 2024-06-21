@@ -68,7 +68,8 @@ const App = (props) => {
 
   const handelPermissionCheck = ()=> {
     console.log('check permission')
-    navigate('/facility-dashboard')
+    // navigate('/facility-dashboard')
+    window.location.reload();
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,
