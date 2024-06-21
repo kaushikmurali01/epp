@@ -229,24 +229,24 @@ const Weather = () => {
           marginBottom: "3rem",
         }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           <Tabs
             className="theme-tabs-list"
             value={tabValue}
             onChange={handleChange}
-            sx={{ display: "inline-flex" }}
+            sx={{ display: "inline-flex", maxWidth: "100%",}}
             variant="scrollable"
             scrollButtons="auto"
           >
             <Tab
               value="weather"
               label="Weather"
-              sx={{ minWidth: "10rem" }} />
+              sx={{ minWidth: "10rem", maxWidth: "10rem" }} />
               {independentVarsList?.length ? independentVarsList.map((item, i) => {
                 return <Tab
                 value={item?.name}
                 label={item?.name}
-                sx={{ minWidth: "10rem" }}
+                sx={{ minWidth: "10rem",  maxWidth: "10rem"  }}
               />
               }) : null
               }
