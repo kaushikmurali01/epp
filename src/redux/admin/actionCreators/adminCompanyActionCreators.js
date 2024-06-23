@@ -17,6 +17,15 @@ import {
   DELETE_COMPANY_REQUEST,
   DELETE_COMPANY_SUCCESS,
   DELETE_COMPANY_FAILURE,
+  CHANGE_COMPANY_SUPER_ADMIN_REQUEST,
+  CHANGE_COMPANY_SUPER_ADMIN_SUCCESS,
+  CHANGE_COMPANY_SUPER_ADMIN_FAILURE,
+  FETCH_COMPANY_USER_LIST_REQUEST,
+  FETCH_COMPANY_USER_LIST_SUCCESS,
+  FETCH_COMPANY_USER_LIST_FAILURE,
+  FETCH_USERS_BY_COMPANY_REQUEST,
+  FETCH_USERS_BY_COMPANY_SUCCESS,
+  FETCH_USERS_BY_COMPANY_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminCompanyListRequest = () => ({
@@ -100,5 +109,47 @@ export const deleteCompanySucess = (data) => ({
 
 export const deleteCompanyFailure = (error) => ({
   type: DELETE_COMPANY_FAILURE,
+  payload: error,
+});
+
+export const changeCompanySuperAdminRequest = () => ({
+  type: CHANGE_COMPANY_SUPER_ADMIN_REQUEST,
+});
+
+export const changeCompanySuperAdminSuccess = (data) => ({
+  type: CHANGE_COMPANY_SUPER_ADMIN_SUCCESS,
+  payload: data,
+});
+
+export const changeCompanySuperAdminFailure = (error) => ({
+  type: CHANGE_COMPANY_SUPER_ADMIN_FAILURE,
+  payload: error,
+});
+
+export const fetchCompanyUserListRequest = () => ({
+  type: FETCH_COMPANY_USER_LIST_REQUEST,
+});
+
+export const fetchCompanyUserListSuccess = (data) => ({
+  type: FETCH_COMPANY_USER_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchCompanyUserListFailure = (error) => ({
+  type: FETCH_COMPANY_USER_LIST_FAILURE,
+  payload: error,
+});
+
+export const fetchUsersByCompanyRequest = () => ({
+  type: FETCH_USERS_BY_COMPANY_REQUEST,
+});
+
+export const fetchUsersByCompanySuccess = (data) => ({
+  type: FETCH_USERS_BY_COMPANY_SUCCESS,
+  payload: data,
+});
+
+export const fetchUsersByCompanyFailure = (error) => ({
+  type: FETCH_USERS_BY_COMPANY_FAILURE,
   payload: error,
 });

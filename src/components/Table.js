@@ -111,7 +111,7 @@ const Table = ({
     startPage = pageInfo?.page - 2;
     endPage = pageInfo?.page + 2;
   } else if (pageInfo?.page > 3 && pageInfo?.page + 2 > totalPages) {
-    startPage = totalPages - 4;
+    startPage = Math.max(1, totalPages - 4);
     endPage = totalPages;
   }
 
@@ -131,8 +131,12 @@ const Table = ({
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
   return (
-    <TableContainer >
-      <MUITable {...getTableProps()} sx={{ ...customTableStyles, position: 'relative', minHeight: '150px' }} className={tableClass}>
+    <TableContainer>
+      <MUITable
+        {...getTableProps()}
+        sx={{ ...customTableStyles, position: "relative", minHeight: "150px" }}
+        className={tableClass}
+      >
         <TableHead
           sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
         >
@@ -145,7 +149,7 @@ const Table = ({
                     column.accessorKey && handleSortChange(column.accessorKey)
                   }
                 >
-                  <Box >
+                  <Box sx={{display:'flex', alignItems: 'center'}}>
                     {column.render("Header")}
                     {column.accessorKey && (
                       <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
@@ -245,9 +249,16 @@ const Table = ({
               </TableCell>
             </TableRow>
           )}
-           {show_loader && 
-                <Loader sectionLoader={true} minHeight="100%" customStyles={{maxHeight: '400px', top: rows?.length > 0 ? '0':'20px' }} />
-           }
+          {show_loader && (
+            <Loader
+              sectionLoader={true}
+              minHeight="100%"
+              customStyles={{
+                maxHeight: "400px",
+                top: rows?.length > 0 ? "0" : "20px",
+              }}
+            />
+          )}
         </TableBody>
         {pageInfo?.pageSize && rows?.length > 0 && (
           <TableFooter>

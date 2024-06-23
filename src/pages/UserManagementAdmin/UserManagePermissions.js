@@ -181,6 +181,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                     placeholder="Business Email"
                                     onChange={(e) => handelEmailSelectChange(e)}
                                     value={userEmail}
+                                    disabled={isEdited}                                    
                                 />
                             </FormControl>
                         </FormGroup>
@@ -221,7 +222,7 @@ const UserManagePermissions = ({ getUserRole, setVisibleInvitePage, selectTableR
                                         value={selectCompanyType}
                                         onChange={(e) => handleSelectCompanyChange(e)}
                                         displayEmpty={true}
-                                        // disabled={isEdited}
+                                        disabled={isEdited}
                                     >
                                         <MenuItem value="" disabled>
                                                 <em>Select</em>

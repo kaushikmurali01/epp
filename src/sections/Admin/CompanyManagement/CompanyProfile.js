@@ -23,36 +23,51 @@ const CompanyProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const userColumn = [
     {
       Header: "",
       accessor: "id",
+      cWidth: "15px",
     },
     {
       Header: "Participant Representative",
-      accessor: "participant_representative",
+      accessor: (item) => (
+        <Link
+          href={`#/user-management/profile/${item?.company_id}/${item?.user_id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.email}
+        </Link>
+      ),
     },
     {
-      Header: "User id",
+      Header: "User Id",
       accessor: "user_id",
     },
     {
-      Header: "User role",
-      accessor: "user_role",
+      Header: "User Role",
+      accessor: "role_name",
     },
   ];
   const facilityColumn = [
     {
       Header: "",
       accessor: "id",
+      cWidth: "1.5px",
     },
     {
-      Header: "Facility name",
-      accessor: "facility_name",
+      Header: "Facility Name",
+      accessor: (item) => (
+        <Link
+          href={`#/facility-list/facility-details/${item?.id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.facility_name}
+        </Link>
+      ),
     },
     {
-      Header: "Facility type",
+      Header: "Facility Type",
       accessor: "facility_type",
     },
     {
@@ -61,11 +76,30 @@ const CompanyProfile = () => {
     },
     {
       Header: "Facility Address",
-      accessor: "facility_address",
+      accessor: (item) => (
+        <>
+          {" "}
+          {item?.address && `${item?.address} ,`}{" "}
+          {item?.street_number && `${item?.street_number} `}{" "}
+          {item?.street_name && `${item?.street_name} ,`}{" "}
+          {item?.sector && `${item?.sector} ,`}{" "}
+          {item?.city && `${item?.city} ,`}{" "}
+          {item?.province && `${item?.province} ,`}{" "}
+          {item?.country && `${item?.country} ,`}{" "}
+          {item?.postal_code && `${item?.postal_code} `}
+        </>
+      ),
     },
     {
       Header: "Facility UBI",
-      accessor: "facility_ubi",
+      accessor: (item) => (
+        <Link
+          href={`#/facility-list/facility-details/${item?.id}`}
+          sx={{ color: "#2C77E9" }}
+        >
+          {item?.facility_ubi}
+        </Link>
+      ),
     },
   ];
 
@@ -74,15 +108,18 @@ const CompanyProfile = () => {
   }, [dispatch, id]);
 
   const companyProfileData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyDetails
+    (state) => state?.adminCompanyReducer?.companyDetails?.company
+  );
+  const companyUserData = useSelector(
+    (state) => state?.adminCompanyReducer?.companyDetails?.user_roles || []
+  );
+  const companyFacilityData = useSelector(
+    (state) => state?.adminCompanyReducer?.companyDetails?.facilities || []
   );
   const loadingState = useSelector(
     (state) => state?.adminCompanyReducer?.loading
   );
-  const getCompanyType = (type) => {
-    const companyType = userTypes.find((company) => company.id === type);
-    return companyType ? companyType.userType : "";
-  };
+
   return (
     <Container>
       <Grid container mb={4} alignItems="center">
@@ -177,10 +214,10 @@ const CompanyProfile = () => {
                     secondary={companyProfileData?.city}
                   />
                 )}
-                {companyProfileData?.province && (
+                {companyProfileData?.state && (
                   <MicroStyledListItemComponent
                     primary="Province/state"
-                    secondary={companyProfileData?.province}
+                    secondary={companyProfileData?.state}
                   />
                 )}
 
@@ -190,41 +227,41 @@ const CompanyProfile = () => {
                     secondary={companyProfileData?.country}
                   />
                 )}
-                {companyProfileData?.zip_code && (
+                {companyProfileData?.postal_code && (
                   <MicroStyledListItemComponent
                     primary="Zip code/Postal code"
-                    secondary={companyProfileData?.zip_code}
+                    secondary={companyProfileData?.postal_code}
                   />
                 )}
-                {companyProfileData?.pa && (
-                  <MicroStyledListItemComponent
-                    primary="PA"
-                    secondary={
-                      <Link
-                        href={`#/companies/company-agreement/${id}`}
-                        target="_self"
-                        sx={{
-                          color: "#2C77E9!important",
-                          textDecoration: "none",
-                        }}
-                      >
-                        Link to PA
-                      </Link>
-                    }
-                  />
-                )}
+                {/* {companyProfileData?.portal_agreement_accepted && ( */}
+                <MicroStyledListItemComponent
+                  primary="PA"
+                  secondary={
+                    <Link
+                      href={`#/companies/company-agreement/${id}`}
+                      target="_self"
+                      sx={{
+                        color: "#2C77E9!important",
+                        textDecoration: "none",
+                      }}
+                    >
+                      Link to PA
+                    </Link>
+                  }
+                />
+                {/* )} */}
               </List>
             </Box>
           </Box>
         </Grid>
       </Grid>
-      <Box sx={{ mt: 2 }}>
+      <Box sx={{ mt: 2, overflowX: "scroll" }}>
         <CustomAccordion
           summary="User"
           panelId="user"
           details={
             <Grid container xs={12} md={8}>
-              <MiniTable columns={userColumn} data={[{ id: 1 }, { id: 2 }]} />
+              <MiniTable columns={userColumn} data={companyUserData} />
             </Grid>
           }
         />
@@ -233,10 +270,7 @@ const CompanyProfile = () => {
           panelId="facility"
           details={
             <Grid container>
-              <MiniTable
-                columns={facilityColumn}
-                data={[{ id: 1 }, { id: 2 }]}
-              />
+              <MiniTable columns={facilityColumn} data={companyFacilityData} />
             </Grid>
           }
         />
