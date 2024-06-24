@@ -7,7 +7,7 @@ import Summary from "./Summary";
 import BaselineModel from "./BaselineModel";
 import Details from "./Details";
 import EnergyAndWater from "./EnergyAndWater";
-import Performance from "./Performance";
+import Performance from "./Performance/Performance";
 import ReportsAndStudies from "./ReportsAndStudies/index";
 import Weather from "./Weather";
 import { fetchFacilityDetails } from "../../../redux/superAdmin/actions/facilityActions";

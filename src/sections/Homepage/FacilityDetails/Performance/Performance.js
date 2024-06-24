@@ -30,9 +30,13 @@ import { Form, Formik } from "formik";
 import EvModal from "utils/modal/EvModal";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import ButtonWrapper from "components/FormBuilder/Button";
-import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { documentFileUploadAction } from "../../../../redux/global/actions/fileUploadAction";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SettingMicroComponent from "./SettingMicroComponent";
+import ComposeEmailMicroComponent from "./ComposeEmailMicroComponent";
+import ContactsMicroComponent from "./ContactsMicroComponent";
+import EmailTemplateMicroComponent from "./EmailTemplateMicroComponent";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -1358,22 +1362,6 @@ const Performance = () => {
     );
   };
 
-  const SettingMicroComponent = () => { 
-    return <div>SettingMicroComponent</div>;
-  };
-
-  const ComposeEmailMicroComponent = () => {
-    return <div>ComposeEmailMicroComponent</div>;
-  };
-
-  const ContactsMicroComponent = () => {
-    return <div>ContactsMicroComponent</div>;
-  };
-
-  const EmailTemplateMicroComponent = () => {
-    return <div>EmailTemplateMicroComponent</div>;
-  };
-
   
   return (
     <>
@@ -1439,7 +1427,7 @@ const Performance = () => {
               <Typography
                 variant="h6"
                 onClick={() => {
-                  setIsPerformanceSettingComponent(true)
+                  setIsPerformanceSettingComponent(true);
                 }}
                 sx={{
                   cursor: "pointer",
@@ -1451,60 +1439,91 @@ const Performance = () => {
                 Setting
               </Typography>
               <Button
-            type="button"
-            sx={{
-              border: '2px solid #2E813E',
-            }}>
-            Refresh
-          </Button>
-          <Button
-            type="button"
-            sx={{
-              backgroundColor: "#54585A", color: "#ffffff", '&:hover': {
-                backgroundColor: '#54585A',
-              },
-            }}>
-            Submit Savings Report
-          </Button>
+                type="button"
+                sx={{
+                  border: "2px solid #2E813E",
+                }}
+              >
+                Refresh
+              </Button>
+              <Button
+                type="button"
+                sx={{
+                  backgroundColor: "#54585A",
+                  color: "#ffffff",
+                  "&:hover": {
+                    backgroundColor: "#54585A",
+                  },
+                }}
+              >
+                Submit Savings Report
+              </Button>
             </>
           )}
         </Grid>
-        <Grid item display={"flex"} justifyContent={"end"}>
-          <Typography sx={{ padding: "6px", backgroundColor: "#CFEEFF", color: "#1976AA", fontStyle: "italic", fontSize: "14px !important", fontWeight: "400" }}>
-            Savings Report has been submitted on 2020/03/05 13:35:01, pending verification
+        {isPerformanceSettingComponent ? null : <Grid item display={"flex"} justifyContent={"end"}>
+          <Typography
+            sx={{
+              padding: "6px",
+              backgroundColor: "#CFEEFF",
+              color: "#1976AA",
+              borderRadius: "12rem",
+              fontStyle: "italic",
+              fontSize: "14px !important",
+              fontWeight: "400",
+            }}
+          >
+            Savings Report has been submitted on 2020/03/05 13:35:01, pending
+            verification
           </Typography>
+        </Grid>}
+
+        {isPerformanceSettingComponent ? (
+          <PerformanceSettingComponent />
+        ) : (
+          <Grid item>
+            <CustomAccordion
+              summary="Baseline summary"
+              details={baselineStyleInAccordionDetails}
+              panelId="baselineSummary"
+            />
+
+            <CustomAccordion
+              summary="Performance period data summary"
+              details={performancePeriodDataSummaryInAccordionDetails}
+              panelId="performancePeriodDataSummary"
+            />
+
+            <CustomAccordion
+              summary="Performance period reporting Information"
+              details={performancePeriodInformationInAccordionDetails}
+              panelId="performancePeriodReportingInformation"
+            />
+
+            <CustomAccordion
+              summary="Performance period data visualization"
+              details={performancePeriodDataVisualizationInAccordionDetails}
+              panelId="performancePeriodDataVisualization"
+            />
           </Grid>
-          
-
-        {isPerformanceSettingComponent ? (<PerformanceSettingComponent />) : (<Grid item>
-          <CustomAccordion
-            summary="Baseline summary"
-            details={baselineStyleInAccordionDetails}
-            panelId="baselineSummary"
-          />
-
-          <CustomAccordion
-            summary="Performance period data summary"
-            details={performancePeriodDataSummaryInAccordionDetails}
-            panelId="performancePeriodDataSummary"
-          />
-
-          <CustomAccordion
-            summary="Performance period reporting Information"
-            details={performancePeriodInformationInAccordionDetails}
-            panelId="performancePeriodReportingInformation" />
-
-          <CustomAccordion
-            summary="Performance period data visualization"
-            details={performancePeriodDataVisualizationInAccordionDetails}
-            panelId="performancePeriodDataVisualization" />
-        </Grid>)}
-
+        )}
       </Grid>
-      <EvModal modalConfig={parameterModalConfig} setModalConfig={setParameterModalConfig} />
-      <EvModal modalConfig={nonRoutinerModalConfig} setModalConfig={setNonRoutineModalConfig} />
-      <EvModal modalConfig={nonRoutineListingModalConfig} setModalConfig={setNonRoutineListingModalConfig} />
-      <EvModal modalConfig={eventNameModalConfig} setModalConfig={setEventNameModalConfig} />
+      <EvModal
+        modalConfig={parameterModalConfig}
+        setModalConfig={setParameterModalConfig}
+      />
+      <EvModal
+        modalConfig={nonRoutinerModalConfig}
+        setModalConfig={setNonRoutineModalConfig}
+      />
+      <EvModal
+        modalConfig={nonRoutineListingModalConfig}
+        setModalConfig={setNonRoutineListingModalConfig}
+      />
+      <EvModal
+        modalConfig={eventNameModalConfig}
+        setModalConfig={setEventNameModalConfig}
+      />
     </>
   );
 };
