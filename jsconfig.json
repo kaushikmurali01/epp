@@ -2,5 +2,5 @@
     "compilerOptions": {
       "baseUrl": "src"
     },
-    "include": ["src"]
+    "include": ["src", "src/sections/Homepage/FacilityDetails/BaselineModel/.js"]
 }  

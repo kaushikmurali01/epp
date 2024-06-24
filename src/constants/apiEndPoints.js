@@ -19,12 +19,16 @@ export const facilityEndPoints = {
   ADD_FACILITY_MEASURE: "company-facility/v1/facility-measure",
   UPDATE_FACILITY_MEASURE: "company-facility/v1/facility-measure",
   GET_FACILITY_MEASURE_DETAILS: "company-facility/v1/facility-measure-details",
-  DELETE_FACILITY_MEASURE_REPORT:"company-facility/v1/facility-measure",
-  GET_FACILITY_SAVING_DOCUMENT_LIST:"company-facility/v1/facility-saving-document-lists",
+  DELETE_FACILITY_MEASURE_REPORT: "company-facility/v1/facility-measure",
+  GET_FACILITY_SAVING_DOCUMENT_LIST:
+    "company-facility/v1/facility-saving-document-lists",
   ADD_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
-  UPDATE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
-  GET_FACILITY_SAVING_DOCUMENT_DETAILS:"company-facility/v1/facility-saving-document-details",
-  DELETE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  UPDATE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
+  GET_FACILITY_SAVING_DOCUMENT_DETAILS:
+    "company-facility/v1/facility-saving-document-details",
+  DELETE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
 };
 
 export const adminFacilityEndpoints = {
@@ -104,12 +108,12 @@ export const ENERVA_USER_MANAGEMENT = {
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
 
   SEND_USER_ALERT: "/enerva-user/v1/alert/send",
-    // DELETE REQUEST
+  // DELETE REQUEST
   DELETE_ENERVA_USER_REQUEST: "/enerva-user/v1/usersadmin",
   VIEW_USER_PROFILE: "/enerva-user/v1/usercompanybyuser",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
-  USER_ACTIVE_IN_ACTIVE:"enerva-user/v1/user/status"
+  USER_ACTIVE_IN_ACTIVE: "enerva-user/v1/user/status",
 };
 
 export const ROLES_PERMISSIONS_MANAGEMENT = {
@@ -184,4 +188,11 @@ export const hourlyEndPoints = {
 export const POWERBI_ENDPOINTS = {
   GET_POWERBI_TOKEN: "/GenerateToken",
   GET_AZURE_TOKEN_FOR_POWER_BI: "etl/v1/etl/access-token",
+};
+
+export const BASELINE_ENDPOINTS = {
+  CHECK_SUFFICIENCY: "v1/handle",
+  INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  STATION_DETAILS: "v1/get_station_details",
+  BASELINE_PERIOD: "v1/get_min_max_dates",
 };

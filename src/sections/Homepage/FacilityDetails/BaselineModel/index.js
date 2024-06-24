@@ -1,17 +1,47 @@
-import { Breadcrumbs, Button, Grid, Link, Stack, Tab, Tabs, Typography, styled, useMediaQuery, Slider, Box } from "@mui/material";
-import React, { useState } from "react";
+import {
+  Breadcrumbs,
+  Button,
+  Grid,
+  Link,
+  Stack,
+  Tab,
+  Tabs,
+  Typography,
+  styled,
+  useMediaQuery,
+  Slider,
+  Box,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+} from "@mui/material";
+import React, { useEffect, useState } from "react";
 import EvModal from "utils/modal/EvModal";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import DataExplorationTab from "components/BaselineModel/DataExplorationTab";
-import BaselineModelTab from "components/BaselineModel/BaselineModelTab";
-import SufficiencySettingsModalForm from "components/BaselineModel/SufficiencySettingsModalForm";
+import DataExplorationTab from "sections/Homepage/FacilityDetails/BaselineModel/DataExplorationTab";
+import BaselineModelTab from "sections/Homepage/FacilityDetails/BaselineModel/BaselineModelTab";
+import SufficiencySettingsModalForm from "sections/Homepage/FacilityDetails/BaselineModel/SufficiencySettingsModalForm";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "pages/Loader";
+import { fetchIndependentVariableList } from "../../../../redux/superAdmin/actions/baselineAction";
 
 const BaselineModel = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { id } = useParams();
   const [tabValue, setTabValue] = useState("dataExploration");
-  
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const isMediumScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+  const loadingState = useSelector((state) => state?.baselineReducer?.loading);
+
+  const baselinePeriod = useSelector(
+    (state) => state?.baselineReducer?.baselinePeriod
+  );
+
+  useEffect(() => {
+    dispatch(fetchIndependentVariableList(id));
+  }, [dispatch, id]);
+
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -53,26 +83,25 @@ const BaselineModel = () => {
     setTabValue(newValue);
   };
 
-
   const isAgreementSigned = true;
 
-const submitFacilityModalBodyContent = !isAgreementSigned ? (
-  "We have received your enrollment request and will review it shortly. Our team will check the facility eligibility and other criteria to approve your request. Please note that this process may take some time. We appreciate your patience and understanding. Once your request is approved, you will receive a Notice of Approval. Thank you for choosing our program!"
-) : (
-  <>
-    In order to submit your facility, signing Participant Agreement is
-    required.
-    <Button
-      sx={{ marginTop: "1rem" }}
-      variant="contained"
-      onClick={() => navigate("/participant-agreement")}
-    >
-      Go to Participant Agreement
-    </Button>
-  </>
-);
+  const submitFacilityModalBodyContent = !isAgreementSigned ? (
+    "We have received your enrollment request and will review it shortly. Our team will check the facility eligibility and other criteria to approve your request. Please note that this process may take some time. We appreciate your patience and understanding. Once your request is approved, you will receive a Notice of Approval. Thank you for choosing our program!"
+  ) : (
+    <>
+      In order to submit your facility, signing Participant Agreement is
+      required.
+      <Button
+        sx={{ marginTop: "1rem" }}
+        variant="contained"
+        onClick={() => navigate("/participant-agreement")}
+      >
+        Go to Participant Agreement
+      </Button>
+    </>
+  );
 
-  const handleSubmitFacility = () => { 
+  const handleSubmitFacility = () => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -159,7 +188,7 @@ const submitFacilityModalBodyContent = !isAgreementSigned ? (
       sx={{
         width: "100%",
         padding: "0 2rem",
-        marginTop: isSmallScreen && "2rem",
+        marginTop: { md: "2rem" },
         display: "flex",
         gap: "2rem",
         flexDirection: "column",
@@ -187,12 +216,7 @@ const submitFacilityModalBodyContent = !isAgreementSigned ? (
           flexDirection: "column",
         }}
       >
-        <Grid
-          item
-          display={"flex"}
-          justifyContent={"space-between"}
-          gap={"1rem"}
-        >
+        <Grid container justifyContent={"space-between"}>
           <Grid item xs={12} md={6}>
             <Tabs
               className="theme-tabs-list"
@@ -213,7 +237,18 @@ const submitFacilityModalBodyContent = !isAgreementSigned ? (
             </Tabs>
           </Grid>
           {tabValue === "baselineModel" && (
-            <Grid item>
+            <Grid container xs={12} md={6} justifyContent="space-between">
+              <FormGroup>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  sx={{ color: "text.secondary2" }}
+                  label={
+                    <Typography sx={{ fontSize: "14px!important" }}>
+                      Baseline model accepted
+                    </Typography>
+                  }
+                />
+              </FormGroup>
               <Button
                 variant="contained"
                 color="primary"
@@ -234,6 +269,12 @@ const submitFacilityModalBodyContent = !isAgreementSigned ? (
 
         <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       </Grid>
+      {/* <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      /> */}
     </Grid>
   );
 };
