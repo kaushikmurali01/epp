@@ -390,10 +390,10 @@ export const updateProfilePageRoleSchema = Yup.object().shape({
 });
 
 export const validationSchemaIndependentVariable = Yup.object().shape({
-  independentVariableName: Yup.string().required(
+  name: Yup.string().required(
     "Independent Variable Name is required"
   ),
-  independentVariableDescription: Yup.string().required(
+  description: Yup.string().required(
     "Independent Variable Description is required"
   ),
 });

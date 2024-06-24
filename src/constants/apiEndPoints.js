@@ -190,9 +190,16 @@ export const POWERBI_ENDPOINTS = {
   GET_AZURE_TOKEN_FOR_POWER_BI: "etl/v1/etl/access-token",
 };
 
+export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
+  ADD_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  GET_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  UPDATE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+};
+
 export const BASELINE_ENDPOINTS = {
   CHECK_SUFFICIENCY: "v1/handle",
   INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
-  STATION_DETAILS: "v1/get_station_details",
-  BASELINE_PERIOD: "v1/get_min_max_dates",
+  STATION_DETAILS: "weather/v1/get_station_details",
+  BASELINE_PERIOD: "weather/v1/get_min_max_dates",
 };

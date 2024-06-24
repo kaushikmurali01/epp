@@ -149,7 +149,7 @@ const Table = ({
                     column.accessorKey && handleSortChange(column.accessorKey)
                   }
                 >
-                  <Box>
+                  <Box sx={{display:'flex', alignItems: 'center'}}>
                     {column.render("Header")}
                     {column.accessorKey && (
                       <Box sx={{ width: "1.2rem", height: "1.2rem" }}>

@@ -49,6 +49,9 @@ const UserManagementAdmin = () => {
   const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
   const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
   const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
+  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
+  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
+  const [refreshTableData, setRefreshTableData] = useState(0);
 
   const [pageCount, setPageCount] = useState({
     enerva: '',
@@ -67,19 +70,7 @@ const UserManagementAdmin = () => {
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
-
-  // const handleAPISuccessCallBack = useMemo(() => {
-  //   return () => {
-  //     // Call the API to get all user data
-  //     console.log(enervaPageInfo, searchString, selectRoleType, "handleAPISuccessCallBack");
-  //     getEnervaUserManagementData(enervaPageInfo, searchString, selectRoleType);
-  //     getIESOUserManagementData(iesoPageInfo, searchString, selectRoleType);
-  //     getCustomerUserManagementData(customerPageInfo, searchString, selectRoleType);
-  //     // getAggregatorUserManagementData();
-  //   };
-  // }, [enervaPageInfo, iesoPageInfo, customerPageInfo, searchString, selectRoleType]);
-
-  console.log(searchString, "handleAPISuccessCallBack searchString")
+ 
   const initialValues = {
     company: '',
     role: '',
@@ -113,16 +104,27 @@ const UserManagementAdmin = () => {
   });
 
 
-  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,setRefreshTableData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
 
 
 
   const handleSelectChange = (event) => {
     setSelectRoleType(event.target.value);
+    setSearchString('');
+    setCustomerPageInfo({...defaultPagination})
+    setEnervaPageInfo({...defaultPagination})
+    setIesoPageInfo({...defaultPagination})
+    // setPageCount((prevState) => ({
+    //   ...prevState,
+    //     enerva: '',
+    //     ieso: '',
+    //     customer: '',
+    //     aggregator: ''
+    // }));
   };
 
 
@@ -262,11 +264,13 @@ const UserManagementAdmin = () => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
-  const getCustomerUserManagementData = (pageInfo,search,role) => {
+  const getCustomerUserManagementData = (pageInfo,search,role,sortByCol,sortOrder) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
-    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
+    let apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
       (pageInfo.page - 1) * pageInfo.pageSize
     }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
+    apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+    apiURL += sortOrder ? `&order=${sortOrder}` : "";
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
     GET_REQUEST(apiURL)
       .then((res) => {
@@ -346,13 +350,13 @@ const UserManagementAdmin = () => {
 // search implementation
 
 
-  const debouncedSearch = debounce((pageInfo, searchString,selectedRole) => {
+  const debouncedSearch = debounce((pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder) => {
     if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
       getEnervaUserManagementData(pageInfo, searchString,selectedRole);
     }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
       getIESOUserManagementData(pageInfo, searchString,selectedRole);
     }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
-      getCustomerUserManagementData(pageInfo, searchString,selectedRole);
+      getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
     }
 
   }, 300);
@@ -375,19 +379,21 @@ const UserManagementAdmin = () => {
 
 
   useEffect(() => {
-    debouncedSearch(customerPageInfo, searchString,selectRoleType);
+    debouncedSearch(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType]);
+  }, [refreshTableData,customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
   
 
   useEffect(() => {
     // load all default function on page load
     getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
     getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
-    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
   }, [])
+
+  
 
 
   return (
@@ -415,7 +421,7 @@ const UserManagementAdmin = () => {
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
                       value={searchString}
-                      placeholder="Search by Username"
+                      placeholder="Search by email"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2.25rem' } }}
                       onChange={(e) => setSearchString(e.target.value)}
                     />
@@ -527,6 +533,11 @@ const UserManagementAdmin = () => {
                 count={pageCount.customer}
                 pageInfo={customerPageInfo}
                 setPageInfo={setCustomerPageInfo}
+
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
               
               />}
               {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table customTableStyles={commonTableStyle} columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="rgba(217, 217, 217, 0.2)" 
