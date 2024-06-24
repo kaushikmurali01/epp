@@ -1276,12 +1276,12 @@ const Performance = () => {
           // Handle click for Facility email archive
         },
       },
-      contacts: {
-        label: "Add Contact",
-        onClick: () => {
-          // Handle click for Add Contact
-        },
-      },
+      // contacts: {
+      //   label: "Add Contact",
+      //   onClick: () => {
+      //     // Handle click for Add Contact
+      //   },
+      // },
       email_template: {
         label: "Upload file",
         onClick: () => {
