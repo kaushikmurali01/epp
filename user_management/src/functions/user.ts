@@ -879,6 +879,10 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
         //let companyId;
         console.log('abcd');
         let companyId = company_id ? company_id : resp.company_id;
+
+        const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
+        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+
         let checkStatus = await CheckCompanyStatus(company_id)
         if (!checkStatus) {
             return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
