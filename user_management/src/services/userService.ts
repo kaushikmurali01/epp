@@ -431,7 +431,7 @@ class UserService {
     const searchPattern = `%${search}%`;
     const commonQuery = `SELECT
     1 as entry_type,
-    ucr.id AS id,
+    u.id AS id,
     u.email AS email,
     u.first_name AS first_name,
     u.last_name AS last_name,
@@ -504,7 +504,7 @@ class UserService {
     ) AS combinedResults`;
 
   console.log("combinedQuery",combinedQuery);
-  const results = await sequelize.query(combinedQuery, {
+  const results:any = await sequelize.query(combinedQuery, {
     bind: [company, `%${searchPattern}%`, offset, limit],
     type: QueryTypes.SELECT,
   });
@@ -516,10 +516,32 @@ class UserService {
     });
   
     //return results;
-    return {
-      rows: results,
-      count: resultsCount[0].count
+    // return {
+    //   rows: results,
+    //   count: resultsCount[0].count
+    // }
+
+    for (let i = 0; i < results.length; i++) {
+      let findAllFaciltiy: any = await UserResourceFacilityPermission.findAll({ where: { email: results[i].email }, attributes: ["facility_id"] })
+      findAllFaciltiy = findAllFaciltiy.map(ele => ele.facility_id)
+      let facility = await Facility.findAll({
+        where: {
+          company_id: company, id: {
+            [Op.in]: findAllFaciltiy
+          }
+        }, attributes: ["facility_name"]
+      })
+      let name = []
+      facility.map(ele => name.push(ele.facility_name))
+      results[i].facility = name.join(",")
     }
+    return {
+      status: 200, // OK status code
+      body: {
+        rows: results,
+        count: resultsCount[0].count
+      }
+    };
   }
   
   // Example usage

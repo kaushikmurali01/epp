@@ -536,10 +536,7 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
             await Promise.all([
                 UserCompanyRolePermission.destroy({ where: { user_id:userId }}),
                 UserCompanyRole.destroy({ where: { user_id:userId } }),
-               // UserInvitation.destroy({ where: { company: company_id } }),
                 UserRequest.destroy({ where: { user_id:userId } }),
-               // Company.destroy({ where: { id: company_id } }),
-               // User.destroy({ where: { id: userId } }),
                 User.update({type: 3}, {where: {id:userId}}),
                 UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
                 UserInvitation.destroy({ where: { email: userDet?.email } })
@@ -671,7 +668,7 @@ export async function GetCombinedUsers(request: HttpRequest, context: Invocation
         let companyId = company_id ? company_id : resp.company_id;
 
         const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
-        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+       // if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
         
 
 
@@ -872,9 +869,6 @@ export async function GetUserCompanyDetail(request: HttpRequest, context: Invoca
 }
 
 // Register middleware before each Azure Function
-//app.use(decodeTokenMiddleware);
-//export default middleware([validation(schema)], functionHandler, []);
-
 export async function GetCombinedResults(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
 
@@ -943,16 +937,16 @@ app.http('CreateUserRequest', {
     handler: CreateUserRequest
 });
 
-app.http('GetCombinedUsers', {
-    methods: ['GET'],
-    authLevel: 'anonymous',
-    route: 'combinedusers/{offset}/{limit}/{entrytype}/{company_id}',
-    handler: GetCombinedUsers
-});
+// app.http('GetCombinedUsers', {
+//     methods: ['GET'],
+//     authLevel: 'anonymous',
+//     route: 'combinedusers/{offset}/{limit}/{entrytype}/{company_id}',
+//     handler: GetCombinedUsers
+// });
 app.http('GetCombinedResults', {
     methods: ['GET'],
     authLevel: 'anonymous',
-    route: 'combinedresults/{offset}/{limit}/{entrytype}/{company_id}',
+    route: 'combinedusers/{offset}/{limit}/{entrytype}/{company_id}',
     handler: GetCombinedResults
 });
 
