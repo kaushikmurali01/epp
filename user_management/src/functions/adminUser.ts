@@ -712,6 +712,36 @@ export async function AddResourceFacilityPermission(request: HttpRequest, contex
     }
 }
 
+export async function SearchUsers(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData: any = await request.json();
+        let data = requestData.data;
+        let offset = requestData.offset;
+        let limit = requestData.limit;
+        if(!data) {
+            data = [];
+        }
+        const users = await AdminUserController.searchUsers(data, offset, limit);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(users);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `Error: ${error.message}` };
+    }
+}
+
+app.http('SearchUsers', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'search/users',
+    handler: SearchUsers
+});
+
 app.http('SendEnervaInvitation', {
     methods: ['POST'],
     authLevel: 'anonymous',

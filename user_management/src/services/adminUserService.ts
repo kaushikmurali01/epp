@@ -11,6 +11,7 @@ import { Role } from '../models/role';
 import { Company } from '../models/company';
 import { sequelize } from '../services/database';
 import { UserCompanyRole } from '../models/user-company-role';
+import { QueryTypes } from 'sequelize';
 User.hasOne(UserCompanyRole, { foreignKey: 'user_id' });
 
 
@@ -200,6 +201,55 @@ static async rejectInvitation(data): Promise<Response> {
     } catch (error) {
       throw new Error(`Failed to delete user: ${error.message}`);
     }
+  }
+
+  static async search(data, offset, limit): Promise<any> {
+    // data = [
+    //   {
+    //     key: 'first_name',
+    //     value: ''
+    //   }
+    // ];
+
+    // Construct the WHERE clause
+let whereClause = '';
+let bindParams = [offset, limit];
+let index = 3; // Since 1 and 2 are for OFFSET and LIMIT
+
+if (data.length > 0) {
+  const conditions = data.map(({ key, value }) => {
+    bindParams.push(`%${value}%`);
+    return `${key} LIKE $${index++}`;
+  });
+  whereClause = `WHERE ${conditions.join(' AND ')}`;
+}
+
+    let commonQuery = `select u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
+    c.company_name, c.id as company_id  from users u 
+    left join user_company_role ucr on ucr.user_id = u.id 
+    left join company c on c.id = ucr.company_id
+    
+    union all
+
+    select ui.id, NULL as first_name, NULL as last_name, ui.email, ui."createdAt", ui.status, 
+    c.company_name, ui.company as company_id from user_invitation ui
+    left join role r on r.id = ui.role 
+    left join company c on c.id = ui.company
+    `;
+    const combinedQuery = `
+    SELECT * FROM (
+      ${commonQuery}
+    ) AS combinedResults
+    ${whereClause}
+    ORDER BY id
+    OFFSET $1
+    LIMIT $2;
+  `;
+  const results = await sequelize.query(combinedQuery, {
+    bind: bindParams,
+    type: QueryTypes.SELECT,
+  });
+  return results;
   }
 
 }
