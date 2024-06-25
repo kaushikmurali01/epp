@@ -100,3 +100,17 @@ body {
     cursor: text;
    }
 }
+
+
+.ev-theme-table {
+    thead {
+        th {
+            &.MuiTableCell-root {
+                padding: 0;
+                &:first-of-type {
+                    min-width: 8rem;
+                }
+            }
+        }
+    }
+}

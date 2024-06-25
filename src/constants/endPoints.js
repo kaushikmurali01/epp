@@ -48,6 +48,7 @@ export const enervaEndPoints = {
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
+  userManagementOld: "user-management-old",
   userProfile: "/user-management/profile/:companyId/:userId",
 };
 

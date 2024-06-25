@@ -15,14 +15,15 @@ import InviteUser from 'pages/UserManagement/InviteUser';
 import EvModal from 'utils/modal/EvModal';
 
 import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
-import CustomerUserManagementColumn from 'utils/tableColumn/useerManagement/admin/customerUserManagementAdminColumn';
+import UserManagementAdminColumn from 'utils/tableColumn/useerManagement/admin/UserManagementAdminColumn';
 import IESOUserManagementColumn from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
 import { useDispatch, useSelector } from 'react-redux';
+import EvThemeTable from 'components/Table/EvThemeTable';
 
-const UserManagementAdmin = () => {
+const UserManagementAdminNew = () => {
   const dispatch = useDispatch();
   const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
-  const {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN} = CustomerUserManagementColumn();
+  const {USER_MANAGEMENT_ADMIN_COLUMN} = UserManagementAdminColumn();
   const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
 
   // tabs table data
@@ -45,12 +46,13 @@ const UserManagementAdmin = () => {
 
   // for pagination
   const defaultPagination = { page: 1, pageSize: 10 }
-  const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
-  const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
+  // const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
+  // const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
   const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
-  const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
+  // const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
   const [sortCustomerColumn, setSortCustomerColumn] = useState("");
   const [sortCustomerOrder, setSortCustomerOrder] = useState("");
+  const [searchData, setSearchData] = useState([]);
   const [refreshTableData, setRefreshTableData] = useState(0);
 
   const [pageCount, setPageCount] = useState({
@@ -64,9 +66,9 @@ const UserManagementAdmin = () => {
 
   const handleAPISuccessCallBack = () => {
     // Call the API to get all user data
-    console.log(customerPageInfo,searchString,selectRoleType, "handleAPISuccessCallBack")
-    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
-    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    // console.log(customerPageInfo,searchString,selectRoleType, "handleAPISuccessCallBack")
+    // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
@@ -104,10 +106,10 @@ const UserManagementAdmin = () => {
   });
 
 
-  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,setRefreshTableData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  // const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  // const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const customerUsersColumns = useMemo(() => USER_MANAGEMENT_ADMIN_COLUMN(userData,setRefreshTableData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  // const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
 
 
@@ -116,8 +118,8 @@ const UserManagementAdmin = () => {
     setSelectRoleType(event.target.value);
     setSearchString('');
     setCustomerPageInfo({...defaultPagination})
-    setEnervaPageInfo({...defaultPagination})
-    setIesoPageInfo({...defaultPagination})
+    // setEnervaPageInfo({...defaultPagination})
+    // setIesoPageInfo({...defaultPagination})
     // setPageCount((prevState) => ({
     //   ...prevState,
     //     enerva: '',
@@ -156,30 +158,35 @@ const UserManagementAdmin = () => {
   }
 
   const setPageInfo = (newTabValue) => {
-    if (newTabValue === 'enervaUsers') {
-      setInvitePageInfo({
-        title: 'Invite Enerva User and set permissions',
-        type: '1'
-      })
-    } else if (newTabValue === 'iesoUsers') {
-      setInvitePageInfo({
-        title: 'Invite IESO User and set permissions',
-        type: '4'
-      })
-    }
-    else if (newTabValue === 'customerUsers') {
-      setInvitePageInfo({
-        title: 'Invite Customer User and set permissions',
-        type: '2'
-      })
+    setInvitePageInfo({
+      title: 'Invite Customer User and set permissions',
+      type: '2'
+    })
 
-    } else {
-      // default tab is first
-      setInvitePageInfo({
-        title: 'Invite Enerva User and set permissions',
-        type: '1'
-      })
-    }
+    // if (newTabValue === 'enervaUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite Enerva User and set permissions',
+    //     type: '1'
+    //   })
+    // } else if (newTabValue === 'iesoUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite IESO User and set permissions',
+    //     type: '4'
+    //   })
+    // }
+    // else if (newTabValue === 'customerUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite Customer User and set permissions',
+    //     type: '2'
+    //   })
+
+    // } else {
+    //   // default tab is first
+    //   setInvitePageInfo({
+    //     title: 'Invite Enerva User and set permissions',
+    //     type: '1'
+    //   })
+    // }
   }
 
   const  getTabTitle = (tabValue)=> {
@@ -351,31 +358,32 @@ const UserManagementAdmin = () => {
 
 
   const debouncedSearch = debounce((pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder) => {
-    if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
-      getEnervaUserManagementData(pageInfo, searchString,selectedRole);
-    }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
-      getIESOUserManagementData(pageInfo, searchString,selectedRole);
-    }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
-      getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
-    }
+    // if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getEnervaUserManagementData(pageInfo, searchString,selectedRole);
+    // }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getIESOUserManagementData(pageInfo, searchString,selectedRole);
+    // }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
+    // }
+    getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
 
   }, 300);
 
   
-  useEffect(() => {
-    debouncedSearch(enervaPageInfo, searchString,selectRoleType);
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
+  // useEffect(() => {
+  //   debouncedSearch(enervaPageInfo, searchString,selectRoleType);
+  //   return () => {
+  //     debouncedSearch.cancel();
+  //   };
+  // }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
 
 
-  useEffect(() => {
-    debouncedSearch(iesoPageInfo, searchString,selectRoleType);
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [iesoPageInfo.page, iesoPageInfo.pageSize, searchString, selectRoleType]);
+  // useEffect(() => {
+  //   debouncedSearch(iesoPageInfo, searchString,selectRoleType);
+  //   return () => {
+  //     debouncedSearch.cancel();
+  //   };
+  // }, [iesoPageInfo.page, iesoPageInfo.pageSize, searchString, selectRoleType]);
 
 
   useEffect(() => {
@@ -388,13 +396,13 @@ const UserManagementAdmin = () => {
 
   useEffect(() => {
     // load all default function on page load
-    getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
-    getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
   }, [])
 
   
-  console.log(sortCustomerColumn,sortCustomerOrder, "sortCustomerOrder")
+console.log(searchData, "searchData")
 
   return (
     <React.Fragment>
@@ -411,13 +419,13 @@ const UserManagementAdmin = () => {
 
         <Box component="section">
           <Container maxWidth="lg">
-            <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, justifyContent: 'space-between', }} >
+            <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, marginBottom: '1.5rem', justifyContent: 'space-between', }} >
               <Grid item xs={12} sm={5}  >
-                <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management </Typography>
+                <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management New</Typography>
                 {/* <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
               </Grid>
               <Grid item xs={12} sm={7} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
-                <FormGroup sx={{ minWidth: {xs: 'auto', sm: '14rem'} }}>
+                {/* <FormGroup sx={{ minWidth: {xs: 'auto', sm: '14rem'} }}>
                   <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                     <TextField
                       value={searchString}
@@ -440,9 +448,9 @@ const UserManagementAdmin = () => {
                       />
                     }
                   </FormControl>
-                </FormGroup>
+                </FormGroup> */}
 
-                <FormGroup className='theme-form-group theme-select-form-group'>
+                {/* <FormGroup className='theme-form-group theme-select-form-group'>
 
                   <FormControl sx={{  }} >
                     <Select
@@ -464,12 +472,24 @@ const UserManagementAdmin = () => {
 
                   </FormControl>
 
-                </FormGroup>
+                </FormGroup> */}
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
+                    Add User
+                    <IconButton>
+
+                      <AddCircleIcon
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.875rem",
+                        }}
+                      />
+                    </IconButton>
+                  </Typography>
               </Grid>
 
             </Grid>
 
-            <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '2rem', marginBottom: '2rem' }}>
+            {/* <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '2rem', marginBottom: '2rem' }}>
               <Grid item xs={12} md={8} >
                 <Tabs
                   className='theme-tabs-list'
@@ -492,59 +512,23 @@ const UserManagementAdmin = () => {
                 </Tabs>
               </Grid>
 
-            </Grid>
+            </Grid> */}
 
             <Grid container>
-              <Grid container sx={{ justifyContent: 'space-between', alignItems: 'center', paddingBottom: '2rem' }}>
-                <Grid item sx={{}}>
-                  <Typography variant='h4' sx={{}} >
-                   {getTabTitle(tabValue).title}
-                  </Typography>
-                </Grid>
-                <Grid item sx={{ justifySelf: 'flex-end' }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
-                    Add User
-                    <IconButton>
 
-                      <AddCircleIcon
-                        sx={{
-                          color: "text.primary",
-                          fontSize: "1.875rem",
-                        }}
-                      />
-                    </IconButton>
-                  </Typography>
-                </Grid>
-
-              </Grid>
-              {(getEnervaUser && tabValue === 'enervaUsers') &&
-                  <Table customTableStyles={commonTableStyle} columns={enervaUsersColumns} data={getEnervaUser} headbgColor="rgba(217, 217, 217, 0.2)" 
-                  count={pageCount.enerva}
-                  pageInfo={enervaPageInfo}
-                  setPageInfo={setEnervaPageInfo}
-                  />
-              }
-              {(getIesoUser && tabValue === 'iesoUsers') && <Table customTableStyles={commonTableStyle} columns={iesoUsersColumns} data={getIesoUser} headbgColor="rgba(217, 217, 217, 0.2)" 
-              count={pageCount.ieso}
-              pageInfo={iesoPageInfo}
-              setPageInfo={setIesoPageInfo}
-              />}
-              {(getCustomerUser && tabValue === 'customerUsers') && <Table tableClass="enerva-customer-table" customTableStyles={commonTableStyle} columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
+              <EvThemeTable tableClass="enerva-customer-table" customTableStyles={commonTableStyle} columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
                 count={pageCount.customer}
                 pageInfo={customerPageInfo}
                 setPageInfo={setCustomerPageInfo}
-
+                searchData={searchData}
+                setSearchData={setSearchData}
                 setSortColumn={setSortCustomerColumn}
                 setSortOrder={setSortCustomerOrder}
                 sortColumn={sortCustomerColumn}
                 sortOrder={sortCustomerOrder}
               
-              />}
-              {(getAggregatorUser && tabValue === 'aggregatorUsers') && <Table customTableStyles={commonTableStyle} columns={aggregatorUsersColumns} data={getAggregatorUser} headbgColor="rgba(217, 217, 217, 0.2)" 
-              count={pageCount.aggregator}
-              pageInfo={aggregatorPageInfo}
-              setPageInfo={setAggregatorPageInfo}
-              />}
+              />
+            
             </Grid>
           </Container>
         </Box >
@@ -555,4 +539,4 @@ const UserManagementAdmin = () => {
   )
 }
 
-export default UserManagementAdmin;
+export default UserManagementAdminNew;
