@@ -224,8 +224,8 @@ const EvThemeTable = ({
                     </Stack>
                     {column.isSearch &&
                       <Stack sx={{ padding: '1rem 0.5rem' }}>
-                        <FormGroup >
-                          <FormControl fullWidth sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5rem', backgroundColor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                        <FormGroup sx={{flexDirection: 'row', flexWrap: 'nowrap', gap: '0.5rem',}}>
+                          <FormControl fullWidth sx={{backgroundColor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
                             <TextField
                               value={searchData.find(item => item.key === column.accessorKey)?.value || ""}
                               placeholder="Search"
@@ -233,12 +233,9 @@ const EvThemeTable = ({
                               onChange={(e) => handelSetSearch(e,column)}
                             // onChange={(e) => setSearchData((prev) => ({...prev, [column.accessorKey]: e.target.value}))}
                             />
-                            <img src="/images/icons/tableSearchIcon.svg" alt="" />
-
-                            {/* <FilterAltIcon /> */}
                             {searchData.find(item => item.key === column.accessorKey)?.value &&
                                 <ClearIcon
-                                onClick={() => handleClearSearch(column)}
+                                 onClick={() => handleClearSearch(column)}
                                   sx={{
                                     color: "#333",
                                     fontSize: "1.25rem",
@@ -250,7 +247,9 @@ const EvThemeTable = ({
                                   }}
                                 />
                               }
+                            
                           </FormControl>
+                          {/* <img src="/images/icons/tableSearchIcon.svg" alt="" /> */}
                         </FormGroup>
                       </Stack>
                     }

@@ -107,7 +107,7 @@ const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleIn
     {
         Header: "Role Type",
         accessor: "rolename",
-        isSearch: true,
+        isSearch: false,
     },
     {
         Header: "Created on (Date)",

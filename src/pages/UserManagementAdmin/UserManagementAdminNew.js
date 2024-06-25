@@ -5,7 +5,7 @@ import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { GET_REQUEST } from 'utils/HTTPRequests';
+import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import ClearIcon from '@mui/icons-material/Clear';
 import debounce from "lodash.debounce";
@@ -69,7 +69,7 @@ const UserManagementAdminNew = () => {
     // console.log(customerPageInfo,searchString,selectRoleType, "handleAPISuccessCallBack")
     // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
     // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
-    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchData,selectRoleType);
     // getAggregatorUserManagementData();
   };
  
@@ -273,16 +273,28 @@ const UserManagementAdminNew = () => {
   }
   const getCustomerUserManagementData = (pageInfo,search,role,sortByCol,sortOrder) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
-    let apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
-      (pageInfo.page - 1) * pageInfo.pageSize
-    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
-    apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
-    apiURL += sortOrder ? `&order=${sortOrder}` : "";
+    let apiURL = `${ENERVA_USER_MANAGEMENT.GET_POST_ENERVA_USER_LIST}`;
+    let payload = {
+      "data": search,
+      "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+      "limit": pageInfo.pageSize,
+      "col_name": sortByCol,
+      "order":sortOrder
+      
+    }
+    // let apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
+    //   (pageInfo.page - 1) * pageInfo.pageSize
+    // }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
+    // apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+    // apiURL += sortOrder ? `&order=${sortOrder}` : "";
     // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
-    GET_REQUEST(apiURL)
+    console.log(apiURL, payload, "checking api url...");
+    // return;
+    POST_REQUEST(apiURL,payload)
       .then((res) => {
-        if(res.data?.body?.rows instanceof Array){
-          setCustomerUser(res.data?.body?.rows)
+        console.log(res, "checking result");
+        if(res.data?.body?.users instanceof Array){
+          setCustomerUser(res.data?.body?.users)
           setPageCount((prevState) => ({
             ...prevState,
             customer: res.data?.body?.count
@@ -294,6 +306,7 @@ const UserManagementAdminNew = () => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   }
+  
 
   const handelInviteUserAdmin = () => {
     const apiURL = ENERVA_USER_MANAGEMENT.SEND_EV_INVITATION_BY_ADMIN
@@ -357,7 +370,7 @@ const UserManagementAdminNew = () => {
 // search implementation
 
 
-  const debouncedSearch = debounce((pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder) => {
+  const debouncedSearch = debounce((pageInfo, searchDataKeys,selectedRole,sortCustomerColumn,sortCustomerOrder) => {
     // if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
     //   getEnervaUserManagementData(pageInfo, searchString,selectedRole);
     // }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
@@ -365,7 +378,7 @@ const UserManagementAdminNew = () => {
     // }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
     //   getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
     // }
-    getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
+    getCustomerUserManagementData(pageInfo, searchDataKeys,selectedRole,sortCustomerColumn,sortCustomerOrder);
 
   }, 300);
 
@@ -387,18 +400,18 @@ const UserManagementAdminNew = () => {
 
 
   useEffect(() => {
-    debouncedSearch(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
+    debouncedSearch(customerPageInfo, searchData,selectRoleType,sortCustomerColumn,sortCustomerOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [refreshTableData,customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
+  }, [refreshTableData,customerPageInfo.page, customerPageInfo.pageSize, searchData, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
   
 
   useEffect(() => {
     // load all default function on page load
     // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
     // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
-    getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
+    getCustomerUserManagementData(customerPageInfo, searchData,selectRoleType,sortCustomerColumn,sortCustomerOrder);
   }, [])
 
   
