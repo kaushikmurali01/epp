@@ -36,6 +36,7 @@ const RoutesComp = () => {
   );
 
   const userDetails = userData?.user || {};
+  const userCompany = userData?.company || {};
   const userPermissions = userData?.permissions || {};
 
   localStorage.setItem('userDetails', JSON.stringify(userDetails))
@@ -52,7 +53,7 @@ const RoutesComp = () => {
   const selectRouter = (userType) => {
     switch (userType) {
       case 2:
-        return <CustomerRoutes userDetails={userDetails} userPermissions={userPermissions}/>;
+        return <CustomerRoutes userDetails={userDetails} userPermissions={userPermissions} userCompany={userCompany}/>;
       case 1:
         return (<EnervaRoutes />);
       case 3:

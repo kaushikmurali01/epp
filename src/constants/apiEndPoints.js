@@ -185,3 +185,12 @@ export const POWERBI_ENDPOINTS = {
   GET_POWERBI_TOKEN: "/GenerateToken",
   GET_AZURE_TOKEN_FOR_POWER_BI: "etl/v1/etl/access-token",
 };
+
+export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
+  ADD_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
+  GET_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
+  UPDATE_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
+  DELETE_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
+  UPLOAD_INDEPENDENT_VARIABLE_FILE: 'etl/v1/etl/upload-file-iv',
+  GET_WEATHER_STATION: 'weather/v1/get_station_details'
+}

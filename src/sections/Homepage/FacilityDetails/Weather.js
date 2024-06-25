@@ -18,21 +18,30 @@ import {
   FormControlLabel,
   Checkbox
 } from "@mui/material";
+import { useSelector } from "react-redux";
+import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import InputField from "components/FormBuilder/InputField";
 import SelectBox from "components/FormBuilder/Select";
 import { Field, Form, Formik } from "formik";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { validationSchemaIndependentVariable } from "utils/validations/formValidation";
 import ButtonWrapper from "components/FormBuilder/Button";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS } from "constants/apiEndPoints";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
+  const [independentVarsList, setIndependentVarList] = useState([]);
+  const [weatherStations, setWeatherStations] = useState([]);
   const dispatch = useDispatch();
+  const facilityData = useSelector(
+    (state) => state?.facilityReducer?.facilityDetails?.data
+  );
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [independentVariable1File, setIndependentVariable1File] = useState(null);
@@ -93,23 +102,56 @@ const Weather = () => {
   });
 
   const openRequestModal = (isEdit, data) => {
-    setModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      headerText: !isEdit ? "Add independent variable" : "Edit independent variable",
-      modalBodyContent: "",
-    }));
-    setTimeout(() => {
       setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
         modalBodyContent: <AddEditIndependentVariable isEdit={isEdit} data={data} />,
       }));
-    }, 10);
   };
+
+  useEffect(() => {
+    getIndependentVariales();
+    getWeatherStations();
+
+  }, facilityData?.id)
+
+  const getIndependentVariales = () => {
+    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_INDEPENDENT_VARIABLE+`/${facilityData?.id}`;
+    GET_REQUEST(apiURL).then((response) => {
+      if(response?.data?.length){
+        setIndependentVarList([...(response?.data)])
+      }
+    });
+  }
+  
+  const getWeatherStations = () => {
+    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_STATION+`?facility_id=${facilityData?.id}`;
+    GET_REQUEST(apiURL).then((response) => {
+      if(response?.data?.length){
+        setWeatherStations([...(response?.data)])
+      }
+    });
+  }
 
   const AddEditIndependentVariable = ({ isEdit, data }) => {
     const formSubmit = (data) => {
+      const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.ADD_INDEPENDENT_VARIABLE;
+      const body = {...data, facility_id: facilityData?.id};
+      POST_REQUEST(apiURL, body).then((response) => {
+        setTabValue(response?.data?.data?.id);
+        getIndependentVariales();
+        setModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+        NotificationsToast({ message: "Independent variable created successfully", type: "success" });
+      }).catch((error) => {
+        setModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+        NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
+      })
     };
     return (
       <>
@@ -124,14 +166,14 @@ const Weather = () => {
 
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
-                  name="independentVariableName"
+                  name="name"
                   label="Independent Variable Name"
                   type="text" />
               </Stack>
 
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
-                  name="independentVariableDescription"
+                  name="description"
                   label="Independent Variable Description"
                   type="text" />
               </Stack>
@@ -161,15 +203,21 @@ const Weather = () => {
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    setIndependentVariable1File(selectedFile)
-    dispatch(documentFileUploadAction(selectedFile))
-      .then((data) => {
-        setImgUrl(data?.sasTokenUrl);
-      })
-      .catch((error) => {
-        console.error("Error uploading document:", error);
-      });
+    setIndependentVariable1File(selectedFile);
   };
+
+  const uploadIndepentVariableFile = () => {
+    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE+`/${tabValue}`;
+    const body = new FormData();
+    body.append("file", independentVariable1File);
+    POST_REQUEST(apiURL, body, true, "").then((response) => {
+      setIsFileUploaded(true);
+      getIndependentVariales();
+      NotificationsToast({ message: "Independent variable file uploaded successfully", type: "success" });
+    }).catch((error) => {
+      NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
+    })
+  }
 
   const downloadFileFromUrl = (fileUrl) => {
     fetch(imgUrl).then((response) => {
@@ -185,6 +233,11 @@ const Weather = () => {
   };
 
   const handleCheckboxChange = (event) => { setChecked(event.target.checked); };
+
+  const selectedIv= independentVarsList?.length && independentVarsList.find(obj => obj['id'] == tabValue);
+  const selectedIvName = selectedIv ? selectedIv['name'] : undefined;
+
+  console.log("ffffvvv", independentVariable1File)
 
   return (
     <><Box
@@ -202,24 +255,31 @@ const Weather = () => {
           justifyContent: "space-between",
           marginTop: "1rem",
           marginBottom: "3rem",
+          maxWidth: "80%"
         }}
       >
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           <Tabs
             className="theme-tabs-list"
             value={tabValue}
             onChange={handleChange}
-            sx={{ display: "inline-flex" }}
+            sx={{ display: "inline-flex", maxWidth: "100%",}}
+            variant="scrollable"
+            scrollButtons="auto"
           >
             <Tab
               value="weather"
               label="Weather"
-              sx={{ minWidth: "10rem" }} />
-            <Tab
-              value="independentVariable1"
-              label="Independent variable 1"
-              sx={{ minWidth: "10rem" }}
-            />
+              sx={{ minWidth: "10rem", maxWidth: "10rem" }} />
+              {independentVarsList?.length ? independentVarsList.map((item, i) => {
+                return <Tab
+                key={item?.id}
+                value={item?.id}
+                label={item?.name}
+                sx={{ minWidth: "10rem",  maxWidth: "10rem"  }}
+              />
+              }) : null
+              }
           </Tabs>
         </Grid>
         <Grid item sx={{ justifySelf: "flex-end" }}>
@@ -482,7 +542,7 @@ const Weather = () => {
       </Box> : (
         !isFileUploaded ? <Box>
           <Typography variant="h5">
-            Upload data in bulk for independent variable 1
+            Upload data in bulk for {selectedIvName}
           </Typography>
           <Typography variant="small2" gutterBottom>
             Upload the excel file, and refer to spreadsheet for the formatting details.
@@ -514,14 +574,14 @@ const Weather = () => {
           />
           <Button
             variant="contained"
-            // onClick={() => uploadIndepentVariable1File(imgUrl)}
+            onClick={() => uploadIndepentVariableFile()}
             style={{
               padding: "0.2rem 1rem",
               minWidth: "unset",
               width: "165px",
               height: "40px",
             }}
-            disabled={!imgUrl}
+            disabled={!independentVariable1File}
           >
             Upload
           </Button>

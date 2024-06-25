@@ -51,6 +51,7 @@ const UserManagementAdmin = () => {
   const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
   const [sortCustomerColumn, setSortCustomerColumn] = useState("");
   const [sortCustomerOrder, setSortCustomerOrder] = useState("");
+  const [refreshTableData, setRefreshTableData] = useState(0);
 
   const [pageCount, setPageCount] = useState({
     enerva: '',
@@ -69,19 +70,7 @@ const UserManagementAdmin = () => {
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType);
     // getAggregatorUserManagementData();
   };
-
-  // const handleAPISuccessCallBack = useMemo(() => {
-  //   return () => {
-  //     // Call the API to get all user data
-  //     console.log(enervaPageInfo, searchString, selectRoleType, "handleAPISuccessCallBack");
-  //     getEnervaUserManagementData(enervaPageInfo, searchString, selectRoleType);
-  //     getIESOUserManagementData(iesoPageInfo, searchString, selectRoleType);
-  //     getCustomerUserManagementData(customerPageInfo, searchString, selectRoleType);
-  //     // getAggregatorUserManagementData();
-  //   };
-  // }, [enervaPageInfo, iesoPageInfo, customerPageInfo, searchString, selectRoleType]);
-
-  console.log(searchString, "handleAPISuccessCallBack searchString")
+ 
   const initialValues = {
     company: '',
     role: '',
@@ -115,16 +104,27 @@ const UserManagementAdmin = () => {
   });
 
 
-  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
-  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,handleAPISuccessCallBack,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const customerUsersColumns = useMemo(() => CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN(userData,setRefreshTableData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
 
 
 
 
   const handleSelectChange = (event) => {
     setSelectRoleType(event.target.value);
+    setSearchString('');
+    setCustomerPageInfo({...defaultPagination})
+    setEnervaPageInfo({...defaultPagination})
+    setIesoPageInfo({...defaultPagination})
+    // setPageCount((prevState) => ({
+    //   ...prevState,
+    //     enerva: '',
+    //     ieso: '',
+    //     customer: '',
+    //     aggregator: ''
+    // }));
   };
 
 
@@ -383,7 +383,7 @@ const UserManagementAdmin = () => {
     return () => {
       debouncedSearch.cancel();
     };
-  }, [customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
+  }, [refreshTableData,customerPageInfo.page, customerPageInfo.pageSize, searchString, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
   
 
   useEffect(() => {
@@ -392,6 +392,8 @@ const UserManagementAdmin = () => {
     getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
     getCustomerUserManagementData(customerPageInfo, searchString,selectRoleType,sortCustomerColumn,sortCustomerOrder);
   }, [])
+
+  
 
 
   return (

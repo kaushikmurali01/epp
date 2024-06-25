@@ -13,6 +13,9 @@ const Summary = () => {
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
+  const dataSetId = process.env.REACT_APP_POWERBI_RADIAL_CHART_DATASET_ID
+  const reportId = process.env.REACT_APP_POWERBI_RADIAL_CHART_REPORT_ID
+  const embedUrl = process.env.REACT_APP_POWERBI_RADIAL_CHART_EMBED_URL
 
   const [reportLoading, setReportLoading] = useState(true)
 
@@ -42,13 +45,13 @@ const Summary = () => {
     const body = {
       "datasets": [
         {
-          "id": "412f4b82-c380-4e00-8e50-32c04b30601c"
+          "id": dataSetId
         }
       ],
       "reports": [
         {
           "allowEdit": true,
-          "id": "c2ee7d2e-ec32-4404-a9f4-997528c1ac9e"
+          "id": reportId
         }
       ]
     }
@@ -68,11 +71,11 @@ const Summary = () => {
   let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
 
   const setReportParameters = () => {
-    const apiURL = "https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/412f4b82-c380-4e00-8e50-32c04b30601c/Default.UpdateParameters"
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`
     const body = {
       "updateDetails": [
         {
-          "name": "facility_id (2)",
+          "name": "facility_id",
           "newValue": facilityData?.id
         },
         {
@@ -101,7 +104,7 @@ const Summary = () => {
   }
 
   const refreshPowerBiReport = () => {
-    const apiURL = "https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/412f4b82-c380-4e00-8e50-32c04b30601c/refreshes"
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/refreshes`
     const body = {
       retryCount: 3
     }
@@ -118,10 +121,8 @@ const Summary = () => {
   
   let powerBiConfig = {
     type: "report",
-    id: "c2ee7d2e-ec32-4404-a9f4-997528c1ac9e",
-    embedUrl:
-    "https://app.powerbi.com/reportEmbed?reportId=c2ee7d2e-ec32-4404-a9f4-997528c1ac9e&groupId=d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73&w=2&config=eyJjbHVzdGVyVXJsIjoiaHR0cHM6Ly9XQUJJLUNBTkFEQS1DRU5UUkFMLUItUFJJTUFSWS1yZWRpcmVjdC5hbmFseXNpcy53aW5kb3dzLm5ldCIsImVtYmVkRmVhdHVyZXMiOnsidXNhZ2VNZXRyaWNzVk5leHQiOnRydWV9fQ%3d%3d",
-      
+    id: reportId,
+    embedUrl: embedUrl, 
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
