@@ -219,7 +219,7 @@ let index = 3; // Since 1 and 2 are for OFFSET and LIMIT
 if (data.length > 0) {
   const conditions = data.map(({ key, value }) => {
     bindParams.push(`%${value}%`);
-    return `${key} LIKE $${index++}`;
+    return `${key} ILIKE $${index++}`;
   });
   whereClause = `WHERE ${conditions.join(' AND ')}`;
 }
