@@ -4,7 +4,7 @@ import {
   setOption,
   setOption2,
 } from "../../../redux/superAdmin/actions/simpleActions";
-import { Box, Container, Grid, Typography, InputLabel, Slider } from "@mui/material";
+import { Box, Container, Grid, Typography, InputLabel, Slider, IconButton } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation";
@@ -19,6 +19,9 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import SliderWrapper from "components/FormBuilder/Slider";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Loader from "pages/Loader";
+
 let OpenLocationCode = require('open-location-code').OpenLocationCode;
 let openLocationCode = new OpenLocationCode();
 const marksForEnergyTarget = [
@@ -34,7 +37,10 @@ const marksForEnergyTarget = [
 
 const AddFacilityComponent = (props) => {
   const [imgUrl, setImgUrl] = useState("");
-
+  const [loadingState, setLoadingState] = useState(false);
+  const uploadLoadingState = useSelector(
+    (state) => state?.fileUploadReducer?.loading
+  );
   const [initialValues, setInitialValues] = useState({
     facility_construction_status: "",
     facility_name: "",
@@ -341,20 +347,20 @@ const AddFacilityComponent = (props) => {
   const handleFileChange = (event) => {
     // Handle the file selection here
     const fileSizeInMB = event.target.files[0].size / (1024 * 1024); // Convert bytes to MB
-        if (fileSizeInMB <= 5) {
-            const selectedFile = event.target.files[0];
-            setSelectedFile(URL.createObjectURL(selectedFile));
-            dispatch(fileUploadAction(selectedFile))
-                .then((data) => setImgUrl(data?.sasTokenUrl))
-                .catch((error) => {
-                    console.error("Error uploading image:", error);
-                });
-        } else {
-            NotificationsToast({
-                message: "File size should be less than 5mb!",
-                type: "error",
-            });
-        }
+    if (fileSizeInMB <= 5) {
+      const selectedFile = event.target.files[0];
+      setSelectedFile(URL.createObjectURL(selectedFile));
+      dispatch(fileUploadAction(selectedFile))
+        .then((data) => setImgUrl(data?.sasTokenUrl))
+        .catch((error) => {
+          console.error("Error uploading image:", error);
+        });
+    } else {
+      NotificationsToast({
+        message: "File size should be less than 5mb!",
+        type: "error",
+      });
+    }
   };
 
   const userCompanyId = useSelector(
@@ -382,9 +388,10 @@ const AddFacilityComponent = (props) => {
     // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
 
     if (!id) {
-
+      setLoadingState(true);
       POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
         .then((response) => {
+          setLoadingState(false);
           NotificationsToast({
             message: "Facility added successfully!",
             type: "success",
@@ -392,14 +399,17 @@ const AddFacilityComponent = (props) => {
           navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
         })
         .catch((error) => {
+          setLoadingState(false);
           NotificationsToast({
             message: error?.message ? error.message : "Something went wrong!",
             type: "error",
           });
         });
     } else {
+      setLoadingState(true);
       PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
         .then((response) => {
+          setLoadingState(false);
           NotificationsToast({
             message: "Facility updated successfully!",
             type: "success",
@@ -407,6 +417,7 @@ const AddFacilityComponent = (props) => {
           navigate(`/facility-list/facility-details/${id}`)
         })
         .catch((error) => {
+          setLoadingState(false);
           NotificationsToast({
             message: error?.message ? error.message : "Something went wrong!",
             type: "error",
@@ -419,12 +430,33 @@ const AddFacilityComponent = (props) => {
     setSelectedFile("");
   };
 
+  const backToFacility = () => {
+    navigate(`/facility-list`)
+  };
+
   return (
     <>
       <Container my={4} sx={{ marginTop: "50px" }}>
         <Grid container className="heading-row">
           <Grid container item xs={10}>
-            <Typography sx={{ fontWeight: "600", fontSize: "24px" }}>
+            {id ? <IconButton
+              sx={{
+                backgroundColor: "primary.main",
+                "&:hover": {
+                  backgroundColor: "primary.main",
+                },
+                marginRight: "1rem",
+              }}
+              onClick={backToFacility}
+            >
+              <ArrowBackIcon
+                sx={{
+                  color: "#fff",
+                  fontSize: "1.25rem",
+                }}
+              />
+            </IconButton> : ''}
+            <Typography sx={{ fontWeight: "600", fontSize: "24px", display: "flex", alignItems: "center" }}>
               {id ? "Edit Facility" : "Add Facility"}
             </Typography>
           </Grid>
@@ -800,6 +832,12 @@ const AddFacilityComponent = (props) => {
             </Form>
           )}
         </Formik>
+        <Loader
+          sectionLoader
+          minHeight="100vh"
+          loadingState={loadingState || uploadLoadingState}
+          loaderPosition="fixed"
+        />
       </Container>
     </>
   );

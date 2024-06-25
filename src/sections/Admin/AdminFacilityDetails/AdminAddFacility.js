@@ -4,7 +4,7 @@ import {
     setOption,
     setOption2,
 } from "../../../redux/superAdmin/actions/simpleActions";
-import { Box, Container, Grid, Typography, InputLabel, Slider } from "@mui/material";
+import { Box, Container, Grid, Typography, InputLabel, Slider, IconButton } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
 import { validationSchemaAddFacility } from "../../../utils/validations/formValidation";
@@ -23,6 +23,8 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import SliderWrapper from "components/FormBuilder/Slider";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import Loader from "pages/Loader";
 
 const marksForEnergyTarget = [
     {
@@ -38,7 +40,10 @@ const marksForEnergyTarget = [
 const AdminAddFacilityComponent = (props) => {
     const [imgUrl, setImgUrl] = useState("");
     const [companyData, setCompanyData] = useState([]);
-
+    const [loadingState, setLoadingState] = useState(false);
+    const uploadLoadingState = useSelector(
+      (state) => state?.fileUploadReducer?.loading
+    );
     const [initialValues, setInitialValues] = useState({
         facility_construction_status: "",
         facility_name: "",
@@ -428,13 +433,34 @@ const AdminAddFacilityComponent = (props) => {
                 }
             })
             .catch((error) => { });
-    }
+    };
+
+    const backToFacility = () => {
+        navigate(`/facility-list`)
+    };
 
     return (
         <>
             <Container my={4} sx={{ marginTop: "50px" }}>
                 <Grid container className="heading-row">
                     <Grid container item xs={10}>
+                        {id ? <IconButton
+                            sx={{
+                                backgroundColor: "primary.main",
+                                "&:hover": {
+                                    backgroundColor: "primary.main",
+                                },
+                                marginRight: "1rem",
+                            }}
+                            onClick={backToFacility}
+                        >
+                            <ArrowBackIcon
+                                sx={{
+                                    color: "#fff",
+                                    fontSize: "1.25rem",
+                                }}
+                            />
+                        </IconButton> : ''}
                         <Typography sx={{ fontWeight: "600", fontSize: "24px" }}>
                             {id ? "Edit Facility" : "Add Facility"}
                         </Typography>
@@ -822,6 +848,12 @@ const AdminAddFacilityComponent = (props) => {
                         </Form>
                     )}
                 </Formik>
+                <Loader
+          sectionLoader
+          minHeight="100vh"
+          loadingState={loadingState || uploadLoadingState}
+          loaderPosition="fixed"
+        />
             </Container>
         </>
     );
