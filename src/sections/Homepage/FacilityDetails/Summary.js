@@ -71,11 +71,11 @@ const Summary = () => {
   let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
 
   const setReportParameters = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters"`
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`
     const body = {
       "updateDetails": [
         {
-          "name": "facility_id (2)",
+          "name": "facility_id",
           "newValue": facilityData?.id
         },
         {
