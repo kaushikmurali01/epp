@@ -49,6 +49,20 @@ export const adminFacilityEndpoints = {
   ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
   DOWNLOAD_BULK_FACILITIES: "company-facility/v1/csv-facilities",
   DOWNLOAD_FACILITY_BY_ID: "/company-facility/v1/csv-facility",
+  GET_FACILITY_MEASURE_LIST: "company-facility/v1/facility-measure-lists",
+  ADD_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  UPDATE_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  GET_FACILITY_MEASURE_DETAILS: "company-facility/v1/facility-measure-details",
+  DELETE_FACILITY_MEASURE_REPORT: "company-facility/v1/facility-measure",
+  GET_FACILITY_SAVING_DOCUMENT_LIST:
+    "company-facility/v1/facility-saving-document-lists",
+  ADD_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  UPDATE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
+  GET_FACILITY_SAVING_DOCUMENT_DETAILS:
+    "company-facility/v1/facility-saving-document-details",
+  DELETE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
 };
 
 export const PA_MANAGEMENT = {

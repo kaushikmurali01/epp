@@ -16,11 +16,11 @@ import AdminSummary from "./AdminSummary";
 import AdminDetails from "./AdminDetails";
 import AdminEnergyAndWater from "./AdminEnergyAndWater";
 import AdminWeather from "./AdminWeather";
-import AdminReportsAndStudies from "./AdminReportsAndStudies";
 import AdminPerformance from "./AdminPerformance";
 import { fetchAdminFacilityDetails } from "../../../redux/admin/actions/adminFacilityActions";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AdminBaselineModel from "./AdminBaselineModel/index";
+import AdminReportsAndStudies from "./AdminReportsAndStudies";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
