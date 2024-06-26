@@ -203,7 +203,7 @@ static async rejectInvitation(data): Promise<Response> {
     }
   }
 
-  static async search(data, offset, limit): Promise<any> {
+  static async search(data, offset, limit, order, col_name): Promise<any> {
     // data = [
     //   {
     //     key: 'first_name',
@@ -214,7 +214,10 @@ static async rejectInvitation(data): Promise<Response> {
     // Construct the WHERE clause
 let whereClause = '';
 let bindParams = [offset, limit];
+let countParams = [];
 let index = 3; // Since 1 and 2 are for OFFSET and LIMIT
+let whereClauseCount = '';
+let indCount = 1;
 
 if (data.length > 0) {
   const conditions = data.map(({ key, value }) => {
@@ -222,6 +225,14 @@ if (data.length > 0) {
     return `${key} ILIKE $${index++}`;
   });
   whereClause = `WHERE ${conditions.join(' AND ')}`;
+}
+
+if (data.length > 0) {
+  const conditionsCount = data.map(({ key, value }) => {
+    countParams.push(`%${value}%`);
+    return `${key} ILIKE $${indCount++}`;
+  });
+  whereClauseCount = `WHERE ${conditionsCount.join(' AND ')}`;
 }
 
     let commonQuery = `select u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
@@ -241,7 +252,7 @@ if (data.length > 0) {
       ${commonQuery}
     ) AS combinedResults
     ${whereClause}
-    ORDER BY id
+    ORDER by ${col_name} ${order}
     OFFSET $1
     LIMIT $2;
   `;
@@ -249,7 +260,23 @@ if (data.length > 0) {
     bind: bindParams,
     type: QueryTypes.SELECT,
   });
-  return results;
+  const countQuery = `
+  SELECT count(*) as count FROM (
+    ${commonQuery}
+  ) AS combinedResults ${whereClauseCount}`;
+  const resultsCount:any = await sequelize.query(countQuery, {
+    bind: countParams,
+    type: QueryTypes.SELECT,
+  });
+ // return results;
+
+  return {
+    status: 200, // OK status code
+    body: {
+      rows: results,
+      count: resultsCount[0].count
+    }
+  };
   }
 
 }

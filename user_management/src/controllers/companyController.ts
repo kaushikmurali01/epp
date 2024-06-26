@@ -61,9 +61,9 @@ class CompanyController {
         }
     }
 
-    static async searchCompanies(offset, limit, companyFilter, data): Promise<any> {
+    static async searchCompanies(offset, limit, companyFilter, data, col_name, order): Promise<any> {
         try {
-            const [count, rows] = await CompanyService.searchCompanies(offset, limit, companyFilter, data);
+            const [count, rows] = await CompanyService.searchCompanies(offset, limit, companyFilter, data, col_name, order);
             return { status: 204, data: { count, rows } };
         } catch (error) {
             return { status: 500, body: { error: error.message } };

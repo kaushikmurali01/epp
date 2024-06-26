@@ -103,13 +103,14 @@ class AdminUserController {
     }
   }
 
-  static async searchUsers(data, offset, limit): Promise<any> {
+  static async searchUsers(data, offset, limit, order, col_name): Promise<any> {
     try {
-      const users = await AdminUserService.search(data, offset, limit);
-      return {
-        status: 200, // OK status code
-        body: { users }
-      };
+      const users = await AdminUserService.search(data, offset, limit, order, col_name);
+      return users;
+      // return {
+      //   status: 200, // OK status code
+      //   body: { users }
+      // };
     } catch (error) {
       return {
         status: 500, // Internal Server Error status code

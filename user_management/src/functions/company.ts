@@ -153,9 +153,11 @@ export async function SearchCompanies(request: HttpRequest, context: InvocationC
         let companyFilter = requestData.company_type;
         let pageOffset = requestData.offset;
         let pageLimit = requestData.limit;
+        let col_name = requestData.col_name || 'id';
+        let order = requestData.order || 'ASC';
 
         // Get serached companies
-        const companies = await CompanyController.searchCompanies(pageOffset, pageLimit, companyFilter, data);
+        const companies = await CompanyController.searchCompanies(pageOffset, pageLimit, companyFilter, data, col_name, order);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
