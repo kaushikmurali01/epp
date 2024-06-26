@@ -41,6 +41,7 @@ const AdminFacilityListing = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("overview");
   const [companyFilter, setCompanyFilter] = useState("");
+  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -63,6 +64,9 @@ const AdminFacilityListing = () => {
   );
   const alertLoadingState = useSelector(
     (state) => state?.adminCompanyReducer?.loading
+  );
+  const emailToAvoid = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.user?.email || ""
   );
 
   const onDownloadBulkClick = (page_info, status) => {
@@ -182,7 +186,7 @@ const AdminFacilityListing = () => {
         initialValues={{
           ...initialValues,
         }}
-        validationSchema={validationSchemaAssignFacility}
+        validationSchema={validationSchemaAssignFacility(emailToAvoid)}
         onSubmit={formSubmit}
       >
         {({ values, setFieldValue }) => (
@@ -246,6 +250,8 @@ const AdminFacilityListing = () => {
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
             onDownloadRowClick={onDownloadRowClick}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
           />
         );
       case "approved":
@@ -255,6 +261,8 @@ const AdminFacilityListing = () => {
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
             onDownloadRowClick={onDownloadRowClick}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
           />
         );
       case "underreview":
@@ -264,6 +272,8 @@ const AdminFacilityListing = () => {
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
             onDownloadRowClick={onDownloadRowClick}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
           />
         );
       case "rejected":
@@ -271,6 +281,8 @@ const AdminFacilityListing = () => {
           <FacilityRejected
             searchVal={searchString}
             companyFilter={companyFilter}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
           />
         );
       default:
@@ -315,7 +327,10 @@ const AdminFacilityListing = () => {
                     borderRadius: "6px",
                   },
                 }}
-                onChange={(e) => setSearchString(e.target.value)}
+                onChange={(e) => {
+                  setSearchString(e.target.value);
+                  setPageInfo({ page: 1, pageSize: 10 });
+                }}
               />
             </Grid>
             <Grid

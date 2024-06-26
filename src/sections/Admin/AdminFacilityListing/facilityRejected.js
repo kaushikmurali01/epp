@@ -9,8 +9,12 @@ import { useNavigate } from "react-router-dom";
 import debounce from "lodash.debounce";
 import { format } from "date-fns";
 
-const FacilityRejected = ({ searchVal, companyFilter }) => {
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+const FacilityRejected = ({
+  searchVal,
+  companyFilter,
+  pageInfo,
+  setPageInfo,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -45,21 +49,15 @@ const FacilityRejected = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted by",
-      accessor: (item) => (
-        <>{item?.submitted_by?.first_name}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.first_name}</>,
     },
     {
       Header: "Company name",
-      accessor: (item) => (
-        <>{item?.company?.company_name}</>
-      ),
+      accessor: (item) => <>{item?.company?.company_name}</>,
     },
     {
       Header: "Business email",
-      accessor: (item) => (
-        <>{item?.submitted_by?.email}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.email}</>,
     },
     {
       Header: "Status",

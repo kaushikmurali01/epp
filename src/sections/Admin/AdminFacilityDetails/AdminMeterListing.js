@@ -24,6 +24,10 @@ import {
   fetchAdminMeterStatistics,
 } from "../../../redux/admin/actions/adminMeterActions";
 import Loader from "pages/Loader";
+import {
+  fetchAdminFacilityDetails,
+  fetchAdminFacilityStatus,
+} from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminMeterListing = ({
   onAddButtonClick,
@@ -69,6 +73,8 @@ const AdminMeterListing = ({
           }));
           dispatch(fetchAdminMeterListing(pageInfo, id));
           dispatch(fetchAdminMeterStatistics(id));
+          dispatch(fetchAdminFacilityStatus(id));
+          dispatch(fetchAdminFacilityDetails(id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);

@@ -149,7 +149,7 @@ const Table = ({
                     column.accessorKey && handleSortChange(column.accessorKey)
                   }
                 >
-                  <Box sx={{display:'flex', alignItems: 'center'}}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
                     {column.render("Header")}
                     {column.accessorKey && (
                       <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
@@ -260,7 +260,7 @@ const Table = ({
             />
           )}
         </TableBody>
-        {pageInfo?.pageSize && rows?.length > 0 && (
+        {count && count > 0 && (
           <TableFooter>
             <TableRow>
               <TableCell colSpan={columns.length}>
