@@ -1,7 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Error404 = (props) => {
+    const navigate = useNavigate(); 
+    navigate("/")
+
    return ( <div style={{padding: '4rem', justifyContent: 'center',alignItems: 'center', flexDirection: 'column', display: 'flex'}}>
         <h1 style={{fontSize: '2.25rem', lineHeight: '2.5rem', textAlign:'center'}}>Welcome to the EPP Program Portal! You don’t have access to view this page. Administrators will give you access to see the dashboard.</h1>
         {props?.userDetails?.type ==2 ?<Link to='/' style={{color:'#2e813e', paddingTop:' 1.5rem', paddingBottom: '1.5rem'}}>Go Home</Link> : null}
