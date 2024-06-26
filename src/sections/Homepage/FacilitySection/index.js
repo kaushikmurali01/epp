@@ -42,9 +42,7 @@ const Facility = () => {
   const permissionList = useSelector(
     (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
-  const loadingState = useSelector(
-    (state) => state?.facilityReducer?.loading
-  );
+  const loadingState = useSelector((state) => state?.facilityReducer?.loading);
   const columns = [
     {
       Header: "Name/Nick Name",
@@ -346,26 +344,25 @@ const Facility = () => {
               />
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
-            <FormGroup className='theme-form-group theme-select-form-group'>
-              <InputLabel>Assign Facility*</InputLabel>
-              <FormControl  sx={{color: 'primary.main'}}>
-                <Select
-                  fullWidth
-                  name="facilityId"
-                  multiple
-                  value={values.facilityId}
-                  onChange={(e) => {
-                    setFieldValue("facilityId", e.target.value);
-                  }}
-                 
-                >
-                  {facilitiesDropdownData?.map((item) => (
-                    <MenuItem key={item?.id} value={item?.id}>
-                      {item?.facility_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <InputLabel>Assign Facility*</InputLabel>
+                <FormControl sx={{ color: "primary.main" }}>
+                  <Select
+                    fullWidth
+                    name="facilityId"
+                    multiple
+                    value={values.facilityId}
+                    onChange={(e) => {
+                      setFieldValue("facilityId", e.target.value);
+                    }}
+                  >
+                    {facilitiesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.facility_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </FormGroup>
             </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>

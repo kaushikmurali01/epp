@@ -38,6 +38,8 @@ export const MiniTable = ({ columns, data }) => {
                   sx={{
                     borderBottom: "none",
                     width: column.cWidth && column.cWidth,
+                    contentVisibility:
+                      column.headerVisibility && column.headerVisibility,
                   }}
                 >
                   {column.render("Header")}

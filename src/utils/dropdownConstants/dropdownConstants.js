@@ -157,3 +157,13 @@ export const DOCUMENT_CATEGORY = [
   { label: "Certification", value: "Certification" },
   { label: "Photo", value: "Photo" },
 ];
+
+export const HEATING_BALANCE_UNIT_ARRAY = [
+  { value: "C", label: "C" },
+  { value: "K", label: "K" },
+];
+
+export const COOLING_BALANCE_UNIT_ARRAY = [
+  { value: "C", label: "C" },
+  { value: "K", label: "K" },
+];
