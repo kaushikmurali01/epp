@@ -235,17 +235,19 @@ if (data.length > 0) {
   whereClauseCount = `WHERE ${conditionsCount.join(' AND ')}`;
 }
 
-    let commonQuery = `select u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
-    c.company_name, c.id as company_id  from users u 
+    let commonQuery = `select 1 as entry_type, u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
+    c.company_name, c.id as company_id, ucr.role_id, ut.user_type, ut.id as user_type_id  from users u 
     left join user_company_role ucr on ucr.user_id = u.id 
     left join company c on c.id = ucr.company_id
+    left join user_type ut on ut.id = u.type
     
     union all
 
-    select ui.id, NULL as first_name, NULL as last_name, ui.email, ui."createdAt", ui.status, 
-    c.company_name, ui.company as company_id from user_invitation ui
+    select 2 as entry_type, ui.id, NULL as first_name, NULL as last_name, ui.email, ui."createdAt", ui.status, 
+    c.company_name, ui.company as company_id, ui.role as role_id, ut.user_type, ut.id as user_type_id from user_invitation ui
     left join role r on r.id = ui.role 
     left join company c on c.id = ui.company
+    left join user_type ut on ut.id = ui.type
     `;
     const combinedQuery = `
     SELECT * FROM (
