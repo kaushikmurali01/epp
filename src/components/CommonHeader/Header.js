@@ -274,6 +274,7 @@ function Header(props) {
         if(type == 'accept' && res.status == 200) {
           NotificationsToast({ message: "You have successfully accepted the invite!", type: "success" });
           getCompanyListData();
+          navigate('/')
         } else if(type == 'reject' && res.statusCode == 200){
           NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
         }
