@@ -90,7 +90,7 @@ export const fetchAdminStationsDetails = (facilityId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminStationsDetailsRequest());
-      const endpointWithParams = `${BASELINE_ENDPOINTS.STATION_DETAILS}?facilityId=${facilityId}`;
+      const endpointWithParams = `${BASELINE_ENDPOINTS.STATION_DETAILS}?facility_id=${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminStationsDetailsSuccess(data));

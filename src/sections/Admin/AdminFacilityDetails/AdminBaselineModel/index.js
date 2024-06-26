@@ -21,6 +21,7 @@ import SufficiencySettingsModalForm from "./SufficiencySettingsModalForm";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
 import { fetchAdminIndependentVariableList } from "../../../../redux/admin/actions/adminBaselineAction";
+import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
 
 const AdminBaselineModel = () => {
   const navigate = useNavigate();

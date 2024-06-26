@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -11,9 +11,14 @@ import {
 } from "./styles";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchAdminBaselinePeriod } from "../../../../redux/admin/actions/adminBaselineAction";
+import {
+  fetchAdminBaselinePeriod,
+  fetchAdminStationsDetails,
+} from "../../../../redux/admin/actions/adminBaselineAction";
+import EvModal from "utils/modal/EvModal";
+import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
 
-const BaselineModelTab = ({ handleSufficiencySettings }) => {
+const BaselineModelTab = ({ handleSufficiencySettings, openSeeDetails }) => {
   const [activeButton, setActiveButton] = useState(1);
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -25,12 +30,50 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
   );
 
   useEffect(() => {
-    dispatch(fetchAdminBaselinePeriod(24, 163));
-  }, []);
+    dispatch(fetchAdminBaselinePeriod(id, facilityCreatedBy));
+    dispatch(fetchAdminStationsDetails(id));
+  }, [dispatch, id, facilityCreatedBy]);
+
+  const [seeDetailsModalConfig, setSeeDetailsModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Details",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openSeeDetailsModal = (company_id) => {
+    setSeeDetailsModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <SeeSufficiencyDetails companyId={company_id} />,
+    }));
+  };
 
   return (
     <>
-      <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
+      <Grid container justifyContent="space-between">
         <StyledButtonGroup disableElevation variant="contained" color="primary">
           <Button
             sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
@@ -55,6 +98,7 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             fontSize: "0.875rem",
             fontStyle: "italic",
             fontWeight: 400,
+            mt: { xs: 2, lg: 0 },
           }}
         >
           Electricity baseline has been successfully created on : 2020/03/05
@@ -62,12 +106,14 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
         </Typography>
       </Grid>
 
-      <Grid item>
+      <Box>
         <CustomAccordion
           summary="Model constructor"
           details={
             <ModelConstructorForm
               handleSufficiencySettings={handleSufficiencySettings}
+              openSeeDetails={openSeeDetailsModal}
+              meterType={activeButton}
             />
           }
           panelId="modelConstructor"
@@ -84,7 +130,12 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
           details={<BaselineVisualization />}
           panelId="visualization"
         />
-      </Grid>
+      </Box>
+
+      <EvModal
+        modalConfig={seeDetailsModalConfig}
+        setModalConfig={setSeeDetailsModalConfig}
+      />
     </>
   );
 };

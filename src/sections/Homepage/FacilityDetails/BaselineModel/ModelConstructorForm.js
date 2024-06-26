@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -26,7 +27,7 @@ const ModelConstructorForm = ({ meterType }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
-
+  console.log(formData);
   const baselinePeriod = useSelector(
     (state) => state?.baselineReducer?.baselinePeriod
   );
@@ -45,12 +46,11 @@ const ModelConstructorForm = ({ meterType }) => {
         start_date: baselinePeriod.start_date || "",
         end_date: baselinePeriod.end_date || "",
         granularity: baselinePeriod.granularity || "hourly",
+        independent_variables: {},
       };
-
       independentVariables.forEach((variable) => {
-        initialValues[variable.name] = variable.value || false;
+        initialValues.independent_variables[variable.name] = false;
       });
-
       setFormData(initialValues);
     }
   }, [baselinePeriod, independentVariables]);
@@ -149,192 +149,199 @@ const ModelConstructorForm = ({ meterType }) => {
   }
 
   return (
-    <Formik
-      initialValues={formData}
-      onSubmit={handleSubmit}
-      enableReinitialize={true}
-    >
-      {({ values, handleChange, setFieldValue, errors }) => (
-        <Form>
-          <Grid container display={"grid"} gap={"2rem"}>
-            <Grid item>
-              <Typography variant="h6" sx={headingStyleInAccordion}>
-                Baseline period
-              </Typography>
-              <Grid container spacing={4}>
-                <Grid item xs={4}>
-                  <InputLabel
-                    htmlFor="start_date"
-                    style={{ whiteSpace: "initial" }}
-                  >
-                    Baseline start *
-                  </InputLabel>
-                  <DatePicker
-                    id="start_date"
-                    name="start_date"
-                    sx={{
-                      width: "100%",
-                      input: { color: "#111" },
-                    }}
-                    value={values.start_date}
-                    onChange={(date) => {
-                      setFieldValue("start_date", date);
-                      handleSubmit({ ...values, start_date: date });
-                    }}
-                    disableFuture
-                    format="dd/MM/yyyy"
-                    slotProps={{
-                      textField: {
-                        helperText: errors.start_date && errors.start_date,
-                      },
-                      actionBar: {
-                        actions: ["clear", "accept"],
-                        className: "my-datepicker-actionbar",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={4}>
-                  <InputLabel
-                    htmlFor="end_date"
-                    style={{ whiteSpace: "initial" }}
-                  >
-                    Baseline end *
-                  </InputLabel>
-                  <DatePicker
-                    id="end_date"
-                    name="end_date"
-                    sx={{
-                      width: "100%",
-                      input: { color: "#111" },
-                    }}
-                    value={values.end_date}
-                    onChange={(date) => {
-                      setFieldValue("end_date", date);
-                      handleSubmit({ ...values, end_date: date });
-                    }}
-                    disableFuture
-                    minDate={values?.start_date}
-                    format="dd/MM/yyyy"
-                    slotProps={{
-                      textField: {
-                        helperText: errors.end_date && errors.end_date,
-                      },
-                      actionBar: {
-                        actions: ["clear", "accept"],
-                        className: "my-datepicker-actionbar",
-                      },
-                    }}
-                  />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Typography variant="h6" sx={headingStyleInAccordion}>
-                Sufficiency verification
-              </Typography>
+    <Grid container>
+      <Formik
+        initialValues={formData}
+        onSubmit={handleSubmit}
+        enableReinitialize={true}
+      >
+        {({ values, handleChange, setFieldValue, errors }) => (
+          <Form>
+            <Grid container display={"grid"} gap={"2rem"}>
               <Grid item>
-                <MiniTable
-                  columns={userColumn}
-                  // data={
-                  //   meterType === 2
-                  //     ? sufficiencyCheckData?.["2"]
-                  //     : sufficiencyCheckData?.["3"]
-                  // }
-                  data={[{}]}
-                />
+                <Typography variant="h6" sx={headingStyleInAccordion}>
+                  Baseline period
+                </Typography>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel
+                      htmlFor="start_date"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Baseline start *
+                    </InputLabel>
+                    <DatePicker
+                      id="start_date"
+                      name="start_date"
+                      sx={{
+                        width: "100%",
+                        input: { color: "#111" },
+                      }}
+                      value={values.start_date}
+                      onChange={(date) => {
+                        setFieldValue("start_date", date);
+                        handleSubmit({ ...values, start_date: date });
+                      }}
+                      disableFuture
+                      format="dd/MM/yyyy"
+                      slotProps={{
+                        textField: {
+                          helperText: errors.start_date && errors.start_date,
+                        },
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <InputLabel
+                      htmlFor="end_date"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Baseline end *
+                    </InputLabel>
+                    <DatePicker
+                      id="end_date"
+                      name="end_date"
+                      sx={{
+                        width: "100%",
+                        input: { color: "#111" },
+                      }}
+                      value={values.end_date}
+                      onChange={(date) => {
+                        setFieldValue("end_date", date);
+                        handleSubmit({ ...values, end_date: date });
+                      }}
+                      disableFuture
+                      minDate={values?.start_date}
+                      format="dd/MM/yyyy"
+                      slotProps={{
+                        textField: {
+                          helperText: errors.end_date && errors.end_date,
+                        },
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item sx={{ overflowX: "scroll" }}>
+                <Typography variant="h6" sx={headingStyleInAccordion}>
+                  Sufficiency verification
+                </Typography>
+                <Grid item>
+                  <MiniTable
+                    columns={userColumn}
+                    // data={
+                    //   meterType === 2
+                    //     ? sufficiencyCheckData?.["2"]
+                    //     : sufficiencyCheckData?.["3"]
+                    // }
+                    data={[{}]}
+                  />
+                </Grid>
+              </Grid>
+              <Grid item>
+                <Typography
+                  variant="h6"
+                  sx={headingStyleInAccordion}
+                  mb={"1rem !important"}
+                >
+                  Baseline independent variable
+                </Typography>
+                <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
+                  {independentVariables?.map((variableItem) => (
+                    <FormGroup key={variableItem?.name}>
+                      <FormControlLabel
+                        control={
+                          <Field
+                            name={`independent_variables.${variableItem?.name}`}
+                            type="checkbox"
+                            as={Checkbox}
+                            checked={
+                              values.independent_variables[variableItem?.name]
+                            }
+                            onChange={(event) => {
+                              setFieldValue(
+                                `independent_variables.${variableItem?.name}`,
+                                event.target.checked
+                              );
+                              handleSubmit({
+                                ...values,
+                                independent_variables: {
+                                  ...values.independent_variables,
+                                  [variableItem?.name]: event.target.checked,
+                                },
+                              });
+                            }}
+                          />
+                        }
+                        sx={{ color: "text.secondary2" }}
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            {variableItem?.name}
+                          </Typography>
+                        }
+                      />
+                    </FormGroup>
+                  ))}
+                </Box>
+              </Grid>
+              <Grid item>
+                <Typography variant="h6" sx={headingStyleInAccordion}>
+                  Model granularity
+                </Typography>
+                <ToggleButtonGroup
+                  value={values.granularity}
+                  exclusive
+                  onChange={(e, value) => {
+                    if (value !== null) {
+                      setFieldValue("granularity", value);
+                      handleSubmit({ ...values, granularity: value });
+                    }
+                  }}
+                  aria-label="text alignment"
+                  disabled
+                >
+                  <ToggleButton
+                    className="theme-toggle-yes"
+                    value="hourly"
+                    sx={{
+                      fontSize: "0.875rem",
+                      padding: "2px",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Hourly
+                  </ToggleButton>
+                  <ToggleButton
+                    className="theme-toggle-yes"
+                    value="daily"
+                    sx={{
+                      fontSize: "0.875rem",
+                      padding: "2px",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Daily
+                  </ToggleButton>
+                </ToggleButtonGroup>
               </Grid>
             </Grid>
-            <Grid item>
-              <Typography
-                variant="h6"
-                sx={headingStyleInAccordion}
-                mb={"1rem !important"}
-              >
-                Baseline independent variable
-              </Typography>
-              <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
-                {independentVariables?.map((variableItem) => (
-                  <FormGroup key={variableItem?.name}>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name={variableItem?.name}
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={values[variableItem?.name]}
-                          onChange={(event) => {
-                            setFieldValue(
-                              variableItem?.name,
-                              event.target.checked
-                            );
-                            handleSubmit({
-                              ...values,
-                              [variableItem?.name]: event.target.checked,
-                            });
-                          }}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          {variableItem?.name}
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                ))}
-              </Box>
-            </Grid>
-            <Grid item>
-              <Typography variant="h6" sx={headingStyleInAccordion}>
-                Model granularity
-              </Typography>
-              <ToggleButtonGroup
-                value={values.granularity}
-                exclusive
-                onChange={(e, value) => {
-                  if (value !== null) {
-                    setFieldValue("granularity", value);
-                    handleSubmit({ ...values, granularity: value });
-                  }
-                }}
-                aria-label="text alignment"
-                disabled
-              >
-                <ToggleButton
-                  className="theme-toggle-yes"
-                  value="hourly"
-                  sx={{
-                    fontSize: "0.875rem",
-                    padding: "2px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  Hourly
-                </ToggleButton>
-                <ToggleButton
-                  className="theme-toggle-yes"
-                  value="daily"
-                  sx={{
-                    fontSize: "0.875rem",
-                    padding: "2px",
-                    textTransform: "capitalize",
-                  }}
-                >
-                  Daily
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Grid>
-            <Grid>
-              <ButtonWrapper type="submit" color="neutral">
-                Calculate baseline
-              </ButtonWrapper>
-            </Grid>
-          </Grid>
-        </Form>
-      )}
-    </Formik>
+          </Form>
+        )}
+      </Formik>
+      <Grid container mt={5}>
+        <Button variant="contained" color="neutral">
+          Calculate baseline
+        </Button>
+      </Grid>
+    </Grid>
   );
 };
 

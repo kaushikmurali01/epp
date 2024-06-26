@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -27,7 +27,7 @@ const BaselineModelTab = () => {
 
   useEffect(() => {
     dispatch(fetchBaselinePeriod(id, facilityCreatedBy));
-  }, []);
+  }, [dispatch, id, facilityCreatedBy]);
 
   return (
     <>
@@ -64,7 +64,7 @@ const BaselineModelTab = () => {
         </Typography>
       </Grid>
 
-      <Grid item>
+      <Box>
         <CustomAccordion
           summary="Model constructor"
           details={<ModelConstructorForm meterType={activeButton} />}
@@ -82,7 +82,7 @@ const BaselineModelTab = () => {
           details={<BaselineVisualization />}
           panelId="visualization"
         />
-      </Grid>
+      </Box>
     </>
   );
 };

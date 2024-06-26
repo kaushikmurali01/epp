@@ -28,20 +28,25 @@ import {
 } from "utils/dropdownConstants/dropdownConstants";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
+import EvModal from "utils/modal/EvModal";
+import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
 
-const ModelConstructorForm = ({ handleSufficiencySettings }) => {
+const ModelConstructorForm = ({
+  handleSufficiencySettings,
+  openSeeDetails,
+}) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState(null);
   const [modelApproachData, setModelApproachData] = useState({
-    modelingApproach: "",
-    modelApproachAction: "manual",
-    heatingBalancePoint: "",
-    coolingBalancePoint: "",
+    modeling_approach: "",
+    model_approach_action: "manual",
+    heating_balance_point: "",
+    cooling_balance_point: "",
     heating_balance_unit: "C",
     cooling_balance_unit: "C",
   });
 
-  console.log(modelApproachData);
+  console.log(modelApproachData, formData);
 
   const baselinePeriod = useSelector(
     (state) => state?.adminBaselineReducer?.baselinePeriod
@@ -54,6 +59,9 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
   );
   const sufficiencyCheckData = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckData
+  );
+  const weatherStationsData = useSelector(
+    (state) => state?.adminBaselineReducer?.stationDetails
   );
 
   const MODELING_APPROACH_ARRAY = [
@@ -89,7 +97,8 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
           Weekdays: false,
           Weekdays_hours: false,
         },
-        // modelingApproach: "",
+        weatherStation: formData?.weatherStation || "",
+        independent_variables: {},
       };
       Object.keys(initialValues.dummyVariables).forEach((key) => {
         if (sufficiencyCheckData.hasOwnProperty(key)) {
@@ -97,7 +106,7 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
         }
       });
       independentVariables.forEach((variable) => {
-        initialValues[variable.name] = variable.value || false;
+        initialValues.independent_variables[variable.name] = false;
       });
 
       setFormData(initialValues);
@@ -119,6 +128,18 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
       handleSubmit(formData);
     }
   }, [formData]);
+
+  const handleModelingApproachChange = (event) => {
+    const newApproach = event.target.value;
+    setModelApproachData({
+      modeling_approach: newApproach,
+      model_approach_action: "manual",
+      heating_balance_point: "",
+      cooling_balance_point: "",
+      heating_balance_unit: "C",
+      cooling_balance_unit: "C",
+    });
+  };
 
   const sufficiencyVerificationStatusButton = false ? (
     <Typography
@@ -206,6 +227,7 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
             fontStyle: "italic",
             fontWeight: 400,
           }}
+          onClick={openSeeDetails}
         >
           See details
         </Typography>
@@ -218,7 +240,12 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
   }
 
   return (
-    <Grid container>
+    <Box
+      sx={{
+        width: "100%",
+        padding: "0 2rem",
+      }}
+    >
       <Formik
         initialValues={formData}
         onSubmit={handleSubmit}
@@ -226,13 +253,15 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
       >
         {({ values, handleChange, setFieldValue, errors }) => (
           <Form>
-            <Grid container display={"grid"} gap={"2rem"}>
-              <Grid item>
-                <Typography variant="h6" sx={headingStyleInAccordion}>
-                  Baseline period
-                </Typography>
+            <Grid container rowGap={4}>
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography variant="h6" sx={headingStyleInAccordion}>
+                    Baseline period
+                  </Typography>
+                </Grid>
                 <Grid container spacing={4}>
-                  <Grid item xs={4}>
+                  <Grid item xs={12} sm={4}>
                     <InputLabel
                       htmlFor="start_date"
                       style={{ whiteSpace: "initial" }}
@@ -264,7 +293,7 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                       }}
                     />
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid item xs={12} sm={4}>
                     <InputLabel
                       htmlFor="end_date"
                       style={{ whiteSpace: "initial" }}
@@ -299,41 +328,89 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item>
-                <Typography variant="h6" sx={headingStyleInAccordion}>
-                  Sufficiency verification
-                </Typography>
-                <Grid item>
-                  <MiniTable columns={userColumn} data={[{}]} />
+
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography variant="h6" sx={headingStyleInAccordion}>
+                    Sufficiency verification
+                  </Typography>
+                </Grid>
+                <Grid>
+                  <Box>
+                    <MiniTable columns={userColumn} data={[{}]} />
+                  </Box>
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography variant="h6" sx={headingStyleInAccordion}>
+                    Weather Station
+                  </Typography>
+                </Grid>
+
+                <Grid container>
+                  <RadioGroup
+                    name="weatherStation"
+                    value={values.weatherStation}
+                    onChange={(event) => {
+                      setFieldValue("weatherStation", event.target.value);
+                      handleSubmit({
+                        ...values,
+                        weatherStation: event.target.value,
+                      });
+                    }}
+                  >
+                    {weatherStationsData?.map((station) => (
+                      <FormControlLabel
+                        key={station}
+                        value={station}
+                        control={<Radio />}
+                        label={
+                          <Typography sx={{ fontSize: "14px!important" }}>
+                            {station}
+                          </Typography>
+                        }
+                      />
+                    ))}
+                  </RadioGroup>
                 </Grid>
               </Grid>
               {/* {independentVariables?.length > 0 && ( */}
-              <Grid item>
-                <Typography
-                  variant="h6"
-                  sx={headingStyleInAccordion}
-                  mb={"1rem !important"}
-                >
-                  Baseline independent variable
-                </Typography>
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography
+                    variant="h6"
+                    sx={headingStyleInAccordion}
+                    mb={"1rem !important"}
+                  >
+                    Baseline independent variable
+                  </Typography>
+                </Grid>
+
                 <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
                   {independentVariables?.map((variableItem) => (
                     <FormGroup key={variableItem?.name}>
                       <FormControlLabel
                         control={
                           <Field
-                            name={variableItem?.name}
+                            name={`independent_variables.${variableItem?.name}`}
                             type="checkbox"
                             as={Checkbox}
-                            checked={values[variableItem?.name]}
+                            checked={
+                              values.independent_variables[variableItem?.name]
+                            }
                             onChange={(event) => {
                               setFieldValue(
-                                variableItem?.name,
+                                `independent_variables.${variableItem?.name}`,
                                 event.target.checked
                               );
                               handleSubmit({
                                 ...values,
-                                [variableItem?.name]: event.target.checked,
+                                independent_variables: {
+                                  ...values.independent_variables,
+                                  [variableItem?.name]: event.target.checked,
+                                },
                               });
                             }}
                           />
@@ -350,14 +427,16 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                 </Box>
               </Grid>
               {/* )} */}
-              <Grid item>
-                <Typography
-                  variant="h6"
-                  sx={headingStyleInAccordion}
-                  mb={"1rem !important"}
-                >
-                  Select Dummy variable
-                </Typography>
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography
+                    variant="h6"
+                    sx={headingStyleInAccordion}
+                    mb={"1rem !important"}
+                  >
+                    Select Dummy variable
+                  </Typography>
+                </Grid>
                 <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
                   {Object.keys(values.dummyVariables).map((dummyVar) => (
                     <FormGroup key={dummyVar}>
@@ -394,10 +473,12 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                   ))}
                 </Box>
               </Grid>
-              <Grid item>
-                <Typography variant="h6" sx={headingStyleInAccordion}>
-                  Model granularity
-                </Typography>
+              <Grid container spacing={4}>
+                <Grid container mt={4}>
+                  <Typography variant="h6" sx={headingStyleInAccordion}>
+                    Model granularity
+                  </Typography>
+                </Grid>
                 <ToggleButtonGroup
                   value={values.granularity}
                   exclusive
@@ -438,22 +519,17 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
         )}
       </Formik>
       {/* form ended here */}
-      <Grid container mt={5}>
-        <Grid item xs={12}>
+      <Grid container spacing={4} mt={4}>
+        <Grid container>
           <Typography variant="h6" sx={headingStyleInAccordion}>
             Modeling approach
           </Typography>
         </Grid>
 
         <RadioGroup
-          name="modelingApproach"
-          value={modelApproachData.modelingApproach}
-          onChange={(event) =>
-            setModelApproachData({
-              ...modelApproachData,
-              modelingApproach: event.target.value,
-            })
-          }
+          name="modeling_approach"
+          value={modelApproachData.modeling_approach}
+          onChange={handleModelingApproachChange}
         >
           {MODELING_APPROACH_ARRAY.map((modelType) => (
             <FormControlLabel
@@ -474,12 +550,12 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                   <Typography
                     sx={{
                       fontSize: "14px!important",
-                      textWrap: "nowrap!important",
+                      // textWrap: "nowrap!important",
                     }}
                   >
                     {modelType.name}
                   </Typography>
-                  {modelApproachData.modelingApproach === modelType.name &&
+                  {modelApproachData.modeling_approach === modelType.name &&
                     modelType.extraFields && (
                       <Grid
                         sx={{
@@ -492,13 +568,13 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                       >
                         <Grid item>
                           <ToggleButtonGroup
-                            value={modelApproachData.modelApproachAction}
+                            value={modelApproachData.model_approach_action}
                             exclusive
                             onChange={(event, newValue) => {
                               if (newValue !== null) {
                                 setModelApproachData({
                                   ...modelApproachData,
-                                  modelApproachAction: newValue,
+                                  model_approach_action: newValue,
                                 });
                               }
                             }}
@@ -530,14 +606,14 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                         <Grid item xs={12} sm={3}>
                           <InputFieldNF
                             type="number"
-                            name="heatingBalancePoint"
+                            name="heating_balance_point"
                             label="Heating Balance Point"
                             variant="outlined"
-                            value={modelApproachData.heatingBalancePoint}
+                            value={modelApproachData.heating_balance_point}
                             onChange={(event) =>
                               setModelApproachData({
                                 ...modelApproachData,
-                                heatingBalancePoint: event.target.value,
+                                heating_balance_point: event.target.value,
                               })
                             }
                             InputProps={{
@@ -569,14 +645,14 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
                         <Grid item xs={12} sm={3}>
                           <InputFieldNF
                             type="number"
-                            name="coolingBalancePoint"
+                            name="cooling_balance_point"
                             label="Cooling Balance Point"
                             variant="outlined"
-                            value={modelApproachData.coolingBalancePoint}
+                            value={modelApproachData.cooling_balance_point}
                             onChange={(event) =>
                               setModelApproachData({
                                 ...modelApproachData,
-                                coolingBalancePoint: event.target.value,
+                                cooling_balance_point: event.target.value,
                               })
                             }
                             InputProps={{
@@ -619,7 +695,7 @@ const ModelConstructorForm = ({ handleSufficiencySettings }) => {
           Calculate baseline
         </Button>
       </Grid>
-    </Grid>
+    </Box>
   );
 };
 
