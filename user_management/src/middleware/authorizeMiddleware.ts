@@ -8,24 +8,6 @@ import { Op } from 'sequelize';
 
 class AuthorizationService {
   // Method to check the status of the company and user
-  public static async checkCompanyAndUserStatus(companyId: number, userId: number): Promise<any> {
-    const company = await Company.findByPk(companyId);
-    if (!company) {
-      return { status: 404, message: 'Company does not exist.' };
-    }
-    if (company.is_active === 0) {
-      return { status: 403, message: 'The company is inactive.' };
-    }
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return { status: 404, message: 'User does not exist.' };
-    }
-    if (user.is_active === 0) {
-      return { status: 403, message: 'The user is inactive.' };
-    }
-  }
-
   public static async check(companyId: number, userId: number, permissions: string[], role_id: number): Promise<any> {
     try {
 
@@ -61,7 +43,8 @@ class AuthorizationService {
         const userPermissionStrings = userPermissions.map(up => up.Permission.permission);
     
         // Check if userPermissionStrings contains all the required permissions
-        const hasAllPermissions = permissions.every(permission => userPermissionStrings.includes(permission));
+       // const hasAllPermissions = permissions.every(permission => userPermissionStrings.includes(permission));
+        const hasAllPermissions = permissions.some(permission => userPermissionStrings.includes(permission));
     
         return hasAllPermissions;
     }
