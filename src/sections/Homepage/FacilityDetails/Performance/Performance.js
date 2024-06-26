@@ -1026,7 +1026,7 @@ const Performance = () => {
         </Grid>
       </Grid>
 
-      <Grid item container>
+      <Grid item container flexWrap={"nowrap"} gap={"1rem"}>
 
         <Grid item xs={12} md={9} sx={{ border: "1px solid #2E813E", borderRadius: "10px", padding: '20px', backgroundColor: '#CBFFD5' }}>
           <Formik
