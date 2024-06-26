@@ -89,6 +89,8 @@ const UserManagement = () => {
 
   const handleSelectChange = (event) => {
     setSelectFilterType(event.target.value);
+    setPageInfo({ page: 1, pageSize: 10 })
+    // setSearchString("");
   };
 
   const handleChange = (event, newValue) => {
@@ -375,7 +377,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                       value={searchString}
                       placeholder="Search"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2rem' } }}
-                      onChange={(e) => setSearchString(e.target.value)}
+                      onChange={(e) => {setSearchString(e.target.value); setPageInfo({ page: 1, pageSize: 10 })}}
                     />
                     {searchString?.length > 0 &&
                       <ClearIcon
