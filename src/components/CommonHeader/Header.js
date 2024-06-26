@@ -277,7 +277,7 @@ function Header(props) {
         } else if(type == 'reject' && res.statusCode == 200){
           NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
         }
-        dispatch(fetchUserDetails(selectCompany));
+        dispatch(fetchUserDetails(selectCompany ? selectCompany : 0));
         setInvitationPopUp(false);
       })
       .catch((error) => {
