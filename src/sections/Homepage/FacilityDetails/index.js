@@ -4,7 +4,7 @@ import FacilityTimeline from "./FacilityTimeline";
 import FacilitySidebar from "./FacilitySidebar";
 import FacilityHeader from "./FacilityHeader";
 import Summary from "./Summary";
-import BaselineModel from "./BaselineModel";
+import BaselineModel from "./BaselineModel/index";
 import Details from "./Details";
 import EnergyAndWater from "./EnergyAndWater";
 import Performance from "./Performance/Performance";

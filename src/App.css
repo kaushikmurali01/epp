@@ -45,8 +45,7 @@
 }
 
 .my-datepicker-actionbar .MuiButton-textPrimary {
-  min-width: unset; /* Reset the minimum width */
-  padding: 6px 8px; /* Adjust padding to make the button smaller */
-  font-size: 0.875rem; /* Optionally adjust the font size if needed */
-  margin-top: -48px;
+  min-width: unset; 
+  padding: 6px 8px; 
+  font-size: 0.875rem; 
 }
