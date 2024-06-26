@@ -114,7 +114,7 @@ const UserManagementAdmin = () => {
 
   const handleSelectChange = (event) => {
     setSelectRoleType(event.target.value);
-    setSearchString('');
+    // setSearchString('');
     setCustomerPageInfo({...defaultPagination})
     setEnervaPageInfo({...defaultPagination})
     setIesoPageInfo({...defaultPagination})
@@ -423,7 +423,7 @@ const UserManagementAdmin = () => {
                       value={searchString}
                       placeholder="Search by email"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2.25rem' } }}
-                      onChange={(e) => setSearchString(e.target.value)}
+                      onChange={(e) => {setSearchString(e.target.value);  setCustomerPageInfo({...defaultPagination}); }}
                     />
                      {searchString?.length > 0 &&
                       <ClearIcon

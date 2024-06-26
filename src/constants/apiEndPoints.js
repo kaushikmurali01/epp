@@ -19,12 +19,16 @@ export const facilityEndPoints = {
   ADD_FACILITY_MEASURE: "company-facility/v1/facility-measure",
   UPDATE_FACILITY_MEASURE: "company-facility/v1/facility-measure",
   GET_FACILITY_MEASURE_DETAILS: "company-facility/v1/facility-measure-details",
-  DELETE_FACILITY_MEASURE_REPORT:"company-facility/v1/facility-measure",
-  GET_FACILITY_SAVING_DOCUMENT_LIST:"company-facility/v1/facility-saving-document-lists",
+  DELETE_FACILITY_MEASURE_REPORT: "company-facility/v1/facility-measure",
+  GET_FACILITY_SAVING_DOCUMENT_LIST:
+    "company-facility/v1/facility-saving-document-lists",
   ADD_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
-  UPDATE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
-  GET_FACILITY_SAVING_DOCUMENT_DETAILS:"company-facility/v1/facility-saving-document-details",
-  DELETE_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  UPDATE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
+  GET_FACILITY_SAVING_DOCUMENT_DETAILS:
+    "company-facility/v1/facility-saving-document-details",
+  DELETE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
 };
 
 export const adminFacilityEndpoints = {
@@ -45,6 +49,20 @@ export const adminFacilityEndpoints = {
   ADMIN_FACILITIES_DROPDOWN: "/company-facility/v1/program/facility-dropdown",
   DOWNLOAD_BULK_FACILITIES: "company-facility/v1/csv-facilities",
   DOWNLOAD_FACILITY_BY_ID: "/company-facility/v1/csv-facility",
+  GET_FACILITY_MEASURE_LIST: "company-facility/v1/facility-measure-lists",
+  ADD_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  UPDATE_FACILITY_MEASURE: "company-facility/v1/facility-measure",
+  GET_FACILITY_MEASURE_DETAILS: "company-facility/v1/facility-measure-details",
+  DELETE_FACILITY_MEASURE_REPORT: "company-facility/v1/facility-measure",
+  GET_FACILITY_SAVING_DOCUMENT_LIST:
+    "company-facility/v1/facility-saving-document-lists",
+  ADD_FACILITY_SAVING_DOCUMENT: "company-facility/v1/facility-saving-document",
+  UPDATE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
+  GET_FACILITY_SAVING_DOCUMENT_DETAILS:
+    "company-facility/v1/facility-saving-document-details",
+  DELETE_FACILITY_SAVING_DOCUMENT:
+    "company-facility/v1/facility-saving-document",
 };
 
 export const PA_MANAGEMENT = {
@@ -104,12 +122,12 @@ export const ENERVA_USER_MANAGEMENT = {
   SEND_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/program/send",
 
   SEND_USER_ALERT: "/enerva-user/v1/alert/send",
-    // DELETE REQUEST
+  // DELETE REQUEST
   DELETE_ENERVA_USER_REQUEST: "/enerva-user/v1/usersadmin",
   VIEW_USER_PROFILE: "/enerva-user/v1/usercompanybyuser",
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
-  USER_ACTIVE_IN_ACTIVE:"enerva-user/v1/user/status"
+  USER_ACTIVE_IN_ACTIVE: "enerva-user/v1/user/status",
 };
 
 export const ROLES_PERMISSIONS_MANAGEMENT = {
@@ -187,10 +205,17 @@ export const POWERBI_ENDPOINTS = {
 };
 
 export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
-  ADD_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
-  GET_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
-  UPDATE_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
-  DELETE_INDEPENDENT_VARIABLE: 'etl/v1/etl/independent_variable',
+  ADD_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  GET_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  UPDATE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   UPLOAD_INDEPENDENT_VARIABLE_FILE: 'etl/v1/etl/upload-file-iv',
   GET_WEATHER_STATION: 'weather/v1/get_station_details'
-}
+};
+
+export const BASELINE_ENDPOINTS = {
+  CHECK_SUFFICIENCY: "v1/handle",
+  INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  STATION_DETAILS: "weather/v1/get_station_details",
+  BASELINE_PERIOD: "weather/v1/get_min_max_dates",
+};
