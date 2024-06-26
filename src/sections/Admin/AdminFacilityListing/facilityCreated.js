@@ -24,8 +24,9 @@ const FacilityCreated = ({
   companyFilter,
   onDownloadBulkClick,
   onDownloadRowClick,
+  pageInfo,
+  setPageInfo,
 }) => {
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("");
   const dispatch = useDispatch();

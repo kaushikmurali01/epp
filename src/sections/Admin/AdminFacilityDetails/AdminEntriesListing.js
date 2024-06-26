@@ -42,7 +42,10 @@ import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntr
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
-import { fetchAdminFacilityStatus } from "../../../redux/admin/actions/adminFacilityActions";
+import {
+  fetchAdminFacilityDetails,
+  fetchAdminFacilityStatus,
+} from "../../../redux/admin/actions/adminFacilityActions";
 
 const AdminEntriesListing = ({
   OnEditMeterButton,
@@ -94,6 +97,7 @@ const AdminEntriesListing = ({
       DELETE_REQUEST(adminEntriesEndPoints.DELETE_ENTRY + "/" + id)
         .then((response) => {
           dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
+          dispatch(fetchAdminFacilityDetails(id));
           setDeleteModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
@@ -300,6 +304,7 @@ const AdminEntriesListing = ({
               horizontal: "right",
             });
             dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchAdminFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -321,6 +326,7 @@ const AdminEntriesListing = ({
               horizontal: "right",
             });
             dispatch(fetchAdminEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchAdminFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -496,6 +502,7 @@ const AdminEntriesListing = ({
       .then((response) => {
         getHourlySubHourlyEntryData();
         dispatch(fetchAdminFacilityStatus(id));
+        dispatch(fetchAdminFacilityDetails(id));
         NotificationsToast({
           message: "File uploaded successfully!",
           type: "success",
