@@ -436,7 +436,7 @@ const AdminAddFacilityComponent = (props) => {
     };
 
     const backToFacility = () => {
-        navigate(`/facility-list`)
+        navigate(-1);
     };
 
     return (
