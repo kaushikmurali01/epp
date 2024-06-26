@@ -95,9 +95,9 @@ const Weather = () => {
       saveButtonClass: "",
       cancelButtonClass: "",
     },
-    headerText: "Add Entry",
+    headerText: "Add independent variable",
     headerSubText:
-      "Please enter the following details to add a new entry for this meter",
+      "Please enter the following details to add a new independent variable for this meter",
     modalBodyContent: "",
   });
 
