@@ -293,8 +293,8 @@ const UserManagementAdminNew = () => {
     POST_REQUEST(apiURL,payload)
       .then((res) => {
         console.log(res, "checking result");
-        if(res.data?.body?.users instanceof Array){
-          setCustomerUser(res.data?.body?.users)
+        if(res.data?.body?.rows instanceof Array){
+          setCustomerUser(res.data?.body?.rows)
           setPageCount((prevState) => ({
             ...prevState,
             customer: res.data?.body?.count
@@ -415,7 +415,7 @@ const UserManagementAdminNew = () => {
   }, [])
 
   
-console.log(searchData, "searchData")
+// console.log(getCustomerUser, "getCustomerUser")
 
   return (
     <React.Fragment>

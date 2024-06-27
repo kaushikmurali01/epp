@@ -112,12 +112,10 @@ const EvThemeTable = ({
   const handelSetSearch = (e,column)=> {
     setSearchData((prev) => {
       const newData = { [column.accessorKey]: e.target.value };
-      
-      // Convert the object to an array of { key, value } pairs
       const newDataArray = Object.entries(newData).map(([key, value]) => ({ key, value }));
-      
-      // Merge with previous data, replacing or adding as necessary
       const mergedData = [...prev.filter(item => item.key !== column.accessorKey), ...newDataArray];
+      // reset serch paginatation while searching
+      setPageInfo({ page: 1, pageSize: 10 })
       
       return mergedData;
     })
