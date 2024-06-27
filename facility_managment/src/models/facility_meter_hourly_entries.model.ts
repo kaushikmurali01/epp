@@ -98,7 +98,8 @@ FacilityMeterHourlyEntries.init(
   {
     sequelize,
     tableName: 'facility_meter_hourly_entries',
-    timestamps: false, // Assuming you handle timestamps manually
+    underscored: true, 
+    timestamps: true, // Assuming you handle timestamps manually
   }
 );
 

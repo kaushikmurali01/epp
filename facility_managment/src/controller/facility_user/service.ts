@@ -1,6 +1,7 @@
 import { IUserToken } from "../../interfaces/usertoken.interface";
 import { ResponseHandler } from "../../utils/response-handler";
 import {
+  BASE_LINE_STATUS,
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
@@ -25,6 +26,8 @@ import { UserCompanyRole } from "../../models/user-company-role";
 import { UserResourceFacilityPermission } from "../../models/user-resource-permission";
 import { FacilityCharacteristics } from "../../models/facility_characteristics.model";
 import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
+import { Baseline } from "../../models/facility_baseline.model";
+import { FacilityMeterDetail } from "../../models/facility_meter_details.model";
 
 export class FacilityService {
   static async getFacility(
@@ -188,6 +191,133 @@ export class FacilityService {
       };
       const result = await Facility.create(obj);
 
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async addBaselineData(
+    userToken: IUserToken,
+    facility_id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        facility_id: facility_id,
+        parameter_data: body.data,
+        status: BASE_LINE_STATUS.created || null,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      const result = await Baseline.create(obj);
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async editBaselineData(
+    userToken: IUserToken,
+    id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        parameter_data: body.data,
+        updated_by: userToken.id,
+      };
+      const result = await Baseline.update(obj, { where: { id } });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async submitRejectBaseline(
+    userToken: IUserToken,
+    id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        updated_by: userToken.id,
+        status: body.status,
+        submit_date: new Date(),
+      };
+      const result = await Baseline.update(obj, { where: { id } });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async assigneToBaseline(
+    userToken: IUserToken,
+    id: number,
+    user_id: number
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        updated_by: userToken.id,
+        assign_to: user_id,
+      };
+      const result = await Baseline.update(obj, { where: { id } });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getBaselineData(facility_id: number): Promise<Facility[]> {
+    try {
+      const result = await Baseline.findAll({ where: { facility_id } });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getBaselineList(
+    decodedToken: IUserToken,
+    offset,
+    limit
+  ): Promise<Facility[]> {
+    try {
+      let where;
+      if (decodedToken.role_id == userType.ENERVA_ADMIN) {
+        where = {};
+      } else {
+        where = { assign_to: decodedToken.id };
+      }
+      const result = await Baseline.findAndCountAll({
+        where,
+        include: [
+          { model: User, as: "creator" },
+          { model: User, as: "assignedUser" },
+        ],
+        offset,
+        limit,
+      });
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -391,7 +521,10 @@ export class FacilityService {
         where: { facility_id: facilityId },
       });
       const energyAndWater = await FacilityMeterHourlyEntries.findOne({
-        where: { facility_id: facilityId },
+        where: { facility_id: facilityId ,is_active: STATUS.IS_ACTIVE},
+      });
+      const meter = await FacilityMeterDetail.findAll({
+        where: { facility_id: facilityId, is_active: STATUS.IS_ACTIVE },
       });
 
       if (result) {
@@ -400,7 +533,7 @@ export class FacilityService {
       if (details) {
         timeLineObj.details = true;
       }
-      if (energyAndWater) {
+      if (energyAndWater && (meter && meter.length)) {
         timeLineObj.energy_and_water = true;
       }
 
