@@ -368,62 +368,70 @@ const AddFacilityComponent = (props) => {
   );
 
   const handleSubmit = (values) => {
-    // console.log("values iii", values)
-    // const query = '900 Dufferin St Toronto, ON M6H 4A9'
-    // const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`
-    // GET_REQUEST(apiURL).then((response) => {
-    //   const code = openLocationCode.encode(parseFloat(response?.data?.results[0]?.position?.lat), parseFloat(response?.data?.results[0]?.position?.lon));
-    //   console.log("code", code, response)
-    // })
     delete values.facility_id_submission_status;
-    const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId };
-    if (values.facility_construction_status == "Existing") {
-      values.facility_construction_status = 1;
-    } else if (values.facility_construction_status == "New") {
-      values.facility_construction_status = 2;
-    } else if (values.facility_construction_status == "Test Facility") {
-      values.facility_construction_status = 3;
-    }
 
-    // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
+    const query = values?.unit_number + ", " + values?.street_number + " " + values?.street_name + ", " + values?.city + ", " + values?.province + " " + values?.postal_code + ", " + values?.country
+    const api_key = process.env.REACT_APP_AZURE_MAPS_SECRET_KEY
+    const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`
+    GET_REQUEST(apiURL).then((response) => {
+      const code = openLocationCode.encode(parseFloat(response?.data?.results[0]?.position?.lat), parseFloat(response?.data?.results[0]?.position?.lon));
+      
+      // if(!code){
+      //   NotificationsToast({
+      //     message: "Please enter valid address",
+      //     type: "error",
+      //   });
+      //   return;
+      // }
 
-    if (!id) {
-      setLoadingState(true);
-      POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
-        .then((response) => {
-          setLoadingState(false);
-          NotificationsToast({
-            message: "Facility added successfully!",
-            type: "success",
+      const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId, facility_ubi: code, latitude:parseFloat(response?.data?.results[0]?.position?.lat), longitude: parseFloat(response?.data?.results[0]?.position?.lon) };
+
+      if (values.facility_construction_status == "Existing") {
+        values.facility_construction_status = 1;
+      } else if (values.facility_construction_status == "New") {
+        values.facility_construction_status = 2;
+      } else if (values.facility_construction_status == "Test Facility") {
+        values.facility_construction_status = 3;
+      }
+
+      if (!id) {
+        setLoadingState(true);
+        POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
+          .then((response) => {
+            setLoadingState(false);
+            NotificationsToast({
+              message: "Facility added successfully!",
+              type: "success",
+            });
+            navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
+          })
+          .catch((error) => {
+            setLoadingState(false);
+            NotificationsToast({
+              message: error?.message ? error.message : "Something went wrong!",
+              type: "error",
+            });
           });
-          navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
-        })
-        .catch((error) => {
-          setLoadingState(false);
-          NotificationsToast({
-            message: error?.message ? error.message : "Something went wrong!",
-            type: "error",
+      } else {
+        setLoadingState(true);
+        PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
+          .then((response) => {
+            setLoadingState(false);
+            NotificationsToast({
+              message: "Facility updated successfully!",
+              type: "success",
+            });
+            navigate(`/facility-list/facility-details/${id}`)
+          })
+          .catch((error) => {
+            setLoadingState(false);
+            NotificationsToast({
+              message: error?.message ? error.message : "Something went wrong!",
+              type: "error",
+            });
           });
-        });
-    } else {
-      setLoadingState(true);
-      PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + '/' + id, newValues)
-        .then((response) => {
-          setLoadingState(false);
-          NotificationsToast({
-            message: "Facility updated successfully!",
-            type: "success",
-          });
-          navigate(`/facility-list/facility-details/${id}`)
-        })
-        .catch((error) => {
-          setLoadingState(false);
-          NotificationsToast({
-            message: error?.message ? error.message : "Something went wrong!",
-            type: "error",
-          });
-        });
-    }
+      }
+    })
   };
 
   const deletePicture = () => {
