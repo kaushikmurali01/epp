@@ -36,6 +36,7 @@ import {
   WATER_UNIT_ARRAY,
 } from "utils/dropdownConstants/dropdownConstants";
 import Loader from "pages/Loader";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -540,18 +541,23 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </>
                   ) : (
                     <div style={{ display: "flex" }}>
-                      <Link
-                        target="_blank"
-                        href={utilitySelectedFile}
+                      <Typography
                         sx={{
-                          textDecoration: "none",
                           fontSize: "2rem",
                           marginTop: "1.7rem",
+                          cursor: "pointer",
+                          color: "#2E813E",
                         }}
                         variant="h5"
+                        onClick={() =>
+                          downloadFileFromUrl(
+                            utilitySelectedFile,
+                            `${values?.meter_name}_utility_bill`
+                          )
+                        }
                       >
                         Uploaded utility bill
-                      </Link>
+                      </Typography>
                       <div style={{ marginLeft: "20px" }}>
                         <Typography
                           my={1}
@@ -633,18 +639,23 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       </>
                     ) : (
                       <div style={{ display: "flex" }}>
-                        <Link
-                          target="_blank"
-                          href={specSelectedFile}
+                        <Typography
                           sx={{
-                            textDecoration: "none",
                             fontSize: "2rem",
                             marginTop: "1.7rem",
+                            cursor: "pointer",
+                            color: "#2E813E",
                           }}
                           variant="h5"
+                          onClick={() =>
+                            downloadFileFromUrl(
+                              specSelectedFile,
+                              `${values?.meter_name}_meter_specification`
+                            )
+                          }
                         >
                           Uploaded meter specification
-                        </Link>
+                        </Typography>
                         <div style={{ marginLeft: "20px" }}>
                           <Typography
                             my={1}

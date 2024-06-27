@@ -23,6 +23,7 @@ import { validationSchemaFacilityDetails } from "utils/validations/formValidatio
 import {
   addAdminFacilityCharacteristic,
   fetchAdminFacilityCharacteristics,
+  fetchAdminFacilityDetails,
   fetchAdminFacilityStatus,
   updateAdminFacilityCharacteristic,
 } from "../../../redux/admin/actions/adminFacilityActions";
@@ -395,6 +396,7 @@ const AdminDetails = ({ setTab }) => {
       dispatch(addAdminFacilityCharacteristic(newValues))
         .then(() => {
           dispatch(fetchAdminFacilityStatus(id));
+          dispatch(fetchAdminFacilityDetails(id));
           setModalConfig((prev) => ({
             ...prev,
             modalVisible: true,

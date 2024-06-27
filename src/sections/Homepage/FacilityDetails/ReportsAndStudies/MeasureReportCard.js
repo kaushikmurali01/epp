@@ -20,6 +20,7 @@ import {
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const MeasureReportCard = ({
   onOpenEdit,
@@ -186,15 +187,20 @@ const MeasureReportCard = ({
         {data?.file_upload && (
           <Grid container xs={12} sm={3} alignItems="center">
             <Tooltip title="Click to download this measure report">
-              <Link href={data?.file_upload} target={"_blank"}>
-                <InsertDriveFileIcon
-                  sx={{
-                    color: "#2E813E",
-                    fontSize: "2.5rem",
-                    transform: "scaleX(-1)",
-                  }}
-                />
-              </Link>
+              <InsertDriveFileIcon
+                sx={{
+                  color: "#2E813E",
+                  fontSize: "2.5rem",
+                  transform: "scaleX(-1)",
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  downloadFileFromUrl(
+                    data?.file_upload,
+                    `${data?.measure_name}_measure_report`
+                  )
+                }
+              />
             </Tooltip>
 
             <Box>
