@@ -1,6 +1,7 @@
 import { Company } from "../models/company";
 import { Permission } from "../models/permission";
 import { User } from "../models/user";
+import { UserCompanyRole } from "../models/user-company-role";
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { sequelize } from "../services/database";
 import { Op } from 'sequelize';
@@ -13,6 +14,11 @@ class AuthorizationService {
 
         const company = await Company.findByPk(companyId);
         const user = await User.findByPk(userId);
+        const companyRole:any = await UserCompanyRole.findOne({where: {
+          company_id: companyId,
+          user_id: userId
+      }});
+        role_id = Number(companyRole.role_id);
         if (!company || company.is_active === 0 || !user || user.is_active === 0) {
             return false;
         } else if ([1, 2].includes(role_id)) {
