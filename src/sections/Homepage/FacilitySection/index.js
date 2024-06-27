@@ -43,6 +43,9 @@ const Facility = () => {
     (state) => state?.facilityReducer?.userDetails?.permissions || []
   );
   const loadingState = useSelector((state) => state?.facilityReducer?.loading);
+  const emailToAvoid = useSelector(
+    (state) => state?.facilityReducer?.userDetails?.user?.email || ""
+  );
   const columns = [
     {
       Header: "Name/Nick Name",
@@ -331,7 +334,7 @@ const Facility = () => {
         initialValues={{
           ...initialValues,
         }}
-        validationSchema={validationSchemaAssignFacility}
+        validationSchema={validationSchemaAssignFacility(emailToAvoid)}
         onSubmit={formSubmit}
       >
         {({ values, setFieldValue }) => (
@@ -394,19 +397,6 @@ const Facility = () => {
           >
             Facility List
           </Typography>
-          {/* <Typography variant="small2">
-            Please note that signing{" "}
-            <Link
-              href="#/participant-agreement"
-              variant="span2"
-              sx={{ color: "#2C77E9", cursor: "pointer" }}
-              underline="none"
-            >
-              {" "}
-              Participant Agreement
-            </Link>{" "}
-            is mandatory before you enrol your facility
-          </Typography> */}
         </Grid>
         <Grid item xs={12} sm={8}>
           <Grid
@@ -429,7 +419,10 @@ const Facility = () => {
                     borderRadius: "6px",
                   },
                 }}
-                onChange={(e) => setSearchString(e.target.value)}
+                onChange={(e) => {
+                  setSearchString(e.target.value);
+                  setPageInfo({ page: 1, pageSize: 10 });
+                }}
               />
             </Grid>
             <Grid
