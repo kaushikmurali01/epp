@@ -1,6 +1,10 @@
-import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
+import {
+  app,
+  HttpRequest,
+  HttpResponseInit,
+  InvocationContext,
+} from "@azure/functions";
 import { FacilityController } from "../controller/facility_user/controller";
-
 
 import { uploadBlob } from "../helper/azure-storage.helper";
 import { FacilityEnervaController } from "../controller/facility_enerva/controller";
@@ -17,24 +21,42 @@ import { AuthorizationService } from "../helper/authorization.helper";
 
 // Facility User CRUD
 
-export async function getAllFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getAllFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    const colName = request.query.get('col_name') || 'id';
-    const order = request.query.get('order') || 'ASC';
-    const searchPromt = request.query.get('search' || "");
-    const companyId = request.query.get('company_id' || "");
-    const { offset, limit } = request.params
+    const colName = request.query.get("col_name") || "id";
+    const order = request.query.get("order") || "ASC";
+    const searchPromt = request.query.get("search" || "");
+    const companyId = request.query.get("company_id" || "");
+    const { offset, limit } = request.params;
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    console.log("ttt", decodedToken);
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     if (companyId) {
-      const hasPermission = await AuthorizationService.check(Number(companyId), decodedToken.id, ['facility'], decodedToken.role_id);
-      if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+      const hasPermission = await AuthorizationService.check(
+        Number(companyId),
+        decodedToken.id,
+        ["facility"],
+        decodedToken.role_id
+      );
+      if (!hasPermission)
+        return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
     }
 
-    const result = await FacilityController.getFacility(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
+    const result = await FacilityController.getFacility(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      searchPromt ? String(searchPromt) : "",
+      Number(companyId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -47,16 +69,22 @@ export async function getAllFacility(request: HttpRequest, context: InvocationCo
   }
 }
 
-export async function getFacilityById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get facility by Id
 
-    const result = await FacilityController.getFacilityById(decodedToken, request);
+    const result = await FacilityController.getFacilityById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -69,14 +97,21 @@ export async function getFacilityById(request: HttpRequest, context: InvocationC
   }
 }
 
-export async function editFacilityDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilityDetailsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityController.editFacilityDetailsById(decodedToken, request);
+    const result = await FacilityController.editFacilityDetailsById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -89,14 +124,21 @@ export async function editFacilityDetailsById(request: HttpRequest, context: Inv
   }
 }
 
-export async function removeFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function removeFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityController.deleteFacility(decodedToken, request);
+    const result = await FacilityController.deleteFacility(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -109,16 +151,198 @@ export async function removeFacility(request: HttpRequest, context: InvocationCo
   }
 }
 
-export async function createNewFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function createNewFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     const requestData = await request.json();
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityController.createNewFacility(decodedToken, request, Object(requestData));
+    const result = await FacilityController.createNewFacility(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addBaselineData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facility_id } = request.params;
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.addBaselineData(
+      decodedToken,
+      Number(facility_id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function editBaselineData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { id } = request.params;
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.editBaselineData(
+      decodedToken,
+      Number(id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function submitRejectBaseline(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { id } = request.params;
+
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.submitRejectBaseline(
+      decodedToken,
+      Number(id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function assigneToBaseline(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { id, user_id } = request.params;
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.assigneToBaseline(
+      decodedToken,
+      Number(id),
+      Number(user_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function getBaselineDataByfacilityId(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facility_id } = request.params;
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.getBaselineData(
+      Number(facility_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getBaseLineList(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { offset, limit } = request.params;
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.getBaselineList(
+      decodedToken,
+      Number(offset),
+      Number(limit)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -139,18 +363,27 @@ export async function postUploadAnyFile(
 
   // file content must be passed in body
   const formData = await request.formData();
-  const temp: any = formData.get('file');
+  const temp: any = formData.get("file");
   const uploadedFile: File = temp as File;
-  let extLenth = (uploadedFile.name).split(".")
-  const ext = extLenth[extLenth.length - 1]
+  let extLenth = uploadedFile.name.split(".");
+  const ext = extLenth[extLenth.length - 1];
   // File
   const fileContents = await uploadedFile.arrayBuffer();
   const fileContentsBuffer: Buffer = Buffer.from(fileContents);
   const size = fileContentsBuffer.byteLength;
-  const username = request.query.get('username') || 'anonymous';
-  let filename = "_" + size + "_" + (request.query.get('filename') || 'unknown' + Date.now());
-  filename += "." + ext
-  console.log(`lastModified = ${uploadedFile?.lastModified}, size = ${size}`, uploadedFile.type, uploadedFile.name, ext);
+  const username = request.query.get("username") || "anonymous";
+  let filename =
+    "_" +
+    size +
+    "_" +
+    (request.query.get("filename") || "unknown" + Date.now());
+  filename += "." + ext;
+  console.log(
+    `lastModified = ${uploadedFile?.lastModified}, size = ${size}`,
+    uploadedFile.type,
+    uploadedFile.name,
+    ext
+  );
 
   const sasTokenUrl = await uploadBlob(
     process.env?.Azure_Storage_AccountName as string,
@@ -159,24 +392,31 @@ export async function postUploadAnyFile(
     username,
     fileContentsBuffer
   );
-  console.log(sasTokenUrl.split("_")[1], "size")
+  console.log(sasTokenUrl.split("_")[1], "size");
   return {
     jsonBody: {
       filename,
       storageAccountName: process.env.Azure_Storage_AccountName,
       containername: username,
-      sasTokenUrl
-    }
+      sasTokenUrl,
+    },
   };
 }
 
-export async function submitForApprovalByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function submitForApprovalByUser(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     // Get all result
-    const result = await FacilityController.submitForApproval(decodedToken, request);
+    const result = await FacilityController.submitForApproval(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -189,13 +429,20 @@ export async function submitForApprovalByUser(request: HttpRequest, context: Inv
   }
 }
 
-export async function getCurrentStatusByUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getCurrentStatusByUser(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     // Get all result
-    const result = await FacilityController.getCurrentStatus(decodedToken, request);
+    const result = await FacilityController.getCurrentStatus(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -208,14 +455,21 @@ export async function getCurrentStatusByUser(request: HttpRequest, context: Invo
   }
 }
 
-export async function editFacilityStatusById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilityStatusById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityController.editFacilityStatusById(decodedToken, request);
+    const result = await FacilityController.editFacilityStatusById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -228,16 +482,25 @@ export async function editFacilityStatusById(request: HttpRequest, context: Invo
   }
 }
 
-export async function getFacilityNaicCode(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityNaicCode(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    const facilityCategory = request.query.get('facility_category' || "");
-    const facilityType = request.query.get('facility_type' || "");
+    const facilityCategory = request.query.get("facility_category" || "");
+    const facilityType = request.query.get("facility_type" || "");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityController.getFacilityNaic(decodedToken, facilityCategory ? String(facilityCategory) : "", facilityType ? String(facilityType) : "");
+    const result = await FacilityController.getFacilityNaic(
+      decodedToken,
+      facilityCategory ? String(facilityCategory) : "",
+      facilityType ? String(facilityType) : ""
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -250,19 +513,32 @@ export async function getFacilityNaicCode(request: HttpRequest, context: Invocat
   }
 }
 
-export async function getDownloadedCsvFacilities(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getDownloadedCsvFacilities(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    const colName = request.query.get('col_name') || 'id';
-    const order = request.query.get('order') || 'ASC';
-    const searchPromt = request.query.get('search' || "");
-    const companyId = request.query.get('company_id' || "");
-    const { offset, limit } = request.params
+    const colName = request.query.get("col_name") || "id";
+    const order = request.query.get("order") || "ASC";
+    const searchPromt = request.query.get("search" || "");
+    const companyId = request.query.get("company_id" || "");
+    const { offset, limit } = request.params;
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityController.getDownloadedCsvFacilities(decodedToken, Number(offset), Number(limit), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
+    const result = await FacilityController.getDownloadedCsvFacilities(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      searchPromt ? String(searchPromt) : "",
+      Number(companyId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -275,14 +551,22 @@ export async function getDownloadedCsvFacilities(request: HttpRequest, context: 
   }
 }
 
-export async function getDonwloadedCsvFacilityById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getDonwloadedCsvFacilityById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get facility by Id
 
-    const result = await FacilityController.getDonwloadedCsvFacilityById(decodedToken, request);
+    const result = await FacilityController.getDonwloadedCsvFacilityById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -295,16 +579,22 @@ export async function getDonwloadedCsvFacilityById(request: HttpRequest, context
   }
 }
 
-
-
 // Facility Enerva
 
-export async function approveFacilityDetails(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function approveFacilityDetails(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     // Get all result
-    const result = await FacilityEnervaController.approveFacilityDetails(decodedToken, request);
+    const result = await FacilityEnervaController.approveFacilityDetails(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -319,17 +609,29 @@ export async function approveFacilityDetails(request: HttpRequest, context: Invo
 
 // Facility Meter
 
-export async function getFacilityMeterListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityMeterListing(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-    const { offset, limit } = request.params
-    const colName = request.query.get('col_name') || 'id';
-    const order = request.query.get('order') || 'ASC';
-    const facilityId = request.query.get('facility_id');
+    const { offset, limit } = request.params;
+    const colName = request.query.get("col_name") || "id";
+    const order = request.query.get("order") || "ASC";
+    const facilityId = request.query.get("facility_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityMeterController.getFacilityMeters(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityId));
+    const result = await FacilityMeterController.getFacilityMeters(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      Number(facilityId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -342,13 +644,21 @@ export async function getFacilityMeterListing(request: HttpRequest, context: Inv
   }
 }
 
-export async function getFacilityMeterById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityMeterById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get facility by Id
-    const result = await FacilityMeterController.getFacilityMeterById(decodedToken, request);
+    const result = await FacilityMeterController.getFacilityMeterById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -361,16 +671,24 @@ export async function getFacilityMeterById(request: HttpRequest, context: Invoca
   }
 }
 
-export async function editFacilityMeterDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilityMeterDetailsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityMeterController.editFacilityMeterDetailsById(decodedToken, request, Object(requestData));
+    const result = await FacilityMeterController.editFacilityMeterDetailsById(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -383,14 +701,21 @@ export async function editFacilityMeterDetailsById(request: HttpRequest, context
   }
 }
 
-export async function removeFacilityMeter(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function removeFacilityMeter(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityMeterController.deleteFacilityMeter(decodedToken, request);
+    const result = await FacilityMeterController.deleteFacilityMeter(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -403,16 +728,24 @@ export async function removeFacilityMeter(request: HttpRequest, context: Invocat
   }
 }
 
-export async function addNewMeterFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function addNewMeterFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityMeterController.addNewMeter(decodedToken, request, Object(requestData));
+    const result = await FacilityMeterController.addNewMeter(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -424,14 +757,22 @@ export async function addNewMeterFacility(request: HttpRequest, context: Invocat
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-export async function addFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function addFacilitySavingDocument(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const requestData = await request.json();
     // Get all result
-    const result = await FacilitySavingDocumentController.addFacilitySavingDocument(decodedToken, Object(requestData));
+    const result =
+      await FacilitySavingDocumentController.addFacilitySavingDocument(
+        decodedToken,
+        Object(requestData)
+      );
     // Prepare response body
     const responseBody = JSON.stringify(result);
     // Return success response
@@ -441,118 +782,25 @@ export async function addFacilitySavingDocument(request: HttpRequest, context: I
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-export async function editFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    const requestData = await request.json();
-
-    // Get all result
-    const result = await FacilitySavingDocumentController.editFacilitySavingDocument(decodedToken, request, Object(requestData));
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function deleteFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    const result = await FacilitySavingDocumentController.deleteFacilitySavingDocument(decodedToken, request);
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function getFacilitySavingDocument(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilitySavingDocument(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    const result = await FacilitySavingDocumentController.getFacilitySavingDocument(decodedToken, request);
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function getFacilitySavingDocumentById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    const result = await FacilitySavingDocumentController.getFacilitySavingDocumentById(decodedToken, request);
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function addFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    const requestData = await request.json();
-    // Get all result
-    const result = await FacilityMeasureController.addFacilityMeasure(decodedToken, Object(requestData));
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function deleteFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    const result = await FacilityMeasureController.deleteFacilityMeasure(decodedToken, request);
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-export async function editFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityMeasureController.editFacilityMeasure(decodedToken, request, Object(requestData));
+    const result =
+      await FacilitySavingDocumentController.editFacilitySavingDocument(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -564,12 +812,44 @@ export async function editFacilityMeasure(request: HttpRequest, context: Invocat
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-export async function getFacilityMeasure(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function deleteFacilitySavingDocument(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result =
+      await FacilitySavingDocumentController.deleteFacilitySavingDocument(
+        decodedToken,
+        request
+      );
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getFacilitySavingDocument(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityMeasureController.getFacilityMeasure(decodedToken, request);
+    const result =
+      await FacilitySavingDocumentController.getFacilitySavingDocument(
+        decodedToken,
+        request
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -581,14 +861,148 @@ export async function getFacilityMeasure(request: HttpRequest, context: Invocati
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-export async function getFacilityMeasureById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilitySavingDocumentById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-    const facilityId = request.query.get('facility_id');
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result =
+      await FacilitySavingDocumentController.getFacilitySavingDocumentById(
+        decodedToken,
+        request
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addFacilityMeasure(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const requestData = await request.json();
+    // Get all result
+    const result = await FacilityMeasureController.addFacilityMeasure(
+      decodedToken,
+      Object(requestData)
+    );
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function deleteFacilityMeasure(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await FacilityMeasureController.deleteFacilityMeasure(
+      decodedToken,
+      request
+    );
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function editFacilityMeasure(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const requestData = await request.json();
+
+    // Get all result
+    const result = await FacilityMeasureController.editFacilityMeasure(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getFacilityMeasure(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result = await FacilityMeasureController.getFacilityMeasure(
+      decodedToken,
+      request
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getFacilityMeasureById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const facilityId = request.query.get("facility_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityMeasureController.getFacilityMeasureById(decodedToken, request);
+    const result = await FacilityMeasureController.getFacilityMeasureById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -600,14 +1014,23 @@ export async function getFacilityMeasureById(request: HttpRequest, context: Invo
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-export async function getFacilityMeterStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityMeterStatistics(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-    const facilityId = request.query.get('facility_id');
+    const facilityId = request.query.get("facility_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await FacilityMeterController.getMeterStatistics(decodedToken, request, Number(facilityId));
+    const result = await FacilityMeterController.getMeterStatistics(
+      decodedToken,
+      request,
+      Number(facilityId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -619,101 +1042,13 @@ export async function getFacilityMeterStatistics(request: HttpRequest, context: 
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-
 
 // Facility Meter Monthly Entries
 
-export async function getFacilityMeterEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-    const { offset, limit } = request.params
-    const colName = request.query.get('col_name') || 'id';
-    const order = request.query.get('order') || 'ASC';
-    const facilityMeterId = request.query.get('facility_meter_detail_id');
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-
-    const result = await FacilityMeterEntriesController.getFacilityMetersEntries(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityMeterId));
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-
-export async function editFacilityMeterEntryDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    const requestData = await request.json();
-
-    // Get all result
-    const result = await FacilityMeterEntriesController.editFacilityMeterEntryById(decodedToken, request, Object(requestData));
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-
-export async function removeFacilityMeterEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    // Get all result
-    const result = await FacilityMeterEntriesController.deleteFacilityMeterEntry(decodedToken, request);
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-
-export async function addNewMeterEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-    const requestData = await request.json();
-
-    // Get all result
-    const result = await FacilityMeterEntriesController.addNewEntry(decodedToken, request, Object(requestData));
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-
-// Facility Meter Monthly Entries
-
-export async function getFacilityMeterHourlyEntriesListing(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityMeterEntriesListing(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     const { offset, limit } = request.params;
     const colName = request.query.get("col_name") || "id";
@@ -721,10 +1056,19 @@ export async function getFacilityMeterHourlyEntriesListing(request: HttpRequest,
     const facilityMeterId = request.query.get("facility_meter_detail_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-
-    const result = await FacilityMeterHourlyEntriesController.getFacilityMetersHourlyEntries(decodedToken, Number(offset), Number(limit), String(colName), String(order), Number(facilityMeterId));
+    const result =
+      await FacilityMeterEntriesController.getFacilityMetersEntries(
+        decodedToken,
+        Number(offset),
+        Number(limit),
+        String(colName),
+        String(order),
+        Number(facilityMeterId)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -737,16 +1081,25 @@ export async function getFacilityMeterHourlyEntriesListing(request: HttpRequest,
   }
 }
 
-export async function editFacilityMeterEntryHourlyDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilityMeterEntryDetailsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityMeterHourlyEntriesController.editFacilityMeterHourlyEntryById(decodedToken, request, Object(requestData));
+    const result =
+      await FacilityMeterEntriesController.editFacilityMeterEntryById(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -759,14 +1112,22 @@ export async function editFacilityMeterEntryHourlyDetailsById(request: HttpReque
   }
 }
 
-export async function removeFacilityMeterHourlyEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function removeFacilityMeterEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await FacilityMeterHourlyEntriesController.deleteFacilityMeterHourlyEntry(decodedToken, request);
+    const result =
+      await FacilityMeterEntriesController.deleteFacilityMeterEntry(
+        decodedToken,
+        request
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -779,16 +1140,24 @@ export async function removeFacilityMeterHourlyEntry(request: HttpRequest, conte
   }
 }
 
-export async function addNewMeterHourlyEntry(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function addNewMeterEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityMeterHourlyEntriesController.addNewHourlyEntry(decodedToken, request, Object(requestData));
+    const result = await FacilityMeterEntriesController.addNewEntry(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -801,18 +1170,151 @@ export async function addNewMeterHourlyEntry(request: HttpRequest, context: Invo
   }
 }
 
+// Facility Meter Monthly Entries
+
+export async function getFacilityMeterHourlyEntriesListing(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { offset, limit } = request.params;
+    const colName = request.query.get("col_name") || "id";
+    const order = request.query.get("order") || "ASC";
+    const facilityMeterId = request.query.get("facility_meter_detail_id");
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result =
+      await FacilityMeterHourlyEntriesController.getFacilityMetersHourlyEntries(
+        decodedToken,
+        Number(offset),
+        Number(limit),
+        String(colName),
+        String(order),
+        Number(facilityMeterId)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function editFacilityMeterEntryHourlyDetailsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const requestData = await request.json();
+
+    // Get all result
+    const result =
+      await FacilityMeterHourlyEntriesController.editFacilityMeterHourlyEntryById(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function removeFacilityMeterHourlyEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityMeterHourlyEntriesController.deleteFacilityMeterHourlyEntry(
+        decodedToken,
+        request
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function addNewMeterHourlyEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const requestData = await request.json();
+
+    // Get all result
+    const result = await FacilityMeterHourlyEntriesController.addNewHourlyEntry(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 
 // Facility Characteristics
 
-
-export async function getFacilityCharacteristicsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityCharacteristicsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get facility by Id
-    const result = await FacilityCharacteristicsController.getFacilityCharacteristicsById(decodedToken, request);
+    const result =
+      await FacilityCharacteristicsController.getFacilityCharacteristicsById(
+        decodedToken,
+        request
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -825,16 +1327,25 @@ export async function getFacilityCharacteristicsById(request: HttpRequest, conte
   }
 }
 
-export async function editFacilityCharacteristicsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function editFacilityCharacteristicsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityCharacteristicsController.editFacilityDetailsById(decodedToken, request, Object(requestData));
+    const result =
+      await FacilityCharacteristicsController.editFacilityDetailsById(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -847,16 +1358,25 @@ export async function editFacilityCharacteristicsById(request: HttpRequest, cont
   }
 }
 
-export async function addNewMCharacteristics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function addNewMCharacteristics(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await FacilityCharacteristicsController.addFacilityCharacteristics(decodedToken, request, Object(requestData));
+    const result =
+      await FacilityCharacteristicsController.addFacilityCharacteristics(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -864,31 +1384,41 @@ export async function addNewMCharacteristics(request: HttpRequest, context: Invo
     // Return success response
     return { body: responseBody };
   } catch (error) {
-
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-
 
 // ADMIN Facility
 
-export async function adminGetAllFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminGetAllFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
-    const colName = request.query.get('col_name') || 'id';
-    const order = request.query.get('order') || 'ASC';
-    const status = request.query.get('status') || "";
-    const searchPromt = request.query.get('search' || "");
-    const companyId = request.query.get('company_id' || "");
+    const colName = request.query.get("col_name") || "id";
+    const order = request.query.get("order") || "ASC";
+    const status = request.query.get("status") || "";
+    const searchPromt = request.query.get("search" || "");
+    const companyId = request.query.get("company_id" || "");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const { offset, limit } = request.params
+    const { offset, limit } = request.params;
 
-
-    const result = await AdminFacilityController.getFacility(decodedToken, Number(offset), Number(limit), Number(status), String(colName), String(order), searchPromt ? String(searchPromt) : "", Number(companyId));
+    const result = await AdminFacilityController.getFacility(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      Number(status),
+      String(colName),
+      String(order),
+      searchPromt ? String(searchPromt) : "",
+      Number(companyId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -901,13 +1431,21 @@ export async function adminGetAllFacility(request: HttpRequest, context: Invocat
   }
 }
 
-export async function adminGetFacilityById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminGetFacilityById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get facility by Id
-    const result = await AdminFacilityController.getFacilityById(decodedToken, request);
+    const result = await AdminFacilityController.getFacilityById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -920,13 +1458,21 @@ export async function adminGetFacilityById(request: HttpRequest, context: Invoca
   }
 }
 
-export async function adminEditFacilityDetailsById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminEditFacilityDetailsById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const facility = await AdminFacilityController.editFacilityDetailsById(decodedToken, request);
+    const facility = await AdminFacilityController.editFacilityDetailsById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(facility);
@@ -939,13 +1485,21 @@ export async function adminEditFacilityDetailsById(request: HttpRequest, context
   }
 }
 
-export async function adminRemoveFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminRemoveFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await AdminFacilityController.deleteFacility(decodedToken, request);
+    const result = await AdminFacilityController.deleteFacility(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -958,16 +1512,24 @@ export async function adminRemoveFacility(request: HttpRequest, context: Invocat
   }
 }
 
-export async function adminCreateNewFacility(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminCreateNewFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestData = await request.json();
 
     // Get all result
-    const result = await AdminFacilityController.createNewFacility(decodedToken, request, Object(requestData));
+    const result = await AdminFacilityController.createNewFacility(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -980,14 +1542,21 @@ export async function adminCreateNewFacility(request: HttpRequest, context: Invo
   }
 }
 
-export async function adminFacilityStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminFacilityStatistics(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await AdminFacilityController.getCurrentStats(decodedToken, request);
+    const result = await AdminFacilityController.getCurrentStats(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -1000,17 +1569,26 @@ export async function adminFacilityStatistics(request: HttpRequest, context: Inv
   }
 }
 
-export async function adminDashboradStatistics(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminDashboradStatistics(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
-    const companyId = request.query.get('company_id');
-    const facilityId = request.query.get('facility_id');
+    const companyId = request.query.get("company_id");
+    const facilityId = request.query.get("facility_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await AdminFacilityController.getDashboardStats(decodedToken, request, Number(facilityId), Number(companyId));
+    const result = await AdminFacilityController.getDashboardStats(
+      decodedToken,
+      request,
+      Number(facilityId),
+      Number(companyId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -1023,46 +1601,73 @@ export async function adminDashboradStatistics(request: HttpRequest, context: In
   }
 }
 
-export async function adminGetPaById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminGetPaById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-
-     if (decodedToken?.company_id) {
-       const hasPermission = await AuthorizationService.check(decodedToken.company_id, decodedToken.id, ['bind-company'], decodedToken.role_id);
-       if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-     }
-
-    // Get facility by Id
-    const result = await AdminFacilityController.getPaDataById(decodedToken, request);
-
-    // Prepare response body
-    const responseBody = JSON.stringify(result);
-
-    // Return success response
-    return { body: responseBody };
-  } catch (error) {
-    // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
-  }
-}
-
-export async function adminCreatePa(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
-  try {
-
-    // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     if (decodedToken?.company_id) {
-      const hasPermission = await AuthorizationService.check(decodedToken.company_id, decodedToken.id, ['bind-company'], decodedToken.role_id);
-      if (!hasPermission) return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+      const hasPermission = await AuthorizationService.check(
+        decodedToken.company_id,
+        decodedToken.id,
+        ["bind-company"],
+        decodedToken.role_id
+      );
+      if (!hasPermission)
+        return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    }
+
+    // Get facility by Id
+    const result = await AdminFacilityController.getPaDataById(
+      decodedToken,
+      request
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function adminCreatePa(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    if (decodedToken?.company_id) {
+      const hasPermission = await AuthorizationService.check(
+        decodedToken.company_id,
+        decodedToken.id,
+        ["bind-company"],
+        decodedToken.role_id
+      );
+      if (!hasPermission)
+        return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
     }
 
     const requestData = await request.json();
 
     // Get facility by Id
-    const result = await AdminFacilityController.getPaData(decodedToken, request, Object(requestData));
+    const result = await AdminFacilityController.getPaData(
+      decodedToken,
+      request,
+      Object(requestData)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -1075,14 +1680,21 @@ export async function adminCreatePa(request: HttpRequest, context: InvocationCon
   }
 }
 
-export async function adminEditPaById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function adminEditPaById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     // Get all result
-    const result = await AdminFacilityController.signPaById(decodedToken, request);
+    const result = await AdminFacilityController.signPaById(
+      decodedToken,
+      request
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -1095,18 +1707,24 @@ export async function adminEditPaById(request: HttpRequest, context: InvocationC
   }
 }
 
-export async function getFacilityDropDown(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function getFacilityDropDown(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
   try {
-
-    const companyId = request.query.get('company_id');
+    const companyId = request.query.get("company_id");
 
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const { offset, limit } = request.params
+    const { offset, limit } = request.params;
 
-
-    const result = await AdminFacilityController.getFacilityDropDown(decodedToken, Number(companyId));
+    const result = await AdminFacilityController.getFacilityDropDown(
+      decodedToken,
+      Number(companyId)
+    );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -1118,12 +1736,6 @@ export async function getFacilityDropDown(request: HttpRequest, context: Invocat
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
-
-
-
-
-
-
 
 app.http(`facility-listing`, {
   methods: ["GET"],
@@ -1145,7 +1757,42 @@ app.http("edit-facility", {
   authLevel: "anonymous",
   handler: editFacilityDetailsById,
 });
-
+app.http("add-baseline", {
+  methods: ["POST"],
+  route: "baseline/{facility_id}",
+  authLevel: "anonymous",
+  handler: addBaselineData,
+});
+app.http("edit-baseline", {
+  methods: ["PATCH"],
+  route: "baseline/{id}",
+  authLevel: "anonymous",
+  handler: editBaselineData,
+});
+app.http("get-baseline", {
+  methods: ["GET"],
+  route: "getBaseline/{facility_id}",
+  authLevel: "anonymous",
+  handler: getBaselineDataByfacilityId,
+});
+app.http("submit-reject-baseline", {
+  methods: ["PATCH"],
+  route: "submitRejectedBaseline/{id}",
+  authLevel: "anonymous",
+  handler: submitRejectBaseline,
+});
+app.http("add-assignee-in-baseline", {
+  methods: ["PATCH"],
+  route: "baseline/addAssignee/{id}/{user_id}",
+  authLevel: "anonymous",
+  handler: assigneToBaseline,
+});
+app.http("get-baseline-list", {
+  methods: ["GET"],
+  route: "getBaselineList/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getBaseLineList,
+});
 app.http("remove-facility", {
   methods: ["DELETE"],
   route: "facility/{id}",
@@ -1207,8 +1854,6 @@ app.http("csv-download-facility", {
   authLevel: "anonymous",
   handler: getDonwloadedCsvFacilityById,
 });
-
-
 
 // Facility Enerva
 
@@ -1322,8 +1967,6 @@ app.http(`facility-meter-statistics`, {
   handler: getFacilityMeterStatistics,
 });
 
-
-
 // Facility Meter entries
 
 app.http(`facility-meter-entry-listing`, {
@@ -1367,7 +2010,7 @@ app.http("edit-facility-meter-hourly-entries", {
   methods: ["PATCH"],
   route: "facility-meter-hourly-entry/{id}",
   authLevel: "anonymous",
-  handler: editFacilityMeterEntryHourlyDetailsById
+  handler: editFacilityMeterEntryHourlyDetailsById,
 });
 
 app.http("remove-facility-meter-hourly-entries", {
@@ -1384,7 +2027,6 @@ app.http("facility-meter-hourly-entry", {
   handler: addNewMeterHourlyEntry,
 });
 
-
 // Facility Charateristicks
 app.http("facility-characteristics-details", {
   methods: ["GET"],
@@ -1400,7 +2042,6 @@ app.http("edit-facility-characteristics", {
   handler: editFacilityCharacteristicsById,
 });
 
-
 app.http("facility-characteristics", {
   methods: ["POST"],
   route: "facility-characteristics",
@@ -1408,8 +2049,7 @@ app.http("facility-characteristics", {
   handler: addNewMCharacteristics,
 });
 
-
-// Admin 
+// Admin
 
 app.http(`admin-facility-listing`, {
   methods: ["GET"],
@@ -1460,10 +2100,7 @@ app.http("admin-facility-dropdown", {
   handler: getFacilityDropDown,
 });
 
-
-
 // pA
-
 
 app.http("create-pa-by", {
   methods: ["POST"],
