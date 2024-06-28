@@ -19,6 +19,10 @@ const Summary = () => {
 
   const [reportLoading, setReportLoading] = useState(true)
 
+  const facility_status = useSelector(
+    (state) => state?.facilityReducer?.facilityStatus?.data
+  );
+
   useEffect(() => {
     if(!facilityData) return;
     getPowerBiToken()
@@ -199,7 +203,7 @@ const Summary = () => {
       </Grid>
       <Grid>
         <Box id="bi-report" mt={4}>
-          {(!isErrorInPowerBi && !reportLoading) ? <PowerBIEmbed
+          {(facility_status?.timeline?.energy_and_water && (!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
             embedConfig={powerBiConfig}
             eventHandlers={
               new Map([
