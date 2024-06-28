@@ -284,7 +284,6 @@ export class AdminFacilityService {
       throw error;
     }
   }
-
   static async deleteFacility(
     userToken: IUserToken,
     facilityId: number
