@@ -135,7 +135,7 @@ const [getCompanyList, setCompanyList] = useState([]);
 
   const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -147,7 +147,7 @@ const [getCompanyList, setCompanyList] = useState([]);
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <FormGroup sx={{display: 'block',}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
                 <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
