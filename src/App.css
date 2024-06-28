@@ -44,6 +44,11 @@
   overflow: hidden; 
 }
 
+.bi-embedded iframe{
+  border: 1px solid #2E813E !important;
+  border-radius: 8px;
+}
+
 .my-datepicker-actionbar .MuiButton-textPrimary {
   min-width: unset; 
   padding: 6px 8px; 
