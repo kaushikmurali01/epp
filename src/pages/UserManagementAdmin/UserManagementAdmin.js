@@ -93,9 +93,9 @@ const UserManagementAdmin = () => {
       saveButtonClass: "",
       cancelButtonClass: "",
       successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
-      cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
-      saveButtonName: "Yes,Delete!",
-      cancelButtonName: "No,Cancel",  
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",  
 
     },
     headerText: "",

@@ -67,13 +67,13 @@ const DeleteModelContent = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to Delete
-                    the Customer user Details
+                    the Customer User details
                 </Typography>
             </Grid>
             <Grid item>
                 <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>

@@ -33,31 +33,50 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
 
     const [modalConfig, setModalConfig] = useState({
-        modalVisible: false,
-        modalUI: {
-          showHeader: true,
-          crossIcon: true,
-          modalClass: "",
-          headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
-          headerSubTextStyle: { marginTop: '1rem' },
-          fotterActionStyle: {justifyContent: "center", gap: '1rem'},
-          modalBodyContentStyle: {minHeight: '110px', display: 'flex',flexWrap: 'wrap', alignItems: 'center', color: 'dark.light'}
+      modalVisible: false,
+      modalUI: {
+        showHeader: true,
+        crossIcon: true,
+        modalClass: "",
+        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+        headerSubTextStyle: { marginTop: "1rem" },
+        fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+        modalBodyContentStyle: {
+          minHeight: "110px",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          color: "dark.light",
         },
-        buttonsUI: {
-          saveButton: true,
-          cancelButton: true,
-          saveButtonName: "Send Request",
-          cancelButtonName: "Cancel",
-          successButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.main'}, color: '#fff'},
-          cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSmoke'}, color: '#fff'},
-          saveButtonClass: "",
-          cancelButtonClass: "",
-    
+      },
+      buttonsUI: {
+        saveButton: true,
+        cancelButton: true,
+        saveButtonName: "Yes",
+        cancelButtonName: "Cancel",
+        successButtonStyle: {
+          backgroundColor: "primary.main",
+          "&:hover": { backgroundColor: "primary.main" },
+          color: "#fff",
         },
-        headerText: "",
-        headerSubText: '',
-        modalBodyContent: 'Are you sure you want to change the binding authority permission?'
-      });
+        cancelButtonStyle: {
+          backgroundColor: "danger.main",
+          "&:hover": { backgroundColor: "danger.main" },
+          color: "#fff",
+        },
+        saveButtonClass: "",
+        cancelButtonClass: "",
+      },
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <p style={{textAlign: "center"}}>
+          Are you sure you want to change the binding authority permission and{" "}
+          <br />
+          provide access to view and sign Participant Agreement?
+        </p>
+      ),
+    });
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);

@@ -48,7 +48,7 @@ const DeleteModelContent = () => {
             <Grid item>
                 <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>
