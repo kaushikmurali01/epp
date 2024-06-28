@@ -532,7 +532,8 @@ export class AdminFacilityService {
               where: { id: companyId },
             });
             const bindingAuthorityDetails = {
-              name: "Enerva Test Binding Authority",
+             // name: "Enerva Test Binding Authority",
+              name: userDetails?.first_name
             };
             const version = "V1";
 
@@ -632,7 +633,8 @@ export class AdminFacilityService {
               where: { id: companyId },
             });
             const bindingAuthorityDetails = {
-              name: "Enerva Test Binding Authority",
+              //name: "Enerva Test Binding Authority",
+              name: userDetails?.first_name
             };
             const version = "V1";
 
