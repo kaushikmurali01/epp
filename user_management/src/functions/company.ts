@@ -182,7 +182,7 @@ export async function getCompanyUser(request: HttpRequest, context: InvocationCo
         const { company_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const id = resp.id
-        const companies = await CompanyController.getCompanyUser(id, company_id);
+        const companies = await CompanyController.getCompanyUser(id, company_id, resp.role_id);
 
         // Prepare response body
         const responseBody = JSON.stringify(companies);
@@ -206,7 +206,7 @@ export async function changeSuperUserForCompany(request: HttpRequest, context: I
         const { company_id, user_id } = request.params;
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const id = resp.id
-        const companies = await CompanyController.changeCompanySuperUser(id, company_id, user_id);
+        const companies = await CompanyController.changeCompanySuperUser(id, company_id, user_id, resp.role_id);
         return companies
     } catch (error) {
         // Return error response
@@ -336,6 +336,25 @@ export async function MakeCompanyInActive(request: HttpRequest, context: Invocat
     const responseBody = JSON.stringify(result);
     return { body: responseBody };
 }
+
+export async function GetCompanyUser(
+    request: HttpRequest,
+    context: InvocationContext
+  ): Promise<HttpResponseInit> {
+    try {
+      const { offset, limit, company_id } = request.params;
+      const companies = await CompanyController.GetCompanyUser(offset, limit, company_id);
+   
+      // Prepare response body
+      const responseBody = JSON.stringify(companies);
+   
+      // Return success response
+      return { body: responseBody };
+    } catch (error) {
+      // Return error response
+      return { status: 500, body: `${error.message}` };
+    }
+  }
 app.http('MakeCompanyInActive', {
     methods: ['POST'],
     authLevel: 'anonymous',
@@ -422,6 +441,13 @@ app.http('GetCompanyAdmins', {
     handler: GetCompanyAdmins,
     route: 'getadms/{company_id}'
 });
+
+app.http("GetCompanyUser", {
+    methods: ["GET"],
+    authLevel: "anonymous",
+    handler: GetCompanyUser,
+    route: "getUserByCompany/{company_id}/{offset}/{limit}",
+  });
 
 
 

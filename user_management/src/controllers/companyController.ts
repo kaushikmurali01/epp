@@ -69,57 +69,143 @@ class CompanyController {
             return { status: 500, body: { error: error.message } };
         }
     }
-    static async getCompanyUser(id, company_id): Promise<any> {
+    // static async getCompanyUser(id, company_id): Promise<any> {
+    //     try {
+    //         let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
+    //         if (checkExistUser) {
+    //             const users = await UserCompanyRole.findAll({
+    //                 attributes: [
+    //                     'user_id',
+    //                 ],
+    //                 include: [
+    //                     {
+    //                         model: User,
+    //                         attributes: ["id", 'first_name', 'last_name', 'email'],
+    //                         where: {
+    //                             id: {
+    //                                 [Op.notIn]: Sequelize.literal(
+    //                                     '(SELECT user_id FROM "user_company_role" WHERE role_id = 1)'
+    //                                 ),
+    //                             },
+    //                         },
+    //                     },
+    //                 ],
+    //                 where: {
+    //                     company_id
+    //                 }
+    //             });
+    //             return { status: 204, data: users };
+    //         } else {
+    //             throw { message: "You can not update the permission" }
+    //         }
+    //     } catch (error) {
+    //         return { status: 500, body: { error: error.message } };
+    //     }
+    // }
+    // static async changeCompanySuperUser(id, company_id, user_id): Promise<any> {
+    //     try {
+    //         let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
+    //         let checkOtherUser = await CompanyService.checkExistSuperAdmin(user_id, company_id)
+    //         if (checkOtherUser) {
+    //             // send error 
+    //             throw { message: "You can not update the permission" }
+    //         } else {
+    //             if (checkExistUser && checkExistUser.company_id == company_id) {
+    //                 await UserCompanyRole.update({ role_id: 2 }, { where: { id: checkExistUser.id } })
+    //                 await UserCompanyRole.update({ role_id: 1 }, { where: { user_id: user_id, company_id } })
+    //             }
+    //             return { status: 204, data: checkExistUser };
+    //         }
+    //     } catch (error) {
+    //         return { status: 500, body: JSON.stringify({ error: error.message }) };
+    //     }
+    // }
+
+
+    static async getCompanyUser(id, company_id, role_id): Promise<any> {
         try {
-            let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
-            if (checkExistUser) {
-                const users = await UserCompanyRole.findAll({
-                    attributes: [
-                        'user_id',
-                    ],
-                    include: [
-                        {
-                            model: User,
-                            attributes: ["id", 'first_name', 'last_name', 'email'],
-                            where: {
-                                id: {
-                                    [Op.notIn]: Sequelize.literal(
-                                        '(SELECT user_id FROM "user_company_role" WHERE role_id = 1)'
-                                    ),
-                                },
-                            },
-                        },
-                    ],
-                    where: {
-                        company_id
-                    }
+          let checkExistUser = await CompanyService.checkExistSuperAdmin(
+            id,
+            company_id
+          );
+          if (checkExistUser || role_id == 6) {
+            const users = await UserCompanyRole.findAll({
+              attributes: ["user_id"],
+              include: [
+                {
+                  model: User,
+                  attributes: ["id", "first_name", "last_name", "email"],
+                  where: {
+                    id: {
+                      [Op.notIn]: Sequelize.literal(
+                        '(SELECT user_id FROM "user_company_role" WHERE role_id = 1)'
+                      ),
+                    },
+                  },
+                },
+              ],
+              where: {
+                company_id,
+              },
+            });
+            return { status: 204, data: users };
+          } else {
+            throw { message: "You can not update the permission" };
+          }
+        } catch (error) {
+          return { status: 500, body: { error: error.message } };
+        }
+      }
+      static async changeCompanySuperUser(
+        id,
+        company_id,
+        user_id,
+        role_id
+      ): Promise<any> {
+        try {
+          let checkExistUser = await CompanyService.checkExistSuperAdmin(
+            id,
+            company_id
+          );
+          let checkOtherUser = await CompanyService.checkExistSuperAdmin(
+            user_id,
+            company_id
+          );
+          if (checkOtherUser) {
+            // send error
+            throw { message: "You can not update the permission" };
+          } else {
+            if (
+              (checkExistUser && checkExistUser.company_id == company_id) ||
+              role_id == 6
+            ) {
+              if (role_id == 6) {
+                let findSuperUser = await UserCompanyRole.findOne({
+                  where: { role_id: 1, company_id },
                 });
-                return { status: 204, data: users };
-            } else {
-                throw { message: "You can not update the permission" }
-            }
-        } catch (error) {
-            return { status: 500, body: { error: error.message } };
-        }
-    }
-    static async changeCompanySuperUser(id, company_id, user_id): Promise<any> {
-        try {
-            let checkExistUser = await CompanyService.checkExistSuperAdmin(id, company_id)
-            let checkOtherUser = await CompanyService.checkExistSuperAdmin(user_id, company_id)
-            if (checkOtherUser) {
-                // send error 
-                throw { message: "You can not update the permission" }
-            } else {
-                if (checkExistUser && checkExistUser.company_id == company_id) {
-                    await UserCompanyRole.update({ role_id: 2 }, { where: { id: checkExistUser.id } })
-                    await UserCompanyRole.update({ role_id: 1 }, { where: { user_id: user_id, company_id } })
+                if (findSuperUser) {
+                  await UserCompanyRole.update(
+                    { role_id: 2 },
+                    { where: { id: findSuperUser.id } }
+                  );
                 }
-                return { status: 204, data: checkExistUser };
+              } else {
+                await UserCompanyRole.update(
+                  { role_id: 2 },
+                  { where: { id: checkExistUser.id } }
+                );
+              }
+              await UserCompanyRole.update(
+                { role_id: 1 },
+                { where: { user_id: user_id, company_id } }
+              );
             }
+            return { status: 204, data: checkExistUser };
+          }
         } catch (error) {
-            return { status: 500, body: JSON.stringify({ error: error.message }) };
+          return { status: 500, body: JSON.stringify({ error: error.message }) };
         }
-    }
+      }
 
     static async MakeCompanyInActive(req): Promise<any> {
         try {
@@ -203,24 +289,24 @@ Thank You,<br/>
      */
     static async sendAlertForCompany(requestData, companyId): Promise<any> {
         try {
-            (async () => {
-                const company = await CompanyService.getCompanyAdmin(companyId);
-                let template = await EmailTemplate.getEmailTemplate();
-                if (!requestData.first_name) requestData.first_name = '';
-                template = template.replace('#heading#', 'Alert from admin')
-                    .replace('#content#', requestData.comment)
-                    .replace('#name#', company?.first_name)
-                    .replace('#isDisplay#', 'none');
-                Email.send(company?.email, EmailContent.alertEmail.title, template);
-
-            })();
-
-            const resp = { status: 200, body: 'Alert Sent successfully' };
-            return resp;
+          (async () => {
+            const company = await CompanyService.getCompanyAdmin2(companyId);
+            let template = await EmailTemplate.getEmailTemplate();
+            if (!requestData.first_name) requestData.first_name = "";
+            template = template
+              .replace("#heading#", "Alert from admin")
+              .replace("#content#", requestData.comment)
+              .replace("#name#", company?.first_name)
+              .replace("#isDisplay#", "none");
+            Email.send(company?.email, EmailContent.alertEmail.title, template);
+          })();
+     
+          const resp = { status: 200, body: "Alert Sent successfully" };
+          return resp;
         } catch (error) {
-            return { status: 400, body: { error: error.message } };
+          return { status: 400, body: { error: error.message } };
         }
-    }
+      }
     /**
      * Deletes an existing company.
      * 
@@ -236,6 +322,18 @@ Thank You,<br/>
             return { status: 400, body: { error: error.message } };
         }
     }
+    static async GetCompanyUser(offset, limit, company_id): Promise<any> {
+        try {
+          const result = await CompanyService.GetCompanyUser(
+            offset,
+            limit,
+            company_id
+          );
+          return { status: 204, data: result };
+        } catch (error) {
+          return { status: 500, body: { error: error.message } };
+        }
+      }
 }
 
 export { CompanyController };
