@@ -14,8 +14,9 @@ const FacilityReview = ({
   companyFilter,
   onDownloadBulkClick,
   onDownloadRowClick,
+  pageInfo,
+  setPageInfo,
 }) => {
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -50,21 +51,15 @@ const FacilityReview = ({
     },
     {
       Header: "Submitted by",
-      accessor: (item) => (
-        <>{item?.submitted_by?.first_name}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.first_name}</>,
     },
     {
       Header: "Company name",
-      accessor: (item) => (
-        <>{item?.company?.company_name}</>
-      ),
+      accessor: (item) => <>{item?.company?.company_name}</>,
     },
     {
       Header: "Business email",
-      accessor: (item) => (
-        <>{item?.submitted_by?.email}</>
-      ),
+      accessor: (item) => <>{item?.submitted_by?.email}</>,
     },
     {
       Header: "Status",

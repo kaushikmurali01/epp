@@ -355,14 +355,17 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .min(0, "Water Heating efficiency must be a positive number"),
 });
 
-export const validationSchemaAssignFacility = Yup.object().shape({
+export const validationSchemaAssignFacility = (emailToAvoid) => Yup.object().shape({
   email: Yup.string()
     .required("Email is required")
     .matches(
       /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
       "Invalid email"
     )
-    .test("At least one email is required", (value) => {
+    .test("not-avoided-email", "You can not use your own email", (value) => {
+      return !value.split(",").includes(emailToAvoid);
+    })
+    .test("At least one email is required", "At least one email is required", (value) => {
       return value.split(",").some((email) => email.trim() !== "");
     }),
   facilityId: Yup.array()

@@ -634,7 +634,7 @@ const CompanyListing = () => {
         });
     };
 
-    return companyUserListData.length ? (
+    return companyUserListData?.length ? (
       <Formik
         initialValues={{
           ...updateRoleInitialValues,
@@ -703,7 +703,10 @@ const CompanyListing = () => {
               },
             }}
             value={searchString}
-            onChange={(e) => setSearchString(e.target.value)}
+            onChange={(e) => {
+              setSearchString(e.target.value);
+              setPageInfo({ page: 1, pageSize: 10 });
+            }}
           />
         </Grid>
         <Grid

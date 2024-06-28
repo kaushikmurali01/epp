@@ -9,6 +9,7 @@ import {
   fetchFacilityDocumentListing,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import { format } from "date-fns";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const DocumentCard = ({
   data,
@@ -89,15 +90,20 @@ const DocumentCard = ({
       >
         {data?.file_upload && (
           <Tooltip title="Click to download this document">
-            <Link href={data?.file_upload} target={"_blank"}>
-              <InsertDriveFileIcon
-                sx={{
-                  color: "#2E813E60",
-                  fontSize: "7.75rem",
-                  transform: "scaleX(-1)",
-                }}
-              />
-            </Link>
+            <InsertDriveFileIcon
+              sx={{
+                color: "#2E813E60",
+                fontSize: "7.75rem",
+                transform: "scaleX(-1)",
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                downloadFileFromUrl(
+                  data?.file_upload,
+                  `${data?.document_name}_document`
+                )
+              }
+            />
           </Tooltip>
         )}
         <Grid

@@ -58,8 +58,8 @@ const ModelConstructorForm = ({ meterType }) => {
   const handleSubmit = (values) => {
     const myData = {
       ...values,
-      facility_id: id,
-      created_by: facilityCreatedBy,
+      facility_id: 163,
+      created_by: 24,
     };
     dispatch(SufficiencyCheck(myData));
   };

@@ -43,7 +43,10 @@ import {
 import NotificationsToast from "utils/notification/NotificationsToast";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
-import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
+import {
+  fetchFacilityDetails,
+  fetchFacilityStatus,
+} from "../../../redux/superAdmin/actions/facilityActions";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -208,6 +211,7 @@ const EntriesListing = ({
   const handleDeleteMeter = () => {
     dispatch(deleteMeter(facilityMeterDetailId))
       .then(() => {
+        dispatch(fetchFacilityDetails(id));
         setDeleteMeterModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -295,6 +299,7 @@ const EntriesListing = ({
               type: "success",
             });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -315,6 +320,7 @@ const EntriesListing = ({
               type: "success",
             });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -489,6 +495,7 @@ const EntriesListing = ({
       .then((response) => {
         getHourlySubHourlyEntryData();
         dispatch(fetchFacilityStatus(id));
+        dispatch(fetchFacilityDetails(id));
         NotificationsToast({
           message: "File uploaded successfully!",
           type: "success",
@@ -519,7 +526,11 @@ const EntriesListing = ({
         const fileURL = window.URL.createObjectURL(blob);
         let alink = document.createElement("a");
         alink.href = fileURL;
-        let fileName = `${meterData?.meter_name}_facility_meter_hourly_entries_file.csv`;
+        let fileName = `${
+          meterData?.meter_name
+        }_facility_meter_hourly_entries_file.${
+          imgUrl.split("/").pop().split(".").pop().split("?")[0]
+        }`;
         alink.download = fileName;
         alink.click();
       });

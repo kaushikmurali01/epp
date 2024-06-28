@@ -24,6 +24,10 @@ import {
 import { format } from "date-fns";
 import EvModal from "utils/modal/EvModal";
 import Loader from "pages/Loader";
+import {
+  fetchFacilityDetails,
+  fetchFacilityStatus,
+} from "../../../redux/superAdmin/actions/facilityActions";
 
 const MeterListing = ({
   onAddButtonClick,
@@ -67,6 +71,8 @@ const MeterListing = ({
           }));
           dispatch(fetchMeterListing(pageInfo, id));
           dispatch(fetchMeterStatistics(id));
+          dispatch(fetchFacilityStatus(id));
+          dispatch(fetchFacilityDetails(id));
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
