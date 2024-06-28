@@ -301,7 +301,7 @@ Thank You,<br/>
             Email.send(company?.email, EmailContent.alertEmail.title, template);
           })();
      
-          const resp = { status: 200, body: "Alert Sent successfully" };
+          const resp = { status: 200, body: "Alert Sent successfully" }; //test
           return resp;
         } catch (error) {
           return { status: 400, body: { error: error.message } };
