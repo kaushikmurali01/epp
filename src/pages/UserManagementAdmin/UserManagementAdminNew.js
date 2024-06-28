@@ -380,7 +380,7 @@ const UserManagementAdminNew = () => {
     // }
     getCustomerUserManagementData(pageInfo, searchDataKeys,selectedRole,sortCustomerColumn,sortCustomerOrder);
 
-  }, 300);
+  }, 800);
 
   
   // useEffect(() => {
