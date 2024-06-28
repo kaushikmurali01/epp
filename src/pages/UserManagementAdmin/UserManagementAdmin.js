@@ -488,7 +488,7 @@ const UserManagementAdmin = () => {
                   <Tab value="enervaUsers" label="Enerva Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
                   <Tab value="iesoUsers" label="IESO Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
                   <Tab value="customerUsers" label="Customer Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
-                  <Tab value="aggregatorUsers" label="Aggregator Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} disabled />
+                  {/* <Tab value="aggregatorUsers" label="Aggregator Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} disabled /> */}
                 </Tabs>
               </Grid>
 

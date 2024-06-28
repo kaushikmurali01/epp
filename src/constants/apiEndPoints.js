@@ -209,12 +209,12 @@ export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
   GET_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   UPDATE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
-  UPLOAD_INDEPENDENT_VARIABLE_FILE: 'etl/v1/etl/upload-file-iv',
-  GET_WEATHER_STATION: 'weather/v1/get_station_details'
+  UPLOAD_INDEPENDENT_VARIABLE_FILE: "etl/v1/etl/upload-file-iv",
+  GET_WEATHER_STATION: "weather/v1/get_station_details",
 };
 
 export const BASELINE_ENDPOINTS = {
-  CHECK_SUFFICIENCY: "v1/handle",
+  CHECK_SUFFICIENCY: "v1/check_sufficiency",
   INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   STATION_DETAILS: "weather/v1/get_station_details",
   BASELINE_PERIOD: "weather/v1/get_min_max_dates",

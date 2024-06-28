@@ -619,7 +619,7 @@ const AdminAddFacilityComponent = (props) => {
 
                                 <Grid item xs={12} sm={4}>
                                     <InputField
-                                        isDisabled={true}
+                                        isDisabled={!(values?.facility_type == "Other")}
                                         name="naic_code"
                                         label="NAIC’s code*"
                                         type="text" />

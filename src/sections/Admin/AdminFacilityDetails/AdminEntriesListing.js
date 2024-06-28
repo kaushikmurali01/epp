@@ -533,7 +533,11 @@ const AdminEntriesListing = ({
         const fileURL = window.URL.createObjectURL(blob);
         let alink = document.createElement("a");
         alink.href = fileURL;
-        let fileName = `${meterData?.meter_name}_facility_meter_hourly_entries_file.csv`;
+        let fileName = `${
+          meterData?.meter_name
+        }_facility_meter_hourly_entries_file.${
+          imgUrl.split("/").pop().split(".").pop().split("?")[0]
+        }`;
         alink.download = fileName;
         alink.click();
       });

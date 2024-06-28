@@ -20,7 +20,7 @@ import AdminPerformance from "./AdminPerformance";
 import { fetchAdminFacilityDetails } from "../../../redux/admin/actions/adminFacilityActions";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AdminBaselineModel from "./AdminBaselineModel/index";
-import AdminReportsAndStudies from "./AdminReportsAndStudies";
+import AdminReportsAndStudies from "./AdminReportsAndStudies/index";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
