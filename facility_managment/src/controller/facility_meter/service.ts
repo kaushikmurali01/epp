@@ -210,33 +210,32 @@ on fmh.facility_meter_detail_id =t.id order by fmh.updated_at desc`);
       let result = [
         {
           "Meter type": FACILITY_METER_TYPE_TEXT.ELECTRICITY,
+          "Meter type Number": FACILITY_METER_TYPE.ELECTRICITY,
           "Total meters": totalElectricMeter,
           "Current energy date": null,
         },
         {
           "Meter type": FACILITY_METER_TYPE_TEXT.WATER,
+          "Meter type Number": FACILITY_METER_TYPE.WATER,
           "Total meters": totalWaterMeter,
           "Current energy date": null,
         },
         {
           "Meter type": FACILITY_METER_TYPE_TEXT.NATURAL_GAS,
+          "Meter type Number": FACILITY_METER_TYPE.NATURAL_GAS,
           "Total meters": totalNGMeter,
           "Current energy date": null,
         },
       ];
-      console.log(data, "get ouptup");
       if (data && data.length) {
         for (let i = 0; i < result.length; i++) {
           let item: any = result[i];
           let ouptut = data.filter(
             (ele: { meter_type: number }) =>
-              ele.meter_type == item["Meter type"]
+              ele.meter_type == item["Meter type Number"]
           );
-          console.log(
-            ouptut[0]?.created_at || null,
-            "ouptut[0]?.created_at || null;ouptut[0]?.created_at || null;ouptut[0]?.created_at || null;"
-          );
-          result[i]["Current energy date"] = ouptut[0]?.created_at || null;
+          result[i]["Current energy date"] =
+            ouptut[0]?.created_at || ouptut[0]?.updated_at || null;
         }
       }
       console.log(result);
