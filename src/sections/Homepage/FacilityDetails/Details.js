@@ -20,6 +20,7 @@ import { fileUploadAction } from "../../../redux/global/actions/fileUploadAction
 import {
   addFacilityCharacteristic,
   fetchFacilityCharacteristics,
+  fetchFacilityDetails,
   fetchFacilityStatus,
   updateFacilityCharacteristic,
 } from "../../../redux/superAdmin/actions/facilityActions";
@@ -393,6 +394,7 @@ const Details = ({ setTab }) => {
       dispatch(addFacilityCharacteristic(newValues))
         .then(() => {
           dispatch(fetchFacilityStatus(id));
+          dispatch(fetchFacilityDetails(id));
           setModalConfig((prev) => ({
             ...prev,
             modalVisible: true,

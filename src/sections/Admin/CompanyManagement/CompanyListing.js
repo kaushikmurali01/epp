@@ -634,7 +634,7 @@ const CompanyListing = () => {
         });
     };
 
-    return companyUserListData.length ? (
+    return companyUserListData?.length ? (
       <Formik
         initialValues={{
           ...updateRoleInitialValues,
