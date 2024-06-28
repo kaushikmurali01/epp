@@ -66,8 +66,7 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to Delete
-                    the Customer User details
+                    Are you sure you would like to delete the User?
                 </Typography>
             </Grid>
             <Grid item>
