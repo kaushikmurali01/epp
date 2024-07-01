@@ -550,6 +550,9 @@ const CompanyListing = () => {
             onClick={handleDeleteCompanyButton}
             sx={{
               background: "#FF5858",
+              "&:hover": {
+                background: "#FF5858",
+              },
             }}
             variant="contained"
           >
