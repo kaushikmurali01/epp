@@ -444,7 +444,7 @@ function Header(props) {
                     How it works
                   </Typography>
                 </MenuItem>
-                <MenuItem
+                {/* <MenuItem
                   onClick={(event) =>
                     scrollToSection(event, "userStorySection")
                   }
@@ -459,7 +459,7 @@ function Header(props) {
                   >
                     Success stories
                   </Typography>
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem
                   onClick={(event) => scrollToSection(event, "whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
@@ -763,13 +763,13 @@ function Header(props) {
                     >
                       How it works
                     </MenuItem>
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "userStorySection")
                       }
                     >
                       Success stories
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "whatsNewSection")
