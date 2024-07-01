@@ -115,7 +115,7 @@ const RoutesComp = () => {
       </CommonLayout>
 
       <Modal
-        open={true}
+        open={showNewUserPopup}
         onClose={onClose}
         aria-labelledby="welcome-modal"
         aria-describedby="first-time-user-welcome-modal"
