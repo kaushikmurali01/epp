@@ -206,7 +206,7 @@ class CompanyController {
           return { status: 500, body: JSON.stringify({ error: error.message }) };
         }
       }
-
+//Test
     static async MakeCompanyInActive(req): Promise<any> {
         try {
             const companyId = req.company_id;
