@@ -36,7 +36,8 @@ import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
-
+import axiosInstance from "utils/interceptor";
+import MapComponent from "components/MapComponent/MapComponent";
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -51,6 +52,9 @@ const Weather = () => {
   const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID
   const weatherReportId = process.env.REACT_APP_POWERBI_WEATHER_REPORT_ID
   const weatherEmbedUrl = process.env.REACT_APP_POWERBI_WEATHER_EMBED_URL
+  const iVDataSetId = process.env.REACT_APP_POWERBI_IV_DATASET_ID
+  const iVReportId = process.env.REACT_APP_POWERBI_IV_REPORT_ID
+  const iVEmbedUrl = process.env.REACT_APP_POWERBI_IV_EMBED_URL
   const [reportLoading, setReportLoading] = useState(true)
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
@@ -58,41 +62,54 @@ const Weather = () => {
   const [imgUrl, setImgUrl] = useState("");
   const [checked, setChecked] = useState(true);
   const initialValues = {};
+  const [progress, setProgress] = useState(0);
   const LAT_LONG_DATA = [
     {
       station_name: "Toronto city centre weather station",
-      lattitude: 43.644,
+      latitude: 43.644,
       longitude: -79.403,
       climate_id: "",
       station_id: ""
     },
     {
       station_name: "Toronto city weather station",
-      lattitude: 43.67,
+      latitude: 43.67,
       longitude: -79.4,
       climate_id: "6158355",
       station_id: "31688"
     },
     {
       station_name: "Toronto INTL A weather station",
-      lattitude: 43.67,
+      latitude: 43.67,
       longitude: -79.4,
       climate_id: "6158731",
       station_id: "51459"
     }
   ];
 
+  const selectedIv= independentVarsList?.length && independentVarsList.find(obj => obj['id'] == tabValue);
+  const selectedIvName = selectedIv ? selectedIv['name'] : undefined;
+
+  useEffect(() => {
+    setIndependentVariable1File(null)
+    if(!(tabValue == 'weather') && (selectedIv?.files?.[0]?.file_path)){
+       getPowerBiTokenForIV()
+    }
+  }, [selectedIvName]);
+
   useEffect(() => {
     if(!facilityData) return;
-    getPowerBiToken()
-  }, [facilityData])
+    if(tabValue == 'weather'){
+      getPowerBiTokenForWeather()
+    }
+  }, [facilityData, selectedIvName])
 
-  const getPowerBiToken = () => {
+  const getPowerBiTokenForWeather = () => {
     const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI
 
     GET_REQUEST(apiURL).then((response) => {
       localStorage.setItem("powerBiAccessToken", (response?.data?.access_token));
-      getPowerBiReportToken()
+      getPowerBiReportTokenForWeather()
     })
     .catch((error) => {
       console.log(error);
@@ -102,7 +119,7 @@ const Weather = () => {
     });
   }
 
-  const getPowerBiReportToken= () => {
+  const getPowerBiReportTokenForWeather= () => {
     setReportLoading(true)
     const apiURL = POWERBI_ENDPOINTS.GET_POWERBI_TOKEN;
     const body = {
@@ -121,7 +138,7 @@ const Weather = () => {
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
         localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data))
-        setReportParameters();
+        setReportParametersForWeather();
       })
       .catch((error) => {
         console.log(error);
@@ -131,9 +148,7 @@ const Weather = () => {
       });
   }
 
-  let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
-
-  const setReportParameters = () => {
+  const setReportParametersForWeather = () => {
     const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${weatherDataSetId}/Default.UpdateParameters`
     const body = {
       "updateDetails": [
@@ -145,7 +160,7 @@ const Weather = () => {
     }
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
-        refreshPowerBiReport()
+        refreshPowerBiReportForWeather()
       })
       .catch((error) => {
         setReportLoading(false)
@@ -153,8 +168,89 @@ const Weather = () => {
       });
   }
 
-  const refreshPowerBiReport = () => {
+  const refreshPowerBiReportForWeather = () => {
     const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${weatherDataSetId}/refreshes`
+    const body = {
+      retryCount: 3
+    }
+    POWERBI_POST_REQUEST(apiURL, body, )
+      .then((res) => {
+        setReportLoading(false)
+      })
+      .catch((error) => {
+        setReportLoading(false)
+        console.log(error);
+      });
+  }
+
+  const getPowerBiTokenForIV = () => {
+    const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI
+
+    GET_REQUEST(apiURL).then((response) => {
+      localStorage.setItem("powerBiAccessToken", (response?.data?.access_token));
+      getPowerBiReportTokenForIV()
+    })
+    .catch((error) => {
+      console.log(error);
+      if(error?.response?.status == 403){
+      }
+      setReportLoading(false);
+    });
+  }
+
+  const getPowerBiReportTokenForIV= () => {
+    setReportLoading(true)
+    const apiURL = POWERBI_ENDPOINTS.GET_POWERBI_TOKEN;
+    const body = {
+      "datasets": [
+        {
+          "id":iVDataSetId
+        }
+      ],
+      "reports": [
+        {
+          "allowEdit": true,
+          "id":iVReportId
+        }
+      ]
+    }
+    POWERBI_POST_REQUEST(apiURL, body)
+      .then((res) => {
+        localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data))
+        setReportParametersForIV();
+      })
+      .catch((error) => {
+        console.log(error);
+        if(error?.response?.status == 403){
+        }
+        setReportLoading(false);
+      });
+  }
+
+  let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
+
+  const setReportParametersForIV = () => {
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/Default.UpdateParameters`
+    const body = {
+      "updateDetails": [
+        {
+          "name": "variable_id",
+          "newValue": selectedIv?.id
+        },
+      ]
+    }
+    POWERBI_POST_REQUEST(apiURL, body)
+      .then((res) => {
+        refreshPowerBiReportForIV()
+      })
+      .catch((error) => {
+        setReportLoading(false)
+        console.log(error);
+      });
+  }
+
+  const refreshPowerBiReportForIV = () => {
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/refreshes`
     const body = {
       retryCount: 3
     }
@@ -306,13 +402,26 @@ const Weather = () => {
     const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE+`/${tabValue}`;
     const body = new FormData();
     body.append("file", independentVariable1File);
-    POST_REQUEST(apiURL, body, true, "").then((response) => {
-      setIsFileUploaded(true);
-      getIndependentVariales();
-      NotificationsToast({ message: "Independent variable file uploaded successfully", type: "success" });
-    }).catch((error) => {
-      NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
+    axiosInstance.post(apiURL, body, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setProgress(percentCompleted);
+      },
     })
+    .then((response) => {
+      if(response){
+        setIsFileUploaded(true);
+        getIndependentVariales();
+        NotificationsToast({ message: "Independent variable file uploaded successfully", type: "success" });
+      }
+    })
+    .catch((error) => {
+      console.error('There was an error uploading the file!', error);
+      NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
+    });
   }
 
   const downloadFileFromUrl = (fileUrl) => {
@@ -330,17 +439,14 @@ const Weather = () => {
 
   const handleCheckboxChange = (event) => { setChecked(event.target.checked); };
 
-  const selectedIv= independentVarsList?.length && independentVarsList.find(obj => obj['id'] == tabValue);
-  const selectedIvName = selectedIv ? selectedIv['name'] : undefined;
-
   const getPowerBiError = (errorDetail) => {
     console.log('Error in setIsErrorInPowerBi',errorDetail)
   }
  
   let powerBiConfig = {
     type: "report",
-    id: weatherReportId,
-    embedUrl: weatherEmbedUrl, 
+    id: tabValue == "weather" ? weatherReportId : iVReportId,
+    embedUrl: tabValue == "weather" ? weatherEmbedUrl : iVEmbedUrl, 
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
@@ -356,8 +462,6 @@ const Weather = () => {
       background: models.BackgroundType.Transparent,
     },
   }
-
-  console.log("ffffvvv", independentVariable1File)
 
   return (
     <><Box
@@ -424,6 +528,9 @@ const Weather = () => {
       </Grid>
 
       {tabValue == 'weather' ? <Box>
+        <Grid xs={12} md={8}>
+        {/* <MapComponent /> */}
+        </Grid>
         <Grid
           container
           sx={{
@@ -432,8 +539,9 @@ const Weather = () => {
             marginTop: "1rem",
             marginBottom: "3rem",
           }}
+          xs={12} md={8}
         >
-          <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
+          {weatherStations?.length ? <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
             <TableContainer
               component={Paper}
               sx={{
@@ -448,8 +556,8 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       
                     </TableCell>
-                    {Array.isArray(LAT_LONG_DATA) &&
-                      LAT_LONG_DATA?.map((type, index) => (
+                    {Array.isArray(weatherStations) &&
+                      weatherStations?.map((type, index) => (
                         <TableCell
                           key={type.meterType}
                           sx={{ color: "#111", fontStyle: "italic" }}
@@ -464,13 +572,13 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Latitude
                     </TableCell>
-                    {Array.isArray(LAT_LONG_DATA) &&
-                      LAT_LONG_DATA?.map((type, index) => (
+                    {Array.isArray(weatherStations) &&
+                      weatherStations?.map((type, index) => (
                         <TableCell
                           key={type.meterType}
                           sx={{ color: "#111", fontStyle: "italic" }}
                         >
-                          {type?.["lattitude"]}
+                          {type?.["latitude"]}
                         </TableCell>
                       ))}
                   </TableRow>
@@ -480,8 +588,8 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Longitude
                     </TableCell>
-                    {Array.isArray(LAT_LONG_DATA) &&
-                      LAT_LONG_DATA?.map((count, index) => (
+                    {Array.isArray(weatherStations) &&
+                      weatherStations?.map((count, index) => (
                         <TableCell key={index} sx={{ color: "#111" }}>
                           {count?.["longitude"]}
                         </TableCell>
@@ -491,8 +599,8 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Climate ID
                     </TableCell>
-                    {Array.isArray(LAT_LONG_DATA) &&
-                      LAT_LONG_DATA?.map((count, index) => (
+                    {Array.isArray(weatherStations) &&
+                      weatherStations?.map((count, index) => (
                         <TableCell key={index} sx={{ color: "#111" }}>
                           {count?.["climate_id"]}
                         </TableCell>
@@ -502,17 +610,17 @@ const Weather = () => {
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Station ID
                     </TableCell>
-                    {Array.isArray(LAT_LONG_DATA) &&
-                      LAT_LONG_DATA?.map((count, index) => (
+                    {Array.isArray(weatherStations) &&
+                      weatherStations?.map((count, index) => (
                         <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["lattitude"]}
+                          {count?.["station_id"]}
                         </TableCell>
                       ))}
                   </TableRow>
                 </TableBody>
               </MuiTable>
             </TableContainer>
-          </Grid>
+          </Grid> : null}
           {/* <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
             <Typography>Select checkboxes to see graphs</Typography>
             <Grid item xs={12} md={6}>
@@ -702,14 +810,65 @@ const Weather = () => {
                     letterSpacing: "-0.01125rem",
                   }}
                 >
-                  Either data has not been uploaded and verified yet or uploaded data is in processing state, so this visualization is not available.
+                  Verifying data and creating visualization, please wait...
                 </Typography>}
               </Box>
             </Grid>
           </Grid>
         </Grid>
       </Box> : (
-        !isFileUploaded ? <Box>
+        (selectedIv?.files?.[0]?.file_path) ? 
+        <Grid sx={{width: "100%"}}>
+          <Grid sx={{width: "100%"}}>
+            <Box id="bi-report" mt={4}>
+              {((!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
+                embedConfig={powerBiConfig}
+                eventHandlers={
+                  new Map([
+                    [
+                      "loaded",
+                      function () {
+                        console.log("Report loaded");
+                      },
+                    ],
+                    [
+                      "rendered",
+                      function () {
+                        console.log("Report rendered");
+                      },
+                    ],
+                    [
+                      "error",
+                      function (event) {
+                        console.log("iiiiiiiiiii",event.detail);
+                        getPowerBiError(event.detail)
+                      },
+                    ],
+                    ["visualClicked", () => console.log("visual clicked")],
+                    ["pageChanged", (event) => console.log(event)],
+                  ])
+                }
+                cssClassName={"bi-embedded"}
+                getEmbeddedComponent={(embeddedReport) => {
+                  window.report = embeddedReport;
+                }}
+              /> : 
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: "700",
+                  fontSize: "1.125rem !important",
+                  lineHeight: "106.815%",
+                  letterSpacing: "-0.01125rem",
+                }}
+              >
+                Verifying data and creating visualization, please wait...
+              </Typography>}
+            </Box>
+          </Grid>
+        </Grid>
+        :
+        <Box>
           <Typography variant="h5">
             Upload data in bulk for {selectedIvName}
           </Typography>
@@ -754,11 +913,6 @@ const Weather = () => {
           >
             Upload
           </Button>
-        </Box> : <Box>
-          <Typography variant='h6' sx={{ color: 'blue.main', cursor: 'pointer', display: 'flex' }} onClick={downloadFileFromUrl}>
-            _independent_variable1_file.xlsx
-            <Typography sx={{ color: '#FF5858', marginLeft: '1rem', cursor: 'pointer' }} onClick={(event) => { event.stopPropagation() }}>Delete</Typography>
-          </Typography>
         </Box>
       )}
 
