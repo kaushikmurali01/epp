@@ -18,6 +18,7 @@ import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection"
 import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
 import Loader from "pages/Loader";
+import 'azure-maps-control/dist/atlas.min.css';
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,

@@ -528,8 +528,8 @@ const Weather = () => {
       </Grid>
 
       {tabValue == 'weather' ? <Box>
-        <Grid xs={12} md={8}>
-        {/* <MapComponent /> */}
+        <Grid xs={8} md={10}>
+        <MapComponent />
         </Grid>
         <Grid
           container
@@ -539,7 +539,7 @@ const Weather = () => {
             marginTop: "1rem",
             marginBottom: "3rem",
           }}
-          xs={12} md={8}
+          xs={12} md={10}
         >
           {weatherStations?.length ? <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
             <TableContainer
