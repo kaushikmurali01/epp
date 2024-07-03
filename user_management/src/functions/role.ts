@@ -95,6 +95,37 @@ export async function ListRoles(request: HttpRequest, context: InvocationContext
 }
 
 /**
+ * Retrieves a list of roles.
+ * 
+ * @param request The HTTP request object.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing a list of roles.
+ */
+export async function ListRequestToJoinRoles(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const type = parseInt(request.params.user_type);
+
+        // const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        // if(resp?.company_id) {
+        //  const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+        //  if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+        // }
+        // List roles
+        const roles = await RoleController.listRequestToJoinRoles(request, type);
+
+        // Prepare response body
+        const responseBody = JSON.stringify(roles);
+
+        // Return success response
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+/**
  * Updates a role based on the provided request data.
  * 
  * @param request The HTTP request object containing role data.
@@ -404,6 +435,14 @@ app.http('ListRoles', {
     route: 'roles/{user_type}',
     handler: ListRoles
 });
+app.http('ListRequestToJoinRoles', {
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    route: 'requestroles/{user_type}',
+    handler: ListRequestToJoinRoles
+});
+
+
 
 app.http('UpdateRole', {
     route: 'role/{id}',
