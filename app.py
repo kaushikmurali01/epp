@@ -1,27 +1,90 @@
+
 from flask import Flask, jsonify, request
 import json
 import pandas as pd
+import numpy as np
 from issue_detection import detect_issues, handle_issues
 from summarize_data import summarize_data
-from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities
+from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest
-
+from insertion_and_preparation import insert_clean_data_to_db
 
 app = Flask(__name__)
 
 @app.route('/handle', methods = ['POST'])
-def checker():
+def return_summary():
     # Fetch the DataFrame from the database
     df = dbtest('''select hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
     hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
     from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
     on hme.facility_meter_detail_id = fmd.meter_type;''')
-    # #print("Initial df from database:\n", df)
 
+    granularity = request.json.get('granularity', '')
+    start_date = request.json.get('start_date', '')
+    end_date = request.json.get('end_date', '')
+    facility_id = request.json.get('facility_id', '')
+    meter_type = request.json.get('meter_type', '')
     
-    # if 'weather_file' not in request.files:
-    #     return jsonify({'error': 'No file part'}), 400
+    # Debugging statements to check the received parameters
+    #print("facility_id:", facility_id)
+    #print("created_by:", created_by)
     
+    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
+    
+    # Debugging statement to check user_combined_data
+    print("User combined data:\n", user_combined_data)
+
+    if not user_combined_data:
+        #print("user_combined_data is empty after fetching and combining data")
+        return jsonify({'error': 'No data available for the given parameters'}), 400
+
+    weather_df = dbtest('SELECT * FROM epp.weather_data')
+    print("weather df is -- - - - - -- - - -- -- - - -- - - - -- -", weather_df)
+    results = {}
+    # #print("weather_df is  - - - -- - - -- - -- - -- -- - ", weather_df)
+    for meter_type, raw_df in user_combined_data.items():
+        if raw_df.empty:
+            print(f"raw_df is empty for meter_type {meter_type}")
+            continue
+
+        if start_date and end_date:
+            start_date = pd.to_datetime(start_date)
+            end_date = pd.to_datetime(end_date)
+            
+            # Ensure that date columns are in datetime format
+            raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+            weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
+            
+            # Filter data based on the date range
+            raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
+            weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
+        
+        # Debugging statements after filtering
+        #print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
+        #print(f"Filtered weather_df:\n", weather_df)
+        
+        summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
+        
+        summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
+
+        
+        results[str(meter_type)] = {
+            'summary': summary_dict
+        }
+
+    return jsonify(results[str(meter_type)]), 200
+
+
+
+
+@app.route('/check_issues', methods = ['POST'])
+def check_issues():
+    # Fetch the DataFrame from the database
+    df = dbtest('''select hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
+    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
+    on hme.facility_meter_detail_id = fmd.meter_type;''')
+
     granularity = request.form.get('granularity', 'hourly')
     start_date = request.form.get('start_date')
     end_date = request.form.get('end_date')
@@ -35,21 +98,21 @@ def checker():
     user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, created_by)
     
     # Debugging statement to check user_combined_data
-    #print("User combined data:\n", user_combined_data)
+    print("User combined data:\n", user_combined_data)
 
     if not user_combined_data:
         #print("user_combined_data is empty after fetching and combining data")
         return jsonify({'error': 'No data available for the given parameters'}), 400
 
-    weather_file = request.files['weather_file']
-    weather_df = pd.read_csv(weather_file)
-    # weather_df = dbtest('SELECT * FROM epp.weather_data')
+    # weather_file = request.files['weather_file']
+    # weather_df = pd.read_csv(weather_file)
+    weather_df = dbtest('SELECT * FROM epp.weather_data')
     print("weather df is -- - - - - -- - - -- -- - - -- - - - -- -", weather_df)
     results = {}
     # #print("weather_df is  - - - -- - - -- - -- - -- -- - ", weather_df)
     for meter_type, raw_df in user_combined_data.items():
         if raw_df.empty:
-            #print(f"raw_df is empty for meter_type {meter_type}")
+            print(f"raw_df is empty for meter_type {meter_type}")
             continue
 
         if start_date and end_date:
@@ -58,11 +121,11 @@ def checker():
             
             # Ensure that date columns are in datetime format
             raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
-            weather_df['Date/Time (LST)'] = pd.to_datetime(weather_df['Date/Time (LST)'])
+            weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
             
             # Filter data based on the date range
             raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
-            weather_df = weather_df[(weather_df['Date/Time (LST)'] >= start_date) & (weather_df['Date/Time (LST)'] <= end_date)]
+            weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
         
         # Debugging statements after filtering
         #print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
@@ -72,6 +135,230 @@ def checker():
         
         # Detect issues in the summarized data
         issues = detect_issues(summary)
+        results[str(meter_type)] = {
+            'issues': issues
+        }
+
+    return jsonify(results), 200
+
+@app.route('/check_sufficiency', methods = ['POST'])
+def check_sufficiency():
+    # Fetch the DataFrame from the database
+    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
+    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
+    on hme.facility_meter_detail_id = fmd.meter_type;''')
+
+    granularity = request.json.get('granularity', 'hourly')
+    start_date = request.json.get('start_date')
+    end_date = request.json.get('end_date')
+    facility_id = request.json.get('facility_id')
+    meter_type = request.json.get('meter_type')
+    
+    # Debugging statements to check the received parameters
+    #print("facility_id:", facility_id)
+    #print("created_by:", created_by)
+    
+    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
+    
+    # Debugging statement to check user_combined_data
+    print("User combined data:\n", user_combined_data)
+
+    if not user_combined_data:
+    #     #print("user_combined_data is empty after fetching and combining data")
+        return jsonify({'error': 'No data available for the given parameters'}), 400
+
+    # weather_file = request.files['weather_file']
+    # weather_df = pd.read_csv(weather_file)
+    weather_df = dbtest(f'SELECT * FROM epp.weather_data where facility_id = {facility_id}')
+    # print("weather df is -- - - - - -- - - -- -- - - -- - - - -- -", weather_df)
+    results = {}
+    # #print("weather_df is  - - - -- - - -- - -- - -- -- - ", weather_df)
+    for meter_type, raw_df in user_combined_data.items():
+        if raw_df.empty:
+            print(f"raw_df is empty for meter_type {meter_type}")
+            continue
+    # raw_df = pd.read_excel("C:/Users/Akash Jain/Downloads/_598033_unknown1719905563363.xlsx")
+        if start_date and end_date:
+            start_date = pd.to_datetime(start_date)
+            end_date = pd.to_datetime(end_date)
+            
+            # Ensure that date columns are in datetime format
+            raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+            weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
+            
+            # Filter data based on the date range
+            raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
+            weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
+            print("filtered weather df is - -- - - - -- - - -- -- - -- - ", weather_df)
+        # Debugging statements after filtering
+        #print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
+        #print(f"Filtered weather_df:\n", weather_df)
+        
+        summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
+        print("sufficiency is - -- - -  -- -- - - - - - - - - -  -- -", sufficiency)
+        granularity_results = {}
+        if sufficiency[granularity]:
+        # Hourly sufficiency
+            def process_granularity(data, granularity_level):
+                if granularity_level == 'hourly':
+                    
+                    if sufficiency[granularity_level] < 90:
+                        issues = detect_issues(data)
+                        return {
+                            'status': 'failed',
+                            'overall_sufficiency': sufficiency[granularity_level],
+                            'failedData': issues
+                        }
+                    else:
+                        return {
+                            'status': 'passed',
+                            'sufficiency': sufficiency[granularity_level]
+                        }
+                    
+                else:
+                    if sufficiency[granularity_level] < 90:
+                        return {
+                            'status': 'failed',
+                            'sufficiency': sufficiency[granularity_level]
+                        }
+                    else:
+                        return {
+                            'status': 'passed',
+                            'sufficiency': sufficiency[granularity_level]
+                        }
+                
+
+            # Hourly sufficiency
+            granularity_results['hourly'] = process_granularity(summary, 'hourly')
+
+            # Daily sufficiency
+            # numeric_columns = summary.select_dtypes(include=np.number).columns
+
+            daily_summary = summary.resample('D', on = 'Date').agg({
+                'Temperature': 'mean',
+                'EnergyConsumption': 'sum',
+                'DayNumber': 'first',
+                'WeekNumber': 'first',
+                'MonthNumber': 'first',
+                'MonthName': 'first'
+            }).reset_index()
+            print("daily summary data frame is - - - - - - - -- - -- - - -- - - - -- - ", daily_summary)
+            granularity_results['daily'] = process_granularity(daily_summary, 'daily')
+
+
+            results = granularity_results
+            return jsonify(results), 200
+        else:
+            return {
+                    'status': 'failed',
+                    'message': "Wrong inputs passed. Please try again with other inputs."
+                }, 200
+    # print(f"Sufficiency results: {results}")
+    
+
+
+@app.route("/get_weather_data", methods = ['GET'])
+def weather_data():
+    facility = request.args.get('facility_id')
+    df = dbtest(f'SELECT date_time, temp, rel_hum, precip_amount, wind_spd, station_press, hmdx, weather, station_id, facility_id, distance FROM epp.weather_data WHERE facility_id = {facility}')
+    df_con = df.to_dict(orient= 'records')
+    return jsonify(df_con), 200
+
+@app.route('/insert_clean_data', methods = ['POST'])
+def clean_data():
+    # Fetch the DataFrame from the database
+    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
+    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
+    on hme.facility_meter_detail_id = fmd.meter_type;''')
+
+    granularity = request.json.get('granularity', '')
+    start_date = request.json.get('start_date', '')
+    end_date = request.json.get('end_date', '')
+    facility_id = request.json.get('facility_id', '')
+    meter_type = request.json.get('meter_type', '')
+    indpendent_variables = request.json.get('indpendent_variables', '')
+    
+    # Debugging statements to check the received parameters
+    #print("facility_id:", facility_id)
+    #print("created_by:", created_by)
+    
+    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
+    
+    # Debugging statement to check user_combined_data
+    print("User combined data:\n", user_combined_data)
+
+    if not user_combined_data:
+        #print("user_combined_data is empty after fetching and combining data")
+        return jsonify({'error': 'No data available for the given parameters'}), 400
+
+    weather_df = dbtest(f'SELECT * FROM epp.weather_data where facility_id = {facility_id}')
+
+    # print("weather df is -- - - - - -- - - -- -- - - -- - - - -- -", weather_df)
+    results = {}
+    # #print("weather_df is  - - - -- - - -- - -- - -- -- - ", weather_df)
+    for meter_type, raw_df in user_combined_data.items():
+        if raw_df.empty:
+            print(f"raw_df is empty for meter_type {meter_type}")
+            continue
+
+        if start_date and end_date:
+            start_date = pd.to_datetime(start_date)
+            end_date = pd.to_datetime(end_date)
+            
+            # Ensure that date columns are in datetime format
+            raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+            weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
+            
+            # Filter data based on the date range
+            raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
+            weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
+        
+        # Debugging statements after filtering
+        #print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
+        #print(f"Filtered weather_df:\n", weather_df)
+        
+        summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
+        summary = summary[pd.notna(summary['Temperature'])]
+        summary.to_csv("ctyghujihgftgyhu.csv")
+        issues = detect_issues(summary)
+        for variable_id in indpendent_variables:
+            print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
+            idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
+            print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
+            variable_data = fetch_and_combine_data_for_independent_variables(idv, variable_id)
+            print("independent variable dataframe after processing is - - - - - --- - -- -  - - -",variable_data)
+            variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+            if start_date and end_date:
+                start_date = pd.to_datetime(start_date)
+                end_date = pd.to_datetime(end_date)
+                
+                # Ensure that date columns are in datetime format
+                variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                
+                # Filter data based on the date range
+                variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (variable_data['Start Date (Required)'] <= end_date)]
+                print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
+        
+            variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+            # Step 2: Set this column as the index
+            variable_data.set_index('Start Date (Required)', inplace=True)
+
+            # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+            hourly_data = variable_data['Meter Reading (Required)'].resample('H').sum()
+            print("hourly data is 0- 0 -0 -0 - 0-0 - 0- 0 -0 - - -- - - -  - -- - -- - - - ", hourly_data)
+            # hourly_data.to_csv("hourly_data.csv")
+            variable_name = idv['independent_variable_name'][0]
+            print("variable name is- --  -- -###################################################33", variable_name)
+            hourly_data.name = variable_name
+            hourly_data_df = hourly_data.to_frame(name=variable_name)
+            print("hourly_data_df",hourly_data_df)
+            summary = summary.join(hourly_data_df, how='outer')
+            print("The df after combining the independent variable is - - -  -- - - - - - - -- -   - ", summary.columns)
+        summary.to_csv("updated_summary.csv")
+        print("sufficiency after independent variable combining - - - -- - - - -- - - - - ", sufficiency)
+        
         # print("issues are - -- - - -- - - - --- - - - -- ", issues)
         def checker(weather_df):
             if weather_df.empty:
@@ -82,24 +369,40 @@ def checker():
                 return target_station
         summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
         target_station = checker(weather_df)
-        #print('target stations found is  - - -- - -- - - - - - - -- -' , target_station)
+        #print('target stations  found is  - - -- - -- - - - - - - -- -' , target_station)
         # Handle issues by filling missing Temperature data
         summary_cleaned = handle_issues(summary, weather_df, issues, target_station, granularity)
-        summary_cleaned.to_csv("summary_cleaned.csv")
+        summary_cleaned.reset_index(drop = True, inplace= True)
+        
+        # insert_clean_data_to_db(summary_cleaned)
 
-        # Convert DataFrame to JSON-serializable format
-        summary_dict = summary_cleaned.to_dict(orient='records')
-
-        results[str(meter_type)] = {
-            'sufficiency': sufficiency,
-            'summary': summary_dict,
-            'issues': issues
+        results = {
+            'message': "Data inserted successfully"
         }
 
     return jsonify(results), 200
 
 
+@app.route("/idv_processing", methods = ['GET'])
+def idv_process():
+    variable_id = request.args.get('variable_id')
+    df = dbtest("select * from epp.independent_variable_file")
+    result_df = fetch_and_combine_data_for_independent_variables(df, variable_id)
+    if result_df.empty:
+        return jsonify([]),200
+    # Step 1: Convert the "Start Date (Required)" column to datetime
+    result_df['Start Date (Required)'] = pd.to_datetime(result_df['Start Date (Required)'])
 
+    # Step 2: Set this column as the index
+    result_df.set_index('Start Date (Required)', inplace=True)
+
+    # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+    hourly_data = result_df['Meter Reading (Required)'].resample('H').sum()
+
+    # Convert the Series to a dictionary with string keys
+    hourly_data_list = [{'Reading_date': str(index), 'Value': value} for index, value in hourly_data.items()]
+    
+    return jsonify(hourly_data_list), 200
 
 if __name__ == '__main__':
 

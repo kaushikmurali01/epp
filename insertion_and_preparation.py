@@ -15,6 +15,27 @@ def insert_data_to_db(df):
     db_execute(query, values)
 
 
+
+def insert_clean_data_to_db(df):
+    query = """
+    INSERT INTO clean_data (
+        date, longitude, latitude, temperature, station_name, energyconsumption, 
+        daynumber, weeknumber, monthnumber, monthname
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
+    """
+    
+    # Ensuring that the column names in the DataFrame match exactly
+    df.columns = df.columns.str.lower()  # Convert DataFrame columns to lowercase
+    
+    values = df[['date', 'longitude', 'latitude', 'temperature', 'station_name', 'energyconsumption', 'daynumber', 'weeknumber', 'monthnumber', 'monthname']].values.tolist()
+    
+    # Debugging statement to check the query and values list
+    print("SQL Query:", query)
+    print("Values to be inserted:", values)
+    
+    db_execute(query, values)
+
+
 def prepare_data(row):
     # Replace NaN with None (SQL NULL)
     clean_row = {k: (None if pd.isna(v) else v) for k, v in row.items()}

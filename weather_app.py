@@ -35,8 +35,8 @@ def get_nearest_stations(facility_df, stations_df, n=3):
         raise ValueError("facility_df must contain at least one row")
 
     # Extract facility coordinates (using the first row)
-    facility_lat = float(facility_df.iloc[0]['Latitude'])
-    facility_lon = float(facility_df.iloc[0]['Longitude'])
+    facility_lat = float(facility_df.iloc[0]['latitude'])
+    facility_lon = float(facility_df.iloc[0]['longitude'])
 
     # Reset the index of the stations_df to ensure indices are sequential
     stations_df.reset_index(drop=True, inplace=True)
@@ -60,16 +60,16 @@ stations = dbtest("select station_id,latitude, longitude, station_name from stat
 
 @app.route('/insert_weather_data', methods = ['POST'])
 def process():
-    start_year = request.form.get('start_year')
-    start_month = request.form.get('start_month')
-    end_year = request.form.get('end_year')
-    facility_id = request.form.get('facility_id')
-    end_month = request.form.get('end_month')
+    start_year = request.json.get('start_year')
+    start_month = request.json.get('start_month')
+    end_year = request.json.get('end_year')
+    facility_id = request.json.get('facility_id')
+    end_month = request.json.get('end_month')
 
-    facility = pd.read_csv("D:/facility_details.csv")
+    facility = dbtest("select id, latitude, longitude from epp.facility")
     print("Facility data is -  - - - - - -- - -- -  -- - - -- ", facility.columns)
-    print(facility[facility['facility_id'] == 24])
-    facility_df = facility[facility['facility_id'] == int(facility_id)][['Latitude','Longitude']]
+    print(facility[facility['id'] == 24])
+    facility_df = facility[facility['id'] == int(facility_id)]
 # Get nearest 3 stations
     nearest_station_ids = get_nearest_stations(facility_df, stations)
     print(nearest_station_ids)
@@ -88,17 +88,17 @@ def getdata():
 
 @app.route('/get_min_max_dates', methods = ['GET'])
 def getdates():
-    df = dbtest('''SELECT hme.facility_id, hme.facility_meter_detail_id AS meter_type, hme.meter_id,
+    df = dbtest('''SELECT distinct hme.facility_id, hme.facility_meter_detail_id AS meter_type, hme.meter_id,
                           hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
                    FROM epp.facility_meter_hourly_entries hme
                    JOIN epp.facility_meter_detail fmd
                    ON hme.facility_meter_detail_id = fmd.meter_type;''')
     
     facility_id = request.args.get('facility_id')
-    created_by = request.args.get('created_by')
+    meter_type = request.args.get('meter_type')
     print(type(facility_id))
-    print(type(created_by))
-    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, created_by)
+    print(type(meter_type))
+    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
     print(user_combined_data)
     min_date = None
     max_date = None
