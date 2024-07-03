@@ -996,6 +996,31 @@ export async function UpdateUserStatus(request: HttpRequest, context: Invocation
     }
 }
 
+export async function CheckEmailExists(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const requestData: any = await request.json();
+        const email = requestData.email;
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        });
+        if(user) return { body: JSON.stringify({ status: 200, body: { exist : true} }) };
+        else return { body: JSON.stringify({ status: 200, body: { exist : false} }) };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+app.http('CheckEmailExists', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'email/check',
+    handler: CheckEmailExists
+});
+
 app.http('UpdateUserStatus', {
     methods: ['PUT'],
     authLevel: 'anonymous',
