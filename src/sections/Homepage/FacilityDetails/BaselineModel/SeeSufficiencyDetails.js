@@ -30,8 +30,8 @@ const SeeSufficiencyDetails = ({
             fontWeight: 400,
           }}
         >
-          {activeButton === "monthly" && item?.status === "failed"
-            ? Object.keys(item?.failedData)
+          {activeButton === "monthly"
+            ? item?.month
             : `Data sufficiency
           ${item?.status}`}
         </Typography>
@@ -49,7 +49,7 @@ const SeeSufficiencyDetails = ({
             fontWeight: 400,
           }}
         >
-          {item?.overall_sufficiency}%
+          {activeButton === "monthly" ? item?.value : `${item?.sufficiency}%`}
         </Typography>
       ),
     },
@@ -59,17 +59,30 @@ const SeeSufficiencyDetails = ({
     setActiveButton(btn_name);
   };
 
+  const getSufficiencyMonthlyData = () => {
+    if (sufficiencyCheckData["hourly"]["status"] === "passed") {
+      return [];
+    }
+    if (sufficiencyCheckData) {
+      return (
+        sufficiencyCheckData["hourly"]["failedData"]["monthly_sufficiency"] ||
+        []
+      );
+    }
+    return [];
+  };
+
   const getSufficiencyData = () => {
     if (sufficiencyCheckData) {
-      if (activeButton === "monthly") {
-        return sufficiencyCheckData["hourly"];
-      }
       return sufficiencyCheckData[activeButton] || {};
     }
     return {};
   };
 
-  const sufficiencyData = getSufficiencyData();
+  const sufficiencyData =
+    activeButton === "monthly"
+      ? getSufficiencyMonthlyData()
+      : getSufficiencyData();
 
   return (
     <Grid container>
@@ -126,7 +139,7 @@ const SeeSufficiencyDetails = ({
           </Grid>
           <Grid item>
             <Typography variant="small">
-              {sufficiencyData?.overall_sufficiency}% Data is available
+              {sufficiencyData?.sufficiency}% Data is available
             </Typography>
           </Grid>
         </Grid>
@@ -134,7 +147,12 @@ const SeeSufficiencyDetails = ({
         <></>
       )}
       <Grid container mt={3}>
-        <MiniTable columns={userColumn} data={[sufficiencyData]} />
+        <MiniTable
+          columns={userColumn}
+          data={
+            activeButton === "monthly" ? sufficiencyData : [sufficiencyData]
+          }
+        />
       </Grid>
     </Grid>
   );

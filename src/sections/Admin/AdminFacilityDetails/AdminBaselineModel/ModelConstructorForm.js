@@ -150,9 +150,9 @@ const ModelConstructorForm = ({
     };
     dispatch(adminSufficiencyCheck(myData))
       .then((res) => {
-        // if (res.hasOwnProperty("error")) {
-        //   setBaselinePeriodFailed(true);
-        // }
+        if (res?.status === "failed") {
+          alert(res?.message);
+        }
       })
       .catch((error) => {});
   };
@@ -280,6 +280,7 @@ const ModelConstructorForm = ({
           onClick={() => {
             openSeeDetails(baselineStartDate, baselineEndDate);
           }}
+          disabled={sufficiencyCheckData.status === "failed"}
         >
           See details
         </Typography>
