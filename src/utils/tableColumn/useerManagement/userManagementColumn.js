@@ -38,29 +38,41 @@ const UserManagementColumn = () => {
 
     const DeleteModelContent = () => {
         return (
-            <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}, position: 'relative'}} >
-                <Grid item sx={{textAlign:'center'}}>
-                    <figure>
-                        <img src="/images/icons/deleteIcon.svg" alt="" />
-                    </figure>
-                </Grid>
-                <Grid item>
-                    <Typography variant="h4">
-                        Are you sure you would like to Delete
-                        the user Details
-                    </Typography>
-                </Grid>
-                <Grid item>
-                    <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                     <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                    <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
-                    </FormGroup>
-                </Grid>
-                {show_loader &&
-                    <Loader sectionLoader={true} minHeight="150px" />
-                }
+          <Grid
+            container
+            alignItems="center"
+            flexDirection="column"
+            textAlign="center"
+            sx={{ position: "relative" }}
+          >
+            <Grid item sx={{ textAlign: "center" }}>
+              <figure>
+                <img src="/images/icons/deleteIcon.svg" alt="" />
+              </figure>
             </Grid>
-        )
+            <Grid item>
+              <Typography variant="h4">
+                Are you sure you would like to delete the User?
+              </Typography>
+            </Grid>
+            <Grid item>
+              <FormGroup
+                sx={{
+                  display: "block",
+                }}
+              >
+                <Checkbox
+                  id="receiveCopy"
+                  onChange={(e) => setIsChecked(e.target.checked)}
+                />
+                <FormLabel htmlFor="receiveCopy">
+                  Check if you want to receive a copy of the delete confirmation email
+                </FormLabel>
+              </FormGroup>
+            </Grid>
+            {show_loader && <Loader sectionLoader={true} minHeight="150px" />}
+          </Grid>
+        );
     }
 
     const USER_MANAGEMENT_COLUMN_ACTION = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
@@ -224,27 +236,36 @@ const UserManagementColumn = () => {
         }
 
         setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: true,
-            modalUI: {
-                ...prevState.modalUI,
-                showHeader: true,
-                crossIcon: true,
-                fotterActionStyle: {justifyContent: "center", gap: '1rem'}
-              },
-              buttonsUI: {
-                ...prevState.buttonsUI,
-                saveButton: true,
-                cancelButton: true,
-                successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
-                cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
-                saveButtonName: "Yes,Delete!",
-                cancelButtonName: "No,Cancel",          
-              },
-              headerText: "",
-              headerSubText: "",
-            modalBodyContent: <DeleteModelContent />,
-            saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
+          ...prevState,
+          modalVisible: true,
+          modalUI: {
+            ...prevState.modalUI,
+            showHeader: true,
+            crossIcon: true,
+            fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+          },
+          buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+            successButtonStyle: {
+              backgroundColor: "danger.scarlet",
+              "&:hover": { backgroundColor: "danger.colorCrimson" },
+              color: "#fff",
+            },
+            cancelButtonStyle: {
+              backgroundColor: "primary.main",
+              "&:hover": { backgroundColor: "primary.mainDarkShade" },
+              color: "#fff",
+            },
+            saveButtonName: "Delete User",
+            cancelButtonName: "Cancel",
+          },
+          headerText: "",
+          headerSubText: "",
+          modalBodyContent: <DeleteModelContent />,
+          saveButtonAction: () =>
+            handelDelete(item, handleAPISuccessCallBack, setModalConfig),
         }));
         // handelDelete(item, handleAPISuccessCallBack)
     }

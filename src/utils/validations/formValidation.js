@@ -6,6 +6,8 @@ import {
   onlyCharactersRegExp,
 } from "../../config/regex";
 
+const fourDigitNumberRegex = /^\d{4}$/;
+
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
     .required("Please enter email")
@@ -54,9 +56,16 @@ export const validationSchemaAddFacility = Yup.object().shape({
   ),
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
-  // naic_code: Yup.string().required("NAIC's Code is required"),
-  facility_category: Yup.string().required("Facility Category is required"),
   facility_type: Yup.string().required("Facility Type is required"),
+  naic_code: Yup.string()
+    .when('facility_type', {
+      is: 'Other', // condition
+      then: () => Yup.string()
+        .matches(fourDigitNumberRegex, 'NAIC\'s Code must be exactly 4 digits')
+        .required('NAIC\'s Code is required'),
+      otherwise: () => Yup.string().notRequired(),
+    }),
+  facility_category: Yup.string().required("Facility Category is required"),
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
   ),

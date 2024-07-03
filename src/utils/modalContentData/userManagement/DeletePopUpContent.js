@@ -3,7 +3,7 @@ import { Grid, Typography } from '@mui/material';
 
 const DeletePopUpContent = ({modalContent}) => {
   return (
-    <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+    <Grid container alignItems='center' flexDirection="column" textAlign='center'  >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -17,9 +17,9 @@ const DeletePopUpContent = ({modalContent}) => {
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <FormGroup sx={{display: 'block',}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>

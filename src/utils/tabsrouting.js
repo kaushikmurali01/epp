@@ -182,18 +182,18 @@ export const tabsData = (userType, userRole, permissions = []) => {
         label:"User Management",
         route:'/user-management'
       },
-      {
-        label:"Client Management",
-        route:'/client-management'
-      },
-      {
-        label:"Report Management",
-        route:'/report-management'
-      },
-      {
-        label:"Program Management",
-        route:'/program-management'
-      },
+      // {
+      //   label:"Client Management",
+      //   route:'/client-management'
+      // },
+      // {
+      //   label:"Report Management",
+      //   route:'/report-management'
+      // },
+      // {
+      //   label:"Program Management",
+      //   route:'/program-management'
+      // },
       {
         label:"Roles and Permissions",
         route:'/roles-permissions-management'
