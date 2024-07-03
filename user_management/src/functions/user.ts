@@ -20,6 +20,7 @@ import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { CompanyService } from "../services/companyService";
 import { AuthorizationService } from "../middleware/authorizeMiddleware";
 import { UserResourceFacilityPermission } from "../models/user-resource-permission";
+import axios from 'axios';
 
 /**
  * Registers a new user based on the provided request data.
@@ -554,6 +555,81 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
     }
 }
 
+export async function DeleteUserByemail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const user_id: any = request.params.id;
+        const type: any = request.params.type;
+        const company_id: any = request.params.company_id;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const userDet:any = await UserService.getUserDataById(user_id);
+        const userType = resp.type;
+        const email = userDet.email;
+        context.log("Client Id", process.env.CLIENT_ID);
+        context.log("Client Secret", process.env.CLIENT_ID);
+        context.log("Email", email);
+
+        if (userType !== 1 || !email) {
+            return { body: JSON.stringify({ status: 403, body: "You are not allowed to perform this request" }) };
+        }
+        if(type == 1) {
+        const tokenResponse = await axios.post(
+            `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`, 
+            new URLSearchParams({
+                grant_type: 'client_credentials',
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
+                scope: 'https://graph.microsoft.com/.default'
+            }),
+            {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }
+        );
+
+        const accessToken = tokenResponse.data.access_token;
+
+        const userResponse = await axios.get(`https://graph.microsoft.com/v1.0/users?$select=id&$filter=identities/any(c:c/issuerAssignedId eq '${email}' and c/issuer eq '${process.env.B2C_TENANT_NAME}')`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!userResponse.data.value || userResponse.data.value.length === 0) {
+            return { body: JSON.stringify({ status: 404, body: "User not found" }) };
+        }
+
+        const userId = userResponse.data.value[0].id;
+
+        const deleteResponse = await axios.delete(`https://graph.microsoft.com/v1.0/users/${userId}`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (deleteResponse.status === 204) {
+            await sequelize.authenticate();
+            await Promise.all([
+                UserCompanyRolePermission.destroy({ where: { user_id:user_id }}),
+                UserCompanyRole.destroy({ where: { user_id:user_id } }),
+                UserRequest.destroy({ where: { user_id:user_id } }),
+                User.destroy({where: {id:user_id}}),
+                UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
+                UserInvitation.destroy({ where: { email: userDet?.email } })
+            ]);
+
+            return { body: JSON.stringify({ status: 200, body: "User deleted successfully from both Azure AD B2C and database" }) };
+
+        } else {
+            return { body: JSON.stringify({ status: 500, body: "Failed to delete user from Azure AD B2C" }) };
+        }
+    } else if (type == 2) {
+        await UserInvitation.destroy({ where: { id: user_id } });
+        
+    } else if (type == 3) {
+        await UserRequest.destroy({ where: { id: user_id } });
+    }
+
+    } catch (error) {
+        context.log('Error:', error.message);
+        return { body: JSON.stringify({ status: 500, body: "An error occurred: " + error.message }) };
+    }
+}
+
 
 /**
  * Azure Function to retrieve the list of user invitations.
@@ -920,6 +996,31 @@ export async function UpdateUserStatus(request: HttpRequest, context: Invocation
     }
 }
 
+export async function CheckEmailExists(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+
+        const requestData: any = await request.json();
+        const email = requestData.email;
+        const user = await User.findOne({
+            where: {
+                email
+            }
+        });
+        if(user) return { body: JSON.stringify({ status: 200, body: { exist : true} }) };
+        else return { body: JSON.stringify({ status: 200, body: { exist : false} }) };
+    } catch (error) {
+        // Return error response
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+app.http('CheckEmailExists', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'email/check',
+    handler: CheckEmailExists
+});
+
 app.http('UpdateUserStatus', {
     methods: ['PUT'],
     authLevel: 'anonymous',
@@ -1014,6 +1115,12 @@ app.http('DeleteUserAdmin', {
     authLevel: 'anonymous',
     route: 'usersadmin/{id}/{type}/{company_id}',
     handler: DeleteUserAdmin
+});
+app.http('DeleteUserByemail', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'euser/delete/{id}/{type}/{company_id}',
+    handler: DeleteUserByemail
 });
 
 app.http('AcceptInvitation', {

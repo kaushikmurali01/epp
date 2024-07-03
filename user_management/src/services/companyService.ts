@@ -238,31 +238,45 @@ class CompanyService {
           let bindParams = {limit, offset};
           let index = 2;
           let filterConditions = '';
+          let filterConditionsOr = '';
     
           if(!data) data = [];
-        //   if (data.length > 0) {
-        //     const conditions = data.map(({ key, value }) => {
-        //       bindParams[`param${index}`] = `%${value}%`;
-        //       return `${key} ILIKE :param${index++}`;
-        //     });
-        //     filterConditions = `AND ${conditions.join(' AND ')}`;
-        //   }
+          
+          const orArray = data
+  .filter(item => item.key === "city")
+  .flatMap(item => [
+    item,
+    { key: "address1", value: item.value },
+    { key: "address2", value: item.value },
+    { key: "unit_number", value: item.value },
+    { key: "street_name", value: item.value },
+    { key: "street_number", value: item.value },
+    { key: "state", value: item.value },
+    { key: "country", value: item.value },
+    { key: "postal_code", value: item.value }
+  ]);
 
-        //   if (data.length > 0) {
-        //     const conditions = data.map(({ key, value }) => {
-        //       bindParams.push(`%${value}%`);
-        //       return `${key} ILIKE :$${index++}`;
-        //     });
-        //     filterConditions = `AND ${conditions.join(' AND ')}`;
-        //   }
+  console.log("orArray", orArray);
 
-        if (data.length > 0) {
-            const conditions = data.map((item, index) => {
+const andArray = data.filter(item => item.key !== "city");
+          
+
+        if (andArray.length > 0) {
+            const conditions = andArray.map((item, index) => {
               const paramName = `param${index + 1}`;
               bindParams[paramName] = `%${item.value}%`;
               return `${item.key} ILIKE '${bindParams[paramName]}'`;
             });
             filterConditions = `AND (${conditions.join(' AND ')})`;
+          }
+
+          if (orArray.length > 0) {
+            const conditions = orArray.map((item, index) => {
+              const paramName = `param${index + 1}`;
+              bindParams[paramName] = `%${item.value}%`;
+              return `${item.key} ILIKE '${bindParams[paramName]}'`;
+            });
+            filterConditionsOr = `AND (${conditions.join(' OR ')})`;
           }
           console.log("Bind", bindParams);
     
@@ -270,12 +284,12 @@ class CompanyService {
             rawQuery(`SELECT COUNT(*) AS count FROM "company" c
                 INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
                 INNER JOIN "users" u ON cr.user_id = u.id
-                WHERE cr.role_id= 1 ${filterCheck} ${filterConditions}`),
+                WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ${filterConditionsOr}`),
             rawQuery(
               `SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
                 INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
                 INNER JOIN "users" u ON cr.user_id = u.id
-                WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`,
+                WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ${filterConditionsOr} ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`,
               {
                 limit: limit,
                 offset: offset,
