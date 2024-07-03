@@ -15,9 +15,8 @@ const SeeSufficiencyDetails = ({
 }) => {
   const [activeButton, setActiveButton] = useState("hourly");
   const sufficiencyCheckData = useSelector(
-    (state) => state?.adminBaselineReducer?.sufficiencyCheckData
+    (state) => state?.baselineReducer?.sufficiencyCheckData
   );
-
   const userColumn = [
     {
       Header: "Data coverage thresholds",

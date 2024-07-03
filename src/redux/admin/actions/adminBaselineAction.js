@@ -1,4 +1,4 @@
-import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import {
   fetchAdminBaselinePeriodFailure,
   fetchAdminBaselinePeriodRequest,
@@ -12,6 +12,27 @@ import {
   adminSufficiencyCheckFailure,
   adminSufficiencyCheckRequest,
   adminSufficiencyCheckSuccess,
+  fetchAdminBaselineListDbFailure,
+  fetchAdminBaselineListDbSuccess,
+  fetchAdminBaselineListDbRequest,
+  fetchAdminIssueDetailsRequest,
+  fetchAdminIssueDetailsSuccess,
+  fetchAdminIssueDetailsFailure,
+  fetchAdminBaselineDetailsDbRequest,
+  fetchAdminBaselineDetailsDbSuccess,
+  fetchAdminBaselineDetailsDbFailure,
+  updateAdminBaselineDetailsDbRequest,
+  updateAdminBaselineDetailsDbSuccess,
+  updateAdminBaselineDetailsDbFailure,
+  adminAddBaselineDbRequest,
+  adminAddBaselineDbSuccess,
+  adminAddBaselineDbFailure,
+  adminAddAssigneeToBaselineDbRequest,
+  adminAddAssigneeToBaselineDbSuccess,
+  adminAddAssigneeToBaselineDbFailure,
+  submitAdminRejectBaselineDbRequest,
+  submitAdminRejectBaselineDbSuccess,
+  submitAdminRejectBaselineDbFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -21,20 +42,13 @@ export const adminSufficiencyCheck = (adminSufficiencyParameters) => {
     try {
       dispatch(adminSufficiencyCheckRequest());
       let endpointWithParams = `${BASELINE_ENDPOINTS.CHECK_SUFFICIENCY}`;
-      const formData = new FormData();
-      formData.append("start_date", adminSufficiencyParameters.start_date);
-      formData.append("end_date", adminSufficiencyParameters.end_date);
-      formData.append("granularity", adminSufficiencyParameters.granularity);
-      formData.append("facility_id", adminSufficiencyParameters.facility_id);
-      formData.append("created_by", adminSufficiencyParameters.created_by);
       const response = await POST_REQUEST(
         endpointWithParams,
-        adminSufficiencyParameters,
-        true,
-        ""
+        adminSufficiencyParameters
       );
       const data = response.data;
       dispatch(adminSufficiencyCheckSuccess(data));
+      return data;
     } catch (error) {
       console.error(error);
       dispatch(adminSufficiencyCheckFailure(error));
@@ -66,11 +80,11 @@ export const fetchAdminIndependentVariableList = (facilityId) => {
   };
 };
 
-export const fetchAdminBaselinePeriod = (facilityId, createdBy) => {
+export const fetchAdminBaselinePeriod = (facilityId, meterType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminBaselinePeriodRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.BASELINE_PERIOD}?facility_id=${facilityId}&created_by=${createdBy}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.BASELINE_PERIOD}?facility_id=${facilityId}&meter_type=${meterType}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminBaselinePeriodSuccess(data));
@@ -82,6 +96,7 @@ export const fetchAdminBaselinePeriod = (facilityId, createdBy) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      return error;
     }
   };
 };
@@ -98,6 +113,162 @@ export const fetchAdminStationsDetails = (facilityId) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminStationsDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminIssueDetails = (facilityId, meterType) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminIssueDetailsRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.CHECK_ISSUES_DETAILS}?facility_id=${facilityId}&meterType=${meterType}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminIssueDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminIssueDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminAddBaselineToDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAddBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_BASELINE_DB}/${facilityId}`;
+      const response = await POST_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(adminAddBaselineDbSuccess(data));
+      NotificationsToast({
+        message: "Baseline added successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAddBaselineDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminBaselineDetailsFromDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminBaselineDetailsDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_BASELINE_DB}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminBaselineDetailsDbSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminBaselineDetailsDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminBaselineInDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateAdminBaselineDetailsDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(updateAdminBaselineDetailsDbSuccess(data));
+      NotificationsToast({
+        message: "Baseline updated successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(updateAdminBaselineDetailsDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminBaselineListFromDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminBaselineListDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_BASELINE_LIST_DB}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminBaselineListDbSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminBaselineListDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminAddAssigneeToBaselineDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAddAssigneeToBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_ASSIGNEE_DB}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(adminAddAssigneeToBaselineDbSuccess(data));
+      NotificationsToast({
+        message: "Assignee added successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAddAssigneeToBaselineDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const submitAdminRejectedBaselineDB = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(submitAdminRejectBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_REJECTED_BASELINE_DB}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(submitAdminRejectBaselineDbSuccess(data));
+      NotificationsToast({
+        message: "Baseline submitted successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(submitAdminRejectBaselineDbFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
