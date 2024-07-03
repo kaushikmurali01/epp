@@ -94,6 +94,7 @@ export const USER_MANAGEMENT = {
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
   ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
   REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
+  GET_COMPANY_LIST_WITH_SEARCH: "/enerva-user/v1/companies/search",
   // DELETE REQUEST
   DELETE_USER_REQUEST: "/enerva-user/v1/users",
   // EDIT REQUEST
