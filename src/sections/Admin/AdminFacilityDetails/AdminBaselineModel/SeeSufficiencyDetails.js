@@ -21,7 +21,6 @@ const SeeSufficiencyDetails = ({
   const userColumn = [
     {
       Header: "Data coverage thresholds",
-      // headerVisibility: "hidden",
       accessor: (item) => (
         <Typography
           variant="span"
@@ -32,7 +31,10 @@ const SeeSufficiencyDetails = ({
             fontWeight: 400,
           }}
         >
-          Data sufficiency {item?.status}
+          {activeButton === "monthly" && item?.status === "failed"
+            ? Object.keys(item?.failedData)
+            : `Data sufficiency
+          ${item?.status}`}
         </Typography>
       ),
     },
@@ -60,6 +62,9 @@ const SeeSufficiencyDetails = ({
 
   const getSufficiencyData = () => {
     if (sufficiencyCheckData) {
+      if (activeButton === "monthly") {
+        return sufficiencyCheckData["hourly"];
+      }
       return sufficiencyCheckData[activeButton] || {};
     }
     return {};
@@ -101,30 +106,34 @@ const SeeSufficiencyDetails = ({
           </Button>
         </StyledButtonGroup>
       </Grid>
-      <Grid
-        spacing={5}
-        columnGap={6}
-        mt={3}
-        sx={{
-          display: "flex",
-          width: "100%",
-          background: "#CCFED5",
-          alignItems: "center",
-          borderRadius: "1rem ",
-          padding: "1rem ",
-        }}
-      >
-        <Grid item>
-          <Typography variant="small" sx={{ fontSize: "1rem!important" }}>
-            From {baselineStartDate} to {baselineEndDate}
-          </Typography>
+      {activeButton !== "monthly" ? (
+        <Grid
+          spacing={5}
+          columnGap={6}
+          mt={3}
+          sx={{
+            display: "flex",
+            width: "100%",
+            background: "#CCFED5",
+            alignItems: "center",
+            borderRadius: "1rem ",
+            padding: "1rem ",
+          }}
+        >
+          <Grid item>
+            <Typography variant="small" sx={{ fontSize: "1rem!important" }}>
+              From {baselineStartDate} to {baselineEndDate}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="small">
+              {sufficiencyData?.overall_sufficiency}% Data is available
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography variant="small">
-            {sufficiencyData.sufficiency}% Data is available
-          </Typography>
-        </Grid>
-      </Grid>
+      ) : (
+        <></>
+      )}
       <Grid container mt={3}>
         <MiniTable columns={userColumn} data={[sufficiencyData]} />
       </Grid>

@@ -2,10 +2,7 @@ import { Button, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
-import {
-  addBaselineToDb,
-  submitRejectedBaselineDB,
-} from "../../../../redux/superAdmin/actions/baselineAction";
+import { submitRejectedBaselineDB } from "../../../../redux/superAdmin/actions/baselineAction";
 
 const HelpRequestModal = ({ setSendHelpModalConfig }) => {
   const { id } = useParams();

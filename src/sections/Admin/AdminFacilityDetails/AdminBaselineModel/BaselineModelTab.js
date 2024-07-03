@@ -14,7 +14,6 @@ import { useParams } from "react-router-dom";
 import { fetchAdminStationsDetails } from "../../../../redux/admin/actions/adminBaselineAction";
 import EvModal from "utils/modal/EvModal";
 import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
-import HelpRequestModal from "./HelpRequestModal";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
@@ -70,47 +69,7 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       ),
     }));
   };
-  const [sendHelpModalConfig, setSendHelpModalConfig] = useState({
-    modalVisible: false,
-    modalUI: {
-      showHeader: true,
-      crossIcon: false,
-      modalClass: "",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
-      },
-      fotterActionStyle: "",
-      modalBodyContentStyle: "",
-    },
-    buttonsUI: {
-      saveButton: false,
-      cancelButton: false,
-      saveButtonName: "Yes",
-      cancelButtonName: "No",
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    headerText: "",
-    headerSubText: "",
-    modalBodyContent: "",
-    saveButtonAction: "",
-  });
 
-  const openSendHelpRequestModal = () => {
-    setSendHelpModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      modalBodyContent: (
-        <HelpRequestModal
-          meterType={activeButton}
-          setSendHelpModalConfig={setSendHelpModalConfig}
-        />
-      ),
-    }));
-  };
   return (
     <>
       <Grid container justifyContent="space-between">
@@ -153,7 +112,6 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             <ModelConstructorForm
               handleSufficiencySettings={handleSufficiencySettings}
               openSeeDetails={openSeeDetailsModal}
-              openSendHelpRequestModal={openSendHelpRequestModal}
               meterType={activeButton}
             />
           }
@@ -176,10 +134,6 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       <EvModal
         modalConfig={seeDetailsModalConfig}
         setModalConfig={setSeeDetailsModalConfig}
-      />
-      <EvModal
-        modalConfig={sendHelpModalConfig}
-        setModalConfig={setSendHelpModalConfig}
       />
     </>
   );
