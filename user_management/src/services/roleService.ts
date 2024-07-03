@@ -117,6 +117,24 @@ class RoleService {
         }
     }
 
+    static async listRequestToJoinRoles(type): Promise<any[]> {
+        try {
+            const roles = await Role.findAll({
+                where: {
+                  [Op.or]: [
+                    { id: 3 },
+                    { id: 4 }
+                  ],
+                  user_type: type
+                }
+              });
+
+            return roles;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     /**
      * Creates a new role with provided details.
      * 
