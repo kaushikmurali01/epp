@@ -32,6 +32,7 @@ export const facilityEndPoints = {
   facilityDetails: "facility-details/:id",
   entriesDetails: "entries-details/:id",
   facilityManagePermissions: "facility-manage-permissions/:id",
+  facilityListNew: "facility-list-new"
 };
 
 export const enervaEndPoints = {
