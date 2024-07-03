@@ -105,10 +105,16 @@ const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleIn
         isSearch: true,
     },
     {
-        Header: "Role Type",
-        accessor: "rolename",
+        Header: "User Type",
+        accessor: "user_type",
+        // accessorKey: "user_type",
         isSearch: false,
     },
+    // {
+    //     Header: "User Role",
+    //     accessor: "rolename",
+    //     isSearch: false,
+    // },
     {
         Header: "Created on (Date)",
         accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`,
@@ -199,11 +205,24 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         return;
     }
-    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
-    setVisibleInvitePage(true);
-    setSelectTableRow(item)
-    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
-    setInviteAPIURL(apiURL)
+
+    // const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    // setVisibleInvitePage(true);
+    // setSelectTableRow(item)
+    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
+    // setInviteAPIURL(apiURL)
+
+    navigate('/user-management-new/manage-access')
+    // Set a value in session storage
+    const data = JSON.stringify({
+      pageInfo: { title: 'Invite User and set permissions' },
+      isEdited: true,
+      selectTableRow: item,
+    //   getUserRole: getUserRole,
+    //   getCompanyList: getCompanyList
+    })
+    // set state on session storage
+    sessionStorage.setItem('enervaAdminManageAccess', data);
     
 }
 

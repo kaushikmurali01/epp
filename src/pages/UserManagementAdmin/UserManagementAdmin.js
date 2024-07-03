@@ -394,7 +394,7 @@ const UserManagementAdmin = () => {
   }, [])
 
   
-  console.log(sortCustomerColumn,sortCustomerOrder, "sortCustomerOrder")
+  console.log(invitePageInfo, "invitePageInfo")
 
   return (
     <React.Fragment>

@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import EvThemeTable from 'components/Table/EvThemeTable';
 
 const UserManagementAdminNew = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
   const {USER_MANAGEMENT_ADMIN_COLUMN} = UserManagementAdminColumn();
@@ -310,13 +311,25 @@ const UserManagementAdminNew = () => {
 
   const handelInviteUserAdmin = () => {
     const apiURL = ENERVA_USER_MANAGEMENT.SEND_EV_INVITATION_BY_ADMIN
-    setVisibleInvitePage(true); 
-    setSelectTableRow({}); 
+    // setVisibleInvitePage(true); 
     setInvitePageInfo({title:'Invite Enerva User and set permissions', type: invitePageInfo.type }) 
     setInviteAPIURL(apiURL)
+    // handleAddUser(); 
+    // setSelectTableRow({});
+    navigate('/user-management-new/manage-access')
+    // Set a value in session storage
+    const data = JSON.stringify({
+      pageInfo: { title: 'Invite User and set permissions' },
+      isEdited: false,
+      selectTableRow: selectTableRow,
+      // getUserRole: getUserRole,
+      // getCompanyList: getCompanyList
+    })
+    // set state on session storage
+    sessionStorage.setItem('enervaAdminManageAccess', data);
+    
 
-    handleAddUser(); 
-    setSelectTableRow({});
+
   }
 
   const getAggregatorUserManagementData = () => {
@@ -333,38 +346,38 @@ const UserManagementAdminNew = () => {
       });
   }
 
-  const getUserRoleData = () => {
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
-    GET_REQUEST(apiURL)
-      .then((res) => {
-        setUserRole(res.data?.body)
-      }).catch((error) => {
-        console.log(error)
-      });
-  }
+  // const getUserRoleData = () => {
+  //   const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
+  //   GET_REQUEST(apiURL)
+  //     .then((res) => {
+  //       setUserRole(res.data?.body)
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     });
+  // }
 
-  const getComapanyListData = () => {
-    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
-    GET_REQUEST(apiURL)
-      .then((res) => {
-        setCompanyList(res.data?.data?.rows);
-      }).catch((error) => {
-        console.log(error)
-      });
-  }
+  // const getComapanyListData = () => {
+  //   const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+  //   GET_REQUEST(apiURL)
+  //     .then((res) => {
+  //       setCompanyList(res.data?.data?.rows);
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     });
+  // }
 
   
-  useEffect(()=> {
-    getComapanyListData();
-    setPageInfo();
-  }, [])
+  // useEffect(()=> {
+  //   getComapanyListData();
+  //   setPageInfo();
+  // }, [])
 
-  useEffect(()=> {
-    if(invitePageInfo?.type !== undefined){
-      getUserRoleData();
-    }
+  // useEffect(()=> {
+  //   if(invitePageInfo?.type !== undefined){
+  //     getUserRoleData();
+  //   }
 
-  }, [invitePageInfo])
+  // }, [invitePageInfo])
 
 
 // search implementation
@@ -415,7 +428,7 @@ const UserManagementAdminNew = () => {
   }, [])
 
   
-// console.log(getCustomerUser, "getCustomerUser")
+console.log(getCustomerUser, "getCustomerUser")
 
   return (
     <React.Fragment>
