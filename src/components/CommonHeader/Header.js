@@ -202,7 +202,7 @@ function Header(props) {
 
   const getUserRoleData = () => {
     const userType = "2" // for customers
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
+    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
@@ -444,7 +444,7 @@ function Header(props) {
                     How it works
                   </Typography>
                 </MenuItem>
-                <MenuItem
+                {/* <MenuItem
                   onClick={(event) =>
                     scrollToSection(event, "userStorySection")
                   }
@@ -459,7 +459,7 @@ function Header(props) {
                   >
                     Success stories
                   </Typography>
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem
                   onClick={(event) => scrollToSection(event, "whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
@@ -763,13 +763,13 @@ function Header(props) {
                     >
                       How it works
                     </MenuItem>
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "userStorySection")
                       }
                     >
                       Success stories
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "whatsNewSection")

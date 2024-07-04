@@ -260,7 +260,7 @@ const Table = ({
             />
           )}
         </TableBody>
-        {count && count > 0 && (
+        {count && count > 0 ? (
           <TableFooter>
             <TableRow>
               <TableCell colSpan={columns.length}>
@@ -339,7 +339,7 @@ const Table = ({
               </TableCell>
             </TableRow>
           </TableFooter>
-        )}
+        ) : null}
       </MUITable>
     </TableContainer>
   );
