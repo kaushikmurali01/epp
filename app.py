@@ -213,7 +213,8 @@ def check_sufficiency():
                     else:
                         return {
                             'status': 'passed',
-                            'sufficiency': sufficiency[granularity_level]
+                            'sufficiency': sufficiency[granularity_level],
+                            'monthly_sufficiency': calculate_monthly_sufficiency(data)
                         }
                     
                 else:
@@ -256,6 +257,28 @@ def check_sufficiency():
                 }, 200
     # print(f"Sufficiency results: {results}")
     
+
+def calculate_monthly_sufficiency(df):
+    df['month_year'] = df['Date'].dt.to_period('M')
+    
+    # Calculate expected rows (24 readings per day for each month)
+    monthly_expected = df.groupby('month_year').apply(
+        lambda x: 24 * x['Date'].dt.daysinmonth.iloc[0]
+    )
+    
+    # Calculate non-null rows for 'Temperature' and 'EnergyConsumption'
+    monthly_non_null = df.groupby('month_year').apply(
+        lambda x: x.dropna(subset=['Temperature', 'EnergyConsumption']).shape[0]
+    )
+    
+    # Calculate sufficiency percentage
+    monthly_sufficiency = (monthly_non_null / monthly_expected) * 100
+    
+    sufficiency_output = [
+        {'month': month.strftime('%B %Y'), 'value': f"{sufficiency:.2f}%"}
+        for month, sufficiency in monthly_sufficiency.items()
+    ]
+    return sufficiency_output
 
 
 @app.route("/get_weather_data", methods = ['GET'])
@@ -321,7 +344,7 @@ def clean_data():
         
         summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
         summary = summary[pd.notna(summary['Temperature'])]
-        summary.to_csv("ctyghujihgftgyhu.csv")
+        # summary.to_csv("ctyghujihgftgyhu.csv")
         issues = detect_issues(summary)
         for variable_id in indpendent_variables:
             print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
