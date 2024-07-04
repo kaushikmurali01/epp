@@ -13,6 +13,7 @@ const Accordion = styled((props) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
   display: "grid",
+  overflowAnchor: "auto",
   gap: "2rem",
   "&:not(:last-child)": {
     borderBottom: 0,
