@@ -323,6 +323,8 @@ def clean_data():
         summary = summary[pd.notna(summary['Temperature'])]
         summary.to_csv("ctyghujihgftgyhu.csv")
         issues = detect_issues(summary)
+        summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
+
         for variable_id in indpendent_variables:
             print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
             idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
@@ -354,8 +356,10 @@ def clean_data():
             hourly_data.name = variable_name
             hourly_data_df = hourly_data.to_frame(name=variable_name)
             print("hourly_data_df",hourly_data_df)
-            summary = summary.join(hourly_data_df, how='outer')
+            summary = pd.merge(summary, hourly_data_df, on='Start Date (Required)')
+            # summary = summary.join(hourly_data_df, how='outer')
             print("The df after combining the independent variable is - - -  -- - - - - - - -- -   - ", summary.columns)
+        summary.rename(columns={'Start Date (Required)': 'Date'}, inplace=True)
         summary.to_csv("updated_summary.csv")
         print("sufficiency after independent variable combining - - - -- - - - -- - - - - ", sufficiency)
         
