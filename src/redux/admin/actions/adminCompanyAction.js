@@ -40,7 +40,7 @@ import { DELETE_COMPANY_SUCCESS } from "../actionTypes";
 
 export const fetchAdminCompanyListing = (
   pageInfo,
-  search = "",
+  search = [],
   company_type_filter = "",
   sortByCol,
   sortOrder
@@ -48,14 +48,15 @@ export const fetchAdminCompanyListing = (
   return async (dispatch) => {
     try {
       dispatch(fetchAdminCompanyListRequest());
-      let endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
-        (pageInfo.page - 1) * pageInfo.pageSize
-      }/${
-        pageInfo.pageSize
-      }?search=${search}&company_type=${company_type_filter}`;
-      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
-      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
-      const response = await GET_REQUEST(endpointWithParams);
+      let apiURL = `${USER_MANAGEMENT.GET_COMPANY_LIST_WITH_SEARCH}`;
+      let payload = {
+        data: search,
+        offset: (pageInfo.page - 1) * pageInfo.pageSize,
+        limit: pageInfo.pageSize,
+        col_name: sortByCol,
+        order: sortOrder,
+      };
+      const response = await POST_REQUEST(apiURL, payload);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));
     } catch (error) {
