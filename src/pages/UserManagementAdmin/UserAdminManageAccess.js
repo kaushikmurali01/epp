@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { emailRegExp } from 'config/regex';
 import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
-import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
+import { ENERVA_USER_MANAGEMENT, ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,9 +12,11 @@ import EvLoader from 'utils/loader/EvLoader';
 
 const UserAdminManageAccess = ({ }) => {
     const navigate = useNavigate();
-    const enervaAdminManageAccess = JSON.parse(sessionStorage.getItem('enervaAdminManageAccess'));
+    const getParams = useLocation();
+    // const enervaAdminManageAccess = JSON.parse(sessionStorage.getItem('enervaAdminManageAccess'));
+    const enervaAdminManageAccess = getParams.state;
     const {pageInfo, isEdited,selectTableRow} = enervaAdminManageAccess;
-    console.log(selectTableRow, 'enervaAdminManageAccess');
+    console.log(enervaAdminManageAccess, selectTableRow, 'enervaAdminManageAccess');
     
     const dispatch = useDispatch();
     // console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
@@ -27,34 +29,35 @@ const UserAdminManageAccess = ({ }) => {
     const [selectedPermissions, setSelectedPermissions] = useState([]);
     const [getUserRole, setUserRole] = useState([]);
     const [getCompanyList, setCompanyList] = useState([]);
+    const [selectUserTypeList, setSelectUserTypeList] = useState([]);
 
 
     const [permissionStates, setPermissionStates] = useState([]);
 
-    const [selectUserType,setSelectUserType] = useState(selectTableRow?.user_type_id.toString() || '');
+    const [selectUserType,setSelectUserType] = useState(selectTableRow?.user_type_id || '');
 
 // type = 1 =>  "enerva users,
 // type = 2 =>  "customer users,
 // type = 3 =>  "New  users,
 // type = 4 =>  "IESO users,
-    const selectUserTypeList = [
-        {
-            type: '1',
-            userTypeLabel: 'Enerva',
-        },
-        {
-            type: '4',
-            userTypeLabel: 'IESO',
-        },
-        {
-            type: '2',
-            userTypeLabel: 'Customer',
-        },
-        {
-            type: '3',
-            userTypeLabel: 'Individual',
-        }
-]
+//     const selectUserTypeList = [
+//         {
+//             type: '1',
+//             userTypeLabel: 'Enerva',
+//         },
+//         {
+//             type: '4',
+//             userTypeLabel: 'IESO',
+//         },
+//         {
+//             type: '2',
+//             userTypeLabel: 'Customer',
+//         },
+//         {
+//             type: '3',
+//             userTypeLabel: 'Individual',
+//         }
+// ]
 
     const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
     const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
@@ -225,8 +228,9 @@ const UserAdminManageAccess = ({ }) => {
     }
 
     const navigateToUserManagement = ()=> {
-        navigate('/user-management-new');
-        sessionStorage.setItem('enervaAdminManageAccess', JSON.stringify({}));
+        // navigate('/user-management');
+        navigate('/user-management',{state: {} })
+        // sessionStorage.setItem('enervaAdminManageAccess', JSON.stringify({}));
     }
 
     // const handelAccept = (item, handelAccept, permissionEditAPI, reqBody) => {
@@ -280,7 +284,7 @@ const UserAdminManageAccess = ({ }) => {
             }
 
             //  for enverva admin types
-            if (selectUserType === "2" && selectCompanyType !== '') {
+            if (selectUserType === 2 && selectCompanyType !== '') {
                 requestBody.company_id = selectTableRow.company_id
             }
 
@@ -309,7 +313,7 @@ const UserAdminManageAccess = ({ }) => {
             // }
 
             //  for enverva admin types
-            if (selectUserType === "2" && selectCompanyType !== '') {
+            if (selectUserType === 2 && selectCompanyType !== '') {
                 requestBody.company = selectCompanyType;
             }else {
                 requestBody.type = selectUserType
@@ -341,7 +345,9 @@ const UserAdminManageAccess = ({ }) => {
     }
 
     const getUserPermissionListAPI = (item) => {
-        const apiURL = selectUserType !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + selectUserType + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
+        console.log(item, 'selecttableRow')
+        // const apiURL = selectUserType !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + selectUserType + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
+       const apiURL = ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + selectUserType + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
@@ -368,15 +374,34 @@ const UserAdminManageAccess = ({ }) => {
       }
     
       const getCompanyListData = () => {
-        const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+        const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/1000";
         GET_REQUEST(apiURL)
           .then((res) => {
             setCompanyList(res.data?.data?.rows);
+            dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
           }).catch((error) => {
             console.log(error)
+            dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
           });
       }
     
+      const getUserTypeData = () => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.USER_TYPES;
+        GET_REQUEST(apiURL)
+            .then((res) => {
+                console.log(res, "check user type result")
+                if (res.data instanceof Array) {
+                    setSelectUserTypeList(res.data)
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+                }
+
+            }).catch((error) => {
+                console.log(error)
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+            });
+    }
       
     
 
@@ -393,7 +418,7 @@ const UserAdminManageAccess = ({ }) => {
         const isValidEmail = emailRegExp.test(userEmail)
         const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
 
-        if (selectUserType === "2") {
+        if (selectUserType === 2) {
             setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '')
         } else {
             setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
@@ -413,21 +438,19 @@ const UserAdminManageAccess = ({ }) => {
 
     useEffect(()=> {
         getCompanyListData();
+        getUserTypeData();
         
       }, [])
     
-      useEffect(()=> {
-        console.log(selectUserType, "selectUserType use effect")
-      
+      useEffect(()=> {      
           if(selectUserType !== ''){
             getUserRoleData(selectUserType);
           }
         
       }, [selectUserType])
 
-    console.log(selectUserType, "selectUserType")
-
-    
+    console.log(selectUserType,selectCompanyType, getCompanyList, "selectUserType selectCompanyType")
+    console.log(getParams, "getParams")
 
 
     return (
@@ -487,7 +510,7 @@ const UserAdminManageAccess = ({ }) => {
                                     {selectUserTypeList && (selectUserTypeList).map((item) => {
                                        
                                         return (
-                                            <MenuItem key={`${'userType'}_${item.type}`} value={item?.type}>{item?.userTypeLabel}</MenuItem>
+                                            <MenuItem key={`${'userType'}_${item.id}`} value={item?.id}>{item?.user_type}</MenuItem>
                                         )
                                     })}
 
@@ -528,7 +551,7 @@ const UserAdminManageAccess = ({ }) => {
                         </FormControl>
 
                     </FormGroup>
-                    {selectUserType === "2" &&
+                    {selectUserType === 2 &&
                         <FormGroup className='theme-form-group'>
                             <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem' }}> Company* </FormLabel>
                             <FormControl sx={{ minWidth: '12rem' }} >
@@ -618,8 +641,10 @@ const UserAdminManageAccess = ({ }) => {
                         <Grid container sx={{ justifyContent: 'center', padding: '5rem 0' }}>
                             <Grid item>
                                 <Typography variant='span' sx={{ letterSpacing: '1px', }}>
+                                    {console.log(getUserRole, show_loader,"getUserRole")}
                                     {(selectUserType === '') && "Please select user type"}
-                                    {(selectUserType && selectRoleType === '') && "Please select role type"}
+                                    {(selectUserType && selectRoleType === '' && getUserRole?.length !== 0 ) && "Please select role type"}
+                                    {( selectUserType !== '' && getUserRole.length === 0 && !show_loader) && "The list of role is not available for this user type."}
                                     {((selectUserType && selectRoleType) && permissions?.length === 0 && !show_loader) && "The list of permissions is not available for this role."}
 
 

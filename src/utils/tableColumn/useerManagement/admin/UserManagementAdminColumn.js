@@ -212,17 +212,16 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     // setInviteAPIURL(apiURL)
 
-    navigate('/user-management-new/manage-access')
+    // navigate('/user-management/manage-access')
     // Set a value in session storage
-    const data = JSON.stringify({
-      pageInfo: { title: 'Invite User and set permissions' },
+    const data = {
+      pageInfo: { title: 'Manage Customer User and permissions' },
       isEdited: true,
       selectTableRow: item,
-    //   getUserRole: getUserRole,
-    //   getCompanyList: getCompanyList
-    })
+    }
     // set state on session storage
-    sessionStorage.setItem('enervaAdminManageAccess', data);
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
+    navigate('/user-management/manage-access',{state: data})
     
 }
 

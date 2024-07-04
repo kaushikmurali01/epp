@@ -316,17 +316,16 @@ const UserManagementAdminNew = () => {
     setInviteAPIURL(apiURL)
     // handleAddUser(); 
     // setSelectTableRow({});
-    navigate('/user-management-new/manage-access')
+  
     // Set a value in session storage
-    const data = JSON.stringify({
+    const data = {
       pageInfo: { title: 'Invite User and set permissions' },
       isEdited: false,
       selectTableRow: selectTableRow,
-      // getUserRole: getUserRole,
-      // getCompanyList: getCompanyList
-    })
+    }
     // set state on session storage
-    sessionStorage.setItem('enervaAdminManageAccess', data);
+    navigate('/user-management/manage-access',{state: data})
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
     
 
 
