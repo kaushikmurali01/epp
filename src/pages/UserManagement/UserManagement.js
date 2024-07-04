@@ -27,6 +27,7 @@ const UserManagement = () => {
   const [searchString, setSearchString] = useState("");
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
+  const [getUserJoinFormRole, setUserJoinFormRole] = useState([]);
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getAllCompanyList, setAllCompanyList] = useState([]);
   const [getIndividualCompanyList, setIndividualCompanyList] = useState([]);
@@ -167,7 +168,7 @@ const UserManagement = () => {
             {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
-            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+            <SelectBox name="role" label="Role" options={getUserJoinFormRole} valueKey="id" labelKey="rolename" />
           </Stack>
 
 
@@ -183,6 +184,7 @@ const UserManagement = () => {
       </Formik>
     )
   }
+  console.log(getUserJoinFormRole, "getUserJoinFormRole")
 
   const openRequestModal = () => {
     setModalConfig((prevState) => ({
@@ -274,6 +276,18 @@ const UserManagement = () => {
       });
   }
 
+  const getUserRequestToJoinRoleData = () => {
+    const userType = "2" // for customers
+    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setUserJoinFormRole(res.data?.body)
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
+  
   const getIndividualCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
     GET_REQUEST(apiURL)
@@ -325,6 +339,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     getUserRoleData()
+    getUserRequestToJoinRoleData();
     getAllCompanyListData()
   }, [])
 

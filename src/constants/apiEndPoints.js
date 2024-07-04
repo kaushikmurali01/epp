@@ -75,6 +75,7 @@ export const USER_MANAGEMENT = {
   // GET REQUEST
   GET_USER_LIST: "/enerva-user/v1/combinedusers",
   GET_USER_ROLE: "/enerva-user/v1/roles",
+  GET_REQUEST_TO_JOIN_USER_ROLE: "/enerva-user/v1/requestroles",
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
   GET_FILTER_USER_LIST: "/enerva-user/v1/filteredusers",
 
