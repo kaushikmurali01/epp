@@ -23,12 +23,8 @@ def detect_issues(summary_df, outlier_threshold=3):
         summary_df['month'] = summary_df['Date'].dt.strftime('%B')
         summary_df['month_year'] = summary_df['Date'].dt.strftime('%B %Y')
         
-        monthly_sufficiency = summary_df.groupby('month_year').apply(
-            lambda x: (x['Temperature'].notna().sum() / len(x)) * 100
-        )
-
-        sufficiency_output = [{'month': month, 'value': f"{sufficiency:.2f}%"} for month, sufficiency in monthly_sufficiency.items()]
-        issues['monthly_sufficiency'] = sufficiency_output
+        monthly_sufficiency = calculate_monthly_sufficiency(summary_df)
+        issues['monthly_sufficiency'] = monthly_sufficiency
 
     # Detect outliers for each numeric column using IQR method
     numeric_columns = summary_df.select_dtypes(include=np.number).columns
@@ -52,74 +48,28 @@ def detect_issues(summary_df, outlier_threshold=3):
 
     return issues
 
-
-# def get_nearest_station_data(weather_df, missing_dates, target_station, issues):
-#     if weather_df.empty or target_station is None:
-#         #print("No data available to process.")
-#         return pd.DataFrame()  # Return an empty DataFrame if there's no data to process
-
-#     target_coords = (target_station['latitude'], target_station['longitude'])
-#     #print("Target coords are - - -- - - -- - - -- - -- - - -", target_coords)
-
-#     # Calculate the distance to other stations
-#     weather_df['distance'] = weather_df.apply(
-#         lambda row: geodesic(target_coords, (row['latitude'], row['longitude'])).kilometers, axis=1)
+def calculate_monthly_sufficiency(df):
+    df['month_year'] = df['Date'].dt.to_period('M')
     
-#     # Find the nearest station
-#     nearest_station = weather_df.loc[weather_df['distance'].idxmin()]['station_name']
-#     nearest_station_data = weather_df[weather_df['station_name'] == nearest_station]
-#     nearest_station_data['date_time'] = pd.to_datetime(nearest_station_data['date_time'])
-
-#     # Ensure the missing dates are in datetime format
-#     missing_dates = pd.to_datetime(missing_dates)
-
-#     # Fill missing data from the nearest station
-#     filled_data = nearest_station_data[nearest_station_data['date_time'].isin(missing_dates)]
-#     filled_data = filled_data[['date_time', 'temp']].set_index('date_time')
-
-#     if not filled_data.empty:
-#         # Remove filled dates from the issues dictionary
-#         filled_dates = [ts.strftime('%Y-%m-%d %H:%M:%S') for ts in filled_data.index]
-#         issues['missing_values']['Temperature'] = [date for date in issues['missing_values']['Temperature'] if date not in filled_dates]
-#         if not issues['missing_values']['Temperature']:
-#             del issues['missing_values']['Temperature']
-
-#     return filled_data
-
-
-# def handle_issues(summary_df, weather_df, issues, target_station, granularity):
-#     if 'missing_values' in issues:
-#         missing_values = issues['missing_values']
-        
-#         if 'EnergyConsumption' in missing_values:
-#             summary_df = summary_df.dropna(subset=['EnergyConsumption'])
-        
-#         if 'Temperature' in missing_values:
-#             summary_df['Date'] = pd.to_datetime(summary_df['Date'])
-#             summary_df = summary_df.set_index('Date')
-            
-#             # Identify consecutive missing periods
-#             summary_df['missing_temp'] = summary_df['Temperature'].isna()
-#             summary_df['gap_id'] = (summary_df['missing_temp'] != summary_df['missing_temp'].shift(1)).cumsum()
-#             gaps = summary_df[summary_df['missing_temp']].groupby('gap_id').size()
-#             if granularity == 'hourly':
-#                 long_missing_periods = gaps[gaps > 6]
-#             else:  # daily granularity
-#                 long_missing_periods = gaps[gaps > 1]
-#             long_missing_dates = summary_df[summary_df['gap_id'].isin(long_missing_periods.index)].index
-#             short_missing_dates = summary_df[~summary_df['gap_id'].isin(long_missing_periods.index)].index
-#             if not long_missing_dates.empty:
-#                 # #print(f"Missing dates for consecutive periods: {long_missing_dates}")
-#                 filled_data = get_nearest_station_data(weather_df, long_missing_dates, target_station, issues)
-#                 # #print(f"Filled data from nearest station:\n{filled_data}")
-#                 summary_df.update(filled_data)
-            
-#             if not short_missing_dates.empty:
-#                 # #print(f"Interpolating short missing periods: {short_missing_dates}")
-#                 summary_df['Temperature'].interpolate(method='time', inplace=True)
-#             summary_df.drop(columns=['missing_temp', 'gap_id'], inplace=True)
+    # Calculate expected rows (24 readings per day for each month)
+    monthly_expected = df.groupby('month_year').apply(
+        lambda x: 24 * x['Date'].dt.daysinmonth.iloc[0]
+    )
     
-#     return summary_df.reset_index()
+    # Calculate non-null rows for 'Temperature' and 'EnergyConsumption'
+    monthly_non_null = df.groupby('month_year').apply(
+        lambda x: x.dropna(subset=['Temperature', 'EnergyConsumption']).shape[0]
+    )
+    
+    # Calculate sufficiency percentage
+    monthly_sufficiency = (monthly_non_null / monthly_expected) * 100
+    
+    sufficiency_output = [
+        {'month': month.strftime('%B %Y'), 'value': f"{sufficiency:.2f}"}
+        for month, sufficiency in monthly_sufficiency.items()
+    ]
+    return sufficiency_output
+
 
 def handle_issues(summary_df, weather_df, issues, target_station, granularity):
     if 'missing_values' in issues:

@@ -2,24 +2,24 @@ import psycopg2
 from sshtunnel import SSHTunnelForwarder
 import pandas as pd
 import psycopg2.extras
-
+import config
 
 def dbtest(query):
     with SSHTunnelForwarder(
-         ('172.183.211.211', 22),
-         ssh_private_key="C:/Users/Akash Jain/Downloads/vmkey.pem",
+         (config.ssh_ip, 22),
+         ssh_private_key= config.private_key_path,
          ### in my case, I used a password instead of a private key
-         ssh_username="ubuntu",
+         ssh_username= config.ssh_user,
          # ssh_password="<mypasswd>", 
-         remote_bind_address=('epp-dev-db.postgres.database.azure.com', 5432)) as server:
+         remote_bind_address=(config.ssh_bind_address, 5432)) as server:
          server.start()
          #print("server connected")
     
          params = {
-             'database': 'postgres',
-             'user': 'epp',
-             'password': '3pp#db9$',
-             'host': 'localhost',
+             'database': config.db_creds[0],
+             'user': config.db_creds[1],
+             'password': config.db_creds[2],
+             'host': config.db_creds[3],
              'port': server.local_bind_port
              }
     
@@ -39,19 +39,19 @@ def dbtest(query):
 
 def db_execute(query, values):
     with SSHTunnelForwarder(
-        ('172.183.211.211', 22),
-        ssh_private_key="C:/Users/Akash Jain/Downloads/vmkey.pem",
-        ssh_username="ubuntu",
-        remote_bind_address=('epp-dev-db.postgres.database.azure.com', 5432)
+        (config.ssh_ip, 22),
+        ssh_private_key= config.private_key_path,
+        ssh_username= config.ssh_user,
+        remote_bind_address=( config.ssh_bind_address, 5432)
     ) as server:
         server.start()
         #print("server connected")
 
         params = {
-            'database': 'postgres',
-            'user': 'epp',
-            'password': '3pp#db9$',
-            'host': 'localhost',
+            'database': config.db_creds[0],
+            'user': config.db_creds[1],
+            'password': config.db_creds[2],
+            'host': config.db_creds[3],
             'port': server.local_bind_port
         }
 

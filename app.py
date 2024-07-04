@@ -154,7 +154,7 @@ def check_sufficiency():
     end_date = request.json.get('end_date')
     facility_id = request.json.get('facility_id')
     meter_type = request.json.get('meter_type')
-    
+    indpendent_variables = request.json.get('indpendent_variables', '')
     # Debugging statements to check the received parameters
     #print("facility_id:", facility_id)
     #print("created_by:", created_by)
@@ -195,66 +195,166 @@ def check_sufficiency():
         #print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
         #print(f"Filtered weather_df:\n", weather_df)
         
-        summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
-        print("sufficiency is - -- - -  -- -- - - - - - - - - -  -- -", sufficiency)
-        granularity_results = {}
-        if sufficiency[granularity]:
-        # Hourly sufficiency
-            def process_granularity(data, granularity_level):
-                if granularity_level == 'hourly':
-                    
-                    if sufficiency[granularity_level] < 90:
-                        issues = detect_issues(data)
-                        return {
-                            'status': 'failed',
-                            'overall_sufficiency': sufficiency[granularity_level],
-                            'failedData': issues
-                        }
-                    else:
-                        return {
-                            'status': 'passed',
-                            'sufficiency': sufficiency[granularity_level],
-                            'monthly_sufficiency': calculate_monthly_sufficiency(data)
-                        }
-                    
-                else:
-                    if sufficiency[granularity_level] < 90:
-                        return {
-                            'status': 'failed',
-                            'sufficiency': sufficiency[granularity_level]
-                        }
-                    else:
-                        return {
-                            'status': 'passed',
-                            'sufficiency': sufficiency[granularity_level]
-                        }
-                
+        
 
+        if indpendent_variables:
+            summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
+            summary = summary[pd.notna(summary['Temperature'])]
+            summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
+
+            for variable_id in indpendent_variables:
+                print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
+                idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
+                print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
+                variable_data = fetch_and_combine_data_for_independent_variables(idv, variable_id)
+                print("independent variable dataframe after processing is - - - - - --- - -- -  - - -",variable_data)
+                variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                if start_date and end_date:
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    
+                    # Ensure that date columns are in datetime format
+                    variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                    
+                    # Filter data based on the date range
+                    variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (variable_data['Start Date (Required)'] <= end_date)]
+                    print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
+            
+                variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                # Step 2: Set this column as the index
+                variable_data.set_index('Start Date (Required)', inplace=True)
+
+                # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+                hourly_data = variable_data['Meter Reading (Required)'].resample('H').sum()
+                print("hourly data is 0- 0 -0 -0 - 0-0 - 0- 0 -0 - - -- - - -  - -- - -- - - - ", hourly_data)
+                # hourly_data.to_csv("hourly_data.csv")
+                variable_name = idv['independent_variable_name'][0]
+                print("variable name is- --  -- -###################################################33", variable_name)
+                hourly_data.name = variable_name
+                hourly_data_df = hourly_data.to_frame(name=variable_name)
+                print("hourly_data_df",hourly_data_df)
+                summary = pd.merge(summary, hourly_data_df, on='Start Date (Required)')
+                # summary = summary.join(hourly_data_df, how='outer')
+                print("The df after combining the independent variable is - - -  -- - - - - - - -- -   - ", summary.columns)
+            summary.rename(columns={'Start Date (Required)': 'Date'}, inplace=True)
+            granularity_results = {}
+            if sufficiency[granularity]:
             # Hourly sufficiency
-            granularity_results['hourly'] = process_granularity(summary, 'hourly')
+                def process_granularity(data, granularity_level):
+                    if granularity_level == 'hourly':
+                        
+                        if sufficiency[granularity_level] < 90:
+                            issues = detect_issues(data)
+                            return {
+                                'status': 'failed',
+                                'overall_sufficiency': sufficiency[granularity_level],
+                                'failedData': issues
+                            }
+                        else:
+                            return {
+                                'status': 'passed',
+                                'sufficiency': sufficiency[granularity_level],
+                                'monthly_sufficiency': calculate_monthly_sufficiency(data)
+                            }
+                        
+                    else:
+                        if sufficiency[granularity_level] < 90:
+                            return {
+                                'status': 'failed',
+                                'sufficiency': sufficiency[granularity_level]
+                            }
+                        else:
+                            return {
+                                'status': 'passed',
+                                'sufficiency': sufficiency[granularity_level]
+                            }
+                    
 
-            # Daily sufficiency
-            # numeric_columns = summary.select_dtypes(include=np.number).columns
+                # Hourly sufficiency
+                granularity_results['hourly'] = process_granularity(summary, 'hourly')
 
-            daily_summary = summary.resample('D', on = 'Date').agg({
-                'Temperature': 'mean',
-                'EnergyConsumption': 'sum',
-                'DayNumber': 'first',
-                'WeekNumber': 'first',
-                'MonthNumber': 'first',
-                'MonthName': 'first'
-            }).reset_index()
-            print("daily summary data frame is - - - - - - - -- - -- - - -- - - - -- - ", daily_summary)
-            granularity_results['daily'] = process_granularity(daily_summary, 'daily')
+                # Daily sufficiency
+                # numeric_columns = summary.select_dtypes(include=np.number).columns
+
+                daily_summary = summary.resample('D', on = 'Date').agg({
+                    'Temperature': 'mean',
+                    'EnergyConsumption': 'sum',
+                    'DayNumber': 'first',
+                    'WeekNumber': 'first',
+                    'MonthNumber': 'first',
+                    'MonthName': 'first'
+                }).reset_index()
+                print("daily summary data frame is - - - - - - - -- - -- - - -- - - - -- - ", daily_summary)
+                granularity_results['daily'] = process_granularity(daily_summary, 'daily')
 
 
-            results = granularity_results
-            return jsonify(results), 200
+                results = granularity_results
+                return jsonify(results), 200
+            else:
+                return {
+                        'status': 'failed',
+                        'message': "Wrong inputs passed. Please try again with other inputs."
+                    }, 200
         else:
-            return {
-                    'status': 'failed',
-                    'message': "Wrong inputs passed. Please try again with other inputs."
-                }, 200
+            summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
+            granularity_results = {}
+            if sufficiency[granularity]:
+            # Hourly sufficiency
+                def process_granularity(data, granularity_level):
+                    if granularity_level == 'hourly':
+                        
+                        if sufficiency[granularity_level] < 90:
+                            issues = detect_issues(data)
+                            return {
+                                'status': 'failed',
+                                'overall_sufficiency': sufficiency[granularity_level],
+                                'failedData': issues
+                            }
+                        else:
+                            return {
+                                'status': 'passed',
+                                'sufficiency': sufficiency[granularity_level],
+                                'monthly_sufficiency': calculate_monthly_sufficiency(data)
+                            }
+                        
+                    else:
+                        if sufficiency[granularity_level] < 90:
+                            return {
+                                'status': 'failed',
+                                'sufficiency': sufficiency[granularity_level]
+                            }
+                        else:
+                            return {
+                                'status': 'passed',
+                                'sufficiency': sufficiency[granularity_level]
+                            }
+                    
+
+                # Hourly sufficiency
+                granularity_results['hourly'] = process_granularity(summary, 'hourly')
+
+                # Daily sufficiency
+                # numeric_columns = summary.select_dtypes(include=np.number).columns
+
+                daily_summary = summary.resample('D', on = 'Date').agg({
+                    'Temperature': 'mean',
+                    'EnergyConsumption': 'sum',
+                    'DayNumber': 'first',
+                    'WeekNumber': 'first',
+                    'MonthNumber': 'first',
+                    'MonthName': 'first'
+                }).reset_index()
+                print("daily summary data frame is - - - - - - - -- - -- - - -- - - - -- - ", daily_summary)
+                granularity_results['daily'] = process_granularity(daily_summary, 'daily')
+
+
+                results = granularity_results
+                return jsonify(results), 200
+            else:
+                return {
+                        'status': 'failed',
+                        'message': "Wrong inputs passed. Please try again with other inputs."
+                    }, 200
     # print(f"Sufficiency results: {results}")
     
 
@@ -275,7 +375,7 @@ def calculate_monthly_sufficiency(df):
     monthly_sufficiency = (monthly_non_null / monthly_expected) * 100
     
     sufficiency_output = [
-        {'month': month.strftime('%B %Y'), 'value': f"{sufficiency:.2f}%"}
+        {'month': month.strftime('%B %Y'), 'value': f"{sufficiency:.2f}"}
         for month, sufficiency in monthly_sufficiency.items()
     ]
     return sufficiency_output
@@ -343,69 +443,94 @@ def clean_data():
         #print(f"Filtered weather_df:\n", weather_df)
         
         summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
-        summary = summary[pd.notna(summary['Temperature'])]
-        # summary.to_csv("ctyghujihgftgyhu.csv")
-        issues = detect_issues(summary)
-        summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
+        if indpendent_variables:
+            summary = summary[pd.notna(summary['Temperature'])]
+            # summary.to_csv("ctyghujihgftgyhu.csv")
+            issues = detect_issues(summary)
+            summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
 
-        for variable_id in indpendent_variables:
-            print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
-            idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
-            print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
-            variable_data = fetch_and_combine_data_for_independent_variables(idv, variable_id)
-            print("independent variable dataframe after processing is - - - - - --- - -- -  - - -",variable_data)
-            variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
-            if start_date and end_date:
-                start_date = pd.to_datetime(start_date)
-                end_date = pd.to_datetime(end_date)
-                
-                # Ensure that date columns are in datetime format
+            for variable_id in indpendent_variables:
+                print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
+                idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
+                print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
+                variable_data = fetch_and_combine_data_for_independent_variables(idv, variable_id)
+                print("independent variable dataframe after processing is - - - - - --- - -- -  - - -",variable_data)
                 variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
-                
-                # Filter data based on the date range
-                variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (variable_data['Start Date (Required)'] <= end_date)]
-                print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
-        
-            variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
-            # Step 2: Set this column as the index
-            variable_data.set_index('Start Date (Required)', inplace=True)
+                if start_date and end_date:
+                    start_date = pd.to_datetime(start_date)
+                    end_date = pd.to_datetime(end_date)
+                    
+                    # Ensure that date columns are in datetime format
+                    variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                    
+                    # Filter data based on the date range
+                    variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (variable_data['Start Date (Required)'] <= end_date)]
+                    print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
+            
+                variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
+                # Step 2: Set this column as the index
+                variable_data.set_index('Start Date (Required)', inplace=True)
 
-            # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
-            hourly_data = variable_data['Meter Reading (Required)'].resample('H').sum()
-            print("hourly data is 0- 0 -0 -0 - 0-0 - 0- 0 -0 - - -- - - -  - -- - -- - - - ", hourly_data)
-            # hourly_data.to_csv("hourly_data.csv")
-            variable_name = idv['independent_variable_name'][0]
-            print("variable name is- --  -- -###################################################33", variable_name)
-            hourly_data.name = variable_name
-            hourly_data_df = hourly_data.to_frame(name=variable_name)
-            print("hourly_data_df",hourly_data_df)
-            summary = pd.merge(summary, hourly_data_df, on='Start Date (Required)')
-            # summary = summary.join(hourly_data_df, how='outer')
-            print("The df after combining the independent variable is - - -  -- - - - - - - -- -   - ", summary.columns)
-        summary.rename(columns={'Start Date (Required)': 'Date'}, inplace=True)
-        summary.to_csv("updated_summary.csv")
-        print("sufficiency after independent variable combining - - - -- - - - -- - - - - ", sufficiency)
+                # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+                hourly_data = variable_data['Meter Reading (Required)'].resample('H').sum()
+                print("hourly data is 0- 0 -0 -0 - 0-0 - 0- 0 -0 - - -- - - -  - -- - -- - - - ", hourly_data)
+                # hourly_data.to_csv("hourly_data.csv")
+                variable_name = idv['independent_variable_name'][0]
+                print("variable name is- --  -- -###################################################33", variable_name)
+                hourly_data.name = variable_name
+                hourly_data_df = hourly_data.to_frame(name=variable_name)
+                print("hourly_data_df",hourly_data_df)
+                summary = pd.merge(summary, hourly_data_df, on='Start Date (Required)')
+                # summary = summary.join(hourly_data_df, how='outer')
+                print("The df after combining the independent variable is - - -  -- - - - - - - -- -   - ", summary.columns)
+            summary.rename(columns={'Start Date (Required)': 'Date'}, inplace=True)
+            def checker(weather_df):
+                if weather_df.empty:
+                    #print("The weather_df DataFrame is empty.")
+                    return None  # Handle the empty DataFrame scenario
+                else:
+                    target_station = weather_df.iloc[0]
+                    return target_station
+            summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
+            target_station = checker(weather_df)
+            #print('target stations  found is  - - -- - -- - - - - - - -- -' , target_station)
+            # Handle issues by filling missing Temperature data
+            summary_cleaned = handle_issues(summary, weather_df, issues, target_station, granularity)
+            summary_cleaned.reset_index(drop = True, inplace= True)
+            summary_cleaned['month_year'] = summary_cleaned['month_year'].astype(str)
+            summary_cleaned = summary_cleaned.to_dict(orient = 'records')
+            # insert_clean_data_to_db(summary_cleaned)
+
+            results = {
+                'clean_data': summary_cleaned
+            }
+        else:
+            issues = detect_issues(summary)
+        # summary.to_csv("updated_summary.csv")
         
         # print("issues are - -- - - -- - - - --- - - - -- ", issues)
-        def checker(weather_df):
-            if weather_df.empty:
-                #print("The weather_df DataFrame is empty.")
-                return None  # Handle the empty DataFrame scenario
-            else:
-                target_station = weather_df.iloc[0]
-                return target_station
-        summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
-        target_station = checker(weather_df)
-        #print('target stations  found is  - - -- - -- - - - - - - -- -' , target_station)
-        # Handle issues by filling missing Temperature data
-        summary_cleaned = handle_issues(summary, weather_df, issues, target_station, granularity)
-        summary_cleaned.reset_index(drop = True, inplace= True)
-        
-        # insert_clean_data_to_db(summary_cleaned)
+            def checker(weather_df):
+                if weather_df.empty:
+                    #print("The weather_df DataFrame is empty.")
+                    return None  # Handle the empty DataFrame scenario
+                else:
+                    target_station = weather_df.iloc[0]
+                    return target_station
+            summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
+            target_station = checker(weather_df)
+            #print('target stations  found is  - - -- - -- - - - - - - -- -' , target_station)
+            # Handle issues by filling missing Temperature data
+            summary_cleaned = handle_issues(summary, weather_df, issues, target_station, granularity)
+            summary_cleaned = summary_cleaned[pd.notna(summary_cleaned['Temperature'])]
+            summary_cleaned.reset_index(drop = True, inplace= True)
+            # summary_cleaned.to_csv("summary_cleaned.csv")
+            summary_cleaned['month_year'] = summary_cleaned['month_year'].astype(str)
+            
+            summary_cleaned = summary_cleaned.to_dict(orient='records')
 
-        results = {
-            'message': "Data inserted successfully"
-        }
+            results = {
+                'clean_data': summary_cleaned
+            }
 
     return jsonify(results), 200
 
