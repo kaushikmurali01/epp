@@ -963,7 +963,6 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
         if (!checkStatus) {
             return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
         }
-            console.log("testing3333");
         // Get all users
         const users = await UserService.getCombinedResults({company:companyId, search, offset, limit});
 
