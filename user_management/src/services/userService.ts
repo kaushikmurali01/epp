@@ -6,6 +6,7 @@ import { Response } from "enerva-utils/interfaces/response";
 import {
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
+  STATUS,
 } from "enerva-utils/utils/status";
 import { UserInvitation } from "../models/user-invitation";
 import { Status } from "../models/status";
@@ -618,7 +619,7 @@ class UserService {
         where: {
           company_id: company,
           [Op.or]: [
-            { created_by: results[i].id },
+            { created_by: results[i].id, is_active: STATUS.IS_ACTIVE },
             {
               id: {
                 [Op.in]: findAllFaciltiy,
