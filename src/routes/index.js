@@ -127,7 +127,7 @@ const RoutesComp = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: { xs: "90%", sm: "500px", md: "45rem" },
+            width: { xs: "90%", sm: "500px", md: "48rem" },
             borderRadius: "2rem",
             bgcolor: "#fff",
             p: 4,
@@ -195,7 +195,7 @@ const RoutesComp = () => {
             <img
               src="/images/dashboard-arrow.svg"
               alt="arrow"
-              className="arrow"
+              style={{ width: "15px" }}
             />
             <ListItem
               disablePadding
@@ -215,7 +215,7 @@ const RoutesComp = () => {
             <img
               src="/images/dashboard-arrow.svg"
               alt="arrow"
-              className="arrow"
+              style={{ width: "15px" }}
             />
             <ListItem
               disablePadding
@@ -228,7 +228,7 @@ const RoutesComp = () => {
                 fontSize: "0.875rem",
                 fontWeight: 400,
                 lineHeight: "185.714%",
-                textAlign: "center"
+                textAlign: "center",
               }}
             >
               Review and accept Baseline Energy Model
