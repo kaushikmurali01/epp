@@ -15,6 +15,7 @@ const MapComponent = () => {
     },
     center: [-67.83, 47.16], // longitude, latitude
     zoom: 12,
+    showLogo: false
   };
 
   const markerOptions = {
@@ -24,8 +25,8 @@ const MapComponent = () => {
 
   return (
     <AzureMapsProvider>
-      {/* <Grid md={10}> */}
-        <div style={{ height: "500px", width: "80%" }}>
+      {/* <Grid item xs={12} md={12}> */}
+        <div style={{ height: "360px", position: "relative", width: '80%', overflow: "hidden"}}>
           <AzureMap options={option}>
             <AzureMapHtmlMarker options={markerOptions} />
           </AzureMap>

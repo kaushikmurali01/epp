@@ -528,7 +528,7 @@ const Weather = () => {
       </Grid>
 
       {tabValue == 'weather' ? <Box>
-        <Grid xs={8} md={10}>
+        <Grid xs={12} md={10}>
         <MapComponent />
         </Grid>
         <Grid
