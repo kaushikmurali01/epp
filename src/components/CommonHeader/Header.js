@@ -202,7 +202,7 @@ function Header(props) {
 
   const getUserRoleData = () => {
     const userType = "2" // for customers
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
+    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
