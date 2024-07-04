@@ -68,7 +68,56 @@ export async function getAllFacility(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function getAllFacility2(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    // const companyId = request.query.get("company_id" || ""); 
+    const requestData: any = await request.json();
+    let data = requestData.data;
+    let offset = requestData.offset;
+    let limit = requestData.limit;
+    let companyId = requestData.company_id
+    let colName = requestData.col_name || "id";
+    let order = requestData.order || "ASC";
 
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    if (companyId) {
+      const hasPermission = await AuthorizationService.check(
+        Number(companyId),
+        decodedToken.id,
+        ["facility"],
+        decodedToken.role_id
+      );
+      if (!hasPermission)
+        return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    }
+
+    const result = await FacilityController.getFacility2(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      data,
+      Number(companyId)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function getFacilityById(
   request: HttpRequest,
   context: InvocationContext
@@ -1743,7 +1792,12 @@ app.http(`facility-listing`, {
   authLevel: "anonymous",
   handler: getAllFacility,
 });
-
+app.http(`facility-listing-post`, {
+  methods: ["POST"],
+  route: "facility-listing",
+  authLevel: "anonymous",
+  handler: getAllFacility2,
+});
 app.http("facility-details", {
   methods: ["GET"],
   route: "facility-details/{id}",

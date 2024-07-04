@@ -45,7 +45,7 @@ FacilityNAIC.init(
     },
     {
         sequelize,
-        tableName: 'facility_naic',
+        tableName: 'facility_naic_new',
         timestamps: false,
         underscored: true,
         modelName: 'FacilityNAIC',

@@ -28,6 +28,10 @@ import { FacilityCharacteristics } from "../../models/facility_characteristics.m
 import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
 import { Baseline } from "../../models/facility_baseline.model";
 import { FacilityMeterDetail } from "../../models/facility_meter_details.model";
+import { rawQuery } from "../../services/database";
+import { ParticipantAgreement } from "../../models/participant_agreement.model";
+import { IFacilityAttributes } from "../../interfaces/facility.interface";
+import { IParticipantAgreementAttributes } from "../../interfaces/participant_agreement.interface";
 
 export class FacilityService {
   static async getFacility(
@@ -49,6 +53,7 @@ export class FacilityService {
         findRole.role_id = userToken.type;
       }
       let result;
+      console.log(findRole, "userTokenuserToken", userToken);
       if (
         userToken &&
         (findRole.role_id === userType.ADMIN ||
@@ -56,7 +61,7 @@ export class FacilityService {
       ) {
         result = await Facility.findAndCountAll({
           where: {
-            company_id: companyId,
+            company_id: companyId || userToken.company_id,
             is_active: STATUS.IS_ACTIVE,
             [Op.or]: [
               { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
@@ -77,7 +82,7 @@ export class FacilityService {
         let allFacilityId = findPermission.map((ele) => ele.facility_id);
         result = await Facility.findAndCountAll({
           where: {
-            company_id: companyId,
+            company_id: companyId || userToken.company_id,
             is_active: STATUS.IS_ACTIVE,
             [Op.and]: [
               {
@@ -121,16 +126,188 @@ export class FacilityService {
       throw error;
     }
   }
-
+  static async getFacility2(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    companyId: number
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      if (companyId) {
+        findRole = await UserCompanyRole.findOne({
+          where: { user_id: userToken.id, company_id: companyId },
+        });
+      } else {
+        findRole.role_id = userToken.type;
+      }
+      let result, datas, count;
+      if (
+        userToken &&
+        (findRole.role_id === userType.ADMIN ||
+          findRole.role_id === userType.SUPER_ADMIN)
+      ) {
+        // result = await Facility.findAndCountAll({
+        //   include: [
+        //     {
+        //       model: User,
+        //       as: "submitted_by",
+        //       attributes: ["id", "first_name", "last_name"],
+        //     },
+        //     {
+        //       model: Company,
+        //       as: "company",
+        //       attributes: ["id", "company_name"],
+        //     },
+        //   ],
+        //   where: {
+        //     company_id: companyId || userToken.company_id,
+        //     is_active: STATUS.IS_ACTIVE,
+        //     [Op.or]: [
+        //       { facility_name: { [Op.iLike]: `%${data}%` } },
+        //       { street_number: { [Op.iLike]: `%${data}%` } },
+        //       { street_name: { [Op.iLike]: `%${data}%` } },
+        //       { city: { [Op.iLike]: `%${data}%` } },
+        //       { country: { [Op.iLike]: `%${data}%` } },
+        //     ],
+        //   },
+        //   offset: offset,
+        //   limit: limit,
+        //   order: [[colName, order]],
+        // });
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+          f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+       FROM 
+           Facility f
+       left JOIN 
+           users u ON f.created_by = u.id
+       left JOIN 
+           company c ON f.company_id = c.id
+       WHERE 
+           f.company_id = ${companyId || userToken.company_id}
+           AND f.is_active = ${STATUS.IS_ACTIVE}) p
+     ${searchArray}
+       `);
+        datas = await rawQuery(`SELECT * from (SELECT 
+     f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+ FROM 
+     Facility f
+ left JOIN 
+     users u ON f.created_by = u.id
+ left JOIN 
+     company c ON f.company_id = c.id
+ WHERE 
+     f.company_id = ${companyId || userToken.company_id}
+     AND f.is_active = ${STATUS.IS_ACTIVE}
+ ORDER BY 
+     ${colName} ${order}) p
+     ${searchArray}
+ OFFSET 
+     ${offset}
+ LIMIT 
+     ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      } else {
+        let findPermission = await UserResourceFacilityPermission.findAll({
+          where: { company_id: companyId, email: userToken?.email },
+        });
+        let allFacilityId = findPermission.map((ele) => ele.facility_id);
+        result = await Facility.findAndCountAll({
+          include: [
+            { model: User, attributes: ["id", "first_name", "last_name"] },
+            {
+              model: Company,
+              as: "company",
+              attributes: ["id", "company_name"],
+            },
+          ],
+          where: {
+            company_id: companyId || userToken.company_id,
+            is_active: STATUS.IS_ACTIVE,
+            [Op.and]: [
+              {
+                [Op.or]: [
+                  { created_by: userToken.id },
+                  { id: { [Op.in]: allFacilityId } },
+                ],
+              },
+              {
+                [Op.or]: [
+                  { facility_name: { [Op.iLike]: `%${data}%` } },
+                  { street_number: { [Op.iLike]: `%${data}%` } },
+                  { street_name: { [Op.iLike]: `%${data}%` } },
+                  { city: { [Op.iLike]: `%${data}%` } },
+                  { country: { [Op.iLike]: `%${data}%` } },
+                ],
+              },
+            ],
+          },
+          offset: offset,
+          limit: limit,
+          order: [[colName, order]],
+        });
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   static async getFacilityById(
     userToken: IUserToken,
     facilityId: number
   ): Promise<Facility[]> {
     try {
-      const result = await Facility.findOne({
-        where: { id: facilityId, is_active: STATUS.IS_ACTIVE },
+      let result: IFacilityAttributes & IParticipantAgreementAttributes =
+        await Facility.findOne({
+          where: { id: facilityId, is_active: STATUS.IS_ACTIVE },
+        });
+      let findFacilitySigned = await ParticipantAgreement.findOne({
+        where: { company_id: result.company_id },
       });
-
+      result = JSON.parse(JSON.stringify(result));
+      result.is_signed = findFacilitySigned?.is_signed || false;
+      result.unsigned_doc = findFacilitySigned?.unsigned_doc;
+      result.unsigned_doc = findFacilitySigned?.unsigned_doc;
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -521,7 +698,7 @@ export class FacilityService {
         where: { facility_id: facilityId },
       });
       const energyAndWater = await FacilityMeterHourlyEntries.findOne({
-        where: { facility_id: facilityId ,is_active: STATUS.IS_ACTIVE},
+        where: { facility_id: facilityId, is_active: STATUS.IS_ACTIVE },
       });
       const meter = await FacilityMeterDetail.findAll({
         where: { facility_id: facilityId, is_active: STATUS.IS_ACTIVE },
@@ -533,7 +710,7 @@ export class FacilityService {
       if (details) {
         timeLineObj.details = true;
       }
-      if (energyAndWater && (meter && meter.length)) {
+      if (energyAndWater && meter && meter.length) {
         timeLineObj.energy_and_water = true;
       }
 

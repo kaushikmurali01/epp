@@ -7,6 +7,7 @@ import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { decodeToken } from "../../helper/authantication.helper";
 import { IUserToken } from "../../interfaces/usertoken.interface";
 import { off } from "process";
+import { ParticipantAgreement } from "../../models/participant_agreement.model";
 
 export class FacilityController {
   static errorMessage: { message: string; statusCode: number };
@@ -34,6 +35,34 @@ export class FacilityController {
         colName,
         order,
         searchPromt,
+        companyId
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  static async getFacility2(
+    decodedToken: IUserToken,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    companyId: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getFacility2(
+        Object(decodedToken),
+        offset,
+        limit,
+        colName,
+        order,
+        data,
         companyId
       );
       return result;
