@@ -21,6 +21,8 @@ import { CompanyService } from "../services/companyService";
 import { AuthorizationService } from "../middleware/authorizeMiddleware";
 import { UserResourceFacilityPermission } from "../models/user-resource-permission";
 import axios from 'axios';
+import { ParticipantAgreement } from "../models/participantAgreement";
+import { Facility } from "../models/facility";
 
 /**
  * Registers a new user based on the provided request data.
@@ -603,14 +605,41 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
 
         if (deleteResponse.status === 204) {
             await sequelize.authenticate();
+            const PA = await ParticipantAgreement.findOne({
+                where: { 
+                    company_id: company_id,
+                    is_signed: true
+                },
+            });
+            const FC = await Facility.findOne({
+                where: {
+                    company_id:company_id
+                }
+            });
+            let UCR:any= await UserCompanyRole.findOne({where: {
+                user_id: user_id,
+                company_id:company_id
+            }});
+            if(UCR.role_id == 1 && (FC || PA) && company_id) {
+                return { body: JSON.stringify({ status: 409, body: "Please change the super admin of the company before deleting this user, as they hold the role of super admin. The associated company either has a PA signed or has facilities created under it." }) };
+            }
+           const baseName = "user"; const domain = "eppenerva.com";
+           const uniqueEmail = `${baseName}${Date.now()}${Math.random().toString(36).substr(2, 10)}@${domain}`;
             await Promise.all([
                 UserCompanyRolePermission.destroy({ where: { user_id:user_id }}),
                 UserCompanyRole.destroy({ where: { user_id:user_id } }),
                 UserRequest.destroy({ where: { user_id:user_id } }),
-                User.destroy({where: {id:user_id}}),
+                User.update({email: uniqueEmail },{where: {id:user_id}}),
                 UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
                 UserInvitation.destroy({ where: { email: userDet?.email } })
             ]);
+            if(UCR?.role_id == 1 && company_id) {
+                if(!PA && !FC) {
+                    await Company.destroy({where: {
+                        id: company_id
+                    }});
+                }
+            }
 
             return { body: JSON.stringify({ status: 200, body: "User deleted successfully from both Azure AD B2C and database" }) };
 
