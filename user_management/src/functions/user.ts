@@ -1148,7 +1148,7 @@ app.http('DeleteUserAdmin', {
 app.http('DeleteUserByemail', {
     methods: ['DELETE'],
     authLevel: 'anonymous',
-    route: 'euser/delete/{id}/{type}/{company_id}',
+    route: 'eppuser/delete/{id}/{type}/{company_id}',
     handler: DeleteUserByemail
 });
 
