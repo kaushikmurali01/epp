@@ -20,6 +20,9 @@ import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { CompanyService } from "../services/companyService";
 import { AuthorizationService } from "../middleware/authorizeMiddleware";
 import { UserResourceFacilityPermission } from "../models/user-resource-permission";
+import axios from 'axios';
+import { ParticipantAgreement } from "../models/participantAgreement";
+import { Facility } from "../models/facility";
 
 /**
  * Registers a new user based on the provided request data.
@@ -551,6 +554,108 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
         return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
     } catch (error) {
         return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function DeleteUserByemail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        const user_id: any = request.params.id;
+        const type: any = request.params.type;
+        const company_id: any = request.params.company_id;
+        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        const userDet:any = await UserService.getUserDataById(user_id);
+        const userType = resp.type;
+        const email = userDet.email;
+        context.log("Client Id", process.env.CLIENT_ID);
+        context.log("Client Secret", process.env.CLIENT_ID);
+        context.log("Email", email);
+
+        if (userType !== 1 || !email) {
+            return { body: JSON.stringify({ status: 403, body: "You are not allowed to perform this request" }) };
+        }
+        if(type == 1) {
+        const tokenResponse = await axios.post(
+            `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`, 
+            new URLSearchParams({
+                grant_type: 'client_credentials',
+                client_id: process.env.CLIENT_ID,
+                client_secret: process.env.CLIENT_SECRET,
+                scope: 'https://graph.microsoft.com/.default'
+            }),
+            {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }
+        );
+
+        const accessToken = tokenResponse.data.access_token;
+
+        const userResponse = await axios.get(`https://graph.microsoft.com/v1.0/users?$select=id&$filter=identities/any(c:c/issuerAssignedId eq '${email}' and c/issuer eq '${process.env.B2C_TENANT_NAME}')`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (!userResponse.data.value || userResponse.data.value.length === 0) {
+            return { body: JSON.stringify({ status: 404, body: "User not found" }) };
+        }
+
+        const userId = userResponse.data.value[0].id;
+
+        const deleteResponse = await axios.delete(`https://graph.microsoft.com/v1.0/users/${userId}`, {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+
+        if (deleteResponse.status === 204) {
+            await sequelize.authenticate();
+            const PA = await ParticipantAgreement.findOne({
+                where: { 
+                    company_id: company_id,
+                    is_signed: true
+                },
+            });
+            const FC = await Facility.findOne({
+                where: {
+                    company_id:company_id
+                }
+            });
+            let UCR:any= await UserCompanyRole.findOne({where: {
+                user_id: user_id,
+                company_id:company_id
+            }});
+            if(UCR.role_id == 1 && (FC || PA) && company_id) {
+                return { body: JSON.stringify({ status: 409, body: "Please change the super admin of the company before deleting this user, as they hold the role of super admin. The associated company either has a PA signed or has facilities created under it." }) };
+            }
+           const baseName = "user"; const domain = "eppenerva.com";
+           const uniqueEmail = `${baseName}${Date.now()}${Math.random().toString(36).substr(2, 10)}@${domain}`;
+            await Promise.all([
+                UserCompanyRolePermission.destroy({ where: { user_id:user_id }}),
+                UserCompanyRole.destroy({ where: { user_id:user_id } }),
+                UserRequest.destroy({ where: { user_id:user_id } }),
+                User.update({email: uniqueEmail },{where: {id:user_id}}),
+                UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
+                UserInvitation.destroy({ where: { email: userDet?.email } })
+            ]);
+            if(UCR?.role_id == 1 && company_id) {
+                if(!PA && !FC) {
+                    await Company.destroy({where: {
+                        id: company_id
+                    }});
+                }
+            }
+
+            return { body: JSON.stringify({ status: 200, body: "User deleted successfully from both Azure AD B2C and database" }) };
+
+        } else {
+            return { body: JSON.stringify({ status: 500, body: "Failed to delete user from Azure AD B2C" }) };
+        }
+    } else if (type == 2) {
+        await UserInvitation.destroy({ where: { id: user_id } });
+        
+    } else if (type == 3) {
+        await UserRequest.destroy({ where: { id: user_id } });
+    }
+
+    } catch (error) {
+        context.log('Error:', error.message);
+        return { body: JSON.stringify({ status: 500, body: "An error occurred: " + error.message }) };
     }
 }
 

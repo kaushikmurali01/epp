@@ -242,7 +242,9 @@ export async function GetRolePermission(request: HttpRequest, context: Invocatio
 export async function GetAllUserTypes(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
         // Fetch all user types
-        const userTypes: any = await UserType.findAll();
+       // const userTypes: any = await UserType.findAll();
+        const userTypes = await UserType.findAll({ where: { id: { [Op.ne]: 3 } } });
+
 
         // Transform data into desired format
         const userTypesData = userTypes.map((userType: any) => ({
