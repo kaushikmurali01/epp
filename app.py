@@ -11,19 +11,19 @@ from insertion_and_preparation import insert_clean_data_to_db
 
 app = Flask(__name__)
 
-@app.route('/handle', methods = ['POST'])
+@app.route('/handle', methods = ['GET'])
 def return_summary():
     # Fetch the DataFrame from the database
-    df = dbtest('''select hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
+    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
     hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
     from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
     on hme.facility_meter_detail_id = fmd.meter_type;''')
 
-    granularity = request.json.get('granularity', '')
-    start_date = request.json.get('start_date', '')
-    end_date = request.json.get('end_date', '')
-    facility_id = request.json.get('facility_id', '')
-    meter_type = request.json.get('meter_type', '')
+    granularity = request.args.get('granularity', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    facility_id = request.args.get('facility_id', '')
+    meter_type = request.args.get('meter_type', '')
     
     # Debugging statements to check the received parameters
     #print("facility_id:", facility_id)
@@ -72,7 +72,7 @@ def return_summary():
             'summary': summary_dict
         }
 
-    return jsonify(results[str(meter_type)]), 200
+    return jsonify(results), 200
 
 
 
@@ -154,7 +154,7 @@ def check_sufficiency():
     end_date = request.json.get('end_date')
     facility_id = request.json.get('facility_id')
     meter_type = request.json.get('meter_type')
-    indpendent_variables = request.json.get('indpendent_variables', '')
+    independent_variables = request.json.get('independent_variables', '')
     # Debugging statements to check the received parameters
     #print("facility_id:", facility_id)
     #print("created_by:", created_by)
@@ -197,12 +197,12 @@ def check_sufficiency():
         
         
 
-        if indpendent_variables:
+        if independent_variables:
             summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
             summary = summary[pd.notna(summary['Temperature'])]
             summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
 
-            for variable_id in indpendent_variables:
+            for variable_id in independent_variables:
                 print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
                 idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
                 print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
@@ -251,10 +251,12 @@ def check_sufficiency():
                                 'failedData': issues
                             }
                         else:
+                            issues = detect_issues(data)
                             return {
                                 'status': 'passed',
                                 'sufficiency': sufficiency[granularity_level],
-                                'monthly_sufficiency': calculate_monthly_sufficiency(data)
+                                'monthly_sufficiency': calculate_monthly_sufficiency(data),
+                                'outliers': issues['outliers']
                             }
                         
                     else:
@@ -311,10 +313,12 @@ def check_sufficiency():
                                 'failedData': issues
                             }
                         else:
+                            issues = detect_issues(data)
                             return {
                                 'status': 'passed',
                                 'sufficiency': sufficiency[granularity_level],
-                                'monthly_sufficiency': calculate_monthly_sufficiency(data)
+                                'monthly_sufficiency': calculate_monthly_sufficiency(data),
+                                'outliers': issues['outliers']
                             }
                         
                     else:
@@ -401,7 +405,7 @@ def clean_data():
     end_date = request.json.get('end_date', '')
     facility_id = request.json.get('facility_id', '')
     meter_type = request.json.get('meter_type', '')
-    indpendent_variables = request.json.get('indpendent_variables', '')
+    independent_variables = request.json.get('independent_variables', '')
     
     # Debugging statements to check the received parameters
     #print("facility_id:", facility_id)
@@ -443,13 +447,13 @@ def clean_data():
         #print(f"Filtered weather_df:\n", weather_df)
         
         summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
-        if indpendent_variables:
+        if independent_variables:
             summary = summary[pd.notna(summary['Temperature'])]
             # summary.to_csv("ctyghujihgftgyhu.csv")
             issues = detect_issues(summary)
             summary.rename(columns={'Date': 'Start Date (Required)'}, inplace=True)
 
-            for variable_id in indpendent_variables:
+            for variable_id in independent_variables:
                 print("variable_id coming is - -- - - - --  -- - - - - - ", variable_id)
                 idv = dbtest(f'select distinct iv.facility_id, iv.id as independent_variable_id,iv.name as independent_variable_name, ivf.file_path from independent_variable iv join independent_variable_file ivf on iv.id = ivf.independent_variable_id where iv.facility_id = {facility_id} and iv.id = {variable_id}')
                 print("independent variable dataframe is - - - - - --- - -- -  - - -",idv)
@@ -475,7 +479,7 @@ def clean_data():
                 hourly_data = variable_data['Meter Reading (Required)'].resample('H').sum()
                 print("hourly data is 0- 0 -0 -0 - 0-0 - 0- 0 -0 - - -- - - -  - -- - -- - - - ", hourly_data)
                 # hourly_data.to_csv("hourly_data.csv")
-                variable_name = idv['independent_variable_name'][0]
+                variable_name = str(idv['independent_variable_id'][0])
                 print("variable name is- --  -- -###################################################33", variable_name)
                 hourly_data.name = variable_name
                 hourly_data_df = hourly_data.to_frame(name=variable_name)
