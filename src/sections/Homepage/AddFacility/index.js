@@ -319,7 +319,7 @@ const AddFacilityComponent = (props) => {
       .then((response) => {
         if (response.data.statusCode == 200) {
           if (response.data.data.facility_construction_status == 1) {
-              response.data.data.facility_construction_status = 'Existing';
+              response.data.data.facility_construction_status = 'Existing Building';
           }
           // } else if (response.data.data.facility_construction_status == 2) {
           //     response.data.data.facility_construction_status = 'New';
