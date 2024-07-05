@@ -568,7 +568,7 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
         const email = userDet.email;
         context.log("Client Id", process.env.CLIENT_ID);
         context.log("Client Secret", process.env.CLIENT_ID);
-        context.log("Email", email);
+        context.log("Email Id", email);
 
         if (userType !== 1 || !email) {
             return { body: JSON.stringify({ status: 403, body: "You are not allowed to perform this request" }) };
