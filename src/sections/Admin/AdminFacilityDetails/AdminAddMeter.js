@@ -228,8 +228,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleMeterTypeChange = (event, newAlignment, form) => {
-    setMeterAlignment(newAlignment);
-    form.setFieldValue("meter_type", newAlignment);
+    if (newAlignment !== null) {
+      setMeterAlignment(newAlignment);
+      form.setFieldValue("meter_type", newAlignment);
+    }
   };
 
   const handleRevenueTypeChange = (event, newAlignment, form) => {
