@@ -258,8 +258,18 @@ if (orArray.length > 0) {
   else whereClauseOrCount = `WHERE ${conditionsCountOr.join(' OR ')}`;
 }
 let companyCheck = '';
+let companyCheckCount = '';
 if(company_id) {
-  companyCheck = ` AND company_id = ${company_id}`;
+  if(!whereClause && !whereClauseOr) {
+    companyCheck = `WHERE company_id = ${company_id}`;
+  } else  {
+    companyCheck = `AND company_id = ${company_id}`;
+  }
+  if(!whereClauseCount && !whereClauseOrCount) {
+    companyCheckCount = `WHERE company_id = ${company_id}`;
+  } else  {
+    companyCheckCount = `AND company_id = ${company_id}`;
+  }
 }
 
     let commonQuery = `select 1 as entry_type, u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
@@ -292,7 +302,7 @@ if(company_id) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount} ${companyCheck}`;
+  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,
