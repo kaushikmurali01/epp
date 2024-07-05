@@ -14,20 +14,26 @@ import {
   useMediaQuery,
   Select, // Import Select from MUI
   MenuItem,
+  Stack,
+  FormGroup,
+  FormControl,
+  TextField,
 } from "@mui/material";
+import ClearIcon from '@mui/icons-material/Clear';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import React from "react";
 import { useTable, useSortBy } from "react-table";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import { ReactComponent as SortIcon } from "../assets/images/sortIcon.svg";
-import { ReactComponent as SortIconUp } from "../assets/images/sortIconUp.svg";
-import { ReactComponent as SortIconDown } from "../assets/images/sortIconDown.svg";
+import { ReactComponent as SortIcon } from "../../assets/images/sortIcon.svg";
+import { ReactComponent as SortIconUp } from "../../assets/images/sortIconUp.svg";
+import { ReactComponent as SortIconDown } from "../../assets/images/sortIconDown.svg";
 import { useSelector } from "react-redux";
 import Loader from "pages/Loader";
 
-const Table = ({
+const EvThemeTable = ({
   columns,
   data,
   headbgColor,
@@ -42,6 +48,8 @@ const Table = ({
   sortOrder,
   setSortColumn,
   setSortOrder,
+  searchData,
+  setSearchData
 }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -101,6 +109,21 @@ const Table = ({
       setPageInfo({ ...pageInfo, page: 1, pageSize: event.target.value });
     }
   };
+  const handelSetSearch = (e,column)=> {
+    setSearchData((prev) => {
+      const newData = { [column.accessorKey]: e.target.value };
+      const newDataArray = Object.entries(newData).map(([key, value]) => ({ key, value }));
+      const mergedData = [...prev.filter(item => item.key !== column.accessorKey), ...newDataArray];
+      // reset serch paginatation while searching
+      setPageInfo({ page: 1, pageSize: 10 })
+      
+      return mergedData;
+    })
+  }
+
+  const handleClearSearch = (column) => {
+    setSearchData((prev) => prev.filter(item => item.key !== column.accessorKey));
+  };
 
   const totalPages = Math.ceil(count / pageInfo?.pageSize);
   const pageButtons = [];
@@ -130,67 +153,104 @@ const Table = ({
   }
   const rowsPerPageArr = [10, 20, 40, 70, 100];
 
+
+
+  // console.log(headerGroups, "headerGroups")
   return (
     <TableContainer>
       <MUITable
         {...getTableProps()}
         sx={{ ...customTableStyles, position: "relative", minHeight: "150px" }}
-        className={tableClass}
+        className={`ev-theme-table ${tableClass}`}
       >
-        <TableHead
-          sx={{ backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
-        >
+        <TableHead>
           {headerGroups.map((headerGroup) => (
             <TableRow {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column) => (
                 <TableCell
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  onClick={() =>
-                    column.accessorKey && handleSortChange(column.accessorKey)
-                  }
+
+                  sx={{ verticalAlign: 'top' }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {column.render("Header")}
-                    {column.accessorKey && (
-                      <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
-                        {sortColumn === column.id ||
-                        sortColumn === column.accessorKey ? (
-                          <>
-                            {sortOrder === "" && (
-                              <SortIcon
-                                style={{
-                                  width: "16px",
-                                  height: "16px",
-                                }}
-                              />
-                            )}
-                            {sortOrder === "ASC" && (
-                              <SortIconUp
-                                style={{
-                                  width: "10px",
-                                  height: "10px",
-                                }}
-                              />
-                            )}
-                            {sortOrder === "DESC" && (
-                              <SortIconDown
-                                style={{
-                                  width: "10px",
-                                  height: "10px",
-                                }}
-                              />
-                            )}
-                          </>
-                        ) : (
-                          <SortIcon
-                            style={{
-                              width: "16px",
-                              height: "16px",
-                            }}
-                          />
-                        )}
-                      </Box>
-                    )}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start' }}  >
+                    <Stack direction="row" sx={{ alignItems: 'center', width: '100%', padding: "1.5rem 1rem", backgroundColor: headbgColor || "rgba(217, 217, 217, 0.2)" }}
+                      {...column.getHeaderProps(column.getSortByToggleProps())}
+                      onClick={() =>
+                        column.accessorKey && handleSortChange(column.accessorKey)
+                      }
+                    >
+                      {column.render("Header")}
+                      {column.accessorKey && (
+                        <Box sx={{ width: "1.2rem", height: "1.2rem" }}>
+                          {sortColumn === column.id ||
+                            sortColumn === column.accessorKey ? (
+                            <>
+                              {sortOrder === "" && (
+                                <SortIcon
+                                  style={{
+                                    width: "16px",
+                                    height: "16px",
+                                  }}
+                                />
+                              )}
+                              {sortOrder === "ASC" && (
+                                <SortIconUp
+                                  style={{
+                                    width: "10px",
+                                    height: "10px",
+                                  }}
+                                />
+                              )}
+                              {sortOrder === "DESC" && (
+                                <SortIconDown
+                                  style={{
+                                    width: "10px",
+                                    height: "10px",
+                                  }}
+                                />
+                              )}
+                            </>
+                          ) : (
+                            <SortIcon
+                              style={{
+                                width: "16px",
+                                height: "16px",
+                              }}
+                            />
+                          )}
+                        </Box>
+                      )}
+                    </Stack>
+                    {column.isSearch &&
+                      <Stack sx={{ padding: '1rem 0.5rem' }}>
+                        <FormGroup sx={{flexDirection: 'row', flexWrap: 'nowrap', gap: '0.5rem',}}>
+                          <FormControl fullWidth sx={{backgroundColor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
+                            <TextField
+                              value={searchData.find(item => item.key === column.accessorKey)?.value || ""}
+                              placeholder="Search"
+                              inputProps={{ style: { color: '#242424', fontSize: '1rem', padding: '0.25rem 2.25rem 0.25rem 0.5rem', height: 'auto', maxWidth: '5rem' } }}
+                              onChange={(e) => handelSetSearch(e,column)}
+                            // onChange={(e) => setSearchData((prev) => ({...prev, [column.accessorKey]: e.target.value}))}
+                            />
+                            {searchData.find(item => item.key === column.accessorKey)?.value &&
+                                <ClearIcon
+                                 onClick={() => handleClearSearch(column)}
+                                  sx={{
+                                    color: "#333",
+                                    fontSize: "1.25rem",
+                                    position: "absolute",
+                                    right: "0.75rem",
+                                    top: '0', bottom: '0', margin: 'auto',
+                                    zIndex: "1",
+                                    cursor: "pointer"
+                                  }}
+                                />
+                              }
+                            
+                          </FormControl>
+                          {/* <img src="/images/icons/tableSearchIcon.svg" alt="" /> */}
+                        </FormGroup>
+                      </Stack>
+                    }
                   </Box>
                 </TableCell>
               ))}
@@ -260,7 +320,7 @@ const Table = ({
             />
           )}
         </TableBody>
-        {count && count > 0 ? (
+        {pageInfo?.pageSize && rows?.length > 0 && (
           <TableFooter>
             <TableRow>
               <TableCell colSpan={columns.length}>
@@ -339,10 +399,10 @@ const Table = ({
               </TableCell>
             </TableRow>
           </TableFooter>
-        ) : null}
+        )}
       </MUITable>
     </TableContainer>
   );
 };
 
-export default Table;
+export default EvThemeTable;

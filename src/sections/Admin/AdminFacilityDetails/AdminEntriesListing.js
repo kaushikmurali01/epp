@@ -637,7 +637,7 @@ const AdminEntriesListing = ({
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Revenue-grade meter
+            {meterData?.is_rg_meter ? 'Revenue-grade meter' : 'Sub meter'}
           </Typography>
         </Box>
 

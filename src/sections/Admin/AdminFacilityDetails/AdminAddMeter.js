@@ -94,10 +94,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
     unit: "",
     purchased_from_the_grid: true,
     meter_id: "",
-    meter_active: "",
-    meter_inactive: "",
+    meter_active: null,
+    meter_inactive: null,
     stil_in_use: false,
-    is_rg_meter: false,
+    is_rg_meter: true,
   });
 
   const handleUtilityFileChange = (event) => {
@@ -204,6 +204,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       dispatch(updateAdminMeter(meterId2, newValues))
         .then(() => {
           onAddMeterSuccess();
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth' // for smooth scrolling
+        });
         })
         .catch((error) => {
           console.error("Error updating meter:", error);
@@ -212,6 +216,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       dispatch(addAdminMeter(newValues))
         .then(() => {
           onAddMeterSuccess();
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth' // for smooth scrolling
+        });
         })
         .catch((error) => {
           console.error("Error adding meter:", error);
@@ -220,8 +228,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleMeterTypeChange = (event, newAlignment, form) => {
-    setMeterAlignment(newAlignment);
-    form.setFieldValue("meter_type", newAlignment);
+    if (newAlignment !== null) {
+      setMeterAlignment(newAlignment);
+      form.setFieldValue("meter_type", newAlignment);
+    }
   };
 
   const handleRevenueTypeChange = (event, newAlignment, form) => {
@@ -411,7 +421,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     htmlFor="meter_active"
                     style={{ whiteSpace: "initial" }}
                   >
-                    Date meter became active *
+                    Date meter became active <span className="asterisk">*</span>
                   </InputLabel>
                   <DatePicker
                     id="meter_active"
@@ -556,7 +566,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           )
                         }
                       >
-                        Uploaded utility bill
+                        {/* Uploaded utility bill */}
+                        utility_bill.pdf
                       </Typography>
                       <div style={{ marginLeft: "20px" }}>
                         <Typography
@@ -654,7 +665,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             )
                           }
                         >
-                          Uploaded meter specification
+                          {/* Uploaded meter specification */}
+                          meter_specification.pdf
                         </Typography>
                         <div style={{ marginLeft: "20px" }}>
                           <Typography

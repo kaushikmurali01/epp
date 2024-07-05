@@ -42,10 +42,10 @@ const AdminAddFacilityComponent = (props) => {
     const [companyData, setCompanyData] = useState([]);
     const [loadingState, setLoadingState] = useState(false);
     const uploadLoadingState = useSelector(
-      (state) => state?.fileUploadReducer?.loading
+        (state) => state?.fileUploadReducer?.loading
     );
     const [initialValues, setInitialValues] = useState({
-        facility_construction_status: "",
+        facility_construction_status: "Existing Building",
         facility_name: "",
         naic_code: "",
         facility_category: "",
@@ -323,10 +323,9 @@ const AdminAddFacilityComponent = (props) => {
         GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + "/" + id)
             .then((response) => {
                 if (response.data.statusCode == 200) {
-                    // if (response.data.data.facility_construction_status == 1) {
-                    //     console.log(response.data.data.facility_construction_status)
-                    //     response.data.data.facility_construction_status = 'Existing';
-                    //     console.log(response.data.data.facility_construction_status)
+                    if (response.data.data.facility_construction_status == 1) {
+                        response.data.data.facility_construction_status = 'Existing Building';
+                    }
 
                     // } else if (response.data.data.facility_construction_status == 2) {
                     //     response.data.data.facility_construction_status = 'New';
@@ -377,20 +376,22 @@ const AdminAddFacilityComponent = (props) => {
     const handleSubmit = (values) => {
         delete values.facility_id_submission_status;
         const newValues = { ...values, display_pic_url: imgUrl };
-        if (values.facility_construction_status == "Existing") {
-            values.facility_construction_status = 1;
-        } else if (values.facility_construction_status == "New") {
-            values.facility_construction_status = 2;
-        } else if (values.facility_construction_status == "Test Facility") {
-            values.facility_construction_status = 3;
+        if (newValues.facility_construction_status == "Existing Building") {
+            newValues.facility_construction_status = 1;
         }
+        //  else if (values.facility_construction_status == "New") {
+        //     values.facility_construction_status = 2;
+        // } else if (values.facility_construction_status == "Test Facility") {
+        //     values.facility_construction_status = 3;
+        // }
 
         // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
 
         if (!id) {
-
+            setLoadingState(true);
             POST_REQUEST(adminFacilityEndpoints.ADMIN_ADD_EDIT_FACILITY, newValues)
                 .then((response) => {
+                    setLoadingState(false);
                     NotificationsToast({
                         message: "Facility added successfully!",
                         type: "success",
@@ -398,14 +399,17 @@ const AdminAddFacilityComponent = (props) => {
                     navigate(`/facility-list/facility-details/${response?.data?.data?.id}`)
                 })
                 .catch((error) => {
+                    setLoadingState(false);
                     NotificationsToast({
                         message: error?.message ? error.message : "Something went wrong!",
                         type: "error",
                     });
                 });
         } else {
+            setLoadingState(true);
             PATCH_REQUEST(adminFacilityEndpoints.ADMIN_ADD_EDIT_FACILITY + '/' + id, newValues)
                 .then((response) => {
+                    setLoadingState(false);
                     NotificationsToast({
                         message: "Facility updated successfully!",
                         type: "success",
@@ -413,6 +417,7 @@ const AdminAddFacilityComponent = (props) => {
                     navigate(`/facility-list/facility-details/${id}`)
                 })
                 .catch((error) => {
+                    setLoadingState(false);
                     NotificationsToast({
                         message: error?.message ? error.message : "Something went wrong!",
                         type: "error",
@@ -565,11 +570,16 @@ const AdminAddFacilityComponent = (props) => {
                         <Form>
                             <Grid container spacing={2} sx={{ marginTop: "10px" }}>
                                 <Grid item xs={12} sm={4}>
-                                    <SelectBox
+                                    {/* <SelectBox
                                         name="facility_construction_status"
                                         label="Facility construction status*"
                                         options={FacilityConstructionStatusArray}
-                                    />
+                                    /> */}
+                                    <InputField
+                                        name="facility_construction_status"
+                                        label="Facility construction status*"
+                                        type="text"
+                                        isDisabled={true} />
                                 </Grid>
 
                                 <Grid item xs={12} sm={4}>
@@ -653,7 +663,7 @@ const AdminAddFacilityComponent = (props) => {
                                             fontSize: "0.875rem !important",
                                         }}
                                     >
-                                        What is your target energy savings for this facility?*
+                                        What is your target energy savings for this facility?<span className="asterisk">*</span>
                                     </Typography>
                                     <SliderWrapper
                                         name="target_saving"
@@ -849,11 +859,11 @@ const AdminAddFacilityComponent = (props) => {
                     )}
                 </Formik>
                 <Loader
-          sectionLoader
-          minHeight="100vh"
-          loadingState={loadingState || uploadLoadingState}
-          loaderPosition="fixed"
-        />
+                    sectionLoader
+                    minHeight="100vh"
+                    loadingState={loadingState || uploadLoadingState}
+                    loaderPosition="fixed"
+                />
             </Container>
         </>
     );
