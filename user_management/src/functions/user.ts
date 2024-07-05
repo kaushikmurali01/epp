@@ -1009,7 +1009,7 @@ export async function CheckEmailExists(request: HttpRequest, context: Invocation
         if(user) return { body: JSON.stringify({ status: 200, body: { exist : true} }) };
         else return { body: JSON.stringify({ status: 200, body: { exist : false} }) };
     } catch (error) {
-        // Return error response
+        // Return error response.
         return { status: 500, body: `${error.message}` };
     }
 }
