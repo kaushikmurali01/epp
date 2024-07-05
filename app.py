@@ -24,6 +24,8 @@ def return_summary():
     end_date = request.json.get('end_date', '')
     facility_id = request.json.get('facility_id', '')
     meter_type = request.json.get('meter_type', '')
+    page = int(request.json.get('page', 1))
+    page_size = int(request.json.get('page_size', 100))
     
     # Debugging statements to check the received parameters
     #print("facility_id:", facility_id)
@@ -66,7 +68,22 @@ def return_summary():
         summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
         
         summary_dict = summary.to_dict(orient='records')  # Convert DataFrame to list of dicts for JSON serialization
+        # Implement pagination
+        total_records = len(summary_dict)
+        total_pages = (total_records + page_size - 1) // page_size  # Calculate total pages
+        start_idx = (page - 1) * page_size
+        end_idx = start_idx + page_size
+        paginated_summary = summary_dict[start_idx:end_idx]
 
+        results[str(meter_type)] = {
+            'summary': paginated_summary,
+            'total_records': total_records,
+            'page': page,
+            'page_size': page_size,
+            'total_pages': total_pages,
+            'has_prev': page > 1,
+            'has_next': page < total_pages
+        }
         
         results[str(meter_type)] = {
             'summary': summary_dict
