@@ -103,9 +103,9 @@ class AdminUserController {
     }
   }
 
-  static async searchUsers(data, offset, limit, order, col_name): Promise<any> {
+  static async searchUsers(data, offset, limit, order, col_name, company_id): Promise<any> {
     try {
-      const users = await AdminUserService.search(data, offset, limit, order, col_name);
+      const users = await AdminUserService.search(data, offset, limit, order, col_name, company_id);
       return users;
       // return {
       //   status: 200, // OK status code

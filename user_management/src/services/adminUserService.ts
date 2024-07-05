@@ -203,7 +203,7 @@ static async rejectInvitation(data): Promise<Response> {
     }
   }
 
-  static async search(data, offset, limit, order, col_name): Promise<any> {
+  static async search(data, offset, limit, order, col_name, company_id): Promise<any> {
 // Construct the WHERE clause
 let whereClause = '';
 let whereClauseOr = '';
@@ -257,6 +257,10 @@ if (orArray.length > 0) {
   if(whereClauseCount) whereClauseOrCount = ` AND (${conditionsCountOr.join(' OR ')})`;
   else whereClauseOrCount = `WHERE ${conditionsCountOr.join(' OR ')}`;
 }
+let companyCheck = '';
+if(company_id) {
+  companyCheck = ` AND company_id = ${company_id}`;
+}
 
     let commonQuery = `select 1 as entry_type, u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
     c.company_name, c.id as company_id, ucr.role_id, ut.user_type, ut.id as user_type_id  from users u 
@@ -276,7 +280,7 @@ if (orArray.length > 0) {
     SELECT * FROM (
       ${commonQuery}
     ) AS combinedResults
-    ${whereClause} ${whereClauseOr}
+    ${whereClause} ${whereClauseOr} ${companyCheck}
     ORDER by ${col_name} ${order}
     OFFSET $1
     LIMIT $2;
@@ -288,7 +292,7 @@ if (orArray.length > 0) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount}`;
+  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount} ${companyCheck}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,
