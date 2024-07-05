@@ -1145,6 +1145,12 @@ app.http('DeleteUserAdmin', {
     route: 'usersadmin/{id}/{type}/{company_id}',
     handler: DeleteUserAdmin
 });
+app.http('DeleteUserByemail', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'eppuser/delete/{id}/{type}/{company_id}',
+    handler: DeleteUserByemail
+});
 
 app.http('AcceptInvitation', {
     methods: ['POST'],
