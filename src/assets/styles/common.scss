@@ -100,3 +100,20 @@ body {
     cursor: text;
    }
 }
+
+
+.ev-theme-table {
+    thead {
+        th {
+            &.MuiTableCell-root {
+                padding: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                &:first-of-type {
+                    min-width: 8rem;
+                }
+            }
+        }
+    }
+}

@@ -120,16 +120,27 @@ const [getCompanyList, setCompanyList] = useState([]);
   const handelManagePermissions = () => {
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     const profileData = {
-      companyId,
-      userId,
+      company_id:companyId,
+      id: userId,
+      user_type_id: userProfileData?.user.type,
       ...userProfileData?.user
     }
-    setInviteAPIURL(apiURL)
-    setVisibleInvitePage(true);
-    setSelectTableRow(profileData)
-    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
+    // setInviteAPIURL(apiURL)
+    // setVisibleInvitePage(true);
+    // setSelectTableRow(profileData)
+    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     
 
+    // navigate('/user-management/manage-access')
+    // Set a value in session storage
+    const data = {
+      pageInfo: { title: 'Manage Customer User and permissions' },
+      isEdited: true,
+      selectTableRow: profileData,
+    }
+    // set state on session storage
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
+    navigate('/user-management/manage-access',{state: data})
 
   }
 
@@ -543,6 +554,7 @@ const handelDeleteModalOpen = () => {
                                   secondary={item?.role_name}
                                   primaryTypographyProps={otherInfoStyleContentStyle}
                                   secondaryTypographyProps={roleInfoStyleContentStyle}
+                                  key={item?.id}
                                 />
                               )
                             })

@@ -1,4 +1,4 @@
-import UserManagePermissions from "pages/UserManagementAdmin/UserManagePermissions";
+
 
 export const authEndpoints = {
   login: "/login",
@@ -32,6 +32,7 @@ export const facilityEndPoints = {
   facilityDetails: "facility-details/:id",
   entriesDetails: "entries-details/:id",
   facilityManagePermissions: "facility-manage-permissions/:id",
+  facilityListNew: "facility-list-new"
 };
 
 export const enervaEndPoints = {
@@ -48,6 +49,8 @@ export const enervaEndPoints = {
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
+  userManagementNew: "user-management-new",
+  userManagementAccess: "user-management/manage-access",
   userProfile: "/user-management/profile/:companyId/:userId",
 };
 

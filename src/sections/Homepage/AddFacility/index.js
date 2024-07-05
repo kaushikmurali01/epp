@@ -42,7 +42,7 @@ const AddFacilityComponent = (props) => {
     (state) => state?.fileUploadReducer?.loading
   );
   const [initialValues, setInitialValues] = useState({
-    facility_construction_status: "",
+    facility_construction_status: "Existing Building",
     facility_name: "",
     naic_code: "",
     facility_category: "",
@@ -318,11 +318,9 @@ const AddFacilityComponent = (props) => {
     GET_REQUEST(facilityEndPoints.GET_FACILITY_BY_ID + "/" + id)
       .then((response) => {
         if (response.data.statusCode == 200) {
-          // if (response.data.data.facility_construction_status == 1) {
-          //     console.log(response.data.data.facility_construction_status)
-          //     response.data.data.facility_construction_status = 'Existing';
-          //     console.log(response.data.data.facility_construction_status)
-
+          if (response.data.data.facility_construction_status == 1) {
+              response.data.data.facility_construction_status = 'Existing';
+          }
           // } else if (response.data.data.facility_construction_status == 2) {
           //     response.data.data.facility_construction_status = 'New';
           // }
@@ -375,7 +373,7 @@ const AddFacilityComponent = (props) => {
     const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`
     GET_REQUEST(apiURL).then((response) => {
       const code = openLocationCode.encode(parseFloat(response?.data?.results[0]?.position?.lat), parseFloat(response?.data?.results[0]?.position?.lon));
-      
+
       // if(!code){
       //   NotificationsToast({
       //     message: "Please enter valid address",
@@ -384,15 +382,16 @@ const AddFacilityComponent = (props) => {
       //   return;
       // }
 
-      const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId, facility_ubi: code, latitude:parseFloat(response?.data?.results[0]?.position?.lat), longitude: parseFloat(response?.data?.results[0]?.position?.lon) };
+      const newValues = { ...values, display_pic_url: imgUrl, company_id: userCompanyId, facility_ubi: code, latitude: parseFloat(response?.data?.results[0]?.position?.lat), longitude: parseFloat(response?.data?.results[0]?.position?.lon) };
 
-      if (values.facility_construction_status == "Existing") {
-        values.facility_construction_status = 1;
-      } else if (values.facility_construction_status == "New") {
-        values.facility_construction_status = 2;
-      } else if (values.facility_construction_status == "Test Facility") {
-        values.facility_construction_status = 3;
-      }
+      if (newValues.facility_construction_status == "Existing Building") {
+        newValues.facility_construction_status = 1;
+      } 
+      // else if (newValues.facility_construction_status == "New") {
+      //   newValues.facility_construction_status = 2;
+      // } else if (newValues.facility_construction_status == "Test Facility") {
+      //   newValues.facility_construction_status = 3;
+      // }
 
       if (!id) {
         setLoadingState(true);
@@ -568,11 +567,16 @@ const AddFacilityComponent = (props) => {
             <Form>
               <Grid container spacing={2} sx={{ marginTop: "10px" }}>
                 <Grid item xs={12} sm={4}>
-                  <SelectBox
+                  {/* <SelectBox
                     name="facility_construction_status"
                     label="Facility construction status*"
                     options={FacilityConstructionStatusArray}
-                  />
+                  /> */}
+                  <InputField
+                    name="facility_construction_status"
+                    label="Facility construction status*"
+                    type="text"
+                    isDisabled={true} />
                 </Grid>
 
                 <Grid item xs={12} sm={4}>
@@ -644,7 +648,7 @@ const AddFacilityComponent = (props) => {
                       fontSize: "0.875rem !important",
                     }}
                   >
-                    What is your target energy savings for this facility?*
+                    What is your target energy savings for this facility?<span className="asterisk">*</span>
                   </Typography>
                   <SliderWrapper
                     name="target_saving"
