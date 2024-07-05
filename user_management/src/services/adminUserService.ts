@@ -204,35 +204,58 @@ static async rejectInvitation(data): Promise<Response> {
   }
 
   static async search(data, offset, limit, order, col_name): Promise<any> {
-    // data = [
-    //   {
-    //     key: 'first_name',
-    //     value: ''
-    //   }
-    // ];
-
-    // Construct the WHERE clause
+// Construct the WHERE clause
 let whereClause = '';
+let whereClauseOr = '';
 let bindParams = [offset, limit];
 let countParams = [];
 let index = 3; // Since 1 and 2 are for OFFSET and LIMIT
 let whereClauseCount = '';
+let whereClauseOrCount = '';
 let indCount = 1;
 
-if (data.length > 0) {
-  const conditions = data.map(({ key, value }) => {
+//const orArray = data.filter(item => item.key === "first_name");
+const orArray = data
+  .filter(item => item.key === "first_name")
+  .flatMap(item => [item, { key: "last_name", value: item.value }]);
+
+  console.log("orArray", orArray);
+
+const andArray = data.filter(item => item.key !== "first_name");
+
+if (andArray.length > 0) {
+  const conditions = andArray.map(({ key, value }) => {
     bindParams.push(`%${value}%`);
     return `${key} ILIKE $${index++}`;
   });
   whereClause = `WHERE ${conditions.join(' AND ')}`;
 }
 
-if (data.length > 0) {
-  const conditionsCount = data.map(({ key, value }) => {
+if (andArray.length > 0) {
+  const conditionsCount = andArray.map(({ key, value }) => {
     countParams.push(`%${value}%`);
     return `${key} ILIKE $${indCount++}`;
   });
   whereClauseCount = `WHERE ${conditionsCount.join(' AND ')}`;
+}
+
+if (orArray.length > 0) {
+  const conditionsOr = orArray.map(({ key, value }) => {
+    bindParams.push(`%${value}%`);
+    return `${key} ILIKE $${index++}`;
+  });
+  if(whereClause) whereClauseOr = ` AND (${conditionsOr.join(' OR ')})`;
+  else whereClauseOr = `WHERE ${conditionsOr.join(' OR ')}`;
+}
+
+if (orArray.length > 0) {
+  const conditionsCountOr = orArray.map(({ key, value }) => {
+    countParams.push(`%${value}%`);
+    return `${key} ILIKE $${indCount++}`;
+  });
+  whereClauseOrCount = `AND (${conditionsCountOr.join(' OR ')})`;
+  if(whereClauseCount) whereClauseOrCount = ` AND (${conditionsCountOr.join(' OR ')})`;
+  else whereClauseOrCount = `WHERE ${conditionsCountOr.join(' OR ')}`;
 }
 
     let commonQuery = `select 1 as entry_type, u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
@@ -253,7 +276,7 @@ if (data.length > 0) {
     SELECT * FROM (
       ${commonQuery}
     ) AS combinedResults
-    ${whereClause}
+    ${whereClause} ${whereClauseOr}
     ORDER by ${col_name} ${order}
     OFFSET $1
     LIMIT $2;
@@ -265,7 +288,7 @@ if (data.length > 0) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults ${whereClauseCount}`;
+  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,

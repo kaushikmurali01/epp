@@ -233,12 +233,7 @@ export class EmailTemplate {
                             <tr>
                               <td style="height: 1.25rem"></td>
                             </tr>
-                            <tr>
-                              <td>
-                                <img src="https://eppdevstorage.blob.core.windows.net/assets/new_logo.png" alt="mailer-bg" class="mail-bg"
-                                  style="display: block; max-width:17%" />
-                              </td>
-                            </tr>
+                            
                             <tr>
                               <td style="height: 0.62rem"></td>
                             </tr>

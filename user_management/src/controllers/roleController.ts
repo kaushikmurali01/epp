@@ -65,6 +65,15 @@ class RoleController {
         }
     }
 
+    static async listRequestToJoinRoles(req: HttpRequest, type): Promise<Object> {
+        try {
+            const roles = await RoleService.listRequestToJoinRoles(type);
+            return { status: 200, body: roles };
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+
     /**
      * Updates an existing role.
      * 
