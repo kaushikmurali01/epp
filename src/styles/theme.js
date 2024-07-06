@@ -61,7 +61,7 @@ const theme = createTheme({
             th: {
               color: '#54585A',
               fontSize: '0.75rem',
-              "&:last-child": {
+             "&:last-child": {
                 "div": {
                  justifyContent: 'flex-end',
  
