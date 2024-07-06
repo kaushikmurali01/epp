@@ -45,13 +45,16 @@ export const enervaEndPoints = {
   companyAgreement: "company-agreement/:id",
   companyUsers: "company-users/:id",
   companyManageAccess: "company-manage-access/:id",
+  companyUserManageAccessByName: ':name/manage-access',
+  addUser: "add-user",
+  managePermission: "manage-permission",
 };
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
   userManagementNew: "user-management-new",
   userManagementAccess: "user-management/manage-access",
-  userProfile: "/user-management/profile/:companyId/:userId",
+  userProfile: "user-management/profile/:companyId/:userId",
 };
 
 export const evUserManagementEndPoints = {

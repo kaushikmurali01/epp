@@ -10,19 +10,17 @@ import {
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   fetchAdminCompanyListing,
   fetchUsersByCompanyId,
 } from "../../../redux/admin/actions/adminCompanyAction";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { format } from "date-fns";
 import { debounce } from "lodash";
 import Loader from "pages/Loader";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import EvThemeTable from "components/Table/EvThemeTable";
 
-const CompanyManageUserAccess = () => {
+const CompanyManageUserAccessOld = () => {
   const columns = [
     {
       Header: "UserID",
@@ -35,20 +33,14 @@ const CompanyManageUserAccess = () => {
           {item?.first_name} {item?.last_name}
         </>
       ),
-      accessorKey: "first_name",
-      isSearch: true,
     },
     {
       Header: "Company name",
       accessor: "company_name",
-      accessorKey: "company_name",
-      isSearch: true,
     },
     {
       Header: "Business email",
       accessor: "email",
-      accessorKey: "email",
-      isSearch: true,
     },
     {
       Header: "User type",
@@ -100,15 +92,7 @@ const CompanyManageUserAccess = () => {
   ];
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // const { id } = useParams();
-  const getParams = useLocation();
-  const companyId = getParams.state?.companyId || '';
-  const [selectTableRow, setSelectTableRow] = useState({});
-  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
-  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
-  const [searchData, setSearchData] = useState([]);
-
-  console.log(getParams, companyId , 'companyId')
+  const { id } = useParams();
 
   const companyUserListData = useSelector(
     (state) => state?.adminCompanyReducer?.companyUsersById?.data?.rows || []
@@ -123,28 +107,14 @@ const CompanyManageUserAccess = () => {
 
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
 
-  const handelInviteUserAdmin = () => {
-   
-    const data = {
-      pageInfo: { title: 'Add User' },
-      isEdited: false,
-      selectTableRow: selectTableRow,
-    }
-    // set state on session storage
-    // navigate('/user-management/manage-access',{state: data})
-    navigate(`/companies/${getParams.state?.companyName}/manage-access/add-user`, {state: data})
-
-  }
-
   useEffect(() => {
-    dispatch(fetchUsersByCompanyId(pageInfo, companyId,searchData));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, companyId,searchData]);
+    dispatch(fetchUsersByCompanyId(pageInfo, id));
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, id]);
 
   return (
     <Container>
-      <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, marginBottom: '1.5rem', justifyContent: 'space-between', }}>
-      <Grid item xs={12} sm={6}   >
-      <IconButton
+      <Grid container mb={4} alignItems="center">
+        <IconButton
           sx={{
             backgroundColor: "primary.main",
             "&:hover": {
@@ -164,53 +134,20 @@ const CompanyManageUserAccess = () => {
         </IconButton>
         <Typography
           variant="h4"
-          sx={{ fontSize: "1.5rem", color: "text.secondary2", display: 'inline-block' }}
+          sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
         >
-          Manage access New
+          Manage access
         </Typography>
-        </Grid>
-        <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
-                    Add User
-                    <IconButton>
-
-                      <AddCircleIcon
-                        sx={{
-                          color: "text.primary",
-                          fontSize: "1.875rem",
-                        }}
-                      />
-                    </IconButton>
-                  </Typography>
-              </Grid>
       </Grid>
 
       <Box sx={{ marginTop: "2rem" }}>
-        {/* <Table
+        <Table
           columns={columns}
           data={companyUserListData}
           count={userCount}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
-        /> */}
-         <EvThemeTable tableClass="enerva-customer-table" 
-                headbgColor="rgba(217, 217, 217, 0.2)"
-
-                columns={columns}
-                data={companyUserListData}
-                count={userCount}
-                pageInfo={pageInfo}
-                setPageInfo={setPageInfo}
-
-                searchData={searchData}
-                setSearchData={setSearchData}
-
-                // setSortColumn={setSortCustomerColumn}
-                // setSortOrder={setSortCustomerOrder}
-                // sortColumn={sortCustomerColumn}
-                // sortOrder={sortCustomerOrder}
-              
-              />
+        />
       </Box>
       <Loader
         sectionLoader
@@ -222,4 +159,4 @@ const CompanyManageUserAccess = () => {
   );
 };
 
-export default CompanyManageUserAccess;
+export default CompanyManageUserAccessOld;

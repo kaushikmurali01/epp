@@ -24,7 +24,7 @@ import { useDispatch } from "react-redux";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
-const CustomerUserManagementColumn = () => {
+const UserManagementAdminColumn = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
@@ -58,7 +58,7 @@ const buttonStyle = {
 
 const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -66,13 +66,14 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to delete the User?
+                    Are you sure you would like to delete
+                    the customer user details
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'block',}}>
+                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>
@@ -84,29 +85,50 @@ const DeleteModelContent = () => {
 
 
 
-const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "Customer ID",
-        accessor: 'id',
+        // accessor: 'id',
+        accessor: (item) => {
+                return (
+                    <Box>
+                        <Typography disabled={item.status === 'pending'} variant="span" sx={{ margin: '0',  color: 'blue.main', cursor: 'pointer', textDecoration: 'underline'}}  onClick={() => handelNavigateProfile(item) } >
+                             {item.id}
+                        </Typography>
+                    </Box>
+                );
+        },
         accessorKey: "id",
+        isSearch: true,
     },
     {
         Header: " Customer admin name",
         accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
         accessorKey: "first_name",
+        isSearch: true,
     },
     {
         Header: "Business Email",
         accessor: "email",
         accessorKey: "email",
+        isSearch: true,
     },
     {
-        Header: "Role Type",
-        accessor: "rolename",
+        Header: "User Type",
+        accessor: "user_type",
+        // accessorKey: "user_type",
+        isSearch: false,
     },
+    // {
+    //     Header: "User Role",
+    //     accessor: "rolename",
+    //     isSearch: false,
+    // },
     {
         Header: "Created on (Date)",
-        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`
+        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`,
+        isSearch: false,
+
     },
     {
         Header: "Status",
@@ -130,9 +152,9 @@ const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, set
                     Manage permission
                 </Typography>
                
-                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
+                {/* <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
                     View
-                </Typography>
+                </Typography> */}
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert
                 </Typography>
@@ -192,11 +214,24 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         return;
     }
-    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
-    setVisibleInvitePage(true);
-    setSelectTableRow(item)
-    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
-    setInviteAPIURL(apiURL)
+
+    // const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    // setVisibleInvitePage(true);
+    // setSelectTableRow(item)
+    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
+    // setInviteAPIURL(apiURL)
+
+    // navigate('/user-management/manage-access')
+    // Set a value in session storage
+    const data = {
+      pageInfo: { title: 'Manage Customer User and permissions' },
+      isEdited: true,
+      selectTableRow: item,
+      returnPageURL: '/user-management'
+    }
+    // set state on session storage
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
+    navigate('/user-management/manage-access',{state: data})
     
 }
 
@@ -266,8 +301,8 @@ const handelDelete = (item, setRefreshTableData, setModalConfig) => {
         })
 }
 
-return {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN}
+return {USER_MANAGEMENT_ADMIN_COLUMN}
 
 }
 
-export default CustomerUserManagementColumn;
+export default UserManagementAdminColumn;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -29,6 +29,7 @@ import EvModal from "utils/modal/EvModal";
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const getUseLocation = useLocation();
   const { companyId, userId } = useParams();
   const dispatch = useDispatch();
   const [profilePicture, setProfilePicture] = useState("");
@@ -137,6 +138,7 @@ const [getCompanyList, setCompanyList] = useState([]);
       pageInfo: { title: 'Manage Customer User and permissions' },
       isEdited: true,
       selectTableRow: profileData,
+      returnPageURL: getUseLocation.pathname
     }
     // set state on session storage
     // sessionStorage.setItem('enervaAdminManageAccess', data);
@@ -154,7 +156,7 @@ const [getCompanyList, setCompanyList] = useState([]);
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to delete the User?
+                    Are you sure you would like to delete the user?
                 </Typography>
             </Grid>
             <Grid item>

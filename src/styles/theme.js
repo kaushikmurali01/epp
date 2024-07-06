@@ -61,8 +61,11 @@ const theme = createTheme({
             th: {
               color: '#54585A',
               fontSize: '0.75rem',
-               div: {
-                display:'inline-block',
+              "&:last-child": {
+                "div": {
+                 justifyContent: 'flex-end',
+ 
+                }
               },
             },
            

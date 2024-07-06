@@ -229,7 +229,7 @@ const UserAdminManageAccess = ({ }) => {
 
     const navigateToUserManagement = ()=> {
         // navigate('/user-management');
-        navigate('/user-management',{state: {} })
+        navigate(enervaAdminManageAccess.returnPageURL,{state: {} })
         // sessionStorage.setItem('enervaAdminManageAccess', JSON.stringify({}));
     }
 

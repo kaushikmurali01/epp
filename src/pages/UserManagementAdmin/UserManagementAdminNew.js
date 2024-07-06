@@ -10,13 +10,13 @@ import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints'
 import ClearIcon from '@mui/icons-material/Clear';
 import debounce from "lodash.debounce";
 
-import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/useerManagement/admin/aggregatorUserManagementAdminColumn';
+import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/userManagement/admin/aggregatorUserManagementAdminColumn';
 import InviteUser from 'pages/UserManagement/InviteUser';
 import EvModal from 'utils/modal/EvModal';
 
-import EnvervaUserManagementColumn from 'utils/tableColumn/useerManagement/admin/enervaUserManagementAdminColumn';
-import UserManagementAdminColumn from 'utils/tableColumn/useerManagement/admin/UserManagementAdminColumn';
-import IESOUserManagementColumn from 'utils/tableColumn/useerManagement/admin/iesoUserManagementAdminColumn';
+import EnvervaUserManagementColumn from 'utils/tableColumn/userManagement/admin/enervaUserManagementAdminColumn';
+import UserManagementAdminColumn from 'utils/tableColumn/userManagement/admin/UserManagementAdminColumn';
+import IESOUserManagementColumn from 'utils/tableColumn/userManagement/admin/iesoUserManagementAdminColumn';
 import { useDispatch, useSelector } from 'react-redux';
 import EvThemeTable from 'components/Table/EvThemeTable';
 
@@ -322,6 +322,7 @@ const UserManagementAdminNew = () => {
       pageInfo: { title: 'Invite User and set permissions' },
       isEdited: false,
       selectTableRow: selectTableRow,
+      returnPageURL: '/user-management'
     }
     // set state on session storage
     navigate('/user-management/manage-access',{state: data})

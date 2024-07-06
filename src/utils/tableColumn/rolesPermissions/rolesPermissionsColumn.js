@@ -41,8 +41,8 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                Are you sure you would like to Delete
-                the Role from the system.
+                Are you sure you would like to delete
+                the role from the system.
                 </Typography>
             </Grid>
             <Grid item>

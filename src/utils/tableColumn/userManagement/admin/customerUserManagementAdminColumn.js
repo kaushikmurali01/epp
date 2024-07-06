@@ -24,7 +24,7 @@ import { useDispatch } from "react-redux";
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
-const UserManagementAdminColumn = () => {
+const CustomerUserManagementColumn = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
@@ -58,7 +58,7 @@ const buttonStyle = {
 
 const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -66,14 +66,13 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to Delete
-                    the Customer user Details
+                    Are you sure you would like to delete the user?
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <FormGroup sx={{display: 'block',}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>
@@ -85,41 +84,29 @@ const DeleteModelContent = () => {
 
 
 
-const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "Customer ID",
         accessor: 'id',
         accessorKey: "id",
-        isSearch: true,
     },
     {
         Header: " Customer admin name",
         accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
         accessorKey: "first_name",
-        isSearch: true,
     },
     {
         Header: "Business Email",
         accessor: "email",
         accessorKey: "email",
-        isSearch: true,
     },
     {
-        Header: "User Type",
-        accessor: "user_type",
-        // accessorKey: "user_type",
-        isSearch: false,
+        Header: "Role Type",
+        accessor: "rolename",
     },
-    // {
-    //     Header: "User Role",
-    //     accessor: "rolename",
-    //     isSearch: false,
-    // },
     {
         Header: "Created on (Date)",
-        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`,
-        isSearch: false,
-
+        accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`
     },
     {
         Header: "Status",
@@ -205,23 +192,11 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         return;
     }
-
-    // const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
-    // setVisibleInvitePage(true);
-    // setSelectTableRow(item)
-    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
-    // setInviteAPIURL(apiURL)
-
-    // navigate('/user-management/manage-access')
-    // Set a value in session storage
-    const data = {
-      pageInfo: { title: 'Manage Customer User and permissions' },
-      isEdited: true,
-      selectTableRow: item,
-    }
-    // set state on session storage
-    // sessionStorage.setItem('enervaAdminManageAccess', data);
-    navigate('/user-management/manage-access',{state: data})
+    const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
+    setVisibleInvitePage(true);
+    setSelectTableRow(item)
+    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
+    setInviteAPIURL(apiURL)
     
 }
 
@@ -291,8 +266,8 @@ const handelDelete = (item, setRefreshTableData, setModalConfig) => {
         })
 }
 
-return {USER_MANAGEMENT_ADMIN_COLUMN}
+return {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN}
 
 }
 
-export default UserManagementAdminColumn;
+export default CustomerUserManagementColumn;
