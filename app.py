@@ -22,6 +22,8 @@ def return_summary():
     granularity = request.json.get('granularity', '')
     start_date = request.json.get('start_date', '')
     end_date = request.json.get('end_date', '')
+    page = int(request.json.get('page', 1))
+    page_size = int(request.json.get('page_size', 100))
     facility_id = request.json.get('facility_id', '')
     meter_type = request.json.get('meter_type', '')
     
