@@ -838,7 +838,7 @@ const AddFacilityComponent = (props) => {
                   height="48px"
                   onClick={handleSubmit}
                 >
-                  {id ? "Edit Facility" : "Add Facility"}
+                  {id ? "Save" : "Add Facility"}
                 </ButtonWrapper>
               </Box>
             </Form>
