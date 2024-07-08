@@ -633,7 +633,7 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
                 UserCompanyRolePermission.destroy({ where: { user_id:user_id }}),
                 UserCompanyRole.destroy({ where: { user_id:user_id } }),
                 UserRequest.destroy({ where: { user_id:user_id } }),
-                User.update({email: uniqueEmail },{where: {id:user_id}}),
+                User.update({email: uniqueEmail, type: 3 },{where: {id:user_id}}),
                 UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
                 UserInvitation.destroy({ where: { email: userDet?.email } })
             ]);
