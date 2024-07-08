@@ -51,6 +51,11 @@ export const EnervaRoutes = () => {
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUsers} element={<CompanyUserList />} />
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyManageAccess} element={<CompanyManageAccess />} />
 
+        <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUserManageAccessByName} element={<CompanyManageAccess />} />
+        <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUserManageAccessByName+'/'+enervaEndPoints.addUser} element={<UserAdminManageAccess />} />
+        <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUserManageAccessByName+'/'+enervaEndPoints.managePermission} element={<UserAdminManageAccess />} />
+
+
         <Route path={enervaEndPoints.reportManagement} element={<DashboardSectionComponent />} />
         <Route path={enervaEndPoints.programManagement} element={<DashboardSectionComponent />} />
         <Route path={enervaEndPoints.roleAndPermissionManagement} element={<RolePermissionsUserManagement />} />
