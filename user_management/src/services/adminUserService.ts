@@ -228,7 +228,7 @@ if (andArray.length > 0) {
     bindParams.push(`%${value}%`);
     return `${key} ILIKE $${index++}`;
   });
-  whereClause = `WHERE ${conditions.join(' AND ')}`;
+  whereClause = `AND ${conditions.join(' AND ')}`;
 }
 
 if (andArray.length > 0) {
@@ -236,7 +236,7 @@ if (andArray.length > 0) {
     countParams.push(`%${value}%`);
     return `${key} ILIKE $${indCount++}`;
   });
-  whereClauseCount = `WHERE ${conditionsCount.join(' AND ')}`;
+  whereClauseCount = `AND ${conditionsCount.join(' AND ')}`;
 }
 
 if (orArray.length > 0) {
@@ -245,7 +245,7 @@ if (orArray.length > 0) {
     return `${key} ILIKE $${index++}`;
   });
   if(whereClause) whereClauseOr = ` AND (${conditionsOr.join(' OR ')})`;
-  else whereClauseOr = `WHERE ${conditionsOr.join(' OR ')}`;
+  else whereClauseOr = `AND ${conditionsOr.join(' OR ')}`;
 }
 
 if (orArray.length > 0) {
@@ -255,33 +255,34 @@ if (orArray.length > 0) {
   });
   whereClauseOrCount = `AND (${conditionsCountOr.join(' OR ')})`;
   if(whereClauseCount) whereClauseOrCount = ` AND (${conditionsCountOr.join(' OR ')})`;
-  else whereClauseOrCount = `WHERE ${conditionsCountOr.join(' OR ')}`;
+  else whereClauseOrCount = `AND ${conditionsCountOr.join(' OR ')}`;
 }
 let companyCheck = '';
 let companyCheckCount = '';
 if(company_id) {
   if(!whereClause && !whereClauseOr) {
-    companyCheck = `WHERE company_id = ${company_id}`;
+    companyCheck = `AND company_id = ${company_id}`;
   } else  {
     companyCheck = `AND company_id = ${company_id}`;
   }
   if(!whereClauseCount && !whereClauseOrCount) {
-    companyCheckCount = `WHERE company_id = ${company_id}`;
+    companyCheckCount = `AND company_id = ${company_id}`;
   } else  {
     companyCheckCount = `AND company_id = ${company_id}`;
   }
 }
 
     let commonQuery = `select 1 as entry_type, u.id, u.first_name, u.last_name, u.email, u."createdAt", u.status, 
-    c.company_name, c.id as company_id, ucr.role_id, ut.user_type, ut.id as user_type_id  from users u 
+    c.company_name, c.id as company_id, ucr.role_id, r.rolename as role_name, ut.user_type, ut.id as user_type_id  from users u 
     left join user_company_role ucr on ucr.user_id = u.id 
     left join company c on c.id = ucr.company_id
     left join user_type ut on ut.id = u.type
+    left join role r on r.id = ucr.role_id
     
     union all
 
     select 2 as entry_type, ui.id, NULL as first_name, NULL as last_name, ui.email, ui."createdAt", ui.status, 
-    c.company_name, ui.company as company_id, ui.role as role_id, ut.user_type, ut.id as user_type_id from user_invitation ui
+    c.company_name, ui.company as company_id, ui.role as role_id, r.rolename as role_name, ut.user_type, ut.id as user_type_id from user_invitation ui
     left join role r on r.id = ui.role 
     left join company c on c.id = ui.company
     left join user_type ut on ut.id = ui.type
@@ -289,7 +290,7 @@ if(company_id) {
     const combinedQuery = `
     SELECT * FROM (
       ${commonQuery}
-    ) AS combinedResults
+    ) AS combinedResults where user_type_id != 3
     ${whereClause} ${whereClauseOr} ${companyCheck}
     ORDER by ${col_name} ${order}
     OFFSET $1
@@ -302,7 +303,7 @@ if(company_id) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
+  ) AS combinedResults where user_type_id != 3 ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,

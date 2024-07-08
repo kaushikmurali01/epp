@@ -574,6 +574,27 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
             return { body: JSON.stringify({ status: 403, body: "You are not allowed to perform this request" }) };
         }
         if(type == 1) {
+            //start
+            const PA = await ParticipantAgreement.findOne({
+                where: { 
+                    company_id: company_id,
+                    is_signed: true
+                },
+            });
+            const FC = await Facility.findOne({
+                where: {
+                    company_id:company_id
+                }
+            });
+            let UCR:any= await UserCompanyRole.findOne({where: {
+                user_id: user_id,
+                company_id:company_id
+            }});
+            if(UCR.role_id == 1 && (FC || PA) && company_id) {
+                return { body: JSON.stringify({ status: 409, body: "Please change the super admin of the company before deleting this user, as they hold the role of super admin. The associated company either has a PA signed or has facilities created under it." }) };
+            }
+            // end
+
         const tokenResponse = await axios.post(
             `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`, 
             new URLSearchParams({
@@ -605,24 +626,7 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
 
         if (deleteResponse.status === 204) {
             await sequelize.authenticate();
-            const PA = await ParticipantAgreement.findOne({
-                where: { 
-                    company_id: company_id,
-                    is_signed: true
-                },
-            });
-            const FC = await Facility.findOne({
-                where: {
-                    company_id:company_id
-                }
-            });
-            let UCR:any= await UserCompanyRole.findOne({where: {
-                user_id: user_id,
-                company_id:company_id
-            }});
-            if(UCR.role_id == 1 && (FC || PA) && company_id) {
-                return { body: JSON.stringify({ status: 409, body: "Please change the super admin of the company before deleting this user, as they hold the role of super admin. The associated company either has a PA signed or has facilities created under it." }) };
-            }
+            
            const baseName = "user"; const domain = "eppenerva.com";
            const uniqueEmail = `${baseName}${Date.now()}${Math.random().toString(36).substr(2, 10)}@${domain}`;
             await Promise.all([
@@ -1139,17 +1143,17 @@ app.http('DeleteUser', {
     route: 'users/{id}/{type}/{company_id}',
     handler: DeleteUser
 });
-app.http('DeleteUserAdmin', {
-    methods: ['DELETE'],
-    authLevel: 'anonymous',
-    route: 'usersadmin/{id}/{type}/{company_id}',
-    handler: DeleteUserAdmin
-});
 app.http('DeleteUserByemail', {
     methods: ['DELETE'],
     authLevel: 'anonymous',
-    route: 'eppuser/delete/{id}/{type}/{company_id}',
+    route: 'usersadmin/{id}/{type}/{company_id}',
     handler: DeleteUserByemail
+});
+app.http('DeleteUserAdmin', {
+    methods: ['DELETE'],
+    authLevel: 'anonymous',
+    route: 'eppuser/delete/{id}/{type}/{company_id}',
+    handler: DeleteUserAdmin
 });
 
 app.http('AcceptInvitation', {
