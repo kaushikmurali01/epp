@@ -215,7 +215,7 @@ const CompanyListingNew = () => {
             }}
             onClick={() =>
               // navigate(`/companies/company-manage-access/${item?.id}`)
-              navigate(`/companies/${item?.company_name}/manage-access`, {state: {companyId: item?.id, companyName : item?.company_name}})
+              navigate(`/companies/${item?.id}/manage-access`, {state: {companyId: item?.id, companyName : item?.company_name}})
             }
           >
             Manage access

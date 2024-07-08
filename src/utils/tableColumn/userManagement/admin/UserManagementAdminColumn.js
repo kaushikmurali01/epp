@@ -20,6 +20,7 @@ import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
 import EvThemeDropdown from "utils/dropdown/EvThemeDropdown";
 import { useDispatch } from "react-redux";
+import { capitalizeFirstChar } from "utils/helper/helper";
 
 // import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
@@ -99,7 +100,7 @@ const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleIn
                 );
         },
         accessorKey: "id",
-        isSearch: true,
+        isSearch: false,
     },
     {
         Header: " Customer admin name",
@@ -115,15 +116,17 @@ const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleIn
     },
     {
         Header: "User Type",
-        accessor: "user_type",
-        // accessorKey: "user_type",
-        isSearch: false,
+        // accessor: "user_type",
+        accessor: (item) => `${capitalizeFirstChar(item?.user_type)}`,
+        accessorKey: "user_type",
+        // isSearch: true,
     },
-    // {
-    //     Header: "User Role",
-    //     accessor: "rolename",
-    //     isSearch: false,
-    // },
+    {
+        Header: "User Role",
+        accessor: "role_name",
+        accessorKey: "role_name",
+        // isSearch: true,
+    },
     {
         Header: "Created on (Date)",
         accessor: (item) => `${ConvertIntoDateMonth(item?.createdAt)}`,
@@ -158,7 +161,7 @@ const USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleIn
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,setRefreshTableData,setModalConfig)} >
+                <Typography disabled={(userData?.user?.id === item?.id)} variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item,setRefreshTableData,setModalConfig)} >
                     Delete
                 </Typography>
                  <EvThemeDropdown dropdownConfig={dropdownConfig} setDropdownConfig={setDropdownConfig} dataRow = {item} setRefreshTableData={setRefreshTableData} disabledTitle={item.status.toLowerCase() === "pending"} />
@@ -235,7 +238,11 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     
 }
 
-const handelDeleteModalOpen = (item,setRefreshTableData, setModalConfig) => {
+const handelDeleteModalOpen = (userData,item,setRefreshTableData, setModalConfig) => {
+    if(userData?.user?.id === item?.id){
+        NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        return;
+    }
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
@@ -277,7 +284,16 @@ const handelDelete = (item, setRefreshTableData, setModalConfig) => {
     const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
     // return;
     DELETE_REQUEST(apiURL)
-        .then((_response) => {
+        .then((response) => {
+            console.log(response, 'check delete response');
+            if(response.data.status === 409) {
+                console.log("response.data", "check delete response new");
+                NotificationsToast({ message: response.data.body, type: "error" });
+                setModalConfig((prevState) => ({
+                    ...prevState,
+                    modalVisible: false,
+                }));
+            } else {
             NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
             // handleSuccessCallback();
             setRefreshTableData(prevState => prevState + 1);
@@ -286,6 +302,7 @@ const handelDelete = (item, setRefreshTableData, setModalConfig) => {
                 ...prevState,
                 modalVisible: false,
             }));
+        }
             dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         })
         .catch((error) => {

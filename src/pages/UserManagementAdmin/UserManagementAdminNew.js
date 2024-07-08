@@ -447,58 +447,11 @@ console.log(getCustomerUser, "getCustomerUser")
           <Container maxWidth="lg">
             <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, marginBottom: '1.5rem', justifyContent: 'space-between', }} >
               <Grid item xs={12} sm={5}  >
-                <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management New</Typography>
+                <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management</Typography>
                 {/* <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
               </Grid>
               <Grid item xs={12} sm={7} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
-                {/* <FormGroup sx={{ minWidth: {xs: 'auto', sm: '14rem'} }}>
-                  <FormControl fullWidth sx={{ bgcolor: '#fff', borderRadius: '8px', padding: '0.5rem 0', color: 'dark.main' }}>
-                    <TextField
-                      value={searchString}
-                      placeholder="Search by email"
-                      inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2.25rem' } }}
-                      onChange={(e) => setSearchString(e.target.value)}
-                    />
-                     {searchString?.length > 0 &&
-                      <ClearIcon
-                        onClick={() => setSearchString("")}
-                        sx={{
-                          color: "#333",
-                          fontSize: "1.25rem",
-                          position: "absolute",
-                          right: "0.75rem",
-                          top: '0', bottom: '0', margin: 'auto',
-                          zIndex: "1",
-                          cursor: "pointer"
-                        }}
-                      />
-                    }
-                  </FormControl>
-                </FormGroup> */}
-
-                {/* <FormGroup className='theme-form-group theme-select-form-group'>
-
-                  <FormControl sx={{  }} >
-                    <Select
-                      className='transparent-border'
-                      value={selectRoleType}
-                      onChange={(e) => handleSelectChange(e)}
-                      displayEmpty={true}
-                    >
-                      <MenuItem key={0} value="0">
-                        Role Type
-                      </MenuItem>
-                      {getUserRole?.length > 0 && (getUserRole).map((item) => {
-                        return (
-                          <MenuItem key={item.id} value={item?.id}>{item?.rolename}</MenuItem>
-                        )
-                      })}
-
-                    </Select>
-
-                  </FormControl>
-
-                </FormGroup> */}
+               
                   <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
                     Add User
                     <IconButton>
@@ -514,31 +467,6 @@ console.log(getCustomerUser, "getCustomerUser")
               </Grid>
 
             </Grid>
-
-            {/* <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', marginTop: '2rem', marginBottom: '2rem' }}>
-              <Grid item xs={12} md={8} >
-                <Tabs
-                  className='theme-tabs-list'
-                  value={tabValue}
-                  onChange={handleChange}
-                  sx={{ 
-                    display: 'inline-flex', flexWrap: 'wrap',
-                  '.MuiTabs-scroller' : {
-                    overflowX: {xs: 'auto !important', md: 'hidden'}
-                  }
-                   
-                }}
-
-
-                >
-                  <Tab value="enervaUsers" label="Enerva Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
-                  <Tab value="iesoUsers" label="IESO Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
-                  <Tab value="customerUsers" label="Customer Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} />
-                  <Tab value="aggregatorUsers" label="Aggregator Users" sx={{ textTransform: 'capitalize',minWidth: {xs: 'auto', md: '12rem'} }} disabled />
-                </Tabs>
-              </Grid>
-
-            </Grid> */}
 
             <Grid container>
 

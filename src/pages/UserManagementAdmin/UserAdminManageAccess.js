@@ -229,7 +229,7 @@ const UserAdminManageAccess = ({ }) => {
 
     const navigateToUserManagement = ()=> {
         // navigate('/user-management');
-        navigate(enervaAdminManageAccess.returnPageURL,{state: {} })
+        navigate(enervaAdminManageAccess.returnPageURL,{state: enervaAdminManageAccess })
         // sessionStorage.setItem('enervaAdminManageAccess', JSON.stringify({}));
     }
 
@@ -303,23 +303,14 @@ const UserAdminManageAccess = ({ }) => {
                 "email": userEmail,
                 "role": selectRoleType,
                 "permissions": permissionIds,
+                "type" : selectUserType
             }
-            //  for super admin types
-
-            // if (selectUserType !== null) {
-            //     requestBody.type = selectUserType
-            // } else {
-            //     requestBody.company = userData?.user?.company_id
-            // }
-
-            //  for enverva admin types
+            //  for enerva customer admin types
             if (selectUserType === 2 && selectCompanyType !== '') {
                 requestBody.company = selectCompanyType;
-            }else {
-                requestBody.type = selectUserType
             }
 
-            // console.log(requestBody, apiURL,userData, "requestBody api url post request")
+            // console.log(requestBody, apiURL,selectUserType, "requestBody api url post request")
             // return;
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
@@ -502,7 +493,7 @@ const UserAdminManageAccess = ({ }) => {
                                     value={selectUserType}
                                     onChange={(e) => handleSelectUserType(e)}
                                     displayEmpty={true}
-                                    disabled={isEdited}
+                                    disabled={isEdited || selectTableRow?.isDisabled}
                                 >
                                     <MenuItem value="" disabled>
                                         <em>Select</em>
@@ -559,7 +550,7 @@ const UserAdminManageAccess = ({ }) => {
                                     value={selectCompanyType}
                                     onChange={(e) => handleSelectCompanyChange(e)}
                                     displayEmpty={true}
-                                    disabled={isEdited}
+                                    disabled={isEdited || selectTableRow?.isDisabled}
                                 >
                                     <MenuItem value="" disabled>
                                         <em>Select</em>

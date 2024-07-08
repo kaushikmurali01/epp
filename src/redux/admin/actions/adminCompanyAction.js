@@ -230,12 +230,10 @@ export const fetchUsersByCompanyId = (pageInfo, companyId,search) => {
       // }`;
       let apiURL = `${ENERVA_USER_MANAGEMENT.GET_POST_ENERVA_USER_LIST}`;
       let payload = {
-        "data": {
-          ...search,
-          company_id:companyId
-        },
+        "data": [...search],      
         "offset": (pageInfo.page - 1) * pageInfo.pageSize,
         "limit": pageInfo.pageSize,
+        "company_id":companyId
         // "col_name": sortByCol,
         // "order":sortOrder
         

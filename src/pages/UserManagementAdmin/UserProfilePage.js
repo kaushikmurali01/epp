@@ -195,14 +195,25 @@ const handelDeleteModalOpen = () => {
       // console.log(apiURL, "apiURL")
       // return;
       DELETE_REQUEST(apiURL)
-      .then((_response) => {
-        NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
-        backToUserManagement();
-        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      .then((response) => {
+        if(response.data.status === 409) {
+          NotificationsToast({ message: response.data.body, type: "error" });
           setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-        }));
+              ...prevState,
+              modalVisible: false,
+          }));
+        } else {
+          NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+          backToUserManagement();
+
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+          }));
+        }
+
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+       
       })
       .catch((error) => {
         console.log(error, 'error')
