@@ -52,8 +52,8 @@ const CompanyManageUserAccess = () => {
       cancelButtonClass: "",
       successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
       cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
-      saveButtonName: "Yes,Delete!",
-      cancelButtonName: "No,Cancel",  
+      saveButtonName: "Yes, Delete!",
+      cancelButtonName: "No, Cancel",  
 
     },
     headerText: "",
@@ -79,7 +79,7 @@ const CompanyManageUserAccess = () => {
       Header: "Company name",
       accessor: "company_name",
       accessorKey: "company_name",
-      isSearch: true,
+      // isSearch: true,
     },
     {
       Header: "Business email",
