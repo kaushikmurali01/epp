@@ -32,6 +32,12 @@ import {
   SUBMIT_ADMIN_REJECTED_BASELINE_DB_SUCCESS,
   SUBMIT_ADMIN_REJECTED_BASELINE_DB_FAILURE,
   FETCH_ADMIN_BASELINE_LIST_DB_SUCCESS,
+  SHOW_ADMIN_OBSERVE_DATA_REQUEST,
+  SHOW_ADMIN_OBSERVE_DATA_SUCCESS,
+  SHOW_ADMIN_OBSERVE_DATA_FAILURE,
+  SUBMIT_ADMIN_BASELINE_D_T_REQUEST,
+  SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
+  SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -185,5 +191,33 @@ export const submitAdminRejectBaselineDbSuccess = (data) => ({
 
 export const submitAdminRejectBaselineDbFailure = (error) => ({
   type: SUBMIT_ADMIN_REJECTED_BASELINE_DB_FAILURE,
+  payload: error,
+});
+
+export const showAdminObserveDataRequest = () => ({
+  type: SHOW_ADMIN_OBSERVE_DATA_REQUEST,
+});
+
+export const showAdminObserveDataSuccess = (data) => ({
+  type: SHOW_ADMIN_OBSERVE_DATA_SUCCESS,
+  payload: data,
+});
+
+export const showAdminObserveDataFailure = (error) => ({
+  type: SHOW_ADMIN_OBSERVE_DATA_FAILURE,
+  payload: error,
+});
+
+export const submitAdminBaselineDtRequest = () => ({
+  type: SUBMIT_ADMIN_BASELINE_D_T_REQUEST,
+});
+
+export const submitAdminBaselineDtSuccess = (data) => ({
+  type: SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
+  payload: data,
+});
+
+export const submitAdminBaselineDtFailure = (error) => ({
+  type: SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
   payload: error,
 });

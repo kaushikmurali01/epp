@@ -226,4 +226,5 @@ export const BASELINE_ENDPOINTS = {
   FETCH_BASELINE_LIST_DB: "company-facility/v1/getBaselineList",
   ADD_ASSIGNEE_DB: "company-facility/v1/baseline/addAssignee",
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
+  SUBMIT_BASELINE_D_T: "model/v1/model_summary",
 };

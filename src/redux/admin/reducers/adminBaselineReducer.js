@@ -32,6 +32,12 @@ import {
   SUBMIT_ADMIN_REJECTED_BASELINE_DB_REQUEST,
   SUBMIT_ADMIN_REJECTED_BASELINE_DB_SUCCESS,
   SUBMIT_ADMIN_REJECTED_BASELINE_DB_FAILURE,
+  SHOW_ADMIN_OBSERVE_DATA_REQUEST,
+  SHOW_ADMIN_OBSERVE_DATA_SUCCESS,
+  SHOW_ADMIN_OBSERVE_DATA_FAILURE,
+  SUBMIT_ADMIN_BASELINE_D_T_REQUEST,
+  SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
+  SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -42,6 +48,8 @@ const initialState = {
   issueDetails: [],
   baselineDetailsDb: [],
   baselineListDb: [],
+  submittedBaseline_d_t: [],
+  observeData: [],
   loading: false,
   error: null,
 };
@@ -248,6 +256,44 @@ const adminBaselineReducer = (state = initialState, action) => {
         error: null,
       };
     case SUBMIT_ADMIN_REJECTED_BASELINE_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SHOW_ADMIN_OBSERVE_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SHOW_ADMIN_OBSERVE_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        observeData: action.payload,
+        error: null,
+      };
+    case SHOW_ADMIN_OBSERVE_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SUBMIT_ADMIN_BASELINE_D_T_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SUBMIT_ADMIN_BASELINE_D_T_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        submittedBaseline_d_t: action.payload,
+        error: null,
+      };
+    case SUBMIT_ADMIN_BASELINE_D_T_FAILURE:
       return {
         ...state,
         loading: false,

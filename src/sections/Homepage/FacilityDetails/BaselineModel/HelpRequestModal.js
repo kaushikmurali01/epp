@@ -1,15 +1,25 @@
 import { Button, Grid, Typography } from "@mui/material";
 import React from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { submitRejectedBaselineDB } from "../../../../redux/superAdmin/actions/baselineAction";
 
-const HelpRequestModal = ({ setSendHelpModalConfig }) => {
+const HelpRequestModal = ({ meterType, setSendHelpModalConfig }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const baselineListData = useSelector(
+    (state) => state?.baselineReducer?.baselineDetailsDb?.data || []
+  );
+  const getIdByMeterType = (meter_type) => {
+    const meter = baselineListData.find(
+      (item) => item?.meter_type === meter_type
+    );
+    return meter ? meter?.id : null;
+  };
+  const baseline_id = getIdByMeterType(meterType);
   const handleSendHelpRequest = () => {
-    const body = { status: "SUBMITTED" };
-    dispatch(submitRejectedBaselineDB(id, body));
+    const body = { status: "REQUESTED" };
+    dispatch(submitRejectedBaselineDB(baseline_id, body));
     setSendHelpModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,

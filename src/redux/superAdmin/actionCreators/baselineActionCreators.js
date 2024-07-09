@@ -5,6 +5,7 @@ import {
   ADD_BASELINE_DB_FAILURE,
   ADD_BASELINE_DB_REQUEST,
   ADD_BASELINE_DB_SUCCESS,
+  CLEAR_BASELINE_STATE,
   FETCH_BASELINE_DETAILS_DB_FAILURE,
   FETCH_BASELINE_DETAILS_DB_REQUEST,
   FETCH_BASELINE_DETAILS_DB_SUCCESS,
@@ -26,6 +27,9 @@ import {
   SHOW_OBSERVE_DATA_FAILURE,
   SHOW_OBSERVE_DATA_REQUEST,
   SHOW_OBSERVE_DATA_SUCCESS,
+  SUBMIT_BASELINE_D_T_FAILURE,
+  SUBMIT_BASELINE_D_T_REQUEST,
+  SUBMIT_BASELINE_D_T_SUCCESS,
   SUBMIT_REJECTED_BASELINE_DB_FAILURE,
   SUBMIT_REJECTED_BASELINE_DB_REQUEST,
   SUBMIT_REJECTED_BASELINE_DB_SUCCESS,
@@ -203,4 +207,22 @@ export const showObserveDataSuccess = (data) => ({
 export const showObserveDataFailure = (error) => ({
   type: SHOW_OBSERVE_DATA_FAILURE,
   payload: error,
+});
+
+export const submitBaselineDtRequest = () => ({
+  type: SUBMIT_BASELINE_D_T_REQUEST,
+});
+
+export const submitBaselineDtSuccess = (data) => ({
+  type: SUBMIT_BASELINE_D_T_SUCCESS,
+  payload: data,
+});
+
+export const submitBaselineDtFailure = (error) => ({
+  type: SUBMIT_BASELINE_D_T_FAILURE,
+  payload: error,
+});
+
+export const clearBaselineState = () => ({
+  type: CLEAR_BASELINE_STATE,
 });

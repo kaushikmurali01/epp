@@ -24,6 +24,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   adminSufficiencyCheck,
   fetchAdminBaselinePeriod,
+  submitAdminBaselineDt,
 } from "../../../../redux/admin/actions/adminBaselineAction";
 import {
   COOLING_BALANCE_UNIT_ARRAY,
@@ -38,17 +39,18 @@ const ModelConstructorForm = ({
   handleSufficiencySettings,
   openSeeDetails,
   meterType,
+  openUserReviewBaselineModal,
 }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
   const [modelApproachData, setModelApproachData] = useState({
-    modeling_approach: "",
+    modeling_approach: "CALTRACK Method-TOWT",
     model_approach_action: "manual",
     heating_balance_point: "",
     cooling_balance_point: "",
-    heating_balance_unit: "C",
-    cooling_balance_unit: "C",
+    heating_balance_unit: "",
+    cooling_balance_unit: "",
   });
   const [baselinePeriodLoading, setBaselinePeriodLoading] = useState(true);
   const [baselinePeriodFailed, setBaselinePeriodFailed] = useState(false);
@@ -57,6 +59,9 @@ const ModelConstructorForm = ({
   );
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
+  const [activateCalculateBaseline, setActivateCalculateBaseline] =
+    useState(true);
+  const [dataForCalculateBaseline, setDateForCalculateBaseline] = useState("");
 
   useEffect(() => {
     setBaselinePeriodLoading(true);
@@ -142,19 +147,33 @@ const ModelConstructorForm = ({
   const handleSubmit = (values) => {
     const myData = {
       ...values,
-      facility_id: 24,
+      facility_id: id,
       start_date:
         values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
       end_date:
         values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
+    setActivateCalculateBaseline(true);
     dispatch(adminSufficiencyCheck(myData))
       .then((res) => {
+        setBaselinePeriodFailed(false);
+        setActivateCalculateBaseline(false);
+        setDateForCalculateBaseline(myData);
+        const isFailed = Object.values(res).some(
+          (item) => item?.status === "failed"
+        );
+
+        if (isFailed) {
+          setActivateCalculateBaseline(true);
+        }
         if (res?.status === "failed") {
           alert(res?.message);
+          setActivateCalculateBaseline(true);
         }
       })
-      .catch((error) => {});
+      .catch((error) => {
+        setActivateCalculateBaseline(true);
+      });
   };
 
   useEffect(() => {
@@ -177,8 +196,8 @@ const ModelConstructorForm = ({
       model_approach_action: "manual",
       heating_balance_point: "",
       cooling_balance_point: "",
-      heating_balance_unit: "C",
-      cooling_balance_unit: "C",
+      heating_balance_unit: "",
+      cooling_balance_unit: "",
     });
   };
 
@@ -280,7 +299,7 @@ const ModelConstructorForm = ({
           onClick={() => {
             openSeeDetails(baselineStartDate, baselineEndDate);
           }}
-          disabled={sufficiencyCheckData.status === "failed"}
+          disabled={sufficiencyCheckData?.status === "failed"}
         >
           See details
         </Typography>
@@ -340,6 +359,13 @@ const ModelConstructorForm = ({
       </Grid>
     );
   }
+
+  const onCalculateBaselineButtonClick = () => {
+    const data = { ...dataForCalculateBaseline, ...modelApproachData };
+    dispatch(submitAdminBaselineDt(data))
+      .then((res) => {})
+      .catch((err) => {});
+  };
 
   return (
     <Box
@@ -491,12 +517,12 @@ const ModelConstructorForm = ({
                     >
                       {weatherStationsData?.map((station) => (
                         <FormControlLabel
-                          key={station}
-                          value={station}
+                          key={station?.station_id}
+                          value={station?.station_id}
                           control={<Radio />}
                           label={
                             <Typography sx={{ fontSize: "14px!important" }}>
-                              {station}
+                              {station?.station_name}
                             </Typography>
                           }
                         />
@@ -810,7 +836,12 @@ const ModelConstructorForm = ({
       </Grid>
 
       <Grid container mt={5}>
-        <Button variant="contained" color="neutral">
+        <Button
+          variant="contained"
+          color="neutral"
+          onClick={onCalculateBaselineButtonClick}
+          disabled={activateCalculateBaseline}
+        >
           Calculate baseline
         </Button>
       </Grid>

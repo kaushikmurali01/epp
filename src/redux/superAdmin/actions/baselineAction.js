@@ -6,6 +6,7 @@ import {
   addBaselineDbFailure,
   addBaselineDbRequest,
   addBaselineDbSuccess,
+  clearBaselineState,
   fetchBaselineDetailsDbFailure,
   fetchBaselineDetailsDbRequest,
   fetchBaselineDetailsDbSuccess,
@@ -24,6 +25,12 @@ import {
   independentVariableListFailure,
   independentVariableListRequest,
   independentVariableListSuccess,
+  showObserveDataFailure,
+  showObserveDataRequest,
+  showObserveDataSuccess,
+  submitBaselineDtFailure,
+  submitBaselineDtRequest,
+  submitBaselineDtSuccess,
   submitRejectBaselineDbFailure,
   submitRejectBaselineDbRequest,
   submitRejectBaselineDbSuccess,
@@ -57,6 +64,7 @@ export const SufficiencyCheck = (sufficiencyParameters) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -97,7 +105,7 @@ export const fetchBaselinePeriod = (facilityId, meterType) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
-      return error
+      throw error;
     }
   };
 };
@@ -142,18 +150,14 @@ export const fetchIssueDetails = (issueParameter) => {
   };
 };
 
-export const addBaselineToDb = (facilityId) => {
+export const addBaselineToDb = (facilityId, baselineData) => {
   return async (dispatch) => {
     try {
       dispatch(addBaselineDbRequest());
       const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_BASELINE_DB}/${facilityId}`;
-      const response = await POST_REQUEST(endpointWithParams);
+      const response = await POST_REQUEST(endpointWithParams, baselineData);
       const data = response.data;
       dispatch(addBaselineDbSuccess(data));
-      NotificationsToast({
-        message: "Baseline added successfully",
-        type: "success",
-      });
       return data;
     } catch (error) {
       console.error(error);
@@ -182,20 +186,21 @@ export const fetchBaselineDetailsFromDb = (facilityId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
 
-export const updateBaselineInDb = (facilityId) => {
+export const updateBaselineInDb = (baselineId, baselineData) => {
   return async (dispatch) => {
     try {
       dispatch(updateBaselineDetailsDbRequest());
-      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${facilityId}`;
-      const response = await PATCH_REQUEST(endpointWithParams);
+      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${baselineId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, baselineData);
       const data = response.data;
       dispatch(updateBaselineDetailsDbSuccess(data));
       NotificationsToast({
-        message: "Baseline updated successfully",
+        message: "Baseline calculated successfully",
         type: "success",
       });
       return data;
@@ -274,6 +279,7 @@ export const submitRejectedBaselineDB = (facilityId, dataBody) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -281,19 +287,47 @@ export const submitRejectedBaselineDB = (facilityId, dataBody) => {
 export const showObserveData = (observeData) => {
   return async (dispatch) => {
     try {
-      dispatch(fetchIssueDetailsRequest());
+      dispatch(showObserveDataRequest());
       const endpointWithParams = `${BASELINE_ENDPOINTS.SHOW_OBSERVE_DATA_LIST}`;
       const response = await POST_REQUEST(endpointWithParams, observeData);
       const data = response.data;
-      dispatch(fetchIssueDetailsSuccess(data));
+      dispatch(showObserveDataSuccess(data));
       return data;
     } catch (error) {
       console.error(error);
-      dispatch(fetchIssueDetailsFailure(error));
+      dispatch(showObserveDataFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
     }
   };
+};
+
+export const submitBaselineDt = (baselineParameters) => {
+  return async (dispatch) => {
+    try {
+      dispatch(submitBaselineDtRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_BASELINE_D_T}`;
+      const response = await POST_REQUEST(
+        endpointWithParams,
+        baselineParameters
+      );
+      const data = response.data;
+      dispatch(submitBaselineDtSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(submitBaselineDtFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+};
+
+export const clearBaselineStateAction = () => (dispatch) => {
+  dispatch(clearBaselineState());
 };

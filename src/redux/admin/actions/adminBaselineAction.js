@@ -33,6 +33,12 @@ import {
   submitAdminRejectBaselineDbRequest,
   submitAdminRejectBaselineDbSuccess,
   submitAdminRejectBaselineDbFailure,
+  showAdminObserveDataRequest,
+  showAdminObserveDataSuccess,
+  showAdminObserveDataFailure,
+  submitAdminBaselineDtRequest,
+  submitAdminBaselineDtSuccess,
+  submitAdminBaselineDtFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -56,6 +62,7 @@ export const adminSufficiencyCheck = (adminSufficiencyParameters) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -96,7 +103,7 @@ export const fetchAdminBaselinePeriod = (facilityId, meterType) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
-      return error;
+      throw error;
     }
   };
 };
@@ -141,12 +148,12 @@ export const fetchAdminIssueDetails = (facilityId, meterType) => {
   };
 };
 
-export const adminAddBaselineToDb = (facilityId) => {
+export const adminAddBaselineToDb = (facilityId, baselineData) => {
   return async (dispatch) => {
     try {
       dispatch(adminAddBaselineDbRequest());
       const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_BASELINE_DB}/${facilityId}`;
-      const response = await POST_REQUEST(endpointWithParams);
+      const response = await POST_REQUEST(endpointWithParams, baselineData);
       const data = response.data;
       dispatch(adminAddBaselineDbSuccess(data));
       NotificationsToast({
@@ -273,6 +280,50 @@ export const submitAdminRejectedBaselineDB = (facilityId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+    }
+  };
+};
+
+export const showAdminObserveData = (observeData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(showAdminObserveDataRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.SHOW_OBSERVE_DATA_LIST}`;
+      const response = await POST_REQUEST(endpointWithParams, observeData);
+      const data = response.data;
+      dispatch(showAdminObserveDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(showAdminObserveDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const submitAdminBaselineDt = (baselineParameters) => {
+  return async (dispatch) => {
+    try {
+      dispatch(submitAdminBaselineDtRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_BASELINE_D_T}`;
+      const response = await POST_REQUEST(
+        endpointWithParams,
+        baselineParameters
+      );
+      const data = response.data;
+      dispatch(submitAdminBaselineDtSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(submitAdminBaselineDtFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
     }
   };
 };

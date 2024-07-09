@@ -78,15 +78,14 @@ const ReportsAndStudies = () => {
   ]);
 
   const measureReportList = useSelector(
-    (state) =>
-      state?.facilityReducer?.facilityMeasureReportList?.data?.rows || []
+    (state) => state?.facilityReducer?.facilityMeasureReportList?.data?.rows
   );
   const measureReportCount = useSelector(
     (state) => state?.facilityReducer?.facilityMeasureReportList?.data?.count
   );
 
   const documentList = useSelector(
-    (state) => state?.facilityReducer?.facilityDocumentList?.data?.rows || []
+    (state) => state?.facilityReducer?.facilityDocumentList?.data?.rows
   );
 
   const documentCount = useSelector(

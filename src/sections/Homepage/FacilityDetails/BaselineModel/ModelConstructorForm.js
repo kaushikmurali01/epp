@@ -20,33 +20,49 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { checkBoxButtonStyle } from "./styles";
 import {
   SufficiencyCheck,
+  addBaselineToDb,
+  fetchBaselineDetailsFromDb,
   fetchBaselinePeriod,
-  fetchIssueDetails,
+  submitBaselineDt,
+  updateBaselineInDb,
 } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { getSummaryDataByMeterType } from ".";
 
 const ModelConstructorForm = ({
   openSeeDetails,
   meterType,
   openSendHelpRequestModal,
+  openBaselineSuccessModal,
+  showFieldsBasedOnStatus,
 }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
+  const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselinePeriodLoading, setBaselinePeriodLoading] = useState(true);
   const [baselinePeriodFailed, setBaselinePeriodFailed] = useState(false);
-  const baselinePeriod = useSelector(
-    (state) => state?.baselineReducer?.baselinePeriod
-  );
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
+  const [activateCalculateBaseline, setActivateCalculateBaseline] =
+    useState(true);
+  const [disableSeeDetails, setDisableSeeDetails] = useState(false);
+  const [checkSufficiencyAfter, setCheckSufficiencyAfter] = useState(false);
+  const [sufficiencyCheckDataLocally, setSufficiencyCheckDataLocally] =
+    useState(null);
+  const [dataForCalculateBaseline, setDateForCalculateBaseline] = useState("");
+  const baselineListData = useSelector(
+    (state) => state?.baselineReducer?.baselineDetailsDb?.data || []
+  );
+
   useEffect(() => {
     setBaselinePeriodLoading(true);
-    dispatch(fetchBaselinePeriod(24, meterType))
+    dispatch(fetchBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
+        setBaselinePeriod(res);
         res?.start_date &&
           setBaselineStartDate(format(new Date(res?.start_date), "yyyy-MM-dd"));
         res.end_date &&
@@ -70,45 +86,73 @@ const ModelConstructorForm = ({
   const meterTypeRef = useRef(meterType);
 
   useEffect(() => {
-    const initialValues = {
-      start_date: baselinePeriod?.start_date
-        ? new Date(baselinePeriod?.start_date)
-        : null,
-      end_date: baselinePeriod?.end_date
-        ? new Date(baselinePeriod?.end_date)
-        : null,
-      granularity: "hourly",
-      independent_variables: [],
-      meter_type: meterType,
-    };
-    setFormData(initialValues);
+    dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
+      const baselineCalculated = getSummaryDataByMeterType(
+        res?.data,
+        meterType
+      );
+      if (baselineCalculated?.status === "CALCULATED") {
+        setCheckSufficiencyAfter(true);
+        setFormData({
+          ...baselineCalculated?.parameter_data,
+          start_date: new Date(baselineCalculated?.parameter_data?.start_date),
+          end_date: new Date(baselineCalculated?.parameter_data?.end_date),
+        });
+        setSufficiencyCheckDataLocally({
+          daily: { ...baselineCalculated?.parameter_data?.daily },
+          hourly: { ...baselineCalculated?.parameter_data?.hourly },
+        });
+      } else {
+        const initialValues = {
+          start_date: baselinePeriod?.start_date
+            ? new Date(baselinePeriod?.start_date)
+            : null,
+          end_date: baselinePeriod?.end_date
+            ? new Date(baselinePeriod?.end_date)
+            : null,
+          granularity: "hourly",
+          independent_variables: [],
+          meter_type: meterType,
+        };
+        setFormData(initialValues);
+      }
+    });
   }, [baselinePeriod, meterType]);
 
   const handleSubmit = (values) => {
     const myData = {
       ...values,
-      facility_id: 24,
+      facility_id: id,
       start_date:
         values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
       end_date:
         values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
-
+    setActivateCalculateBaseline(true);
+    setCheckSufficiencyAfter(false);
+    setDisableSeeDetails(false);
     dispatch(SufficiencyCheck(myData))
       .then((res) => {
         setBaselinePeriodFailed(false);
+        setActivateCalculateBaseline(false);
+        setDateForCalculateBaseline(myData);
         const isFailed = Object.values(res).some(
           (item) => item?.status === "failed"
         );
 
         if (isFailed) {
           openSendHelpRequestModal();
+          setActivateCalculateBaseline(true);
         }
         if (res?.status === "failed") {
           alert(res?.message);
+          setActivateCalculateBaseline(true);
         }
       })
-      .catch((error) => {});
+      .catch((error) => {
+        setActivateCalculateBaseline(true);
+        setDisableSeeDetails(true);
+      });
   };
 
   useEffect(() => {
@@ -117,7 +161,11 @@ const ModelConstructorForm = ({
       meterTypeRef.current = meterType;
       return;
     }
-    if (baselinePeriod?.start_date && baselinePeriod?.end_date) {
+    if (
+      !checkSufficiencyAfter &&
+      baselinePeriod?.start_date &&
+      baselinePeriod?.end_date
+    ) {
       if (formData?.start_date && formData?.end_date) {
         handleSubmit(formData);
       }
@@ -201,9 +249,13 @@ const ModelConstructorForm = ({
             fontWeight: 400,
           }}
           onClick={() => {
-            openSeeDetails(baselineStartDate, baselineEndDate);
+            openSeeDetails(
+              checkSufficiencyAfter ? sufficiencyCheckDataLocally : null,
+              baselineStartDate,
+              baselineEndDate
+            );
           }}
-          disabled={sufficiencyCheckData.status === "failed"}
+          disabled={disableSeeDetails}
         >
           See details
         </Typography>
@@ -263,6 +315,38 @@ const ModelConstructorForm = ({
       </Grid>
     );
   }
+
+  const getIdByMeterType = (meter_type) => {
+    const meter = getSummaryDataByMeterType(baselineListData, meter_type);
+    return meter ? meter?.id : null;
+  };
+
+  const onCalculateBaselineButtonClick = () => {
+    const data = { ...dataForCalculateBaseline };
+    dispatch(submitBaselineDt(data))
+      .then((res) => {
+        const updatedBaselineData = {
+          status: "CALCULATED",
+          data: {
+            ...data,
+            ...res,
+            ...sufficiencyCheckData,
+          },
+        };
+        const baseline_id = getIdByMeterType(meterType);
+        if (baseline_id) {
+          dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
+            (res) => {
+              openBaselineSuccessModal();
+              dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
+                showFieldsBasedOnStatus(res?.data, meterType);
+              });
+            }
+          );
+        }
+      })
+      .catch((err) => {});
+  };
 
   return (
     <Grid container>
@@ -375,7 +459,11 @@ const ModelConstructorForm = ({
                   <Grid item>
                     <MiniTable
                       columns={userColumn}
-                      data={[sufficiencyCheckData]}
+                      data={
+                        checkSufficiencyAfter && sufficiencyCheckDataLocally
+                          ? [sufficiencyCheckDataLocally]
+                          : [sufficiencyCheckData]
+                      }
                     />
                   </Grid>
                 </Grid>
@@ -396,9 +484,9 @@ const ModelConstructorForm = ({
                               name={`independent_variables.${variableItem?.name}`}
                               type="checkbox"
                               as={Checkbox}
-                              checked={
-                                values.independent_variables[variableItem?.name]
-                              }
+                              checked={values.independent_variables.includes(
+                                variableItem?.id
+                              )}
                               onChange={(event) =>
                                 handleIndeVarCheckboxChange(variableItem, event)
                               }
@@ -461,7 +549,12 @@ const ModelConstructorForm = ({
         }}
       </Formik>
       <Grid container mt={5}>
-        <Button variant="contained" color="neutral">
+        <Button
+          variant="contained"
+          color="neutral"
+          onClick={onCalculateBaselineButtonClick}
+          disabled={activateCalculateBaseline}
+        >
           Calculate baseline
         </Button>
       </Grid>

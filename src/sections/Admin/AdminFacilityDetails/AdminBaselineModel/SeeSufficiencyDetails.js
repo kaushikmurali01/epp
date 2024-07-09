@@ -25,7 +25,6 @@ const SeeSufficiencyDetails = ({
         <Typography
           variant="span"
           sx={{
-            color: item?.status === "passed" ? "primary.main" : "#FF5858",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
@@ -44,7 +43,10 @@ const SeeSufficiencyDetails = ({
         <Typography
           variant="span"
           sx={{
-            color: "primary.main",
+            color:
+              activeButton === "monthly" && item?.value < 90
+                ? "#FF5858"
+                : "black",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
@@ -59,10 +61,10 @@ const SeeSufficiencyDetails = ({
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
-  
+
   const getSufficiencyMonthlyData = () => {
     if (sufficiencyCheckData["hourly"]["status"] === "passed") {
-      return [];
+      return sufficiencyCheckData["hourly"]["monthly_sufficiency"] || [];
     }
     if (sufficiencyCheckData) {
       return (
