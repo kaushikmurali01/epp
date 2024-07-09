@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -29,6 +29,7 @@ import EvModal from "utils/modal/EvModal";
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const getUseLocation = useLocation();
   const { companyId, userId } = useParams();
   const dispatch = useDispatch();
   const [profilePicture, setProfilePicture] = useState("");
@@ -137,6 +138,7 @@ const [getCompanyList, setCompanyList] = useState([]);
       pageInfo: { title: 'Manage Customer User and permissions' },
       isEdited: true,
       selectTableRow: profileData,
+      returnPageURL: getUseLocation.pathname
     }
     // set state on session storage
     // sessionStorage.setItem('enervaAdminManageAccess', data);
@@ -154,7 +156,7 @@ const [getCompanyList, setCompanyList] = useState([]);
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to delete the User?
+                    Are you sure you would like to delete the user?
                 </Typography>
             </Grid>
             <Grid item>
@@ -193,14 +195,25 @@ const handelDeleteModalOpen = () => {
       // console.log(apiURL, "apiURL")
       // return;
       DELETE_REQUEST(apiURL)
-      .then((_response) => {
-        NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
-        backToUserManagement();
-        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      .then((response) => {
+        if(response.data.status === 409) {
+          NotificationsToast({ message: response.data.body, type: "error" });
           setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-        }));
+              ...prevState,
+              modalVisible: false,
+          }));
+        } else {
+          NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+          backToUserManagement();
+
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+          }));
+        }
+
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+       
       })
       .catch((error) => {
         console.log(error, 'error')

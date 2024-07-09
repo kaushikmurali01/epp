@@ -7,6 +7,10 @@ export const stringFilter = (str, range) => {
   return { showItem, restArray };
 };
 
+export const capitalizeFirstChar = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export const downloadFileFromUrl = async (imgUrl, fileName) => {
   try {
     const response = await fetch(imgUrl);

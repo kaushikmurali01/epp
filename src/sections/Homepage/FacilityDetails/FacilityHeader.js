@@ -11,7 +11,7 @@ import {
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteFacility, fetchFacilityListing, submitFacilityForApproval } from "../../../redux/superAdmin/actions/facilityActions";
+import { deleteFacility, fetchFacilityDetails, fetchFacilityListing, submitFacilityForApproval } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -60,7 +60,7 @@ const FacilityHeader = () => {
   const submitForApprovalHandler = (facilityId) => {
     dispatch(submitFacilityForApproval(facilityId))
       .then(() => {
-        dispatch(fetchFacilityListing(pageInfo, '', userCompanyId));
+        dispatch(fetchFacilityDetails(facilityId));
       })
       .catch((error) => {
         console.error("Error submitting for approval:", error);
@@ -157,28 +157,26 @@ const FacilityHeader = () => {
                 {facilityDetails?.postal_code &&
                   `${facilityDetails?.postal_code} `}
               </Typography>
-              <Box sx={{ display: "flex" }}>
-              <Box>
-                <AdminFacilityStatus>
-                  {facilityDetails?.facility_id_submission_status}
-                </AdminFacilityStatus>
-              </Box>
-              <Box sx={{ marginLeft: "10px" }}>
-                {facilityDetails?.facility_id_submission_status === 1 && (
-                  <Button
-                    variant="contained"
-                    sx={{
-                      display: facilityDetails.is_approved && "none",
-                      fontSize: { xs: "0.875rem" },
-                      minWidth: { xs: "15rem" }
-                    }}
-                    onClick={() => submitForApprovalHandler(facilityDetails.id)}
-                  >
-                    Submit for baseline modelling
-                  </Button>
+                <Box>
+                  <AdminFacilityStatus>
+                    {facilityDetails?.facility_id_submission_status}
+                  </AdminFacilityStatus>
+                </Box>
+              {facilityDetails?.facility_id_submission_status === 1 && (
+                  <Box sx={{ marginTop: "15px", marginBottom: "15px" }}>
+                    <Button
+                      variant="contained"
+                      sx={{
+                        display: facilityDetails.is_approved && "none",
+                        fontSize: { xs: "0.875rem" },
+                        minWidth: { xs: "13rem" }
+                      }}
+                      onClick={() => submitForApprovalHandler(facilityDetails.id)}
+                    >
+                      Submit for baseline modelling
+                    </Button>
+                  </Box>
                 )}
-              </Box>
-              </Box>
               <Box>
                 <Button
                   style={{
