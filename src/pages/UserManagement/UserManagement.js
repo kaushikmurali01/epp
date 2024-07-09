@@ -11,7 +11,7 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
 import NotificationsToast from 'utils/notification/NotificationsToast';
-import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
+import UserManagementColumn from 'utils/tableColumn/userManagement/userManagementColumn';
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
 import { useDispatch, useSelector } from 'react-redux';

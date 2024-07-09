@@ -52,7 +52,7 @@ const UserManagementColumn = () => {
             </Grid>
             <Grid item>
               <Typography variant="h4">
-                Are you sure you would like to delete the User?
+                Are you sure you would like to delete the user?
               </Typography>
             </Grid>
             <Grid item>
