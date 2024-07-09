@@ -45,6 +45,7 @@ export const STATUS = {
   IS_DELETED: 3,
 };
 export const BASE_LINE_STATUS = {
+  draft: "DRAFT",
   created: "CREATED",
   submit: "SUBMITTED",
   rejected: "REJECTED",

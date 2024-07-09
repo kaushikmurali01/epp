@@ -74,6 +74,35 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
+  static async getAllFacilityInprocess(
+    decodedToken: IUserToken,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    companyId: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getAllFacilityInprocess(
+        Object(decodedToken),
+        offset,
+        limit,
+        colName,
+        order,
+        data,
+        companyId
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  
 
   /**
    * Get facility by ID.

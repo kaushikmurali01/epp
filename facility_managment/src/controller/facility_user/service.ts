@@ -11,6 +11,7 @@ import {
   FACILITY_APPROVAL_STATUS,
   FACILITY_ID_GENERAL_STATUS,
   FACILITY_ID_SUBMISSION_STATUS,
+  FACILITY_METER_TYPE,
 } from "../../utils/facility-status";
 import { Facility } from "../../models/facility.model";
 import { IBaseInterface, objects } from "../../interfaces/baseline.interface";
@@ -161,34 +162,6 @@ export class FacilityService {
         (findRole.role_id === userType.ADMIN ||
           findRole.role_id === userType.SUPER_ADMIN)
       ) {
-        // result = await Facility.findAndCountAll({
-        //   include: [
-        //     {
-        //       model: User,
-        //       as: "submitted_by",
-        //       attributes: ["id", "first_name", "last_name"],
-        //     },
-        //     {
-        //       model: Company,
-        //       as: "company",
-        //       attributes: ["id", "company_name"],
-        //     },
-        //   ],
-        //   where: {
-        //     company_id: companyId || userToken.company_id,
-        //     is_active: STATUS.IS_ACTIVE,
-        //     [Op.or]: [
-        //       { facility_name: { [Op.iLike]: `%${data}%` } },
-        //       { street_number: { [Op.iLike]: `%${data}%` } },
-        //       { street_name: { [Op.iLike]: `%${data}%` } },
-        //       { city: { [Op.iLike]: `%${data}%` } },
-        //       { country: { [Op.iLike]: `%${data}%` } },
-        //     ],
-        //   },
-        //   offset: offset,
-        //   limit: limit,
-        //   order: [[colName, order]],
-        // });
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
           f.*, 
@@ -208,7 +181,9 @@ export class FacilityService {
            AND f.is_active = ${STATUS.IS_ACTIVE}) p
      ${searchArray}
        `);
-        datas = await rawQuery(`SELECT * from (SELECT 
+        datas =
+          await rawQuery(`SELECT *,(select (COUNT(*) + 1) from user_resource_facility_permission 
+where facility_id=p.id) as total_user_count from (SELECT 
      f.*, 
      u.id AS submitted_by_id, 
      u.first_name, 
@@ -272,6 +247,55 @@ export class FacilityService {
           limit: limit,
           order: [[colName, order]],
         });
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+        f.*, 
+   u.id AS submitted_by_id, 
+   u.first_name, 
+   u.last_name, 
+   c.id AS company_id, 
+   c.company_name
+     FROM 
+         Facility f
+     left JOIN 
+         users u ON f.created_by = u.id
+     left JOIN 
+         company c ON f.company_id = c.id
+     WHERE 
+         f.company_id = ${companyId || userToken.company_id}
+         AND f.is_active = ${STATUS.IS_ACTIVE} AND (f.created_by=${
+            userToken.id
+          } OR f.id in ${allFacilityId})) p
+   ${searchArray}
+     `);
+        datas =
+          await rawQuery(`SELECT *,(select (COUNT(*) + 1) from user_resource_facility_permission 
+where facility_id=p.id) as total_user_count from (SELECT 
+   f.*, 
+   u.id AS submitted_by_id, 
+   u.first_name, 
+   u.last_name, 
+   c.id AS company_id, 
+   c.company_name
+FROM 
+   Facility f
+left JOIN 
+   users u ON f.created_by = u.id
+left JOIN 
+   company c ON f.company_id = c.id
+WHERE 
+   f.company_id = ${companyId || userToken.company_id}
+   AND f.is_active = ${STATUS.IS_ACTIVE}
+   AND (f.created_by=${userToken.id} OR f.id in ${allFacilityId})
+ORDER BY 
+   ${colName} ${order}) p
+   ${searchArray}
+OFFSET 
+   ${offset}
+LIMIT 
+   ${limit};
+`);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
       }
       if (result) {
         const resp = ResponseHandler.getResponse(
@@ -292,6 +316,147 @@ export class FacilityService {
       throw error;
     }
   }
+  static async getAllFacilityInprocess(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    companyId: number
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      if (companyId) {
+        findRole = await UserCompanyRole.findOne({
+          where: { user_id: userToken.id, company_id: companyId },
+        });
+      } else {
+        findRole.role_id = userToken.type;
+      }
+      let result, datas, count;
+      if (
+        userToken &&
+        (findRole.role_id === userType.ADMIN ||
+          findRole.role_id === userType.SUPER_ADMIN)
+      ) {
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id
+               where f.company_id=${companyId}
+               )p 
+               ${searchArray}
+               `);
+        datas =
+          await rawQuery(`SELECT *,(SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id 
+               where f.company_id=${companyId}
+                ORDER BY 
+                    ${colName} ${order}) p
+                    ${searchArray}
+                OFFSET 
+                    ${offset}
+                LIMIT
+                    ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      } else {
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id
+               where f.company_id=${companyId} and bm.assign_to=${userToken.id}
+               )p 
+               ${searchArray}
+               `);
+        datas =
+          await rawQuery(`SELECT *,(SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id 
+               where f.company_id=${companyId} and bm.assign_to=${userToken.id}
+                ORDER BY 
+                    ${colName} ${order}) p
+                    ${searchArray}
+                OFFSET 
+                    ${offset}
+                LIMIT
+                    ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async getFacilityById(
     userToken: IUserToken,
     facilityId: number
@@ -307,7 +472,7 @@ export class FacilityService {
       result = JSON.parse(JSON.stringify(result));
       result.is_signed = findFacilitySigned?.is_signed || false;
       result.unsigned_doc = findFacilitySigned?.unsigned_doc;
-      result.unsigned_doc = findFacilitySigned?.unsigned_doc;
+      result.signed_doc = findFacilitySigned?.signed_doc;
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -367,7 +532,33 @@ export class FacilityService {
         updated_by: userToken.id,
       };
       const result = await Facility.create(obj);
-
+      const meter_type1: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        meter_type: FACILITY_METER_TYPE.ELECTRICITY,
+        status: BASE_LINE_STATUS.draft,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      const meter_type2: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        meter_type: FACILITY_METER_TYPE.NATURAL_GAS,
+        status: BASE_LINE_STATUS.draft,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      const meter_type3: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        meter_type: FACILITY_METER_TYPE.WATER,
+        status: BASE_LINE_STATUS.draft,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      await Baseline.create(meter_type1);
+      await Baseline.create(meter_type2);
+      await Baseline.create(meter_type3);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -383,18 +574,24 @@ export class FacilityService {
     body: IBaseInterface
   ): Promise<Facility[]> {
     try {
-      const obj: any = {
-        facility_id: facility_id,
-        parameter_data: body.data,
-        status: BASE_LINE_STATUS.created || null,
-        created_by: userToken.id,
-        updated_by: userToken.id,
-      };
-      const result = await Baseline.create(obj);
+      let findExist = await Baseline.findOne({
+        where: { facility_id: facility_id, meter_type: body.meter_type },
+      });
+      if (!findExist) {
+        const obj: any = {
+          facility_id: facility_id,
+          parameter_data: body.data,
+          meter_type: body.meter_type,
+          status: BASE_LINE_STATUS.created || null,
+          created_by: userToken.id,
+          updated_by: userToken.id,
+        };
+        findExist = await Baseline.create(obj);
+      }
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
-        result
+        findExist
       );
     } catch (error) {
       throw error;
@@ -406,9 +603,12 @@ export class FacilityService {
     body: IBaseInterface
   ): Promise<Facility[]> {
     try {
+      let findBaseline = await Baseline.findOne({ where: { id } });
       const obj: any = {
         parameter_data: body.data,
         updated_by: userToken.id,
+        meter_type: body.meter_type,
+        status: body.status || findBaseline.status,
       };
       const result = await Baseline.update(obj, { where: { id } });
       return ResponseHandler.getResponse(

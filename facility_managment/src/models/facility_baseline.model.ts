@@ -10,7 +10,8 @@ export interface IBaseline {
   updated_by: number | null;
   created_date: Date | null;
   submit_date: Date | null;
-  status: "CREATED" | "REJECTED" | "SUBMITTED" | "REQUESTED" | null;
+  status: string | null;
+  meter_type: number | null;
   assign_to: number | null;
   created_at?: Date | null;
   updated_at?: Date | null;
@@ -23,8 +24,9 @@ class Baseline extends Model<IBaseline> implements IBaseline {
   public updated_by!: number | null;
   public created_by!: number | null;
   public created_date!: Date | null;
+  public meter_type: number | null;
   public submit_date!: Date | null;
-  public status!: "CREATED" | "REJECTED" | "SUBMITTED" | "REQUESTED" | null;
+  public status!: string | null;
   public assign_to!: number | null;
   public created_at?: Date | null;
   public updated_at?: Date | null;
@@ -46,6 +48,10 @@ Baseline.init(
       allowNull: true,
     },
     created_by: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    meter_type: {
       type: DataTypes.INTEGER,
       allowNull: true,
     },
