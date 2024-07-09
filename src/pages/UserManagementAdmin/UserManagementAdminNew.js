@@ -1,0 +1,496 @@
+import React, { useEffect, useContext, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import Table from 'components/Table';
+import { Box, Button, Container, FormControl, FormGroup, IconButton, Grid, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
+
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
+import ClearIcon from '@mui/icons-material/Clear';
+import debounce from "lodash.debounce";
+
+import { AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN } from 'utils/tableColumn/userManagement/admin/aggregatorUserManagementAdminColumn';
+import InviteUser from 'pages/UserManagement/InviteUser';
+import EvModal from 'utils/modal/EvModal';
+
+import EnvervaUserManagementColumn from 'utils/tableColumn/userManagement/admin/enervaUserManagementAdminColumn';
+import UserManagementAdminColumn from 'utils/tableColumn/userManagement/admin/UserManagementAdminColumn';
+import IESOUserManagementColumn from 'utils/tableColumn/userManagement/admin/iesoUserManagementAdminColumn';
+import { useDispatch, useSelector } from 'react-redux';
+import EvThemeTable from 'components/Table/EvThemeTable';
+
+const UserManagementAdminNew = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN} = EnvervaUserManagementColumn();
+  const {USER_MANAGEMENT_ADMIN_COLUMN} = UserManagementAdminColumn();
+  const {IESO_USER_MANAGEMENT_ADMIN_COLUMN} = IESOUserManagementColumn();
+
+  // tabs table data
+  const [searchString, setSearchString] = useState("");
+  const [getEnervaUser, setEnervaUser] = useState([]);
+  const [getIesoUser, setIesoUser] = useState([]);
+  const [getCustomerUser, setCustomerUser] = useState([]);
+  const [getAggregatorUser, setAggregatorUser] = useState([]);
+
+  const [getUserRole, setUserRole] = useState([]);
+  const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
+  const [getCompanyList, setCompanyList] = useState([]);
+  const [tabValue, setTabValue] = useState('enervaUsers');
+  const [selectRoleType, setSelectRoleType] = useState('0');
+  const [invitePageInfo, setInvitePageInfo] = useState({});
+  const [selectTableRow, setSelectTableRow] = useState({});
+  const [inviteAPIURL, setInviteAPIURL] = useState('');
+
+  const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
+
+  // for pagination
+  const defaultPagination = { page: 1, pageSize: 10 }
+  // const [enervaPageInfo, setEnervaPageInfo] = useState({ ...defaultPagination });
+  // const [iesoPageInfo, setIesoPageInfo] = useState({ ...defaultPagination });
+  const [customerPageInfo, setCustomerPageInfo] = useState({ ...defaultPagination });
+  // const [aggregatorPageInfo, setAggregatorPageInfo] = useState({ ...defaultPagination });
+  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
+  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
+  const [searchData, setSearchData] = useState([]);
+  const [refreshTableData, setRefreshTableData] = useState(0);
+
+  const [pageCount, setPageCount] = useState({
+    enerva: '',
+    ieso: '',
+    customer: '',
+    aggregator: ''
+  });
+
+  // need to call this function before USER_MANAGEMENT_ADMIN_COLUMN
+
+  const handleAPISuccessCallBack = () => {
+    // Call the API to get all user data
+    // console.log(customerPageInfo,searchString,selectRoleType, "handleAPISuccessCallBack")
+    // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchData,selectRoleType);
+    // getAggregatorUserManagementData();
+  };
+ 
+  const initialValues = {
+    company: '',
+    role: '',
+  };
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "",
+      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
+      fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+      modalBodyContentStyle: ''
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonClass: "",
+      cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
+      saveButtonName: "Yes, Delete!",
+      cancelButtonName: "No, Cancel",  
+
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+  });
+
+
+  // const enervaUsersColumns = useMemo(() => ENERVA_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  // const iesoUsersColumns = useMemo(() => IESO_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  const customerUsersColumns = useMemo(() => USER_MANAGEMENT_ADMIN_COLUMN(userData,setRefreshTableData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+  // const aggregatorUsersColumns = useMemo(() => AGGREGATOR_USER_MANAGEMENT_ADMIN_COLUMN(userData,setVisibleInvitePage,setSelectTableRow,setModalConfig,setInvitePageInfo,setInviteAPIURL), []);
+
+
+
+
+  const handleSelectChange = (event) => {
+    setSelectRoleType(event.target.value);
+    setSearchString('');
+    setCustomerPageInfo({...defaultPagination})
+    // setEnervaPageInfo({...defaultPagination})
+    // setIesoPageInfo({...defaultPagination})
+    // setPageCount((prevState) => ({
+    //   ...prevState,
+    //     enerva: '',
+    //     ieso: '',
+    //     customer: '',
+    //     aggregator: ''
+    // }));
+  };
+
+
+  const handleChange = (event, newValue) => {
+    setSearchString('');
+    setSelectRoleType('0');
+    setTabValue(newValue);
+    setPageInfo(newValue);
+  };
+
+
+  const handleAddUser = () => {
+    setVisibleInvitePage(true);
+    setPageInfo(tabValue);
+
+  }
+
+  const commonTableStyle = {
+     minWidth: '77rem',
+    //   "&.enerva-customer-table thead th": {
+    //   minWidth: '7rem',
+    // },
+    // "&.enerva-customer-table thead th:first-child": {
+    //   minWidth: '7rem',
+    // },
+    // "&.enerva-customer-table thead th:nth-child(2n)": {
+    //   minWidth: '12rem',
+    // },
+  }
+
+  const setPageInfo = (newTabValue) => {
+    setInvitePageInfo({
+      title: 'Invite Customer User and set permissions',
+      type: '2'
+    })
+
+    // if (newTabValue === 'enervaUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite Enerva User and set permissions',
+    //     type: '1'
+    //   })
+    // } else if (newTabValue === 'iesoUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite IESO User and set permissions',
+    //     type: '4'
+    //   })
+    // }
+    // else if (newTabValue === 'customerUsers') {
+    //   setInvitePageInfo({
+    //     title: 'Invite Customer User and set permissions',
+    //     type: '2'
+    //   })
+
+    // } else {
+    //   // default tab is first
+    //   setInvitePageInfo({
+    //     title: 'Invite Enerva User and set permissions',
+    //     type: '1'
+    //   })
+    // }
+  }
+
+  const  getTabTitle = (tabValue)=> {
+    let data;
+
+    switch (tabValue) {
+        case 'enervaUsers':
+            data = {
+              title: "All Users",
+              type: '1'
+            }
+            break;
+        case 'iesoUsers':
+            data = {
+              title: "All IESO Users",
+              type: '4'
+            }
+            break;
+        case 'customerUsers':
+            data = {
+              title: "All Customers",
+              type: '2'
+            }
+            break;
+        case 'aggregatorUsers':
+            data = {
+              title: "List of Aggregators",
+              type: '4' // this type {4} will be use for  new users 
+            }
+            break;
+        default:
+            data = {
+              title: "Unknown Tab",
+              type: '5'
+            }
+            break;
+    }
+
+    return data;
+}
+
+
+  const getEnervaUserManagementData = (pageInfo,search,role) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_ENERVA_USER_LIST}/${
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
+    GET_REQUEST(apiURL)
+      .then((res) => {       
+        if(res.data?.body?.rows instanceof Array){
+          setEnervaUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            enerva: res.data?.body?.count
+          }));
+        }
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      }).catch((error) => {
+        console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
+  }
+
+  const getIESOUserManagementData = (pageInfo,search,role) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = `${ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST}/${
+      (pageInfo.page - 1) * pageInfo.pageSize
+    }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
+    // const apiURL = ENERVA_USER_MANAGEMENT.GET_IESO_USER_LIST+'/0/100/';
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        if(res.data?.body?.rows instanceof Array){
+          setIesoUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            ieso: res.data?.body?.count
+          }));
+        }
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      }).catch((error) => {
+        console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
+  }
+  const getCustomerUserManagementData = (pageInfo,search,role,sortByCol,sortOrder) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    let apiURL = `${ENERVA_USER_MANAGEMENT.GET_POST_ENERVA_USER_LIST}`;
+    let payload = {
+      "data": search,
+      "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+      "limit": pageInfo.pageSize,
+      "col_name": sortByCol,
+      "order":sortOrder
+      
+    }
+    // let apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
+    //   (pageInfo.page - 1) * pageInfo.pageSize
+    // }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
+    // apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+    // apiURL += sortOrder ? `&order=${sortOrder}` : "";
+    // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
+    console.log(apiURL, payload, "checking api url...");
+    // return;
+    POST_REQUEST(apiURL,payload)
+      .then((res) => {
+        console.log(res, "checking result");
+        if(res.data?.body?.rows instanceof Array){
+          setCustomerUser(res.data?.body?.rows)
+          setPageCount((prevState) => ({
+            ...prevState,
+            customer: res.data?.body?.count
+          }));
+        }
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      }).catch((error) => {
+        console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
+  }
+  
+
+  const handelInviteUserAdmin = () => {
+    const apiURL = ENERVA_USER_MANAGEMENT.SEND_EV_INVITATION_BY_ADMIN
+    // setVisibleInvitePage(true); 
+    setInvitePageInfo({title:'Invite Enerva User and set permissions', type: invitePageInfo.type }) 
+    setInviteAPIURL(apiURL)
+    // handleAddUser(); 
+    // setSelectTableRow({});
+  
+    // Set a value in session storage
+    const data = {
+      pageInfo: { title: 'Invite User and set permissions' },
+      isEdited: false,
+      selectTableRow: selectTableRow,
+      returnPageURL: '/user-management'
+    }
+    // set state on session storage
+    navigate('/user-management/manage-access',{state: data})
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
+    
+
+
+  }
+
+  const getAggregatorUserManagementData = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    // const apiURL = "https://enervauser.azurewebsites.net/api/enerva/0/100"
+    const apiURL = ENERVA_USER_MANAGEMENT.GET_AGGREGATOR_USER_LIST+'/0/100';
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setAggregatorUser(res.data)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      }).catch((error) => {
+        console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
+  }
+
+  // const getUserRoleData = () => {
+  //   const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+invitePageInfo?.type;
+  //   GET_REQUEST(apiURL)
+  //     .then((res) => {
+  //       setUserRole(res.data?.body)
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     });
+  // }
+
+  // const getComapanyListData = () => {
+  //   const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+  //   GET_REQUEST(apiURL)
+  //     .then((res) => {
+  //       setCompanyList(res.data?.data?.rows);
+  //     }).catch((error) => {
+  //       console.log(error)
+  //     });
+  // }
+
+  
+  // useEffect(()=> {
+  //   getComapanyListData();
+  //   setPageInfo();
+  // }, [])
+
+  // useEffect(()=> {
+  //   if(invitePageInfo?.type !== undefined){
+  //     getUserRoleData();
+  //   }
+
+  // }, [invitePageInfo])
+
+
+// search implementation
+
+
+  const debouncedSearch = debounce((pageInfo, searchDataKeys,selectedRole,sortCustomerColumn,sortCustomerOrder) => {
+    // if(tabValue === 'enervaUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getEnervaUserManagementData(pageInfo, searchString,selectedRole);
+    // }else if(tabValue === 'iesoUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getIESOUserManagementData(pageInfo, searchString,selectedRole);
+    // }else if(tabValue === 'customerUsers' && (searchString?.length > 0 || selectedRole) ) {
+    //   getCustomerUserManagementData(pageInfo, searchString,selectedRole,sortCustomerColumn,sortCustomerOrder);
+    // }
+    getCustomerUserManagementData(pageInfo, searchDataKeys,selectedRole,sortCustomerColumn,sortCustomerOrder);
+
+  }, 800);
+
+  
+  // useEffect(() => {
+  //   debouncedSearch(enervaPageInfo, searchString,selectRoleType);
+  //   return () => {
+  //     debouncedSearch.cancel();
+  //   };
+  // }, [enervaPageInfo.page, enervaPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  // useEffect(() => {
+  //   debouncedSearch(iesoPageInfo, searchString,selectRoleType);
+  //   return () => {
+  //     debouncedSearch.cancel();
+  //   };
+  // }, [iesoPageInfo.page, iesoPageInfo.pageSize, searchString, selectRoleType]);
+
+
+  useEffect(() => {
+    debouncedSearch(customerPageInfo, searchData,selectRoleType,sortCustomerColumn,sortCustomerOrder);
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [refreshTableData,customerPageInfo.page, customerPageInfo.pageSize, searchData, selectRoleType,sortCustomerColumn,sortCustomerOrder]);
+  
+
+  useEffect(() => {
+    // load all default function on page load
+    // getEnervaUserManagementData(enervaPageInfo, searchString,selectRoleType);
+    // getIESOUserManagementData(iesoPageInfo, searchString,selectRoleType);
+    getCustomerUserManagementData(customerPageInfo, searchData,selectRoleType,sortCustomerColumn,sortCustomerOrder);
+  }, [])
+
+  
+console.log(getCustomerUser, "getCustomerUser")
+
+  return (
+    <React.Fragment>
+      {isVisibleInvitePage ?
+        <InviteUser 
+        getUserRole={getUserRole} 
+        setVisibleInvitePage={setVisibleInvitePage} 
+        invitePageInfo={invitePageInfo} 
+        handleAPISuccessCallBack={handleAPISuccessCallBack}
+        selectTableRow={selectTableRow}
+        inviteAPIURL={inviteAPIURL}
+        getCompanyList={getCompanyList}
+        /> :
+
+        <Box component="section">
+          <Container maxWidth="lg">
+            <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, marginBottom: '1.5rem', justifyContent: 'space-between', }} >
+              <Grid item xs={12} sm={5}  >
+                <Typography variant='h4' sx={{ marginBottom: '0.5rem' }}>User Management</Typography>
+                {/* <Typography variant='body2'>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</Typography> */}
+              </Grid>
+              <Grid item xs={12} sm={7} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
+               
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
+                    Add User
+                    <IconButton>
+
+                      <AddCircleIcon
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.875rem",
+                        }}
+                      />
+                    </IconButton>
+                  </Typography>
+              </Grid>
+
+            </Grid>
+
+            <Grid container>
+
+              <EvThemeTable tableClass="enerva-customer-table" customTableStyles={commonTableStyle} columns={customerUsersColumns} data={getCustomerUser} headbgColor="rgba(217, 217, 217, 0.2)"
+                count={pageCount.customer}
+                pageInfo={customerPageInfo}
+                setPageInfo={setCustomerPageInfo}
+                searchData={searchData}
+                setSearchData={setSearchData}
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
+              
+              />
+            
+            </Grid>
+          </Container>
+        </Box >
+      }
+
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+    </React.Fragment>
+  )
+}
+
+export default UserManagementAdminNew;

@@ -60,7 +60,13 @@ const theme = createTheme({
           ".MuiTableHead-root": {
             th: {
               color: '#54585A',
-              fontSize: '0.75rem'
+              fontSize: '0.75rem',
+             "&:last-child": {
+                "div": {
+                 justifyContent: 'flex-end',
+ 
+                }
+              },
             },
            
           },

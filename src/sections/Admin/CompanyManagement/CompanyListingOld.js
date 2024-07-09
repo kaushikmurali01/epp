@@ -34,7 +34,6 @@ import { debounce } from "lodash";
 import Loader from "pages/Loader";
 import SelectBox from "components/FormBuilder/Select";
 import { updateProfilePageRoleSchema } from "utils/validations/formValidation";
-import EvThemeTable from "components/Table/EvThemeTable";
 
 const companyTypes = [
   {
@@ -47,7 +46,7 @@ const companyTypes = [
   },
 ];
 
-const CompanyListingNew = () => {
+const CompanyListingOld = () => {
   const columns = [
     {
       Header: "Company name",
@@ -60,7 +59,6 @@ const CompanyListingNew = () => {
         </Link>
       ),
       accessorKey: "company_name",
-      isSearch: true,
     },
     {
       Header: "Company address",
@@ -77,8 +75,6 @@ const CompanyListingNew = () => {
           {item?.postal_code && `${item?.postal_code} `}
         </>
       ),
-      accessorKey: "city",
-      isSearch: true,
     },
     {
       Header: "Users",
@@ -214,8 +210,7 @@ const CompanyListingNew = () => {
               fontSize: "0.875rem",
             }}
             onClick={() =>
-              // navigate(`/companies/company-manage-access/${item?.id}`)
-              navigate(`/companies/${item?.id}/manage-access`, {state: {companyId: item?.id, companyName : item?.company_name}})
+              navigate(`/companies/company-manage-access/${item?.id}`)
             }
           >
             Manage access
@@ -240,7 +235,7 @@ const CompanyListingNew = () => {
   const companyUserListData = useSelector(
     (state) => state?.adminCompanyReducer?.companyUserList?.data || []
   );
-  const [searchString, setSearchString] = useState([]);
+  const [searchString, setSearchString] = useState("");
   const [companyUserId, setCompanyUserId] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [sortColumn, setSortColumn] = useState("");
@@ -688,14 +683,34 @@ const CompanyListingNew = () => {
 
   return (
     <Container>
-      <Grid container spacing={2} alignItems="center" justifyContent={"space-between"}>
+      <Grid container spacing={2} alignItems="center">
         <Grid item xs={12} sm={7}>
           <Typography
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
-            Company List
+            Company List old
           </Typography>
+        </Grid>
+        <Grid item display="flex" alignItems="center" justifyContent="center">
+          <TextField
+            name="search"
+            label="Search by name"
+            type="text"
+            fullWidth
+            size="small"
+            sx={{
+              "& .MuiInputBase-root": {
+                height: "2.9rem",
+                borderRadius: "6px",
+              },
+            }}
+            value={searchString}
+            onChange={(e) => {
+              setSearchString(e.target.value);
+              setPageInfo({ page: 1, pageSize: 10 });
+            }}
+          />
         </Grid>
         <Grid
           item
@@ -704,7 +719,7 @@ const CompanyListingNew = () => {
           alignItems="center"
           justifyContent="center"
         >
-          {/* <FormGroup className="theme-form-group theme-select-form-group">
+          <FormGroup className="theme-form-group theme-select-form-group">
             <FormControl sx={{ minWidth: "6rem" }}>
               <Select
                 displayEmpty={true}
@@ -726,7 +741,7 @@ const CompanyListingNew = () => {
                 ))}
               </Select>
             </FormControl>
-          </FormGroup> */}
+          </FormGroup>
         </Grid>
       </Grid>
       <Grid container mt={2}>
@@ -739,11 +754,7 @@ const CompanyListingNew = () => {
       </Grid>
 
       <Box sx={{ marginTop: "2rem" }}>
-
-        <EvThemeTable
-          tableClass="enerva-customer-table"
-          searchData={searchString}
-          setSearchData={setSearchString}
+        <Table
           columns={columns}
           data={companyListData}
           count={companyCount}
@@ -779,4 +790,4 @@ const CompanyListingNew = () => {
   );
 };
 
-export default CompanyListingNew;
+export default CompanyListingOld;

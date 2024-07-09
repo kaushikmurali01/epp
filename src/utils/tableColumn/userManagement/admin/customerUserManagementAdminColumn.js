@@ -1,27 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Box,
+    Button,
     Checkbox,
+    FormControl,
     FormGroup,
     FormLabel,
     Grid,
+    MenuItem,
+    Select,
     Typography,
 } from "@mui/material";
-import { DELETE_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+
+import { DELETE_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
+import EvThemeDropdown from "utils/dropdown/EvThemeDropdown";
+import { useDispatch } from "react-redux";
+
+// import { SnackbarContext } from "utils/notification/SnackbarProvider";
 
 
-const IESOUserManagementColumn = () => {
-const navigate = useNavigate();
+const CustomerUserManagementColumn = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 const [isChecked, setIsChecked] = useState(false);
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
     content: ''
 })
+const [dropdownConfig, setDropdownConfig] = useState({
+    title: 'Change Status',
+    options: [
+        { value: 'active', label: 'Active' },
+        { value: 'inactive', label: 'Inactive' }
+    ],
+    selectedValue: '',
+});
+const [isTableRowStatus, setTableRowStatus] = useState('');
 
 const buttonStyle = {
     display: 'inline-flex',
@@ -39,7 +58,7 @@ const buttonStyle = {
 
 const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center'>
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -47,11 +66,11 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to delete the User?
+                    Are you sure you would like to delete the user?
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'block'}}>
+                <FormGroup sx={{display: 'block',}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
                 <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
@@ -62,18 +81,24 @@ const DeleteModelContent = () => {
 
 
 
-const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+
+
+
+const CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN = (userData,setRefreshTableData, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
-        Header: "User ID",
+        Header: "Customer ID",
         accessor: 'id',
+        accessorKey: "id",
     },
     {
-        Header: "User Full Name",
-        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+        Header: " Customer admin name",
+        accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
+        accessorKey: "first_name",
     },
     {
         Header: "Business Email",
         accessor: "email",
+        accessorKey: "email",
     },
     {
         Header: "Role Type",
@@ -101,23 +126,56 @@ const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, se
         Header: "Action",
         accessor: (item) => (
             <Box gap={1}>
-                <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
+                <Typography disabled={userData?.user?.id === item?.id}  variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
-                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item)  } >
+               
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
                     View
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
                     Alert
                 </Typography>
-                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
+                <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,setRefreshTableData,setModalConfig)} >
                     Delete
                 </Typography>
+                 <EvThemeDropdown dropdownConfig={dropdownConfig} setDropdownConfig={setDropdownConfig} dataRow = {item} setRefreshTableData={setRefreshTableData} disabledTitle={item.status.toLowerCase() === "pending"} />
 
             </Box>
         ),
     },
 ];
+
+
+ useEffect(()=>{
+     if(dropdownConfig.selectedValue !== ''){
+        console.log(dropdownConfig, "values changes")
+        userStatusUpdate(dropdownConfig)
+     }
+ },[dropdownConfig]) 
+
+
+ const userStatusUpdate = (dropdowndata)=> {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = ENERVA_USER_MANAGEMENT.USER_ACTIVE_IN_ACTIVE+"/"+ dropdowndata?.dataRow?.id;
+    const successMessage = dropdowndata.selectedValue === "active" ? "User activated successfully." : 'User deactivated successfully.'
+    const requestBody = {
+        "is_active": dropdowndata.selectedValue === "active" ? "1" : "0",
+      }
+
+
+      console.log(requestBody, apiURL,"requestBody");   
+    //   return;
+      PUT_REQUEST(apiURL, requestBody)
+      .then((result)=> {
+        console.log(result, "success");
+        NotificationsToast({ message: successMessage, type: "success" });
+        dropdownConfig.setRefreshTableData(prevState => prevState + 1);;
+      }).catch((error)=>{
+        console.log(error, "error")
+        NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+      })
+ }
 
 
 const handelNavigateProfile = (item)=> {
@@ -126,10 +184,8 @@ const handelNavigateProfile = (item)=> {
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         return;
     }
-     navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
-    // navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
+    navigate(`/user-management/profile/${(item?.company_id === (undefined || null)) ? '0': item?.company_id}/${item?.id}`)
 }
-
 
 const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
     if(userData?.user?.id === item?.id){
@@ -139,11 +195,12 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Manage IESO User and permissions', type: '4' })
+    setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     setInviteAPIURL(apiURL)
+    
 }
 
-const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
+const handelDeleteModalOpen = (item,setRefreshTableData, setModalConfig) => {
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
@@ -153,10 +210,11 @@ const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) =
             cancelButton: true,
         },
         modalBodyContent: <DeleteModelContent />,
-        saveButtonAction: () =>  handelDelete(item, handleAPISuccessCallBack, setModalConfig),
+        saveButtonAction: () =>  handelDelete(item,setRefreshTableData, setModalConfig),
     }));
-    // handelDelete(item, handleAPISuccessCallBack)
+   
 }
+
 
 const handelAlertModalOpen = (item, setModalConfig) => {
     const apiURL = ENERVA_USER_MANAGEMENT.SEND_USER_ALERT;
@@ -178,22 +236,22 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 
-
-
-const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
-    const company_id = 0; // for enerva and Ieso
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + company_id;
+const handelDelete = (item, setRefreshTableData, setModalConfig) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    // for customer we need to company_id to delete
+    const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
     // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {
             NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
-            handleSuccessCallback();
+            // handleSuccessCallback();
+            setRefreshTableData(prevState => prevState + 1);
             // close the modal
             setModalConfig((prevState) => ({
                 ...prevState,
                 modalVisible: false,
             }));
-
+            dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         })
         .catch((error) => {
             console.log(error, 'error')
@@ -204,12 +262,12 @@ const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
                 ...prevState,
                 modalVisible: false,
             }));
-
+            dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         })
 }
 
-return {IESO_USER_MANAGEMENT_ADMIN_COLUMN}
+return {CUSTOMER_USER_MANAGEMENT_ADMIN_COLUMN}
 
 }
 
-export default IESOUserManagementColumn;
+export default CustomerUserManagementColumn;

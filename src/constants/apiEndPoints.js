@@ -75,6 +75,7 @@ export const USER_MANAGEMENT = {
   // GET REQUEST
   GET_USER_LIST: "/enerva-user/v1/combinedusers",
   GET_USER_ROLE: "/enerva-user/v1/roles",
+  GET_REQUEST_TO_JOIN_USER_ROLE: "/enerva-user/v1/requestroles",
   GET_DEFAULT_PERMISSIONS_BY_ROLE_ID: "/enerva-user/v1/rolepermission",
   GET_FILTER_USER_LIST: "/enerva-user/v1/filteredusers",
 
@@ -94,6 +95,7 @@ export const USER_MANAGEMENT = {
   JOIN_REQUEST: "/enerva-user/v1/createrequest",
   ACCEPT_USER_REQUEST: "/enerva-user/v1/acceptinvite",
   REJECT_USER_REQUEST: "/enerva-user/v1/rejectinvite",
+  GET_COMPANY_LIST_WITH_SEARCH: "/enerva-user/v1/companies/search",
   // DELETE REQUEST
   DELETE_USER_REQUEST: "/enerva-user/v1/users",
   // EDIT REQUEST
@@ -111,8 +113,8 @@ export const USER_MANAGEMENT = {
 export const ENERVA_USER_MANAGEMENT = {
   GET_ENERVA_USER_LIST: "/enerva-user/v1/enerva",
   GET_IESO_USER_LIST: "/enerva-user/v1/ieso",
-  GET_CUSTOMER_USER_LIST: "enerva-user/v1/customer",
-  GET_AGGREGATOR_USER_LIST: "",
+  GET_CUSTOMER_USER_LIST: "/enerva-user/v1/customer",
+  GET_POST_ENERVA_USER_LIST: "/enerva-user/v1/search/users",
 
   GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID:
     "/enerva-user/v1/program/rolepermission",

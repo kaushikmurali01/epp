@@ -1,4 +1,4 @@
-import { USER_MANAGEMENT } from "constants/apiEndPoints";
+import { ENERVA_USER_MANAGEMENT, USER_MANAGEMENT } from "constants/apiEndPoints";
 import {
   GET_REQUEST,
   PATCH_REQUEST,
@@ -40,7 +40,7 @@ import { DELETE_COMPANY_SUCCESS } from "../actionTypes";
 
 export const fetchAdminCompanyListing = (
   pageInfo,
-  search = "",
+  search = [],
   company_type_filter = "",
   sortByCol,
   sortOrder
@@ -48,14 +48,15 @@ export const fetchAdminCompanyListing = (
   return async (dispatch) => {
     try {
       dispatch(fetchAdminCompanyListRequest());
-      let endpointWithParams = `${USER_MANAGEMENT.GET_COMPANY_LIST}/${
-        (pageInfo.page - 1) * pageInfo.pageSize
-      }/${
-        pageInfo.pageSize
-      }?search=${search}&company_type=${company_type_filter}`;
-      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
-      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
-      const response = await GET_REQUEST(endpointWithParams);
+      let apiURL = `${USER_MANAGEMENT.GET_COMPANY_LIST_WITH_SEARCH}`;
+      let payload = {
+        data: search,
+        offset: (pageInfo.page - 1) * pageInfo.pageSize,
+        limit: pageInfo.pageSize,
+        col_name: sortByCol,
+        order: sortOrder,
+      };
+      const response = await POST_REQUEST(apiURL, payload);
       const data = response.data;
       dispatch(fetchAdminCompanyListSuccess(data));
     } catch (error) {
@@ -218,17 +219,30 @@ export const fetchCompanyUserList = (companyId) => {
   };
 };
 
-export const fetchUsersByCompanyId = (pageInfo, companyId) => {
+export const fetchUsersByCompanyId = (pageInfo, companyId,search) => {
   return async (dispatch) => {
     try {
       dispatch(fetchUsersByCompanyRequest());
-      let endpointWithParams = `${
-        USER_MANAGEMENT.GET_USER_BY_COMPANY
-      }/${companyId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
-        pageInfo.pageSize
-      }`;
-      const response = await GET_REQUEST(endpointWithParams);
+      // let endpointWithParams = `${
+      //   USER_MANAGEMENT.GET_USER_BY_COMPANY
+      // }/${companyId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+      //   pageInfo.pageSize
+      // }`;
+      let apiURL = `${ENERVA_USER_MANAGEMENT.GET_POST_ENERVA_USER_LIST}`;
+      let payload = {
+        "data": [...search],      
+        "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+        "limit": pageInfo.pageSize,
+        "company_id":companyId
+        // "col_name": sortByCol,
+        // "order":sortOrder
+        
+      }
+      console.log(apiURL,payload, "fetchUsersByCompanyId data")
+      // return;
+      const response = await POST_REQUEST(apiURL,payload);
       const data = response.data;
+      console.log(data, "fetchUsersByCompanyId data")
       dispatch(fetchUsersByCompanySuccess(data));
     } catch (error) {
       console.error(error);

@@ -15,9 +15,9 @@ import { ConvertIntoDateMonth } from "utils/dateFormat/ConvertIntoDateMonth";
 import PopUpAlert from "utils/modalContentData/userManagement/PopUpAlert";
 
 
-const EnvervaUserManagementColumn = () => {
+const IESOUserManagementColumn = () => {
 const navigate = useNavigate();
-const [isChecked, setIsChecked] = useState(false)
+const [isChecked, setIsChecked] = useState(false);
 const [alertModalContnet, setAlertModalContnet] = useState({
     title: 'Alert',
     content: ''
@@ -39,7 +39,7 @@ const buttonStyle = {
 
 const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
+        <Grid container alignItems='center' flexDirection="column" textAlign='center'>
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -47,11 +47,11 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                    Are you sure you would like to delete the User?
+                    Are you sure you would like to delete the user?
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'block',}}>
+                <FormGroup sx={{display: 'block'}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
                 <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
@@ -62,7 +62,7 @@ const DeleteModelContent = () => {
 
 
 
-const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
+const IESO_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
     {
         Header: "User ID",
         accessor: 'id',
@@ -89,7 +89,7 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, 
             // if (item.status === 'pending') {
                 return (
                     <Box>
-                        <Typography variant="span" sx={{ ...buttonStyle, margin: '0', padding: '0.4375rem 1rem', border: '1px solid #DCFF88', color: 'primary.main', backgroundColor: '#DCFF88', textTransform: 'capitalize', marginRight: '1rem' }}  >
+                        <Typography variant="span" sx={{ ...buttonStyle,margin: '0', padding: '0.4375rem 1rem',  border: '1px solid #DCFF88', color: 'primary.main', backgroundColor: '#DCFF88', textTransform: 'capitalize', marginRight: '1rem' }}  >
                             {/* <CheckCircleIcon /> */}
                              {item.status}
                         </Typography>
@@ -104,7 +104,7 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, 
                 <Typography disabled={userData?.user?.id === item?.id} variant="span" sx={{ ...buttonStyle, color: 'primary.main' }} onClick={()=> handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Manage permission
                 </Typography>
-                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item) } >
+                <Typography disabled={item.status === 'pending'} variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={() => handelNavigateProfile(item)  } >
                     View
                 </Typography>
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'warning.main' }} onClick={() => handelAlertModalOpen(item,setModalConfig)} >
@@ -113,7 +113,6 @@ const ENERVA_USER_MANAGEMENT_ADMIN_COLUMN = (userData,handleAPISuccessCallBack, 
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
                 </Typography>
-               
 
             </Box>
         ),
@@ -127,8 +126,10 @@ const handelNavigateProfile = (item)=> {
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         return;
     }
-    navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
+     navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
+    // navigate(`/user-management/profile/${item?.company_id === undefined ? '0': item?.company_id}/${item?.id}`)
 }
+
 
 const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
     if(userData?.user?.id === item?.id){
@@ -138,7 +139,7 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     setVisibleInvitePage(true);
     setSelectTableRow(item)
-    setInvitePageInfo({title:'Manage Enerva User and permissions', type: '1' }) //enervaUsers for type "1"
+    setInvitePageInfo({title:'Manage IESO User and permissions', type: '4' })
     setInviteAPIURL(apiURL)
 }
 
@@ -179,11 +180,10 @@ const handelAlertModalOpen = (item, setModalConfig) => {
 
 
 
-
 const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
     const company_id = 0; // for enerva and Ieso
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type +'/'+ company_id;
-    console.log(apiURL,item, 'delete user');
+    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + company_id;
+    // return;
     DELETE_REQUEST(apiURL)
         .then((_response) => {
             NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
@@ -208,8 +208,8 @@ const handelDelete = (item, handleSuccessCallback, setModalConfig) => {
         })
 }
 
-return {ENERVA_USER_MANAGEMENT_ADMIN_COLUMN}
+return {IESO_USER_MANAGEMENT_ADMIN_COLUMN}
 
 }
 
-export default EnvervaUserManagementColumn;
+export default IESOUserManagementColumn;

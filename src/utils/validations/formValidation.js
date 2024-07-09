@@ -130,8 +130,8 @@ export const validationSchemaAddMeter = Yup.object().shape({
     .required("Meter Id is required and can be found on the electricity bill")
     .min(0, "Meter Id must be a positive number"),
   meter_active: Yup.date()
-    .max(new Date(), "Date meter became active cannot be in the future")
-    .required("Meter activation date is required"),
+    .max(new Date(), "Date meter became active cannot be in the future"),
+    // .required("Meter activation date is required"),
   meter_inactive: Yup.date().when("stil_in_use", {
     is: false,
     then: (schema) =>
@@ -372,6 +372,8 @@ export const validationSchemaAssignFacility = (emailToAvoid) => Yup.object().sha
     .of(Yup.number())
     .required("Facility is required")
     .min(1, "At least one facility is required"),
+    companyId: Yup.number()
+    .required("Please enter Password") 
 });
 
 // Change Password Validation schema

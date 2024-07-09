@@ -1,4 +1,4 @@
-import UserManagePermissions from "pages/UserManagementAdmin/UserManagePermissions";
+
 
 export const authEndpoints = {
   login: "/login",
@@ -32,6 +32,7 @@ export const facilityEndPoints = {
   facilityDetails: "facility-details/:id",
   entriesDetails: "entries-details/:id",
   facilityManagePermissions: "facility-manage-permissions/:id",
+  facilityListNew: "facility-list-new"
 };
 
 export const enervaEndPoints = {
@@ -44,11 +45,16 @@ export const enervaEndPoints = {
   companyAgreement: "company-agreement/:id",
   companyUsers: "company-users/:id",
   companyManageAccess: "company-manage-access/:id",
+  companyUserManageAccessByName: ':name/manage-access',
+  addUser: "add-user",
+  managePermission: "manage-permission",
 };
 
 export const userManagementEndPoints = {
   userManagement: "user-management",
-  userProfile: "/user-management/profile/:companyId/:userId",
+  userManagementNew: "user-management-new",
+  userManagementAccess: "user-management/manage-access",
+  userProfile: "user-management/profile/:companyId/:userId",
 };
 
 export const evUserManagementEndPoints = {

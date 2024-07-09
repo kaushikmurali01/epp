@@ -14,13 +14,13 @@ import {
   FormControl,
   FormGroup,
 } from "@mui/material";
-import FacilityOverview from "./facilityOverview";
-import FacilityApproved from "./facilityApproved";
-import FacilityReview from "./facilityReview";
-import FacilityRejected from "./facilityRejected";
+import FacilityOverview from "../AdminFacilityListing/facilityOverview";
+import FacilityApproved from "../AdminFacilityListing/facilityApproved";
+import FacilityReview from "../AdminFacilityListing/facilityReview";
+import FacilityRejected from "../AdminFacilityListing/facilityRejected";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useNavigate } from "react-router-dom";
-import FacilityCreated from "./facilityCreated";
+import FacilityCreated from "../AdminFacilityListing/facilityCreated";
 import EvModal from "utils/modal/EvModal";
 import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
@@ -36,10 +36,11 @@ import { validationSchemaAssignFacility } from "utils/validations/formValidation
 import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import Loader from "pages/Loader";
+import FacilityEnrolledActive from "./facilityEnrolledActive";
 
-const AdminFacilityListing = () => {
+const AdminFacilityListingNew = () => {
   const navigate = useNavigate();
-  const [tabValue, setTabValue] = useState("overview");
+  const [tabValue, setTabValue] = useState("enrolled_active_facilities");
   const [companyFilter, setCompanyFilter] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const handleChange = (event, newValue) => {
@@ -222,19 +223,19 @@ const AdminFacilityListing = () => {
             </Stack>
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
               <FormGroup className="theme-form-group theme-select-form-group">
-                <InputLabel>Assign Company*</InputLabel>
+                <InputLabel>Assign Facility*</InputLabel>
                 <FormControl sx={{ color: "primary.main" }}>
                   <Select
                     fullWidth
-                    name="companyId"
-                    value={values.companyId}
+                    name="facilityId"
+                    value={values.facilityId}
                     onChange={(e) => {
-                      setFieldValue("companyId", e.target.value);
+                      setFieldValue("facilityId", e.target.value);
                     }}
                   >
-                    {adminCompaniesDropdownData?.map((item) => (
+                    {adminFacilitiesDropdownData?.map((item) => (
                       <MenuItem key={item?.id} value={item?.id}>
-                        {item?.company_name}
+                        {item?.facility_name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -262,11 +263,9 @@ const AdminFacilityListing = () => {
 
   const renderTabContent = () => {
     switch (tabValue) {
-      case "overview":
-        return <FacilityOverview searchVal={searchString} />;
-      case "created_facilities":
+      case "enrolled_active_facilities":
         return (
-          <FacilityCreated
+          <FacilityEnrolledActive
             searchVal={searchString}
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
@@ -319,7 +318,7 @@ const AdminFacilityListing = () => {
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
-            Facilities Management
+            List of Facilities
           </Typography>
           {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
@@ -335,71 +334,6 @@ const AdminFacilityListing = () => {
               justifyContent: { xs: "flex-start", md: "flex-end" },
             }}
           >
-            <Grid item>
-              <TextField
-                name="search"
-                label="Search by facility name"
-                type="text"
-                fullWidth
-                size="small"
-                sx={{
-                  "& .MuiInputBase-root": {
-                    height: "2.9rem",
-                    borderRadius: "6px",
-                  },
-                }}
-                onChange={(e) => {
-                  setSearchString(e.target.value);
-                  setPageInfo({ page: 1, pageSize: 10 });
-                }}
-              />
-            </Grid>
-            <Grid
-              item
-              sm={2}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <FormGroup className="theme-form-group theme-select-form-group">
-                <FormControl sx={{ minWidth: "6rem" }}>
-                  <Select
-                    displayEmpty={true}
-                    className="transparent-border"
-                    value={companyFilter}
-                    onChange={(e) => setCompanyFilter(e.target.value)}
-                  >
-                    <MenuItem value="">
-                      <em>Company name</em>
-                    </MenuItem>
-                    {adminCompaniesDropdownData?.map((item) => (
-                      <MenuItem key={item?.id} value={item?.id}>
-                        {item?.company_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </FormGroup>
-            </Grid>
-            <Grid
-              item
-              // sm={2}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Button
-                variant="contained"
-                sx={{
-                  padding: "4px 12px",
-                  minWidth: "5rem!important",
-                  // bgcolor: "#2C77E9",
-                }}
-                onClick={openRequestModal}
-              >
-                Assign Access
-              </Button>
-            </Grid>
             <Grid
               item
               // sm={2}
@@ -452,20 +386,21 @@ const AdminFacilityListing = () => {
               display: "inline-flex",
             }}
           >
-            <Tab value="overview" label="Overview" sx={{ minWidth: "10rem" }} />
             <Tab
-              value="created_facilities"
-              label="Created facilities"
+            value="enrolled_active_facilities" 
+            label="Enrolled/Active Facilities" 
+            sx={{ minWidth: "10rem" }} />
+            <Tab
+              value="in_Process_facilities"
+              label="In-process Facilities"
               sx={{ minWidth: "10rem" }}
             />
 
-            <Tab value="approved" label="Approved" sx={{ minWidth: "10rem" }} />
             <Tab
-              value="underreview"
-              label="Under Review"
+              value="inactive_Facilities"
+              label="Inactive Facilities"
               sx={{ minWidth: "10rem" }}
             />
-            <Tab value="rejected" label="Rejected" sx={{ minWidth: "10rem" }} />
           </Tabs>
         </Grid>
       </div>
@@ -486,4 +421,4 @@ const AdminFacilityListing = () => {
   );
 };
 
-export default AdminFacilityListing;
+export default AdminFacilityListingNew;
