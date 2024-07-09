@@ -417,6 +417,12 @@ const UserAdminManageAccess = ({ }) => {
 
     }, [userEmail,selectUserType, selectRoleType, selectCompanyType, selectedPermissions])
 
+    const scrollTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "instant",
+        });
+    };
 
     useEffect(() => {
         if (selectRoleType) {
@@ -430,7 +436,7 @@ const UserAdminManageAccess = ({ }) => {
     useEffect(()=> {
         getCompanyListData();
         getUserTypeData();
-        
+        scrollTop();
       }, [])
     
       useEffect(()=> {      
