@@ -23,6 +23,7 @@ import { UserResourceFacilityPermission } from "../models/user-resource-permissi
 import axios from 'axios';
 import { ParticipantAgreement } from "../models/participantAgreement";
 import { Facility } from "../models/facility";
+import { Op } from 'sequelize';
 
 /**
  * Registers a new user based on the provided request data.
@@ -581,11 +582,16 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
                     is_signed: true
                 },
             });
+            
             const FC = await Facility.findOne({
                 where: {
-                    company_id:company_id
+                    company_id: company_id,
+                    is_active: {
+                        [Op.ne]: 3
+                    }
                 }
             });
+            
             let UCR:any= await UserCompanyRole.findOne({where: {
                 user_id: user_id,
                 company_id:company_id
