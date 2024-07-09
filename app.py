@@ -401,13 +401,25 @@ def calculate_monthly_sufficiency(df):
     ]
     return sufficiency_output
 
-
+# date_time, temp, rel_hum, precip_amount, wind_spd, station_press, hmdx, weather, station_id, facility_id, distance
 @app.route("/get_weather_data", methods = ['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
-    df = dbtest(f'SELECT date_time, temp, rel_hum, precip_amount, wind_spd, station_press, hmdx, weather, station_id, facility_id, distance FROM epp.weather_data WHERE facility_id = {facility}')
-    df_con = df.to_dict(orient= 'records')
-    return jsonify(df_con), 200
+    data = request.args.get('data')
+    df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
+    df['date_time'] = pd.to_datetime(df['date_time'])
+
+    # Step 2: Set this column as the index
+    df.set_index('date_time', inplace=True)
+
+    # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+    monthly_data = df[data].resample('M').mean()
+
+    # Convert the Series to a dictionary with string keys
+    monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
+    
+    # df_con = monthly_data_list.to_dict(orient= 'records')
+    return jsonify(monthly_data_list), 200
 
 @app.route('/insert_clean_data', methods = ['POST'])
 def clean_data():
@@ -555,7 +567,6 @@ def clean_data():
 
     return jsonify(results), 200
 
-
 @app.route("/idv_processing", methods = ['GET'])
 def idv_process():
     variable_id = request.args.get('variable_id')
@@ -576,6 +587,7 @@ def idv_process():
     hourly_data_list = [{'Reading_date': str(index), 'Value': value} for index, value in hourly_data.items()]
     
     return jsonify(hourly_data_list), 200
+
 
 if __name__ == '__main__':
 
