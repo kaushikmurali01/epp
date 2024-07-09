@@ -289,8 +289,7 @@ def check_sufficiency():
                             }
                     
 
-                # Hourly sufficiency
-                granularity_results['hourly'] = process_granularity(summary, 'hourly')
+                granularity_results[granularity] = process_granularity(summary, granularity)
 
                 # Daily sufficiency
                 # numeric_columns = summary.select_dtypes(include=np.number).columns
@@ -352,7 +351,7 @@ def check_sufficiency():
                     
 
                 # Hourly sufficiency
-                granularity_results['hourly'] = process_granularity(summary, 'hourly')
+                granularity_results[granularity] = process_granularity(summary, granularity)
 
                 # Daily sufficiency
                 # numeric_columns = summary.select_dtypes(include=np.number).columns
