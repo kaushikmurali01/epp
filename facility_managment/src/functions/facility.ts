@@ -5,7 +5,7 @@ import {
   InvocationContext,
 } from "@azure/functions";
 import { FacilityController } from "../controller/facility_user/controller";
-
+import { EmailTemplateController } from "../controller/emailTemplate/controller";
 import { uploadBlob } from "../helper/azure-storage.helper";
 import { FacilityEnervaController } from "../controller/facility_enerva/controller";
 import { FacilityMeterController } from "../controller/facility_meter/controller";
@@ -1835,7 +1835,126 @@ export async function getFacilityDropDown(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function createEmailTemplate(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const requestBody = await request.json();
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    
+    const result = await EmailTemplateController.createEmailTemplate(requestBody, decodedToken.id);
+    
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 
+export async function updateEmailTemplate(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const id = Number(request.params.id);
+    const requestBody = await request.json();
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    
+    const result = await EmailTemplateController.updateEmailTemplate(id, requestBody, decodedToken.id);
+    
+    if (result) {
+      return { body: JSON.stringify(result) };
+    } else {
+      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Email template not found" };
+    }
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function deleteEmailTemplate(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const id = Number(request.params.id);
+    
+    const result = await EmailTemplateController.deleteEmailTemplate(id);
+    
+    if (result) {
+      return { body: JSON.stringify({ message: "Email template deleted successfully" }) };
+    } else {
+      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Email template not found" };
+    }
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function getEmailTemplatesByFacilityId(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const facilityId = Number(request.params.facilityId);
+    
+    const result = await EmailTemplateController.getEmailTemplatesByFacilityId(facilityId);
+    
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function getEmailTemplatesSubjectAndBody(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const facilityId = Number(request.params.facilityId);
+    
+    const result = await EmailTemplateController.getEmailTemplatesSubjectAndBody(facilityId);
+    
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+app.http("createEmailTemplate", {
+  methods: ["POST"],
+  route: "email-template",
+  authLevel: "anonymous",
+  handler: createEmailTemplate,
+});
+
+app.http("updateEmailTemplate", {
+  methods: ["PUT"],
+  route: "email-template/{id}",
+  authLevel: "anonymous",
+  handler: updateEmailTemplate,
+});
+
+app.http("deleteEmailTemplate", {
+  methods: ["DELETE"],
+  route: "email-template/{id}",
+  authLevel: "anonymous",
+  handler: deleteEmailTemplate,
+});
+
+app.http("getEmailTemplatesByFacilityId", {
+  methods: ["GET"],
+  route: "email-templates/{facilityId}",
+  authLevel: "anonymous",
+  handler: getEmailTemplatesByFacilityId,
+});
+
+app.http("getEmailTemplatesSubjectAndBody", {
+  methods: ["GET"],
+  route: "email-templates/{facilityId}/subject-body",
+  authLevel: "anonymous",
+  handler: getEmailTemplatesSubjectAndBody,
+});
 app.http(`facility-listing`, {
   methods: ["GET"],
   route: "facility-listing/{offset}/{limit}",

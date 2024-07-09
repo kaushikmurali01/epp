@@ -582,7 +582,7 @@ LIMIT
           facility_id: facility_id,
           parameter_data: body.data,
           meter_type: body.meter_type,
-          status: BASE_LINE_STATUS.created || null,
+          status: BASE_LINE_STATUS.draft || null,
           created_by: userToken.id,
           updated_by: userToken.id,
         };
