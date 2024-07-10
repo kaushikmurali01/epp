@@ -45,13 +45,6 @@ const BaselineModel = () => {
   const [tabValue, setTabValue] = useState("dataExploration");
   const isMediumScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const loadingState = useSelector((state) => state?.baselineReducer?.loading);
-  const [meterType, setMeterType] = useState(null);
-  const [baselineData, setBaselineData] = useState(null);
-
-
-  const baselineDataSelector = useSelector(
-    (state) => state?.baselineReducer?.baselineDetailsDb?.data
-  );
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -130,39 +123,6 @@ const BaselineModel = () => {
       Baseline modeling
     </Typography>,
   ];
-  const [showSubmitButton, setShowSubmitButton] = useState(false);
-  const [showAcceptCheckbox, setShowAcceptCheckbox] = useState(false);
-
-  const showFieldsBasedOnStatus = (baseline_data, meter_type) => {
-    const showSubmitData = baseline_data?.some(
-      (item) => item?.meter_type === meter_type && item?.status === "CALCULATED"
-    );
-    if (showSubmitData) {
-      setShowAcceptCheckbox(true);
-    } else {
-      setShowAcceptCheckbox(false);
-    }
-  };
-
-  const handleSubmitFacilityStatus = (baselineStatus) => {
-    if (meterType) {
-      const data = getSummaryDataByMeterType(
-        baselineData ? baselineData : baselineDataSelector,
-        meterType
-      );
-      const body = { status: baselineStatus };
-      dispatch(submitRejectedBaselineDB(data?.id, body)).then(() => {
-        openEnrollmentModal();
-        dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
-          showFieldsBasedOnStatus(res?.data, meterType);
-        });
-      });
-    }
-  };
-
-  const handleCheckboxChange = (e) => {
-    setShowSubmitButton(e);
-  };
 
   const [enrollmentModalConfig, setEnrollmentModalConfig] = useState({
     modalVisible: false,
@@ -257,52 +217,11 @@ const BaselineModel = () => {
               />
             </Tabs>
           </Grid>
-          {tabValue === "baselineModel" && (
-            <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
-              {showAcceptCheckbox && (
-                <FormGroup>
-                  <FormControlLabel
-                    control={<Checkbox />}
-                    sx={{ color: "text.secondary2" }}
-                    label={
-                      <Typography sx={{ fontSize: "14px!important" }}>
-                        Baseline model accepted
-                      </Typography>
-                    }
-                    onChange={(e) => handleCheckboxChange(e.target.checked)}
-                  />
-                </FormGroup>
-              )}
-              {showSubmitButton ? (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
-                  sx={{ alignItems: "flex-end" }}
-                >
-                  Submit facility
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => handleSubmitFacilityStatus("REQUESTED")}
-                  sx={{ alignItems: "flex-end" }}
-                >
-                  Send help request
-                </Button>
-              )}
-            </Grid>
-          )}
         </Grid>
 
         {tabValue === "dataExploration" && <DataExplorationTab />}
         {tabValue === "baselineModel" && (
-          <BaselineModelTab
-            showFieldsBasedOnStatus={showFieldsBasedOnStatus}
-            setMeterType={setMeterType}
-            setBaselineData={setBaselineData}
-          />
+          <BaselineModelTab openEnrollmentModal={openEnrollmentModal} />
         )}
 
         <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />

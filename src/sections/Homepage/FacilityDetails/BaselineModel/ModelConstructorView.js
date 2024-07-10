@@ -40,7 +40,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const independentVariables = useSelector(
     (state) => state?.baselineReducer?.independentVariableList
   );
+  const baselineListData = useSelector(
+    (state) => state?.baselineReducer?.baselineDetailsDb?.data
+  );
+
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
+
   useEffect(() => {
     dispatch(fetchStationsDetails(id));
   }, [dispatch, id, meterType]);
@@ -49,28 +54,26 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     (state) => state?.baselineReducer?.stationDetails
   );
   useEffect(() => {
-    dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
-      if (res?.data) {
-        const initialValues = getSummaryDataByMeterType(res?.data, meterType);
-        setFormData(initialValues?.parameter_data);
-        setSufficiencyCheckData({
-          daily: { ...initialValues?.parameter_data?.daily },
-          hourly: { ...initialValues?.parameter_data?.hourly },
-        });
-        setBaselineStartDate(
-          format(
-            new Date(initialValues?.parameter_data?.start_date),
-            "yyyy-MM-dd"
-          )
-        );
-        setBaselineEndDate(
-          format(
-            new Date(initialValues?.parameter_data?.end_date),
-            "yyyy-MM-dd"
-          )
-        );
-      }
-    });
+    if (baselineListData) {
+      const initialValues = getSummaryDataByMeterType(
+        baselineListData,
+        meterType
+      );
+      setFormData(initialValues?.parameter_data);
+      setSufficiencyCheckData({
+        daily: { ...initialValues?.parameter_data?.daily },
+        hourly: { ...initialValues?.parameter_data?.hourly },
+      });
+      setBaselineStartDate(
+        format(
+          new Date(initialValues?.parameter_data?.start_date),
+          "yyyy-MM-dd"
+        )
+      );
+      setBaselineEndDate(
+        format(new Date(initialValues?.parameter_data?.end_date), "yyyy-MM-dd")
+      );
+    }
   }, [id, meterType]);
 
   const sufficiencyVerificationStatusButton = (status) => {
@@ -206,42 +209,45 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                     />
                   </Grid>
                 </Grid>
-                <Grid item>
-                  <Grid container mt={4}>
-                    <Typography
-                      variant="h6"
-                      sx={headingStyleInAccordion}
-                      mb={"1rem !important"}
-                    >
-                      Weather Station
-                    </Typography>
-                  </Grid>
+                {values?.weatherStation && (
+                  <Grid item>
+                    <Grid container mt={4}>
+                      <Typography
+                        variant="h6"
+                        sx={headingStyleInAccordion}
+                        mb={"1rem !important"}
+                      >
+                        Weather Station
+                      </Typography>
+                    </Grid>
 
-                  <Grid container>
-                    {weatherStationsData?.map(
-                      (station) =>
-                        values?.weatherStation === station?.station_id && (
-                          <FormControlLabel
-                            key={station?.station_id}
-                            value={station?.station_id}
-                            control={
-                              <Radio
-                                checked={
-                                  values?.weatherStation === station?.station_id
-                                }
-                              />
-                            }
-                            disabled
-                            label={
-                              <Typography sx={{ fontSize: "14px!important" }}>
-                                {station?.station_name}
-                              </Typography>
-                            }
-                          />
-                        )
-                    )}
+                    <Grid container>
+                      {weatherStationsData?.map(
+                        (station) =>
+                          values?.weatherStation === station?.station_id && (
+                            <FormControlLabel
+                              key={station?.station_id}
+                              value={station?.station_id}
+                              control={
+                                <Radio
+                                  checked={
+                                    values?.weatherStation ===
+                                    station?.station_id
+                                  }
+                                />
+                              }
+                              disabled
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  {station?.station_name}
+                                </Typography>
+                              }
+                            />
+                          )
+                      )}
+                    </Grid>
                   </Grid>
-                </Grid>
+                )}
                 <Grid item>
                   <Typography
                     variant="h6"
@@ -274,41 +280,43 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                     ))}
                   </Box>
                 </Grid>
-                <Grid item>
-                  <Grid container>
-                    <Typography
-                      variant="h6"
-                      sx={headingStyleInAccordion}
-                      mb={"1rem !important"}
-                    >
-                      Select Dummy variable
-                    </Typography>
+                {values?.dummyVariables && (
+                  <Grid item>
+                    <Grid container>
+                      <Typography
+                        variant="h6"
+                        sx={headingStyleInAccordion}
+                        mb={"1rem !important"}
+                      >
+                        Select Dummy variable
+                      </Typography>
+                    </Grid>
+                    <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
+                      {values?.dummyVariables &&
+                        Object.keys(values?.dummyVariables)?.map((dummyVar) => (
+                          <FormGroup key={dummyVar}>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name={`dummyVariables?.${dummyVar}`}
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={values?.dummyVariables?.[dummyVar]}
+                                  disabled
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  {dummyVar}
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                        ))}
+                    </Box>
                   </Grid>
-                  <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
-                    {values?.dummyVariables &&
-                      Object.keys(values?.dummyVariables)?.map((dummyVar) => (
-                        <FormGroup key={dummyVar}>
-                          <FormControlLabel
-                            control={
-                              <Field
-                                name={`dummyVariables?.${dummyVar}`}
-                                type="checkbox"
-                                as={Checkbox}
-                                checked={values?.dummyVariables?.[dummyVar]}
-                                disabled
-                              />
-                            }
-                            sx={{ color: "text.secondary2" }}
-                            label={
-                              <Typography sx={{ fontSize: "14px!important" }}>
-                                {dummyVar}
-                              </Typography>
-                            }
-                          />
-                        </FormGroup>
-                      ))}
-                  </Box>
-                </Grid>
+                )}
                 <Grid item>
                   <Typography
                     variant="h6"
