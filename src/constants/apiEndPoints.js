@@ -220,4 +220,13 @@ export const BASELINE_ENDPOINTS = {
   INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   STATION_DETAILS: "weather/v1/get_station_details",
   BASELINE_PERIOD: "weather/v1/get_min_max_dates",
+  CHECK_ISSUES_DETAILS: "v1/check_issues",
+  SHOW_OBSERVE_DATA_LIST: "v1/handle",
+  ADD_BASELINE_DB: "company-facility/v1/baseline",
+  FETCH_BASELINE_DB: "company-facility/v1/getBaseline",
+  UPDATE_BASELINE_DB: "company-facility/v1/baseline",
+  FETCH_BASELINE_LIST_DB: "company-facility/v1/getBaselineList",
+  ADD_ASSIGNEE_DB: "company-facility/v1/baseline/addAssignee",
+  SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
+  SUBMIT_BASELINE_D_T: "model/v1/model_summary",
 };

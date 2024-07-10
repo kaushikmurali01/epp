@@ -75,7 +75,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/icon_2.svg' alt='icon_1' />
                             </figure>
                             <Stack className='text'>
-                                <Typography variant='span'>Earn incentives <br /> from the IESO </Typography>
+                                <Typography variant='span'>Earn incentives <br /> from Save on Energy</Typography>
                             </Stack>
 
 
@@ -123,7 +123,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/howItWorks/image_1.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
-                                <Typography  sx={{fontWeight: '600'}}>Create an account and sign Participant Agreement*</Typography>
+                                <Typography  sx={{fontWeight: '600'}}>Create an account</Typography>
                             </div>
 
                         </Grid>
@@ -141,7 +141,7 @@ const HowItWorks = () => {
                                 <img src='/images/landingPage/icons/howItWorks/image_3.svg' alt='image_1' />
                             </figure>
                             <div className='text'>
-                                <Typography  sx={{fontWeight: '600'}}>Start saving energy and earning incentives</Typography>
+                                <Typography  sx={{fontWeight: '600'}}>Sign Participant Agreement* and start saving energy and earning incentives</Typography>
                             </div>
 
                         </Grid>

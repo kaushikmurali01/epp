@@ -1,16 +1,44 @@
 import {
+  ADD_ASSIGNEE_TO_BASELINE_DB_FAILURE,
+  ADD_ASSIGNEE_TO_BASELINE_DB_REQUEST,
+  ADD_ASSIGNEE_TO_BASELINE_DB_SUCCESS,
+  ADD_BASELINE_DB_FAILURE,
+  ADD_BASELINE_DB_REQUEST,
+  ADD_BASELINE_DB_SUCCESS,
+  CLEAR_BASELINE_STATE,
+  FETCH_BASELINE_DETAILS_DB_FAILURE,
+  FETCH_BASELINE_DETAILS_DB_REQUEST,
+  FETCH_BASELINE_DETAILS_DB_SUCCESS,
+  FETCH_BASELINE_LIST_DB_FAILURE,
+  FETCH_BASELINE_LIST_DB_REQUEST,
+  FETCH_BASELINE_LIST_DB_SUCCESS,
   FETCH_BASELINE_PERIOD_FAILURE,
   FETCH_BASELINE_PERIOD_REQUEST,
   FETCH_BASELINE_PERIOD_SUCCESS,
+  FETCH_ISSUE_DETAILS_FAILURE,
+  FETCH_ISSUE_DETAILS_REQUEST,
+  FETCH_ISSUE_DETAILS_SUCCESS,
   FETCH_STATIONS_DETAILS_FAILURE,
   FETCH_STATIONS_DETAILS_REQUEST,
   FETCH_STATIONS_DETAILS_SUCCESS,
   INDEPENDENT_VARIABLE_LIST_FAILURE,
   INDEPENDENT_VARIABLE_LIST_REQUEST,
   INDEPENDENT_VARIABLE_LIST_SUCCESS,
+  SHOW_OBSERVE_DATA_FAILURE,
+  SHOW_OBSERVE_DATA_REQUEST,
+  SHOW_OBSERVE_DATA_SUCCESS,
+  SUBMIT_BASELINE_D_T_FAILURE,
+  SUBMIT_BASELINE_D_T_REQUEST,
+  SUBMIT_BASELINE_D_T_SUCCESS,
+  SUBMIT_REJECTED_BASELINE_DB_FAILURE,
+  SUBMIT_REJECTED_BASELINE_DB_REQUEST,
+  SUBMIT_REJECTED_BASELINE_DB_SUCCESS,
   SUFFICIENCY_CHECK_FAILURE,
   SUFFICIENCY_CHECK_REQUEST,
   SUFFICIENCY_CHECK_SUCCESS,
+  UPDATE_BASELINE_DETAILS_DB_FAILURE,
+  UPDATE_BASELINE_DETAILS_DB_REQUEST,
+  UPDATE_BASELINE_DETAILS_DB_SUCCESS,
 } from "../actionTypes";
 
 const initialState = {
@@ -18,6 +46,11 @@ const initialState = {
   independentVariableList: [],
   baselinePeriod: [],
   stationDetails: [],
+  issueDetails: [],
+  baselineDetailsDb: [],
+  baselineListDb: [],
+  observeData: [],
+  submittedBaseline_d_t: [],
   loading: false,
   error: null,
 };
@@ -100,6 +133,175 @@ const baselineReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    case FETCH_ISSUE_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ISSUE_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        issueDetails: action.payload,
+        error: null,
+      };
+    case FETCH_ISSUE_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADD_BASELINE_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADD_BASELINE_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADD_BASELINE_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_BASELINE_DETAILS_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_BASELINE_DETAILS_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        baselineDetailsDb: action.payload,
+        error: null,
+      };
+    case FETCH_BASELINE_DETAILS_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_BASELINE_DETAILS_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_BASELINE_DETAILS_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_BASELINE_DETAILS_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_BASELINE_LIST_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_BASELINE_LIST_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        baselineListDb: action.payload,
+        error: null,
+      };
+    case FETCH_BASELINE_LIST_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADD_ASSIGNEE_TO_BASELINE_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADD_ASSIGNEE_TO_BASELINE_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADD_ASSIGNEE_TO_BASELINE_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SUBMIT_REJECTED_BASELINE_DB_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SUBMIT_REJECTED_BASELINE_DB_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case SUBMIT_REJECTED_BASELINE_DB_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SHOW_OBSERVE_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SHOW_OBSERVE_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        observeData: action.payload,
+        error: null,
+      };
+    case SHOW_OBSERVE_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SUBMIT_BASELINE_D_T_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SUBMIT_BASELINE_D_T_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        submittedBaseline_d_t: action.payload,
+        error: null,
+      };
+    case SUBMIT_BASELINE_D_T_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case CLEAR_BASELINE_STATE:
+      return initialState;
     default:
       return state;
   }
