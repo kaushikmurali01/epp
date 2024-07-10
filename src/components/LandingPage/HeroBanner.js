@@ -77,7 +77,7 @@ const HeroBanner = () => {
                       )
                     }
                   >
-                    Learn More
+                    More details on SaveOnEnergy.ca
                   </Button>
                 </Tooltip>
               </Stack>
