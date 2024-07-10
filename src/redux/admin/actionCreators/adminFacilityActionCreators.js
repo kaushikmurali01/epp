@@ -14,6 +14,9 @@ import {
   FETCH_ADMIN_FACILITY_LIST_FAILURE,
   FETCH_ADMIN_FACILITY_LIST_REQUEST,
   FETCH_ADMIN_FACILITY_LIST_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
   FETCH_ADMIN_FACILITY_STATUS_FAILURE,
   FETCH_ADMIN_FACILITY_STATUS_REQUEST,
   FETCH_ADMIN_FACILITY_STATUS_SUCCESS,
@@ -81,6 +84,20 @@ export const fetchAdminFacilityListSuccess = (data) => ({
 
 export const fetchAdminFacilityListFailure = (error) => ({
   type: FETCH_ADMIN_FACILITY_LIST_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListActiveRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
+});
+
+export const fetchAdminFacilityListActiveSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListActiveFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
   payload: error,
 });
 

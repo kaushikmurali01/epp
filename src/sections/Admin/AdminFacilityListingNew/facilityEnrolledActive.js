@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
     deleteAdminFacility,
     downloadFacilityRowData,
+    fetchAdminFacilityActiveListing,
     fetchAdminFacilityListing,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -35,6 +36,7 @@ const FacilityEnrolledActive = ({
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [facilityToDelete, setFacilityToDelete] = useState("");
+    const data =  pageInfo + [{"key":"country","value":"Can"},{"key":"facility_category","value":"p"}];
 
     const customizeColumnsDropdownData = [
         { id: 1, name: "ABC" },
@@ -42,15 +44,10 @@ const FacilityEnrolledActive = ({
     ];
 
     const debouncedSearch = debounce(
-        (pageInfo, searchString, company_filter, sort_Column, sort_Order) => {
+        (payload) => {
             dispatch(
-                fetchAdminFacilityListing(
-                    pageInfo,
-                    "",
-                    searchString,
-                    company_filter,
-                    sort_Column,
-                    sort_Order
+                fetchAdminFacilityActiveListing(
+                    payload
                 )
             );
         },
@@ -71,7 +68,14 @@ const FacilityEnrolledActive = ({
     }
 
     useEffect(() => {
-        debouncedSearch(pageInfo, searchVal, companyFilter, sortColumn, sortOrder);
+        let payload = {
+            "data": searchData,
+            "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+            "limit": pageInfo.pageSize,
+            // "col_name": sortByCol,
+            // "order":sortOrder,            
+          }
+        debouncedSearch(payload);
         return () => {
             debouncedSearch.cancel();
         };
@@ -83,13 +87,14 @@ const FacilityEnrolledActive = ({
         companyFilter,
         sortColumn,
         sortOrder,
+        searchData
     ]);
 
     const adminFacilityData = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityList?.data?.rows || []
+        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.rows || []
     );
     const adminFacilityCount = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityList?.data?.count || []
+        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.count || []
     );
     const openDeleteFacilityModal = (facilityId) => {
         setFacilityToDelete(facilityId);
@@ -282,30 +287,35 @@ const FacilityEnrolledActive = ({
     const columns = [
         {
             Header: "Framework",
-            accessor: "id",
-            accessorKey: "id",
-            isSearch: true,
+            accessor: (item) => <> 2021-2024</>
         },
         {
             Header: "Facility UBI",
-            accessor: "facility_name",
-            accessorKey: "facility_name",
+            accessor: "facility_ubi",
+            accessorKey: "facility_ubi",
             isSearch: true,
         },
         {
             Header: "Company name",
-            accessor: (item) => <>{item?.company?.company_name}</>,
+            accessor: "company_name",
+            accessorKey: "company_name",
             isSearch: true,
         },
         {
             Header: "User name",
-            accessor: (item) => <>{item?.submitted_by?.first_name}</>,
+            accessor: "first_name",
+            accessorKey: "first_name",
             isSearch: true,
         },
         {
             Header: "Application stage",
-            accessor: (item) => <>{item?.submitted_by?.stage}</>,
-            isSearch: true,
+            accessor: (item) => <>{item?.facility_id_general_status == 0 ? 'Draft' :
+            item?.facility_id_general_status == 1 ? 'Create Facility' :
+            item?.facility_id_general_status == 2 ? 'Enter Facility Data' :
+            item?.facility_id_general_status == 3 ? 'Submit Facility' :
+            item?.facility_id_general_status == 3 ? 'Accept Baseline Modal' :
+            'Program Start'
+            }</>,
         },
         {
             Header: "Actions",
@@ -357,6 +367,7 @@ const FacilityEnrolledActive = ({
                             fontSize: "0.875rem",
                         }}
                         onClick={() => openAlertModal(item?.company_id)}
+                        disabled
                     >
                         Logs
                     </Button>
