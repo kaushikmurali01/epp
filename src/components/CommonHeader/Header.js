@@ -717,7 +717,7 @@ function Header(props) {
                   component="a"
                   onClick={handleRedirect}
                 >
-                  Login/Sign up
+                  Log in/Sign up
                 </Button>
               </Box>
               <Box sx={{ display: { sm: "", md: "none" } }}>
@@ -793,7 +793,7 @@ function Header(props) {
                         onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
-                        Login/Sign up
+                        Log in/Sign up
                       </Button>
                     </MenuItem>
                     {/* <MenuItem>
