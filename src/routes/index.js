@@ -1,6 +1,7 @@
 import React, { lazy, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { Box, Button, List, ListItem, Modal, Typography, styled } from "@mui/material";
+import { Box, Button, List, ListItem, ListItemIcon, ListItemText, Modal, Typography, styled } from "@mui/material";
+import { Visibility, Create, Description, People } from "@mui/icons-material";
 import DashboardRoutes from "./dashboard";
 import {
   AuthenticatedTemplate,
@@ -107,6 +108,21 @@ const RoutesComp = () => {
         });
   }, []);
 
+  const accessItems = [
+    {
+      text: "View all the facilities that have been created and/or submitted",
+    },
+    {
+      text: "Create facilities, enter/edit data for them and submit them for baseline energy modelling",
+    },
+    {
+      text: "Review, sign and/or download the Participant Agreement",
+    },
+    {
+      text: "View and update the user list for the company including managing individual user permissions",
+    },
+  ];
+
   return userDetails?.type ? (
     <>
       <CommonLayout>
@@ -163,7 +179,7 @@ const RoutesComp = () => {
             </Typography>
           </Box>
 
-          <List
+          {/* <List
             disablePadding
             className="welcomeModalList"
             sx={{
@@ -233,8 +249,24 @@ const RoutesComp = () => {
             >
               Review and accept Baseline Energy Model
             </ListItem>
-          </List>
+          </List> */}
 
+          <Typography variant="body2" gutterBottom>
+            Depending on the access you have been granted, you can do the
+            following:
+          </Typography>
+          <List sx={{padding: 0}}>
+            {accessItems.map((item, index) => (
+              <ListItem key={index}>
+                <ListItemText secondaryTypographyProps={{color: "#242424"}} secondary={`${index + 1}) ${item.text}`} />
+              </ListItem>
+            ))}
+          </List>
+          <Typography variant="body2" style={{ marginTop: "16px" }}>
+            If you have not been granted any access yet by the administrators
+            for the company, you will not be able to see anything. Please
+            contact them to get your access.
+          </Typography>
           <Box
             sx={{
               width: "100%",
