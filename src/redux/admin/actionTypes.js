@@ -340,3 +340,8 @@ export const SUBMIT_ADMIN_BASELINE_D_T_SUCCESS =
   "SUBMIT_ADMIN_BASELINE_D_T_SUCCESS";
 export const SUBMIT_ADMIN_BASELINE_D_T_FAILURE =
   "SUBMIT_ADMIN_BASELINE_D_T_FAILURE";
+
+//---------------------------------STATE  CLEAR TYPES--------------------------------
+
+
+export const CLEAR_ADMIN_BASELINE_STATE = "CLEAR_ADMIN_BASELINE_STATE";

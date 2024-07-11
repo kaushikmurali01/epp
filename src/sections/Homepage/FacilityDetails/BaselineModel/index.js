@@ -1,19 +1,12 @@
 import {
   Breadcrumbs,
-  Button,
   Grid,
   Link,
   Stack,
   Tab,
   Tabs,
   Typography,
-  styled,
   useMediaQuery,
-  Slider,
-  Box,
-  FormGroup,
-  FormControlLabel,
-  Checkbox,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import EvModal from "utils/modal/EvModal";
@@ -21,16 +14,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import DataExplorationTab from "sections/Homepage/FacilityDetails/BaselineModel/DataExplorationTab";
 import BaselineModelTab from "sections/Homepage/FacilityDetails/BaselineModel/BaselineModelTab";
-import SufficiencySettingsModalForm from "sections/Homepage/FacilityDetails/BaselineModel/SufficiencySettingsModalForm";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
-import {
-  clearBaselineStateAction,
-  fetchBaselineDetailsFromDb,
-  fetchIndependentVariableList,
-  submitRejectedBaselineDB,
-} from "../../../../redux/superAdmin/actions/baselineAction";
-import BaselineSuccessModal from "./BaselineSuccessModal";
+
 import EnrollmentModal from "./EnrollmentModal";
 
 export const getSummaryDataByMeterType = (dataToGet, meterType) => {
@@ -45,6 +31,12 @@ const BaselineModel = () => {
   const [tabValue, setTabValue] = useState("dataExploration");
   const isMediumScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const loadingState = useSelector((state) => state?.baselineReducer?.loading);
+  const baselinePeriodLoading = useSelector(
+    (state) => state?.baselineReducer?.baselinePeriodLoading
+  );
+  const sufficiencyCheckLoading = useSelector(
+    (state) => state?.baselineReducer?.sufficiencyCheckLoading
+  );
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -233,7 +225,9 @@ const BaselineModel = () => {
       <Loader
         sectionLoader
         minHeight="100vh"
-        loadingState={loadingState}
+        loadingState={
+          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
+        }
         loaderPosition="fixed"
       />
     </Grid>

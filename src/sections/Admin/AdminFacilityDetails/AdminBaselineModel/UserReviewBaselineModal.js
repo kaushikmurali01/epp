@@ -2,17 +2,30 @@ import { Button, Grid, Typography } from "@mui/material";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
+import {
+  fetchAdminBaselineDetailsFromDb,
+  updateAdminBaselineInDb,
+} from "../../../../redux/admin/actions/adminBaselineAction";
 
-const UserReviewBaselineModal = ({ setUserReviewBaselineModalConfig }) => {
+const UserReviewBaselineModal = ({
+  setUserReviewBaselineModalConfig,
+  baseline_id,
+  updatedBaselineData,
+}) => {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const handleReviewRequest = (data) => {
-    //use edit baseline api with baseline data and status : "REVIEWED"
+  const handleReviewRequest = () => {
     setUserReviewBaselineModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,
     }));
+    dispatch(updateAdminBaselineInDb(baseline_id, updatedBaselineData)).then(
+      (res) => {
+        dispatch(fetchAdminBaselineDetailsFromDb(id));
+      }
+    );
   };
+
   return (
     <Grid
       container
