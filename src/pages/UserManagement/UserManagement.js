@@ -39,6 +39,8 @@ const UserManagement = () => {
   // for pagination
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [pageCount, setPageCount] = useState('');
+  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
+  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
 
   // selector 
   const hasToken = localStorage.getItem("accessToken");
@@ -227,15 +229,22 @@ const UserManagement = () => {
     setInviteAPIURL(apiURL)
   }
 
-  const getUserManagementData = (pageDataInfo, search) => {
+  const getUserManagementData = (pageDataInfo, search,sortByCol,sortOrder) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // const allUserTypes = selectFilterType;
-    const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+    let filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
+      filterApiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+      filterApiURL += sortOrder ? `&order=${sortOrder}` : "";
 
-    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+    let apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
+      apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+      apiURL += sortOrder ? `&order=${sortOrder}` : "";
 
+      // console.log(apiURL, 'apiurl')
+      // console.log(filterApiURL, 'filterApiURL')
+      // return;
     const getAPI_Data = (url) => {
       GET_REQUEST(url)
         .then((res) => {
@@ -319,16 +328,16 @@ const UserManagement = () => {
     }
   }, [getIndividualCompanyList, getAllCompanyList]);
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    getUserManagementData(pageInfo, searchString);
+  const debouncedSearch = debounce((pageInfo, searchString, sortCustomerColumn,sortCustomerOrder) => {
+    getUserManagementData(pageInfo, searchString, sortCustomerColumn,sortCustomerOrder);
   }, 300);
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString,sortCustomerColumn,sortCustomerOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType]);
+  }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType, sortCustomerColumn,sortCustomerOrder]);
 
 
   useEffect(() => {
@@ -455,7 +464,14 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                 count={pageCount}
                 pageInfo={pageInfo}
                 setPageInfo={setPageInfo}
-                headbgColor="rgba(217, 217, 217, 0.2)" />}
+                headbgColor="rgba(217, 217, 217, 0.2)" 
+
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
+                />}
+                
             </Grid>
           </Container>
 
