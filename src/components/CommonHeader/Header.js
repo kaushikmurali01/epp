@@ -304,7 +304,7 @@ function Header(props) {
 
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
-          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+          const successMessage = response.data.status === 200 ? `Your request to join ${response?.data?.company?.company_name} has been submitted. The company’s administrators will review your request.` : response.data.message;
 
           setModalConfig((prevState) => ({
             ...prevState,
@@ -717,7 +717,7 @@ function Header(props) {
                   component="a"
                   onClick={handleRedirect}
                 >
-                  Login/Sign up
+                  Log in/Sign up
                 </Button>
               </Box>
               <Box sx={{ display: { sm: "", md: "none" } }}>
@@ -793,7 +793,7 @@ function Header(props) {
                         onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
-                        Login/Sign up
+                        Log in/Sign up
                       </Button>
                     </MenuItem>
                     {/* <MenuItem>
