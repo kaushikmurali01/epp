@@ -108,6 +108,8 @@ class CompanyService {
                     [sequelize.col('User.first_name'), 'first_name'],
                     [sequelize.col('User.last_name'), 'last_name'],
                     [sequelize.col('User.email'), 'email'],
+                    [sequelize.col('User.phonenumber'), 'phonenumber'],
+                    [sequelize.col('Company.company_name'), 'company_name'],
                 ],
                 include: [
                     {
@@ -116,6 +118,11 @@ class CompanyService {
                     },
                     {
                         model: Role,
+                        attributes: []
+
+                    },
+                    {
+                        model: Company,
                         attributes: []
 
                     }
@@ -312,60 +319,65 @@ const andArray = data.filter(item => item.key !== "city");
      */
     static async listCompanies(offset, limit, searchPromt, companyFilter, order, colName): Promise<any[]> {
         try {
+            // let filterCheck = ""
+            // if (companyFilter && companyFilter > 0) {
+            //     filterCheck = `AND c.company_type=${companyFilter}`
+            // }
+            // let [count, rows]: any = await Promise.all([rawQuery(`SELECT COUNT(*) AS count FROM "company" c
+            // INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+            // INNER JOIN "users" u ON cr.user_id = u.id
+            // WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), 
+            
+            // rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
+            // INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+            // INNER JOIN "users" u ON cr.user_id = u.id
+            // WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`, {
+            //     limit: limit,
+            //     offset: offset
+            // })])
+            
+            // New start
             let filterCheck = ""
             if (companyFilter && companyFilter > 0) {
                 filterCheck = `AND c.company_type=${companyFilter}`
             }
-            let [count, rows]: any = await Promise.all([rawQuery(`SELECT COUNT(*) AS count FROM "company" c
-            INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
-            INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%')`), rawQuery(`SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
-            INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
-            INNER JOIN "users" u ON cr.user_id = u.id
-            WHERE cr.role_id= 1 ${filterCheck} AND (c.company_name ILIKE '%${searchPromt}%' or u.first_name ILIKE '%${searchPromt}%') ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`, {
-                limit: limit,
-                offset: offset
-            })])
-            // role =1 for super admin
-            // const companies = await Company.findAll(
-            //     {
-            //         include: [
-            //             {
-            //                 model: User,
-            //                 through: {
-            //                     model: UserCompanyRole,
-            //                     where: { role_id: 1 }, // Filter by role = 1 for superAdmin
-            //                 }
-            //             }
-            //         ],
-            //         where: {
-            //             [Op.or]: [
-            //                 { company_name: { [Op.iLike]: `%${searchPromt}%` } }, // Search for companies by name
-            //                 { '$users.first_name$': { [Op.iLike]: `%${searchPromt}%` } },// Search for users by firstname
-            //                 { '$users.last_name$': { [Op.iLike]: `%${searchPromt}%` } } // Search for users by last_name
-            //             ]
-            //         }
-            //     });
-
-            // {
-            //     where: {
-            //         [Op.or]: [
-            //             { company_name: { [Op.iLike]: `%${searchPromt}%` } },
-            //             { id: searchPromt },
-            //         ]
-            //     },
-            //     offset: offset,
-            //     limit: limit,
-            //     attributes: ['company_name', 'id', 'company_type', 'is_active']
-            // }
-            // );
-            // const data = companies.map(user => ({
-            //     company_type: 'Customer',
-            //     email: "test@test.com",
-            //     superAdmin: "Test Admin",
-            //     status: "Active",
-            //     ...user.toJSON()
-            // }));
+            
+            let [count, rows]: any = await Promise.all([
+                rawQuery(`SELECT COUNT(*) AS count 
+                          FROM "company" c
+                          INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+                          INNER JOIN "users" u ON cr.user_id = u.id
+                          WHERE cr.role_id = 1 ${filterCheck} 
+                            AND (c.company_name ILIKE '%${searchPromt}%' 
+                                 OR u.first_name ILIKE '%${searchPromt}%')`),
+                
+                rawQuery(`SELECT c.*, 
+                                 u.id as user_id,
+                                 u.first_name as first_name,
+                                 u.last_name as last_name,
+                                 u.email as email,
+                                 uc.count,
+                                 pa.is_signed as is_pa_signed
+                          FROM "company" c
+                          INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
+                          INNER JOIN "users" u ON cr.user_id = u.id
+                          LEFT JOIN (
+                              SELECT company_id, COUNT(*) AS count
+                              FROM "user_company_role"
+                              GROUP BY company_id
+                          ) uc ON c.id = uc.company_id
+                           LEFT JOIN "participant_agreement" pa on c.id = pa.company_id
+                          WHERE cr.role_id = 1 ${filterCheck} 
+                            AND (c.company_name ILIKE '%${searchPromt}%' 
+                                 OR u.first_name ILIKE '%${searchPromt}%') 
+                          ORDER BY ${colName} ${order} 
+                          LIMIT :limit OFFSET :offset`, {
+                    limit: limit,
+                    offset: offset
+                })
+            ]);
+            
+            // New end
             return [count[0].count, rows];
         } catch (error) {
             throw error;
