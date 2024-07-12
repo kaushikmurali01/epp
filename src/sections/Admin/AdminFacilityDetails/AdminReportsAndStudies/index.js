@@ -52,11 +52,11 @@ const AdminReportsAndStudies = () => {
   const [selectedDocsFilter, setSelectedDocsFilter] = useState("");
   const [measurePageInfo, setMeasurePageInfo] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 5,
   });
   const [documentPageInfo, setDocumentPageInfo] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 5,
   });
 
   useEffect(() => {
