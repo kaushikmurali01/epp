@@ -54,7 +54,6 @@ const CompanyManageUserAccess = () => {
       cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
       saveButtonName: "Yes, Delete!",
       cancelButtonName: "No, Cancel",  
-
     },
     headerText: "",
     headerSubText: "",
@@ -361,10 +360,10 @@ const handelDelete = (item, setModalConfig) => {
                 searchData={searchData}
                 setSearchData={setSearchData}
 
-                // setSortColumn={setSortCustomerColumn}
-                // setSortOrder={setSortCustomerOrder}
-                // sortColumn={sortCustomerColumn}
-                // sortOrder={sortCustomerOrder}
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
               
               />
       </Box>

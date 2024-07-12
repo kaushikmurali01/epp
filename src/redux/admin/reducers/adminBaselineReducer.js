@@ -38,6 +38,7 @@ import {
   SUBMIT_ADMIN_BASELINE_D_T_REQUEST,
   SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
   SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
+  CLEAR_ADMIN_BASELINE_STATE,
 } from "../actionTypes";
 
 const initialState = {
@@ -51,6 +52,8 @@ const initialState = {
   submittedBaseline_d_t: [],
   observeData: [],
   loading: false,
+  sufficiencyCheckLoading: false,
+  baselinePeriodLoading: false,
   error: null,
 };
 
@@ -59,20 +62,20 @@ const adminBaselineReducer = (state = initialState, action) => {
     case ADMIN_SUFFICIENCY_CHECK_REQUEST:
       return {
         ...state,
-        loading: true,
+        sufficiencyCheckLoading: true,
         error: null,
       };
     case ADMIN_SUFFICIENCY_CHECK_SUCCESS:
       return {
         ...state,
-        loading: false,
+        sufficiencyCheckLoading: false,
         sufficiencyCheckData: action.payload,
         error: null,
       };
     case ADMIN_SUFFICIENCY_CHECK_FAILURE:
       return {
         ...state,
-        loading: false,
+        sufficiencyCheckLoading: false,
         error: action.payload,
       };
     case ADMIN_INDEPENDENT_VARIABLE_LIST_REQUEST:
@@ -97,20 +100,20 @@ const adminBaselineReducer = (state = initialState, action) => {
     case FETCH_ADMIN_BASELINE_PERIOD_REQUEST:
       return {
         ...state,
-        loading: true,
+        baselinePeriodLoading: true,
         error: null,
       };
     case FETCH_ADMIN_BASELINE_PERIOD_SUCCESS:
       return {
         ...state,
-        loading: false,
+        baselinePeriodLoading: false,
         baselinePeriod: action.payload,
         error: null,
       };
     case FETCH_ADMIN_BASELINE_PERIOD_FAILURE:
       return {
         ...state,
-        loading: false,
+        baselinePeriodLoading: false,
         error: action.payload,
       };
     case FETCH_ADMIN_STATIONS_DETAILS_REQUEST:
@@ -299,6 +302,8 @@ const adminBaselineReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+    case CLEAR_ADMIN_BASELINE_STATE:
+      return initialState;
     default:
       return state;
   }

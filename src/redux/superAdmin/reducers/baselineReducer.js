@@ -52,6 +52,8 @@ const initialState = {
   observeData: [],
   submittedBaseline_d_t: [],
   loading: false,
+  sufficiencyCheckLoading: false,
+  baselinePeriodLoading: false,
   error: null,
 };
 
@@ -60,20 +62,20 @@ const baselineReducer = (state = initialState, action) => {
     case SUFFICIENCY_CHECK_REQUEST:
       return {
         ...state,
-        loading: true,
+        sufficiencyCheckLoading: true,
         error: null,
       };
     case SUFFICIENCY_CHECK_SUCCESS:
       return {
         ...state,
-        loading: false,
+        sufficiencyCheckLoading: false,
         sufficiencyCheckData: action.payload,
         error: null,
       };
     case SUFFICIENCY_CHECK_FAILURE:
       return {
         ...state,
-        loading: false,
+        sufficiencyCheckLoading: false,
         error: action.payload,
       };
     case INDEPENDENT_VARIABLE_LIST_REQUEST:
@@ -98,20 +100,20 @@ const baselineReducer = (state = initialState, action) => {
     case FETCH_BASELINE_PERIOD_REQUEST:
       return {
         ...state,
-        loading: true,
+        baselinePeriodLoading: true,
         error: null,
       };
     case FETCH_BASELINE_PERIOD_SUCCESS:
       return {
         ...state,
-        loading: false,
+        baselinePeriodLoading: false,
         baselinePeriod: action.payload,
         error: null,
       };
     case FETCH_BASELINE_PERIOD_FAILURE:
       return {
         ...state,
-        loading: false,
+        baselinePeriodLoading: false,
         error: action.payload,
       };
     case FETCH_STATIONS_DETAILS_REQUEST:

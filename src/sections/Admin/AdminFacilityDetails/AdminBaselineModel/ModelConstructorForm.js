@@ -23,8 +23,10 @@ import { checkBoxButtonStyle } from "./styles";
 import { useDispatch, useSelector } from "react-redux";
 import {
   adminSufficiencyCheck,
+  fetchAdminBaselineDetailsFromDb,
   fetchAdminBaselinePeriod,
   submitAdminBaselineDt,
+  updateAdminBaselineInDb,
 } from "../../../../redux/admin/actions/adminBaselineAction";
 import {
   COOLING_BALANCE_UNIT_ARRAY,
@@ -34,6 +36,7 @@ import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
+import { getSummaryDataByMeterType } from ".";
 
 const ModelConstructorForm = ({
   handleSufficiencySettings,
@@ -61,11 +64,14 @@ const ModelConstructorForm = ({
   const [baselineEndDate, setBaselineEndDate] = useState("");
   const [activateCalculateBaseline, setActivateCalculateBaseline] =
     useState(true);
+  const [disableSeeDetails, setDisableSeeDetails] = useState(false);
   const [dataForCalculateBaseline, setDateForCalculateBaseline] = useState("");
-
+  const baselineListData = useSelector(
+    (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data || []
+  );
   useEffect(() => {
     setBaselinePeriodLoading(true);
-    dispatch(fetchAdminBaselinePeriod(24, meterType))
+    dispatch(fetchAdminBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
         res?.start_date &&
@@ -83,9 +89,6 @@ const ModelConstructorForm = ({
 
   const independentVariables = useSelector(
     (state) => state?.adminBaselineReducer?.independentVariableList
-  );
-  const facilityCreatedBy = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.created_by
   );
   const sufficiencyCheckData = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckData
@@ -154,6 +157,7 @@ const ModelConstructorForm = ({
         values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
     setActivateCalculateBaseline(true);
+    setDisableSeeDetails(false);
     dispatch(adminSufficiencyCheck(myData))
       .then((res) => {
         setBaselinePeriodFailed(false);
@@ -173,6 +177,7 @@ const ModelConstructorForm = ({
       })
       .catch((error) => {
         setActivateCalculateBaseline(true);
+        setDisableSeeDetails(true);
       });
   };
 
@@ -278,6 +283,7 @@ const ModelConstructorForm = ({
             fontWeight: 400,
           }}
           onClick={handleSufficiencySettings}
+          disabled
         >
           Sufficiency setting
         </Typography>
@@ -297,9 +303,9 @@ const ModelConstructorForm = ({
             fontWeight: 400,
           }}
           onClick={() => {
-            openSeeDetails(baselineStartDate, baselineEndDate);
+            openSeeDetails(null, baselineStartDate, baselineEndDate);
           }}
-          disabled={sufficiencyCheckData?.status === "failed"}
+          disabled={disableSeeDetails}
         >
           See details
         </Typography>
@@ -359,11 +365,29 @@ const ModelConstructorForm = ({
       </Grid>
     );
   }
+  const getIdByMeterType = (meter_type) => {
+    const meter = getSummaryDataByMeterType(baselineListData, meter_type);
+    return meter ? meter?.id : null;
+  };
 
   const onCalculateBaselineButtonClick = () => {
     const data = { ...dataForCalculateBaseline, ...modelApproachData };
     dispatch(submitAdminBaselineDt(data))
-      .then((res) => {})
+      .then((res) => {
+        const updatedBaselineData = {
+          status: "REVIEWED",
+          data: {
+            ...data,
+            ...res,
+            ...sufficiencyCheckData,
+          },
+        };
+
+        const baseline_id = getIdByMeterType(meterType);
+        if (baseline_id) {
+          openUserReviewBaselineModal(baseline_id, updatedBaselineData);
+        }
+      })
       .catch((err) => {});
   };
 

@@ -20,8 +20,17 @@ import BaselineModelTab from "./BaselineModelTab";
 import SufficiencySettingsModalForm from "./SufficiencySettingsModalForm";
 import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
-import { fetchAdminIndependentVariableList } from "../../../../redux/admin/actions/adminBaselineAction";
-import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
+import {
+  clearAdminBaselineStateAction,
+  fetchAdminBaselineDetailsFromDb,
+  fetchAdminIndependentVariableList,
+  fetchAdminStationsDetails,
+} from "../../../../redux/admin/actions/adminBaselineAction";
+
+export const getSummaryDataByMeterType = (dataToGet, meterType) => {
+  const meter = dataToGet?.find((item) => item?.meter_type === meterType);
+  return meter;
+};
 
 const AdminBaselineModel = () => {
   const navigate = useNavigate();
@@ -32,13 +41,19 @@ const AdminBaselineModel = () => {
   const loadingState = useSelector(
     (state) => state?.adminBaselineReducer?.loading
   );
-
-  const baselinePeriod = useSelector(
-    (state) => state?.adminBaselineReducer?.baselinePeriod
+  const baselinePeriodLoading = useSelector(
+    (state) => state?.adminBaselineReducer?.baselinePeriodLoading
   );
-
+  const sufficiencyCheckLoading = useSelector(
+    (state) => state?.adminBaselineReducer?.sufficiencyCheckLoading
+  );
   useEffect(() => {
+    dispatch(fetchAdminBaselineDetailsFromDb(id));
     dispatch(fetchAdminIndependentVariableList(id));
+    dispatch(fetchAdminStationsDetails(id));
+    return () => {
+      dispatch(clearAdminBaselineStateAction());
+    };
   }, [dispatch, id]);
 
   const [modalConfig, setModalConfig] = useState({
@@ -80,39 +95,6 @@ const AdminBaselineModel = () => {
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-  };
-
-  const isAgreementSigned = true;
-
-  const submitFacilityModalBodyContent = !isAgreementSigned ? (
-    "We have received your enrollment request and will review it shortly. Our team will check the facility eligibility and other criteria to approve your request. Please note that this process may take some time. We appreciate your patience and understanding. Once your request is approved, you will receive a Notice of Approval. Thank you for choosing our program!"
-  ) : (
-    <>
-      In order to submit your facility, signing Participant Agreement is
-      required.
-      <Button
-        sx={{ marginTop: "1rem" }}
-        variant="contained"
-        onClick={() => navigate("/participant-agreement")}
-      >
-        Go to Participant Agreement
-      </Button>
-    </>
-  );
-
-  const handleSubmitFacility = () => {
-    setModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      buttonsUI: {
-        ...prevState.buttonsUI,
-        saveButton: false,
-        cancelButton: false,
-      },
-      headerText: <img src="images/new_user_popup_icon.svg" alt="popup" />,
-      headerSubText: "Thank you for your interest!",
-      modalBodyContent: submitFacilityModalBodyContent,
-    }));
   };
 
   const handleSufficiencySettingsModel = () => {
@@ -235,28 +217,6 @@ const AdminBaselineModel = () => {
               />
             </Tabs>
           </Grid>
-          {tabValue === "baselineModel" && (
-            <Grid container xs={12} md={6} justifyContent="space-between">
-              <FormGroup>
-                <FormControlLabel
-                  control={<Checkbox />}
-                  sx={{ color: "text.secondary2" }}
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      Baseline model accepted
-                    </Typography>
-                  }
-                />
-              </FormGroup>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSubmitFacility}
-              >
-                Submit facility
-              </Button>
-            </Grid>
-          )}
         </Grid>
 
         {tabValue === "dataExploration" && <DataExplorationTab />}
@@ -265,15 +225,16 @@ const AdminBaselineModel = () => {
             handleSufficiencySettings={handleSufficiencySettingsModel}
           />
         )}
-
         <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       </Grid>
-      {/* <Loader
+      <Loader
         sectionLoader
         minHeight="100vh"
-        loadingState={loadingState}
+        loadingState={
+          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
+        }
         loaderPosition="fixed"
-      /> */}
+      />
     </Grid>
   );
 };

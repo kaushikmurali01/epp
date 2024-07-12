@@ -39,6 +39,7 @@ import {
   submitAdminBaselineDtRequest,
   submitAdminBaselineDtSuccess,
   submitAdminBaselineDtFailure,
+  clearAdminBaselineState,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -156,10 +157,6 @@ export const adminAddBaselineToDb = (facilityId, baselineData) => {
       const response = await POST_REQUEST(endpointWithParams, baselineData);
       const data = response.data;
       dispatch(adminAddBaselineDbSuccess(data));
-      NotificationsToast({
-        message: "Baseline added successfully",
-        type: "success",
-      });
       return data;
     } catch (error) {
       console.error(error);
@@ -188,20 +185,21 @@ export const fetchAdminBaselineDetailsFromDb = (facilityId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
 
-export const updateAdminBaselineInDb = (facilityId) => {
+export const updateAdminBaselineInDb = (baselineId, baselineData) => {
   return async (dispatch) => {
     try {
       dispatch(updateAdminBaselineDetailsDbRequest());
-      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${facilityId}`;
-      const response = await PATCH_REQUEST(endpointWithParams);
+      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${baselineId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, baselineData);
       const data = response.data;
       dispatch(updateAdminBaselineDetailsDbSuccess(data));
       NotificationsToast({
-        message: "Baseline updated successfully",
+        message: "Baseline calculated successfully",
         type: "success",
       });
       return data;
@@ -212,6 +210,7 @@ export const updateAdminBaselineInDb = (facilityId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -326,4 +325,8 @@ export const submitAdminBaselineDt = (baselineParameters) => {
       throw error;
     }
   };
+};
+
+export const clearAdminBaselineStateAction = () => (dispatch) => {
+  dispatch(clearAdminBaselineState());
 };
