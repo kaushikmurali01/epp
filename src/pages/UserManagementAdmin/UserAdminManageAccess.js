@@ -460,10 +460,6 @@ const UserAdminManageAccess = ({ }) => {
         
       }, [selectUserType])
 
-    console.log(selectUserType,selectCompanyType, getCompanyList, "selectUserType selectCompanyType")
-    console.log(getParams, "getParams")
-
-
     return (
         <Box component="section">
 
