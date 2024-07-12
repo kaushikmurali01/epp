@@ -372,6 +372,8 @@ export const validationSchemaAssignFacility = (emailToAvoid) => Yup.object().sha
     .of(Yup.number())
     .required("Facility is required")
     .min(1, "At least one facility is required"),
+    companyId: Yup.number()
+    .required("Please enter Password") 
 });
 
 // Change Password Validation schema

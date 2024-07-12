@@ -76,6 +76,12 @@ import {
   deleteAdminFacilityDocumentRequest,
   deleteAdminFacilityDocumentSuccess,
   deleteAdminFacilityDocumentFailure,
+  fetchAdminFacilityListActiveRequest,
+  fetchAdminFacilityListActiveSuccess,
+  fetchAdminFacilityListActiveFailure,
+  fetchAdminFacilityListInProcessRequest,
+  fetchAdminFacilityListInProcessSuccess,
+  fetchAdminFacilityListInProcessFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 import { FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST } from "../actionTypes";
 
@@ -102,6 +108,44 @@ export const fetchAdminFacilityListing = (
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminFacilityListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityActiveListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListActiveRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_ACTIVE;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListActiveSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListActiveFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityInProcessListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListInProcessRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_INPROCESS;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListInProcessSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListInProcessFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

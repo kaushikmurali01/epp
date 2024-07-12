@@ -207,7 +207,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           window.scrollTo({
             top: 0,
             behavior: 'smooth' // for smooth scrolling
-        });
+          });
         })
         .catch((error) => {
           console.error("Error updating meter:", error);
@@ -219,7 +219,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           window.scrollTo({
             top: 0,
             behavior: 'smooth' // for smooth scrolling
-        });
+          });
         })
         .catch((error) => {
           console.error("Error adding meter:", error);
@@ -279,7 +279,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
             <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
               <Grid container spacing={4}>
                 <Grid item>
-                  <InputLabel htmlFor="meter_type">Meter Type*</InputLabel>
+                  <InputLabel htmlFor="meter_type">Meter Type<span className="asterisk">*</span></InputLabel>
                   <Field name="meter_type">
                     {({ field, form }) => (
                       <ToggleButtonGroup
@@ -400,7 +400,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Is meter still in use? *"
+                            label="Is meter still in use?"
                           />
                         )}
                       </Field>
@@ -409,7 +409,9 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       <Typography sx={{ fontSize: "14px!important" }}>
                         {values.meter_inactive && !values.stil_in_use
                           ? "Is meter still in use?"
-                          : "Is meter still in use? *"}
+                          : "Is meter still in use?"}
+                        {/* {values.meter_inactive && !values.still_in_use ? '' :
+                          <span className="asterisk">*</span>} */}
                       </Typography>
                     }
                   />
@@ -421,7 +423,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     htmlFor="meter_active"
                     style={{ whiteSpace: "initial" }}
                   >
-                    Date meter became active <span className="asterisk">*</span>
+                    Date meter became active
                   </InputLabel>
                   <DatePicker
                     id="meter_active"
@@ -487,7 +489,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this a revenue-grade meter? *
+                    Is this a revenue-grade meter?<span className="asterisk">*</span>
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
@@ -520,7 +522,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4} sx={{ marginTop: "10px" }}>
-                  <InputLabel>Upload the most recent utility bill *</InputLabel>
+                  <InputLabel>Upload the most recent utility bill<span className="asterisk">*</span></InputLabel>
                   {!utilitySelectedFile ? (
                     <>
                       <Typography
@@ -618,7 +620,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   <Grid item xs={12} sm={6} sx={{ marginTop: "10px" }}>
                     <InputLabel style={{ whiteSpace: "initial" }}>
                       Upload meter specification as per Measurement Canada
-                      S-E-04 *
+                      S-E-04<span className="asterisk">*</span>
                     </InputLabel>
                     {!specSelectedFile ? (
                       <>

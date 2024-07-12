@@ -37,6 +37,7 @@ import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminC
 import NotificationsToast from "utils/notification/NotificationsToast";
 import Loader from "pages/Loader";
 import FacilityEnrolledActive from "./facilityEnrolledActive";
+import FacilityEnrolledInProcess from "./facilityEnrolledInProcess";
 
 const AdminFacilityListingNew = () => {
   const navigate = useNavigate();
@@ -221,6 +222,27 @@ const AdminFacilityListingNew = () => {
                 </FormControl>
               </FormGroup>
             </Stack>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <InputLabel>Assign Facility*</InputLabel>
+                <FormControl sx={{ color: "primary.main" }}>
+                  <Select
+                    fullWidth
+                    name="facilityId"
+                    value={values.facilityId}
+                    onChange={(e) => {
+                      setFieldValue("facilityId", e.target.value);
+                    }}
+                  >
+                    {adminFacilitiesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.facility_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FormGroup>
+            </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
               <ButtonWrapper type="submit" variant="contained">
                 Submit
@@ -253,9 +275,9 @@ const AdminFacilityListingNew = () => {
             setPageInfo={setPageInfo}
           />
         );
-      case "approved":
+      case "in_process_facilities":
         return (
-          <FacilityApproved
+          <FacilityEnrolledInProcess
             searchVal={searchString}
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
@@ -370,7 +392,7 @@ const AdminFacilityListingNew = () => {
             label="Enrolled/Active Facilities" 
             sx={{ minWidth: "10rem" }} />
             <Tab
-              value="in_Process_facilities"
+              value="in_process_facilities"
               label="In-process Facilities"
               sx={{ minWidth: "10rem" }}
             />

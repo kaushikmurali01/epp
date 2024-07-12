@@ -63,6 +63,8 @@ export const adminFacilityEndpoints = {
     "company-facility/v1/facility-saving-document-details",
   DELETE_FACILITY_SAVING_DOCUMENT:
     "company-facility/v1/facility-saving-document",
+  ADMIN_FACILITY_LIST_ACTIVE: "company-facility/v1/facility-listing",
+  ADMIN_FACILITY_LIST_INPROCESS: "company-facility/v1/facility-inprocess",
 };
 
 export const PA_MANAGEMENT = {

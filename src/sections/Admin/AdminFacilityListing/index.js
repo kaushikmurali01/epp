@@ -220,6 +220,27 @@ const AdminFacilityListing = () => {
                 </FormControl>
               </FormGroup>
             </Stack>
+            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
+              <FormGroup className="theme-form-group theme-select-form-group">
+                <InputLabel>Assign Company*</InputLabel>
+                <FormControl sx={{ color: "primary.main" }}>
+                  <Select
+                    fullWidth
+                    name="companyId"
+                    value={values.companyId}
+                    onChange={(e) => {
+                      setFieldValue("companyId", e.target.value);
+                    }}
+                  >
+                    {adminCompaniesDropdownData?.map((item) => (
+                      <MenuItem key={item?.id} value={item?.id}>
+                        {item?.company_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </FormGroup>
+            </Stack>
             <Grid display="flex" sx={{ marginTop: "1rem" }}>
               <ButtonWrapper type="submit" variant="contained">
                 Submit

@@ -6,6 +6,7 @@ import {
     deleteAdminFacility,
     downloadFacilityRowData,
     fetchAdminFacilityActiveListing,
+    fetchAdminFacilityInProcessListing,
     fetchAdminFacilityListing,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -21,7 +22,7 @@ import { adminCompanySendAlert } from "../../../redux/admin/actions/adminCompany
 import * as Yup from "yup";
 import EvThemeTable from "components/Table/EvThemeTable";
 
-const FacilityEnrolledActive = ({
+const FacilityEnrolledInProcess = ({
     searchVal,
     companyFilter,
     onDownloadBulkClick,
@@ -36,7 +37,6 @@ const FacilityEnrolledActive = ({
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [facilityToDelete, setFacilityToDelete] = useState("");
-    const data =  pageInfo + [{"key":"country","value":"Can"},{"key":"facility_category","value":"p"}];
 
     const customizeColumnsDropdownData = [
         { id: 1, name: "ABC" },
@@ -46,7 +46,7 @@ const FacilityEnrolledActive = ({
     const debouncedSearch = debounce(
         (payload) => {
             dispatch(
-                fetchAdminFacilityActiveListing(
+                fetchAdminFacilityInProcessListing(
                     payload
                 )
             );
@@ -91,10 +91,10 @@ const FacilityEnrolledActive = ({
     ]);
 
     const adminFacilityData = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.rows || []
+        (state) => state?.adminFacilityReducer?.facilityInProcessList?.data?.rows || []
     );
     const adminFacilityCount = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.count || []
+        (state) => state?.adminFacilityReducer?.facilityInProcessList?.data?.count || []
     );
     const openDeleteFacilityModal = (facilityId) => {
         setFacilityToDelete(facilityId);
@@ -524,4 +524,4 @@ const FacilityEnrolledActive = ({
     );
 };
 
-export default FacilityEnrolledActive;
+export default FacilityEnrolledInProcess;
