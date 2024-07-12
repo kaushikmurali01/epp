@@ -397,7 +397,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Is meter still in use? *"
+                            label="Is meter still in use?"
                           />
                         )}
                       </Field>
@@ -406,7 +406,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                       <Typography sx={{ fontSize: "14px!important" }}>
                         {values.meter_inactive && !values.stil_in_use
                           ? "Is meter still in use?"
-                          : "Is meter still in use? *"}
+                          : "Is meter still in use?"}
                           {values.meter_inactive && !values.still_in_use ? '' :
                           <span className="asterisk">*</span>}
                       </Typography>
