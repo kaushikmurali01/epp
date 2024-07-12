@@ -39,7 +39,7 @@ const CompanyProfile = () => {
     },
     {
       Header: "Phone Number",
-      accessor: "phone_number",
+      accessor: "phonenumber",
     },
     {
       Header: "Business Email",
