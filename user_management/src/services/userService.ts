@@ -515,7 +515,7 @@ class UserService {
 
   // New FUnction start
 
-  static async getCombinedResults({ company, search, offset, limit }) {
+  static async getCombinedResults({ company, search, offset, limit, order, colName }) {
     const searchPattern = `%${search}%`;
     const commonQuery = `SELECT
     1 as entry_type,
@@ -582,7 +582,7 @@ class UserService {
     SELECT * FROM (
       ${commonQuery}
     ) AS combinedResults
-    ORDER BY id
+    ORDER by ${colName} ${order}
     OFFSET $3
     LIMIT $4;
   `;

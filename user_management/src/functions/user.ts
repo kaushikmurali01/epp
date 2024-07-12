@@ -997,6 +997,8 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
 
         const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
         if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+        let order = request.query.get('order') || 'ASC';
+        const colName = request.query.get('col_name') || 'id';
 
         let checkStatus = await CheckCompanyStatus(company_id)
         if (!checkStatus) {
@@ -1004,7 +1006,7 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
         }
             console.log("testing3333");
         // Get all users
-        const users = await UserService.getCombinedResults({company:companyId, search, offset, limit});
+        const users = await UserService.getCombinedResults({company:companyId, search, offset, limit, order, colName});
 
         // Prepare response body
         const responseBody = JSON.stringify(users);
