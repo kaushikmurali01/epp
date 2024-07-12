@@ -7,12 +7,12 @@ import {
   List,
   IconButton,
   Link,
-  useMediaQuery,
+  Link as MuiLink,
 } from "@mui/material";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminCompanyDetails } from "../../../redux/admin/actions/adminCompanyAction";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link as RouterLink } from "react-router-dom";
 import { userTypes } from "constants/allDefault";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Loader from "pages/Loader";
@@ -39,7 +39,7 @@ const CompanyProfile = () => {
     },
     {
       Header: "Phone Number",
-      accessor: "phone_number",
+      accessor: "phonenumber",
     },
     {
       Header: "Business Email",
@@ -254,16 +254,25 @@ const CompanyProfile = () => {
                 <MicroStyledListItemComponent
                   primary="PA"
                   secondary={
-                    <Link
-                      href={`#/companies/company-agreement/${id}`}
-                      target="_self"
-                      sx={{
-                        color: "#2C77E9!important",
-                        textDecoration: "none",
-                      }}
-                    >
-                      Link to PA
-                    </Link>
+                    // <Link
+                    //   href={`#/companies/company-agreement/${id}`}
+                    //   target="_self"
+                    //   sx={{
+                    //     color: "#2C77E9!important",
+                    //     textDecoration: "none",
+                    //   }}
+                    // >
+                    //   Link to PA
+                    // </Link>
+                     <MuiLink
+                     component={RouterLink}
+                     to= {`/companies/company-agreement/${id}`}
+                     state= {{returnPageURL: `/companies/company-profile/${id}` }}
+                     sx={{ color: "#2C77E9 !important", textDecoration: "none", }}
+                     target="_self"
+                   >
+                     link to  PA
+                   </MuiLink>
                   }
                 />
                 {/* )} */}

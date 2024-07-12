@@ -8,11 +8,13 @@ import {
 } from "@mui/material";
 import CompanyAgreementContent from "sections/Admin/CompanyManagement/CompanyAgreementContent";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const CompanyAgreement = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const navigate = useNavigate();
+  const getParams = useLocation();
+
 
   return (
     <Container>
@@ -27,7 +29,7 @@ const CompanyAgreement = () => {
               marginRight: "1rem",
             }}
             textAlign="center"
-            onClick={() => navigate("/companies")}
+            onClick={() => navigate(getParams.state?.returnPageURL)}
           >
             <ArrowBackIcon
               sx={{
