@@ -11,8 +11,10 @@ export interface IBaseline {
   created_date: Date | null;
   submit_date: Date | null;
   status: string | null;
+  admin_status: string | null;
+  user_type: number | null;
   meter_type: number | null;
-  assign_to: number | null;
+  assign_to: number | null;     
   created_at?: Date | null;
   updated_at?: Date | null;
 }
@@ -23,6 +25,8 @@ class Baseline extends Model<IBaseline> implements IBaseline {
   public parameter_data!: string | null;
   public updated_by!: number | null;
   public created_by!: number | null;
+  public admin_status: string | null;
+  public user_type: number | null;
   public created_date!: Date | null;
   public meter_type: number | null;
   public submit_date!: Date | null;
@@ -45,6 +49,14 @@ Baseline.init(
     },
     parameter_data: {
       type: DataTypes.JSON,
+      allowNull: true,
+    },
+    user_type: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    admin_status: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
     created_by: {

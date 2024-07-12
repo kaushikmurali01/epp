@@ -215,6 +215,27 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
+  static async acceptRejectBaseline(
+    decodedToken: IUserToken,
+    id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.acceptRejectBaseline(
+        Object(decodedToken),
+        id,
+        body
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  
   static async assigneToBaseline(
     decodedToken: IUserToken,
     id: number,

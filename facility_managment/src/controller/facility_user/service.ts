@@ -1,6 +1,8 @@
 import { IUserToken } from "../../interfaces/usertoken.interface";
 import { ResponseHandler } from "../../utils/response-handler";
 import {
+  ADMIN_STATUS,
+  BASELINE_USER_TYPE,
   BASE_LINE_STATUS,
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
@@ -153,15 +155,24 @@ export class FacilityService {
         findRole = await UserCompanyRole.findOne({
           where: { user_id: userToken.id, company_id: companyId },
         });
+        if (!findRole) {
+          findRole = {};
+          findRole.role_id = userToken.role_id;
+        }
       } else {
-        findRole.role_id = userToken.type;
+        findRole.role_id = userToken.role_id;
       }
       let result, datas, count;
       if (
         userToken &&
         (findRole.role_id === userType.ADMIN ||
-          findRole.role_id === userType.SUPER_ADMIN)
+          findRole.role_id === userType.SUPER_ADMIN ||
+          findRole.role_id === userType.ENERVA_ADMIN)
       ) {
+        let companyQuery =""
+        if(companyId){
+          companyQuery+=` AND f.company_id = ${companyId || userToken.company_id}`
+        }
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
           f.*, 
@@ -177,8 +188,9 @@ export class FacilityService {
        left JOIN 
            company c ON f.company_id = c.id
        WHERE 
-           f.company_id = ${companyId || userToken.company_id}
-           AND f.is_active = ${STATUS.IS_ACTIVE}) p
+        f.is_active = ${STATUS.IS_ACTIVE}
+         ${companyQuery}
+           ) p
      ${searchArray}
        `);
         datas =
@@ -197,8 +209,8 @@ where facility_id=p.id) as total_user_count from (SELECT
  left JOIN 
      company c ON f.company_id = c.id
  WHERE 
-     f.company_id = ${companyId || userToken.company_id}
-     AND f.is_active = ${STATUS.IS_ACTIVE}
+     f.is_active = ${STATUS.IS_ACTIVE}
+         ${companyQuery}
  ORDER BY 
      ${colName} ${order}) p
      ${searchArray}
@@ -210,43 +222,12 @@ where facility_id=p.id) as total_user_count from (SELECT
         result = { count: Number(count[0]?.total_count) || 0, rows: datas };
       } else {
         let findPermission = await UserResourceFacilityPermission.findAll({
-          where: { company_id: companyId, email: userToken?.email },
-        });
-        let allFacilityId = findPermission.map((ele) => ele.facility_id);
-        result = await Facility.findAndCountAll({
-          include: [
-            { model: User, attributes: ["id", "first_name", "last_name"] },
-            {
-              model: Company,
-              as: "company",
-              attributes: ["id", "company_name"],
-            },
-          ],
           where: {
             company_id: companyId || userToken.company_id,
-            is_active: STATUS.IS_ACTIVE,
-            [Op.and]: [
-              {
-                [Op.or]: [
-                  { created_by: userToken.id },
-                  { id: { [Op.in]: allFacilityId } },
-                ],
-              },
-              {
-                [Op.or]: [
-                  { facility_name: { [Op.iLike]: `%${data}%` } },
-                  { street_number: { [Op.iLike]: `%${data}%` } },
-                  { street_name: { [Op.iLike]: `%${data}%` } },
-                  { city: { [Op.iLike]: `%${data}%` } },
-                  { country: { [Op.iLike]: `%${data}%` } },
-                ],
-              },
-            ],
+            email: userToken?.email,
           },
-          offset: offset,
-          limit: limit,
-          order: [[colName, order]],
         });
+        let allFacilityId = findPermission.map((ele) => ele.facility_id);
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
         f.*, 
@@ -342,15 +323,24 @@ LIMIT
         findRole = await UserCompanyRole.findOne({
           where: { user_id: userToken.id, company_id: companyId },
         });
+        if (!findRole) {
+          findRole = {};
+          findRole.role_id = userToken.role_id;
+        }
       } else {
-        findRole.role_id = userToken.type;
+        findRole.role_id = userToken.role_id;
       }
       let result, datas, count;
       if (
         userToken &&
         (findRole.role_id === userType.ADMIN ||
-          findRole.role_id === userType.SUPER_ADMIN)
+          findRole.role_id === userType.SUPER_ADMIN ||
+          findRole.role_id === userType.ENERVA_ADMIN)
       ) {
+        let companyQuery =""
+        if(companyId){
+          companyQuery+=` where f.company_id=${companyId}`
+        }
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
             usp.last_name as assign_lastname,
@@ -365,7 +355,7 @@ LIMIT
                left join users u on u.id = bm.created_by 
                left join company c ON f.company_id = c.id
                left join users usp ON bm.assign_to = usp.id
-               where f.company_id=${companyId}
+               ${companyQuery}
                )p 
                ${searchArray}
                `);
@@ -383,7 +373,7 @@ LIMIT
                left join users u on u.id = bm.created_by 
                left join company c ON f.company_id = c.id
                left join users usp ON bm.assign_to = usp.id 
-               where f.company_id=${companyId}
+               ${companyQuery}
                 ORDER BY 
                     ${colName} ${order}) p
                     ${searchArray}
@@ -537,6 +527,8 @@ LIMIT
         parameter_data: [],
         meter_type: FACILITY_METER_TYPE.ELECTRICITY,
         status: BASE_LINE_STATUS.draft,
+        admin_status: ADMIN_STATUS.pending,
+        user_type: BASELINE_USER_TYPE.USER,
         created_by: userToken.id,
         updated_by: userToken.id,
       };
@@ -544,14 +536,18 @@ LIMIT
         facility_id: result.id,
         parameter_data: [],
         meter_type: FACILITY_METER_TYPE.NATURAL_GAS,
+        admin_status: ADMIN_STATUS.pending,
         status: BASE_LINE_STATUS.draft,
         created_by: userToken.id,
+        user_type: BASELINE_USER_TYPE.USER,
         updated_by: userToken.id,
       };
       const meter_type3: any = {
         facility_id: result.id,
         parameter_data: [],
+        admin_status: ADMIN_STATUS.pending,
         meter_type: FACILITY_METER_TYPE.WATER,
+        user_type: BASELINE_USER_TYPE.USER,
         status: BASE_LINE_STATUS.draft,
         created_by: userToken.id,
         updated_by: userToken.id,
@@ -606,6 +602,7 @@ LIMIT
       let findBaseline = await Baseline.findOne({ where: { id } });
       const obj: any = {
         parameter_data: body.data,
+        user_type: body.user_type || findBaseline.user_type,
         updated_by: userToken.id,
         meter_type: body.meter_type,
         status: body.status || findBaseline.status,
@@ -642,6 +639,26 @@ LIMIT
       throw error;
     }
   }
+  static async acceptRejectBaseline(
+    userToken: IUserToken,
+    id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        admin_status: body.admin_status,
+      };
+      const result = await Baseline.update(obj, { where: { id } });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async assigneToBaseline(
     userToken: IUserToken,
     id: number,

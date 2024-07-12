@@ -51,6 +51,15 @@ export const BASE_LINE_STATUS = {
   rejected: "REJECTED",
   requested: "REQUESTED",
 };
+export const ADMIN_STATUS = {
+  pending: "PENDING",
+  accepted: "ACCEPTED",
+  rejected: "REJECTED",
+};
+export const BASELINE_USER_TYPE = {
+  USER: 1,
+  ADMIN: 2,
+};
 export const userType = {
   ADMIN: 1,
   SUPER_ADMIN: 2,
