@@ -13,10 +13,11 @@ import {
   Stack,
   TextField,
   Typography,
+  Link as MuiLink
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link as RouterLink  } from "react-router-dom";
 import EvModal from "utils/modal/EvModal";
 import {
   adminCompanySendAlert,
@@ -81,30 +82,30 @@ const CompanyListingNew = () => {
       isSearch: true,
     },
     {
-      Header: "Users",
+      Header: "Number of Users",
       accessor: (item) => (
-        <>
-          <Link
-            href={`#/companies/company-users/${item?.id}`}
-            sx={{
-              color: "#FF5858",
-              textDecoration: "none",
-            }}
-          >
-            View all
-          </Link>
-        </>
+        item?.count ? item?.count : 0
+        
       ),
     },
     {
       Header: "PA",
       accessor: (item) => (
-        <Link
-          href={`#/companies/company-agreement/${item?.id}`}
+        <>
+        {
+          item?.is_pa_signed ? 
+          <MuiLink
+          component={RouterLink}
+          to= {`/companies/company-agreement/${item?.id}`}
+          state= {{returnPageURL: '/companies' }}
           sx={{ color: "#2C77E9" }}
         >
-          link to the PA
-        </Link>
+           link to the PA
+        </MuiLink>
+        : "__"
+        }
+        </>
+     
       ),
     },
     {
@@ -685,6 +686,8 @@ const CompanyListingNew = () => {
       </Grid>
     );
   };
+
+  console.log(companyListData, "companyListData")
 
   return (
     <Container>
