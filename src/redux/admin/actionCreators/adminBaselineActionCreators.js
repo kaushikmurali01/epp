@@ -38,6 +38,7 @@ import {
   SUBMIT_ADMIN_BASELINE_D_T_REQUEST,
   SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
   SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
+  CLEAR_ADMIN_BASELINE_STATE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -220,4 +221,8 @@ export const submitAdminBaselineDtSuccess = (data) => ({
 export const submitAdminBaselineDtFailure = (error) => ({
   type: SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
   payload: error,
+});
+
+export const clearAdminBaselineState = () => ({
+  type: CLEAR_ADMIN_BASELINE_STATE,
 });

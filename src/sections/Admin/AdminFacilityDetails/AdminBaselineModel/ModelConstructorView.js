@@ -23,13 +23,13 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { checkBoxButtonStyle } from "./styles";
 import { getSummaryDataByMeterType } from ".";
 import {
-  fetchBaselineDetailsFromDb,
-  fetchStationsDetails,
-} from "../../../../redux/superAdmin/actions/baselineAction";
+  fetchAdminBaselineDetailsFromDb,
+  fetchAdminStationsDetails,
+} from "../../../../redux/admin/actions/adminBaselineAction";
 import { format } from "date-fns";
 import InputField from "components/FormBuilder/InputField";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
-import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
+import DateRangeSlider from "components/DateRangeSlider";
 
 const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const dispatch = useDispatch();
@@ -38,21 +38,18 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
   const independentVariables = useSelector(
-    (state) => state?.baselineReducer?.independentVariableList
+    (state) => state?.adminBaselineReducer?.independentVariableList
   );
   const baselineListData = useSelector(
-    (state) => state?.baselineReducer?.baselineDetailsDb?.data
+    (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data
   );
 
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
 
-  useEffect(() => {
-    dispatch(fetchStationsDetails(id));
-  }, [dispatch, id, meterType]);
-
   const weatherStationsData = useSelector(
-    (state) => state?.baselineReducer?.stationDetails
+    (state) => state?.adminBaselineReducer?.stationDetails
   );
+
   useEffect(() => {
     if (baselineListData) {
       const initialValues = getSummaryDataByMeterType(
@@ -176,6 +173,10 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   <Typography variant="h6" sx={headingStyleInAccordion}>
                     Baseline period
                   </Typography>
+                  {/* <DateRangeSlider
+                    start_date={values?.start_date}
+                    end_date={values?.end_date}
+                  /> */}
                   <Grid container spacing={4}>
                     <Grid item xs={12} sm={4}>
                       <InputLabel

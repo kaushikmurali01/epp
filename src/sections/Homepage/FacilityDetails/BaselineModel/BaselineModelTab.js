@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -22,66 +30,53 @@ import {
   clearBaselineStateAction,
   fetchBaselineDetailsFromDb,
   fetchIndependentVariableList,
+  submitRejectedBaselineDB,
 } from "../../../../redux/superAdmin/actions/baselineAction";
 import { format } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import ModelConstructorView from "./ModelConstructorView";
 
-const BaselineModelTab = ({
-  showFieldsBasedOnStatus,
-  setMeterType,
-  setBaselineData,
-}) => {
+const BaselineModelTab = ({ openEnrollmentModal }) => {
   const dispatch = useDispatch();
   const [activeButton, setActiveButton] = useState(1);
+  const { id } = useParams();
+  const [renderViewOnlyComp, setRenderViewOnlyComp] = useState(false);
+  const [baselineDetails, setBaselineDetails] = useState(null);
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
-  const { id } = useParams();
-  const [renderViewOnlyComp, setRenderViewOnlyComp] = useState(false);
+
+  useEffect(() => {
+    dispatch(fetchIndependentVariableList(id));
+    dispatch(fetchBaselineDetailsFromDb(id));
+    return () => {
+      dispatch(clearBaselineStateAction());
+    };
+  }, [dispatch, id]);
 
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data
   );
 
   useEffect(() => {
-    dispatch(fetchIndependentVariableList(id));
-    return () => {
-      dispatch(clearBaselineStateAction());
-    };
-  }, [dispatch, id]);
-  useEffect(() => {
-    setMeterType(activeButton);
-    dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
-      showFieldsBasedOnStatus(res?.data, activeButton);
-      setBaselineData();
-      handleBaselineDetails(res?.data);
-      const baselineDataStoredInDB = getSummaryDataByMeterType(
-        res?.data,
-        activeButton
-      );
-      if (
-        baselineDataStoredInDB?.user_type === 1 &&
-        baselineDataStoredInDB?.status === "REVIEWED"
-      ) {
-        setRenderViewOnlyComp(true);
-      }
-    });
-  }, [id, activeButton]);
-
-  const [showBaselineText, setShowBaselineText] = useState(false);
-  const [baselineDetails, setBaselineDetails] = useState(null);
-
-  const handleBaselineDetails = (baseData) => {
-    const meter = getSummaryDataByMeterType(baseData, activeButton);
+    handleBaselineDetails();
+    const baselineDataStoredInDB = getSummaryDataByMeterType(
+      baselineListData,
+      activeButton
+    );
     if (
-      meter &&
-      (meter.status === "SUBMITTED" || meter.status === "CALCULATED")
+      baselineDataStoredInDB?.user_type === 1 &&
+      (baselineDataStoredInDB?.status === "SUBMITTED" ||
+        baselineDataStoredInDB?.status === "REVIEWED")
     ) {
-      setShowBaselineText(true);
+      setRenderViewOnlyComp(true);
     } else {
-      setShowBaselineText(false);
+      setRenderViewOnlyComp(false);
     }
+  }, [id, activeButton, baselineListData]);
+
+  const handleBaselineDetails = () => {
+    const meter = getSummaryDataByMeterType(baselineListData, activeButton);
     setBaselineDetails(meter);
   };
 
@@ -204,6 +199,8 @@ const BaselineModelTab = ({
     saveButtonAction: "",
   });
 
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
+
   const openBaselineSuccessModal = () => {
     setBaselineSuccessModalConfig((prevState) => ({
       ...prevState,
@@ -214,6 +211,21 @@ const BaselineModelTab = ({
         />
       ),
     }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    setShowSubmitButton(e);
+  };
+
+  const handleSubmitFacilityStatus = (baselineStatus) => {
+    if (activeButton) {
+      const data = getSummaryDataByMeterType(baselineListData, activeButton);
+      const body = { status: baselineStatus };
+      dispatch(submitRejectedBaselineDB(data?.id, body)).then(() => {
+        openEnrollmentModal();
+        dispatch(fetchBaselineDetailsFromDb(id));
+      });
+    }
   };
 
   return (
@@ -233,7 +245,58 @@ const BaselineModelTab = ({
             Natural gas
           </Button>
         </StyledButtonGroup>
-        {showBaselineText && (
+        {baselineDetails?.status === "VERIFIED" ? (
+          <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox />}
+                sx={{ color: "text.secondary2" }}
+                label={
+                  <Typography sx={{ fontSize: "14px!important" }}>
+                    Baseline model accepted
+                  </Typography>
+                }
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
+              />
+            </FormGroup>
+
+            {showSubmitButton ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Submit facility
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmitFacilityStatus("REQUESTED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Send help request
+              </Button>
+            )}
+          </Grid>
+        ) : baselineDetails?.status === "CALCULATED" ? (
+          <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+              sx={{ alignItems: "flex-end" }}
+            >
+              Submit facility
+            </Button>
+          </Grid>
+        ) : (
+          <></>
+        )}
+
+        {(baselineDetails?.status === "SUBMITTED" ||
+          baselineDetails?.status === "CALCULATED") && (
           <Typography
             variant="h6"
             sx={{
@@ -265,7 +328,6 @@ const BaselineModelTab = ({
               <ModelConstructorView
                 openSeeDetails={openSeeDetailsModal}
                 meterType={activeButton}
-                showFieldsBasedOnStatus={showFieldsBasedOnStatus}
               />
             ) : (
               <ModelConstructorForm
@@ -273,7 +335,6 @@ const BaselineModelTab = ({
                 openSendHelpRequestModal={openSendHelpRequestModal}
                 meterType={activeButton}
                 openBaselineSuccessModal={openBaselineSuccessModal}
-                showFieldsBasedOnStatus={showFieldsBasedOnStatus}
               />
             )
           }
