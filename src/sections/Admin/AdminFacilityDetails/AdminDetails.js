@@ -247,7 +247,7 @@ const AdminDetails = ({ setTab }) => {
                   charactersticsDetails?.water_heating_fuel_source
                 ),
               year_of_construction: charactersticsDetails?.year_of_construction
-                ? new Date(charactersticsDetails.year_of_construction)
+                ? new Date(charactersticsDetails?.year_of_construction)
                 : null,
             });
             setEnergyUsageAlignment(

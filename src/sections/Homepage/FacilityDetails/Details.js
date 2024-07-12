@@ -270,7 +270,7 @@ const Details = ({ setTab }) => {
 
   const [initialValues, setInitialValues] = useState({
     operational_hours: "",
-    year_of_construction: null,
+    year_of_construction: "",
     gross_floor_area_size_category: null,
     gross_floor_area: "",
     number_of_storeys: "",
