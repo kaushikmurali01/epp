@@ -293,15 +293,23 @@ const andArray = data.filter(item => item.key !== "city");
                 INNER JOIN "users" u ON cr.user_id = u.id
                 WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ${filterConditionsOr}`),
             rawQuery(
-              `SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email FROM "company" c
+              `SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email, uc.count, pa.is_signed as is_pa_signed FROM "company" c
                 INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
                 INNER JOIN "users" u ON cr.user_id = u.id
+                LEFT JOIN (
+             SELECT company_id, COUNT(*) AS count
+             FROM "user_company_role"
+             GROUP BY company_id
+         ) uc ON c.id = uc.company_id
+          LEFT JOIN "participant_agreement" pa on c.id = pa.company_id
                 WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ${filterConditionsOr} ORDER by ${colName} ${order} LIMIT :limit OFFSET :offset`,
               {
                 limit: limit,
                 offset: offset,
               }
             ),
+
+            
           ]);
     
        
