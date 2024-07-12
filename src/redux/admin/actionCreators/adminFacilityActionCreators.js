@@ -71,6 +71,9 @@ import {
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_FAILURE,
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -98,6 +101,20 @@ export const fetchAdminFacilityListActiveSuccess = (data) => ({
 
 export const fetchAdminFacilityListActiveFailure = (error) => ({
   type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListInProcessRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+});
+
+export const fetchAdminFacilityListInProcessSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListInProcessFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
   payload: error,
 });
 

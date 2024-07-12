@@ -71,11 +71,15 @@ import {
   FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
   FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
   FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
   facilityList: [],
   facilityActiveList: [],
+  facilityInProcessList: [],
   characteristics: [],
   facilityDetails: [],
   facilityStatus: [],
@@ -529,6 +533,25 @@ const adminFacilityReducer = (state = initialState, action) => {
           error: null,
         };
       case FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+        case FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          facilityInProcessList: action.payload,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE:
         return {
           ...state,
           loading: false,

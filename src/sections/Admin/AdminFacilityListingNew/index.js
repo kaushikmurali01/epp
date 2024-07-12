@@ -37,6 +37,7 @@ import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminC
 import NotificationsToast from "utils/notification/NotificationsToast";
 import Loader from "pages/Loader";
 import FacilityEnrolledActive from "./facilityEnrolledActive";
+import FacilityEnrolledInProcess from "./facilityEnrolledInProcess";
 
 const AdminFacilityListingNew = () => {
   const navigate = useNavigate();
@@ -274,9 +275,9 @@ const AdminFacilityListingNew = () => {
             setPageInfo={setPageInfo}
           />
         );
-      case "approved":
+      case "in_process_facilities":
         return (
-          <FacilityApproved
+          <FacilityEnrolledInProcess
             searchVal={searchString}
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
@@ -391,7 +392,7 @@ const AdminFacilityListingNew = () => {
             label="Enrolled/Active Facilities" 
             sx={{ minWidth: "10rem" }} />
             <Tab
-              value="in_Process_facilities"
+              value="in_process_facilities"
               label="In-process Facilities"
               sx={{ minWidth: "10rem" }}
             />
