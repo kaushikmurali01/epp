@@ -17,7 +17,7 @@ class AuthorizationService {
           company_id: companyId,
           user_id: userId
       }});
-        role_id = Number(companyRole.role_id);
+        role_id = Number(companyRole?.role_id);
         if (!company || company.is_active === 0 || !user || user.is_active === 0) {
             return false;
         } else if ([1, 2].includes(role_id)) {
@@ -41,7 +41,7 @@ class AuthorizationService {
           }],
           attributes: ['permission_id']
         });
-
+        
         
     
         // Extract the permission strings that the user has

@@ -68,18 +68,129 @@ export async function getAllFacility(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function getAllFacilityAdmin(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    let data = requestData.data;
+    let offset = requestData.offset;
+    let limit = requestData.limit;
+    let colName = requestData.col_name || "id";
+    let order = requestData.order || "ASC";
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.getFacility2(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      data
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  }catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getAllFacilityInprocessAdmin(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    let data = requestData.data;
+    let offset = requestData.offset;
+    let limit = requestData.limit;
+    let colName = requestData.col_name || "id";
+    let order = requestData.order || "ASC";
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.getAllFacilityInprocess(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      data,
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  }catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getUsersFromFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    let data = requestData.data;
+    let offset = requestData.offset;
+    let facility_id = requestData.facility_id;
+    let limit = requestData.limit;
+    let colName = requestData.col_name || "id";
+    let order = requestData.order || "ASC";
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.getUsersFromFacility(
+      decodedToken,
+      Number(offset),
+      Number(limit),
+      String(colName),
+      String(order),
+      data,
+      Number(facility_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  }catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
 export async function getAllFacility2(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    // const companyId = request.query.get("company_id" || ""); 
+    // const companyId = request.query.get("company_id" || "");
     const requestData: any = await request.json();
     let data = requestData.data;
     let offset = requestData.offset;
     let limit = requestData.limit;
-    let companyId = requestData.company_id
+    let companyId = requestData.company_id;
     let colName = requestData.col_name || "id";
     let order = requestData.order || "ASC";
 
@@ -124,12 +235,12 @@ export async function getAllFacilityInprocess(
 ): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    // const companyId = request.query.get("company_id" || ""); 
+    // const companyId = request.query.get("company_id" || "");
     const requestData: any = await request.json();
     let data = requestData.data;
     let offset = requestData.offset;
     let limit = requestData.limit;
-    let companyId = requestData.company_id
+    let companyId = requestData.company_id;
     let colName = requestData.col_name || "id";
     let order = requestData.order || "ASC";
 
@@ -355,6 +466,37 @@ export async function submitRejectBaseline(
 
     // Get all result
     const result = await FacilityController.submitRejectBaseline(
+      decodedToken,
+      Number(id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function acceptRejectBaseline(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { id } = request.params;
+
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.acceptRejectBaseline(
       decodedToken,
       Number(id),
       Object(requestData)
@@ -1841,10 +1983,15 @@ export async function createEmailTemplate(
 ): Promise<HttpResponseInit> {
   try {
     const requestBody = await request.json();
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    
-    const result = await EmailTemplateController.createEmailTemplate(requestBody, decodedToken.id);
-    
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result = await EmailTemplateController.createEmailTemplate(
+      requestBody,
+      decodedToken.id
+    );
+
     return { body: JSON.stringify(result) };
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -1858,14 +2005,23 @@ export async function updateEmailTemplate(
   try {
     const id = Number(request.params.id);
     const requestBody = await request.json();
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
-    
-    const result = await EmailTemplateController.updateEmailTemplate(id, requestBody, decodedToken.id);
-    
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result = await EmailTemplateController.updateEmailTemplate(
+      id,
+      requestBody,
+      decodedToken.id
+    );
+
     if (result) {
       return { body: JSON.stringify(result) };
     } else {
-      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Email template not found" };
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        body: "Email template not found",
+      };
     }
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -1878,13 +2034,20 @@ export async function deleteEmailTemplate(
 ): Promise<HttpResponseInit> {
   try {
     const id = Number(request.params.id);
-    
+
     const result = await EmailTemplateController.deleteEmailTemplate(id);
-    
+
     if (result) {
-      return { body: JSON.stringify({ message: "Email template deleted successfully" }) };
+      return {
+        body: JSON.stringify({
+          message: "Email template deleted successfully",
+        }),
+      };
     } else {
-      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Email template not found" };
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        body: "Email template not found",
+      };
     }
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -1897,9 +2060,11 @@ export async function getEmailTemplatesByFacilityId(
 ): Promise<HttpResponseInit> {
   try {
     const facilityId = Number(request.params.facilityId);
-    
-    const result = await EmailTemplateController.getEmailTemplatesByFacilityId(facilityId);
-    
+
+    const result = await EmailTemplateController.getEmailTemplatesByFacilityId(
+      facilityId
+    );
+
     return { body: JSON.stringify(result) };
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -1912,9 +2077,10 @@ export async function getEmailTemplatesSubjectAndBody(
 ): Promise<HttpResponseInit> {
   try {
     const facilityId = Number(request.params.facilityId);
-    
-    const result = await EmailTemplateController.getEmailTemplatesSubjectAndBody(facilityId);
-    
+
+    const result =
+      await EmailTemplateController.getEmailTemplatesSubjectAndBody(facilityId);
+
     return { body: JSON.stringify(result) };
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -1967,6 +2133,24 @@ app.http(`facility-listing-post`, {
   authLevel: "anonymous",
   handler: getAllFacility2,
 });
+app.http(`facility-listing-post-admin`, {
+  methods: ["POST"],
+  route: "facility-listing-admin",
+  authLevel: "anonymous",
+  handler: getAllFacilityAdmin,
+});
+app.http(`facility-listing-inprocess-admin`, {
+  methods: ["POST"],
+  route: "facility-inprocess-admin",
+  authLevel: "anonymous",
+  handler: getAllFacilityInprocessAdmin,
+});
+app.http(`facility-detail-user-list`, {
+  methods: ["POST"],
+  route: "facility-users-list",
+  authLevel: "anonymous",
+  handler: getUsersFromFacility,
+});
 app.http(`facility-listing-inprocess`, {
   methods: ["POST"],
   route: "facility-inprocess",
@@ -2010,6 +2194,12 @@ app.http("submit-reject-baseline", {
   route: "submitRejectedBaseline/{id}",
   authLevel: "anonymous",
   handler: submitRejectBaseline,
+});
+app.http("accept-reject-baseline", {
+  methods: ["PATCH"],
+  route: "acceptRejctBaseline/{id}",
+  authLevel: "anonymous",
+  handler: acceptRejectBaseline,
 });
 app.http("add-assignee-in-baseline", {
   methods: ["PATCH"],

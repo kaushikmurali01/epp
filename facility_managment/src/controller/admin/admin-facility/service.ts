@@ -2,6 +2,7 @@ import {
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
+  userType,
 } from "../../../utils/status";
 import { ResponseHandler } from "../../../utils/response-handler";
 import { Facility } from "../../../models/facility.model";
@@ -22,6 +23,7 @@ import { Op } from "sequelize";
 import { EmailContent, adminDetails } from "../../../utils/email-content";
 import { getEmailTemplate } from "../../../helper/mail-template.helper";
 import { Email } from "../../../helper/email-sender.helper";
+import { rawQuery } from "../../../services/database";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -141,7 +143,9 @@ export class AdminFacilityService {
         occupancy: body.occupancy,
         number_of_building: body.number_of_building,
         company_id: body.company_id,
-        facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY),
+        facility_id_general_status: Number(
+          FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY
+        ),
         facility_id_submission_status: Number(
           FACILITY_ID_SUBMISSION_STATUS.DRAFT
         ),
@@ -202,7 +206,9 @@ export class AdminFacilityService {
           latitude: body.latitude,
           longitude: body.longitude,
           company_id: body.company_id,
-          facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY),
+          facility_id_general_status: Number(
+            FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY
+          ),
           facility_id_submission_status: Number(
             FACILITY_ID_SUBMISSION_STATUS.DRAFT
           ),
@@ -255,7 +261,9 @@ export class AdminFacilityService {
           occupancy: body.occupancy,
           number_of_building: body.number_of_building,
           // company_id: body.company_id,
-          facility_id_general_status: Number(FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY),
+          facility_id_general_status: Number(
+            FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY
+          ),
           facility_id_submission_status: Number(
             FACILITY_ID_SUBMISSION_STATUS.DRAFT
           ),
@@ -491,7 +499,288 @@ export class AdminFacilityService {
       throw error;
     }
   }
+  static async getAllFacilityInprocess(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      findRole.role_id = userToken.role_id;
+      let result, datas, count;
+      if (
+        userToken
+      ) {
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id
+               )p 
+               ${searchArray}
+               `);
+        datas =
+          await rawQuery(`SELECT *,(SELECT f.*, usp.first_name as assign_firstname, 
+            usp.last_name as assign_lastname,
+            u.first_name, 
+            u.last_name,
+            u.id as submitted_by_id,
+            usp.id as assign_to_id,
+            c.id AS company_id,
+            bm.id AS baseline_id,
+            c.company_name
+               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               left join users u on u.id = bm.created_by 
+               left join company c ON f.company_id = c.id
+               left join users usp ON bm.assign_to = usp.id 
+                ORDER BY 
+                    ${colName} ${order}) p
+                    ${searchArray}
+                OFFSET 
+                    ${offset}
+                LIMIT
+                    ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getUsersFromFacility(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      findRole.role_id = userToken.role_id;
+      let result, datas, count;
+      if (
+        userToken 
+      ) {
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+    u.id,
+	u.first_name,
+	u.last_name,
+	u.email,
+    c.company_name,
+    c.id AS company_id,
+    f.id AS facility_id,
+    f.facility_name,
+    f.facility_ubi,
+	ut.user_type
+FROM 
+    users u
+JOIN 
+    user_resource_facility_permission urfp ON u.email = urfp.email
+JOIN 
+    facility f ON urfp.facility_id = f.id
+JOIN user_type ut ON ut.id=u.type
+LEFT JOIN 
+    company c ON f.company_id = c.id
+WHERE 
+    urfp.facility_id = ${facility_id})p 
+               ${searchArray}
+               `);
+        datas =
+          await rawQuery(`SELECT * from (SELECT 
+    u.id,
+	u.first_name,
+	u.last_name,
+	u.email,
+    c.company_name,
+    c.id AS company_id,
+    f.id AS facility_id,
+    f.facility_name,
+    f.facility_ubi,
+	ut.user_type
+FROM 
+    users u
+JOIN 
+    user_resource_facility_permission urfp ON u.email = urfp.email
+JOIN 
+    facility f ON urfp.facility_id = f.id
+JOIN user_type ut ON ut.id=u.type
+LEFT JOIN 
+    company c ON f.company_id = c.id
+WHERE 
+    urfp.facility_id = ${facility_id} 
+                ORDER BY 
+                    ${colName} ${order}) p
+                    ${searchArray}
+                OFFSET 
+                    ${offset}
+                LIMIT
+                    ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
 
+  static async getFacility2(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      findRole.role_id = userToken.role_id;
+      let result, datas, count;
+      if (
+        userToken
+      ) {
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+          f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+       FROM 
+           Facility f
+       left JOIN 
+           users u ON f.created_by = u.id
+       left JOIN 
+           company c ON f.company_id = c.id
+       WHERE 
+        f.is_active = ${STATUS.IS_ACTIVE}
+           ) p
+     ${searchArray}
+       `);
+        datas =
+          await rawQuery(`SELECT *,(select (COUNT(*) + 1) from user_resource_facility_permission 
+where facility_id=p.id) as total_user_count from (SELECT 
+     f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+ FROM 
+     Facility f
+ left JOIN 
+     users u ON f.created_by = u.id
+ left JOIN 
+     company c ON f.company_id = c.id
+ WHERE 
+     f.is_active = ${STATUS.IS_ACTIVE}
+ ORDER BY 
+     ${colName} ${order}) p
+     ${searchArray}
+ OFFSET 
+     ${offset}
+ LIMIT 
+     ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   static async signPaById(
     userToken: IUserToken,
     body: IBaseInterface,
@@ -532,8 +821,8 @@ export class AdminFacilityService {
               where: { id: companyId },
             });
             const bindingAuthorityDetails = {
-             // name: "Enerva Test Binding Authority",
-              name: userDetails?.first_name
+              // name: "Enerva Test Binding Authority",
+              name: userDetails?.first_name,
             };
             const version = "V1";
 
@@ -634,7 +923,7 @@ export class AdminFacilityService {
             });
             const bindingAuthorityDetails = {
               //name: "Enerva Test Binding Authority",
-              name: userDetails?.first_name
+              name: userDetails?.first_name,
             };
             const version = "V1";
 
