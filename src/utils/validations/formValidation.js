@@ -361,24 +361,20 @@ export const validationSchemaAssignFacility = (emailToAvoid) =>
     email: Yup.string()
       .required("Email is required")
       .matches(
-        /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
+        /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}( *[,\s]+ *[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
         "Invalid email"
       )
       .test("not-avoided-email", "You can not use your own email", (value) => {
-        return !value.split(",").includes(emailToAvoid);
+        return !value.split(/\s*,\s*/).includes(emailToAvoid);
       })
-      .test(
-        "At least one email is required",
-        "At least one email is required",
-        (value) => {
-          return value.split(",").some((email) => email.trim() !== "");
-        }
-      ),
+      .test("At least one email is required", (value) => {
+        return value.split(/\s*,\s*/).some((email) => email.trim() !== "");
+      }),
     facilityId: Yup.array()
       .of(Yup.number())
       .required("Facility is required")
       .min(1, "At least one facility is required"),
-    companyId: Yup.number().required("Please enter Password"),
+    companyId: Yup.number().required("Please enter Company ID"),
   });
 
 // Change Password Validation schema

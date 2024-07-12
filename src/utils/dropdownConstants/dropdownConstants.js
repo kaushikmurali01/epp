@@ -146,7 +146,7 @@ export const WATER_UNIT_ARRAY = [
 export const MEASURE_REPORT_CATEGORY = [
   { value: "behavioral", label: "Behavioral" },
   { value: "capital", label: "Capital" },
-  { value: "fuel_switching", label: "Fuel-switching" },
+  { value: "fuelSwitching", label: "Fuel-switching" },
   { value: "onSiteGeneration", label: "On-site Generation" },
   { value: "operational", label: "Operational" },
 ];

@@ -340,12 +340,12 @@ const AdminDetails = ({ setTab }) => {
     water_heating_efficiency_unit: "%",
   });
 
-   // Use effect to scroll to the top when the modal becomes visible
-   useEffect(() => {
+  // Use effect to scroll to the top when the modal becomes visible
+  useEffect(() => {
     if (!modalConfig.modalVisible) {
       window.scrollTo({
         top: 0,
-        behavior: 'smooth' // for smooth scrolling
+        behavior: "smooth", // for smooth scrolling
       });
     }
   }, [modalConfig.modalVisible]);
@@ -519,7 +519,8 @@ const AdminDetails = ({ setTab }) => {
                           htmlFor="year_of_construction"
                           style={{ whiteSpace: "initial" }}
                         >
-                          Year of construction *
+                          Year of construction{" "}
+                          <span className="asterisk">*</span>
                         </InputLabel>
                         <DatePicker
                           id="year_of_construction"
@@ -626,7 +627,8 @@ const AdminDetails = ({ setTab }) => {
                           style={{ whiteSpace: "initial" }}
                         >
                           Are there unique features of your facility that may
-                          impact energy usage?<span className="asterisk">*</span>
+                          impact energy usage?
+                          <span className="asterisk">*</span>
                         </InputLabel>
                         <FormControl>
                           <Field name="unique_features_that_impact_energy_usage">
@@ -828,8 +830,8 @@ const AdminDetails = ({ setTab }) => {
                     <Grid container spacing={4} mt={1}>
                       <Grid item xs={12}>
                         <InputLabel sx={{ textWrap: "wrap" }}>
-                          Does the facility have energy-using equipment that is not
-                          standard HVAC? Please check all that apply.
+                          Does the facility have energy-using equipment that is
+                          not standard HVAC? Please check all that apply.
                         </InputLabel>
                       </Grid>
                     </Grid>
