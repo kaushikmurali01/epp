@@ -66,7 +66,7 @@ const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
       </Button>
     );
   }
-  const rowsPerPageArr = [10, 20, 40, 70, 100];
+  const rowsPerPageArr = [5, 10, 15, 25, 50];
 
   return (
     <Grid

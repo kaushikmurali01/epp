@@ -6,7 +6,7 @@ import { useState } from "react";
 
 const AdminSummary = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState('')
+  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState("");
   const facilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
@@ -28,13 +28,13 @@ const AdminSummary = () => {
         },
       },
       background: models.BackgroundType.Transparent,
-      hideErrors: true
+      hideErrors: true,
     },
-  }
+  };
 
   const getPowerBiError = (errorDetail) => {
-    console.log('Error in setIsErrorInPowerBi',errorDetail)
-  }
+    console.log("Error in setIsErrorInPowerBi", errorDetail);
+  };
 
   return (
     <Box
@@ -90,50 +90,54 @@ const AdminSummary = () => {
         </Grid>
       </Grid>
       <Grid>
-      <Box id="bi-report" mt={4}>
-          {isErrorInPowerBi ? <PowerBIEmbed
-            embedConfig={powerBiConfig}
-            eventHandlers={
-              new Map([
-                [
-                  "loaded",
-                  function () {
-                    console.log("Report loaded");
-                  },
-                ],
-                [
-                  "rendered",
-                  function () {
-                    console.log("Report rendered");
-                  },
-                ],
-                [
-                  "error",
-                  function (event) {
-                    console.log("iiiiiiiiiii",event.detail);
-                    getPowerBiError(event.detail)
-                  },
-                ],
-                ["visualClicked", () => console.log("visual clicked")],
-                ["pageChanged", (event) => console.log(event)],
-              ])
-            }
-            cssClassName={"bi-embedded"}
-            getEmbeddedComponent={(embeddedReport) => {
-              window.report = embeddedReport;
-            }}
-          /> : 
-          <Typography
-            variant="h3"
-            sx={{
-              fontWeight: "700",
-              fontSize: "1.125rem !important",
-              lineHeight: "106.815%",
-              letterSpacing: "-0.01125rem",
-            }}
-          >
-            Data has not been uploaded and verified yet so this visualization is not available.
-          </Typography>}
+        <Box id="bi-report" mt={4}>
+          {isErrorInPowerBi ? (
+            <PowerBIEmbed
+              embedConfig={powerBiConfig}
+              eventHandlers={
+                new Map([
+                  [
+                    "loaded",
+                    function () {
+                      console.log("Report loaded");
+                    },
+                  ],
+                  [
+                    "rendered",
+                    function () {
+                      console.log("Report rendered");
+                    },
+                  ],
+                  [
+                    "error",
+                    function (event) {
+                      console.log("iiiiiiiiiii", event.detail);
+                      getPowerBiError(event.detail);
+                    },
+                  ],
+                  ["visualClicked", () => console.log("visual clicked")],
+                  ["pageChanged", (event) => console.log(event)],
+                ])
+              }
+              cssClassName={"bi-embedded"}
+              getEmbeddedComponent={(embeddedReport) => {
+                window.report = embeddedReport;
+              }}
+            />
+          ) : (
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: "700",
+                fontSize: "1.125rem !important",
+                lineHeight: "106.815%",
+                letterSpacing: "-0.01125rem",
+              }}
+            >
+              Data has not been uploaded and verified yet so this visualization
+              is not available.
+            </Typography>
+          )}
         </Box>
       </Grid>
     </Box>

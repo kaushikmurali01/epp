@@ -202,7 +202,7 @@ const MeasureReportForm = ({
                   <TextAreaField
                     name="measure_description"
                     label="Measure description"
-                    textAreaStyle={{ fontSize: "1.125rem" }}
+                    textAreaStyle={{ fontSize: "1.125rem", height: "7rem" }}
                   />
                 </Grid>
               </Grid>
@@ -364,10 +364,10 @@ const MeasureReportForm = ({
                   )}
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <TextAreaField
+                  <InputField
                     name="file_description"
                     label="File description"
-                    textAreaStyle={{ fontSize: "1.125rem" }}
+                    type="text"
                   />
                 </Grid>
               </Grid>
