@@ -721,10 +721,11 @@ export async function SearchUsers(request: HttpRequest, context: InvocationConte
         let limit = requestData.limit;
         let order = requestData.order || 'ASC';
         let col_name = requestData.col_name || 'id';
+        let company_id = requestData.company_id || null;
         if(!data) {
             data = [];
         }
-        const users = await AdminUserController.searchUsers(data, offset, limit, order, col_name);
+        const users = await AdminUserController.searchUsers(data, offset, limit, order, col_name, company_id);
 
         // Prepare response body
         const responseBody = JSON.stringify(users);

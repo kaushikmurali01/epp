@@ -16,18 +16,19 @@ class UserRequestService {
      * @returns Promise<Response> - A promise resolving to a response indicating the status of user request creation.
      * @description Creates a new user request by creating a user request record in the database with specified details. Returns a response indicating the success or failure of the creation process.
      */
-    static async createUserRequest(userRequestDetails, resp): Promise<Response> {
+    static async createUserRequest(userRequestDetails, resp): Promise<any> {
         try {
             //await testDatabaseConnection();
            // userRequestDetails.user_id = resp.user_id;
             console.log("USerDetails",userRequestDetails );
            // console.log("userRequestDetails",userRequestDetails);
             const userRequest = await UserRequest.create(userRequestDetails);
+            const company:any = await CompanyService.GetCompanyById(userRequestDetails.company_id);
                 
             (async () => {
             // Send email who initiated request start
             let template =  await EmailTemplate.getEmailTemplate();
-            const company:any = await CompanyService.GetCompanyById(userRequestDetails.company_id);
+            
             let emailContent =  template
                       .replace('#content#', EmailContent.joinCompanyRequestForUser.content)
                       .replace('#name#', resp.first_name)
@@ -48,7 +49,7 @@ class UserRequestService {
             // Send Email to Admins
             })();
 
-            return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
+            return { status: HTTP_STATUS_CODES.SUCCESS, company: company, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
             throw new Error(`${error.message}`);
         }
