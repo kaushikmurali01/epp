@@ -15,6 +15,8 @@ import {
   Typography,
   Stack,
   IconButton,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
@@ -31,7 +33,7 @@ import {
 import { SnackbarContext } from "utils/notification/SnackbarProvider";
 import EvModal from "utils/modal/EvModal";
 import InputField from "components/FormBuilder/InputField";
-import { Form, Formik } from "formik";
+import { Field, Form, Formik } from "formik";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { validationSchemaEntry } from "utils/validations/formValidation";
 import {
@@ -543,7 +545,10 @@ const AdminEntriesListing = ({
       });
     });
   };
-
+  const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
+  const handleTermsAndConditionChange = (event) => {
+    setAcceptTermsAndCondition(event.target.checked);
+  };
   return (
     <>
       <IconButton
@@ -637,7 +642,7 @@ const AdminEntriesListing = ({
           }}
         >
           <Typography variant="h6" gutterBottom>
-            {meterData?.is_rg_meter ? 'Revenue-grade meter' : 'Sub meter'}
+            {meterData?.is_rg_meter ? "Revenue-grade meter" : "Sub meter"}
           </Typography>
         </Box>
 
@@ -726,8 +731,16 @@ const AdminEntriesListing = ({
             Upload data in bulk for this meter
           </Typography>
           <Typography variant="small2" gutterBottom>
-            Upload the excel file, and refer to single meter spreadsheet for the
-            formatting details.
+            You can upload a Green Button XML file or an Excel-compatible file.
+            Use this{" "}
+            <Typography
+              variant="span2"
+              color="#2C77E9"
+              sx={{ cursor: "pointer" }}
+            >
+              single meter spreadsheet
+            </Typography>{" "}
+            to upload the Excel file.
           </Typography>
           <Typography
             my={1}
@@ -754,6 +767,24 @@ const AdminEntriesListing = ({
             onChange={handleFileChange}
             accept=".xlsx,.csv"
           />
+          <Grid container mb={2} mt={2}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={acceptTermsAndCondition}
+                  sx={{ color: "text.secondary2" }}
+                  onChange={handleTermsAndConditionChange}
+                />
+              }
+              label={
+                <Typography sx={{ fontSize: "14px!important" }}>
+                  I hereby certify that this is the original file from the
+                  Utility.
+                </Typography>
+              }
+            />
+          </Grid>
+
           <Button
             variant="contained"
             onClick={() => uploadHourlyEntryFile(imgUrl)}
@@ -763,7 +794,7 @@ const AdminEntriesListing = ({
               width: "165px",
               height: "40px",
             }}
-            disabled={!imgUrl}
+            disabled={!imgUrl && !acceptTermsAndCondition}
           >
             Upload
           </Button>
