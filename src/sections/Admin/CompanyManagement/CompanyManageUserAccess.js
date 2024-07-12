@@ -360,10 +360,10 @@ const handelDelete = (item, setModalConfig) => {
                 searchData={searchData}
                 setSearchData={setSearchData}
 
-                // setSortColumn={setSortCustomerColumn}
-                // setSortOrder={setSortCustomerOrder}
-                // sortColumn={sortCustomerColumn}
-                // sortOrder={sortCustomerOrder}
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
               
               />
       </Box>

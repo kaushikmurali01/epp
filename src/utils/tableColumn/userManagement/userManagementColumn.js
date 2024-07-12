@@ -78,12 +78,14 @@ const UserManagementColumn = () => {
     const USER_MANAGEMENT_COLUMN_ACTION = (userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig,setInvitePageInfo,setInviteAPIURL) => [
         {
             Header: "Name",
-            accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`
+            accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
             // accessor: (item) => `${item?.company_name}`
+            accessorKey: "first_name",
         },
         {
             Header: "Email ID",
             accessor: "email",
+            accessorKey: "email",
         },
         {
             Header: "Facility name",
@@ -115,6 +117,7 @@ const UserManagementColumn = () => {
         {
             Header: "Role Type",
             accessor: "rolename",
+            accessorKey: "rolename",
         },
         {
             Header: "Status",
