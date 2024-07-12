@@ -20,7 +20,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     const [isFormValid, setIsFormValid] = useState(false);
     const [permissions, setPermission] = useState([])
     const [selectedPermissions, setSelectedPermissions] = useState([]);
-
+    const [initialPermissions, setInitialPermissions] = useState([]);
 
 
     const [permissionStates, setPermissionStates] = useState([]);
@@ -285,6 +285,11 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }
 
+    const havePermissionsChanged = () => {
+        if (initialPermissions.length !== permissionStates.length) return true;
+        return !initialPermissions.every(permission => permissionStates.includes(permission));
+    };
+
     const getUserPermissionListAPI = (item) => {
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + invitePageInfo?.type + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
         GET_REQUEST(apiURL)
@@ -293,6 +298,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
                 setSelectedPermissions(userPermissionObjects);
+                setInitialPermissions(userPermissions); // Set initial permissions
             })
             .catch((error) => {
                 console.log(error);
@@ -311,14 +317,15 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
         const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
+        const permissionsChanged = isEdited ? havePermissionsChanged() : true;
 
         if (invitePageInfo?.type === "2") {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '')
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged)
         } else {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && permissionsChanged)
         }
 
-    }, [userEmail, selectRoleType, selectCompanyType, selectedPermissions])
+    }, [userEmail, selectRoleType, selectCompanyType, selectedPermissions,initialPermissions])
 
 
     useEffect(() => {
