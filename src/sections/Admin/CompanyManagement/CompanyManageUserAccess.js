@@ -54,7 +54,6 @@ const CompanyManageUserAccess = () => {
       cancelButtonStyle: {backgroundColor: 'dark.colorSmoke',"&:hover": {backgroundColor: 'dark.colorSilver'}, color: '#fff'},
       saveButtonName: "Yes, Delete!",
       cancelButtonName: "No, Cancel",  
-
     },
     headerText: "",
     headerSubText: "",

@@ -9,15 +9,18 @@ import { MiniTable } from "components/MiniTable";
 import { useSelector } from "react-redux";
 
 const SeeSufficiencyDetails = ({
-  meterType,
+  sufficiency_Data,
   baselineStartDate,
   baselineEndDate,
 }) => {
   const [activeButton, setActiveButton] = useState("hourly");
-  const sufficiencyCheckData = useSelector(
+
+  const sufficiency_check_data = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckData
   );
-
+  const sufficiencyCheckData = sufficiency_Data
+    ? sufficiency_Data
+    : sufficiency_check_data;
   const userColumn = [
     {
       Header: "Data coverage thresholds",

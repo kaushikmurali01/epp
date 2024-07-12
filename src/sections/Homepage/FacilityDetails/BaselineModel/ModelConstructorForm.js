@@ -36,7 +36,6 @@ const ModelConstructorForm = ({
   meterType,
   openSendHelpRequestModal,
   openBaselineSuccessModal,
-  showFieldsBasedOnStatus,
 }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -86,37 +85,39 @@ const ModelConstructorForm = ({
   const meterTypeRef = useRef(meterType);
 
   useEffect(() => {
-    dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
-      const baselineCalculated = getSummaryDataByMeterType(
-        res?.data,
-        meterType
-      );
-      if (baselineCalculated?.status === "CALCULATED") {
-        setCheckSufficiencyAfter(true);
-        setFormData({
-          ...baselineCalculated?.parameter_data,
-          start_date: new Date(baselineCalculated?.parameter_data?.start_date),
-          end_date: new Date(baselineCalculated?.parameter_data?.end_date),
-        });
-        setSufficiencyCheckDataLocally({
-          daily: { ...baselineCalculated?.parameter_data?.daily },
-          hourly: { ...baselineCalculated?.parameter_data?.hourly },
-        });
-      } else {
-        const initialValues = {
-          start_date: baselinePeriod?.start_date
-            ? new Date(baselinePeriod?.start_date)
-            : null,
-          end_date: baselinePeriod?.end_date
-            ? new Date(baselinePeriod?.end_date)
-            : null,
-          granularity: "hourly",
-          independent_variables: [],
-          meter_type: meterType,
-        };
-        setFormData(initialValues);
-      }
-    });
+    const baselineCalculated = getSummaryDataByMeterType(
+      baselineListData,
+      meterType
+    );
+    if (
+      baselineCalculated?.status === "CALCULATED" ||
+      baselineCalculated?.status === "SUBMITTED"
+    ) {
+      setCheckSufficiencyAfter(true);
+      setFormData({
+        ...baselineCalculated?.parameter_data,
+        start_date: new Date(baselineCalculated?.parameter_data?.start_date),
+        end_date: new Date(baselineCalculated?.parameter_data?.end_date),
+      });
+      setSufficiencyCheckDataLocally({
+        daily: { ...baselineCalculated?.parameter_data?.daily },
+        hourly: { ...baselineCalculated?.parameter_data?.hourly },
+      });
+    } else {
+      setCheckSufficiencyAfter(false);
+      const initialValues = {
+        start_date: baselinePeriod?.start_date
+          ? new Date(baselinePeriod?.start_date)
+          : null,
+        end_date: baselinePeriod?.end_date
+          ? new Date(baselinePeriod?.end_date)
+          : null,
+        granularity: "hourly",
+        independent_variables: [],
+        meter_type: meterType,
+      };
+      setFormData(initialValues);
+    }
   }, [baselinePeriod, meterType]);
 
   const handleSubmit = (values) => {
@@ -338,9 +339,7 @@ const ModelConstructorForm = ({
           dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
             (res) => {
               openBaselineSuccessModal();
-              dispatch(fetchBaselineDetailsFromDb(id)).then((res) => {
-                showFieldsBasedOnStatus(res?.data, meterType);
-              });
+              dispatch(fetchBaselineDetailsFromDb(id));
             }
           );
         }

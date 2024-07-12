@@ -11,22 +11,41 @@ import {
 } from "./styles";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchAdminStationsDetails } from "../../../../redux/admin/actions/adminBaselineAction";
+import {
+  clearAdminBaselineStateAction,
+  fetchAdminBaselineDetailsFromDb,
+  fetchAdminIndependentVariableList,
+  fetchAdminStationsDetails,
+} from "../../../../redux/admin/actions/adminBaselineAction";
 import EvModal from "utils/modal/EvModal";
 import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
 import UserReviewBaselineModal from "./UserReviewBaselineModal";
+import ModelConstructorView from "./ModelConstructorView";
+import { getSummaryDataByMeterType } from ".";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
+  const [renderFormComp, setRenderFormComp] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
+  const baselineListData = useSelector(
+    (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data
+  );
 
   useEffect(() => {
-    dispatch(fetchAdminStationsDetails(id));
-  }, [dispatch, id, activeButton]);
+    const baselineDataStoredInDB = getSummaryDataByMeterType(
+      baselineListData,
+      activeButton
+    );
+    if (baselineDataStoredInDB?.status === "REQUESTED") {
+      setRenderFormComp(true);
+    } else {
+      setRenderFormComp(false);
+    }
+  }, [id, activeButton, baselineListData]);
 
   const [seeDetailsModalConfig, setSeeDetailsModalConfig] = useState({
     modalVisible: false,
@@ -57,13 +76,18 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
     saveButtonAction: "",
   });
 
-  const openSeeDetailsModal = (baseline_start_date, baseline_end_date) => {
+  const openSeeDetailsModal = (
+    sufficiency_Data,
+    baseline_start_date,
+    baseline_end_date
+  ) => {
     setSeeDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
       modalBodyContent: (
         <SeeSufficiencyDetails
           meterType={activeButton}
+          sufficiency_Data={sufficiency_Data}
           baselineStartDate={baseline_start_date}
           baselineEndDate={baseline_end_date}
         />
@@ -101,13 +125,15 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       saveButtonAction: "",
     });
 
-  const openUserReviewBaselineModal = () => {
+  const openUserReviewBaselineModal = (baseline_id, updatedBaselineData) => {
     setUserReviewBaselineModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
       modalBodyContent: (
         <UserReviewBaselineModal
           setUserReviewBaselineModalConfig={setUserReviewBaselineModalConfig}
+          baseline_id={baseline_id}
+          updatedBaselineData={updatedBaselineData}
         />
       ),
     }));
@@ -130,41 +156,38 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             Natural gas
           </Button>
         </StyledButtonGroup>
-        <Typography
-          variant="h6"
-          sx={{
-            padding: "0.375rem 1rem",
-            borderRadius: "1.8125rem",
-            background: "#CFEEFF",
-            color: "#1976AA",
-            fontSize: "0.875rem",
-            fontStyle: "italic",
-            fontWeight: 400,
-            mt: { xs: 2, lg: 0 },
-          }}
-        >
-          Electricity baseline has been successfully created on : 2020/03/05
-          13:35:01
-        </Typography>
       </Grid>
 
       <Box>
         <CustomAccordion
           summary="Model constructor"
           details={
-            <ModelConstructorForm
-              handleSufficiencySettings={handleSufficiencySettings}
-              openSeeDetails={openSeeDetailsModal}
-              meterType={activeButton}
-              openUserReviewBaselineModal={openUserReviewBaselineModal}
-            />
+            renderFormComp ? (
+              <ModelConstructorForm
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+                openUserReviewBaselineModal={openUserReviewBaselineModal}
+              />
+            ) : (
+              <ModelConstructorView
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+              />
+            )
           }
           panelId="modelConstructor"
         />
 
         <CustomAccordion
           summary="Summary"
-          details={<BaselineSummary />}
+          details={
+            <BaselineSummary
+              summaryData={baselineListData}
+              meterType={activeButton}
+            />
+          }
           panelId="summary"
         />
 
