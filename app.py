@@ -3,6 +3,8 @@ from flask import Flask, jsonify, request
 import json
 import pandas as pd
 import numpy as np
+
+from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, fetch_and_combine_data_for_independent_variables
@@ -587,6 +589,19 @@ def idv_process():
     
     return jsonify(hourly_data_list), 200
 
+
+def get_data_exploration_summary():
+    facility_id = request.json.get('facility_id', '')
+    summary_type = request.json.get('summary_type', 'observe_data')
+    des_object = DataExplorationSummary(facility_id)
+    if summary_type == 'outliers':
+        summary, df = des_object.get_outlier_summary()
+    elif summary_type == 'missing_data':
+        summary, df = des_object.get_missing_data_summary()
+    else:
+        summary, df = des_object.get_observe_data_summary()
+
+    return jsonify(summary)
 
 if __name__ == '__main__':
 
