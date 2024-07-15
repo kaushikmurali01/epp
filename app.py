@@ -592,8 +592,8 @@ def idv_process():
 
 @app.route("/data-exploration-summary", methods=['GET'])
 def get_data_exploration_summary():
-    facility_id = request.json.get('facility_id', '')
-    summary_type = request.json.get('summary_type', 'observe_data')
+    facility_id = request.args.get('facility_id', '')
+    summary_type = request.args.get('summary_type', 'observe_data')
     des_object = DataExplorationSummary(facility_id)
     if summary_type == 'outliers':
         summary, df = des_object.get_outlier_summary()
