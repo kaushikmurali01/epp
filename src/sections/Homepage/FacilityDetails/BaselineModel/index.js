@@ -18,6 +18,10 @@ import { useDispatch, useSelector } from "react-redux";
 import Loader from "pages/Loader";
 
 import EnrollmentModal from "./EnrollmentModal";
+import {
+  clearBaselineStateAction,
+  fetchIndependentVariableList,
+} from "../../../../redux/superAdmin/actions/baselineAction";
 
 export const getSummaryDataByMeterType = (dataToGet, meterType) => {
   const meter = dataToGet?.find((item) => item?.meter_type === meterType);
@@ -37,6 +41,13 @@ const BaselineModel = () => {
   const sufficiencyCheckLoading = useSelector(
     (state) => state?.baselineReducer?.sufficiencyCheckLoading
   );
+
+  useEffect(() => {
+    dispatch(fetchIndependentVariableList(id));
+    return () => {
+      dispatch(clearBaselineStateAction());
+    };
+  }, [id]);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,

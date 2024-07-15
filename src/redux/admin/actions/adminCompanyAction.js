@@ -78,6 +78,7 @@ export const fetchAdminCompanyDetails = (companyId) => {
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminCompanyDetailsSuccess(data));
+      return data;
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminCompanyDetailsFailure(error));

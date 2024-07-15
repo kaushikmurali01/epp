@@ -245,7 +245,7 @@ const Details = ({ setTab }) => {
                   charactersticsDetails?.water_heating_fuel_source
                 ),
               year_of_construction: charactersticsDetails?.year_of_construction
-                ? new Date(charactersticsDetails.year_of_construction)
+                ? new Date(charactersticsDetails?.year_of_construction)
                 : null,
             });
             setEnergyUsageAlignment(
@@ -338,15 +338,15 @@ const Details = ({ setTab }) => {
     water_heating_efficiency_unit: "%",
   });
 
-    // Use effect to scroll to the top when the modal becomes visible
-    useEffect(() => {
-      if (!modalConfig.modalVisible) {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth' // for smooth scrolling
-        });
-      }
-    }, [modalConfig.modalVisible]);
+  // Use effect to scroll to the top when the modal becomes visible
+  useEffect(() => {
+    if (!modalConfig.modalVisible) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth", // for smooth scrolling
+      });
+    }
+  }, [modalConfig.modalVisible]);
 
   const handleSubmit = (values) => {
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
@@ -517,7 +517,8 @@ const Details = ({ setTab }) => {
                           htmlFor="year_of_construction"
                           style={{ whiteSpace: "initial" }}
                         >
-                          Year of construction *
+                          Year of construction{" "}
+                          <span className="asterisk">*</span>
                         </InputLabel>
                         <DatePicker
                           id="year_of_construction"

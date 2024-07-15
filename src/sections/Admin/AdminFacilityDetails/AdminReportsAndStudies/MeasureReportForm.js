@@ -23,6 +23,7 @@ const MeasureReportForm = ({
   measureId,
   pageInfo,
   setAddMeasureModalConfig,
+  openAlertMessageModal,
 }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -36,8 +37,8 @@ const MeasureReportForm = ({
     measure_install_cost: "",
     baseline_detail: "",
     measure_description: "",
-    start_date: "",
-    end_date: "",
+    start_date: null,
+    end_date: null,
     file_description: "",
   });
 
@@ -153,191 +154,166 @@ const MeasureReportForm = ({
         enableReinitialize={true}
         onSubmit={handleFormSubmit}
       >
-        {({ values, setFieldValue, errors }) => (
-          <Form>
-            <Grid container rowGap={4}>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="measure_name"
-                    label="Measure name *"
-                    type="text"
-                  />
+        {({ values, setFieldValue, errors }) => {
+          return (
+            <Form>
+              <Grid container rowGap={4}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6}>
+                    <InputField
+                      name="measure_name"
+                      label="Measure name *"
+                      type="text"
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <SelectBox
-                    name="measure_category"
-                    label="Measure category"
-                    valueKey="value"
-                    labelKey="label"
-                    options={MEASURE_REPORT_CATEGORY}
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6}>
+                    <SelectBox
+                      name="measure_category"
+                      label="Measure category"
+                      valueKey="value"
+                      labelKey="label"
+                      options={MEASURE_REPORT_CATEGORY}
+                      onBlur={() => {
+                        (values.measure_category === "onSiteGeneration" ||
+                          values.measure_category === "fuelSwitching") &&
+                          openAlertMessageModal(
+                            values.measure_category === "onSiteGeneration"
+                              ? "Behind-the-meter generation projects are not eligible measures."
+                              : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details."
+                          );
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <InputField
+                      name="measure_install_cost"
+                      label="Measure installation costs "
+                      type="number"
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputField
-                    name="measure_install_cost"
-                    label="Measure installation costs "
-                    type="number"
-                    onKeyDown={(evt) =>
-                      ["e", "E", "+", "-"].includes(evt.key) &&
-                      evt.preventDefault()
-                    }
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12}>
+                    <InputField
+                      name="baseline_detail"
+                      label="Baseline conditional details"
+                      type="text"
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12}>
-                  <InputField
-                    name="baseline_detail"
-                    label="Baseline conditional details"
-                    type="text"
-                  />
+                <Grid container spacing={4}>
+                  <Grid item xs={12}>
+                    <TextAreaField
+                      name="measure_description"
+                      label="Measure description"
+                      textAreaStyle={{ fontSize: "1.125rem", height: "7rem" }}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12}>
-                  <TextAreaField
-                    name="measure_description"
-                    label="Measure description"
-                    textAreaStyle={{ fontSize: "1.125rem" }}
-                  />
-                </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel
-                    htmlFor="start_date"
-                    style={{ whiteSpace: "initial" }}
-                  >
-                    Measure installation start date
-                  </InputLabel>
-                  <DatePicker
-                    id="start_date"
-                    name="start_date"
-                    sx={{
-                      width: "100%",
-                      input: { color: "#111" },
-                    }}
-                    value={values.start_date}
-                    onChange={(date) => {
-                      setFieldValue("start_date", date);
-                    }}
-                    disableFuture
-                    format="dd/MM/yyyy"
-                    slotProps={{
-                      textField: {
-                        helperText: errors.start_date && errors.start_date,
-                        FormHelperTextProps: {
-                          style: {
-                            color: errors.start_date ? "red" : "green",
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6}>
+                    <InputLabel
+                      htmlFor="start_date"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Measure installation start date
+                    </InputLabel>
+                    <DatePicker
+                      id="start_date"
+                      name="start_date"
+                      sx={{
+                        width: "100%",
+                        input: { color: "#111" },
+                      }}
+                      value={values.start_date}
+                      onChange={(date) => {
+                        setFieldValue("start_date", date);
+                      }}
+                      disableFuture
+                      format="dd/MM/yyyy"
+                      slotProps={{
+                        textField: {
+                          helperText: errors.start_date && errors.start_date,
+                          FormHelperTextProps: {
+                            style: {
+                              color: errors.start_date ? "red" : "green",
+                            },
                           },
                         },
-                      },
-                      actionBar: {
-                        actions: ["clear", "accept"],
-                        className: "my-datepicker-actionbar",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel
-                    htmlFor="end_date"
-                    style={{ whiteSpace: "initial" }}
-                  >
-                    Measure completion date
-                  </InputLabel>
-                  <DatePicker
-                    id="end_date"
-                    name="end_date"
-                    sx={{
-                      width: "100%",
-                      input: { color: "#111" },
-                    }}
-                    value={values.end_date}
-                    onChange={(date) => {
-                      setFieldValue("end_date", date);
-                    }}
-                    minDate={values?.start_date}
-                    format="dd/MM/yyyy"
-                    slotProps={{
-                      textField: {
-                        helperText: errors.end_date && errors.end_date,
-                        FormHelperTextProps: {
-                          style: {
-                            color: errors.end_date ? "red" : "green",
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <InputLabel
+                      htmlFor="end_date"
+                      style={{ whiteSpace: "initial" }}
+                    >
+                      Measure completion date
+                    </InputLabel>
+                    <DatePicker
+                      id="end_date"
+                      name="end_date"
+                      sx={{
+                        width: "100%",
+                        input: { color: "#111" },
+                      }}
+                      value={values.end_date}
+                      onChange={(date) => {
+                        setFieldValue("end_date", date);
+                      }}
+                      minDate={values?.start_date}
+                      format="dd/MM/yyyy"
+                      slotProps={{
+                        textField: {
+                          helperText: errors.end_date && errors.end_date,
+                          FormHelperTextProps: {
+                            style: {
+                              color: errors.end_date ? "red" : "green",
+                            },
                           },
                         },
-                      },
-                      actionBar: {
-                        actions: ["clear", "accept"],
-                        className: "my-datepicker-actionbar",
-                      },
-                    }}
-                  />
+                        actionBar: {
+                          actions: ["clear", "accept"],
+                          className: "my-datepicker-actionbar",
+                        },
+                      }}
+                    />
+                  </Grid>
                 </Grid>
-              </Grid>
-              <Grid container spacing={4}>
-                <Grid item xs={12} sm={6}>
-                  <InputLabel style={{ whiteSpace: "initial" }}>
-                    Measure details
-                  </InputLabel>
-                  {!measureSelectedFile ? (
-                    <>
-                      <Typography
-                        my={1}
-                        sx={{
-                          color: "#696969",
-                          fontWeight: "500",
-                          fontSize: "18px",
-                          border: "1px solid #D0D0D0",
-                          backgroundColor: "#D1FFDA",
-                          padding: "6px 34px",
-                          borderRadius: "8px",
-                          width: "140px",
-                          height: "40px",
-                          cursor: "pointer",
-                        }}
-                        onClick={handleMeasureButtonClick}
-                      >
-                        Upload
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={measureFileInputRef}
-                        style={{ display: "none" }}
-                        onChange={handleMeasureFileChange}
-                        accept={".pdf"}
-                      />
-                    </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <Link
-                        target="_blank"
-                        href={measureSelectedFile}
-                        sx={{
-                          textDecoration: "none",
-                          fontSize: "1.2rem",
-                          marginTop: "1.7rem",
-                        }}
-                        variant="h5"
-                      >
-                        Uploaded measure details
-                      </Link>
-                      <div style={{ marginLeft: "20px" }}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} sm={6}>
+                    <InputLabel style={{ whiteSpace: "initial" }}>
+                      Measure details
+                    </InputLabel>
+                    {!measureSelectedFile ? (
+                      <>
                         <Typography
                           my={1}
                           sx={{
-                            color: "#2C77E9",
+                            color: "#696969",
                             fontWeight: "500",
-                            fontSize: "16px !important",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
                             cursor: "pointer",
                           }}
                           onClick={handleMeasureButtonClick}
                         >
-                          Change File
+                          Upload
                         </Typography>
                         <input
                           type="file"
@@ -346,38 +322,74 @@ const MeasureReportForm = ({
                           onChange={handleMeasureFileChange}
                           accept={".pdf"}
                         />
-                        <Typography
-                          my={1}
+                      </>
+                    ) : (
+                      <div style={{ display: "flex" }}>
+                        <Link
+                          target="_blank"
+                          href={measureSelectedFile}
                           sx={{
-                            color: "#FF5858",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
-                            cursor: "pointer",
+                            textDecoration: "none",
+                            fontSize: "1.2rem",
+                            marginTop: "1.7rem",
                           }}
-                          onClick={deleteMeasurePicture}
+                          variant="h5"
                         >
-                          Delete File
-                        </Typography>
+                          Uploaded measure details
+                        </Link>
+                        <div style={{ marginLeft: "20px" }}>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2C77E9",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                              cursor: "pointer",
+                            }}
+                            onClick={handleMeasureButtonClick}
+                          >
+                            Change File
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={measureFileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleMeasureFileChange}
+                            accept={".pdf"}
+                          />
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#FF5858",
+                              fontWeight: "500",
+                              fontSize: "16px !important",
+                              cursor: "pointer",
+                            }}
+                            onClick={deleteMeasurePicture}
+                          >
+                            Delete File
+                          </Typography>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextAreaField
-                    name="file_description"
-                    label="File description"
-                    textAreaStyle={{ fontSize: "1.125rem" }}
-                  />
+                    )}
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <InputField
+                      name="file_description"
+                      label="File description"
+                      type="text"
+                    />
+                  </Grid>
                 </Grid>
               </Grid>
-            </Grid>
-            <Grid display="flex" sx={{ marginTop: "1rem" }}>
-              <ButtonWrapper type="submit" variant="contained">
-                {!isEdit ? "Add" : "Save"}
-              </ButtonWrapper>
-            </Grid>
-          </Form>
-        )}
+              <Grid display="flex" sx={{ marginTop: "1rem" }}>
+                <ButtonWrapper type="submit" variant="contained">
+                  {!isEdit ? "Add" : "Save"}
+                </ButtonWrapper>
+              </Grid>
+            </Form>
+          );
+        }}
       </Formik>
     </>
   );

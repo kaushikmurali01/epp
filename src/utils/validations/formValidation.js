@@ -57,14 +57,14 @@ export const validationSchemaAddFacility = Yup.object().shape({
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
   facility_type: Yup.string().required("Facility Type is required"),
-  naic_code: Yup.string()
-    .when('facility_type', {
-      is: 'Other', // condition
-      then: () => Yup.string()
-        .matches(fourDigitNumberRegex, 'NAIC\'s Code must be exactly 4 digits')
-        .required('NAIC\'s Code is required'),
-      otherwise: () => Yup.string().notRequired(),
-    }),
+  naic_code: Yup.string().when("facility_type", {
+    is: "Other", // condition
+    then: () =>
+      Yup.string()
+        .matches(fourDigitNumberRegex, "NAIC's Code must be exactly 4 digits")
+        .required("NAIC's Code is required"),
+    otherwise: () => Yup.string().notRequired(),
+  }),
   facility_category: Yup.string().required("Facility Category is required"),
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
@@ -130,8 +130,9 @@ export const validationSchemaAddMeter = Yup.object().shape({
     .required("Meter Id is required and can be found on the electricity bill")
     .min(0, "Meter Id must be a positive number"),
   meter_active: Yup.date()
+    .nullable()
     .max(new Date(), "Date meter became active cannot be in the future"),
-    // .required("Meter activation date is required"),
+  // .required("Meter activation date is required"),
   meter_inactive: Yup.date().when("stil_in_use", {
     is: false,
     then: (schema) =>
@@ -355,26 +356,26 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .min(0, "Water Heating efficiency must be a positive number"),
 });
 
-export const validationSchemaAssignFacility = (emailToAvoid) => Yup.object().shape({
-  email: Yup.string()
-    .required("Email is required")
-    .matches(
-      /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
-      "Invalid email"
-    )
-    .test("not-avoided-email", "You can not use your own email", (value) => {
-      return !value.split(",").includes(emailToAvoid);
-    })
-    .test("At least one email is required", "At least one email is required", (value) => {
-      return value.split(",").some((email) => email.trim() !== "");
-    }),
-  facilityId: Yup.array()
-    .of(Yup.number())
-    .required("Facility is required")
-    .min(1, "At least one facility is required"),
-    companyId: Yup.number()
-    .required("Please enter Password") 
-});
+export const validationSchemaAssignFacility = (emailToAvoid) =>
+  Yup.object().shape({
+    email: Yup.string()
+      .required("Email is required")
+      .matches(
+        /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}( *[,\s]+ *[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
+        "Invalid email"
+      )
+      .test("not-avoided-email", "You can not use your own email", (value) => {
+        return !value.split(/\s*,\s*/).includes(emailToAvoid);
+      })
+      .test("At least one email is required", (value) => {
+        return value.split(/\s*,\s*/).some((email) => email.trim() !== "");
+      }),
+    facilityId: Yup.array()
+      .of(Yup.number())
+      .required("Facility is required")
+      .min(1, "At least one facility is required"),
+    companyId: Yup.number().required("Please enter Company ID"),
+  });
 
 // Change Password Validation schema
 export const changePasswordValidationSchema = Yup.object().shape({
@@ -404,9 +405,7 @@ export const updateProfilePageRoleSchema = Yup.object().shape({
 });
 
 export const validationSchemaIndependentVariable = Yup.object().shape({
-  name: Yup.string().required(
-    "Independent Variable Name is required"
-  ),
+  name: Yup.string().required("Independent Variable Name is required"),
   description: Yup.string().required(
     "Independent Variable Description is required"
   ),
