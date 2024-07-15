@@ -5,6 +5,7 @@ import {
   Tab,
   Tabs,
   ToggleButton,
+  Typography,
   styled,
   useMediaQuery,
 } from "@mui/material";
@@ -51,11 +52,11 @@ const AdminReportsAndStudies = () => {
   const [selectedDocsFilter, setSelectedDocsFilter] = useState("");
   const [measurePageInfo, setMeasurePageInfo] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 5,
   });
   const [documentPageInfo, setDocumentPageInfo] = useState({
     page: 1,
-    pageSize: 10,
+    pageSize: 5,
   });
 
   useEffect(() => {
@@ -164,6 +165,7 @@ const AdminReportsAndStudies = () => {
           measureId={measureId}
           pageInfo={measurePageInfo}
           setAddMeasureModalConfig={setAddMeasureModalConfig}
+          openAlertMessageModal={openAlertMessageModal}
         />
       ),
     }));
@@ -210,6 +212,49 @@ const AdminReportsAndStudies = () => {
         />
       ),
     }));
+  };
+  const [alertMessageModalConfig, setAlertMessageModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: true,
+      saveButtonName: "",
+      cancelButtonName: "Ok",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Alert!",
+    headerSubText: "",
+    modalBodyContent: "",
+  });
+
+  const openAlertMessageModal = (message) => {
+    setAlertMessageModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <MessageComponent message={message} />,
+    }));
+  };
+
+  const MessageComponent = ({ message }) => {
+    return (
+      <Box>
+        <Typography>{message}</Typography>
+      </Box>
+    );
   };
 
   return (
@@ -362,6 +407,10 @@ const AdminReportsAndStudies = () => {
       <EvModal
         modalConfig={addDocumentModalConfig}
         setModalConfig={setAddDocumentModalConfig}
+      />
+      <EvModal
+        modalConfig={alertMessageModalConfig}
+        setModalConfig={setAlertMessageModalConfig}
       />
       <Loader
         sectionLoader

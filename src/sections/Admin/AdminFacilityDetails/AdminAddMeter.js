@@ -400,7 +400,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             sx={{ color: "text.secondary2" }}
                             name="stil_in_use"
                             checked={field.value}
-                            label="Is meter still in use? *"
+                            label="Is meter still in use?"
                           />
                         )}
                       </Field>

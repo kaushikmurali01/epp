@@ -47,11 +47,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   };
 
   useEffect(() => {
-    dispatch(fetchIndependentVariableList(id));
     dispatch(fetchBaselineDetailsFromDb(id));
-    return () => {
-      dispatch(clearBaselineStateAction());
-    };
   }, [dispatch, id]);
 
   const baselineListData = useSelector(
