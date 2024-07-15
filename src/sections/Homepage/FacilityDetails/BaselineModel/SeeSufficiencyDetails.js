@@ -14,9 +14,8 @@ const SeeSufficiencyDetails = ({
   baselineEndDate,
 }) => {
   const [activeButton, setActiveButton] = useState("hourly");
-
   const sufficiency_check_data = useSelector(
-    (state) => state?.adminBaselineReducer?.sufficiencyCheckData
+    (state) => state?.baselineReducer?.sufficiencyCheckData
   );
   const sufficiencyCheckData = sufficiency_Data
     ? sufficiency_Data
@@ -41,7 +40,7 @@ const SeeSufficiencyDetails = ({
       ),
     },
     {
-      Header: "Coverage",
+      Header: "90",
       accessor: (item) => (
         <Typography
           variant="span"

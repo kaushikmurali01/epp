@@ -203,8 +203,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           onAddMeterSuccess();
           window.scrollTo({
             top: 0,
-            behavior: 'smooth' // for smooth scrolling
-        });
+            behavior: "smooth", // for smooth scrolling
+          });
         })
         .catch((error) => {
           console.error("Error updating meter:", error);
@@ -215,8 +215,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           onAddMeterSuccess();
           window.scrollTo({
             top: 0,
-            behavior: 'smooth' // for smooth scrolling
-        });
+            behavior: "smooth", // for smooth scrolling
+          });
         })
         .catch((error) => {
           console.error("Error adding meter:", error);
@@ -276,7 +276,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
             <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
               <Grid container spacing={4}>
                 <Grid item>
-                  <InputLabel htmlFor="meter_type">Meter Type<span className="asterisk">*</span></InputLabel>
+                  <InputLabel htmlFor="meter_type">
+                    Meter Type<span className="asterisk">*</span>
+                  </InputLabel>
                   <Field name="meter_type">
                     {({ field, form }) => (
                       <ToggleButtonGroup
@@ -407,8 +409,11 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         {values.meter_inactive && !values.stil_in_use
                           ? "Is meter still in use?"
                           : "Is meter still in use?"}
-                          {/* {values.meter_inactive && !values.still_in_use ? '' :
-                          <span className="asterisk">*</span>} */}
+                        {values.meter_inactive && !values.still_in_use ? (
+                          ""
+                        ) : (
+                          <span className="asterisk">*</span>
+                        )}
                       </Typography>
                     }
                   />
@@ -486,7 +491,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this a revenue-grade meter?<span className="asterisk">*</span>
+                    Is this a revenue-grade meter?
+                    <span className="asterisk">*</span>
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
@@ -519,7 +525,10 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4} sx={{ marginTop: "10px" }}>
-                  <InputLabel>Upload the most recent utility bill<span className="asterisk">*</span></InputLabel>
+                  <InputLabel>
+                    Upload the most recent utility bill
+                    <span className="asterisk">*</span>
+                  </InputLabel>
                   {!utilitySelectedFile ? (
                     <>
                       <Typography

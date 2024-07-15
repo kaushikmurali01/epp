@@ -7,12 +7,12 @@ import {
   List,
   IconButton,
   Link,
-  useMediaQuery,
+  Link as MuiLink,
 } from "@mui/material";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminCompanyDetails } from "../../../redux/admin/actions/adminCompanyAction";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link as RouterLink } from "react-router-dom";
 import { userTypes } from "constants/allDefault";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Loader from "pages/Loader";
@@ -24,13 +24,25 @@ const CompanyProfile = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const userColumn = [
+    // {
+    //   Header: "",
+    //   accessor: "id",
+    //   cWidth: "15px",
+    // },
     {
-      Header: "",
-      accessor: "id",
-      cWidth: "15px",
+      Header: "Name of User",
+      accessor: (item) => `${item?.first_name ? item?.first_name : ''} ${item?.last_name ? item?.last_name : ''}`,
     },
     {
-      Header: "Participant Representative",
+      Header: "Company name",
+      accessor: "company_name",
+    },
+    {
+      Header: "Phone Number",
+      accessor: "phonenumber",
+    },
+    {
+      Header: "Business Email",
       accessor: (item) => (
         <Link
           href={`#/user-management/profile/${item?.company_id}/${item?.user_id}`}
@@ -40,30 +52,42 @@ const CompanyProfile = () => {
         </Link>
       ),
     },
-    {
-      Header: "User Id",
-      accessor: "user_id",
-    },
+    // {
+    //   Header: "User Id",
+    //   accessor: "user_id",
+    // },
     {
       Header: "User Role",
       accessor: "role_name",
     },
   ];
   const facilityColumn = [
+    // {
+    //   Header: "",
+    //   accessor: "id",
+    //   cWidth: "1.5px",
+    // },
     {
-      Header: "",
-      accessor: "id",
-      cWidth: "1.5px",
-    },
-    {
-      Header: "Facility Name",
+      Header: "Facility UBI",
       accessor: (item) => (
         <Link
           href={`#/facility-list/facility-details/${item?.id}`}
           sx={{ color: "#2C77E9" }}
         >
-          {item?.facility_name}
+          {item?.facility_ubi}
         </Link>
+      ),
+    },
+    {
+      Header: "Facility Name",
+      accessor: (item) => (
+        item?.facility_name
+        // <Link
+        //   href={`#/facility-list/facility-details/${item?.id}`}
+        //   sx={{ color: "#2C77E9" }}
+        // >
+        //   {item?.facility_name}
+        // </Link>
       ),
     },
     {
@@ -90,17 +114,7 @@ const CompanyProfile = () => {
         </>
       ),
     },
-    {
-      Header: "Facility UBI",
-      accessor: (item) => (
-        <Link
-          href={`#/facility-list/facility-details/${item?.id}`}
-          sx={{ color: "#2C77E9" }}
-        >
-          {item?.facility_ubi}
-        </Link>
-      ),
-    },
+   
   ];
 
   useEffect(() => {
@@ -119,6 +133,9 @@ const CompanyProfile = () => {
   const loadingState = useSelector(
     (state) => state?.adminCompanyReducer?.loading
   );
+
+  console.log(companyUserData, "companyUserData")
+  console.log(companyFacilityData, "companyFacilityData")
 
   return (
     <Container>
@@ -237,16 +254,25 @@ const CompanyProfile = () => {
                 <MicroStyledListItemComponent
                   primary="PA"
                   secondary={
-                    <Link
-                      href={`#/companies/company-agreement/${id}`}
-                      target="_self"
-                      sx={{
-                        color: "#2C77E9!important",
-                        textDecoration: "none",
-                      }}
-                    >
-                      Link to PA
-                    </Link>
+                    // <Link
+                    //   href={`#/companies/company-agreement/${id}`}
+                    //   target="_self"
+                    //   sx={{
+                    //     color: "#2C77E9!important",
+                    //     textDecoration: "none",
+                    //   }}
+                    // >
+                    //   Link to PA
+                    // </Link>
+                     <MuiLink
+                     component={RouterLink}
+                     to= {`/companies/company-agreement/${id}`}
+                     state= {{returnPageURL: `/companies/company-profile/${id}` }}
+                     sx={{ color: "#2C77E9 !important", textDecoration: "none", }}
+                     target="_self"
+                   >
+                     link to  PA
+                   </MuiLink>
                   }
                 />
                 {/* )} */}

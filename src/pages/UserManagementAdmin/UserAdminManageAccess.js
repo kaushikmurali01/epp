@@ -36,6 +36,8 @@ const UserAdminManageAccess = ({ }) => {
 
     const [selectUserType,setSelectUserType] = useState(selectTableRow?.user_type_id || '');
 
+    const [initialPermissions, setInitialPermissions] = useState([]);
+
 // type = 1 =>  "enerva users,
 // type = 2 =>  "customer users,
 // type = 3 =>  "New  users,
@@ -335,6 +337,11 @@ const UserAdminManageAccess = ({ }) => {
 
     }
 
+    const havePermissionsChanged = () => {
+        if (initialPermissions.length !== permissionStates.length) return true;
+        return !initialPermissions.every(permission => permissionStates.includes(permission));
+    };
+
     const getUserPermissionListAPI = (item) => {
         console.log(item, 'selecttableRow')
         // const apiURL = selectUserType !== null ? ENERVA_USER_MANAGEMENT.GET_EV_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + selectUserType + "/" + (item.company_id ? item.company_id : '0') + "/" + item.entry_type : USER_MANAGEMENT.GET_USER_PERMISSONS_BY_ID + '/' + item.id + '/' + item.company_id + '/' + item.entry_type;
@@ -345,6 +352,7 @@ const UserAdminManageAccess = ({ }) => {
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
                 setPermissionStates(userPermissions);
                 setSelectedPermissions(userPermissionObjects);
+                setInitialPermissions(userPermissions); // Set initial permissions
             })
             .catch((error) => {
                 console.log(error);
@@ -408,14 +416,20 @@ const UserAdminManageAccess = ({ }) => {
     useEffect(() => {
         const isValidEmail = emailRegExp.test(userEmail)
         const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
+        const permissionsChanged = isEdited ? havePermissionsChanged() : true;
 
+        // if (selectUserType === 2) {
+        //     setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '')
+        // } else {
+        //     setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
+        // }
         if (selectUserType === 2) {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '')
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged);
         } else {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected)
+            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && permissionsChanged);
         }
 
-    }, [userEmail,selectUserType, selectRoleType, selectCompanyType, selectedPermissions])
+    }, [userEmail,selectUserType, selectRoleType, selectCompanyType, selectedPermissions, initialPermissions])
 
     const scrollTop = () => {
         window.scrollTo({
@@ -445,10 +459,6 @@ const UserAdminManageAccess = ({ }) => {
           }
         
       }, [selectUserType])
-
-    console.log(selectUserType,selectCompanyType, getCompanyList, "selectUserType selectCompanyType")
-    console.log(getParams, "getParams")
-
 
     return (
         <Box component="section">

@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -9,25 +17,212 @@ import {
   activeButtonStyle,
   inactiveButtonStyle,
 } from "./styles";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchBaselinePeriod } from "../../../../redux/superAdmin/actions/baselineAction";
-import { useParams } from "react-router-dom";
 
-const BaselineModelTab = () => {
-  const [activeButton, setActiveButton] = useState(1);
+import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
+import EvModal from "utils/modal/EvModal";
+import HelpRequestModal from "./HelpRequestModal";
+import BaselineSuccessModal from "./BaselineSuccessModal";
+import EnrollmentModal from "./EnrollmentModal";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  addBaselineToDb,
+  clearBaselineStateAction,
+  fetchBaselineDetailsFromDb,
+  fetchIndependentVariableList,
+  submitRejectedBaselineDB,
+} from "../../../../redux/superAdmin/actions/baselineAction";
+import { format } from "date-fns";
+import { getSummaryDataByMeterType } from ".";
+import ModelConstructorView from "./ModelConstructorView";
+
+const BaselineModelTab = ({ openEnrollmentModal }) => {
   const dispatch = useDispatch();
+  const [activeButton, setActiveButton] = useState(1);
   const { id } = useParams();
+  const [renderViewOnlyComp, setRenderViewOnlyComp] = useState(false);
+  const [baselineDetails, setBaselineDetails] = useState(null);
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
 
-  const facilityCreatedBy = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.created_by
+  useEffect(() => {
+    dispatch(fetchBaselineDetailsFromDb(id));
+  }, [dispatch, id]);
+
+  const baselineListData = useSelector(
+    (state) => state?.baselineReducer?.baselineDetailsDb?.data
   );
 
   useEffect(() => {
-    dispatch(fetchBaselinePeriod(id, facilityCreatedBy));
-  }, [dispatch, id, facilityCreatedBy]);
+    handleBaselineDetails();
+    const baselineDataStoredInDB = getSummaryDataByMeterType(
+      baselineListData,
+      activeButton
+    );
+    if (
+      baselineDataStoredInDB?.user_type === 1 &&
+      (baselineDataStoredInDB?.status === "SUBMITTED" ||
+        baselineDataStoredInDB?.status === "REVIEWED")
+    ) {
+      setRenderViewOnlyComp(true);
+    } else {
+      setRenderViewOnlyComp(false);
+    }
+  }, [id, activeButton, baselineListData]);
+
+  const handleBaselineDetails = () => {
+    const meter = getSummaryDataByMeterType(baselineListData, activeButton);
+    setBaselineDetails(meter);
+  };
+
+  const [seeDetailsModalConfig, setSeeDetailsModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "Details",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openSeeDetailsModal = (
+    sufficiency_Data,
+    baseline_start_date,
+    baseline_end_date
+  ) => {
+    setSeeDetailsModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <SeeSufficiencyDetails
+          meterType={activeButton}
+          sufficiency_Data={sufficiency_Data}
+          baselineStartDate={baseline_start_date}
+          baselineEndDate={baseline_end_date}
+        />
+      ),
+    }));
+  };
+
+  const [sendHelpModalConfig, setSendHelpModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openSendHelpRequestModal = () => {
+    setSendHelpModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <HelpRequestModal
+          meterType={activeButton}
+          setSendHelpModalConfig={setSendHelpModalConfig}
+        />
+      ),
+    }));
+  };
+
+  const [baselineSuccessModalConfig, setBaselineSuccessModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
+
+  const openBaselineSuccessModal = () => {
+    setBaselineSuccessModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <BaselineSuccessModal
+          setBaselineSuccessModalConfig={setBaselineSuccessModalConfig}
+        />
+      ),
+    }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    setShowSubmitButton(e);
+  };
+
+  const handleSubmitFacilityStatus = (baselineStatus) => {
+    if (activeButton) {
+      const data = getSummaryDataByMeterType(baselineListData, activeButton);
+      const body = { status: baselineStatus };
+      dispatch(submitRejectedBaselineDB(data?.id, body)).then(() => {
+        openEnrollmentModal();
+        dispatch(fetchBaselineDetailsFromDb(id));
+      });
+    }
+  };
 
   return (
     <>
@@ -46,34 +241,110 @@ const BaselineModelTab = () => {
             Natural gas
           </Button>
         </StyledButtonGroup>
-        <Typography
-          variant="h6"
-          sx={{
-            padding: "0.375rem 1rem",
-            borderRadius: "1.8125rem",
-            background: "#CFEEFF",
-            color: "#1976AA",
-            fontSize: "0.875rem",
-            fontStyle: "italic",
-            fontWeight: 400,
-            mt: { xs: 2, lg: 0 },
-          }}
-        >
-          Electricity baseline has been successfully created on : 2020/03/05
-          13:35:01
-        </Typography>
+        {baselineDetails?.status === "VERIFIED" ? (
+          <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox />}
+                sx={{ color: "text.secondary2" }}
+                label={
+                  <Typography sx={{ fontSize: "14px!important" }}>
+                    Baseline model accepted
+                  </Typography>
+                }
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
+              />
+            </FormGroup>
+
+            {showSubmitButton ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Submit facility
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmitFacilityStatus("REQUESTED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Send help request
+              </Button>
+            )}
+          </Grid>
+        ) : baselineDetails?.status === "CALCULATED" ? (
+          <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+              sx={{ alignItems: "flex-end" }}
+            >
+              Submit facility
+            </Button>
+          </Grid>
+        ) : (
+          <></>
+        )}
+
+        {(baselineDetails?.status === "SUBMITTED" ||
+          baselineDetails?.status === "CALCULATED") && (
+          <Typography
+            variant="h6"
+            sx={{
+              padding: "0.375rem 1rem",
+              borderRadius: "1.8125rem",
+              background: "#CFEEFF",
+              color: "#1976AA",
+              fontSize: "0.875rem",
+              fontStyle: "italic",
+              fontWeight: 400,
+              mt: { xs: 2, lg: 0 },
+            }}
+          >
+            {baselineDetails?.meter_type === 1 && "Electricity"}
+            {baselineDetails?.meter_type === 2 && "Natural gas"}
+            {baselineDetails?.meter_type === 3 && "Water"} baseline has been
+            successfully {baselineDetails?.status === "CALCULATED" && "created"}
+            {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
+            {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
+          </Typography>
+        )}
       </Grid>
 
       <Box>
         <CustomAccordion
           summary="Model constructor"
-          details={<ModelConstructorForm meterType={activeButton} />}
+          details={
+            renderViewOnlyComp ? (
+              <ModelConstructorView
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+              />
+            ) : (
+              <ModelConstructorForm
+                openSeeDetails={openSeeDetailsModal}
+                openSendHelpRequestModal={openSendHelpRequestModal}
+                meterType={activeButton}
+                openBaselineSuccessModal={openBaselineSuccessModal}
+              />
+            )
+          }
           panelId="modelConstructor"
         />
 
         <CustomAccordion
           summary="Summary"
-          details={<BaselineSummary />}
+          details={
+            <BaselineSummary
+              summaryData={baselineListData}
+              meterType={activeButton}
+            />
+          }
           panelId="summary"
         />
 
@@ -83,6 +354,18 @@ const BaselineModelTab = () => {
           panelId="visualization"
         />
       </Box>
+      <EvModal
+        modalConfig={seeDetailsModalConfig}
+        setModalConfig={setSeeDetailsModalConfig}
+      />
+      <EvModal
+        modalConfig={sendHelpModalConfig}
+        setModalConfig={setSendHelpModalConfig}
+      />
+      <EvModal
+        modalConfig={baselineSuccessModalConfig}
+        setModalConfig={setBaselineSuccessModalConfig}
+      />
     </>
   );
 };

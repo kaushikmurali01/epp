@@ -33,15 +33,20 @@ import {
   fetchAdminFacilitiesDropdown,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import { validationSchemaAssignFacility } from "utils/validations/formValidation";
-import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminCompanyAction";
+import {
+  fetchAdminCompaniesDropdown,
+  fetchAdminCompanyDetails,
+} from "../../../redux/admin/actions/adminCompanyAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import Loader from "pages/Loader";
+import RequestToJoinModal from "./RequestToJoinModal";
 
 const AdminFacilityListing = () => {
   const navigate = useNavigate();
   const [tabValue, setTabValue] = useState("overview");
   const [companyFilter, setCompanyFilter] = useState("");
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+  const [facilityDropdownData, setFacilityDropdownData] = useState([]);
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -53,9 +58,6 @@ const AdminFacilityListing = () => {
     dispatch(fetchAdminCompaniesDropdown());
   }, [dispatch]);
 
-  const adminFacilitiesDropdownData = useSelector(
-    (state) => state?.adminFacilityReducer?.facilitiesDropdown?.data || []
-  );
   const adminCompaniesDropdownData = useSelector(
     (state) => state?.adminCompanyReducer?.companiesDropdown?.data || []
   );
@@ -136,6 +138,7 @@ const AdminFacilityListing = () => {
       }
     });
   };
+  
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -166,97 +169,11 @@ const AdminFacilityListing = () => {
     modalBodyContent: "",
   });
 
-  const RequestToJoinForm = () => {
-    const initialValues = {
-      email: "",
-      facilityId: [],
-      companyId: null,
-    };
-    const formSubmit = (values) => {
-      dispatch(adminAssignFacilities(values)).then(() => {
-        setModalConfig((prevState) => ({
-          ...prevState,
-          modalVisible: false,
-        }));
-      });
-    };
-
-    return (
-      <Formik
-        initialValues={{
-          ...initialValues,
-        }}
-        validationSchema={validationSchemaAssignFacility(emailToAvoid)}
-        onSubmit={formSubmit}
-      >
-        {({ values, setFieldValue }) => (
-          <Form>
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField
-                name="email"
-                label="User email ID*"
-                placeholder="email1, email2, ..."
-              />
-            </Stack>
-            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
-              <FormGroup className="theme-form-group theme-select-form-group">
-                <InputLabel>Assign Facility*</InputLabel>
-                <FormControl sx={{ color: "primary.main" }}>
-                  <Select
-                    fullWidth
-                    name="facilityId"
-                    multiple
-                    value={values.facilityId}
-                    onChange={(e) => {
-                      setFieldValue("facilityId", e.target.value);
-                    }}
-                  >
-                    {adminFacilitiesDropdownData?.map((item) => (
-                      <MenuItem key={item?.id} value={item?.id}>
-                        {item?.facility_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </FormGroup>
-            </Stack>
-            <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
-              <FormGroup className="theme-form-group theme-select-form-group">
-                <InputLabel>Assign Company*</InputLabel>
-                <FormControl sx={{ color: "primary.main" }}>
-                  <Select
-                    fullWidth
-                    name="companyId"
-                    value={values.companyId}
-                    onChange={(e) => {
-                      setFieldValue("companyId", e.target.value);
-                    }}
-                  >
-                    {adminCompaniesDropdownData?.map((item) => (
-                      <MenuItem key={item?.id} value={item?.id}>
-                        {item?.company_name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </FormGroup>
-            </Stack>
-            <Grid display="flex" sx={{ marginTop: "1rem" }}>
-              <ButtonWrapper type="submit" variant="contained">
-                Submit
-              </ButtonWrapper>
-            </Grid>
-          </Form>
-        )}
-      </Formik>
-    );
-  };
-
   const openRequestModal = () => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <RequestToJoinForm />,
+      modalBodyContent: <RequestToJoinModal setModalConfig={setModalConfig} />,
     }));
   };
 

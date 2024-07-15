@@ -1,40 +1,62 @@
-import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import {
+  addAssigneeToBaselineDbFailure,
+  addAssigneeToBaselineDbRequest,
+  addAssigneeToBaselineDbSuccess,
+  addBaselineDbFailure,
+  addBaselineDbRequest,
+  addBaselineDbSuccess,
+  clearBaselineState,
+  fetchBaselineDetailsDbFailure,
+  fetchBaselineDetailsDbRequest,
+  fetchBaselineDetailsDbSuccess,
+  fetchBaselineListDbFailure,
+  fetchBaselineListDbRequest,
+  fetchBaselineListDbSuccess,
   fetchBaselinePeriodFailure,
   fetchBaselinePeriodRequest,
   fetchBaselinePeriodSuccess,
+  fetchIssueDetailsFailure,
+  fetchIssueDetailsRequest,
+  fetchIssueDetailsSuccess,
   fetchStationsDetailsFailure,
   fetchStationsDetailsRequest,
   fetchStationsDetailsSuccess,
   independentVariableListFailure,
   independentVariableListRequest,
   independentVariableListSuccess,
+  showObserveDataFailure,
+  showObserveDataRequest,
+  showObserveDataSuccess,
+  submitBaselineDtFailure,
+  submitBaselineDtRequest,
+  submitBaselineDtSuccess,
+  submitRejectBaselineDbFailure,
+  submitRejectBaselineDbRequest,
+  submitRejectBaselineDbSuccess,
   sufficiencyCheckFailure,
   sufficiencyCheckRequest,
   sufficiencyCheckSuccess,
+  updateBaselineDetailsDbFailure,
+  updateBaselineDetailsDbRequest,
+  updateBaselineDetailsDbSuccess,
 } from "../actionCreators/baselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
+import { ReceiptRounded } from "@mui/icons-material";
 
 export const SufficiencyCheck = (sufficiencyParameters) => {
   return async (dispatch) => {
     try {
       dispatch(sufficiencyCheckRequest());
       let endpointWithParams = `${BASELINE_ENDPOINTS.CHECK_SUFFICIENCY}`;
-      const formData = new FormData();
-      formData.append("start_date", sufficiencyParameters.start_date);
-      formData.append("end_date", sufficiencyParameters.end_date);
-      formData.append("granularity", sufficiencyParameters.granularity);
-      formData.append("facility_id", sufficiencyParameters.facility_id);
-      formData.append("created_by", sufficiencyParameters.created_by);
       const response = await POST_REQUEST(
         endpointWithParams,
-        sufficiencyParameters,
-        true,
-        ""
+        sufficiencyParameters
       );
       const data = response.data;
       dispatch(sufficiencyCheckSuccess(data));
+      return data;
     } catch (error) {
       console.error(error);
       dispatch(sufficiencyCheckFailure(error));
@@ -42,6 +64,7 @@ export const SufficiencyCheck = (sufficiencyParameters) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -66,11 +89,11 @@ export const fetchIndependentVariableList = (facilityId) => {
   };
 };
 
-export const fetchBaselinePeriod = (facilityId, createdBy) => {
+export const fetchBaselinePeriod = (facilityId, meterType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchBaselinePeriodRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.BASELINE_PERIOD}?facility_id=${facilityId}&created_by=${createdBy}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.BASELINE_PERIOD}?facility_id=${facilityId}&meter_type=${meterType}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchBaselinePeriodSuccess(data));
@@ -82,6 +105,7 @@ export const fetchBaselinePeriod = (facilityId, createdBy) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
@@ -90,7 +114,7 @@ export const fetchStationsDetails = (facilityId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchStationsDetailsRequest());
-      const endpointWithParams = `${BASELINE_ENDPOINTS.STATION_DETAILS}?facilityId=${facilityId}`;
+      const endpointWithParams = `${BASELINE_ENDPOINTS.STATION_DETAILS}?facility_id=${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchStationsDetailsSuccess(data));
@@ -104,4 +128,206 @@ export const fetchStationsDetails = (facilityId) => {
       });
     }
   };
+};
+
+export const fetchIssueDetails = (issueParameter) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchIssueDetailsRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.CHECK_ISSUES_DETAILS}`;
+      const response = await POST_REQUEST(endpointWithParams, issueParameter);
+      const data = response.data;
+      dispatch(fetchIssueDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchIssueDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const addBaselineToDb = (facilityId, baselineData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_BASELINE_DB}/${facilityId}`;
+      const response = await POST_REQUEST(endpointWithParams, baselineData);
+      const data = response.data;
+      dispatch(addBaselineDbSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(addBaselineDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchBaselineDetailsFromDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchBaselineDetailsDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_BASELINE_DB}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchBaselineDetailsDbSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchBaselineDetailsDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+};
+
+export const updateBaselineInDb = (baselineId, baselineData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateBaselineDetailsDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.UPDATE_BASELINE_DB}/${baselineId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, baselineData);
+      const data = response.data;
+      dispatch(updateBaselineDetailsDbSuccess(data));
+      NotificationsToast({
+        message: "Baseline calculated successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(updateBaselineDetailsDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchBaselineListFromDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchBaselineListDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_BASELINE_LIST_DB}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchBaselineListDbSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchBaselineListDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const addAssigneeToBaselineDb = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addAssigneeToBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.ADD_ASSIGNEE_DB}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(addAssigneeToBaselineDbSuccess(data));
+      NotificationsToast({
+        message: "Assignee added successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(addAssigneeToBaselineDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const submitRejectedBaselineDB = (facilityId, dataBody) => {
+  return async (dispatch) => {
+    try {
+      dispatch(submitRejectBaselineDbRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_REJECTED_BASELINE_DB}/${facilityId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, dataBody);
+      const data = response.data;
+      dispatch(submitRejectBaselineDbSuccess(data));
+      NotificationsToast({
+        message: "Baseline submitted successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(submitRejectBaselineDbFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+};
+
+export const showObserveData = (observeData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(showObserveDataRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.SHOW_OBSERVE_DATA_LIST}`;
+      const response = await POST_REQUEST(endpointWithParams, observeData);
+      const data = response.data;
+      dispatch(showObserveDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(showObserveDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const submitBaselineDt = (baselineParameters) => {
+  return async (dispatch) => {
+    try {
+      dispatch(submitBaselineDtRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_BASELINE_D_T}`;
+      const response = await POST_REQUEST(
+        endpointWithParams,
+        baselineParameters
+      );
+      const data = response.data;
+      dispatch(submitBaselineDtSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(submitBaselineDtFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+};
+
+export const clearBaselineStateAction = () => (dispatch) => {
+  dispatch(clearBaselineState());
 };

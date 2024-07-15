@@ -12,27 +12,40 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
-  fetchAdminBaselinePeriod,
+  clearAdminBaselineStateAction,
+  fetchAdminBaselineDetailsFromDb,
+  fetchAdminIndependentVariableList,
   fetchAdminStationsDetails,
 } from "../../../../redux/admin/actions/adminBaselineAction";
 import EvModal from "utils/modal/EvModal";
 import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
+import UserReviewBaselineModal from "./UserReviewBaselineModal";
+import ModelConstructorView from "./ModelConstructorView";
+import { getSummaryDataByMeterType } from ".";
 
-const BaselineModelTab = ({ handleSufficiencySettings, openSeeDetails }) => {
+const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
+  const [renderFormComp, setRenderFormComp] = useState(false);
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
-  const facilityCreatedBy = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.created_by
+  const baselineListData = useSelector(
+    (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data
   );
 
   useEffect(() => {
-    dispatch(fetchAdminBaselinePeriod(id, facilityCreatedBy));
-    dispatch(fetchAdminStationsDetails(id));
-  }, [dispatch, id, facilityCreatedBy]);
+    const baselineDataStoredInDB = getSummaryDataByMeterType(
+      baselineListData,
+      activeButton
+    );
+    if (baselineDataStoredInDB?.status === "REQUESTED") {
+      setRenderFormComp(true);
+    } else {
+      setRenderFormComp(false);
+    }
+  }, [id, activeButton, baselineListData]);
 
   const [seeDetailsModalConfig, setSeeDetailsModalConfig] = useState({
     modalVisible: false,
@@ -63,11 +76,66 @@ const BaselineModelTab = ({ handleSufficiencySettings, openSeeDetails }) => {
     saveButtonAction: "",
   });
 
-  const openSeeDetailsModal = (company_id) => {
+  const openSeeDetailsModal = (
+    sufficiency_Data,
+    baseline_start_date,
+    baseline_end_date
+  ) => {
     setSeeDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <SeeSufficiencyDetails companyId={company_id} />,
+      modalBodyContent: (
+        <SeeSufficiencyDetails
+          meterType={activeButton}
+          sufficiency_Data={sufficiency_Data}
+          baselineStartDate={baseline_start_date}
+          baselineEndDate={baseline_end_date}
+        />
+      ),
+    }));
+  };
+
+  const [userReviewBaselineModalConfig, setUserReviewBaselineModalConfig] =
+    useState({
+      modalVisible: false,
+      modalUI: {
+        showHeader: true,
+        crossIcon: false,
+        modalClass: "",
+        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+        headerSubTextStyle: {
+          marginTop: "1rem",
+          color: "rgba(36, 36, 36, 1)",
+          fontSize: { md: "0.875rem" },
+        },
+        fotterActionStyle: "",
+        modalBodyContentStyle: "",
+      },
+      buttonsUI: {
+        saveButton: false,
+        cancelButton: false,
+        saveButtonName: "Yes",
+        cancelButtonName: "No",
+        saveButtonClass: "",
+        cancelButtonClass: "",
+      },
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: "",
+      saveButtonAction: "",
+    });
+
+  const openUserReviewBaselineModal = (baseline_id, updatedBaselineData) => {
+    setUserReviewBaselineModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <UserReviewBaselineModal
+          setUserReviewBaselineModalConfig={setUserReviewBaselineModalConfig}
+          baseline_id={baseline_id}
+          updatedBaselineData={updatedBaselineData}
+        />
+      ),
     }));
   };
 
@@ -88,40 +156,38 @@ const BaselineModelTab = ({ handleSufficiencySettings, openSeeDetails }) => {
             Natural gas
           </Button>
         </StyledButtonGroup>
-        <Typography
-          variant="h6"
-          sx={{
-            padding: "0.375rem 1rem",
-            borderRadius: "1.8125rem",
-            background: "#CFEEFF",
-            color: "#1976AA",
-            fontSize: "0.875rem",
-            fontStyle: "italic",
-            fontWeight: 400,
-            mt: { xs: 2, lg: 0 },
-          }}
-        >
-          Electricity baseline has been successfully created on : 2020/03/05
-          13:35:01
-        </Typography>
       </Grid>
 
       <Box>
         <CustomAccordion
           summary="Model constructor"
           details={
-            <ModelConstructorForm
-              handleSufficiencySettings={handleSufficiencySettings}
-              openSeeDetails={openSeeDetailsModal}
-              meterType={activeButton}
-            />
+            renderFormComp ? (
+              <ModelConstructorForm
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+                openUserReviewBaselineModal={openUserReviewBaselineModal}
+              />
+            ) : (
+              <ModelConstructorView
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+              />
+            )
           }
           panelId="modelConstructor"
         />
 
         <CustomAccordion
           summary="Summary"
-          details={<BaselineSummary />}
+          details={
+            <BaselineSummary
+              summaryData={baselineListData}
+              meterType={activeButton}
+            />
+          }
           panelId="summary"
         />
 
@@ -135,6 +201,10 @@ const BaselineModelTab = ({ handleSufficiencySettings, openSeeDetails }) => {
       <EvModal
         modalConfig={seeDetailsModalConfig}
         setModalConfig={setSeeDetailsModalConfig}
+      />
+      <EvModal
+        modalConfig={userReviewBaselineModalConfig}
+        setModalConfig={setUserReviewBaselineModalConfig}
       />
     </>
   );
