@@ -161,3 +161,4 @@ cython_debug/
 
 # config file
 config.py
+generarate_sample_data.py

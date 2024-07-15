@@ -7,42 +7,24 @@ import numpy as np
 class ProcessDataframe:
     @staticmethod
     def process_missing_data_by_meter_type(df, meter):
-        """
-        Process missing data by meter type.
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop("Unnamed: 0", axis=1)
 
-        Args:
-        - df (DataFrame): Input DataFrame containing meter data.
-        - meter (str): Meter type identifier.
-
-        Returns:
-        - DataFrame: Processed DataFrame with hourly kW means, start date, and end date.
-        - Timestamp: Start date of data.
-        - Timestamp: End date of data.
-        """
-        # Ensure 'ReadingDate' is in datetime format
-        df['ReadingDate'] = pd.to_datetime(df['ReadingDate'])
-
-        # Create a new column with the formatted date (hourly format)
-        df['FormattedDate'] = df['ReadingDate'].dt.strftime('%d-%m-%Y %H')
-
-        # Group by the new formatted date column and calculate the mean of the 'kW' column
-        grouped_by_df = df.groupby('FormattedDate')['kW'].mean().round(2).reset_index()
-
-        # Generate a complete range of hourly dates within the range of the data
-        start_date = df['ReadingDate'].min().floor('H')
-        end_date = df['ReadingDate'].max().ceil('H')
+        filtered_df = df[df['MeterType'] == meter][:]
+        filtered_df['Start Date (Required)'] = pd.to_datetime(filtered_df['Start Date (Required)'])
+        filtered_df['End Date (Required)'] = pd.to_datetime(filtered_df['End Date (Required)'])
+        filtered_df['FormattedDate'] = filtered_df['Start Date (Required)'].dt.strftime('%d-%m-%Y %H')
+        grouped_by_df = filtered_df.groupby('FormattedDate')['Meter Reading (Required)'].mean().round(2).reset_index()
+        start_date = filtered_df['Start Date (Required)'].min().floor('H')
+        end_date = filtered_df['Start Date (Required)'].max().floor('H')
         all_hours = pd.date_range(start=start_date, end=end_date, freq='H')
-
-        # Create a DataFrame to ensure all hours are included
         all_hours_df = pd.DataFrame({'FormattedDate': all_hours.strftime('%d-%m-%Y %H')})
-
-        # Merge with the grouped DataFrame to include all hours
         merged_df = pd.merge(all_hours_df, grouped_by_df, on='FormattedDate', how='left')
+        merged_df['Meter Reading (Required)'].fillna(np.nan, inplace=True)
 
-        # Fill missing values with NaN or a specified fill value (e.g., 0)
-        merged_df['kW'].fillna(np.nan, inplace=True)
-
-        return merged_df, start_date, end_date
+        nan_values_df = merged_df[merged_df['Meter Reading (Required)'].isna()]
+        return nan_values_df.shape[0], filtered_df['Start Date (Required)'].min(), filtered_df[
+            'End Date (Required)'].max()
 
     @staticmethod
     def process_observe_data_by_meter_type(df, meter):
@@ -151,17 +133,16 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-
         # Process missing data summaries for each distinct meter type
         distinct_meter_types = self.combined_df['MeterType'].unique()
         mapped_data = {}
         for meter_type in distinct_meter_types:
-            filtered_df = self.combined_df[self.combined_df['MeterType'] == meter_type][:]
-            returned_data_frame, start_date, end_date = self.process_missing_data_by_meter_type(filtered_df, meter_type)
+            total_records, start_date, end_date = self.process_missing_data_by_meter_type(self.combined_df,
+                                                                                                meter_type)
             mapped_data[int(meter_type)] = {
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
-                "total_records": int(returned_data_frame.isna().sum().sum()),
+                "total_records": int(total_records),
             }
         return mapped_data
 

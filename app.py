@@ -598,11 +598,11 @@ def get_data_exploration_summary():
     if summary_type == 'outliers':
         summary, df = des_object.get_outlier_summary()
     elif summary_type == 'missing_data':
-        summary, df = des_object.get_missing_data_summary()
+        summary = des_object.get_missing_data_summary()
     else:
-        summary, df = des_object.get_observe_data_summary()
+        summary = des_object.get_observe_data_summary()
     return jsonify(summary)
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)
