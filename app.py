@@ -590,6 +590,7 @@ def idv_process():
     return jsonify(hourly_data_list), 200
 
 
+@app.route("/data-exploration-summary", methods=['GET'])
 def get_data_exploration_summary():
     facility_id = request.json.get('facility_id', '')
     summary_type = request.json.get('summary_type', 'observe_data')
@@ -600,7 +601,6 @@ def get_data_exploration_summary():
         summary, df = des_object.get_missing_data_summary()
     else:
         summary, df = des_object.get_observe_data_summary()
-
     return jsonify(summary)
 
 if __name__ == '__main__':
