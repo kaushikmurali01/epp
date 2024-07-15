@@ -25,6 +25,32 @@ class ProcessDataframe:
         merged_df['kW'].fillna(np.nan, inplace=True)
         return merged_df, start_date, end_date
 
+    @staticmethod
+    def process_observe_data_by_meter_type(df, meter):
+        meter_type = int(meter)
+        data = df[df['MeterType'] == meter_type]
+        total_records = data.shape[0]
+
+        # Ensuring the ReadingDate column is in datetime format
+        data['ReadingDate'] = pd.to_datetime(data['ReadingDate'])
+
+        # Finding the maximum and minimum dates
+        max_date = data['ReadingDate'].max()
+        min_date = data['ReadingDate'].min()
+        data['ReadingDate'] = data['ReadingDate'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S'))
+
+        # Converting min_date and max_date to string format
+        min_date_str = min_date.strftime('%Y-%m-%d %H:%M:%S')
+        max_date_str = max_date.strftime('%Y-%m-%d %H:%M:%S')
+
+        mapped_data = {
+            "time_stamp_start": min_date_str,
+            "time_stamp_end": max_date_str,
+            "total_records": total_records,
+            # 'dataset': data.to_json(orient='records')
+        }
+        return mapped_data
+
 
 class DataExplorationSummary(ProcessDataframe):
     def __init__(self, facility_id):
@@ -64,7 +90,6 @@ class DataExplorationSummary(ProcessDataframe):
         return self.combined_df
 
     def get_missing_data_summary(self):
-        meter_map = {1: 'Electricity', 2: 'Water', 3: 'Natural Gas'}
         for _, row in self.df.iterrows():
             url = row['media_url']
             meter_type = row['meter_type']
@@ -77,11 +102,9 @@ class DataExplorationSummary(ProcessDataframe):
             filtered_df = self.combined_df[self.combined_df['MeterType'] == meter_type][:]
             returned_data_frame, start_date, end_date = self.process_missing_data_by_meter_type(filtered_df, meter_type)
             mapped_data[int(meter_type)] = {
-                "meter_type": meter_map.get(meter_type),
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
                 "total_records": int(returned_data_frame.isna().sum().sum()),
-                # 'dataset': returned_data_frame.to_json(orient='records')
             }
         return mapped_data, None
 
@@ -99,32 +122,8 @@ class DataExplorationSummary(ProcessDataframe):
         as_per_meter_configuration = {}
 
         # Defining a meter type mapping
-        meter_map = {1: 'Electricity', 2: 'Water', 3: 'Natural Gas'}
-
+        mapped_data = {}
         # Looping through each distinct meter type to create the configuration
         for meter_type in distinct_meter_types:
-            meter_type = int(meter_type)
-            data = observed_summary[observed_summary['MeterType'] == meter_type]
-            total_records = data.shape[0]
-
-            # Ensuring the ReadingDate column is in datetime format
-            data['ReadingDate'] = pd.to_datetime(data['ReadingDate'])
-
-            # Finding the maximum and minimum dates
-            max_date = data['ReadingDate'].max()
-            min_date = data['ReadingDate'].min()
-            data['ReadingDate'] = data['ReadingDate'].apply(lambda x: x.strftime('%Y-%m-%d %H:%M:%S'))
-
-            # Converting min_date and max_date to string format
-            min_date_str = min_date.strftime('%Y-%m-%d %H:%M:%S')
-            max_date_str = max_date.strftime('%Y-%m-%d %H:%M:%S')
-
-            as_per_meter_configuration[meter_type] = {
-                "meter_type": meter_map.get(meter_type),
-                "time_stamp_start": min_date_str,
-                "time_stamp_end": max_date_str,
-                "total_records": total_records,
-                # 'dataset': data.to_json(orient='records')
-            }
-
-        return as_per_meter_configuration, None
+            mapped_data[int(meter_type)] = self.process_observe_data_by_meter_type(observed_summary,int(meter_type))
+        return mapped_data, None
