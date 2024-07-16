@@ -1,0 +1,11 @@
+.custom-marker {
+    width: 40px; /* Adjust based on your image size */
+    height: 40px; /* Adjust based on your image size */
+    background-color: red;
+  }
+  
+  .custom-marker img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }

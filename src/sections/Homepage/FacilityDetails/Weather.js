@@ -19,6 +19,7 @@ import {
   Checkbox
 } from "@mui/material";
 import { PowerBIEmbed } from "powerbi-client-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts';
 import { models } from "powerbi-client";
 import { useSelector } from "react-redux";
 import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -60,35 +61,20 @@ const Weather = () => {
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [independentVariable1File, setIndependentVariable1File] = useState(null);
   const [imgUrl, setImgUrl] = useState("");
-  const [checked, setChecked] = useState(true);
   const initialValues = {};
   const [progress, setProgress] = useState(0);
-  const LAT_LONG_DATA = [
-    {
-      station_name: "Toronto city centre weather station",
-      latitude: 43.644,
-      longitude: -79.403,
-      climate_id: "",
-      station_id: ""
-    },
-    {
-      station_name: "Toronto city weather station",
-      latitude: 43.67,
-      longitude: -79.4,
-      climate_id: "6158355",
-      station_id: "31688"
-    },
-    {
-      station_name: "Toronto INTL A weather station",
-      latitude: 43.67,
-      longitude: -79.4,
-      climate_id: "6158731",
-      station_id: "51459"
-    }
-  ];
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   const selectedIv= independentVarsList?.length && independentVarsList.find(obj => obj['id'] == tabValue);
   const selectedIvName = selectedIv ? selectedIv['name'] : undefined;
+  const [weatherData, setWeatherData] = useState({});
+  const [weatherParamsChecked, setWeatherParamChecked] = useState({
+    temp: true,
+    rel_hum: true,
+    precip_amount: true,
+    wind_spd: true,
+    station_press:true
+  })
 
   useEffect(() => {
     setIndependentVariable1File(null)
@@ -100,87 +86,39 @@ const Weather = () => {
   useEffect(() => {
     if(!facilityData) return;
     if(tabValue == 'weather'){
-      getPowerBiTokenForWeather()
+      getWeatherData()
     }
   }, [facilityData, selectedIvName])
 
-  const getPowerBiTokenForWeather = () => {
-    const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI
+  const getWeatherData = async () => {
 
-    GET_REQUEST(apiURL).then((response) => {
-      localStorage.setItem("powerBiAccessToken", (response?.data?.access_token));
-      getPowerBiReportTokenForWeather()
-    })
-    .catch((error) => {
-      console.log(error);
-      if(error?.response?.status == 403){
-      }
-      setReportLoading(false);
-    });
-  }
+    const nameMap = [
+      'temp', 'rel_hum', 'precip_amount', 'wind_spd', 'station_press'
+    ];
 
-  const getPowerBiReportTokenForWeather= () => {
-    setReportLoading(true)
-    const apiURL = POWERBI_ENDPOINTS.GET_POWERBI_TOKEN;
-    const body = {
-      "datasets": [
-        {
-          "id": weatherDataSetId
-        }
-      ],
-      "reports": [
-        {
-          "allowEdit": true,
-          "id": weatherReportId
-        }
-      ]
-    }
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data))
-        setReportParametersForWeather();
-      })
-      .catch((error) => {
-        console.log(error);
-        if(error?.response?.status == 403){
-        }
-        setReportLoading(false);
+    try{
+      setWeatherLoading(true);
+      const [tempRes, relHumRes, precipRes, windRes, pressRes] = await Promise.all([
+        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[0]}`),
+        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[1]}`),
+        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[2]}`),
+        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[3]}`),
+        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[4]}`)
+      ]);
+
+      setWeatherData({
+        temp: convertToArrayOfObjects(tempRes?.data),
+        rel_hum: convertToArrayOfObjects(relHumRes?.data),
+        precip_amount: convertToArrayOfObjects(precipRes?.data),
+        wind_spd: convertToArrayOfObjects(windRes?.data),
+        station_press: convertToArrayOfObjects(pressRes?.data)
       });
-  }
 
-  const setReportParametersForWeather = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${weatherDataSetId}/Default.UpdateParameters`
-    const body = {
-      "updateDetails": [
-        {
-          "name": "facility_id",
-          "newValue": facilityData?.id
-        },
-      ]
+    } catch (err) {
+      setWeatherLoading(false);
+    } finally {
+      setWeatherLoading(false);
     }
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        refreshPowerBiReportForWeather()
-      })
-      .catch((error) => {
-        setReportLoading(false)
-        console.log(error);
-      });
-  }
-
-  const refreshPowerBiReportForWeather = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${weatherDataSetId}/refreshes`
-    const body = {
-      retryCount: 3
-    }
-    POWERBI_POST_REQUEST(apiURL, body, )
-      .then((res) => {
-        setReportLoading(false)
-      })
-      .catch((error) => {
-        setReportLoading(false)
-        console.log(error);
-      });
   }
 
   const getPowerBiTokenForIV = () => {
@@ -437,7 +375,12 @@ const Weather = () => {
     });
   };
 
-  const handleCheckboxChange = (event) => { setChecked(event.target.checked); };
+  const handleCheckboxChange = (event) => { 
+    setWeatherParamChecked(prevState => ({
+      ...prevState,
+      [event.target.name]: event.target.checked
+    }));
+  };
 
   const getPowerBiError = (errorDetail) => {
     console.log('Error in setIsErrorInPowerBi',errorDetail)
@@ -461,6 +404,77 @@ const Weather = () => {
       },
       background: models.BackgroundType.Transparent,
     },
+  }
+
+  const  convertToArrayOfObjects = (data) => {
+    const monthOrder = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+  
+    return Object.entries(data)
+      .map(([month, value]) => ({
+        name: month,
+        value: value
+      }))
+      .sort((a, b) => monthOrder.indexOf(a.name) - monthOrder.indexOf(b.name));
+  }
+
+  const  shortenMonthNames = (data) =>{
+    const monthAbbreviations = {
+      January: 'Jan',
+      February: 'Feb',
+      March: 'Mar',
+      April: 'Apr',
+      May: 'May',
+      June: 'Jun',
+      July: 'Jul',
+      August: 'Aug',
+      September: 'Sep',
+      October: 'Oct',
+      November: 'Nov',
+      December: 'Dec'
+    };
+  
+    return data.map(item => ({
+      name: monthAbbreviations[item.name] || item.name,
+      value: item.value
+    }));
+  }
+
+  const WeatherCharts = (variable) => {
+
+    const  getVariableFullName = (name) => {
+      const nameMap = {
+        temp: "Temperature",
+        rel_hum: "Relative Humidity",
+        precip_amount: "Precipitation Amount",
+        wind_spd: "Wind Speed",
+        station_press: "Atmospheric Pressure"
+      };
+    
+      return nameMap[name] || name;
+    }
+
+    let data = weatherData[variable];
+    if(data) {
+      data = shortenMonthNames(data)
+    }
+
+    return (
+      <div style={{width: '100%', height: 300, marginLeft: '-2.25rem'}} className="weather-charts">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data}>
+            <CartesianGrid stroke="#ccc" horizontal={false}/>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Line type="monotone" dataKey="value" stroke="#A2E00A" name={getVariableFullName(variable)}/>
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   return (
@@ -528,8 +542,8 @@ const Weather = () => {
       </Grid>
 
       {tabValue == 'weather' ? <Box>
-        <Grid xs={12} md={10}>
-        <MapComponent />
+        <Grid style={{ width: '83.33vw' }}>
+          {<MapComponent facilityData={facilityData} weatherStations={weatherStations} />}
         </Grid>
         <Grid
           container
@@ -541,7 +555,7 @@ const Weather = () => {
           }}
           xs={12} md={10}
         >
-          {weatherStations?.length ? <Grid item xs={12} md={12} sx={{ textAlign: "center" }}>
+          {weatherStations?.length ? <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
             <TableContainer
               component={Paper}
               sx={{
@@ -567,7 +581,7 @@ const Weather = () => {
                       ))}
                   </TableRow>
                 </TableHead>
-                <TableHead>
+                <TableBody>
                   <TableRow>
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Latitude
@@ -581,9 +595,7 @@ const Weather = () => {
                           {type?.["latitude"]}
                         </TableCell>
                       ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
+                  </TableRow>                
                   <TableRow>
                     <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
                       Longitude
@@ -621,7 +633,7 @@ const Weather = () => {
               </MuiTable>
             </TableContainer>
           </Grid> : null}
-          {/* <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
+          <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
             <Typography>Select checkboxes to see graphs</Typography>
             <Grid item xs={12} md={6}>
               <Formik
@@ -635,10 +647,10 @@ const Weather = () => {
                     <FormControlLabel
                       control={
                         <Field
-                          name=""
+                          name="temp"
                           type="checkbox"
                           as={Checkbox}
-                          checked={checked}
+                          checked={weatherParamsChecked?.temp}
                           onChange={handleCheckboxChange}
                         />
                       }
@@ -655,10 +667,10 @@ const Weather = () => {
                     <FormControlLabel
                       control={
                         <Field
-                          name=""
+                          name="rel_hum"
                           type="checkbox"
                           as={Checkbox}
-                          checked={checked}
+                          checked={weatherParamsChecked?.rel_hum}
                           onChange={handleCheckboxChange}
                         />
                       }
@@ -675,10 +687,10 @@ const Weather = () => {
                     <FormControlLabel
                       control={
                         <Field
-                          name=""
+                          name="precip_amount"
                           type="checkbox"
                           as={Checkbox}
-                          checked={checked}
+                          checked={weatherParamsChecked?.precip_amount}
                           onChange={handleCheckboxChange}
                         />
                       }
@@ -706,10 +718,10 @@ const Weather = () => {
                     <FormControlLabel
                       control={
                         <Field
-                          name=""
+                          name="station_press"
                           type="checkbox"
                           as={Checkbox}
-                          checked={checked}
+                          checked={weatherParamsChecked?.station_press}
                           onChange={handleCheckboxChange}
                         />
                       }
@@ -726,10 +738,10 @@ const Weather = () => {
                     <FormControlLabel
                       control={
                         <Field
-                          name=""
+                          name="wind_spd"
                           type="checkbox"
                           as={Checkbox}
-                          checked={checked}
+                          checked={weatherParamsChecked?.wind_spd}
                           onChange={handleCheckboxChange}
                         />
                       }
@@ -742,7 +754,7 @@ const Weather = () => {
                       }
                     />
                   </FormGroup>
-                  <FormGroup>
+                  {/* <FormGroup>
                     <FormControlLabel
                       control={
                         <Field
@@ -761,65 +773,48 @@ const Weather = () => {
                         </Typography>
                       }
                     />
-                  </FormGroup>
+                  </FormGroup> */}
                 </Form>
               </Formik>
             </Grid>
-          </Grid> */}
-          <Grid sx={{width: "100%"}}>
-            <Grid sx={{width: "100%"}}>
-              <Box id="bi-report" mt={4}>
-                {((!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
-                  embedConfig={powerBiConfig}
-                  eventHandlers={
-                    new Map([
-                      [
-                        "loaded",
-                        function () {
-                          console.log("Report loaded");
-                        },
-                      ],
-                      [
-                        "rendered",
-                        function () {
-                          console.log("Report rendered");
-                        },
-                      ],
-                      [
-                        "error",
-                        function (event) {
-                          console.log("iiiiiiiiiii",event.detail);
-                          getPowerBiError(event.detail)
-                        },
-                      ],
-                      ["visualClicked", () => console.log("visual clicked")],
-                      ["pageChanged", (event) => console.log(event)],
-                    ])
-                  }
-                  cssClassName={"bi-embedded"}
-                  getEmbeddedComponent={(embeddedReport) => {
-                    window.report = embeddedReport;
-                  }}
-                /> : 
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: "700",
-                    fontSize: "1.125rem !important",
-                    lineHeight: "106.815%",
-                    letterSpacing: "-0.01125rem",
-                  }}
-                >
-                  Verifying data and creating visualization, please wait...
-                </Typography>}
-              </Box>
+          </Grid>
+          <Grid xs={12} md={11} style={{paddingTop: '3rem'}}>
+            {weatherParamsChecked?.temp && !weatherLoading ? 
+            <Grid style={{ paddingBottom: '3rem'}}>
+              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600", marginBottom: '1rem'}}>Air temperature</Typography>
+              {WeatherCharts('temp')}
             </Grid>
+             : null}
+            {weatherParamsChecked?.rel_hum && !weatherLoading ? 
+            <Grid style={{ paddingBottom: '3rem'}}>
+              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Relative humidity</Typography>
+              {WeatherCharts('rel_hum')}
+            </Grid>
+             : null}
+            {weatherParamsChecked?.precip_amount && !weatherLoading ? 
+            <Grid style={{ paddingBottom: '3rem'}}>
+              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Precipitation</Typography>
+              {WeatherCharts('precip_amount')}
+            </Grid>
+            : null}
+            {weatherParamsChecked?.wind_spd && !weatherLoading ? 
+            <Grid style={{ paddingBottom: '3rem'}}>
+              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Wind speed</Typography>
+              {WeatherCharts('wind_spd')}
+            </Grid>
+            : null}
+            {weatherParamsChecked?.station_press && !weatherLoading ? 
+            <Grid style={{ paddingBottom: '3rem'}}>
+              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Atmospheric pressure</Typography>
+              {WeatherCharts('station_press')}
+            </Grid>
+            : null}
           </Grid>
         </Grid>
       </Box> : (
         (selectedIv?.files?.[0]?.file_path) ? 
         <Grid sx={{width: "100%"}}>
-          <Grid sx={{width: "100%"}}>
+          <Grid sx={{width: "80%"}}>
             <Box id="bi-report" mt={4}>
               {((!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
                 embedConfig={powerBiConfig}
