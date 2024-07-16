@@ -142,7 +142,8 @@ const FacilityManageUserAccess = () => {
               minWidth: "unset",
               fontSize: "0.875rem",
             }}
-            onClick={() => handelDeleteModalOpen(userData,item)}
+            // onClick={() => handelDeleteModalOpen(userData,item)}
+            // uncomment the onClick when any one work on it and update the api endpoint for this...
             
           >
             Remove

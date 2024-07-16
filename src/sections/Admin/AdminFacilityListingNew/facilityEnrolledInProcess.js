@@ -462,6 +462,7 @@ const FacilityEnrolledInProcess = ({
                                             displayEmpty={true}
                                             className="transparent-border"
                                             value={customizeFilter}
+                                            disabled={true}
                                         // onChange={(e) => setColumnFilter(e.target.value)}
                                         >
                                             <MenuItem value="">
