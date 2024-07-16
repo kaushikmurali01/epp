@@ -3,6 +3,8 @@ from fetch_data_from_hourly_api import download_excel
 import pandas as pd
 import numpy as np
 
+from paginator import Paginator
+
 
 class ProcessDataframe:
     @staticmethod
@@ -65,14 +67,18 @@ class ProcessDataframe:
 
 
 class DataExplorationSummary(ProcessDataframe):
-    def __init__(self, facility_id):
+    def __init__(self, facility_id, meter, detail, page_no, page_size):
         """
         Initialize DataExplorationSummary object.
 
         Args:
         - facility_id (int): Facility ID to fetch data for.
         """
+        self.meter = int(meter) if meter else None
+        self.detail = detail
         self.facility_id = facility_id
+        self.page_no = int(page_no)
+        self.page_size = int(page_size)
         query = f'''
         SELECT DISTINCT 
             hme.facility_id, 
@@ -131,6 +137,8 @@ class DataExplorationSummary(ProcessDataframe):
                 self.combined_df,
                 meter_type)
             outlier_data = {
+                "threshold": "Upper limit",
+                "type": "Global/Local",
                 "meter_type": int(meter_type),
                 "meter_name": self.meter_map.get(int(meter_type)),
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
@@ -184,6 +192,8 @@ class DataExplorationSummary(ProcessDataframe):
         for _, row in self.df.iterrows():
             url = row['media_url']
             meter_type = row['meter_type']
+            if self.meter and meter_type != self.meter:
+                continue
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
@@ -211,4 +221,15 @@ class DataExplorationSummary(ProcessDataframe):
                 "total_records": filtered_df.shape[0],
             }
             mapped_data.append(observed_data)
+        if self.detail:
+            columns_to_keep = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
+
+            # Create a new DataFrame with only the selected columns
+            new_df = self.combined_df[columns_to_keep].copy()
+            new_df = new_df.rename(columns={
+                'Meter Reading (Required)': 'Usage (Required)',
+            })
+            paginator = Paginator(self.page_no, self.page_size)
+            summary_df = paginator.paginate_df(new_df)
+            return summary_df
         return mapped_data

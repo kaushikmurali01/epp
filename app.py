@@ -594,14 +594,36 @@ def idv_process():
 def get_data_exploration_summary():
     facility_id = request.args.get('facility_id', '')
     summary_type = request.args.get('summary_type', 'observe_data')
-    des_object = DataExplorationSummary(facility_id)
+    detail = request.args.get('detail', False)
+    meter = request.args.get('meter')
+    page_no = request.args.get('page_number', 1)
+    page_size = request.args.get('page_size', 100)
+    if detail or meter:
+        if not detail:
+            return {
+                'status': 'failed',
+                'message': "Please provide detail flag"
+            }, 200
+
+        if not meter:
+            return {
+                'status': 'failed',
+                'message': "Please provide Meter Type"
+            }, 200
+
+    if not facility_id:
+        return {
+            'status': 'failed',
+            'message': "Please provide Facility ID"
+        }, 200
+    des_object = DataExplorationSummary(facility_id, meter, detail, page_no, page_size)
     if summary_type == 'outliers':
         response = des_object.get_outlier_summary()
     elif summary_type == 'missing_data':
         response = des_object.get_missing_data_summary()
     else:
         response = des_object.get_observe_data_summary()
-    return jsonify(response)
+    return response
 
 
 if __name__ == '__main__':
