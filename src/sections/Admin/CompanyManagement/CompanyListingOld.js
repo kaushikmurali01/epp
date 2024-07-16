@@ -209,9 +209,9 @@ const CompanyListingOld = () => {
               minWidth: "unset",
               fontSize: "0.875rem",
             }}
-            onClick={() =>
-              navigate(`/companies/company-manage-access/${item?.id}`)
-            }
+            // onClick={() =>
+            //   navigate(`/companies/company-manage-access/${item?.id}`)
+            // }
           >
             Manage access
           </Button>

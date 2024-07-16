@@ -22,7 +22,6 @@ import * as Yup from "yup";
 import EvThemeTable from "components/Table/EvThemeTable";
 
 const FacilityEnrolledActive = ({
-    searchVal,
     companyFilter,
     onDownloadBulkClick,
     onDownloadRowClick,
@@ -32,6 +31,7 @@ const FacilityEnrolledActive = ({
     const [sortColumn, setSortColumn] = useState("");
     const [sortOrder, setSortOrder] = useState("");
     const [customizeFilter, setCustomizeColumnFilter] = useState("");
+    const [refreshTableData, setRefreshTableData] = useState(0);
     const [searchData, setSearchData] = useState([]);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -72,8 +72,8 @@ const FacilityEnrolledActive = ({
             "data": searchData,
             "offset": (pageInfo.page - 1) * pageInfo.pageSize,
             "limit": pageInfo.pageSize,
-            // "col_name": sortByCol,
-            // "order":sortOrder,            
+            "col_name": sortColumn,
+            "order":sortOrder,            
           }
         debouncedSearch(payload);
         return () => {
@@ -83,11 +83,11 @@ const FacilityEnrolledActive = ({
         dispatch,
         pageInfo.page,
         pageInfo.pageSize,
-        searchVal,
         companyFilter,
         sortColumn,
         sortOrder,
-        searchData
+        searchData,
+        refreshTableData
     ]);
 
     const adminFacilityData = useSelector(
@@ -114,7 +114,8 @@ const FacilityEnrolledActive = ({
                             ...prevState,
                             modalVisible: false,
                         }));
-                        dispatch(fetchAdminFacilityListing(pageInfo, 0));
+                        // dispatch(fetchAdminFacilityListing(pageInfo, 0));
+                        setRefreshTableData(prevState => prevState + 1);
                     })
                     .catch((error) => {
                         console.error("Error deleting facility:", error);
@@ -147,7 +148,7 @@ const FacilityEnrolledActive = ({
                 </Grid>
                 <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
                     <Button
-                        onClick={handleDeleteFacility}
+                        onClick={()=> handleDeleteFacility(facilityId)}
                         sx={{
                             background: "#FF5858",
                             "&:hover": {
@@ -394,9 +395,7 @@ const FacilityEnrolledActive = ({
                             minWidth: "unset",
                             fontSize: "0.875rem",
                         }}
-                        onClick={() =>
-                            navigate(`/companies/company-manage-access/${item?.id}`)
-                        }
+                        onClick={() => handelNavigateManagePermissions(item) }
                     >
                         Manage access
                     </Button>
@@ -404,6 +403,18 @@ const FacilityEnrolledActive = ({
             ),
         },
     ];
+
+const handelNavigateManagePermissions = (item)=> {
+    const data = {
+        companyId: item?.company_id, 
+        companyName : item?.company_name,
+        facilityId: item?.id,
+        facilityUBI: item?.facility_ubi
+    }
+
+    navigate(`/facility-list/${item?.id}/manage-access`, {state: data })
+    console.log('handelNavigate',item)
+}
 
     return (
         <Container>
@@ -463,6 +474,7 @@ const FacilityEnrolledActive = ({
                                             displayEmpty={true}
                                             className="transparent-border"
                                             value={customizeFilter}
+                                            disabled={true}
                                         // onChange={(e) => setColumnFilter(e.target.value)}
                                         >
                                             <MenuItem value="">
@@ -490,10 +502,11 @@ const FacilityEnrolledActive = ({
                         setPageInfo={setPageInfo}
                         searchData={searchData}
                         setSearchData={setSearchData}
-                        setSortColumn={setSortColumn}
-                        setSortOrder={sortOrder}
                         sortColumn={sortColumn}
-                        sortOrder={setSortOrder}
+                        setSortColumn={setSortColumn}
+                        sortOrder={sortOrder}
+                        setSortOrder={setSortOrder}
+                       
 
                     />
                     {/* <Table

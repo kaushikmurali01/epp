@@ -24,6 +24,7 @@ import CompanyManageAccess from 'pages/Admin/Company/CompanyManageAccess';
 import UserManagementAdminNew from 'pages/UserManagementAdmin/UserManagementAdminNew';
 import AdminFacilityListingNew from 'sections/Admin/AdminFacilityListingNew';
 import UserAdminManageAccess from 'pages/UserManagementAdmin/UserAdminManageAccess';
+import FacilityManageUserAccess from 'sections/Admin/AdminFacilityListingNew/FacilityManageUserAccess';
 
 const Error404 = lazy(() => import('pages/Error/Error404'));
 
@@ -33,11 +34,15 @@ export const EnervaRoutes = () => {
       <Routes>
         <Route path='/' element={<Navigate to={facilityEndPoints.facilityDashboard} replace />} />
         <Route path={facilityEndPoints.facilityDashboard} element={<EnervaAdminDashboard />} />
-        <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
-        <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityListingNew />} />
+        {/* <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
+        <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityListingNew />} /> */}
+
+        <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityListingNew  />} />
+        <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityList/>} />
+
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AdminAddFacilityComponent /> }/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AdminAddFacilityComponent /> }/>
-        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.facilityManagePermissions} element={ <FacilityPermissionPage /> }/>
+        <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.facilityManagePermissions} element={ <FacilityManageUserAccess /> }/>
         {/* <Route path= {participantAgreementEndPoints.participantAgreement} element={ <ParticipantAgreementComponent />} /> */}
         <Route path= {userManagementEndPoints.userManagementNew} element={ <UserManagementAdmin />} />
         <Route path= {userManagementEndPoints.userManagement} element={ <UserManagementAdminNew />} />
@@ -49,7 +54,7 @@ export const EnervaRoutes = () => {
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyProfile} element={<CompanyProfilePage />} />
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyAgreement} element={<CompanyAgreement />} />
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUsers} element={<CompanyUserList />} />
-        <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyManageAccess} element={<CompanyManageAccess />} />
+        {/* <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyManageAccess} element={<CompanyManageAccess />} /> */}
 
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUserManageAccessByName} element={<CompanyManageAccess />} />
         <Route path={enervaEndPoints.companies+'/'+enervaEndPoints.companyUserManageAccessByName+'/'+enervaEndPoints.addUser} element={<UserAdminManageAccess />} />
