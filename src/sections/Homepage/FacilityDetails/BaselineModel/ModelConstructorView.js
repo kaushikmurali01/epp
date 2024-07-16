@@ -59,19 +59,28 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         baselineListData,
         meterType
       );
-      setFormData(initialValues?.parameter_data);
+      if (initialValues) {
+        setFormData(initialValues?.parameter_data);
+      } else {
+        setFormData(null);
+      }
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },
       });
       setBaselineStartDate(
-        format(
-          new Date(initialValues?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
+        initialValues?.parameter_data?.start_date &&
+          format(
+            new Date(initialValues?.parameter_data?.start_date),
+            "yyyy-MM-dd"
+          )
       );
       setBaselineEndDate(
-        format(new Date(initialValues?.parameter_data?.end_date), "yyyy-MM-dd")
+        initialValues?.parameter_data?.end_date &&
+          format(
+            new Date(initialValues?.parameter_data?.end_date),
+            "yyyy-MM-dd"
+          )
       );
     }
   }, [id, meterType]);

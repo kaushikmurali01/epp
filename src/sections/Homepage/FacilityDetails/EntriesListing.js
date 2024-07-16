@@ -761,7 +761,7 @@ const EntriesListing = ({
             ref={fileInputRef}
             style={{ display: "none" }}
             onChange={handleFileChange}
-            accept=".xlsx,.csv"
+            accept=".xlsx,.csv,.xml,text/xml"
           />
           <Grid container mb={2} mt={2}>
             <FormControlLabel
@@ -789,7 +789,7 @@ const EntriesListing = ({
               width: "165px",
               height: "40px",
             }}
-            disabled={!imgUrl && !acceptTermsAndCondition}
+            disabled={!imgUrl || !acceptTermsAndCondition}
           >
             Upload
           </Button>

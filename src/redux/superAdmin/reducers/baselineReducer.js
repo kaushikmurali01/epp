@@ -15,6 +15,9 @@ import {
   FETCH_BASELINE_PERIOD_FAILURE,
   FETCH_BASELINE_PERIOD_REQUEST,
   FETCH_BASELINE_PERIOD_SUCCESS,
+  FETCH_DATA_EXPLORATION_SUMMARY_FAILURE,
+  FETCH_DATA_EXPLORATION_SUMMARY_REQUEST,
+  FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS,
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
@@ -51,6 +54,7 @@ const initialState = {
   baselineListDb: [],
   observeData: [],
   submittedBaseline_d_t: [],
+  dataExplorationSummaryList: [],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -297,6 +301,25 @@ const baselineReducer = (state = initialState, action) => {
         error: null,
       };
     case SUBMIT_BASELINE_D_T_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_DATA_EXPLORATION_SUMMARY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        dataExplorationSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_DATA_EXPLORATION_SUMMARY_FAILURE:
       return {
         ...state,
         loading: false,

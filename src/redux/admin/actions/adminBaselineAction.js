@@ -40,6 +40,9 @@ import {
   submitAdminBaselineDtSuccess,
   submitAdminBaselineDtFailure,
   clearAdminBaselineState,
+  fetchAdminDataExplorationSummaryListRequest,
+  fetchAdminDataExplorationSummaryListSuccess,
+  fetchAdminDataExplorationSummaryListFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -323,6 +326,30 @@ export const submitAdminBaselineDt = (baselineParameters) => {
         type: "error",
       });
       throw error;
+    }
+  };
+};
+
+export const fetchAdminDataExplorationSummaryList = (
+  facilityId,
+  summaryType
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminDataExplorationSummaryListRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminDataExplorationSummaryListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminDataExplorationSummaryListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };

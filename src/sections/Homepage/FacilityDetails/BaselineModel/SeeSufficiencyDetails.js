@@ -65,13 +65,14 @@ const SeeSufficiencyDetails = ({
   };
 
   const getSufficiencyMonthlyData = () => {
-    if (sufficiencyCheckData["hourly"]["status"] === "passed") {
-      return sufficiencyCheckData["hourly"]["monthly_sufficiency"] || [];
+    if (sufficiencyCheckData?.["hourly"]?.["status"] === "passed") {
+      return sufficiencyCheckData?.["hourly"]?.["monthly_sufficiency"] || [];
     }
     if (sufficiencyCheckData) {
       return (
-        sufficiencyCheckData["hourly"]["failedData"]["monthly_sufficiency"] ||
-        []
+        sufficiencyCheckData?.["hourly"]?.["failedData"]?.[
+          "monthly_sufficiency"
+        ] || []
       );
     }
     return [];

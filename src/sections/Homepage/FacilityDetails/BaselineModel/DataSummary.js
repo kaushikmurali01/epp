@@ -1,5 +1,5 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyledButtonGroup,
   activeButtonStyle,
@@ -9,14 +9,29 @@ import { MiniTable } from "components/MiniTable";
 import EvModal from "utils/modal/EvModal";
 import DetailsAndSetting from "./DetailsAndSetting";
 import MeterDetailsModal from "./MeterDetailsModal";
+import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/actions/baselineAction";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 const DataSummary = () => {
   const [activeButton, setActiveButton] = useState("observe_data");
-
+  const dispatch = useDispatch();
+  const { id } = useParams();
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
 
+  useEffect(() => {
+    if (activeButton === "missing_data" || activeButton === "outliers") {
+      dispatch(fetchDataExplorationSummaryList(24, activeButton));
+    } else {
+      dispatch(fetchDataExplorationSummaryList(24));
+    }
+  }, [dispatch, id, activeButton]);
+
+  const summaryData = useSelector(
+    (state) => state?.baselineReducer?.dataExplorationSummaryList
+  );
   const [meterDetailsModalConfig, setMeterDetailsModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -46,13 +61,15 @@ const DataSummary = () => {
     saveButtonAction: "",
   });
 
-  const meterDetailsModal = () => {
+  const meterDetailsModal = (meterType, meterName) => {
     setMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
       modalBodyContent: (
         <MeterDetailsModal
           setMeterDetailsModalConfig={setMeterDetailsModalConfig}
+          meterType={meterType}
+          meterName={meterName}
         />
       ),
     }));
@@ -103,95 +120,120 @@ const DataSummary = () => {
   const observeDataColumn = [
     {
       Header: "ID",
-      accessor: "id",
+      accessor: "meter_type",
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={meterDetailsModal}
+          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
           variant="span"
           sx={{
             color: "primary.main",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
+            cursor: "pointer",
           }}
         >
-          {item.meter_type}
+          {item.meter_name}
         </Typography>
       ),
     },
     {
       Header: "Timestamp start",
-      accessor: "",
+      accessor: "time_stamp_start",
     },
     {
       Header: "Timestamp end",
-      accessor: "",
+      accessor: "time_stamp_end",
     },
     {
       Header: "Count",
-      accessor: "details",
+      accessor: "total_records",
     },
   ];
 
   const missingDataColumn = [
     {
       Header: "ID",
-      accessor: "",
+      accessor: "meter_type",
     },
     {
       Header: "Parameter",
-      accessor: "",
+      accessor: (item) => (
+        <Typography
+          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          variant="span"
+          sx={{
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {item.meter_name}
+        </Typography>
+      ),
     },
     {
       Header: "Timestamp start",
-      accessor: "",
+      accessor: "time_stamp_start",
     },
     {
       Header: "Timestamp end",
-      accessor: "",
+      accessor: "time_stamp_end",
     },
     {
       Header: "Count",
-      accessor: "details",
+      accessor: "total_records",
     },
   ];
 
   const outliersDataColumn = [
     {
       Header: "ID",
-      accessor: "",
+      accessor: "meter_type",
     },
     {
       Header: "Parameter",
-      accessor: "",
+      accessor: (item) => (
+        <Typography
+          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          variant="span"
+          sx={{
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {item.meter_name}
+        </Typography>
+      ),
     },
     {
       Header: "Timestamp start",
-      accessor: "",
+      accessor: "time_stamp_start",
     },
     {
       Header: "Timestamp end",
-      accessor: "",
+      accessor: "time_stamp_end",
     },
     {
       Header: "Count",
-      accessor: "details",
+      accessor: "total_records",
     },
     {
       Header: "Threshold",
-      accessor: "Threshold",
+      accessor: "threshould",
     },
     {
       Header: "Type",
-      accessor: "Type",
+      accessor: "type",
     },
-  ];
-  const data = [
-    { meter_type: "electricity", id: 1 },
-    { meter_type: "NG", id: 2 },
   ];
 
   return (
@@ -261,13 +303,13 @@ const DataSummary = () => {
       </Grid>
       <Grid container>
         {activeButton === "observe_data" && (
-          <MiniTable columns={observeDataColumn} data={data} />
+          <MiniTable columns={observeDataColumn} data={summaryData} />
         )}
         {activeButton === "missing_data" && (
-          <MiniTable columns={missingDataColumn} data={[{}]} />
+          <MiniTable columns={missingDataColumn} data={summaryData} />
         )}
         {activeButton === "outliers" && (
-          <MiniTable columns={outliersDataColumn} data={[{}]} />
+          <MiniTable columns={outliersDataColumn} data={summaryData} />
         )}
       </Grid>
       <EvModal
