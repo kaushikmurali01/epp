@@ -83,7 +83,12 @@ const RoutesComp = () => {
           if(response?.idTokenClaims?.newUser){
             setIsNewuser(true)
           }
-        });
+        }).catch((err)=> {
+          localStorage.clear()
+          instance.logoutRedirect()
+        })
+    } else {
+      
     }
   }, [account]);
 
