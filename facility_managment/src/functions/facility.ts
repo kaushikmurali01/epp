@@ -18,6 +18,8 @@ import { FacilityMeterHourlyEntriesController } from "../controller/facility_hou
 import { FacilityMeasureController } from "../controller/facility_measure/controller";
 import { FacilitySavingDocumentController } from "../controller/facility_saving_document/controller";
 import { AuthorizationService } from "../helper/authorization.helper";
+import { IncentiveSettingsController } from '../controller/incentiveSettings/controller';
+import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.interface";
 
 // Facility User CRUD
 
@@ -1921,6 +1923,81 @@ export async function getEmailTemplatesSubjectAndBody(
   }
 }
 
+export async function getIncentiveSettings(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const facilityId = Number(request.params.facilityId);
+
+    if (!facilityId) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        jsonBody: { error: "Facility ID is required" }
+      };
+    }
+
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+    const result = await IncentiveSettingsController.getIncentiveSettings(Number(facilityId));
+
+    if (!result) {
+      return {
+        status: 200,
+        jsonBody: { data: null, message: "IncentiveSettings not found" }
+      };
+    }
+
+    return { jsonBody: result };
+  } catch (error) {
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      jsonBody: { error: error.message }
+    };
+  }
+}
+
+export async function upsertIncentiveSettings(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+
+    const requestBody = await request.json();
+
+    if (typeof requestBody !== 'object' || requestBody === null) {
+      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Invalid request body" };
+    }
+
+    // Type assertion and partial application of IIncentiveSettingsAttributes
+    const data = requestBody as Partial<IIncentiveSettingsAttributes>;
+    context.log()
+    const result = await IncentiveSettingsController.upsertIncentiveSettings({
+      ...data,
+      created_by: decodedToken.id,
+      updated_by: decodedToken.id,
+    } as IIncentiveSettingsAttributes);
+
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+app.http("get-incentive-settings", {
+  methods: ["GET"],
+  route: "incentive-settings/{facilityId}",
+  authLevel: "anonymous",
+  handler: getIncentiveSettings,
+});
+
+app.http("upsert-incentive-settings", {
+  methods: ["PUT"],
+  route: "incentive-settings",
+  authLevel: "anonymous",
+  handler: upsertIncentiveSettings,
+});
 app.http("createEmailTemplate", {
   methods: ["POST"],
   route: "email-template",
