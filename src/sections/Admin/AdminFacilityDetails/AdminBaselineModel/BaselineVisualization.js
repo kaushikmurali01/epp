@@ -93,7 +93,7 @@ const BaselineVisualization = () => {
         },
         {
           name: "meter_id",
-          newValue: "2",
+          newValue: "3",
         },
         {
           name: "granularity",

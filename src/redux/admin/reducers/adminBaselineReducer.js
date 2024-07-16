@@ -39,6 +39,9 @@ import {
   SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
   SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
   CLEAR_ADMIN_BASELINE_STATE,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -51,6 +54,7 @@ const initialState = {
   baselineListDb: [],
   submittedBaseline_d_t: [],
   observeData: [],
+  dataExplorationSummaryList: [],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -297,6 +301,25 @@ const adminBaselineReducer = (state = initialState, action) => {
         error: null,
       };
     case SUBMIT_ADMIN_BASELINE_D_T_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        dataExplorationSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE:
       return {
         ...state,
         loading: false,

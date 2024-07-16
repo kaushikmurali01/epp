@@ -65,13 +65,18 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         hourly: { ...initialValues?.parameter_data?.hourly },
       });
       setBaselineStartDate(
-        format(
-          new Date(initialValues?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
+        initialValues?.parameter_data?.start_date &&
+          format(
+            new Date(initialValues?.parameter_data?.start_date),
+            "yyyy-MM-dd"
+          )
       );
       setBaselineEndDate(
-        format(new Date(initialValues?.parameter_data?.end_date), "yyyy-MM-dd")
+        initialValues?.parameter_data?.end_date &&
+          format(
+            new Date(initialValues?.parameter_data?.end_date),
+            "yyyy-MM-dd"
+          )
       );
     }
   }, [id, meterType]);

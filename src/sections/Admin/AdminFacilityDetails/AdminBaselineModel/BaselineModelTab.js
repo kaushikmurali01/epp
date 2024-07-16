@@ -150,8 +150,8 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             Electricity
           </Button>
           <Button
-            sx={activeButton === 2 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(2)}
+            sx={activeButton === 3 ? activeButtonStyle : inactiveButtonStyle}
+            onClick={() => handleButtonClick(3)}
           >
             Natural gas
           </Button>

@@ -39,6 +39,9 @@ import {
   SUBMIT_ADMIN_BASELINE_D_T_SUCCESS,
   SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
   CLEAR_ADMIN_BASELINE_STATE,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS,
+  FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -220,6 +223,19 @@ export const submitAdminBaselineDtSuccess = (data) => ({
 
 export const submitAdminBaselineDtFailure = (error) => ({
   type: SUBMIT_ADMIN_BASELINE_D_T_FAILURE,
+  payload: error,
+});
+export const fetchAdminDataExplorationSummaryListRequest = () => ({
+  type: FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST,
+});
+
+export const fetchAdminDataExplorationSummaryListSuccess = (data) => ({
+  type: FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminDataExplorationSummaryListFailure = (error) => ({
+  type: FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE,
   payload: error,
 });
 

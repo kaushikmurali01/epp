@@ -14,7 +14,12 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 
-const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
+const CustomPagination = ({
+  count,
+  pageInfo,
+  setPageInfo,
+  incomingRowPerPageArr = [5, 10, 15, 25, 50],
+}) => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const totalPages = Math.ceil(count / pageInfo?.pageSize);
   const pageButtons = [];
@@ -66,7 +71,7 @@ const CustomPagination = ({ count, pageInfo, setPageInfo }) => {
       </Button>
     );
   }
-  const rowsPerPageArr = [5, 10, 15, 25, 50];
+  const rowsPerPageArr = incomingRowPerPageArr;
 
   return (
     <Grid

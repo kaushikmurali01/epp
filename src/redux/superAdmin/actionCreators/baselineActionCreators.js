@@ -15,6 +15,9 @@ import {
   FETCH_BASELINE_PERIOD_FAILURE,
   FETCH_BASELINE_PERIOD_REQUEST,
   FETCH_BASELINE_PERIOD_SUCCESS,
+  FETCH_DATA_EXPLORATION_SUMMARY_FAILURE,
+  FETCH_DATA_EXPLORATION_SUMMARY_REQUEST,
+  FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS,
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
@@ -220,6 +223,20 @@ export const submitBaselineDtSuccess = (data) => ({
 
 export const submitBaselineDtFailure = (error) => ({
   type: SUBMIT_BASELINE_D_T_FAILURE,
+  payload: error,
+});
+
+export const fetchDataExplorationSummaryListRequest = () => ({
+  type: FETCH_DATA_EXPLORATION_SUMMARY_REQUEST,
+});
+
+export const fetchDataExplorationSummaryListSuccess = (data) => ({
+  type: FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS,
+  payload: data,
+});
+
+export const fetchDataExplorationSummaryListFailure = (error) => ({
+  type: FETCH_DATA_EXPLORATION_SUMMARY_FAILURE,
   payload: error,
 });
 

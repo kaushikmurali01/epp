@@ -235,8 +235,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             Electricity
           </Button>
           <Button
-            sx={activeButton === 2 ? activeButtonStyle : inactiveButtonStyle}
-            onClick={() => handleButtonClick(2)}
+            sx={activeButton === 3 ? activeButtonStyle : inactiveButtonStyle}
+            onClick={() => handleButtonClick(3)}
           >
             Natural gas
           </Button>
@@ -307,8 +307,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             }}
           >
             {baselineDetails?.meter_type === 1 && "Electricity"}
-            {baselineDetails?.meter_type === 2 && "Natural gas"}
-            {baselineDetails?.meter_type === 3 && "Water"} baseline has been
+            {baselineDetails?.meter_type === 3 && "Natural gas"}
+            {baselineDetails?.meter_type === 2 && "Water"} baseline has been
             successfully {baselineDetails?.status === "CALCULATED" && "created"}
             {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
             {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}

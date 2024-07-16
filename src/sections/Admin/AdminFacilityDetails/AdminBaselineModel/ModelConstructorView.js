@@ -50,26 +50,37 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     (state) => state?.adminBaselineReducer?.stationDetails
   );
 
+  const [seeDetailsButtonDisabled, setSeeDetailsButtonDisabled] =
+    useState(false);
+
   useEffect(() => {
     if (baselineListData) {
       const initialValues = getSummaryDataByMeterType(
         baselineListData,
         meterType
       );
+      initialValues?.status === "DRAFT" && setSeeDetailsButtonDisabled(true);
       setFormData(initialValues?.parameter_data);
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },
       });
       setBaselineStartDate(
-        format(
-          new Date(initialValues?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
+        initialValues?.parameter_data?.start_date &&
+          format(
+            new Date(initialValues?.parameter_data?.start_date),
+            "yyyy-MM-dd"
+          )
       );
       setBaselineEndDate(
-        format(new Date(initialValues?.parameter_data?.end_date), "yyyy-MM-dd")
+        initialValues?.parameter_data?.end_date &&
+          format(
+            new Date(initialValues?.parameter_data?.end_date),
+            "yyyy-MM-dd"
+          )
       );
+    } else {
+      setSeeDetailsButtonDisabled(false);
     }
   }, [id, meterType]);
 
@@ -156,6 +167,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
               baselineEndDate
             );
           }}
+          disabled={seeDetailsButtonDisabled}
         >
           See details
         </Typography>

@@ -11,9 +11,9 @@ const DataExplorationTab = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
 
-  useEffect(() => {
-    dispatch(showObserveData());
-  }, [id]);
+  // useEffect(() => {
+  //   dispatch(showObserveData());
+  // }, [id]);
 
   return (
     <Grid item>
