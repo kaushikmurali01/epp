@@ -104,6 +104,36 @@ export async function getAllFacilityAdmin(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function facilityAssignUser(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    let user_ids = requestData.user_ids;
+    let facility_id = requestData.facility_id;
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.facilityAssignUser(
+      decodedToken,
+      user_ids,
+      facility_id
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  }catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function getAllFacilityInprocessAdmin(
   request: HttpRequest,
   context: InvocationContext
@@ -2138,6 +2168,12 @@ app.http(`facility-listing-post-admin`, {
   route: "facility-listing-admin",
   authLevel: "anonymous",
   handler: getAllFacilityAdmin,
+});
+app.http(`facility-assign-user`, {
+  methods: ["POST"],
+  route: "facility-assign-user",
+  authLevel: "anonymous",
+  handler: facilityAssignUser,
 });
 app.http(`facility-listing-inprocess-admin`, {
   methods: ["POST"],

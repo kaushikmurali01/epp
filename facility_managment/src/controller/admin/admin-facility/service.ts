@@ -24,6 +24,7 @@ import { EmailContent, adminDetails } from "../../../utils/email-content";
 import { getEmailTemplate } from "../../../helper/mail-template.helper";
 import { Email } from "../../../helper/email-sender.helper";
 import { rawQuery } from "../../../services/database";
+import { UserResourceFacilityPermission } from "../../../models/user-resource-permission";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -522,9 +523,7 @@ export class AdminFacilityService {
       let findRole: any = {};
       findRole.role_id = userToken.role_id;
       let result, datas, count;
-      if (
-        userToken
-      ) {
+      if (userToken) {
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
             usp.last_name as assign_lastname,
@@ -543,7 +542,7 @@ export class AdminFacilityService {
                ${searchArray}
                `);
         datas =
-          await rawQuery(`SELECT *,(SELECT f.*, usp.first_name as assign_firstname, 
+          await rawQuery(`SELECT * from (SELECT f.*, usp.first_name as assign_firstname, 
             usp.last_name as assign_lastname,
             u.first_name, 
             u.last_name,
@@ -609,9 +608,7 @@ export class AdminFacilityService {
       let findRole: any = {};
       findRole.role_id = userToken.role_id;
       let result, datas, count;
-      if (
-        userToken 
-      ) {
+      if (userToken) {
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
     u.id,
@@ -637,8 +634,7 @@ WHERE
     urfp.facility_id = ${facility_id})p 
                ${searchArray}
                `);
-        datas =
-          await rawQuery(`SELECT * from (SELECT 
+        datas = await rawQuery(`SELECT * from (SELECT 
     u.id,
 	u.first_name,
 	u.last_name,
@@ -648,6 +644,7 @@ WHERE
     f.id AS facility_id,
     f.facility_name,
     f.facility_ubi,
+    ut.id as user_type_id,
 	ut.user_type
 FROM 
     users u
@@ -713,9 +710,7 @@ WHERE
       let findRole: any = {};
       findRole.role_id = userToken.role_id;
       let result, datas, count;
-      if (
-        userToken
-      ) {
+      if (userToken) {
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
           f.*, 
@@ -781,6 +776,43 @@ where facility_id=p.id) as total_user_count from (SELECT
       throw error;
     }
   }
+  static async facilityAssignUser(
+    userToken: IUserToken | any,
+    user_ids: any,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      let findFacility = await Facility.findOne({ where: { id: facility_id } });
+      let findAllUsers = await User.findAll({
+        where: { id: { [Op.in]: user_ids } },
+      });
+      let emails = [];
+      findAllUsers.map((ele) => {
+        emails.push(ele.email);
+      });
+      for (let i = 0; i < emails.length; i++) {
+        let findAlreadyExist = await UserResourceFacilityPermission.findOne({
+          where: { email: emails[i], facility_id },
+        });
+        if (!findAlreadyExist) {
+          await UserResourceFacilityPermission.create({
+            email: emails[i],
+            facility_id,
+            resource_permission_id: 5,
+            company_id: findFacility?.company_id,
+          });
+        }
+      }
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async signPaById(
     userToken: IUserToken,
     body: IBaseInterface,

@@ -360,7 +360,7 @@ LIMIT
                ${searchArray}
                `);
         datas =
-          await rawQuery(`SELECT *,(SELECT f.*, usp.first_name as assign_firstname, 
+          await rawQuery(`SELECT * from (SELECT f.*, usp.first_name as assign_firstname, 
             usp.last_name as assign_lastname,
             u.first_name, 
             u.last_name,
