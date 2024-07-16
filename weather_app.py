@@ -88,11 +88,11 @@ def getdata():
 
 @app.route('/get_min_max_dates', methods = ['GET'])
 def getdates():
-    df = dbtest('''SELECT distinct hme.facility_id, hme.facility_meter_detail_id AS meter_type, hme.meter_id,
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
                           hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
                    FROM epp.facility_meter_hourly_entries hme
                    JOIN epp.facility_meter_detail fmd
-                   ON hme.facility_meter_detail_id = fmd.meter_type;''')
+                   ON hme.facility_meter_detail_id = fmd.id;''')
     
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
