@@ -59,7 +59,11 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         baselineListData,
         meterType
       );
-      setFormData(initialValues?.parameter_data);
+      if (initialValues) {
+        setFormData(initialValues?.parameter_data);
+      } else {
+        setFormData(null);
+      }
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },

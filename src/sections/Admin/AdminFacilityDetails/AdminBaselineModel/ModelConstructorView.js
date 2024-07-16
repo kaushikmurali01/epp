@@ -59,8 +59,17 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         baselineListData,
         meterType
       );
-      initialValues?.status !== "REQUESTED" && setSeeDetailsButtonDisabled(true);
-      setFormData(initialValues?.parameter_data);
+      if (!initialValues || initialValues?.status === "DRAFT") {
+        setSeeDetailsButtonDisabled(true);
+      } else {
+        setSeeDetailsButtonDisabled(false);
+      }
+      console.log(initialValues);
+      if (initialValues) {
+        setFormData(initialValues?.parameter_data);
+      } else {
+        setFormData(null);
+      }
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },
