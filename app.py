@@ -596,12 +596,12 @@ def get_data_exploration_summary():
     summary_type = request.args.get('summary_type', 'observe_data')
     des_object = DataExplorationSummary(facility_id)
     if summary_type == 'outliers':
-        summary, df = des_object.get_outlier_summary()
+        response = des_object.get_outlier_summary()
     elif summary_type == 'missing_data':
-        summary = des_object.get_missing_data_summary()
+        response = des_object.get_missing_data_summary()
     else:
-        summary = des_object.get_observe_data_summary()
-    return jsonify(summary)
+        response = des_object.get_observe_data_summary()
+    return jsonify(response)
 
 
 if __name__ == '__main__':

@@ -27,39 +27,41 @@ class ProcessDataframe:
             'End Date (Required)'].max()
 
     @staticmethod
-    def process_observe_data_by_meter_type(df, meter):
-        """
-        Process observed data by meter type.
+    def process_outlier_data_by_meter_type(df, meter):
 
-        Args:
-        - df (DataFrame): Input DataFrame containing meter data.
-        - meter (str): Meter type identifier.
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop("Unnamed: 0", axis=1)
 
-        Returns:
-        - dict: Dictionary containing start date, end date, and total records.
-        """
-        meter_type = int(meter)
-        data = df[df['MeterType'] == meter_type]
-        total_records = data.shape[0]
+        filtered_df = df[df['MeterType'] == meter][:]
+        # filtered_df['Start Date (Required)'] = pd.to_datetime(filtered_df['Start Date (Required)'])
+        # filtered_df['End Date (Required)'] = pd.to_datetime(filtered_df['End Date (Required)'])
 
-        # Ensure 'ReadingDate' column is in datetime format
-        data['ReadingDate'] = pd.to_datetime(data['ReadingDate'])
+        filtered_df['Meter Reading (Required)'] = pd.to_numeric(filtered_df['Meter Reading (Required)'],
+                                                                errors='coerce')
 
-        # Finding the maximum and minimum dates
-        max_date = data['ReadingDate'].max()
-        min_date = data['ReadingDate'].min()
+        # Describe the filtered data
+        description = filtered_df.describe()
 
-        # Convert dates to string format
-        min_date_str = min_date.strftime('%Y-%m-%d %H:%M:%S')
-        max_date_str = max_date.strftime('%Y-%m-%d %H:%M:%S')
+        filtered_df['Start Date (Required)'] = pd.to_datetime(filtered_df['Start Date (Required)'])
+        filtered_df['End Date (Required)'] = pd.to_datetime(filtered_df['End Date (Required)'])
 
-        # Prepare mapped data
-        mapped_data = {
-            "time_stamp_start": min_date_str,
-            "time_stamp_end": max_date_str,
-            "total_records": total_records,
-        }
-        return mapped_data
+        # Extract relevant statistics
+        Q1 = description.loc['25%']
+        Q3 = description.loc['75%']
+        IQR = Q3 - Q1
+
+        factor = 3  # Example factor for outlier detection, adjust as needed
+
+        lower_limit = Q1['Meter Reading (Required)'] - factor * IQR['Meter Reading (Required)']
+        upper_limit = Q3['Meter Reading (Required)'] + factor * IQR['Meter Reading (Required)']
+
+        # Filter outliers based on the calculated limits
+        outliers_df = filtered_df[(filtered_df['Meter Reading (Required)'] < lower_limit) | (
+                filtered_df['Meter Reading (Required)'] > upper_limit)]
+
+        # Print or further process outliers_df as needed
+        return outliers_df.shape[0], Q1, Q3, IQR, upper_limit, lower_limit, filtered_df['Start Date (Required)'].min(), \
+            filtered_df['End Date (Required)'].max()
 
 
 class DataExplorationSummary(ProcessDataframe):
@@ -90,8 +92,11 @@ class DataExplorationSummary(ProcessDataframe):
             hme.facility_id = {facility_id} AND
             fmd.is_active = 1;
         '''
-        self.df = dbtest(query)  # Assuming dbtest is defined elsewhere and returns a DataFrame
+        self.df = dbtest(query)
         self.combined_df = pd.DataFrame()
+        self.meter_map = {1: "ELECTRICITY",
+                          2: "WATER",
+                          3: "NATURAL GAS"}
 
     def download_files_with_url(self, url):
         """
@@ -118,7 +123,27 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-        return self.combined_df
+
+        distinct_meter_types = self.combined_df['MeterType'].unique()
+        mapped_data = []
+        for meter_type in distinct_meter_types:
+            outliers_df, Q1, Q3, IQR, upper_limit, lower_limit, start_date, end_date = self.process_outlier_data_by_meter_type(
+                self.combined_df,
+                meter_type)
+            outlier_data = {
+                "meter_type": int(meter_type),
+                "meter_name": self.meter_map.get(int(meter_type)),
+                "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
+                "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
+                "total_records": int(outliers_df),
+                "first_quartile": float(Q1.iloc[0]),
+                "third_quartile": float(Q3.iloc[0]),
+                "inter_quartile": float(IQR.iloc[0]),
+                "lower_limit": "{:.2f}".format(lower_limit),
+                "upper_limit": "{:.2f}".format(upper_limit)
+            }
+            mapped_data.append(outlier_data)
+        return mapped_data
 
     def get_missing_data_summary(self):
         """
@@ -135,15 +160,18 @@ class DataExplorationSummary(ProcessDataframe):
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
         # Process missing data summaries for each distinct meter type
         distinct_meter_types = self.combined_df['MeterType'].unique()
-        mapped_data = {}
+        mapped_data = []
         for meter_type in distinct_meter_types:
             total_records, start_date, end_date = self.process_missing_data_by_meter_type(self.combined_df,
-                                                                                                meter_type)
-            mapped_data[int(meter_type)] = {
+                                                                                          meter_type)
+            missing_data = {
+                "meter_type": int(meter_type),
+                "meter_name": self.meter_map.get(int(meter_type)),
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
                 "total_records": int(total_records),
             }
+            mapped_data.append(missing_data)
         return mapped_data
 
     def get_observe_data_summary(self):
@@ -163,7 +191,7 @@ class DataExplorationSummary(ProcessDataframe):
         # Process observe data summaries for each distinct meter type
         combined_df = self.combined_df
         meter_types = combined_df['MeterType'].unique()
-        response_map = {}
+        mapped_data = []
         for meter_type in meter_types:
             meter_type = int(meter_type)
             filtered_df = combined_df[combined_df['MeterType'] == meter_type][:]
@@ -174,11 +202,13 @@ class DataExplorationSummary(ProcessDataframe):
 
             end_date = filtered_df['End Date (Required)'].max()
             start_date = filtered_df['Start Date (Required)'].min()
-            response = {
+            observed_data = {
+                "meter_type": int(meter_type),
+                "meter_name": self.meter_map.get(int(meter_type)),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d  %H:%M') if isinstance(end_date, pd.Timestamp) else '',
                 "time_stamp_start": start_date.strftime('%Y-%m-%d  %H:%M') if isinstance(start_date,
                                                                                          pd.Timestamp) else '',
                 "total_records": filtered_df.shape[0],
             }
-            response_map[meter_type] = response
-        return response_map
+            mapped_data.append(observed_data)
+        return mapped_data
