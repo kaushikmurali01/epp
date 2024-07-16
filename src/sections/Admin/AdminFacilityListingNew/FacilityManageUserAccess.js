@@ -14,10 +14,10 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {
-  fetchAdminCompanyListing,
-  fetchUsersByCompanyId,
-} from "../../../redux/admin/actions/adminCompanyAction";
+// import {
+//   fetchAdminCompanyListing,
+//   fetchUsersByfacilityId,
+// } from "../../../redux/admin/actions/adminCompanyAction";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { format } from "date-fns";
 import { debounce } from "lodash";
@@ -29,8 +29,9 @@ import { ENERVA_USER_MANAGEMENT } from "constants/apiEndPoints";
 import { DELETE_REQUEST } from "utils/HTTPRequests";
 import EvModal from "utils/modal/EvModal";
 import { capitalizeFirstChar } from "utils/helper/helper";
+import { fetchFacilityListByUserId } from "../../../redux/admin/actions/adminFacilityActions";
 
-const CompanyManageUserAccess = () => {
+const FacilityManageUserAccess = () => {
   const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
   const [isChecked, setIsChecked] = useState(false);
   const [refreshTableData, setRefreshTableData] = useState(0);
@@ -59,6 +60,7 @@ const CompanyManageUserAccess = () => {
     headerSubText: "",
     modalBodyContent: "",
   });
+
   const columns = [
     {
       Header: "UserID",
@@ -78,7 +80,7 @@ const CompanyManageUserAccess = () => {
       Header: "Company name",
       accessor: "company_name",
       accessorKey: "company_name",
-      // isSearch: true,
+      isSearch: true,
     },
     {
       Header: "Business email",
@@ -86,6 +88,18 @@ const CompanyManageUserAccess = () => {
       accessorKey: "email",
       isSearch: true,
     },
+    {
+      Header: "Facility name",
+      accessor: "facility_name",
+      accessorKey: "facility_name",
+      isSearch: true,
+    },
+    {
+      Header: "Facility UBI",
+      accessor: "facility_ubi",
+      accessorKey: "facility_ubi",
+      isSearch: true,
+    },  
     {
       Header: "User type",
       // accessor: "user_type",
@@ -109,7 +123,7 @@ const CompanyManageUserAccess = () => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          <Button
+          {/* <Button
             disabled={userData?.user?.id === item?.id}
             style={{
               color: "#2C77E9",
@@ -121,7 +135,7 @@ const CompanyManageUserAccess = () => {
             onClick={()=> handelManagePermission(userData,item)}
           >
             Manage permissions
-          </Button>
+          </Button> */}
           <Button
             disabled={userData?.user?.id === item?.id}
             color="error"
@@ -144,22 +158,23 @@ const CompanyManageUserAccess = () => {
   const navigate = useNavigate();
   // const { id } = useParams();
   const getParams = useLocation();
-  const companyId = getParams.state?.companyId || '';
+  const facilityId = getParams.state?.facilityId || '';
   const [selectTableRow, setSelectTableRow] = useState({});
-  const [sortColumn, setSortColumn] = useState("");
-  const [sortOrder, setSortOrder] = useState("");
+  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
+  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
   const [searchData, setSearchData] = useState([]);
 
 
+  console.log(getParams, "getParams")
   const companyUserListData = useSelector(
-    (state) => state?.adminCompanyReducer?.companyUsersById?.body?.rows || []
+    (state) => state?.adminFacilityReducer?.facilityListByUsersId?.rows || []
   );
 
   const userCount = useSelector(
-    (state) => state?.adminCompanyReducer?.companyUsersById?.body?.count || []
+    (state) => state?.adminFacilityReducer?.facilityListByUsersId?.count || []
   );
   const loadingState = useSelector(
-    (state) => state?.adminCompanyReducer?.loading
+    (state) => state?.adminFacilityReducer?.loading
   );
 
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
@@ -254,22 +269,23 @@ const handelDelete = (item, setModalConfig) => {
     const data = {
       pageInfo: { title: 'Add company user' },
       isEdited: false,
-      companyId: companyId,
+      facilityId: facilityId,
       companyName: getParams.state.companyName,
       selectTableRow: {
         user_type : "customer",
         user_type_id : 2,
-        company_id: companyId,
+        company_id: facilityId,
         isDisabled: true,
         
       },
-      returnPageURL: `/companies/${companyId}/manage-access`
+      returnPageURL: `/companies/${facilityId}/manage-access`
     }
     // set state on session storage
     // navigate('/user-management/manage-access',{state: data})
-    navigate(`/companies/${companyId}/manage-access/add-user`, {state: data})
+    navigate(`/companies/${facilityId}/manage-access/add-user`, {state: data})
 
   }
+  
   const handelManagePermission = (userData,item) => {
     if(userData?.user?.id === item?.id){
         NotificationsToast({ message: "You don't have permission for this!", type: "error" });
@@ -279,48 +295,21 @@ const handelDelete = (item, setModalConfig) => {
     const data = {
       pageInfo: { title: 'Manage company user and permissions' },
       isEdited: true,
-      companyId: companyId,
+      facilityId: facilityId,
       companyName: getParams.state.companyName,
       selectTableRow: item,
-      returnPageURL: `/companies/${companyId}/manage-access`
+      returnPageURL: `/companies/${facilityId}/manage-access`
     }
 
-    navigate(`/companies/${companyId}/manage-access/add-user`, {state: data})
+    navigate(`/companies/${facilityId}/manage-access/add-user`, {state: data})
     
 }
 
-  // useEffect(() => {
-  //   dispatch(fetchUsersByCompanyId(pageInfo, companyId,searchData));
-  // }, [dispatch, pageInfo.page, pageInfo.pageSize, companyId,searchData,refreshTableData]);
-
-
-  const debouncedSearch = debounce((pageInfo, search, company_id, sort_Column, sort_Order) => {
-      dispatch(
-        fetchUsersByCompanyId(
-          pageInfo,
-          company_id,
-          search,
-          sort_Column,
-          sort_Order
-        )
-      );
-    },300);
-
   useEffect(() => {
-    debouncedSearch(
-      pageInfo,
-      searchData,
-      companyId,
-      sortColumn,
-      sortOrder
-    );
-    return () => {
-      debouncedSearch.cancel();
-    };
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, companyId,searchData,refreshTableData,sortColumn,sortOrder]);
+    dispatch(fetchFacilityListByUserId(pageInfo, facilityId,searchData));
+  }, [dispatch, pageInfo.page, pageInfo.pageSize, facilityId,searchData,refreshTableData]);
 
-
-  console.log(companyUserListData,companyId, "companyUserListData")
+  console.log(companyUserListData,facilityId, "companyUserListData")
 
   return (
     <Container>
@@ -335,7 +324,7 @@ const handelDelete = (item, setModalConfig) => {
             marginRight: "1rem",
           }}
           textAlign="center"
-          onClick={() => navigate("/companies")}
+          onClick={() => navigate("/facility-list")}
         >
           <ArrowBackIcon
             sx={{
@@ -380,10 +369,10 @@ const handelDelete = (item, setModalConfig) => {
                 searchData={searchData}
                 setSearchData={setSearchData}
 
-                setSortColumn={setSortColumn}
-                setSortOrder={setSortOrder}
-                sortColumn={sortColumn}
-                sortOrder={sortOrder}
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
               
               />
       </Box>
@@ -398,4 +387,4 @@ const handelDelete = (item, setModalConfig) => {
   );
 };
 
-export default CompanyManageUserAccess;
+export default FacilityManageUserAccess;

@@ -74,6 +74,9 @@ import {
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
+  FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+  FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  FETCH_ADMIN_FACILITY_BY_ID_FAILURE
 } from "../actionTypes";
 
 const initialState = {
@@ -557,7 +560,28 @@ const adminFacilityReducer = (state = initialState, action) => {
           loading: false,
           error: action.payload,
         };
-    default:
+        
+        case FETCH_ADMIN_FACILITY_BY_ID_REQUEST:
+          return {
+            ...state,
+            loading: true,
+            error: null,
+          };
+        case FETCH_ADMIN_FACILITY_BY_ID_SUCCESS:
+          return {
+            ...state,
+            loading: false,
+            facilityListByUsersId: action.payload,
+            error: null,
+          };
+        case FETCH_ADMIN_FACILITY_BY_ID_FAILURE:
+          return {
+            ...state,
+            loading: false,
+            error: action.payload,
+          };
+  //  END
+          default:
       return state;
   }
 };

@@ -74,6 +74,9 @@ import {
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
   FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
+  FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+  FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  FETCH_ADMIN_FACILITY_BY_ID_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -423,5 +426,19 @@ export const deleteAdminFacilityDocumentSuccess = (data) => ({
 
 export const deleteAdminFacilityDocumentFailure = (error) => ({
   type: DELETE_ADMIN_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListInByIdRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+});
+
+export const fetchAdminFacilityListInByIdSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListInByIdFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_FAILURE,
   payload: error,
 });

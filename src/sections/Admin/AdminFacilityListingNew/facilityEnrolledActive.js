@@ -394,9 +394,7 @@ const FacilityEnrolledActive = ({
                             minWidth: "unset",
                             fontSize: "0.875rem",
                         }}
-                        onClick={() =>
-                            navigate(`/companies/company-manage-access/${item?.id}`)
-                        }
+                        onClick={() => handelNavigateManagePermissions(item) }
                     >
                         Manage access
                     </Button>
@@ -404,6 +402,18 @@ const FacilityEnrolledActive = ({
             ),
         },
     ];
+
+const handelNavigateManagePermissions = (item)=> {
+    const data = {
+        companyId: item?.company_id, 
+        companyName : item?.company_name,
+        facilityId: item?.id,
+        facilityUBI: item?.facility_ubi
+    }
+
+    navigate(`/facility-list/${item?.id}/manage-access`, {state: data })
+    console.log('handelNavigate',item)
+}
 
     return (
         <Container>
@@ -463,6 +473,7 @@ const FacilityEnrolledActive = ({
                                             displayEmpty={true}
                                             className="transparent-border"
                                             value={customizeFilter}
+                                            disabled={true}
                                         // onChange={(e) => setColumnFilter(e.target.value)}
                                         >
                                             <MenuItem value="">

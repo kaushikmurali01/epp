@@ -319,7 +319,7 @@ const AdminFacilityListingNew = () => {
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
-            List of Facilities
+            List of Facilities new
           </Typography>
           {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
