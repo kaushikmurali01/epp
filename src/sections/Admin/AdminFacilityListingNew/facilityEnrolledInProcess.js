@@ -72,8 +72,8 @@ const FacilityEnrolledInProcess = ({
             "data": searchData,
             "offset": (pageInfo.page - 1) * pageInfo.pageSize,
             "limit": pageInfo.pageSize,
-            // "col_name": sortByCol,
-            // "order":sortOrder,            
+            "col_name": sortColumn,
+            "order":sortOrder,            
           }
         debouncedSearch(payload);
         return () => {
@@ -83,7 +83,6 @@ const FacilityEnrolledInProcess = ({
         dispatch,
         pageInfo.page,
         pageInfo.pageSize,
-        searchVal,
         companyFilter,
         sortColumn,
         sortOrder,
@@ -394,9 +393,7 @@ const FacilityEnrolledInProcess = ({
                             minWidth: "unset",
                             fontSize: "0.875rem",
                         }}
-                        onClick={() =>
-                            navigate(`/companies/company-manage-access/${item?.id}`)
-                        }
+                        onClick={() => handelNavigateManagePermissions(item) }
                     >
                         Manage access
                     </Button>
@@ -405,27 +402,26 @@ const FacilityEnrolledInProcess = ({
         },
     ];
 
+
+    const handelNavigateManagePermissions = (item)=> {
+        const data = {
+            companyId: item?.company_id, 
+            companyName : item?.company_name,
+            facilityId: item?.id,
+            facilityUBI: item?.facility_ubi
+        }
+    
+        navigate(`/facility-list/${item?.id}/manage-access`, {state: data })
+        console.log('handelNavigate',item)
+    }
+
+
     return (
         <Container>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Grid container mt={4} mb={4}>
-                        {/* <Grid item xs={6}>
-              <Typography
-                variant="h2"
-                sx={{
-                  color: "#242424",
-                  fontWeight: "500",
-                  fontSize: "20px !important",
-                  fontStyle: "italic",
-                  lineHeight: "27.5px",
-                  letterSpacing: "-0.01125rem",
-                  fontStyle: "italic",
-                }}
-              >
-                List of all facilities
-              </Typography>
-            </Grid> */}
+                
                         <Grid container xs={12} gap={4} justifyContent="flex-end">
                             <Grid item alignContent="center">
                                 <Button
@@ -490,10 +486,11 @@ const FacilityEnrolledInProcess = ({
                         setPageInfo={setPageInfo}
                         searchData={searchData}
                         setSearchData={setSearchData}
-                        setSortColumn={setSortColumn}
-                        setSortOrder={sortOrder}
                         sortColumn={sortColumn}
-                        sortOrder={setSortOrder}
+                        sortOrder={sortOrder}
+                        setSortColumn={setSortColumn}
+                        setSortOrder={setSortOrder}
+                     
 
                     />
                     {/* <Table

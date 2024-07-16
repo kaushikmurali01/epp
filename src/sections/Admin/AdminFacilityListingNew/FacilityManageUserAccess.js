@@ -14,12 +14,9 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-// import {
-//   fetchAdminCompanyListing,
-//   fetchUsersByfacilityId,
-// } from "../../../redux/admin/actions/adminCompanyAction";
+
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { format } from "date-fns";
+
 import { debounce } from "lodash";
 import Loader from "pages/Loader";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -160,8 +157,8 @@ const FacilityManageUserAccess = () => {
   const getParams = useLocation();
   const facilityId = getParams.state?.facilityId || '';
   const [selectTableRow, setSelectTableRow] = useState({});
-  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
-  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
+  const [sortColumn, setSortColumn] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const [searchData, setSearchData] = useState([]);
 
 
@@ -178,6 +175,8 @@ const FacilityManageUserAccess = () => {
   );
 
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+
+
 
   const DeleteModelContent = () => {
     return (
@@ -305,11 +304,42 @@ const handelDelete = (item, setModalConfig) => {
     
 }
 
-  useEffect(() => {
-    dispatch(fetchFacilityListByUserId(pageInfo, facilityId,searchData));
-  }, [dispatch, pageInfo.page, pageInfo.pageSize, facilityId,searchData,refreshTableData]);
+  // useEffect(() => {
+  //   dispatch(fetchFacilityListByUserId(pageInfo, facilityId,searchData));
+  // }, [dispatch, pageInfo.page, pageInfo.pageSize, facilityId,searchData,refreshTableData]);
+
+
+
+  const debouncedSearch = debounce((pageInfo, facility_id, search, sort_Column, sort_Order) => {
+    dispatch(
+      fetchFacilityListByUserId(
+        pageInfo,
+        facility_id,
+        search,
+        sort_Column,
+        sort_Order
+      )
+    );
+  },300);
+
+useEffect(() => {
+  debouncedSearch(
+    pageInfo,
+    facilityId,
+    searchData,
+    sortColumn,
+    sortOrder
+  );
+  return () => {
+    debouncedSearch.cancel();
+  };
+}, [dispatch, pageInfo.page, pageInfo.pageSize, facilityId,searchData,refreshTableData,sortColumn,sortOrder]);
+
+
 
   console.log(companyUserListData,facilityId, "companyUserListData")
+
+
 
   return (
     <Container>
@@ -341,17 +371,8 @@ const handelDelete = (item, setModalConfig) => {
         </Typography>
         </Grid>
         <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handelInviteUserAdmin()  } >
-                    Add User
-                    <IconButton>
-
-                      <AddCircleIcon
-                        sx={{
-                          color: "text.primary",
-                          fontSize: "1.875rem",
-                        }}
-                      />
-                    </IconButton>
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  console.log("assign user clicked")  } >
+                    Assign User
                   </Typography>
               </Grid>
       </Grid>
@@ -369,10 +390,10 @@ const handelDelete = (item, setModalConfig) => {
                 searchData={searchData}
                 setSearchData={setSearchData}
 
-                setSortColumn={setSortCustomerColumn}
-                setSortOrder={setSortCustomerOrder}
-                sortColumn={sortCustomerColumn}
-                sortOrder={sortCustomerOrder}
+                setSortColumn={setSortColumn}
+                setSortOrder={setSortOrder}
+                sortColumn={sortColumn}
+                sortOrder={sortOrder}
               
               />
       </Box>

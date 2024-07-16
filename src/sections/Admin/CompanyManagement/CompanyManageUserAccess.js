@@ -320,8 +320,6 @@ const handelDelete = (item, setModalConfig) => {
   }, [dispatch, pageInfo.page, pageInfo.pageSize, companyId,searchData,refreshTableData,sortColumn,sortOrder]);
 
 
-  console.log(companyUserListData,companyId, "companyUserListData")
-
   return (
     <Container>
       <Grid container sx={{ paddingTop: {xs: '0.5rem', sm: '1.5rem'}, marginBottom: '1.5rem', justifyContent: 'space-between', }}>

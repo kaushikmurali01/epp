@@ -22,7 +22,6 @@ import * as Yup from "yup";
 import EvThemeTable from "components/Table/EvThemeTable";
 
 const FacilityEnrolledActive = ({
-    searchVal,
     companyFilter,
     onDownloadBulkClick,
     onDownloadRowClick,
@@ -72,8 +71,8 @@ const FacilityEnrolledActive = ({
             "data": searchData,
             "offset": (pageInfo.page - 1) * pageInfo.pageSize,
             "limit": pageInfo.pageSize,
-            // "col_name": sortByCol,
-            // "order":sortOrder,            
+            "col_name": sortColumn,
+            "order":sortOrder,            
           }
         debouncedSearch(payload);
         return () => {
@@ -83,7 +82,6 @@ const FacilityEnrolledActive = ({
         dispatch,
         pageInfo.page,
         pageInfo.pageSize,
-        searchVal,
         companyFilter,
         sortColumn,
         sortOrder,
@@ -501,10 +499,11 @@ const handelNavigateManagePermissions = (item)=> {
                         setPageInfo={setPageInfo}
                         searchData={searchData}
                         setSearchData={setSearchData}
-                        setSortColumn={setSortColumn}
-                        setSortOrder={sortOrder}
                         sortColumn={sortColumn}
-                        sortOrder={setSortOrder}
+                        setSortColumn={setSortColumn}
+                        sortOrder={sortOrder}
+                        setSortOrder={setSortOrder}
+                       
 
                     />
                     {/* <Table

@@ -397,11 +397,11 @@ const AdminFacilityListingNew = () => {
               sx={{ minWidth: "10rem" }}
             />
 
-            <Tab
+            {/* <Tab
               value="inactive_Facilities"
               label="Inactive Facilities"
               sx={{ minWidth: "10rem" }}
-            />
+            /> */}
           </Tabs>
         </Grid>
       </div>
