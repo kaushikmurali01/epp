@@ -59,7 +59,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         baselineListData,
         meterType
       );
-      initialValues?.status === "DRAFT" && setSeeDetailsButtonDisabled(true);
+      initialValues?.status !== "REQUESTED" && setSeeDetailsButtonDisabled(true);
       setFormData(initialValues?.parameter_data);
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
