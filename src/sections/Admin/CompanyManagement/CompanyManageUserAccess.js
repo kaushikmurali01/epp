@@ -232,7 +232,7 @@ const handelDelete = (item, setModalConfig) => {
               ...prevState,
               modalVisible: false,
           }));
-          setRefreshTableData(prevState => prevState + 1);;
+          setRefreshTableData(prevState => prevState + 1);
       }
           dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })

@@ -226,7 +226,8 @@ const FacilityManageUserAccess = () => {
 const handelDelete = (item, setModalConfig) => {
   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
   // for customer we need to company_id to delete
-  const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
+  const entry_type = "1";
+  const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + entry_type + '/' + item.id;
   // return;
   DELETE_REQUEST(apiURL)
       .then((response) => {

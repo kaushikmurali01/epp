@@ -31,6 +31,7 @@ const FacilityEnrolledActive = ({
     const [sortColumn, setSortColumn] = useState("");
     const [sortOrder, setSortOrder] = useState("");
     const [customizeFilter, setCustomizeColumnFilter] = useState("");
+    const [refreshTableData, setRefreshTableData] = useState(0);
     const [searchData, setSearchData] = useState([]);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -85,7 +86,8 @@ const FacilityEnrolledActive = ({
         companyFilter,
         sortColumn,
         sortOrder,
-        searchData
+        searchData,
+        refreshTableData
     ]);
 
     const adminFacilityData = useSelector(
@@ -112,7 +114,8 @@ const FacilityEnrolledActive = ({
                             ...prevState,
                             modalVisible: false,
                         }));
-                        dispatch(fetchAdminFacilityListing(pageInfo, 0));
+                        // dispatch(fetchAdminFacilityListing(pageInfo, 0));
+                        setRefreshTableData(prevState => prevState + 1);
                     })
                     .catch((error) => {
                         console.error("Error deleting facility:", error);
@@ -145,7 +148,7 @@ const FacilityEnrolledActive = ({
                 </Grid>
                 <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
                     <Button
-                        onClick={handleDeleteFacility}
+                        onClick={()=> handleDeleteFacility(facilityId)}
                         sx={{
                             background: "#FF5858",
                             "&:hover": {
