@@ -2138,7 +2138,6 @@ export async function upsertIncentiveSettings(
 
     // Type assertion and partial application of IIncentiveSettingsAttributes
     const data = requestBody as Partial<IIncentiveSettingsAttributes>;
-    context.log()
     const result = await IncentiveSettingsController.upsertIncentiveSettings({
       ...data,
       created_by: decodedToken.id,
