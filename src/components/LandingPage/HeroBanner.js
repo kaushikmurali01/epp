@@ -74,7 +74,7 @@ const HeroBanner = () => {
                   color="success"
                   onClick={handleRedirect}
                 >
-                  Login/Sign up
+                  Log in/Sign up
                 </Button>
                 <Tooltip title="Learn more about EPP" arrow>
                   <Button

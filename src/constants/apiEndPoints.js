@@ -213,6 +213,7 @@ export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
   DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   UPLOAD_INDEPENDENT_VARIABLE_FILE: "etl/v1/etl/upload-file-iv",
   GET_WEATHER_STATION: "weather/v1/get_station_details",
+  GET_WEATHER_DATA: 'v1/get_weather_data'
 };
 
 export const BASELINE_ENDPOINTS = {

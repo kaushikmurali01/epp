@@ -4,6 +4,7 @@ import CustomBox from "../../../components/CustomBox";
 import "../UserManagementSection/styles.css";
 import useMediaQueries from "utils/mediaQueries/mediaQueries";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const DashboardArrow = () => {
   return (
@@ -19,9 +20,15 @@ const DashboardArrow = () => {
 };
 
 const DashboardNoGraph = (props) => {
-  const userDetails = localStorage.getItem('userDetails') && JSON.parse(localStorage.getItem('userDetails'))
+  const userData= useSelector(
+    (state) => state?.facilityReducer?.userDetails || {}
+  );
+
+  const userDetails = userData?.user || {};
+  const userPermissions = userData?.permissions || {};
   const { isLg } = useMediaQueries();
   const navigate = useNavigate();
+
 
   return (
     <Container>
@@ -124,7 +131,7 @@ const DashboardNoGraph = (props) => {
           Facility List are included under the signed Participant Agreement.
         </Typography>
       </Box>
-      <Grid
+      {(userPermissions.some(permission => permission.permission === "facility")) ?<Grid
         display="flex"
         flexDirection="column"
         justifyContent="center"
@@ -143,7 +150,7 @@ const DashboardNoGraph = (props) => {
         >
           Add Facility
         </Button>
-      </Grid>
+      </Grid> : null}
     </Container>
   );
 };
