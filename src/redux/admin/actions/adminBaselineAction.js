@@ -43,6 +43,9 @@ import {
   fetchAdminDataExplorationSummaryListRequest,
   fetchAdminDataExplorationSummaryListSuccess,
   fetchAdminDataExplorationSummaryListFailure,
+  fetchAdminRawSummaryMeterListRequest,
+  fetchAdminRawSummaryMeterListSuccess,
+  fetchAdminRawSummaryMeterListFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -63,7 +66,9 @@ export const adminSufficiencyCheck = (adminSufficiencyParameters) => {
       console.error(error);
       dispatch(adminSufficiencyCheckFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data
+          ? error.response.data.error
+          : "Something went wrong!",
         type: "error",
       });
       throw error;
@@ -346,6 +351,44 @@ export const fetchAdminDataExplorationSummaryList = (
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminDataExplorationSummaryListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminRawSummaryMeterList = (
+  facilityId,
+  meterType,
+  detail,
+  pageNumber,
+  pageSize
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminRawSummaryMeterListRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      if (detail) {
+        endpointWithParams += `&meter=${meterType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&detail=${detail}`;
+      }
+      if (pageNumber) {
+        endpointWithParams += `&page_number=${pageNumber}`;
+      }
+      if (pageSize) {
+        endpointWithParams += `&page_size=${pageSize}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminRawSummaryMeterListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminRawSummaryMeterListFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

@@ -21,6 +21,9 @@ import {
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
+  FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_STATIONS_DETAILS_FAILURE,
   FETCH_STATIONS_DETAILS_REQUEST,
   FETCH_STATIONS_DETAILS_SUCCESS,
@@ -237,6 +240,20 @@ export const fetchDataExplorationSummaryListSuccess = (data) => ({
 
 export const fetchDataExplorationSummaryListFailure = (error) => ({
   type: FETCH_DATA_EXPLORATION_SUMMARY_FAILURE,
+  payload: error,
+});
+
+export const fetchRawSummaryMeterListRequest = () => ({
+  type: FETCH_RAW_SUMMARY_METER_LIST_REQUEST,
+});
+
+export const fetchRawSummaryMeterListSuccess = (data) => ({
+  type: FETCH_RAW_SUMMARY_METER_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchRawSummaryMeterListFailure = (error) => ({
+  type: FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
   payload: error,
 });
 

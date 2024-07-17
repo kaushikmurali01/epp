@@ -2,7 +2,10 @@ import { Button, Grid, Typography } from "@mui/material";
 import CustomPagination from "components/CustomPagination";
 import { MiniTable } from "components/MiniTable";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchRawSummaryMeterList } from "../../../../redux/superAdmin/actions/baselineAction";
+import { useParams } from "react-router-dom";
+import { format } from "date-fns";
 
 const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
@@ -15,23 +18,59 @@ const MeterDetailsModal = ({
   });
 
   const dispatch = useDispatch();
+  const { id } = useParams();
+  useEffect(() => {
+    dispatch(
+      fetchRawSummaryMeterList(
+        24,
+        meterType,
+        true,
+        pageInfo.page,
+        pageInfo.pageSize
+      )
+    );
+  }, [dispatch, id, meterType, pageInfo.page, pageInfo.pageSize]);
 
-  useEffect(() => {}, [meterType]);
+  const meterRawData = useSelector(
+    (state) => state?.baselineReducer?.rawMeterSummaryList?.data || []
+  );
+
+  const count = useSelector(
+    (state) => state?.baselineReducer?.rawMeterSummaryList?.count
+  );
+
   const observeDataColumn = [
     {
       Header: "Start Date(Required)",
-      accessor: "meter_type",
+      accessor: (item) => (
+        <>
+          {item?.["Start Date (Required)"] &&
+            format(
+              new Date(item?.["Start Date (Required)"]),
+              "yyyy-MM-dd HH:mm"
+            )}
+        </>
+      ),
     },
     {
       Header: "End Date(Required)",
-      accessor: "meter_value",
+      accessor: (item) => {
+        return (
+          <>
+            {item?.["End Date (Required)"] &&
+              format(
+                new Date(item?.["End Date (Required)"]),
+                "yyyy-MM-dd HH:mm"
+              )}
+          </>
+        );
+      },
     },
     {
       Header: "Usage (Required)",
-      accessor: "time_stamp_start",
+      accessor: "Usage (Required)",
     },
   ];
-  const data = [];
   return (
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
@@ -41,9 +80,9 @@ const MeterDetailsModal = ({
         </Typography>
       </Grid>
       <Grid container>
-        <MiniTable columns={observeDataColumn} data={data} />
+        <MiniTable columns={observeDataColumn} data={meterRawData} />
         <CustomPagination
-          count={30}
+          count={count}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
           incomingRowPerPageArr={[10, 20, 50, 75, 100]}

@@ -22,6 +22,9 @@ import {
   fetchIssueDetailsFailure,
   fetchIssueDetailsRequest,
   fetchIssueDetailsSuccess,
+  fetchRawSummaryMeterListFailure,
+  fetchRawSummaryMeterListRequest,
+  fetchRawSummaryMeterListSuccess,
   fetchStationsDetailsFailure,
   fetchStationsDetailsRequest,
   fetchStationsDetailsSuccess,
@@ -61,10 +64,11 @@ export const SufficiencyCheck = (sufficiencyParameters) => {
       dispatch(sufficiencyCheckSuccess(data));
       return data;
     } catch (error) {
-      console.error(error);
       dispatch(sufficiencyCheckFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data
+          ? error.response.data.error
+          : "Something went wrong!",
         type: "error",
       });
       throw error;
@@ -331,7 +335,12 @@ export const submitBaselineDt = (baselineParameters) => {
   };
 };
 
-export const fetchDataExplorationSummaryList = (facilityId, summaryType) => {
+export const fetchDataExplorationSummaryList = (
+  facilityId,
+  summaryType,
+  page,
+  pageSize
+) => {
   return async (dispatch) => {
     try {
       dispatch(fetchDataExplorationSummaryListRequest());
@@ -344,6 +353,44 @@ export const fetchDataExplorationSummaryList = (facilityId, summaryType) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchDataExplorationSummaryListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchRawSummaryMeterList = (
+  facilityId,
+  meterType,
+  detail,
+  pageNumber,
+  pageSize
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchRawSummaryMeterListRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      if (detail) {
+        endpointWithParams += `&meter=${meterType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&detail=${detail}`;
+      }
+      if (pageNumber) {
+        endpointWithParams += `&page_number=${pageNumber}`;
+      }
+      if (pageSize) {
+        endpointWithParams += `&page_size=${pageSize}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchRawSummaryMeterListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchRawSummaryMeterListFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
