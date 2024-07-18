@@ -129,7 +129,8 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-
+        if len(self.combined_df)==0:
+            return {}
         distinct_meter_types = self.combined_df['MeterType'].unique()
         mapped_data = []
         for meter_type in distinct_meter_types:
@@ -166,6 +167,8 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
+        if len(self.combined_df)==0:
+            return {}
         # Process missing data summaries for each distinct meter type
         distinct_meter_types = self.combined_df['MeterType'].unique()
         mapped_data = []
@@ -197,7 +200,8 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-
+        if len(self.combined_df) == 0:
+            return {}
         # Process observe data summaries for each distinct meter type
         combined_df = self.combined_df
         meter_types = combined_df['MeterType'].unique()
