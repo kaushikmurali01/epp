@@ -10,6 +10,7 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest
 from insertion_and_preparation import insert_clean_data_to_db
+from visualization.data_exploration import DataExplorationVisualisation
 
 app = Flask(__name__)
 
@@ -236,7 +237,7 @@ def check_sufficiency():
 
                     # Filter data based on the date range
                     variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (
-                                variable_data['Start Date (Required)'] <= end_date)]
+                            variable_data['Start Date (Required)'] <= end_date)]
                     print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
 
                 variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
@@ -499,7 +500,7 @@ def clean_data():
 
                     # Filter data based on the date range
                     variable_data = variable_data[(variable_data['Start Date (Required)'] >= start_date) & (
-                                variable_data['Start Date (Required)'] <= end_date)]
+                            variable_data['Start Date (Required)'] <= end_date)]
                     print("variable_data after filtering is  - - -- - -- - - - - - - -- - - - - - -", variable_data)
 
                 variable_data['Start Date (Required)'] = pd.to_datetime(variable_data['Start Date (Required)'])
@@ -626,7 +627,7 @@ def get_data_exploration_summary():
             'status': 'failed',
             'message': "Please provide Facility ID"
         }, 200
-    des_object = DataExplorationSummary(facility_id, meter, detail, page_no, page_size,detail_setting)
+    des_object = DataExplorationSummary(facility_id, meter, detail, page_no, page_size, detail_setting)
     if summary_type == 'outliers':
         response = des_object.get_outlier_summary()
     elif summary_type == 'missing_data':
@@ -634,6 +635,13 @@ def get_data_exploration_summary():
     else:
         response = des_object.get_observe_data_summary()
     return response
+
+
+@app.route('/summary_visualisation')
+def visualise_data_exploration_summary():
+    facility_id = request.args.get('facility_id', None)
+    visualisation = DataExplorationVisualisation(facility_id)
+    return visualisation.fetch_data()
 
 
 if __name__ == '__main__':
