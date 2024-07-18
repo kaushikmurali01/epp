@@ -1972,9 +1972,10 @@ export async function upsertIncentiveSettings(
 
     // Type assertion and partial application of IIncentiveSettingsAttributes
     const data = requestBody as Partial<IIncentiveSettingsAttributes>;
-    context.log()
+    const facility_id = Number(request.params.facilityId);
     const result = await IncentiveSettingsController.upsertIncentiveSettings({
       ...data,
+      facility_id,
       created_by: decodedToken.id,
       updated_by: decodedToken.id,
     } as IIncentiveSettingsAttributes);
@@ -1994,7 +1995,7 @@ app.http("get-incentive-settings", {
 
 app.http("upsert-incentive-settings", {
   methods: ["PUT"],
-  route: "incentive-settings",
+  route: "incentive-settings/{facilityId}",
   authLevel: "anonymous",
   handler: upsertIncentiveSettings,
 });
