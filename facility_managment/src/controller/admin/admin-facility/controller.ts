@@ -228,6 +228,45 @@ export class AdminFacilityController {
       throw this.errorMessage;
     }
   }
+  static async removeUserFromFacility(
+    decodedToken: IUserToken,
+    user_id: number,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await AdminFacilityService.removeUserFromFacility(
+        Object(decodedToken),
+        user_id,
+        facility_id
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  
+  static async getUserInFromCompnay(
+    decodedToken: IUserToken,
+    company_id: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await AdminFacilityService.getUserInFromCompnay(
+        Object(decodedToken),
+        company_id
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
 
   /**
    * Delete facility by the user.

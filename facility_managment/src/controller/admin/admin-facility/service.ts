@@ -19,7 +19,7 @@ import { Company } from "../../../models/company.model";
 import { ParticipantAgreement } from "../../../models/participant_agreement.model";
 import { User } from "../../../models/user.model";
 import { creatSignDocumentUrlForUser } from "../../../helper/create-doc.helper";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { EmailContent, adminDetails } from "../../../utils/email-content";
 import { getEmailTemplate } from "../../../helper/mail-template.helper";
 import { Email } from "../../../helper/email-sender.helper";
@@ -806,6 +806,46 @@ where facility_id=p.id) as total_user_count from (SELECT
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async removeUserFromFacility(
+    userToken: IUserToken | any,
+    user_id: number,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      let findUser = await User.findOne({ where: { id: user_id } });
+      await UserResourceFacilityPermission.destroy({
+        where: {
+          email: findUser?.email,
+          facility_id,
+        },
+      });
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getUserInFromCompnay(
+    userToken: IUserToken | any,
+    company_id: number
+  ): Promise<Facility[]> {
+    try {
+      let query = `Select id,email,first_name,last_name from users where id in (select user_id from user_company_role where compnay_id=${company_id})`;
+      let result = await rawQuery(query);
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
       );
       return resp;
     } catch (error) {
