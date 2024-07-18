@@ -586,13 +586,13 @@ def idv_process():
 
     # Convert the Series to a dictionary with string keys
     hourly_data_list = [{'Reading_date': str(index), 'Value': value} for index, value in hourly_data.items()]
-    
+
     return jsonify(hourly_data_list), 200
 
 
 @app.route("/data-exploration-summary", methods=['GET'])
 def get_data_exploration_summary():
-    facility_id = request.args.get('facility_id', '')
+    facility_id = request.args.get('facility_id', None)
     summary_type = request.args.get('summary_type', 'observe_data')
     detail = request.args.get('detail', False)
     meter = request.args.get('meter')

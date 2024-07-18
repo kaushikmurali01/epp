@@ -147,11 +147,11 @@ class DataExplorationSummary(ProcessDataframe):
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
                 "total_records": int(outliers_df),
-                # "first_quartile": float(Q1.iloc[0]),
-                # "third_quartile": float(Q3.iloc[0]),
-                # "inter_quartile": float(IQR.iloc[0]),
-                # "lower_limit": "{:.2f}".format(lower_limit),
-                # "upper_limit": "{:.2f}".format(upper_limit)
+                "first_quartile": float(Q1.iloc[0]),
+                "third_quartile": float(Q3.iloc[0]),
+                "inter_quartile": float(IQR.iloc[0]),
+                "lower_limit": "{:.2f}".format(lower_limit),
+                "upper_limit": "{:.2f}".format(upper_limit)
             }
             mapped_data.append(outlier_data)
 
