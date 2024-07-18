@@ -23,15 +23,16 @@ const DataSummary = () => {
 
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(24, activeButton));
+      dispatch(fetchDataExplorationSummaryList(336, activeButton));
     } else {
-      dispatch(fetchDataExplorationSummaryList(24));
+      dispatch(fetchDataExplorationSummaryList(336));
     }
   }, [dispatch, id, activeButton]);
 
   const summaryData = useSelector(
     (state) => state?.baselineReducer?.dataExplorationSummaryList
   );
+
   const [meterDetailsModalConfig, setMeterDetailsModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -161,21 +162,7 @@ const DataSummary = () => {
     },
     {
       Header: "Parameter",
-      accessor: (item) => (
-        <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
-          variant="span"
-          sx={{
-            color: "primary.main",
-            fontSize: "0.875rem !important",
-            fontStyle: "italic",
-            fontWeight: 400,
-            cursor: "pointer",
-          }}
-        >
-          {item.meter_name}
-        </Typography>
-      ),
+      accessor: "meter_name",
     },
     {
       Header: "Timestamp start",
@@ -198,21 +185,7 @@ const DataSummary = () => {
     },
     {
       Header: "Parameter",
-      accessor: (item) => (
-        <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
-          variant="span"
-          sx={{
-            color: "primary.main",
-            fontSize: "0.875rem !important",
-            fontStyle: "italic",
-            fontWeight: 400,
-            cursor: "pointer",
-          }}
-        >
-          {item.meter_name}
-        </Typography>
-      ),
+      accessor: "meter_name",
     },
     {
       Header: "Timestamp start",
@@ -235,6 +208,31 @@ const DataSummary = () => {
       accessor: "type",
     },
   ];
+
+  const getTableData = () => {
+    if (!summaryData) return [];
+
+    if (activeButton === "outliers") {
+      return Array.isArray(summaryData.data) ? summaryData.data : [];
+    }
+
+    return Array.isArray(summaryData) ? summaryData : [];
+  };
+
+  const renderTable = () => {
+    const tableData = getTableData();
+
+    switch (activeButton) {
+      case "observe_data":
+        return <MiniTable columns={observeDataColumn} data={tableData} />;
+      case "missing_data":
+        return <MiniTable columns={missingDataColumn} data={tableData} />;
+      case "outliers":
+        return <MiniTable columns={outliersDataColumn} data={tableData} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Grid
@@ -301,17 +299,7 @@ const DataSummary = () => {
           </Box>
         )}
       </Grid>
-      <Grid container>
-        {activeButton === "observe_data" && (
-          <MiniTable columns={observeDataColumn} data={summaryData} />
-        )}
-        {activeButton === "missing_data" && (
-          <MiniTable columns={missingDataColumn} data={summaryData} />
-        )}
-        {activeButton === "outliers" && (
-          <MiniTable columns={outliersDataColumn} data={summaryData} />
-        )}
-      </Grid>
+      <Grid container>{renderTable()}</Grid>
       <EvModal
         modalConfig={meterDetailsModalConfig}
         setModalConfig={setMeterDetailsModalConfig}

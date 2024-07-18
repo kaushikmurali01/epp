@@ -348,6 +348,7 @@ export const fetchDataExplorationSummaryList = (
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
+      console.log(response);
       dispatch(fetchDataExplorationSummaryListSuccess(data));
       return data;
     } catch (error) {
