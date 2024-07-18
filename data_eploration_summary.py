@@ -82,22 +82,24 @@ class DataExplorationSummary(ProcessDataframe):
         query = f'''
         SELECT DISTINCT 
             hme.facility_id, 
-            hme.facility_meter_detail_id AS meter_type, 
+            hme.facility_meter_detail_id, 
             hme.meter_id,
             hme.created_by, 
             hme.media_url, 
             fmd.purchased_from_the_grid, 
-            fmd.is_active
+            fmd.is_active,
+            fmd.meter_type
         FROM 
             epp.facility_meter_hourly_entries hme 
         JOIN 
             epp.facility_meter_detail fmd
         ON 
-            hme.facility_meter_detail_id = fmd.meter_type
+            hme.facility_meter_detail_id = fmd.id
         WHERE
             hme.facility_id = {facility_id} AND
             fmd.is_active = 1;
         '''
+
         self.df = dbtest(query)
         self.combined_df = pd.DataFrame()
         self.meter_map = {1: "ELECTRICITY",
@@ -145,13 +147,15 @@ class DataExplorationSummary(ProcessDataframe):
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
                 "total_records": int(outliers_df),
-                "first_quartile": float(Q1.iloc[0]),
-                "third_quartile": float(Q3.iloc[0]),
-                "inter_quartile": float(IQR.iloc[0]),
-                "lower_limit": "{:.2f}".format(lower_limit),
-                "upper_limit": "{:.2f}".format(upper_limit)
+                # "first_quartile": float(Q1.iloc[0]),
+                # "third_quartile": float(Q3.iloc[0]),
+                # "inter_quartile": float(IQR.iloc[0]),
+                # "lower_limit": "{:.2f}".format(lower_limit),
+                # "upper_limit": "{:.2f}".format(upper_limit)
             }
             mapped_data.append(outlier_data)
+
+
         return mapped_data
 
     def get_missing_data_summary(self):
