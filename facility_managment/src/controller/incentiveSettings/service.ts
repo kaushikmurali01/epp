@@ -12,12 +12,21 @@ export class IncentiveSettingsService {
     }
   
     static async upsertIncentiveSettings(data: Partial<IIncentiveSettingsAttributes>): Promise<Omit<IIncentiveSettingsAttributes, 'facility'>> {
-      const [incentiveSettings, created] = await IncentiveSettings.upsert(data, {
-        returning: true,
+      const existingSettings = await IncentiveSettings.findOne({
+        where: { facility_id: data.facility_id },
       });
-  
-      const result = incentiveSettings.get({ plain: true });
-      delete result.facility;
+
+      let result: IIncentiveSettingsAttributes;
+
+      if (existingSettings) {
+        // Update existing record
+        await existingSettings.update(data);
+        result = existingSettings.toJSON();
+      } else {
+        // Create new record
+        const newSettings = await IncentiveSettings.create(data);
+        result = newSettings.toJSON();
+      }
       return result;
     }
   }
