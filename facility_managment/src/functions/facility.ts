@@ -18,7 +18,7 @@ import { FacilityMeterHourlyEntriesController } from "../controller/facility_hou
 import { FacilityMeasureController } from "../controller/facility_measure/controller";
 import { FacilitySavingDocumentController } from "../controller/facility_saving_document/controller";
 import { AuthorizationService } from "../helper/authorization.helper";
-import { IncentiveSettingsController } from '../controller/incentiveSettings/controller';
+import { IncentiveSettingsController } from "../controller/incentiveSettings/controller";
 import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.interface";
 import { EmailController } from "../controller/sentEmail/controller";
 import {IEmailSentAttributes} from "../interfaces/email-sent.interface"
@@ -103,7 +103,94 @@ export async function getAllFacilityAdmin(
 
     // Return success response
     return { body: responseBody };
-  }catch (error) {
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function facilityAssignUser(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    let user_ids = requestData.user_ids;
+    let facility_id = requestData.facility_id;
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.facilityAssignUser(
+      decodedToken,
+      user_ids,
+      facility_id
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getUserInFromCompnay(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    const { company_id } = request.params;
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.getUserInFromCompnay(
+      decodedToken,
+      Number(company_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function removeUserFromFacility(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch params
+    const requestData: any = await request.json();
+    const { facility_id, user_id } = request.params;
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.removeUserFromFacility(
+      decodedToken,
+      Number(user_id),
+      Number(facility_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -131,7 +218,7 @@ export async function getAllFacilityInprocessAdmin(
       Number(limit),
       String(colName),
       String(order),
-      data,
+      data
     );
 
     // Prepare response body
@@ -139,7 +226,7 @@ export async function getAllFacilityInprocessAdmin(
 
     // Return success response
     return { body: responseBody };
-  }catch (error) {
+  } catch (error) {
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -177,7 +264,7 @@ export async function getUsersFromFacility(
 
     // Return success response
     return { body: responseBody };
-  }catch (error) {
+  } catch (error) {
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -2101,18 +2188,22 @@ export async function getIncentiveSettings(
     if (!facilityId) {
       return {
         status: HTTP_STATUS_CODES.BAD_REQUEST,
-        jsonBody: { error: "Facility ID is required" }
+        jsonBody: { error: "Facility ID is required" },
       };
     }
 
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
-    const result = await IncentiveSettingsController.getIncentiveSettings(Number(facilityId));
+    const result = await IncentiveSettingsController.getIncentiveSettings(
+      Number(facilityId)
+    );
 
     if (!result) {
       return {
         status: 200,
-        jsonBody: { data: null, message: "IncentiveSettings not found" }
+        jsonBody: { data: null, message: "IncentiveSettings not found" },
       };
     }
 
@@ -2120,7 +2211,7 @@ export async function getIncentiveSettings(
   } catch (error) {
     return {
       status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
-      jsonBody: { error: error.message }
+      jsonBody: { error: error.message },
     };
   }
 }
@@ -2130,7 +2221,9 @@ export async function upsertIncentiveSettings(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
 
     const requestBody = await request.json();
     const facilityId = Number(request.params.facilityId);
@@ -2142,8 +2235,11 @@ export async function upsertIncentiveSettings(
       };
     }
 
-    if (typeof requestBody !== 'object' || requestBody === null) {
-      return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: "Invalid request body" };
+    if (typeof requestBody !== "object" || requestBody === null) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        body: "Invalid request body",
+      };
     }
 
     // Type assertion and partial application of IIncentiveSettingsAttributes
@@ -2283,11 +2379,29 @@ app.http(`facility-listing-post`, {
   authLevel: "anonymous",
   handler: getAllFacility2,
 });
+app.http(`user-company-drop-down`, {
+  methods: ["GET"],
+  route: "user-company-drop-down/{compnay_id}",
+  authLevel: "anonymous",
+  handler: getUserInFromCompnay,
+});
+app.http(`remove-user-from-facility`, {
+  methods: ["DELETE"],
+  route: "remove-user-facility/{facility_id}/{user_id}",
+  authLevel: "anonymous",
+  handler: removeUserFromFacility,
+});
 app.http(`facility-listing-post-admin`, {
   methods: ["POST"],
   route: "facility-listing-admin",
   authLevel: "anonymous",
   handler: getAllFacilityAdmin,
+});
+app.http(`facility-assign-user`, {
+  methods: ["POST"],
+  route: "facility-assign-user",
+  authLevel: "anonymous",
+  handler: facilityAssignUser,
 });
 app.http(`facility-listing-inprocess-admin`, {
   methods: ["POST"],
