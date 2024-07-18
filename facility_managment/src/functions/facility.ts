@@ -20,6 +20,8 @@ import { FacilitySavingDocumentController } from "../controller/facility_saving_
 import { AuthorizationService } from "../helper/authorization.helper";
 import { IncentiveSettingsController } from "../controller/incentiveSettings/controller";
 import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.interface";
+import { EmailController } from "../controller/sentEmail/controller";
+import {IEmailSentAttributes} from "../interfaces/email-sent.interface"
 
 // Facility User CRUD
 
@@ -2224,6 +2226,14 @@ export async function upsertIncentiveSettings(
     );
 
     const requestBody = await request.json();
+    const facilityId = Number(request.params.facilityId);
+
+    if (!facilityId) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        jsonBody: { error: "Facility ID is required" }
+      };
+    }
 
     if (typeof requestBody !== "object" || requestBody === null) {
       return {
@@ -2234,8 +2244,10 @@ export async function upsertIncentiveSettings(
 
     // Type assertion and partial application of IIncentiveSettingsAttributes
     const data = requestBody as Partial<IIncentiveSettingsAttributes>;
+    const facility_id = Number(facilityId);
     const result = await IncentiveSettingsController.upsertIncentiveSettings({
       ...data,
+      facility_id,
       created_by: decodedToken.id,
       updated_by: decodedToken.id,
     } as IIncentiveSettingsAttributes);
@@ -2246,6 +2258,68 @@ export async function upsertIncentiveSettings(
   }
 }
 
+
+export async function sendEmail(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const emailData = Object(await request.json());
+    const facility_id = Number(request.params.facilityId);
+    if (!facility_id) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        jsonBody: { error: "Facility ID is required" }
+      };
+    }
+    
+    if (!emailData.to || !emailData.subject || !emailData.body) {
+      throw new Error("Missing required fields: 'to', 'subject', and 'body' are required.");
+    }
+
+    const result = await EmailController.sendEmail(
+      {...emailData,
+        facility_id
+      }
+      , decodedToken);
+
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+export async function getEmailList(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const filter = request.query.get("filter") || "all";
+
+    const result = await EmailController.getEmailList(filter, decodedToken);
+
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
+app.http("send-email", {
+  methods: ["POST"],
+  route: "send-email/{facilityId}",
+  authLevel: "anonymous",
+  handler: sendEmail,
+});
+
+app.http("get-email-list", {
+  methods: ["GET"],
+  route: "send-email/{facilityId}",
+  authLevel: "anonymous",
+  handler: getEmailList,
+});
+
 app.http("get-incentive-settings", {
   methods: ["GET"],
   route: "incentive-settings/{facilityId}",
@@ -2255,7 +2329,7 @@ app.http("get-incentive-settings", {
 
 app.http("upsert-incentive-settings", {
   methods: ["PUT"],
-  route: "incentive-settings",
+  route: "incentive-settings/{facilityId}",
   authLevel: "anonymous",
   handler: upsertIncentiveSettings,
 });
