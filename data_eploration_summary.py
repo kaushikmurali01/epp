@@ -35,8 +35,6 @@ class ProcessDataframe:
             df = df.drop("Unnamed: 0", axis=1)
 
         filtered_df = df[df['MeterType'] == meter][:]
-        # filtered_df['Start Date (Required)'] = pd.to_datetime(filtered_df['Start Date (Required)'])
-        # filtered_df['End Date (Required)'] = pd.to_datetime(filtered_df['End Date (Required)'])
 
         filtered_df['Meter Reading (Required)'] = pd.to_numeric(filtered_df['Meter Reading (Required)'],
                                                                 errors='coerce')
@@ -65,9 +63,44 @@ class ProcessDataframe:
         return outliers_df.shape[0], Q1, Q3, IQR, upper_limit, lower_limit, filtered_df['Start Date (Required)'].min(), \
             filtered_df['End Date (Required)'].max()
 
+    @staticmethod
+    def process_outlier_data_by_iv(df, iv):
+
+        if 'Unnamed: 0' in df.columns:
+            df = df.drop("Unnamed: 0", axis=1)
+
+        filtered_df = df[df['IV Name'] == iv][:]
+
+        filtered_df['Meter Reading (Required)'] = pd.to_numeric(filtered_df['Meter Reading (Required)'],
+                                                                errors='coerce')
+
+        # Describe the filtered data
+        description = filtered_df.describe()
+
+        filtered_df['Start Date (Required)'] = pd.to_datetime(filtered_df['Start Date (Required)'])
+        filtered_df['End Date (Required)'] = pd.to_datetime(filtered_df['End Date (Required)'])
+
+        # Extract relevant statistics
+        Q1 = description.loc['25%']
+        Q3 = description.loc['75%']
+        IQR = Q3 - Q1
+
+        factor = 1.5  # Example factor for outlier detection, adjust as needed
+
+        lower_limit = Q1['Meter Reading (Required)'] - factor * IQR['Meter Reading (Required)']
+        upper_limit = Q3['Meter Reading (Required)'] + factor * IQR['Meter Reading (Required)']
+
+        # Filter outliers based on the calculated limits
+        outliers_df = filtered_df[(filtered_df['Meter Reading (Required)'] < lower_limit) | (
+                filtered_df['Meter Reading (Required)'] > upper_limit)]
+        outliers_df['IV ID'].unique()[0]
+        # Print or further process outliers_df as needed
+        return outliers_df.shape[0], Q1, Q3, IQR, upper_limit, lower_limit, filtered_df['Start Date (Required)'].min(), \
+            filtered_df['End Date (Required)'].max(), outliers_df['IV ID'].unique()[0]
+
 
 class DataExplorationSummary(ProcessDataframe):
-    def __init__(self, facility_id, meter, detail, page_no, page_size):
+    def __init__(self, facility_id, meter, detail, page_no, page_size, detail_setting):
         """
         Initialize DataExplorationSummary object.
 
@@ -79,6 +112,7 @@ class DataExplorationSummary(ProcessDataframe):
         self.facility_id = facility_id
         self.page_no = int(page_no)
         self.page_size = int(page_size)
+        self.detail_setting = detail_setting
         query = f'''
         SELECT DISTINCT 
             hme.facility_id, 
@@ -131,14 +165,29 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-        if len(self.combined_df)==0:
+        if len(self.combined_df) == 0:
             return {}
         distinct_meter_types = self.combined_df['MeterType'].unique()
         mapped_data = []
+        summary_pop_up_data = []
+        outlier_factor = []
         for meter_type in distinct_meter_types:
             outliers_df, Q1, Q3, IQR, upper_limit, lower_limit, start_date, end_date = self.process_outlier_data_by_meter_type(
                 self.combined_df,
                 meter_type)
+            outlier_factor.append(
+                {"meter_type": int(meter_type), "meter_name": self.meter_map.get(int(meter_type)), 'range_factor': 3})
+            summary_data = {
+                "meter_type": int(meter_type),
+                "meter_name": self.meter_map.get(int(meter_type)),
+                "first_quartile": float(Q1.iloc[0]),
+                "third_quartile": float(Q3.iloc[0]),
+                "inter_quartile": float(IQR.iloc[0]),
+                "lower_limit": "{:.2f}".format(lower_limit),
+                "upper_limit": "{:.2f}".format(upper_limit)
+
+            }
+            summary_pop_up_data.append(summary_data)
             outlier_data = {
                 "threshold": "Upper limit",
                 "type": "Global/Local",
@@ -147,16 +196,55 @@ class DataExplorationSummary(ProcessDataframe):
                 "time_stamp_start": start_date.strftime('%Y-%m-%d %H:%M'),
                 "time_stamp_end": end_date.strftime('%Y-%m-%d %H:%M'),
                 "total_records": int(outliers_df),
+            }
+            mapped_data.append(outlier_data)
+        outlier_factor.append({"meter_type": 100001, "meter_name": "Independent Variable", 'range_factor': 1.5})
+        iv_query = f"""
+        SELECT 
+            iv.id,
+            iv.name,                                 
+            iv.description,                          
+            ivf.file_path                            
+        FROM 
+            independent_variable AS iv                
+        JOIN 
+            independent_variable_file AS ivf          
+        ON 
+            iv.id = ivf.independent_variable_id where facility_id={self.facility_id};
+        """
+        iv_df = dbtest(iv_query)
+        iv_combined = pd.DataFrame()
+        for _, row in iv_df.iterrows():
+            url = row['file_path']
+            name = row['name']
+            iv_id = row['id']
+            df = self.download_files_with_url(url)
+            df['IV Name'] = name
+            df['IV ID'] = iv_id
+            iv_combined = pd.concat([iv_combined, df], ignore_index=True)
+        distinct_variable_types = iv_combined['IV Name'].unique()
+        for independent_variable in distinct_variable_types:
+            outliers_df, Q1, Q3, IQR, upper_limit, lower_limit, start_date, end_date, df_iv_id = self.process_outlier_data_by_iv(
+                iv_combined,
+                independent_variable)
+            if not outliers_df:
+                continue
+            summary_data = {
+                "iv_id": int(df_iv_id),
+                "iv_name": independent_variable,
                 "first_quartile": float(Q1.iloc[0]),
                 "third_quartile": float(Q3.iloc[0]),
                 "inter_quartile": float(IQR.iloc[0]),
                 "lower_limit": "{:.2f}".format(lower_limit),
                 "upper_limit": "{:.2f}".format(upper_limit)
+
             }
-            mapped_data.append(outlier_data)
-
-
-        return mapped_data
+            summary_pop_up_data.append(summary_data)
+        column_name = [rec.get('meter_name') if rec.get('meter_name') else rec.get('iv_name') for rec in
+                       summary_pop_up_data]
+        iv_combined.to_excel('/Users/varunpratap/Desktop/enerva/iv_combined.xlsx', index=False)
+        return {'data': mapped_data, 'popup': {"columns": column_name, "data": summary_pop_up_data},
+                "outlier_settings": outlier_factor}
 
     def get_missing_data_summary(self):
         """
@@ -171,7 +259,7 @@ class DataExplorationSummary(ProcessDataframe):
             df = self.download_files_with_url(url)
             df['MeterType'] = meter_type
             self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-        if len(self.combined_df)==0:
+        if len(self.combined_df) == 0:
             return {}
         # Process missing data summaries for each distinct meter type
         distinct_meter_types = self.combined_df['MeterType'].unique()
