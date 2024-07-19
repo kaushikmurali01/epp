@@ -6,8 +6,8 @@ from insertion_and_preparation import insert_data_to_db
 
 def download_weather_data(start_year, start_month, end_year, end_month, station_ids, facility_id):
     time_frame = 1  # Assuming time_frame is always 1
-    # temp_folder = os.getenv('TEMP')
-    temp_folder = 'TEMP'
+    temp_folder = os.getenv('TEMP')
+    # temp_folder = 'TEMP'
     csv_folder = os.path.join(temp_folder, 'CSV Files')
 
     if not os.path.exists(csv_folder):
