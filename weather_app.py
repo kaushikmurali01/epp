@@ -8,6 +8,7 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
 
 app = Flask(__name__)
 
+
 def haversine(lat1, lon1, lat2, lon2):
     # Convert latitude and longitude from degrees to radians
     lat1 = math.radians(lat1)
@@ -18,18 +19,18 @@ def haversine(lat1, lon1, lat2, lon2):
     # Haversine formula
     dlat = lat2 - lat1
     dlon = lon2 - lon1
-    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
+
     # Radius of the Earth in kilometers (use 3956 for miles)
     R = 6371.0
-    
+
     # Distance in kilometers
     distance = R * c
     return distance
 
+
 def get_nearest_stations(facility_df, stations_df, n=3):
-    
     # Ensure facility_df has at least one row
     if facility_df.empty:
         raise ValueError("facility_df must contain at least one row")
@@ -56,9 +57,12 @@ def get_nearest_stations(facility_df, stations_df, n=3):
 
     # Return the array of station IDs
     return nearest_stations['station_id'].values
+
+
 stations = dbtest("select station_id,latitude, longitude, station_name from stations")
 
-@app.route('/insert_weather_data', methods = ['POST'])
+
+@app.route('/insert_weather_data', methods=['POST'])
 def process():
     start_year = request.json.get('start_year')
     start_month = request.json.get('start_month')
@@ -70,30 +74,32 @@ def process():
     print("Facility data is -  - - - - - -- - -- -  -- - - -- ", facility.columns)
     print(facility[facility['id'] == 24])
     facility_df = facility[facility['id'] == int(facility_id)]
-# Get nearest 3 stations
+    # Get nearest 3 stations
     nearest_station_ids = get_nearest_stations(facility_df, stations)
     print(nearest_station_ids)
-    consolidated_df = download_and_load_data(int(start_year), int(start_month), int(end_year), int(end_month), nearest_station_ids, int(facility_id))
-    
+    consolidated_df = download_and_load_data(int(start_year), int(start_month), int(end_year), int(end_month),
+                                             nearest_station_ids, int(facility_id))
+
     return {"message": "Data inserted Succefully"}, 200
 
 
-@app.route('/get_station_details', methods = ['GET'])
+@app.route('/get_station_details', methods=['GET'])
 def getdata():
     facility = request.args.get('facility_id')
-    df = dbtest(f'SELECT DISTINCT latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
-    df_con = df.to_dict(orient= 'records')
+    df = dbtest(
+        f'SELECT DISTINCT latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
+    df_con = df.to_dict(orient='records')
     return jsonify(df_con), 200
 
 
-@app.route('/get_min_max_dates', methods = ['GET'])
+@app.route('/get_min_max_dates', methods=['GET'])
 def getdates():
     df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
                           hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
                    FROM epp.facility_meter_hourly_entries hme
                    JOIN epp.facility_meter_detail fmd
                    ON hme.facility_meter_detail_id = fmd.id;''')
-    
+
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
     print(type(facility_id))
@@ -115,7 +121,5 @@ def getdates():
     return jsonify(result), 200
 
 
-
 if __name__ == '__main__':
-
-    app.run(host="0.0.0.0", debug=True, port= 5001)
+    app.run(host="0.0.0.0", debug=True, port=5001)

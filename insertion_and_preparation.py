@@ -1,6 +1,7 @@
 from dbconnection import db_execute
 import pandas as pd
 
+
 def insert_data_to_db(df):
     query = """
     INSERT INTO weather_data (
@@ -15,7 +16,6 @@ def insert_data_to_db(df):
     db_execute(query, values)
 
 
-
 def insert_clean_data_to_db(df):
     query = """
     INSERT INTO clean_data (
@@ -23,16 +23,18 @@ def insert_clean_data_to_db(df):
         daynumber, weeknumber, monthnumber, monthname
     ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
     """
-    
+
     # Ensuring that the column names in the DataFrame match exactly
     df.columns = df.columns.str.lower()  # Convert DataFrame columns to lowercase
-    
-    values = df[['date', 'longitude', 'latitude', 'temperature', 'station_name', 'energyconsumption', 'daynumber', 'weeknumber', 'monthnumber', 'monthname']].values.tolist()
-    
+
+    values = df[
+        ['date', 'longitude', 'latitude', 'temperature', 'station_name', 'energyconsumption', 'daynumber', 'weeknumber',
+         'monthnumber', 'monthname']].values.tolist()
+
     # Debugging statement to check the query and values list
     print("SQL Query:", query)
     print("Values to be inserted:", values)
-    
+
     db_execute(query, values)
 
 
@@ -41,7 +43,8 @@ def prepare_data(row):
     clean_row = {k: (None if pd.isna(v) else v) for k, v in row.items()}
 
     # Ensure integer data types
-    int_fields = ['Year', 'Month', 'Day', 'Wind Dir (10s deg)', 'Wind Spd (km/h)', 'Hmdx', 'Wind Chill', 'Wind Chill Flag', 'station_id', 'facility_id']
+    int_fields = ['Year', 'Month', 'Day', 'Wind Dir (10s deg)', 'Wind Spd (km/h)', 'Hmdx', 'Wind Chill',
+                  'Wind Chill Flag', 'station_id', 'facility_id']
     for field in int_fields:
         clean_row[field] = int(clean_row[field]) if clean_row[field] is not None else None
 

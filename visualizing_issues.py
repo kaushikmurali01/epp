@@ -1,6 +1,7 @@
 import mplcursors
 import matplotlib.pyplot as plt
 
+
 def visualize_outliers(data_df, outliers):
     """
     Function to visualize outliers in the original scale using a scatter plot with hover functionality.
@@ -22,7 +23,8 @@ def visualize_outliers(data_df, outliers):
 
         # Add hover functionality to show actual values
         mplcursors.cursor(outlier_points).connect(
-            "add", lambda sel, col=col: sel.annotation.set_text(f"{col}: {sel.target[1]:.2f}\nMonthName: {data_df['MonthName'].iloc[int(sel.target[0])]}")
+            "add", lambda sel, col=col: sel.annotation.set_text(
+                f"{col}: {sel.target[1]:.2f}\nMonthName: {data_df['MonthName'].iloc[int(sel.target[0])]}")
         )
 
         ax.set_title(f'Outliers Detected in {col}')
@@ -31,4 +33,3 @@ def visualize_outliers(data_df, outliers):
         ax.legend()
 
     plt.show()
-

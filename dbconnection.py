@@ -4,48 +4,17 @@ import pandas as pd
 import psycopg2.extras
 import config
 
+
 def dbtest(query):
     with SSHTunnelForwarder(
-         (config.ssh_ip, 22),
-         ssh_private_key= config.private_key_path,
-         ### in my case, I used a password instead of a private key
-         ssh_username= config.ssh_user,
-         # ssh_password="<mypasswd>", 
-         remote_bind_address=(config.ssh_bind_address, 5432)) as server:
-         server.start()
-         #print("server connected")
-    
-         params = {
-             'database': config.db_creds[0],
-             'user': config.db_creds[1],
-             'password': config.db_creds[2],
-             'host': config.db_creds[3],
-             'port': server.local_bind_port
-             }
-    
-         conn = psycopg2.connect(**params)
-         curs = conn.cursor()
-         #print("database connected")
-         curs.execute(query)
-         rows = curs.fetchall()
-         # Fetch all rows from the result set
-         colnames = [desc[0] for desc in curs.description]
-        
-        # Create DataFrame from rows
-         df = pd.DataFrame(rows, columns=colnames)
-        
-         return df
-    
-
-def db_execute(query, values):
-    with SSHTunnelForwarder(
-        (config.ssh_ip, 22),
-        ssh_private_key= config.private_key_path,
-        ssh_username= config.ssh_user,
-        remote_bind_address=( config.ssh_bind_address, 5432)
-    ) as server:
+            (config.ssh_ip, 22),
+            ssh_private_key=config.private_key_path,
+            # in my case, I used a password instead of a private key
+            ssh_username=config.ssh_user,
+            # ssh_password="<mypasswd>",
+            remote_bind_address=(config.ssh_bind_address, 5432)) as server:
         server.start()
-        #print("server connected")
+        # print("server connected")
 
         params = {
             'database': config.db_creds[0],
@@ -57,13 +26,46 @@ def db_execute(query, values):
 
         conn = psycopg2.connect(**params)
         curs = conn.cursor()
-        #print("database connected")
-        
+        # print("database connected")
+        curs.execute(query)
+        rows = curs.fetchall()
+        # Fetch all rows from the result set
+        colnames = [desc[0] for desc in curs.description]
+
+        # Create DataFrame from rows
+        df = pd.DataFrame(rows, columns=colnames)
+
+        return df
+
+
+def db_execute(query, values):
+    with SSHTunnelForwarder(
+            (config.ssh_ip, 22),
+            ssh_private_key=config.private_key_path,
+            ssh_username=config.ssh_user,
+            remote_bind_address=(config.ssh_bind_address, 5432)
+    ) as server:
+        server.start()
+        # print("server connected")
+
+        params = {
+            'database': config.db_creds[0],
+            'user': config.db_creds[1],
+            'password': config.db_creds[2],
+            'host': config.db_creds[3],
+            'port': server.local_bind_port
+        }
+
+        conn = psycopg2.connect(**params)
+        curs = conn.cursor()
+        # print("database connected")
+
         psycopg2.extras.execute_batch(curs, query, values)
         conn.commit()
         curs.close()
         conn.close()
-        #print("Data inserted successfully")
+        # print("Data inserted successfully")
+
 
 def fetch_nearest_station_data(target_latitude, target_longitude):
     query = f"""
@@ -86,6 +88,7 @@ def fetch_nearest_station_data(target_latitude, target_longitude):
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df
+
 
 # Function to fetch additional nearest stations data
 def fetch_additional_stations_data(target_latitude, target_longitude):

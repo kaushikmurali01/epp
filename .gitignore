@@ -162,3 +162,8 @@ cython_debug/
 # config file
 config.py
 generarate_sample_data.py
+
+DataExplorationNew.py
+sql_queries.py
+test.py
+.idea
