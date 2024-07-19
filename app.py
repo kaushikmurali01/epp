@@ -18,10 +18,11 @@ app = Flask(__name__)
 @app.route('/handle', methods=['GET'])
 def return_summary():
     # Fetch the DataFrame from the database
-    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
-    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
-    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
-    on hme.facility_meter_detail_id = fmd.meter_type;''')
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
+                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+                   FROM epp.facility_meter_hourly_entries hme
+                   JOIN epp.facility_meter_detail fmd
+                   ON hme.facility_meter_detail_id = fmd.id;''')
 
     granularity = request.json.get('granularity', '')
     start_date = request.json.get('start_date', '')
@@ -99,10 +100,11 @@ def return_summary():
 @app.route('/check_issues', methods=['POST'])
 def check_issues():
     # Fetch the DataFrame from the database
-    df = dbtest('''select hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
-    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
-    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
-    on hme.facility_meter_detail_id = fmd.meter_type;''')
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
+                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+                   FROM epp.facility_meter_hourly_entries hme
+                   JOIN epp.facility_meter_detail fmd
+                   ON hme.facility_meter_detail_id = fmd.id;''')
 
     granularity = request.form.get('granularity', 'hourly')
     start_date = request.form.get('start_date')
@@ -164,10 +166,11 @@ def check_issues():
 @app.route('/check_sufficiency', methods=['POST'])
 def check_sufficiency():
     # Fetch the DataFrame from the database
-    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
-    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
-    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
-    on hme.facility_meter_detail_id = fmd.meter_type;''')
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
+                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+                   FROM epp.facility_meter_hourly_entries hme
+                   JOIN epp.facility_meter_detail fmd
+                   ON hme.facility_meter_detail_id = fmd.id;''')
 
     granularity = request.json.get('granularity', 'hourly')
     start_date = request.json.get('start_date')
@@ -425,10 +428,11 @@ def weather_data():
 @app.route('/insert_clean_data', methods=['POST'])
 def clean_data():
     # Fetch the DataFrame from the database
-    df = dbtest('''select distinct hme.facility_id, hme.facility_meter_detail_id as meter_type, hme.meter_id,
-    hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
-    from epp.facility_meter_hourly_entries hme join epp.facility_meter_detail fmd
-    on hme.facility_meter_detail_id = fmd.meter_type;''')
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
+                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+                   FROM epp.facility_meter_hourly_entries hme
+                   JOIN epp.facility_meter_detail fmd
+                   ON hme.facility_meter_detail_id = fmd.id;''')
 
     granularity = request.json.get('granularity', '')
     start_date = request.json.get('start_date', '')
