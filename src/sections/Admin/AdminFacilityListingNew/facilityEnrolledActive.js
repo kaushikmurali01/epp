@@ -292,13 +292,36 @@ const FacilityEnrolledActive = ({
         },
         {
             Header: "Facility UBI",
-            accessor: "facility_ubi",
+            accessor: (item) => {
+                return (
+                    <Typography
+                    variant="small2"
+                    sx={{textDecoration: "underline", color: "blue.main", cursor: 'pointer' }}
+                    onClick={() => navigate(`/facility-list/facility-details/${item?.id}`)}
+                   
+                  >
+                   {item.facility_ubi} 
+                  </Typography>
+                );
+            },
             accessorKey: "facility_ubi",
             isSearch: true,
         },
         {
             Header: "Company name",
-            accessor: "company_name",
+            // accessor: "company_name",
+            accessor: (item) => {
+                return (
+                    <Typography
+                    variant="small2"
+                    sx={{textDecoration: "underline", color: "blue.main", cursor: 'pointer' }}
+                    onClick={() => navigate(`/companies/company-profile/${item?.company_id}`)}
+                   
+                  >
+                   {item.company_name} 
+                  </Typography>
+                );
+            },
             accessorKey: "company_name",
             isSearch: true,
         },
@@ -421,22 +444,6 @@ const handelNavigateManagePermissions = (item)=> {
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Grid container mt={4} mb={4}>
-                        {/* <Grid item xs={6}>
-              <Typography
-                variant="h2"
-                sx={{
-                  color: "#242424",
-                  fontWeight: "500",
-                  fontSize: "20px !important",
-                  fontStyle: "italic",
-                  lineHeight: "27.5px",
-                  letterSpacing: "-0.01125rem",
-                  fontStyle: "italic",
-                }}
-              >
-                List of all facilities
-              </Typography>
-            </Grid> */}
                         <Grid container xs={12} gap={4} justifyContent="flex-end">
                             <Grid item alignContent="center">
                                 <Button
