@@ -64,11 +64,13 @@ export const SufficiencyCheck = (sufficiencyParameters) => {
       dispatch(sufficiencyCheckSuccess(data));
       return data;
     } catch (error) {
+      console.log(error.message);
       dispatch(sufficiencyCheckFailure(error));
       NotificationsToast({
-        message: error?.response?.data
-          ? error.response.data.error
-          : "Something went wrong!",
+        message:
+          error?.message === "Request failed with status code 500"
+            ? error?.message
+            : error?.response?.data?.error,
         type: "error",
       });
       throw error;
