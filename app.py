@@ -178,46 +178,31 @@ def check_sufficiency():
     facility_id = request.json.get('facility_id')
     meter_type = request.json.get('meter_type')
     independent_variables = request.json.get('independent_variables', '')
-    # Debugging statements to check the received parameters
-    # print("facility_id:", facility_id)
-    # print("created_by:", created_by)
 
     user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
-
     # Debugging statement to check user_combined_data
-    print("User combined data:\n", user_combined_data)
 
     if not user_combined_data:
-        #     #print("user_combined_data is empty after fetching and combining data")
         return jsonify({'error': 'No data available for the given parameters'}), 400
 
-    # weather_file = request.files['weather_file']
-    # weather_df = pd.read_csv(weather_file)
     weather_df = dbtest(f'SELECT * FROM epp.weather_data where facility_id = {facility_id}')
-    # print("weather df is -- - - - - -- - - -- -- - - -- - - - -- -", weather_df)
     results = {}
-    # #print("weather_df is  - - - -- - - -- - -- - -- -- - ", weather_df)
     for meter_type, raw_df in user_combined_data.items():
         if raw_df.empty:
             print(f"raw_df is empty for meter_type {meter_type}")
             continue
-        # raw_df = pd.read_excel("C:/Users/Akash Jain/Downloads/_598033_unknown1719905563363.xlsx")
         if start_date and end_date:
             start_date = pd.to_datetime(start_date)
             end_date = pd.to_datetime(end_date)
 
-            # Ensure that date columns are in datetime format
-            raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+            raw_df['Start Date (Required)'] = pd.to_datetime(raw_df['Start Date (Required)'])
             weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
 
             # Filter data based on the date range
-            raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
+            raw_df = raw_df[
+                (raw_df['Start Date (Required)'] >= start_date) & (raw_df['Start Date (Required)'] <= end_date)]
             weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
             print("filtered weather df is - -- - - - -- - - -- -- - -- - ", weather_df)
-        # Debugging statements after filtering
-        # print(f"Filtered raw_df for meter_type {meter_type}:\n", raw_df)
-        # print(f"Filtered weather_df:\n", weather_df)
-
         if independent_variables:
             summary, sufficiency = summarize_data(raw_df, weather_df, granularity)
             summary = summary[pd.notna(summary['Temperature'])]
@@ -359,7 +344,7 @@ def check_sufficiency():
 
                 # Daily sufficiency
                 # numeric_columns = summary.select_dtypes(include=np.number).columns
-
+                print("\n\n\n\n",summary.columns, "\n\n\n\n")
                 daily_summary = summary.resample('D', on='Date').agg({
                     'Temperature': 'mean',
                     'EnergyConsumption': 'sum',
@@ -378,7 +363,6 @@ def check_sufficiency():
                     'status': 'failed',
                     'message': "Wrong inputs passed. Please try again with other inputs."
                 }, 200
-    # print(f"Sufficiency results: {results}")
 
 
 def calculate_monthly_sufficiency(df):
@@ -469,11 +453,11 @@ def clean_data():
             end_date = pd.to_datetime(end_date)
 
             # Ensure that date columns are in datetime format
-            raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+            raw_df['Start Date (Required)'] = pd.to_datetime(raw_df['Start Date (Required)'])
             weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
 
             # Filter data based on the date range
-            raw_df = raw_df[(raw_df['ReadingDate'] >= start_date) & (raw_df['ReadingDate'] <= end_date)]
+            raw_df = raw_df[(raw_df['Start Date (Required)'] >= start_date) & (raw_df['Start Date (Required)'] <= end_date)]
             weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
 
         # Debugging statements after filtering

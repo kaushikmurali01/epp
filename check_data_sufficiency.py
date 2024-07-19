@@ -8,7 +8,7 @@ def check_data_sufficiency(df, required_columns, granularity):
     def calculate_sufficiency(df, required_columns, expected_rows):
         if expected_rows == 0:
             return None
-        
+
         df = df[df['EnergyConsumption'] > 0]
         sufficient_rows = df.dropna(subset=required_columns).shape[0]
         sufficiency = (sufficient_rows / expected_rows) * 100
@@ -21,11 +21,11 @@ def check_data_sufficiency(df, required_columns, granularity):
         num_days = len(unique_dates)
         expected_rows_hourly = 24 * num_days
         sufficiency_results['hourly'] = calculate_sufficiency(df, required_columns, expected_rows_hourly)
-        
+
         daily_df = df.groupby(df['Date'].dt.date).first()
         expected_rows_daily = num_days
         sufficiency_results['daily'] = calculate_sufficiency(daily_df, required_columns, expected_rows_daily)
-        
+
         unique_months = df['Date'].dt.to_period('M').unique()
         monthly_df = df.groupby(df['Date'].dt.to_period('M')).first()
         expected_rows_monthly = len(unique_months)

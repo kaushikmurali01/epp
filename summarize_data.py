@@ -77,7 +77,8 @@ from check_data_sufficiency import check_data_sufficiency
 def summarize_data(raw_df, weather_df, granularity='hourly'):
     # try:
     # Convert to datetime
-    raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+    raw_df['Start Date (Required)'] = pd.to_datetime(raw_df['Start Date (Required)'])
+    raw_df['End Date (Required)'] = pd.to_datetime(raw_df['End Date (Required)'])
     weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
 
     # Drop unnecessary columns
@@ -96,7 +97,7 @@ def summarize_data(raw_df, weather_df, granularity='hourly'):
     weather_df = weather_df[selected_columns]
 
     # Ensure datetime conversion
-    raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
+    # raw_df['ReadingDate'] = pd.to_datetime(raw_df['ReadingDate'])
     weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
 
     # Debugging statements to check column names
@@ -104,7 +105,7 @@ def summarize_data(raw_df, weather_df, granularity='hourly'):
     print("weather_df columns:", weather_df.columns)
 
     # Set index and resample
-    raw_df.set_index('ReadingDate', inplace=True)
+    raw_df.set_index('Start Date (Required)', inplace=True)
     raw_df_numeric = raw_df.select_dtypes(include=['float64', 'int64'])
     raw_df_hourly = raw_df_numeric.resample('H').sum()
 
@@ -120,11 +121,10 @@ def summarize_data(raw_df, weather_df, granularity='hourly'):
     merged_df.rename(columns={'temp': 'Temperature'}, inplace=True)
 
     # Assuming 'kW' is the column to be renamed to 'EnergyConsumption'
-    if 'kW' in merged_df.columns:
-        merged_df.rename(columns={'kW': 'EnergyConsumption'}, inplace=True)
+    if 'Meter Reading (Required)' in merged_df.columns:
+        merged_df.rename(columns={'Meter Reading (Required)': 'EnergyConsumption'}, inplace=True)
 
     required_columns = ['Temperature', 'EnergyConsumption']
-    merged_df.to_csv("merger.csv")
     # Check data sufficiency
     if granularity == 'hourly':
         sufficiency = check_data_sufficiency(merged_df, required_columns, granularity)

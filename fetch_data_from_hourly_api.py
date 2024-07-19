@@ -80,9 +80,10 @@ def fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type):
 
                 combined_df = pd.concat([combined_df, df], ignore_index=True)
 
-        if 'ReadingDate' in combined_df.columns:
-            combined_df['ReadingDate'] = pd.to_datetime(combined_df['ReadingDate'])
-            combined_df = combined_df.groupby('ReadingDate', as_index=False).mean()
+        if 'Start Date (Required)' in combined_df.columns:
+            combined_df['Start Date (Required)'] = pd.to_datetime(combined_df['Start Date (Required)'])
+            combined_df['End Date (Required)'] = pd.to_datetime(combined_df['End Date (Required)'])
+            combined_df = combined_df.groupby('Start Date (Required)', as_index=False).mean()
 
         # Assign the processed DataFrame to the corresponding meter_type
         user_combined_data[meter_type] = combined_df
