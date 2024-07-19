@@ -110,8 +110,8 @@ def getdates():
     max_date = None
 
     for key, data in user_combined_data.items():
-        min_date = data['ReadingDate'].min() if min_date is None else min(min_date, data['ReadingDate'].min())
-        max_date = data['ReadingDate'].max() if max_date is None else max(max_date, data['ReadingDate'].max())
+        min_date = data['Start Date (Required)'].min() if min_date is None else min(min_date, data['Start Date (Required)'].min())
+        max_date = data['Start Date (Required)'].max() if max_date is None else max(max_date, data['Start Date (Required)'].max())
 
     result = {
         "min_date": min_date,

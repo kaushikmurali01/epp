@@ -325,7 +325,7 @@ def check_sufficiency():
                                 'status': 'passed',
                                 'sufficiency': sufficiency[granularity_level],
                                 'monthly_sufficiency': calculate_monthly_sufficiency(data),
-                                'outliers': issues['outliers']
+                                'outliers': issues.get('outliers',{})
                             }
 
                     else:

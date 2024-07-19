@@ -44,7 +44,6 @@ def detect_issues(summary_df, outlier_threshold=3):
         outliers = summary_df.loc[outliers_mask, [col, 'Date']]
         if not outliers.empty:
             outliers_dict[col] = {row[col]: row['Date'].strftime('%Y-%m-%d %H:%M:%S') for _, row in outliers.iterrows()}
-
     if outliers_dict:
         issues['outliers'] = outliers_dict
 
