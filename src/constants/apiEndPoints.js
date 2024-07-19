@@ -235,3 +235,10 @@ export const BASELINE_ENDPOINTS = {
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
   FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary",
 };
+
+export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
+  CRUD_EMAIL_TEMPLATE: "/company-facility/v1/email-template",
+  GET_EMAIL_TEMPLATE: "/company-facility/v1/email-templates",
+  GET_UPDATE_INCENTIVE_SETTINGS: "/company-facility/v1/incentive-settings",
+  SEND_EMAIL: "/company-facility/v1/send-email",
+};
