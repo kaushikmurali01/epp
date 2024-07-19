@@ -30,6 +30,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
+import DateRangeSlider from "components/DateRangeSlider";
 
 const ModelConstructorForm = ({
   openSeeDetails,
@@ -369,6 +370,18 @@ const ModelConstructorForm = ({
             });
           };
 
+          // const handleDateRangeChange = (startDate, endDate) => {
+          //   setFieldValue("start_date", startDate);
+          //   setFieldValue("end_date", endDate);
+          //   handleSubmit({
+          //     ...values,
+          //     start_date: startDate,
+          //     end_date: endDate,
+          //   });
+          //   setBaselineStartDate(format(new Date(startDate), "yyyy-MM-dd"));
+          //   setBaselineEndDate(format(new Date(endDate), "yyyy-MM-dd"));
+          // };
+
           return (
             <Form>
               <Grid container display={"grid"} gap={"2rem"}>
@@ -376,6 +389,24 @@ const ModelConstructorForm = ({
                   <Typography variant="h6" sx={headingStyleInAccordion}>
                     Baseline period
                   </Typography>
+                  {/* <DateRangeSlider
+                    start_date={baselinePeriod?.start_date}
+                    end_date={baselinePeriod?.end_date}
+                    startLabel="Baseline Start"
+                    endLabel="Baseline End"
+                    onChange={handleDateRangeChange}
+                  />
+                  {(errors.start_date || errors.end_date) && (
+                    <div
+                      style={{
+                        color: "red",
+                        fontSize: "0.75rem",
+                        marginTop: "8px",
+                      }}
+                    >
+                      {errors.start_date || errors.end_date}
+                    </div>
+                  )} */}
                   <Grid container spacing={4}>
                     <Grid item xs={12} sm={4}>
                       <InputLabel

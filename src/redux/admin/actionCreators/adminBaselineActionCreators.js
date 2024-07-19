@@ -42,6 +42,9 @@ import {
   FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST,
   FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS,
   FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE,
+  FETCH_ADMIN_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_ADMIN_RAW_SUMMARY_METER_LIST_SUCCESS,
+  FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -236,6 +239,20 @@ export const fetchAdminDataExplorationSummaryListSuccess = (data) => ({
 
 export const fetchAdminDataExplorationSummaryListFailure = (error) => ({
   type: FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminRawSummaryMeterListRequest = () => ({
+  type: FETCH_ADMIN_RAW_SUMMARY_METER_LIST_REQUEST,
+});
+
+export const fetchAdminRawSummaryMeterListSuccess = (data) => ({
+  type: FETCH_ADMIN_RAW_SUMMARY_METER_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminRawSummaryMeterListFailure = (error) => ({
+  type: FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE,
   payload: error,
 });
 

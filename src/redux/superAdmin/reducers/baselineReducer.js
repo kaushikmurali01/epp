@@ -21,6 +21,9 @@ import {
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
+  FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_STATIONS_DETAILS_FAILURE,
   FETCH_STATIONS_DETAILS_REQUEST,
   FETCH_STATIONS_DETAILS_SUCCESS,
@@ -55,6 +58,7 @@ const initialState = {
   observeData: [],
   submittedBaseline_d_t: [],
   dataExplorationSummaryList: [],
+  rawMeterSummaryList:[],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -320,6 +324,25 @@ const baselineReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_DATA_EXPLORATION_SUMMARY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_RAW_SUMMARY_METER_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_RAW_SUMMARY_METER_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        rawMeterSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_RAW_SUMMARY_METER_LIST_FAILURE:
       return {
         ...state,
         loading: false,

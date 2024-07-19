@@ -29,7 +29,7 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
       value: "reports_and_studies",
     },
     { label: "Baseline Model", id: 5, type: "input", value: "baseline_model" },
-    // { label: "Performance", id: 6, type: "input", value: "performance" },
+    { label: "Performance", id: 6, type: "input", value: "performance" },
   ];
 
   const handleTabChange = (event, newValue) => {

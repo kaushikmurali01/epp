@@ -241,7 +241,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             Natural gas
           </Button>
         </StyledButtonGroup>
-        {baselineDetails?.status === "VERIFIED" ? (
+        {baselineDetails?.status === "REVIEWED" ? (
           <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
             <FormGroup>
               <FormControlLabel

@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Slider, Typography } from "@mui/material";
-import { format, addDays, differenceInDays } from "date-fns";
+import { format, addDays, differenceInDays, parseISO, isValid } from "date-fns";
 
 const DateRangeSlider = ({
   start_date,
   end_date,
   startLabel = "Start",
   endLabel = "End",
+  onChange,
 }) => {
-  const totalDays = differenceInDays(new Date(end_date), new Date(start_date));
-  const [range, setRange] = useState([0, totalDays]);
+  const parseDate = (dateString) => {
+    const parsedDate = parseISO(dateString);
+    return isValid(parsedDate) ? parsedDate : new Date(dateString);
+  };
+
+  const startDateObj = parseDate(start_date);
+  const endDateObj = parseDate(end_date);
+
+  const totalDays = differenceInDays(endDateObj, startDateObj) + 1;
+  const [range, setRange] = useState([0, totalDays - 1]);
 
   useEffect(() => {
-    setRange([0, totalDays]);
+    setRange([0, totalDays - 1]);
   }, [start_date, end_date, totalDays]);
 
   const formatDate = (value) => {
-    const date = addDays(new Date(start_date), value);
+    const date = addDays(startDateObj, value);
     return format(date, "yyyy-MM-dd");
   };
 
@@ -35,10 +44,16 @@ const DateRangeSlider = ({
     if (!Array.isArray(newValue)) {
       return;
     }
+    let updatedRange;
     if (activeThumb === 0) {
-      setRange([Math.min(newValue[0], range[1] - 1), range[1]]);
+      updatedRange = [Math.min(newValue[0], range[1] - 1), range[1]];
     } else {
-      setRange([range[0], Math.max(newValue[1], range[0] + 1)]);
+      updatedRange = [range[0], Math.max(newValue[1], range[0] + 1)];
+    }
+    setRange(updatedRange);
+    
+    if (onChange) {
+      onChange(formatDate(updatedRange[0]), formatDate(updatedRange[1]));
     }
   };
 
@@ -51,7 +66,7 @@ const DateRangeSlider = ({
         valueLabelFormat={formatValueLabel}
         disableSwap
         min={0}
-        max={totalDays}
+        max={totalDays - 1}
         step={1}
         sx={{
           "& .MuiSlider-valueLabel": {
