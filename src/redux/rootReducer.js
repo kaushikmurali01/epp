@@ -11,6 +11,7 @@ import adminEntriesReducer from "./admin/reducers/adminEntriesReducer";
 import adminCompanyReducer from "./admin/reducers/adminCompanyReducer";
 import baselineReducer from "./superAdmin/reducers/baselineReducer";
 import adminBaselineReducer from "./admin/reducers/adminBaselineReducer";
+import adminPerformanceReducer from "./admin/reducers/adminPerformanceReducer";
 export default combineReducers({
   simpleReducer,
   facilityReducer,
@@ -24,4 +25,5 @@ export default combineReducers({
   loaderReducer,
   baselineReducer,
   adminBaselineReducer,
+  adminPerformanceReducer
 });
