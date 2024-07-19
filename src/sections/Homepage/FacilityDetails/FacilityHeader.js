@@ -11,7 +11,12 @@ import {
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { deleteFacility, fetchFacilityDetails, fetchFacilityListing, submitFacilityForApproval } from "../../../redux/superAdmin/actions/facilityActions";
+import {
+  deleteFacility,
+  fetchFacilityDetails,
+  fetchFacilityListing,
+  submitFacilityForApproval,
+} from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -146,37 +151,41 @@ const FacilityHeader = () => {
                 {facilityDetails?.facility_name}
               </Typography>
               <Typography variant="small2" gutterBottom>
-                {facilityDetails?.address && `${facilityDetails?.address} ,`}{" "}
+                {facilityDetails?.address && `${facilityDetails?.address}, `}{" "}
+                {facilityDetails?.street_number &&
+                  `${facilityDetails?.street_number}, `}
+                {facilityDetails?.street_name &&
+                  `${facilityDetails?.street_name}`}
                 {facilityDetails?.sector && `${facilityDetails?.sector}`}
                 <br />
-                {facilityDetails?.city && `${facilityDetails?.city} ,`}{" "}
+                {facilityDetails?.city && `${facilityDetails?.city}, `}{" "}
                 {facilityDetails?.country && `${facilityDetails?.country}`}
                 <br />
                 {facilityDetails?.province &&
-                  `${facilityDetails?.province} ,`}{" "}
+                  `${facilityDetails?.province}, `}{" "}
                 {facilityDetails?.postal_code &&
                   `${facilityDetails?.postal_code} `}
               </Typography>
-                <Box>
-                  <AdminFacilityStatus>
-                    {facilityDetails?.facility_id_submission_status}
-                  </AdminFacilityStatus>
-                </Box>
+              <Box>
+                <AdminFacilityStatus>
+                  {facilityDetails?.facility_id_submission_status}
+                </AdminFacilityStatus>
+              </Box>
               {facilityDetails?.facility_id_submission_status === 1 && (
-                  <Box sx={{ marginTop: "15px", marginBottom: "15px" }}>
-                    <Button
-                      variant="contained"
-                      sx={{
-                        display: facilityDetails.is_approved && "none",
-                        fontSize: { xs: "0.875rem" },
-                        minWidth: { xs: "13rem" }
-                      }}
-                      onClick={() => submitForApprovalHandler(facilityDetails.id)}
-                    >
-                      Submit for baseline modelling
-                    </Button>
-                  </Box>
-                )}
+                <Box sx={{ marginTop: "15px", marginBottom: "15px" }}>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      display: facilityDetails.is_approved && "none",
+                      fontSize: { xs: "0.875rem" },
+                      minWidth: { xs: "13rem" },
+                    }}
+                    onClick={() => submitForApprovalHandler(facilityDetails.id)}
+                  >
+                    Submit for baseline modelling
+                  </Button>
+                </Box>
+              )}
               <Box>
                 <Button
                   style={{
@@ -225,7 +234,7 @@ const FacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Facility ID</Typography>
-              <Typography variant="h6">{facilityDetails?.id}</Typography>
+              <Typography variant="h6">{facilityDetails?.facility_ubi}</Typography>
             </BoxCard>
           </Grid>
           {/* <Grid item xs={6}>

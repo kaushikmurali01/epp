@@ -284,6 +284,15 @@ const AdminEntriesListing = ({
   };
 
   const AddEditEntry = ({ isEdit, data }) => {
+    const initValues = {
+      ...data,
+      start_date: data?.start_date
+        ? format(new Date(data?.start_date), "yyyy-MM-dd")
+        : "",
+      end_date: data?.end_date
+        ? format(new Date(data?.end_date), "yyyy-MM-dd")
+        : "",
+    };
     const formSubmit = (data) => {
       const apiURL = adminEntriesEndPoints.ADD_EDIT_ENTRY;
       const requestBody = {
@@ -347,7 +356,7 @@ const AdminEntriesListing = ({
     return (
       <>
         <Formik
-          initialValues={{ ...initialValues }}
+          initialValues={{ ...initValues }}
           validationSchema={validationSchemaEntry}
           enableReinitialize={true}
           onSubmit={formSubmit}
@@ -421,33 +430,8 @@ const AdminEntriesListing = ({
       headerSubText: !isEdit
         ? "Please enter the following details to add a new entry for this meter"
         : "Please edit the following details to update the entry for this meter",
-      modalBodyContent: "",
+      modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />,
     }));
-    if (isEdit) {
-      setInitialValues((prevValues) => {
-        return {
-          ...prevValues,
-          ...data,
-          start_date: data?.start_date
-            ? format(new Date(data.start_date), "yyyy-MM-dd")
-            : "",
-          end_date: data?.end_date
-            ? format(new Date(data.end_date), "yyyy-MM-dd")
-            : "",
-        };
-      });
-    }
-    setTimeout(() => {
-      setModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        headerText: !isEdit ? "Add Entry" : "Edit Entry",
-        headerSubText: !isEdit
-          ? "Please enter the following details to add a new entry for this meter"
-          : "Please edit the following details to update the entry for this meter",
-        modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />,
-      }));
-    }, 10);
   };
 
   const openDeleteModal = (entryId) => {

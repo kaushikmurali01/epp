@@ -163,21 +163,32 @@ const AddFacilityComponent = (props) => {
   };
 
   const handleFileChange = (event) => {
-    // Handle the file selection here
-    const fileSizeInMB = event.target.files[0].size / (1024 * 1024); // Convert bytes to MB
-    if (fileSizeInMB <= 5) {
-      const selectedFile = event.target.files[0];
-      setSelectedFile(URL.createObjectURL(selectedFile));
-      dispatch(fileUploadAction(selectedFile))
-        .then((data) => setImgUrl(data?.sasTokenUrl))
-        .catch((error) => {
-          console.error("Error uploading image:", error);
+    const allowedFileTypes = ["image/jpg", "image/jpeg", "image/png"];
+    const selectedFile = event.target.files[0];
+    if (selectedFile) {
+      const fileType = selectedFile.type;
+      const fileSizeInMB = selectedFile.size / (1024 * 1024);
+
+      if (!allowedFileTypes.includes(fileType)) {
+        NotificationsToast({
+          message: "Only jpg, jpeg, and png files are allowed!",
+          type: "error",
         });
-    } else {
-      NotificationsToast({
-        message: "File size should be less than 5mb!",
-        type: "error",
-      });
+        return;
+      }
+      if (fileSizeInMB <= 5) {
+        setSelectedFile(URL.createObjectURL(selectedFile));
+        dispatch(fileUploadAction(selectedFile))
+          .then((data) => setImgUrl(data?.sasTokenUrl))
+          .catch((error) => {
+            console.error("Error uploading image:", error);
+          });
+      } else {
+        NotificationsToast({
+          message: "File size should be less than 5mb!",
+          type: "error",
+        });
+      }
     }
   };
 

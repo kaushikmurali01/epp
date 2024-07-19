@@ -128,14 +128,18 @@ const AdminFacilityHeader = () => {
                 {facilityDetails?.facility_name}
               </Typography>
               <Typography variant="small2" gutterBottom>
-                {facilityDetails?.address && `${facilityDetails?.address} ,`}{" "}
+                {facilityDetails?.address && `${facilityDetails?.address}, `}{" "}
+                {facilityDetails?.street_number &&
+                  `${facilityDetails?.street_number}, `}
+                {facilityDetails?.street_name &&
+                  `${facilityDetails?.street_name}`}
                 {facilityDetails?.sector && `${facilityDetails?.sector}`}
                 <br />
-                {facilityDetails?.city && `${facilityDetails?.city} ,`}{" "}
+                {facilityDetails?.city && `${facilityDetails?.city}, `}{" "}
                 {facilityDetails?.country && `${facilityDetails?.country}`}
                 <br />
                 {facilityDetails?.province &&
-                  `${facilityDetails?.province} ,`}{" "}
+                  `${facilityDetails?.province}, `}{" "}
                 {facilityDetails?.postal_code &&
                   `${facilityDetails?.postal_code} `}
               </Typography>
@@ -190,7 +194,9 @@ const AdminFacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Facility ID</Typography>
-              <Typography variant="h6">{facilityDetails?.id}</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.facility_ubi}
+              </Typography>
             </BoxCard>
           </Grid>
           {/* <Grid item xs={6}>
