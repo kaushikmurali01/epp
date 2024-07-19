@@ -6,6 +6,7 @@ import {
     deleteAdminFacility,
     downloadFacilityRowData,
     fetchAdminFacilityActiveListing,
+    fetchAdminFacilityInProcessListing,
     fetchAdminFacilityListing,
 } from "../../../redux/admin/actions/adminFacilityActions";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
@@ -21,7 +22,8 @@ import { adminCompanySendAlert } from "../../../redux/admin/actions/adminCompany
 import * as Yup from "yup";
 import EvThemeTable from "components/Table/EvThemeTable";
 
-const FacilityEnrolledActive = ({
+const FacilityEnrolledInProcess = ({
+    searchVal,
     companyFilter,
     onDownloadBulkClick,
     onDownloadRowClick,
@@ -31,12 +33,11 @@ const FacilityEnrolledActive = ({
     const [sortColumn, setSortColumn] = useState("");
     const [sortOrder, setSortOrder] = useState("");
     const [customizeFilter, setCustomizeColumnFilter] = useState("");
-    const [refreshTableData, setRefreshTableData] = useState(0);
     const [searchData, setSearchData] = useState([]);
+    const [refreshTableData, setRefreshTableData] = useState(0);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [facilityToDelete, setFacilityToDelete] = useState("");
-    const data =  pageInfo + [{"key":"country","value":"Can"},{"key":"facility_category","value":"p"}];
 
     const customizeColumnsDropdownData = [
         { id: 1, name: "ABC" },
@@ -46,7 +47,7 @@ const FacilityEnrolledActive = ({
     const debouncedSearch = debounce(
         (payload) => {
             dispatch(
-                fetchAdminFacilityActiveListing(
+                fetchAdminFacilityInProcessListing(
                     payload
                 )
             );
@@ -91,10 +92,10 @@ const FacilityEnrolledActive = ({
     ]);
 
     const adminFacilityData = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.rows || []
+        (state) => state?.adminFacilityReducer?.facilityInProcessList?.data?.rows || []
     );
     const adminFacilityCount = useSelector(
-        (state) => state?.adminFacilityReducer?.facilityActiveList?.data?.count || []
+        (state) => state?.adminFacilityReducer?.facilityInProcessList?.data?.count || []
     );
     const openDeleteFacilityModal = (facilityId) => {
         setFacilityToDelete(facilityId);
@@ -404,39 +405,26 @@ const FacilityEnrolledActive = ({
         },
     ];
 
-const handelNavigateManagePermissions = (item)=> {
-    const data = {
-        companyId: item?.company_id, 
-        companyName : item?.company_name,
-        facilityId: item?.id,
-        facilityUBI: item?.facility_ubi
+
+    const handelNavigateManagePermissions = (item)=> {
+        const data = {
+            companyId: item?.company_id, 
+            companyName : item?.company_name,
+            facilityId: item?.id,
+            facilityUBI: item?.facility_ubi
+        }
+    
+        navigate(`/facility-list/${item?.id}/manage-access`, {state: data })
+        console.log('handelNavigate',item)
     }
 
-    navigate(`/facility-list/${item?.id}/manage-access`, {state: data })
-    console.log('handelNavigate',item)
-}
 
     return (
         <Container>
             <Grid container spacing={3}>
                 <Grid item xs={12}>
                     <Grid container mt={4} mb={4}>
-                        {/* <Grid item xs={6}>
-              <Typography
-                variant="h2"
-                sx={{
-                  color: "#242424",
-                  fontWeight: "500",
-                  fontSize: "20px !important",
-                  fontStyle: "italic",
-                  lineHeight: "27.5px",
-                  letterSpacing: "-0.01125rem",
-                  fontStyle: "italic",
-                }}
-              >
-                List of all facilities
-              </Typography>
-            </Grid> */}
+                
                         <Grid container xs={12} gap={4} justifyContent="flex-end">
                             <Grid item alignContent="center">
                                 <Button
@@ -503,10 +491,10 @@ const handelNavigateManagePermissions = (item)=> {
                         searchData={searchData}
                         setSearchData={setSearchData}
                         sortColumn={sortColumn}
-                        setSortColumn={setSortColumn}
                         sortOrder={sortOrder}
+                        setSortColumn={setSortColumn}
                         setSortOrder={setSortOrder}
-                       
+                     
 
                     />
                     {/* <Table
@@ -537,4 +525,4 @@ const handelNavigateManagePermissions = (item)=> {
     );
 };
 
-export default FacilityEnrolledActive;
+export default FacilityEnrolledInProcess;

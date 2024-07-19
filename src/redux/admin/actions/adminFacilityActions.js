@@ -76,6 +76,15 @@ import {
   deleteAdminFacilityDocumentRequest,
   deleteAdminFacilityDocumentSuccess,
   deleteAdminFacilityDocumentFailure,
+  fetchAdminFacilityListActiveRequest,
+  fetchAdminFacilityListActiveSuccess,
+  fetchAdminFacilityListActiveFailure,
+  fetchAdminFacilityListInProcessRequest,
+  fetchAdminFacilityListInProcessSuccess,
+  fetchAdminFacilityListInProcessFailure,
+  fetchAdminFacilityListInByIdRequest,
+  fetchAdminFacilityListInByIdSuccess,
+  fetchAdminFacilityListInByIdFailure,
 } from "../actionCreators/adminFacilityActionCreators";
 import { FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST } from "../actionTypes";
 
@@ -102,6 +111,44 @@ export const fetchAdminFacilityListing = (
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminFacilityListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityActiveListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListActiveRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_ACTIVE;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListActiveSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListActiveFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityInProcessListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListInProcessRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_INPROCESS;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListInProcessSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListInProcessFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
@@ -611,6 +658,38 @@ export const deleteAdminFacilityDocument = (documentId) => {
     } catch (error) {
       console.error(error);
       dispatch(deleteAdminFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+
+export const fetchFacilityListByUserId = (pageInfo, facilityId,search,sortByCol,sortOrder) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListInByIdRequest());
+      let apiURL = `${adminFacilityEndpoints.ADMIN_FACILITY_LIST_BY_ID}`;
+      let payload = {
+        "data": [...search],      
+        "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+        "limit": pageInfo.pageSize,
+        "facility_id":facilityId,
+        "col_name": sortByCol,
+        "order":sortOrder
+        
+      }
+      console.log(apiURL,payload, "fetchUsersByFacility Id data")
+      // return;
+      const response = await POST_REQUEST(apiURL,payload);
+      const data = response.data.data;
+      console.log(data, "fetchFacilityListByUserId data")
+      dispatch(fetchAdminFacilityListInByIdSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListInByIdFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
