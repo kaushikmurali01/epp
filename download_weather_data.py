@@ -1,15 +1,15 @@
 import requests
 import os
+import shutil
 import pandas as pd
 from insertion_and_preparation import insert_data_to_db
 
 
 def download_weather_data(start_year, start_month, end_year, end_month, station_ids, facility_id):
     time_frame = 1  # Assuming time_frame is always 1
-    temp_folder = os.getenv('TEMP')
-    # temp_folder = 'TEMP'
-    csv_folder = os.path.join(temp_folder, 'CSV Files')
-
+    temp_folder = 'TEMP'
+    csv_folder = os.path.join(temp_folder, str(facility_id))
+    print(csv_folder)
     if not os.path.exists(csv_folder):
         os.makedirs(csv_folder)
 
@@ -29,7 +29,7 @@ def download_weather_data(start_year, start_month, end_year, end_month, station_
                 with open(file_path, 'wb') as f:
                     f.write(response.content)
                 print(f"Downloaded {file_path}")
-                
+
                 # Read the downloaded CSV file into a DataFrame
                 df = pd.read_csv(file_path)
                 df['station_id'] = station_id  # Add a column for the station ID
@@ -51,9 +51,15 @@ def download_weather_data(start_year, start_month, end_year, end_month, station_
     # Concatenate all DataFrames into a single DataFrame
     consolidated_df = pd.concat(all_dataframes, ignore_index=True)
     consolidated_df['facility_id'] = facility_id
+    if os.path.exists(csv_folder):
+        # Remove the directory and its contents
+        shutil.rmtree(csv_folder)
+        print(f"Directory {csv_folder} has been removed.")
+    else:
+        print(f"Directory {csv_folder} does not exist.")
     return consolidated_df
 
 
 def download_and_load_data(start_year, start_month, end_year, end_month, station_ids, facility_id):
-    consolidated_df = download_weather_data(start_year, start_month, end_year, end_month, station_ids,facility_id)
+    consolidated_df = download_weather_data(start_year, start_month, end_year, end_month, station_ids, facility_id)
     insert_data_to_db(consolidated_df)

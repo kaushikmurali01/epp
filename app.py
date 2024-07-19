@@ -38,6 +38,7 @@ def return_summary():
 
     user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
 
+    # TODO for mat this dataframe and Return
     # Debugging statement to check user_combined_data
     print("User combined data:\n", user_combined_data)
 
