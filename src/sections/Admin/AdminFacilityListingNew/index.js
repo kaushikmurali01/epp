@@ -37,6 +37,7 @@ import { fetchAdminCompaniesDropdown } from "../../../redux/admin/actions/adminC
 import NotificationsToast from "utils/notification/NotificationsToast";
 import Loader from "pages/Loader";
 import FacilityEnrolledActive from "./facilityEnrolledActive";
+import FacilityEnrolledInProcess from "./facilityEnrolledInProcess";
 
 const AdminFacilityListingNew = () => {
   const navigate = useNavigate();
@@ -274,9 +275,9 @@ const AdminFacilityListingNew = () => {
             setPageInfo={setPageInfo}
           />
         );
-      case "approved":
+      case "in_process_facilities":
         return (
-          <FacilityApproved
+          <FacilityEnrolledInProcess
             searchVal={searchString}
             companyFilter={companyFilter}
             onDownloadBulkClick={onDownloadBulkClick}
@@ -318,7 +319,7 @@ const AdminFacilityListingNew = () => {
             variant="h4"
             sx={{ fontSize: "1.5rem", color: "text.secondary2" }}
           >
-            List of Facilities
+            List of Facilities new
           </Typography>
           {/* <Typography variant="small2">
             Lorem Ipsum is simply dummy text of the printing and typesetting
@@ -391,16 +392,16 @@ const AdminFacilityListingNew = () => {
             label="Enrolled/Active Facilities" 
             sx={{ minWidth: "10rem" }} />
             <Tab
-              value="in_Process_facilities"
+              value="in_process_facilities"
               label="In-process Facilities"
               sx={{ minWidth: "10rem" }}
             />
 
-            <Tab
+            {/* <Tab
               value="inactive_Facilities"
               label="Inactive Facilities"
               sx={{ minWidth: "10rem" }}
-            />
+            /> */}
           </Tabs>
         </Grid>
       </div>

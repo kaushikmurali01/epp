@@ -517,8 +517,7 @@ const Details = ({ setTab }) => {
                           htmlFor="year_of_construction"
                           style={{ whiteSpace: "initial" }}
                         >
-                          Year of construction{" "}
-                          <span className="asterisk">*</span>
+                          Year of construction<span className="asterisk">*</span>
                         </InputLabel>
                         <DatePicker
                           id="year_of_construction"

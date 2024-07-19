@@ -410,8 +410,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         {values.meter_inactive && !values.stil_in_use
                           ? "Is meter still in use?"
                           : "Is meter still in use?"}
-                        {values.meter_inactive && !values.still_in_use ? '' :
-                          <span className="asterisk">*</span>}
+                        {/* {values.meter_inactive && !values.still_in_use ? '' :
+                          <span className="asterisk">*</span>} */}
                       </Typography>
                     }
                   />

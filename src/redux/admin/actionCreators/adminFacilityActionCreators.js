@@ -14,6 +14,9 @@ import {
   FETCH_ADMIN_FACILITY_LIST_FAILURE,
   FETCH_ADMIN_FACILITY_LIST_REQUEST,
   FETCH_ADMIN_FACILITY_LIST_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
   FETCH_ADMIN_FACILITY_STATUS_FAILURE,
   FETCH_ADMIN_FACILITY_STATUS_REQUEST,
   FETCH_ADMIN_FACILITY_STATUS_SUCCESS,
@@ -68,6 +71,12 @@ import {
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_FAILURE,
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
   FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
+  FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+  FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  FETCH_ADMIN_FACILITY_BY_ID_FAILURE,
 } from "../actionTypes";
 
 export const fetchAdminFacilityListRequest = () => ({
@@ -81,6 +90,34 @@ export const fetchAdminFacilityListSuccess = (data) => ({
 
 export const fetchAdminFacilityListFailure = (error) => ({
   type: FETCH_ADMIN_FACILITY_LIST_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListActiveRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
+});
+
+export const fetchAdminFacilityListActiveSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListActiveFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListInProcessRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+});
+
+export const fetchAdminFacilityListInProcessSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListInProcessFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
   payload: error,
 });
 
@@ -389,5 +426,19 @@ export const deleteAdminFacilityDocumentSuccess = (data) => ({
 
 export const deleteAdminFacilityDocumentFailure = (error) => ({
   type: DELETE_ADMIN_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminFacilityListInByIdRequest = () => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+});
+
+export const fetchAdminFacilityListInByIdSuccess = (data) => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminFacilityListInByIdFailure = (error) => ({
+  type: FETCH_ADMIN_FACILITY_BY_ID_FAILURE,
   payload: error,
 });
