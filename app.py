@@ -11,9 +11,19 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
 from dbconnection import dbtest
 from insertion_and_preparation import insert_clean_data_to_db
 from visualization.data_exploration import DataExplorationVisualisation
+from logging.handlers import RotatingFileHandler
+import logging
+
 
 app = Flask(__name__)
 
+# Set up Flask logging
+if not app.debug:
+    file_handler = RotatingFileHandler('/var/log/flask/flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+    file_handler.setFormatter(formatter)
+    app.logger.addHandler(file_handler)
 
 @app.route('/handle', methods=['GET'])
 def return_summary():
