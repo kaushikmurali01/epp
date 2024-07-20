@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 # Set up Flask logging
 if not app.debug:
-    file_handler = RotatingFileHandler('/var/log/flask/flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
+    file_handler = RotatingFileHandler('/var/log/flask/etl_flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
     file_handler.setLevel(logging.INFO)
     formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
     file_handler.setFormatter(formatter)
