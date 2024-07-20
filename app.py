@@ -14,16 +14,16 @@ from visualization.data_exploration import DataExplorationVisualisation
 from logging.handlers import RotatingFileHandler
 import logging
 
-
 app = Flask(__name__)
 
-# Set up Flask logging
-if not app.debug:
-    file_handler = RotatingFileHandler('/var/log/flask/etl_flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
-    file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
-    file_handler.setFormatter(formatter)
-    app.logger.addHandler(file_handler)
+# # Set up Flask logging
+# if not app.debug:
+#     file_handler = RotatingFileHandler('/var/log/flask/etl_flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
+#     file_handler.setLevel(logging.INFO)
+#     formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+#     file_handler.setFormatter(formatter)
+#     app.logger.addHandler(file_handler)
+
 
 @app.route('/handle', methods=['GET'])
 def return_summary():
@@ -276,7 +276,7 @@ def check_sufficiency():
                                 'status': 'passed',
                                 'sufficiency': sufficiency[granularity_level],
                                 'monthly_sufficiency': calculate_monthly_sufficiency(data),
-                                'outliers': issues['outliers']
+                                'outliers': issues.get('outliers', {})
                             }
 
                     else:
@@ -335,7 +335,7 @@ def check_sufficiency():
                                 'status': 'passed',
                                 'sufficiency': sufficiency[granularity_level],
                                 'monthly_sufficiency': calculate_monthly_sufficiency(data),
-                                'outliers': issues.get('outliers',{})
+                                'outliers': issues.get('outliers', {})
                             }
 
                     else:
@@ -355,7 +355,7 @@ def check_sufficiency():
 
                 # Daily sufficiency
                 # numeric_columns = summary.select_dtypes(include=np.number).columns
-                print("\n\n\n\n",summary.columns, "\n\n\n\n")
+                print("\n\n\n\n", summary.columns, "\n\n\n\n")
                 daily_summary = summary.resample('D', on='Date').agg({
                     'Temperature': 'mean',
                     'EnergyConsumption': 'sum',
@@ -468,7 +468,8 @@ def clean_data():
             weather_df['date_time'] = pd.to_datetime(weather_df['date_time'])
 
             # Filter data based on the date range
-            raw_df = raw_df[(raw_df['Start Date (Required)'] >= start_date) & (raw_df['Start Date (Required)'] <= end_date)]
+            raw_df = raw_df[
+                (raw_df['Start Date (Required)'] >= start_date) & (raw_df['Start Date (Required)'] <= end_date)]
             weather_df = weather_df[(weather_df['date_time'] >= start_date) & (weather_df['date_time'] <= end_date)]
 
         # Debugging statements after filtering
