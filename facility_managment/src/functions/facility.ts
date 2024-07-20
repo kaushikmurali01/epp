@@ -21,7 +21,8 @@ import { AuthorizationService } from "../helper/authorization.helper";
 import { IncentiveSettingsController } from "../controller/incentiveSettings/controller";
 import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.interface";
 import { EmailController } from "../controller/sentEmail/controller";
-import {IEmailSentAttributes} from "../interfaces/email-sent.interface"
+import { ContactController } from "../controller/contact/controller";
+
 
 // Facility User CRUD
 
@@ -2305,6 +2306,150 @@ export async function getEmailList(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+
+export async function addContact(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const facility_id = parseInt(request.params.facilityId);
+    const contactData = Object(await request.json());
+    const result = await ContactController.addContact({...contactData, facility_id}, decodedToken);
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    if (error.message.includes("Missing required fields") || error.message.includes("Invalid email format")) {
+      return { 
+        status: HTTP_STATUS_CODES.BAD_REQUEST, 
+        body: JSON.stringify({ error: error.message })
+      };
+    }
+    return { 
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
+      body: JSON.stringify({ error: "An unexpected error occurred while adding the contact." })
+    };
+  }
+}
+
+export async function getContacts(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const facilityId = parseInt(request.params.facilityId);
+    const result = await ContactController.getContacts(facilityId, decodedToken);
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { 
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
+      body: JSON.stringify({ error: error.message })
+    };
+  }
+}
+
+export async function updateContact(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const facilityId = parseInt(request.params.facilityId);
+    const id = parseInt(request.params.id);
+    const contactData = await request.json();
+    const result = await ContactController.updateContact(id, facilityId, contactData, decodedToken);
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    if (error.message.includes("Missing required fields") || error.message.includes("Invalid email format") || error.message.includes("Contact not found")) {
+      return { 
+        status: HTTP_STATUS_CODES.BAD_REQUEST, 
+        body: JSON.stringify({ error: error.message })
+      };
+    }
+    return { 
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
+      body: JSON.stringify({ error: "An unexpected error occurred while updating the contact." })
+    };
+  }
+}
+
+export async function deleteContact(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const facilityId = parseInt(request.params.facilityId);
+    const id = parseInt(request.params.id);
+    await ContactController.deleteContact(id, facilityId, decodedToken);
+    return { status: HTTP_STATUS_CODES.NO_CONTENT };
+  } catch (error) {
+    if (error.message.includes("Contact not found")) {
+      return { 
+        status: 404, 
+        body: JSON.stringify({ error: error.message })
+      };
+    }
+    return { 
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
+      body: JSON.stringify({ error: "An unexpected error occurred while deleting the contact." })
+    };
+  }
+}
+export async function getContactSuggestions(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const facilityId = parseInt(request.params.facilityId);
+    const query = request.query.get('q') || '';
+    const limit = parseInt(request.query.get('limit') || '10');
+
+    const result = await ContactController.getContactSuggestions(facilityId, query, limit, decodedToken);
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { 
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
+      body: JSON.stringify({ error: error.message })
+    };
+  }
+}
+
+app.http("get-contact-suggestions", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "facility/{facilityId}/contact-suggestions",
+  handler: getContactSuggestions,
+});
+
+app.http("add-contact", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "facility/{facilityId}/contact",
+  handler: addContact,
+});
+
+app.http("get-contacts", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "facility/{facilityId}/contacts",
+  handler: getContacts,
+});
+
+app.http("update-contact", {
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  route: "facility/{facilityId}/contact/{id}",
+  handler: updateContact,
+});
+
+app.http("delete-contact", {
+  methods: ["DELETE"],
+  authLevel: "anonymous",
+  route: "facility/{facilityId}/contact/{id}",
+  handler: deleteContact,
+});
 
 app.http("send-email", {
   methods: ["POST"],
