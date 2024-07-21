@@ -239,11 +239,10 @@ class DataExploration(QuerySetup):
 
     def process(self):
         self.initiate_download()
-        if self.target == 'observed':
-            self.process_observed_data()
-        elif self.target == 'missing':
+        if self.target == 'missing_data':
             self.process_missing_data()
         elif self.target == 'outliers':
             self.process_outliers()
         else:
-            []
+            self.process_observed_data()
+
