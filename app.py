@@ -6,6 +6,7 @@ import numpy as np
 from data_exploration import DataExploration
 from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
+from paginator import Paginator
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -641,10 +642,32 @@ def get_data_exploration_summary():
 
 @app.route("/data-exploration-summary-new", methods=['GET'])
 def get_data_exploration_summary_new():
-    facility_id = request.args.get('facility_id', None)
+    """
+    facility_id: Mandatory
+    meter_id: Mandatory for PopUp
+    if summary_type is outliers then and there is a meter_type then bound is mandatory
+    :return:
+    """
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    meter = request.args.get('meter')
     summary_type = request.args.get('summary_type', 'observed')
-    de = DataExploration(facility_id, summary_type)
+    bound = request.args.get('bound')
+    if summary_type == 'outliers':
+        if meter and not bound:
+            return {'status': 'failed', 'message': "Please provide value of Bound"}, 200
+
+    page_no = request.args.get('page_number', 1)
+    page_size = request.args.get('page_size', 100)
+    de = DataExploration(facility_id, summary_type, meter, bound)
     de.process()
+    if meter:
+        pg = Paginator(page_no, page_size)
+
+        if len(de.data_exploration_summary_response):
+            return pg.paginate_df(de.data_exploration_summary_response)
+        return []
     return de.data_exploration_response
 
 

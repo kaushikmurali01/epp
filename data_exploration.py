@@ -5,7 +5,7 @@ from fetch_data_from_hourly_api import download_excel
 
 
 class QuerySetup:
-    def __init__(self, facility_id, target, summary):
+    def __init__(self, facility_id, target):
         self.facility_id = facility_id
         self.raw_data_query = f'''
         SELECT DISTINCT 
@@ -63,9 +63,8 @@ class QuerySetup:
         # self.raw_df = dbtest(self.raw_data_query)
         # self.iv_df = dbtest(self.iv_data_query)
         # self.temperature_df = dbtest(self.temperature_query)
-
+        self.data_exploration_summary_response = None
         self.target = target
-        self.summary = summary
         self.selected_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
         self.iv_key = 'IV Name'
         self.meter_key = 'MeterType'
@@ -77,9 +76,11 @@ class QuerySetup:
 
 
 class DataExploration(QuerySetup):
-    def __init__(self, facility_id, target, summary=False):
-        self.df_type = ['Raw Data', 'Independent Variable']
-        super().__init__(facility_id, target, summary)
+    def __init__(self, facility_id, target, meter, bound):
+        self.meter = int(meter) if meter else None
+        self.bound = bound
+        self.df_type = ['Raw Data']
+        super().__init__(facility_id, target)
 
     def process_raw_data(self):
         if self.raw_df.shape[0]:
@@ -160,8 +161,9 @@ class DataExploration(QuerySetup):
                 set_df = self.iv_df.copy()
                 url_key = 'file_path'
             for _, row in set_df.iterrows():
+                if self.meter and self.meter != row['meter_type']:
+                    continue
                 url = row[url_key]
-                print(url)
                 df = download_excel(url)
                 if df_type == 'Raw Data':
                     df[self.meter_key] = row['meter_type']
@@ -175,10 +177,14 @@ class DataExploration(QuerySetup):
     def process_observed_data(self):
         self.process_raw_data()
         self.process_temperature()
-        self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
+        if not self.meter or self.meter == 102:
+            self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
         for meter_type, df in self.raw_data_mapping.items():
             filtered_df = self.missing_data_detection(df)
             filtered_df = self.outlier_detection(filtered_df)
+            meter_id = self.reverse_meter_type_map.get(meter_type)
+            if self.meter and self.meter == meter_id:
+                self.data_exploration_summary_response = filtered_df
             if filtered_df.shape[0]:
                 data_to_append = {
                     "meter_type": self.reverse_meter_type_map.get(meter_type),
@@ -188,26 +194,39 @@ class DataExploration(QuerySetup):
                     "total_records": filtered_df.shape[0],
                 }
                 self.data_exploration_response.append(data_to_append)
+        return
 
     def process_missing_data(self):
         self.process_raw_data()
         self.process_temperature()
-        self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
+        if not self.meter or self.meter == 102:
+            self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
         for meter_type, df in self.raw_data_mapping.items():
             filtered_df = self.missing_data_detection(df, remove=False, consider_zero=True)
+            meter_id = self.reverse_meter_type_map.get(meter_type)
+            if self.meter and self.meter == meter_id:
+                self.data_exploration_summary_response = filtered_df
+                return self.data_exploration_summary_response
             if filtered_df.shape[0]:
                 data_to_append = {
-                    "meter_type": self.reverse_meter_type_map.get(meter_type),
+                    "meter_type": meter_id,
                     "meter_name": meter_type,
                     "time_stamp_end": filtered_df['Start Date (Required)'].max(),
                     "time_stamp_start": filtered_df['Start Date (Required)'].min(),
                     "total_records": filtered_df.shape[0],
                 }
                 self.data_exploration_response.append(data_to_append)
+        return self.data_exploration_response
 
     def outlier_batch_processing(self, meter_type, df):
         filtered_df = self.missing_data_detection(df)
         filtered_df, upper_df, lower_df, HIGHER, LOWER = self.outlier_detection(filtered_df, remove=False)
+        if self.meter and self.meter == self.reverse_meter_type_map.get(meter_type):
+            if self.bound == "UPPER":
+                self.data_exploration_summary_response = upper_df
+            else:
+                self.data_exploration_summary_response = lower_df
+            return
         if filtered_df.shape[0]:
             for threshold in ["HIGHER", "LOWER"]:
                 if threshold == "HIGHER":
@@ -227,22 +246,23 @@ class DataExploration(QuerySetup):
                     "type": "Local"
                 }
                 self.data_exploration_response.append(data_to_append)
+        return
 
     def process_outliers(self):
         self.process_raw_data()
         self.process_temperature()
+
+        # ToDo Need to have a condition here
         self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
         for meter_type, df in self.raw_data_mapping.items():
             self.outlier_batch_processing(meter_type, df)
-        for meter_type, df in self.iv_data_mapping.items():
-            self.outlier_batch_processing(meter_type, df)
+        return
 
     def process(self):
         self.initiate_download()
         if self.target == 'missing_data':
-            self.process_missing_data()
+            return self.process_missing_data()
         elif self.target == 'outliers':
-            self.process_outliers()
+            return self.process_outliers()
         else:
-            self.process_observed_data()
-
+            return self.process_observed_data()
