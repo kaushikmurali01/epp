@@ -3,6 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 
+from data_exploration import DataExploration
 from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
 from summarize_data import summarize_data
@@ -15,6 +16,7 @@ from logging.handlers import RotatingFileHandler
 import logging
 
 app = Flask(__name__)
+
 
 # # Set up Flask logging
 # if not app.debug:
@@ -635,6 +637,15 @@ def get_data_exploration_summary():
     else:
         response = des_object.get_observe_data_summary()
     return response
+
+
+@app.route("/data-exploration-summary-new", methods=['GET'])
+def get_data_exploration_summary_new():
+    facility_id = request.args.get('facility_id', None)
+    summary_type = request.args.get('summary_type', 'observed')
+    de = DataExploration(facility_id, summary_type)
+    de.process()
+    return de.data_exploration_response
 
 
 @app.route('/summary_visualisation')
