@@ -21,7 +21,8 @@ import { AuthorizationService } from "../helper/authorization.helper";
 import { IncentiveSettingsController } from "../controller/incentiveSettings/controller";
 import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.interface";
 import { EmailController } from "../controller/sentEmail/controller";
-import {IEmailSentAttributes} from "../interfaces/email-sent.interface"
+import { IEmailSentAttributes } from "../interfaces/email-sent.interface";
+import { FacilityNonRoutineEventController } from "../controller/facility_non_routine_event/controller";
 
 // Facility User CRUD
 
@@ -470,6 +471,175 @@ export async function createNewFacility(
       request,
       Object(requestData)
     );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getNonRoutineList(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.getFacilityNonRoutineEvent(
+        decodedToken,
+        request
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getFacilityNonRoutineEventById(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.getFacilityNonRoutineEventById(
+        decodedToken,
+        request
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addFacilityNonRoutineDataEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const requestData = await request.json();
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.addFacilityNonRoutineDataEntry(
+        decodedToken,
+        Object(requestData)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function editFacilityNonRoutineDataEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.editFacilityNonRoutineDataEntry(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addFacilityNonRoutineEvent(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const requestData = await request.json();
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.addFacilityNonRoutineEvent(
+        decodedToken,
+        Object(requestData)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function editFacilityNonRoutineEvent(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.editFacilityNonRoutineEvent(
+        decodedToken,
+        request,
+        Object(requestData)
+      );
 
     // Prepare response body
     const responseBody = JSON.stringify(result);
@@ -2231,7 +2401,7 @@ export async function upsertIncentiveSettings(
     if (!facilityId) {
       return {
         status: HTTP_STATUS_CODES.BAD_REQUEST,
-        jsonBody: { error: "Facility ID is required" }
+        jsonBody: { error: "Facility ID is required" },
       };
     }
 
@@ -2258,31 +2428,33 @@ export async function upsertIncentiveSettings(
   }
 }
 
-
 export async function sendEmail(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const emailData = Object(await request.json());
     const facility_id = Number(request.params.facilityId);
     if (!facility_id) {
       return {
         status: HTTP_STATUS_CODES.BAD_REQUEST,
-        jsonBody: { error: "Facility ID is required" }
+        jsonBody: { error: "Facility ID is required" },
       };
     }
-    
+
     if (!emailData.to || !emailData.subject || !emailData.body) {
-      throw new Error("Missing required fields: 'to', 'subject', and 'body' are required.");
+      throw new Error(
+        "Missing required fields: 'to', 'subject', and 'body' are required."
+      );
     }
 
     const result = await EmailController.sendEmail(
-      {...emailData,
-        facility_id
-      }
-      , decodedToken);
+      { ...emailData, facility_id },
+      decodedToken
+    );
 
     return { body: JSON.stringify(result) };
   } catch (error) {
@@ -2295,7 +2467,9 @@ export async function getEmailList(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const filter = request.query.get("filter") || "all";
 
     const result = await EmailController.getEmailList(filter, decodedToken);
@@ -2381,7 +2555,7 @@ app.http(`facility-listing-post`, {
 });
 app.http(`user-company-drop-down`, {
   methods: ["GET"],
-  route: "user-company-drop-down/{compnay_id}",
+  route: "user-company-drop-down/{company_id}",
   authLevel: "anonymous",
   handler: getUserInFromCompnay,
 });
@@ -2434,6 +2608,42 @@ app.http("edit-facility", {
   route: "facility/{id}",
   authLevel: "anonymous",
   handler: editFacilityDetailsById,
+});
+app.http("add-non-routine-data_entry", {
+  methods: ["POST"],
+  route: "addNonRoutineData",
+  authLevel: "anonymous",
+  handler: addFacilityNonRoutineDataEntry,
+});
+app.http("edit-non-routine-data_entry", {
+  methods: ["PATCH"],
+  route: "editNonRoutineData/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityNonRoutineDataEntry,
+});
+app.http("add-non-routine-event", {
+  methods: ["POST"],
+  route: "addNonRoutineEvent",
+  authLevel: "anonymous",
+  handler: addFacilityNonRoutineEvent,
+});
+app.http("edit-non-routine-event", {
+  methods: ["PATCH"],
+  route: "editNonRoutineEvent/{id}",
+  authLevel: "anonymous",
+  handler: editFacilityNonRoutineEvent,
+});
+app.http("list-non-routine-event", {
+  methods: ["GET"],
+  route: "nonRoutineEventList/{facility_id}/{offset}/{limit}",
+  authLevel: "anonymous",
+  handler: getNonRoutineList,
+});
+app.http("detail-non-routine-event", {
+  methods: ["GET"],
+  route: "nonRoutineEventDetail/{id}",
+  authLevel: "anonymous",
+  handler: getFacilityNonRoutineEventById,
 });
 app.http("add-baseline", {
   methods: ["POST"],
