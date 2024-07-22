@@ -245,7 +245,7 @@ if (orArray.length > 0) {
     return `${key} ILIKE $${index++}`;
   });
   if(whereClause) whereClauseOr = ` AND (${conditionsOr.join(' OR ')})`;
-  else whereClauseOr = `AND ${conditionsOr.join(' OR ')}`;
+  else whereClauseOr = `AND (${conditionsOr.join(' OR ')})`;
 }
 
 if (orArray.length > 0) {
@@ -255,7 +255,7 @@ if (orArray.length > 0) {
   });
   whereClauseOrCount = `AND (${conditionsCountOr.join(' OR ')})`;
   if(whereClauseCount) whereClauseOrCount = ` AND (${conditionsCountOr.join(' OR ')})`;
-  else whereClauseOrCount = `AND ${conditionsCountOr.join(' OR ')}`;
+  else whereClauseOrCount = `AND (${conditionsCountOr.join(' OR ')})`;
 }
 let companyCheck = '';
 let companyCheckCount = '';
