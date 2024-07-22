@@ -1,7 +1,10 @@
 import pandas as pd
 
+from constants import METER_FACTOR, IV_FACTOR
 from dbconnection import dbtest
 from fetch_data_from_hourly_api import download_excel
+
+import random
 
 
 class QuerySetup:
@@ -51,18 +54,9 @@ class QuerySetup:
             GROUP BY date_time
             ORDER BY date_time;
         """
-        self.raw_df = dbtest(self.raw_data_query)
-        self.iv_df = dbtest(self.iv_data_query)
         self.combined_raw_df = pd.DataFrame()
         self.combined_iv_df = pd.DataFrame()
 
-        self.temperature_df = dbtest(self.temperature_query)
-        # self.raw_df = pd.read_excel('/Users/varunpratap/Desktop/enerva/raw.xlsx')
-        # self.iv_df = pd.read_excel('/Users/varunpratap/Desktop/enerva/iv.xlsx')
-        # self.temperature_df = pd.read_excel('/Users/varunpratap/Desktop/enerva/temperature.xlsx')
-        # self.raw_df = dbtest(self.raw_data_query)
-        # self.iv_df = dbtest(self.iv_data_query)
-        # self.temperature_df = dbtest(self.temperature_query)
         self.data_exploration_summary_response = None
         self.target = target
         self.selected_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
@@ -77,10 +71,12 @@ class QuerySetup:
 
 class DataExploration(QuerySetup):
     def __init__(self, facility_id, target, meter, bound):
+        super().__init__(facility_id, target)
         self.meter = int(meter) if meter else None
         self.bound = bound
         self.df_type = ['Raw Data']
-        super().__init__(facility_id, target)
+        self.raw_df = dbtest(self.raw_data_query)
+        self.temperature_df = dbtest(self.temperature_query)
 
     def process_raw_data(self):
         if self.raw_df.shape[0]:
@@ -164,6 +160,7 @@ class DataExploration(QuerySetup):
                 if self.meter and self.meter != row['meter_type']:
                     continue
                 url = row[url_key]
+                print(url)
                 df = download_excel(url)
                 if df_type == 'Raw Data':
                     df[self.meter_key] = row['meter_type']
@@ -172,7 +169,7 @@ class DataExploration(QuerySetup):
                     df[self.iv_key] = row['name']
                     self.combined_iv_df = pd.concat([self.combined_iv_df, df], ignore_index=True)
         self.raw_df = self.combined_raw_df.copy()
-        self.iv_df = self.combined_iv_df
+        self.iv_df = self.combined_iv_df.copy()
 
     def process_observed_data(self):
         self.process_raw_data()
@@ -256,7 +253,6 @@ class DataExploration(QuerySetup):
         self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
         for meter_type, df in self.raw_data_mapping.items():
             self.outlier_batch_processing(meter_type, df)
-        return
 
     def process(self):
         self.initiate_download()
@@ -266,3 +262,54 @@ class DataExploration(QuerySetup):
             return self.process_outliers()
         else:
             return self.process_observed_data()
+
+
+class OutlierSettings(DataExploration):
+    def __init__(self, facility_id):
+        super().__init__(facility_id, None, None, None)
+        self.iv_df = dbtest(self.iv_data_query)
+        self.factor = METER_FACTOR
+        self.df_type = ['Raw Data', 'Independent Variable']
+
+    def outlier_detection(self, df):
+        desc = df.describe()
+        Q1 = desc.loc['25%', 'Meter Reading (Required)']
+        Q3 = desc.loc['75%', 'Meter Reading (Required)']
+        IQR = Q3 - Q1
+        FACTOR = self.factor
+        LOWER = Q1 - FACTOR * IQR
+        HIGHER = Q3 + FACTOR * IQR
+        data = {
+            "first_quartile": "{:.2f}".format(Q1),
+            "third_quartile": "{:.2f}".format(Q3),
+            "inter_quartile": "{:.2f}".format(IQR),
+            "lower_limit": "{:.2f}".format(LOWER),
+            "upper_limit": "{:.2f}".format(HIGHER)
+        }
+
+        return data
+
+    def outlier_batch_processing(self, meter_type, df, iv=False):
+        self.factor = IV_FACTOR
+        filtered_df = self.missing_data_detection(df)
+        response = self.outlier_detection(filtered_df)
+        response['meter_name'] = meter_type if not iv else "Independent Variable"
+        response['meter_type'] = self.reverse_meter_type_map.get(meter_type, random.randint(1000, 10000))
+        self.data_exploration_response.append(response)
+
+    def process_outliers(self):
+        self.process_raw_data()
+        self.process_temperature()
+        self.process_iv()
+
+        # ToDo Need to have a condition here
+        self.raw_data_mapping['TEMPERATURE'] = self.temperature_df
+        for meter_type, df in self.raw_data_mapping.items():
+            self.outlier_batch_processing(meter_type, df)
+        for meter_type, df in self.iv_data_mapping.items():
+            self.outlier_batch_processing(meter_type, df, iv=True)
+            break
+
+    def process(self):
+        self.initiate_download()
+        self.process_outliers()

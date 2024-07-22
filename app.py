@@ -3,7 +3,8 @@ import json
 import pandas as pd
 import numpy as np
 
-from data_exploration import DataExploration
+from constants import IV_FACTOR, METER_FACTOR
+from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
@@ -669,6 +670,21 @@ def get_data_exploration_summary_new():
             return pg.paginate_df(de.data_exploration_summary_response)
         return []
     return de.data_exploration_response
+
+
+@app.route("/outlier-settings", methods=['GET'])
+def get_outlier_settings():
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    op = OutlierSettings(facility_id)
+    op.process()
+
+    information = op.data_exploration_response
+    settings = [{record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR} for record
+                in information]
+    response = {"settings": settings, 'info': information}
+    return response
 
 
 @app.route('/summary_visualisation')
