@@ -65,7 +65,7 @@ export const adminFacilityEndpoints = {
     "company-facility/v1/facility-saving-document",
   ADMIN_FACILITY_LIST_ACTIVE: "company-facility/v1/facility-listing-admin",
   ADMIN_FACILITY_LIST_INPROCESS: "company-facility/v1/facility-inprocess-admin",
-  ADMIN_FACILITY_LIST_BY_ID: "/company-facility/v1/facility-users-list"
+  ADMIN_FACILITY_LIST_BY_ID: "/company-facility/v1/facility-users-list",
 };
 
 export const PA_MANAGEMENT = {
@@ -216,8 +216,8 @@ export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
   DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   UPLOAD_INDEPENDENT_VARIABLE_FILE: "etl/v1/etl/upload-file-iv",
   GET_WEATHER_STATION: "weather/v1/get_station_details",
-  GET_WEATHER_DATA: 'v1/get_weather_data',
-  INSERT_WEATHER_DATA: "weather/v1/insert_weather_data"
+  GET_WEATHER_DATA: "v1/get_weather_data",
+  INSERT_WEATHER_DATA: "weather/v1/insert_weather_data",
 };
 
 export const BASELINE_ENDPOINTS = {
@@ -235,6 +235,10 @@ export const BASELINE_ENDPOINTS = {
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
   FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary",
+};
+
+export const PERFORMANCE_ENDPOINTS = {
+  GET_BASELINE_DATA_SUMMARY: "get_baseline_data_summary",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
