@@ -604,7 +604,7 @@ def idv_process():
     return jsonify(hourly_data_list), 200
 
 
-@app.route("/data-exploration-summary", methods=['GET'])
+@app.route("/data-exploration-summary-old", methods=['GET'])
 def get_data_exploration_summary():
     facility_id = request.args.get('facility_id', None)
     summary_type = request.args.get('summary_type', 'observe_data')
@@ -641,7 +641,7 @@ def get_data_exploration_summary():
     return response
 
 
-@app.route("/data-exploration-summary-new", methods=['GET'])
+@app.route("/data-exploration-summary", methods=['GET'])
 def get_data_exploration_summary_new():
     """
     facility_id: Mandatory
