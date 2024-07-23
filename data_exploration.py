@@ -220,7 +220,7 @@ class DataExploration(QuerySetup):
         filtered_df = self.missing_data_detection(df)
         filtered_df, upper_df, lower_df, HIGHER, LOWER = self.outlier_detection(filtered_df, remove=False)
         if self.meter and self.meter == self.reverse_meter_type_map.get(meter_type):
-            if self.bound == "UPPER":
+            if self.bound == "HIGHER":
                 self.data_exploration_summary_response = upper_df
                 return
             else:
