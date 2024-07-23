@@ -182,6 +182,7 @@ class DataExploration(QuerySetup):
             meter_id = self.reverse_meter_type_map.get(meter_type)
             if self.meter and self.meter == meter_id:
                 self.data_exploration_summary_response = filtered_df
+                return
             if filtered_df.shape[0]:
                 data_to_append = {
                     "meter_type": self.reverse_meter_type_map.get(meter_type),
@@ -203,7 +204,7 @@ class DataExploration(QuerySetup):
             meter_id = self.reverse_meter_type_map.get(meter_type)
             if self.meter and self.meter == meter_id:
                 self.data_exploration_summary_response = filtered_df
-                return self.data_exploration_summary_response
+                return
             if filtered_df.shape[0]:
                 data_to_append = {
                     "meter_type": meter_id,
@@ -221,8 +222,10 @@ class DataExploration(QuerySetup):
         if self.meter and self.meter == self.reverse_meter_type_map.get(meter_type):
             if self.bound == "UPPER":
                 self.data_exploration_summary_response = upper_df
+                return
             else:
                 self.data_exploration_summary_response = lower_df
+                return
             return
         if filtered_df.shape[0]:
             for threshold in ["HIGHER", "LOWER"]:

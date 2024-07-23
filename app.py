@@ -665,7 +665,6 @@ def get_data_exploration_summary_new():
     de.process()
     if meter:
         pg = Paginator(int(page_no), int(page_size))
-
         if len(de.data_exploration_summary_response):
             return pg.paginate_df(de.data_exploration_summary_response)
         return []
