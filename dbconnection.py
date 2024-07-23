@@ -10,7 +10,7 @@ def dbtest(query):
             'database': config.db_creds[0],
             'user': config.db_creds[1],
             'password': config.db_creds[2],
-            'host': config.db_creds[3],
+            'host': config.ssh_bind_address,
             'port': config.port
         }
 
