@@ -653,7 +653,7 @@ def get_data_exploration_summary_new():
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
     meter = request.args.get('meter')
-    summary_type = request.args.get('summary_type', 'observed')
+    summary_type = request.args.get('summary_type', 'observe_data')
     bound = request.args.get('bound')
     if summary_type == 'outliers':
         if meter and not bound:
@@ -664,7 +664,7 @@ def get_data_exploration_summary_new():
     de = DataExploration(facility_id, summary_type, meter, bound)
     de.process()
     if meter:
-        pg = Paginator(page_no, page_size)
+        pg = Paginator(int(page_no), int(page_size))
 
         if len(de.data_exploration_summary_response):
             return pg.paginate_df(de.data_exploration_summary_response)
