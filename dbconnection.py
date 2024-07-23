@@ -6,22 +6,12 @@ import config
 
 
 def dbtest(query):
-    with SSHTunnelForwarder(
-            (config.ssh_ip, 22),
-            ssh_private_key=config.private_key_path,
-            # in my case, I used a password instead of a private key
-            ssh_username=config.ssh_user,
-            # ssh_password="<mypasswd>",
-            remote_bind_address=(config.ssh_bind_address, 5432)) as server:
-        server.start()
-        # print("server connected")
-
         params = {
             'database': config.db_creds[0],
             'user': config.db_creds[1],
             'password': config.db_creds[2],
             'host': config.db_creds[3],
-            'port': server.local_bind_port
+            'port': config.port
         }
 
         conn = psycopg2.connect(**params)
