@@ -27,10 +27,10 @@ def baseline_model_training():
         print(baseline_data)
     except:
         pass
-        print('i am here')
-        baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
-        print(baseline_data.columns)
-        baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
+        # print('i am here')
+        # baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
+        # print(baseline_data.columns)
+        # baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
     granularity = input_settings.get('granularity')
     meter_type = input_settings.get('meter_type')
     facility_id = int(input_settings.get('facility_id'))
@@ -53,13 +53,13 @@ def baseline_model_training():
         predicted_data = model.scoring_hourly_model(processed_data)
         baseline_summary_performance_page = model.get_baseline_summary(predicted_data, 'hourly',meter_type)
         # Get buffers from the model save function
-        # model_buffer, config_buffer = model.save_model_to_buffer('hourly')
+        model_buffer, config_buffer = model.save_model_to_buffer('hourly')
     else:
         model.training_daily_model(processed_data, ignore_disqualification=True)
         predicted_data = model.scoring_daily_model(processed_data, ignore_disqualification=True)
         baseline_summary_performance_page = model.get_baseline_summary(predicted_data, 'daily',meter_type)
         # Get buffers from the model save function
-        # model_buffer, config_buffer = model.save_model_to_buffer('daily')
+        model_buffer, config_buffer = model.save_model_to_buffer('daily')
        
     model_metrics = model.evaluate(predicted_data)
 
@@ -83,17 +83,15 @@ def baseline_model_training():
     db_execute(query, values)
     # push_data_to_db(predicted_data.reset_index(), facility_id, meter_type, model_metrics, baseline_summary_performance_page, table_name)
     
-    # #push model to blob storage
-    # # Blob names
-    # model_blob_name = "model.pkl"
-    # config_blob_name = "config.pkl"
-    # # Azure Blob Storage details
-    # storage_connection_string = "your_storage_connection_string_here"
-    # container_name = "your_container_name_here"
-    # # Upload the model directly
-    # upload_blob_from_buffer(storage_connection_string, container_name, model_blob_name, model_buffer)
-    # # Upload the configuration directly
-    # upload_blob_from_buffer(storage_connection_string, container_name, config_blob_name, config_buffer)
+    #push model to blob storage
+    # Blob names
+    sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
+    model_blob_name = f"{sub_folder_name}/model.pkl"
+    config_blob_name = f"{sub_folder_name}/config.pkl"
+    # Upload the model directly
+    upload_blob_from_buffer(model_blob_name, model_buffer)
+    # Upload the configuration directly
+    upload_blob_from_buffer(config_blob_name, config_buffer)
 
     # returning baseline model metrics summary
     return jsonify(model_metrics)
@@ -103,7 +101,6 @@ def get_baseline_data_summary():
     data = request.get_json()
     facility_id = int(data.get('facility_id'))
     meter_type = int(data.get('meter_type'))
-    print(facility_id, meter_type)
     
     if not facility_id or not meter_type:
         return jsonify({"error": "facility_id and meter_type are required"}), 400
@@ -154,25 +151,29 @@ def p4p_calculation():
 
     input_settings_p4p = request.get_json()
     # get performance data from DB
-    cleansed_performance_data = 0
-
+    #for testing only
+    cleansed_performance_data =  pd.read_excel("CPI_hourly_data.xlsx")
+        # print(baseline_data.columns)
+    cleansed_performance_data.rename(columns={ 'Energy Use [kW]': 'observed','OAT [ºC]  - TORONTO CITY CENTRE' : 'temperature','Holiday':'is_holiday'}, inplace=True)
+    cleansed_performance_data = cleansed_performance_data[['Timestamp','observed','temperature','is_holiday']]
     #getting user inputs from Frontend
-    non_routine_df = 0
+    non_routine_df = None
     granularity = input_settings_p4p.get('granularity')
-    off_peak_incentive = input_settings_p4p.get('off_peak_incentive')
-    on_peak_incentive = input_settings_p4p.get('on_peak_incentive')
-    minimum_savings = input_settings_p4p.get('minimum_savings')
+    off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
+    on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)
+    minimum_savings = input_settings_p4p.get('minimum_savings', 0)
     facility_id = input_settings_p4p.get('facility_id')
     meter_type = input_settings_p4p.get('meter_type')
     
     #download model from blob
-    model_blob_name = "model.pkl"
-    config_blob_name = "config.pkl"
+    model_blob_name = "test/model.pkl"
+    config_blob_name = "test/config.pkl"
+    # Azure Blob Storage details
     storage_connection_string = "your_storage_connection_string_here"
-    container_name = "your_container_name_here"
+    container_name = "baseline-model-output" # will make a folder
     loaded_model = download_buffer_from_blob(storage_connection_string, container_name, model_blob_name)
     loaded_config = download_buffer_from_blob(storage_connection_string, container_name, config_blob_name)
-    
+    print('model loaded successfully')
     if granularity == 'hourly':
         scoring_results = scoring_hourly_model(cleansed_performance_data, loaded_model, loaded_config)
         performance = P4P_metrics_calculation(scoring_results, non_routine_df, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)

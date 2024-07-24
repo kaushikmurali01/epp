@@ -4,7 +4,7 @@ import holidays
 import json
 
 class P4P_metrics_calculation:
-    def __init__(self, df, non_routine_df, model_type, off_peak_incentive, on_peak_incentive, minimum_savings, meter_type):
+    def __init__(self, df, non_routine_df, model_type, off_peak_incentive=0, on_peak_incentive=0, minimum_savings=0, meter_type=None):
         self.df = df
         self.non_routine_df = non_routine_df if non_routine_df is not None else pd.DataFrame()
         self.model_type = model_type

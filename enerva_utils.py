@@ -4,7 +4,7 @@ import psycopg2.extras
 from sshtunnel import SSHTunnelForwarder
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 import pickle
-import enerva_config as config_varun
+import enerva_config
 from azure.storage.blob import BlobServiceClient
 import io
 import json
@@ -14,18 +14,18 @@ def db_execute(query, values, fetch=False):
     curs = None
     try:
         with SSHTunnelForwarder(
-            (config_varun.ssh_ip, 22),
-            ssh_private_key=config_varun.private_key_path,
-            ssh_username=config_varun.ssh_user,
-            remote_bind_address=(config_varun.ssh_bind_address, 5432)
+            (enerva_config.ssh_ip, 22),
+            ssh_private_key=enerva_config.private_key_path,
+            ssh_username=enerva_config.ssh_user,
+            remote_bind_address=(enerva_config.ssh_bind_address, 5432)
         ) as server:
             server.start()
             # print("SSH tunnel established")
 
             params = {
-                'database': config_varun.db_creds[0],
-                'user': config_varun.db_creds[1],
-                'password': config_varun.db_creds[2],
+                'database': enerva_config.db_creds[0],
+                'user': enerva_config.db_creds[1],
+                'password': enerva_config.db_creds[2],
                 'host': 'localhost',  # Connect to the local end of the tunnel
                 'port': server.local_bind_port  # Local port assigned by SSH tunnel
             }
@@ -193,26 +193,35 @@ def db_fetch_data(query):
     return df
 
 
-def upload_blob_from_buffer(storage_connection_string, container_name, blob_name, buffer):
+def upload_blob_from_buffer(blob_name, buffer):
+
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={enerva_config.account_name};AccountKey={enerva_config.storage_account_key};EndpointSuffix={enerva_config.end_point_suffix}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=enerva_config.container_name, blob=blob_name)
     blob_client.upload_blob(buffer, overwrite=True)
     print(f"Upload of {blob_name} completed successfully.")
 
-def download_buffer_from_blob(storage_connection_string, container_name, blob_name):
+def download_buffer_from_blob(blob_name):
+    
     """
     Download a blob from Azure Blob Storage and return it as a buffer.
     """
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={enerva_config.account_name};AccountKey={enerva_config.storage_account_key};EndpointSuffix={enerva_config.end_point_suffix}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=enerva_config.container_name, blob=blob_name)
     
     # Download blob as a stream
     downloaded_blob = blob_client.download_blob()
     buffer = io.BytesIO(downloaded_blob.readall())
     buffer.seek(0)  # Rewind the buffer to the beginning after reading
+    # Unpickle the buffer to get the original object
+    obj = pickle.load(buffer)
+    
+    print(f"Download and unpickling of {blob_name} completed successfully.")
+    return obj
 
-    print(f"Download of {blob_name} completed successfully.")
-    return buffer
+    # print(f"Download of {blob_name} completed successfully.")
+    # return buffer
 
 
 # # Azure Blob Storage functions

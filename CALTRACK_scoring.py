@@ -22,7 +22,6 @@ from statsmodels.regression.linear_model import OLS
 from statsmodels.tools import add_constant
 import statsmodels.api as sm
 
-
 def create_iterator(scoring_data, segment_type, model_process_variables):
     # Define segment types
     prediction_segment_type = {
@@ -69,8 +68,7 @@ def scoring_hourly_model(scoring_data, model, config):
     predictions = pd.DataFrame(predictions)
     scoring_data['predicted'] = pd.DataFrame({"predicted": predictions.sum(axis=1, min_count=1)})
     return scoring_data
-import pandas as pd
-from eemeter.eemeter.models.daily.data import DailyBaselineData
+
 
 def scoring_daily_model(processed_reporting_data, eemeter_model, linear_model, independent_variables):
     # Check if resampling is needed for reporting data

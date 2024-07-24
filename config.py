@@ -12,8 +12,7 @@ SSH_IP = os.getenv('SSH_IP')
 SSH_USER = os.getenv('SSH_USER')
 DB_HOST = os.getenv('DB_HOST')
 LOCAL_HOST = os.getenv('LOCAL_HOST')
-LOCAL = True
-# os.getenv('IS_LOCAL')
+LOCAL = os.getenv('IS_LOCAL')
 PORT = os.getenv('PORT')
 # if LOCAL:
 #     DB_HOST = "localhost"
