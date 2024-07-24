@@ -21,6 +21,9 @@ import {
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
+  FETCH_OUTLIERS_SETTINGS_FAILURE,
+  FETCH_OUTLIERS_SETTINGS_REQUEST,
+  FETCH_OUTLIERS_SETTINGS_SUCCESS,
   FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
   FETCH_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_RAW_SUMMARY_METER_LIST_SUCCESS,
@@ -59,6 +62,7 @@ const initialState = {
   submittedBaseline_d_t: [],
   dataExplorationSummaryList: [],
   rawMeterSummaryList:[],
+  outliersSettingsData:[],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -348,6 +352,26 @@ const baselineReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+      case FETCH_OUTLIERS_SETTINGS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case FETCH_OUTLIERS_SETTINGS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          outliersSettingsData: action.payload,
+          error: null,
+        };
+      case FETCH_OUTLIERS_SETTINGS_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+      
     case CLEAR_BASELINE_STATE:
       return initialState;
     default:

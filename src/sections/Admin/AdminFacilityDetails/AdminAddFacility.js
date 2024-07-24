@@ -15,6 +15,7 @@ import { uploadFileEndPoints } from "constants/endPoints";
 import axios from "axios";
 import {
     USER_MANAGEMENT,
+    WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS,
     adminFacilityEndpoints,
     facilityEndPoints,
     imageUploadEndPoints,
@@ -404,6 +405,19 @@ const AdminAddFacilityComponent = (props) => {
             setLoadingState(true);
             POST_REQUEST(adminFacilityEndpoints.ADMIN_ADD_EDIT_FACILITY, newValues)
                 .then((response) => {
+                    if (response?.data?.data) {
+                        const myDataToSend = {
+                          start_year: "2023",
+                          end_year: "2024",
+                          start_month: "1",
+                          end_month: "12",
+                          facility_id: response?.data && response?.data?.data?.id,
+                        };
+                        POST_REQUEST(
+                          WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
+                          myDataToSend
+                        );
+                      }
                     setLoadingState(false);
                     NotificationsToast({
                         message: "Facility added successfully!",
@@ -422,6 +436,19 @@ const AdminAddFacilityComponent = (props) => {
             setLoadingState(true);
             PATCH_REQUEST(adminFacilityEndpoints.ADMIN_ADD_EDIT_FACILITY + '/' + id, newValues)
                 .then((response) => {
+                    if (response) {
+                        const myDataToSend = {
+                          start_year: "2023",
+                          end_year: "2024",
+                          start_month: "1",
+                          end_month: "12",
+                          facility_id: id,
+                        };
+                        POST_REQUEST(
+                          WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
+                          myDataToSend
+                        );
+                      }
                     setLoadingState(false);
                     NotificationsToast({
                         message: "Facility updated successfully!",
