@@ -23,9 +23,9 @@ const DataSummary = () => {
 
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(336, activeButton));
+      dispatch(fetchDataExplorationSummaryList(id, activeButton));
     } else {
-      dispatch(fetchDataExplorationSummaryList(336));
+      dispatch(fetchDataExplorationSummaryList(id));
     }
   }, [dispatch, id, activeButton]);
 
@@ -62,7 +62,7 @@ const DataSummary = () => {
     saveButtonAction: "",
   });
 
-  const meterDetailsModal = (meterType, meterName) => {
+  const meterDetailsModal = (meterType, meterName, bound) => {
     setMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -71,6 +71,8 @@ const DataSummary = () => {
           setMeterDetailsModalConfig={setMeterDetailsModalConfig}
           meterType={meterType}
           meterName={meterName}
+          summary_type={activeButton}
+          bound={bound}
         />
       ),
     }));
@@ -162,7 +164,21 @@ const DataSummary = () => {
     },
     {
       Header: "Parameter",
-      accessor: "meter_name",
+      accessor: (item) => (
+        <Typography
+          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          variant="span"
+          sx={{
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {item.meter_name}
+        </Typography>
+      ),
     },
     {
       Header: "Timestamp start",
@@ -185,7 +201,27 @@ const DataSummary = () => {
     },
     {
       Header: "Parameter",
-      accessor: "meter_name",
+      accessor: (item) => (
+        <Typography
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.threshold_type
+            )
+          }
+          variant="span"
+          sx={{
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {item.meter_name}
+        </Typography>
+      ),
     },
     {
       Header: "Timestamp start",
@@ -201,7 +237,9 @@ const DataSummary = () => {
     },
     {
       Header: "Threshold",
-      accessor: "threshould",
+      accessor: (item) => (
+        <>{item?.threshold_type === "HIGHER" ? "Upper limit" : "Lower limit"}</>
+      ),
     },
     {
       Header: "Type",
@@ -211,11 +249,6 @@ const DataSummary = () => {
 
   const getTableData = () => {
     if (!summaryData) return [];
-
-    if (activeButton === "outliers") {
-      return Array.isArray(summaryData.data) ? summaryData.data : [];
-    }
-
     return Array.isArray(summaryData) ? summaryData : [];
   };
 
@@ -294,7 +327,7 @@ const DataSummary = () => {
               }}
               onClick={detailsAndSettingModal}
             >
-              Details & Setting
+              Details
             </Button>
           </Box>
         )}

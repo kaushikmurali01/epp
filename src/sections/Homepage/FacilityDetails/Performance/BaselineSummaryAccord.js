@@ -1,13 +1,25 @@
-import { Grid, Typography } from '@mui/material'
-import React from 'react'
+import { Grid, Typography } from "@mui/material";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getBaselineDataSummary } from "../../../../redux/superAdmin/actions/performanceAction";
 const baselineStyleInAccordion = {
-    color: "#242424",
-    padding: "0.375rem 1rem",
-    fontSize: "14px",
-    fontStyle: "normal",
-    fontWeight: 500,
-  };
+  color: "#242424",
+  padding: "0.375rem 1rem",
+  fontSize: "14px",
+  fontStyle: "normal",
+  fontWeight: 500,
+};
 const BaselineSummaryAccord = () => {
+  const summaryData = useSelector(
+    (state) => state?.performanceReducer?.baselineSummaryData
+  );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const summaryBody = {facility_id:24, meter_id:1}
+    dispatch(getBaselineDataSummary(summaryBody));
+  }, [dispatch]);
+  
   return (
     <Grid container display={"grid"}>
       <Grid item>
@@ -71,7 +83,7 @@ const BaselineSummaryAccord = () => {
         </Grid>
       </Grid>
     </Grid>
-  )
-}
+  );
+};
 
-export default BaselineSummaryAccord
+export default BaselineSummaryAccord;

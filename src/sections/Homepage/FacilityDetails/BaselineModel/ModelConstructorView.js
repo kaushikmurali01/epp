@@ -26,10 +26,11 @@ import {
   fetchBaselineDetailsFromDb,
   fetchStationsDetails,
 } from "../../../../redux/superAdmin/actions/baselineAction";
-import { format } from "date-fns";
+import { format, formatISO } from "date-fns";
 import InputField from "components/FormBuilder/InputField";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
+import DateRangeSlider from "components/DateRangeSlider";
 
 const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const dispatch = useDispatch();
@@ -185,7 +186,27 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   <Typography variant="h6" sx={headingStyleInAccordion}>
                     Baseline period
                   </Typography>
-                  <Grid container spacing={4}>
+                  <Grid
+                    container
+                    mt={10}
+                    fullWidth={true}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {values?.start_date && values.end_date && (
+                      <DateRangeSlider
+                        start_date={values?.start_date}
+                        end_date={values?.end_date}
+                        startLabel="Baseline Start"
+                        endLabel="Baseline End"
+                        disabled={true}
+                      />
+                    )}
+                  </Grid>
+                  {/* <Grid container spacing={4}>
                     <Grid item xs={12} sm={4}>
                       <InputLabel
                         htmlFor="start_date"
@@ -205,7 +226,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                       </InputLabel>
                       <InputField name="end_date" isDisabled="true" />
                     </Grid>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>

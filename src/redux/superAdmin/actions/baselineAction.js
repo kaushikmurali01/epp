@@ -22,6 +22,9 @@ import {
   fetchIssueDetailsFailure,
   fetchIssueDetailsRequest,
   fetchIssueDetailsSuccess,
+  fetchOutliersSettingsFailure,
+  fetchOutliersSettingsRequest,
+  fetchOutliersSettingsSuccess,
   fetchRawSummaryMeterListFailure,
   fetchRawSummaryMeterListRequest,
   fetchRawSummaryMeterListSuccess,
@@ -366,8 +369,10 @@ export const fetchDataExplorationSummaryList = (
 
 export const fetchRawSummaryMeterList = (
   facilityId,
+  summaryType,
   meterType,
   detail,
+  bound,
   pageNumber,
   pageSize
 ) => {
@@ -375,11 +380,17 @@ export const fetchRawSummaryMeterList = (
     try {
       dispatch(fetchRawSummaryMeterListRequest());
       let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      if (summaryType) {
+        endpointWithParams += `&summary_type=${summaryType}`;
+      }
       if (detail) {
         endpointWithParams += `&meter=${meterType}`;
       }
       if (detail) {
         endpointWithParams += `&detail=${detail}`;
+      }
+      if (bound) {
+        endpointWithParams += `&bound=${bound}`;
       }
       if (pageNumber) {
         endpointWithParams += `&page_number=${pageNumber}`;
@@ -394,6 +405,29 @@ export const fetchRawSummaryMeterList = (
     } catch (error) {
       console.error(error);
       dispatch(fetchRawSummaryMeterListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchOutliersSettingsData = (
+  facilityId,
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchOutliersSettingsRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      console.log(response);
+      dispatch(fetchOutliersSettingsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchOutliersSettingsFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

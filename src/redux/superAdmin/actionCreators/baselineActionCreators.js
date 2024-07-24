@@ -21,6 +21,9 @@ import {
   FETCH_ISSUE_DETAILS_FAILURE,
   FETCH_ISSUE_DETAILS_REQUEST,
   FETCH_ISSUE_DETAILS_SUCCESS,
+  FETCH_OUTLIERS_SETTINGS_FAILURE,
+  FETCH_OUTLIERS_SETTINGS_REQUEST,
+  FETCH_OUTLIERS_SETTINGS_SUCCESS,
   FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
   FETCH_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_RAW_SUMMARY_METER_LIST_SUCCESS,
@@ -254,6 +257,20 @@ export const fetchRawSummaryMeterListSuccess = (data) => ({
 
 export const fetchRawSummaryMeterListFailure = (error) => ({
   type: FETCH_RAW_SUMMARY_METER_LIST_FAILURE,
+  payload: error,
+});
+
+export const fetchOutliersSettingsRequest = () => ({
+  type: FETCH_OUTLIERS_SETTINGS_REQUEST,
+});
+
+export const fetchOutliersSettingsSuccess = (data) => ({
+  type: FETCH_OUTLIERS_SETTINGS_SUCCESS,
+  payload: data,
+});
+
+export const fetchOutliersSettingsFailure = (error) => ({
+  type: FETCH_OUTLIERS_SETTINGS_FAILURE,
   payload: error,
 });
 

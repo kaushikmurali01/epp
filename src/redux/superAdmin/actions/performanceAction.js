@@ -16,7 +16,6 @@ export const getBaselineDataSummary = (
       let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}`;
       const response = await POST_REQUEST(endpointWithParams, summaryBody);
       const data = response.data;
-      console.log(response);
       dispatch(getBaselineDataSummarySuccess(data));
       return data;
     } catch (error) {
@@ -26,6 +25,7 @@ export const getBaselineDataSummary = (
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };

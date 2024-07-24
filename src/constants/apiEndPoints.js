@@ -235,10 +235,11 @@ export const BASELINE_ENDPOINTS = {
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
   FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary",
+  FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
 };
 
 export const PERFORMANCE_ENDPOINTS = {
-  GET_BASELINE_DATA_SUMMARY: "get_baseline_data_summary",
+  GET_BASELINE_DATA_SUMMARY: "model/v1/get_baseline_data_summary",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {

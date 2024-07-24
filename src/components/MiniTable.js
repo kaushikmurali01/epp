@@ -66,6 +66,7 @@ export const MiniTable = ({ columns, data }) => {
                       sx={{
                         "&:first-child": { background: "#CBFFD5" },
                         borderBottom: "none",
+                        padding: "10px!important",
                       }}
                     >
                       {cell.render("Cell")}
