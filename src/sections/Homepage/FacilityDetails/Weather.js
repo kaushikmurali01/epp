@@ -243,7 +243,7 @@ const Weather = () => {
     getIndependentVariales();
     getWeatherStations();
 
-  }, facilityData?.id)
+  }, [facilityData?.id])
 
   const getIndependentVariales = () => {
     const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_INDEPENDENT_VARIABLE+`/${facilityData?.id}`;

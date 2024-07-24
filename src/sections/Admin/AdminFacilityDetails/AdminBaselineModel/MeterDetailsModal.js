@@ -22,7 +22,7 @@ const MeterDetailsModal = ({
   useEffect(() => {
     dispatch(
       fetchAdminRawSummaryMeterList(
-        24,
+        id,
         meterType,
         true,
         pageInfo.page,

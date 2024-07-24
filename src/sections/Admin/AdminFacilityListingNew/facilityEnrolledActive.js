@@ -338,7 +338,7 @@ const FacilityEnrolledActive = ({
             item?.facility_id_general_status == 2 ? 'Enter Facility Data' :
             item?.facility_id_general_status == 3 ? 'Submit Facility' :
             item?.facility_id_general_status == 3 ? 'Accept Baseline Modal' :
-            'Program Start'
+            'Facility Enrolled'
             }</>,
         },
         {

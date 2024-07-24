@@ -37,8 +37,8 @@ export const EnervaRoutes = () => {
         {/* <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList />} />
         <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityListingNew />} /> */}
 
-        <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityListingNew  />} />
-        <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityList/>} />
+        <Route path= {facilityEndPoints.facilityListNew} element = {<AdminFacilityListingNew />}/>
+        <Route path= {facilityEndPoints.facilityList} element = {<AdminFacilityList/>}/>
 
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.editFacility} element={ <AdminAddFacilityComponent /> }/>
         <Route path= {facilityEndPoints.facilityList+'/'+facilityEndPoints.addFacility} element={ <AdminAddFacilityComponent /> }/>

@@ -11,6 +11,8 @@ const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
   meterType,
   meterName,
+  summary_type,
+  bound,
 }) => {
   const [pageInfo, setPageInfo] = useState({
     page: 1,
@@ -20,15 +22,31 @@ const MeterDetailsModal = ({
   const dispatch = useDispatch();
   const { id } = useParams();
   useEffect(() => {
-    dispatch(
-      fetchRawSummaryMeterList(
-        24,
-        meterType,
-        true,
-        pageInfo.page,
-        pageInfo.pageSize
-      )
-    );
+    if (summary_type === "outliers") {
+      dispatch(
+        fetchRawSummaryMeterList(
+          id,
+          summary_type,
+          meterType,
+          true,
+          bound,
+          pageInfo.page,
+          pageInfo.pageSize
+        )
+      );
+    } else {
+      dispatch(
+        fetchRawSummaryMeterList(
+          id,
+          summary_type,
+          meterType,
+          true,
+          false,
+          pageInfo.page,
+          pageInfo.pageSize
+        )
+      );
+    }
   }, [dispatch, id, meterType, pageInfo.page, pageInfo.pageSize]);
 
   const meterRawData = useSelector(
@@ -41,7 +59,7 @@ const MeterDetailsModal = ({
 
   const observeDataColumn = [
     {
-      Header: "Start Date(Required)",
+      Header: "Start Date",
       accessor: (item) => (
         <>
           {item?.["Start Date (Required)"] &&
@@ -53,7 +71,7 @@ const MeterDetailsModal = ({
       ),
     },
     {
-      Header: "End Date(Required)",
+      Header: "End Date",
       accessor: (item) => {
         return (
           <>
@@ -67,8 +85,8 @@ const MeterDetailsModal = ({
       },
     },
     {
-      Header: "Usage (Required)",
-      accessor: "Usage (Required)",
+      Header: "Meter Reading",
+      accessor: "Meter Reading (Required)",
     },
   ];
   return (
