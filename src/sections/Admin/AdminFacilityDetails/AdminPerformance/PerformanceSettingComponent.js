@@ -1,4 +1,4 @@
-import { Box, Button, ButtonGroup, Grid, styled, Tab, Tabs, Typography } from "@mui/material";
+import { Box, Button, Grid,Tab, Tabs, Typography } from "@mui/material";
 import ComposeEmailMicroComponent from "./ComposeEmailMicroComponent";
 import ContactsMicroComponent from "./ContactsMicroComponent";
 import EmailTemplateMicroComponent from "./EmailTemplateMicroComponent";
@@ -6,29 +6,13 @@ import IncentiveSettingsMicroComponent from "./IncentiveSettingsMicroComponent";
 import EvModal from "utils/modal/EvModal";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Form, Formik } from "formik";
-import InputField from "components/FormBuilder/InputField";
-import ReactQuill from "react-quill";
-import { createEmailTemplate, getEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { getContacts, getEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
 import Loader from "pages/Loader";
-
-const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
-  "& .MuiButtonGroup-firstButton": {
-    borderRadius: "20.8125rem 0rem 0rem 20.8125rem",
-    borderRight: "1px solid #C9C8C8",
-  },
-  "& .MuiButtonGroup-middleButton": {
-    borderRight: "1px solid #C9C8C8",
-  },
-  "& .MuiButtonGroup-lastButton": {
-    borderRadius: "0 20.8125rem 20.8125rem 0",
-  },
-  "& .MuiButton-root": {
-    "&:hover": {
-      color: "#F7F7F5",
-    },
-  },
-}));
+import { USER_MANAGEMENT } from "constants/apiEndPoints";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import ArchivedEmailListsModal from "./ArchivedEmailListsModal";
+import AddEditContactModalForm from "./AddEditContactModalForm";
+import AddEmailTemplateModalForm from "./AddEmailTemplateModalForm";
 
 const PerformanceSettingComponent = () => {
   const dispatch = useDispatch();
@@ -43,7 +27,7 @@ const PerformanceSettingComponent = () => {
 
   const facility_id = facilityDetails?.id;
 
-  const { loading} = useSelector(
+  const { contactList, archivedEmailList, loading } = useSelector(
     (state) => state.adminPerformanceReducer
   );
 
@@ -70,140 +54,28 @@ const PerformanceSettingComponent = () => {
       modalBodyContent: "",
     });
 
-  const AddEmailTemplateForm = ({ facility_id }) => {
-    const modules = {
-      toolbar: [
-        [{ header: [1, 2, 3, true] }],
-        ["bold", "italic", "underline", "strike", "blockquote"],
-        [
-          { list: "ordered" },
-          { list: "bullet" },
-          { indent: "-1" },
-          { indent: "+1" },
-        ],
-        ["link", "image"],
-        ["clean"],
-        ["table"],
-      ],
-    };
-
-    const formats = [
-      "header",
-      "bold",
-      "italic",
-      "underline",
-      "strike",
-      "blockquote",
-      "list",
-      "bullet",
-      "indent",
-      "link",
-      "image",
-      "table",
-    ];
-
-    const handleEmailCompose = (emailData) => {
-      console.log("emailData", emailData);
-      if (emailData && Object?.keys(emailData)?.length > 0) {
-        dispatch(createEmailTemplate({ ...emailData, facility_id }))
-          .then(() => {
-            dispatch(getEmailTemplate(facility_id));
-            setAddEmailTemplateModalConfig((prevState) => ({
-              ...prevState,
-              modalVisible: false,
-            }));
-          })
-          .catch((error) => {
-            console.error("error getting the email template data", error);
-          });
-      } else {
-        console.error("No email data to save as template");
-      }
-    };
-
-    return (
-      <Formik
-        initialValues={{ name: "", subject: "", body: "" }}
-        onSubmit={(values) => handleEmailCompose(values)}
-      >
-        {({ setFieldValue, values }) => (
-          <Form>
-            <Box
-              sx={{
-                maxWidth: 600,
-                margin: "auto",
-                display: "grid",
-                gap: "1rem",
-              }}
-            >
-              <InputField
-                type="text"
-                fullWidth
-                name="name"
-                label="Name"
-                required
-              />
-              <InputField
-                type="text"
-                fullWidth
-                name="subject"
-                label="Subject"
-                required
-              />
-              <Box sx={{ mt: 2, mb: 2 }}>
-                <ReactQuill
-                  theme="snow"
-                  value={values.body}
-                  onChange={(content) => setFieldValue("body", content)}
-                  modules={modules}
-                  formats={formats}
-                  placeholder="Compose your email..."
-                  className="rc-quill-editor"
-                />
-              </Box>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  flexWrap: "wrap",
-                  gap: "1rem",
-                }}
-              >
-                <Button type="submit" variant="contained" color="primary">
-                  Add email template
-                </Button>
-                <Button
-                  type="button"
-                  variant="contained"
-                  color="danger"
-                  sx={{ color: "#FFF" }}
-                  onClick={() => {
-                    setAddEmailTemplateModalConfig((prevState) => ({
-                      ...prevState,
-                      modalVisible: false,
-                    }));
-                  }}
-                >
-                  Cancel
-                </Button>
-              </Box>
-            </Box>
-          </Form>
-        )}
-      </Formik>
-    );
-  };
-
   const openAddEmailTemplateModal = () => {
     if (facility_id) {
       setAddEmailTemplateModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
-        modalBodyContent: <AddEmailTemplateForm facility_id={facility_id} />,
+        modalBodyContent: (
+          <AddEmailTemplateModalForm
+            facility_id={facility_id}
+            handleCloseAddEmailTemplateModal={handleCloseAddEmailTemplateModal}
+          />
+        ),
       }));
     } else {
       console.error("Facility ID is not available");
     }
+  };
+
+  const handleCloseAddEmailTemplateModal = () => { 
+    setAddEmailTemplateModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
   };
 
   const getEmailTemplates = () => {
@@ -214,9 +86,32 @@ const PerformanceSettingComponent = () => {
     }
   };
 
+  const [getAllCompanyList, setAllCompanyList] = useState([]);
+
+  const getAllCompanyListData = () => {
+    const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setAllCompanyList(res.data?.data?.rows);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const getContactList = () => {
+    if (facility_id) {
+      dispatch(getContacts(facility_id));
+    } else {
+      console.error("Facility ID is not available");
+    }
+  };
+
   useEffect(() => {
     getEmailTemplates();
-  }, []);
+    getAllCompanyListData();
+    getContactList();
+  }, [dispatch]);
 
   const buttonConfig = {
     compose_email: {
@@ -225,12 +120,12 @@ const PerformanceSettingComponent = () => {
         openEmailArchiveModal();
       },
     },
-    // contacts: {
-    //   label: "Add Contact",
-    //   onClick: () => {
-    //     // Handle click for Add Contact
-    //   },
-    // },
+    contacts: {
+      label: "Add Contact",
+      onClick: () => {
+        openAddContactModal();
+      },
+    },
     email_template: {
       label: "Add template",
       onClick: () => {
@@ -239,62 +134,12 @@ const PerformanceSettingComponent = () => {
     },
   };
 
-  const openEmailArchiveModal = () => {
-    setEmailArchiveModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      headerText: "Facility email archive",
-      modalBodyContent: "",
-    }));
-    setTimeout(() => {
-      setEmailArchiveModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalBodyContent: <ArchiveEmail />,
-      }));
-    }, 10);
-  };
-
-   const buttonStyle = {
-     padding: "0.44rem 1.5rem",
-     lineHeight: "1",
-     height: "max-content",
-     borderRadius: "50px",
-
-     ".MuiButtonGroup-firstButton": {
-       BorderRight: "10px",
-     },
-   };
-
-   const activeButtonStyle = {
-     ...buttonStyle,
-     backgroundColor: "#2E813E",
-     color: "#F7F7F5",
-     "&:hover": {
-       backgroundColor: "#2E813E",
-     },
-   };
-
-   const inactiveButtonStyle = {
-     ...buttonStyle,
-     backgroundColor: "#EBEBEB",
-     color: "#696969",
-   };
-
-   const emailArchiveBoxStyle = {
-     display: "block",
-     backgroundColor: "#EBFFEF",
-     padding: "10px",
-     borderRadius: "5px",
-     marginTop: "10px",
-   };
-  
-  const [emailArchiveModalConfig, setEmailArchiveModalConfig] = useState({
+  const [addContactModalConfig, setAddContactModalConfig] = useState({
     modalVisible: false,
     modalUI: {
       showHeader: true,
       crossIcon: false,
-      modalClass: "",
+      modalClass: "add-edit-contact-modal",
       headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
       headerSubTextStyle: {
         marginTop: "1rem",
@@ -315,185 +160,68 @@ const PerformanceSettingComponent = () => {
     modalBodyContent: "",
   });
 
-  const ArchiveEmail = () => {
-    const [activeButtonEmailArchive, setActiveButtonEmailArchive] = useState(0);
+  const [editingContactId, setEditingContactId] = useState(null);
 
-    const handleEmailArchiveButtonClick = (index) => {
-      setActiveButtonEmailArchive(index);
-    };
-
-    return (
-      <>
-        <Grid container>
-          <input
-            type="search"
-            style={{ width: "100%", height: "40px", borderRadius: "10px" }}
-          />
-
-          <StyledButtonGroup
-            disableElevation
-            variant="contained"
-            color="primary"
-            sx={{ marginTop: "15px", marginBottom: "10px" }}
-          >
-            <Button
-              sx={
-                activeButtonEmailArchive === 0
-                  ? activeButtonStyle
-                  : inactiveButtonStyle
-              }
-              onClick={() => handleEmailArchiveButtonClick(0)}
-            >
-              All
-            </Button>
-            <Button
-              sx={
-                activeButtonEmailArchive === 1
-                  ? activeButtonStyle
-                  : inactiveButtonStyle
-              }
-              onClick={() => handleEmailArchiveButtonClick(1)}
-            >
-              User send
-            </Button>
-            <Button
-              sx={
-                activeButtonEmailArchive === 2
-                  ? activeButtonStyle
-                  : inactiveButtonStyle
-              }
-              onClick={() => handleEmailArchiveButtonClick(2)}
-            >
-              System generated
-            </Button>
-          </StyledButtonGroup>
-
-          {activeButtonEmailArchive === 0 ||
-          activeButtonEmailArchive === 1 ||
-          activeButtonEmailArchive === 2 ? (
-            <>
-              <Grid container sx={emailArchiveBoxStyle}>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Email Subject
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "18px !important",
-                    fontWeight: "600",
-                  }}
-                >
-                  Recipient’s email Address
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Date sent
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "14px !important",
-                    fontWeight: "500",
-                  }}
-                >
-                  6/14/2023
-                </Typography>
-              </Grid>
-
-              <Grid container sx={emailArchiveBoxStyle}>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Email Subject
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "18px !important",
-                    fontWeight: "600",
-                  }}
-                >
-                  Recipient’s email Address
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Date sent
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "14px !important",
-                    fontWeight: "500",
-                  }}
-                >
-                  6/14/2023
-                </Typography>
-              </Grid>
-
-              <Grid container sx={emailArchiveBoxStyle}>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Email Subject
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "18px !important",
-                    fontWeight: "600",
-                  }}
-                >
-                  Recipient’s email Address
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#54585A",
-                    fontSize: "12px !important",
-                    fontWeight: "400",
-                  }}
-                >
-                  Date sent
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#242424",
-                    fontSize: "14px !important",
-                    fontWeight: "500",
-                  }}
-                >
-                  6/14/2023
-                </Typography>
-              </Grid>
-            </>
-          ) : null}
-        </Grid>
-      </>
-    );
+  const openAddContactModal = (contactId = null) => {
+    setEditingContactId(contactId);
+    setAddContactModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: contactId ? "Edit Contact" : "Add Contact",
+      modalBodyContent: (
+        <AddEditContactModalForm
+          contactId={contactId}
+          getAllCompanyList={getAllCompanyList}
+          contactList={contactList}
+          facility_id={facility_id}
+          handleCloseAddContactModal={handleCloseAddContactModal}
+        />
+      ),
+    }));
   };
+
+  const handleCloseAddContactModal = () => { 
+    setAddContactModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
+  };
+
+  const openEmailArchiveModal = () => {
+    setEmailArchiveModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "Facility email archive",
+      modalBodyContent: <ArchivedEmailListsModal facility_id={facility_id} />,
+    }));
+  };
+
+  const [emailArchiveModalConfig, setEmailArchiveModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "emailArchiveModal",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
+
 
   return (
     <Grid
@@ -562,7 +290,9 @@ const PerformanceSettingComponent = () => {
       {/* Additional Grid or other components can be added here */}
       {tabValue === "setting" && <IncentiveSettingsMicroComponent />}
       {tabValue === "compose_email" && <ComposeEmailMicroComponent />}
-      {tabValue === "contacts" && <ContactsMicroComponent />}
+      {tabValue === "contacts" && (
+        <ContactsMicroComponent handleEditContact={openAddContactModal} />
+      )}
       {tabValue === "email_template" && <EmailTemplateMicroComponent />}
       <EvModal
         modalConfig={addEmailTemplateModalConfig}
@@ -571,6 +301,10 @@ const PerformanceSettingComponent = () => {
       <EvModal
         modalConfig={emailArchiveModalConfig}
         setModalConfig={setEmailArchiveModalConfig}
+      />
+      <EvModal
+        modalConfig={addContactModalConfig}
+        setModalConfig={setAddContactModalConfig}
       />
       <Loader
         sectionLoader

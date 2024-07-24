@@ -241,4 +241,5 @@ export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
   GET_EMAIL_TEMPLATE: "/company-facility/v1/email-templates",
   GET_UPDATE_INCENTIVE_SETTINGS: "/company-facility/v1/incentive-settings",
   SEND_EMAIL: "/company-facility/v1/send-email",
+  CRUD_CONTACTS: "/company-facility/v1/facility",
 };
