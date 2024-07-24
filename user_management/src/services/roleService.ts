@@ -101,15 +101,26 @@ class RoleService {
     static async listRoles(type): Promise<any[]> {
         try {
             // const roles = await Role.findAll();
+            // const roles = await Role.findAll({
+            //     where: {
+            //        // rolename: { [Op.iLike]: `%${searchPromt}%` },
+            //         id: {
+            //             [Op.ne]: 1 // Op.ne means "not equal to"
+            //         },
+            //         user_type: type
+            //     }
+            // });
+
             const roles = await Role.findAll({
                 where: {
-                   // rolename: { [Op.iLike]: `%${searchPromt}%` },
+                    // rolename: { [Op.iLike]: `%${searchPromt}%` },
                     id: {
-                        [Op.ne]: 1 // Op.ne means "not equal to"
+                        [Op.notIn]: [1, 5] // Excludes id 1 and 2
                     },
                     user_type: type
                 }
             });
+            
 
             return roles;
         } catch (error) {
