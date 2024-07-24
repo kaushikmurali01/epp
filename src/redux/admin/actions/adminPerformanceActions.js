@@ -21,6 +21,21 @@ import {
   sendEmailFailure,
   sendEmailRequest,
   sendEmailSuccess,
+  createContactFailure,
+  createContactRequest,
+  createContactSuccess,
+  getContactRequest,
+  getContactSuccess,
+  getContactFailure,
+  deleteContactRequest,
+  deleteContactSuccess,
+  deleteContactFailure,
+  updateContactRequest,
+  updateContactSuccess,
+  updateContactFailure,
+  getEmailArchiveFailure,
+  getEmailArchiveRequest,
+  getEmailArchiveSuccess,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
 import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS } from "constants/apiEndPoints";
@@ -172,6 +187,109 @@ export const sendEmail = (emailPayload, facility_id) => {
       });
     } catch (error) {
       dispatch(sendEmailFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const createContact = (contactPayload, facilityId) => {
+  return async (dispatch) => {
+    dispatch(createContactRequest());
+    const apiURL = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${facilityId}/contact`;
+
+    try {
+      const response = await POST_REQUEST(apiURL, contactPayload);
+      dispatch(createContactSuccess(response?.data));
+      NotificationsToast({
+        message: "Contact created successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      dispatch(createContactFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getContacts = (facilityId) => {
+  return async (dispatch) => {
+    dispatch(getContactRequest());
+    const apiURL = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${facilityId}/contacts`;
+    try {
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getContactSuccess(response?.data));
+    } catch (error) {
+      dispatch(getContactFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteContact = (facilityId, contactId) => {
+  return async (dispatch) => {
+    dispatch(deleteContactRequest());
+    const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS;
+    try {
+      const response = await DELETE_REQUEST(
+        `${apiURL}/${facilityId}/contact/${contactId}`
+      );
+      dispatch(deleteContactSuccess(response?.data));
+      NotificationsToast({
+        message: response?.message
+          ? response.message
+          : "Contact deleted successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      dispatch(deleteContactFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateContact = (contactId, updatedContactPayload, facilityId) => {
+  return async (dispatch) => {
+    dispatch(updateContactRequest());
+    const apiURL = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${facilityId}/contact/${contactId}`;
+    try {
+      const response = await PUT_REQUEST(apiURL, updatedContactPayload);
+      dispatch(updateContactSuccess(response?.data));
+      NotificationsToast({
+        message: "Contact updated successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      dispatch(updateContactFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getEmailArchiveList = (facilityId) => {
+  return async (dispatch) => {
+    dispatch(getEmailArchiveRequest());
+    const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.SEND_EMAIL;
+    try {
+      const response = await GET_REQUEST(`${apiURL}/${facilityId}`);
+      dispatch(getEmailArchiveSuccess(response?.data));
+      return response;
+    } catch (error) {
+      dispatch(getEmailArchiveFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

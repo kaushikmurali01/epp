@@ -20,6 +20,21 @@ import {
   SEND_EMAIL_REQUEST,
   SEND_EMAIL_SUCCESS,
   SEND_EMAIL_FAILURE,
+  GET_EMAIL_ARCHIVE_REQUEST,
+  GET_EMAIL_ARCHIVE_SUCCESS,
+  GET_EMAIL_ARCHIVE_FAILURE,
+  CREATE_CONTACT_REQUEST,
+  CREATE_CONTACT_SUCCESS,
+  CREATE_CONTACT_FAILURE,
+  GET_CONTACT_REQUEST,
+  GET_CONTACT_SUCCESS,
+  GET_CONTACT_FAILURE,
+  UPDATE_CONTACT_REQUEST,
+  UPDATE_CONTACT_SUCCESS,
+  UPDATE_CONTACT_FAILURE,
+  DELETE_CONTACT_REQUEST,
+  DELETE_CONTACT_SUCCESS,
+  DELETE_CONTACT_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -107,15 +122,84 @@ export const updateIncentiveSettingsFailure = (error) => ({
 });
 
 export const sendEmailRequest = () => ({
-  type: GET_EMAIL_TEMPLATE_REQUEST,
+  type: SEND_EMAIL_REQUEST,
 });
 
 export const sendEmailSuccess = (data) => ({
-  type: GET_EMAIL_TEMPLATE_SUCCESS,
+  type: SEND_EMAIL_SUCCESS,
   payload: data,
 });
 
 export const sendEmailFailure = (error) => ({
-  type: GET_EMAIL_TEMPLATE_FAILURE,
+  type: SEND_EMAIL_FAILURE,
+  payload: error,
+});
+
+export const createContactRequest = () => ({
+  type: CREATE_CONTACT_REQUEST,
+});
+
+export const createContactSuccess = (data) => ({
+  type: CREATE_CONTACT_SUCCESS,
+  payload: data,
+});
+
+export const createContactFailure = (error) => ({
+  type: CREATE_CONTACT_FAILURE,
+  payload: error,
+});
+export const getContactRequest = () => ({
+  type: GET_CONTACT_REQUEST,
+});
+
+export const getContactSuccess = (data) => ({
+  type: GET_CONTACT_SUCCESS,
+  payload: data,
+});
+
+export const getContactFailure = (error) => ({
+  type: GET_CONTACT_FAILURE,
+  payload: error,
+});
+
+export const updateContactRequest = () => ({
+  type: UPDATE_CONTACT_REQUEST,
+});
+
+export const updateContactSuccess = (data) => ({
+  type: UPDATE_CONTACT_SUCCESS,
+  payload: data,
+});
+
+export const updateContactFailure = (error) => ({
+  type: UPDATE_CONTACT_FAILURE,
+  payload: error,
+});
+
+export const deleteContactRequest = () => ({
+  type: DELETE_CONTACT_REQUEST,
+});
+
+export const deleteContactSuccess = (data) => ({
+  type: DELETE_CONTACT_SUCCESS,
+  payload: data,
+});
+
+export const deleteContactFailure = (error) => ({
+  type: DELETE_CONTACT_FAILURE,
+  payload: error,
+});
+
+export const getEmailArchiveRequest = () => ({
+  type: GET_EMAIL_ARCHIVE_REQUEST,
+});
+
+export const getEmailArchiveSuccess = (data) => ({
+  type: GET_EMAIL_ARCHIVE_SUCCESS,
+  payload: data,
+});
+
+export const getEmailArchiveFailure = (error) => ({
+  type: GET_EMAIL_ARCHIVE_FAILURE,
   payload: error,
 });

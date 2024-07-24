@@ -20,6 +20,21 @@ import {
   SEND_EMAIL_REQUEST,
   SEND_EMAIL_SUCCESS,
   SEND_EMAIL_FAILURE,
+  CREATE_CONTACT_REQUEST,
+  CREATE_CONTACT_SUCCESS,
+  CREATE_CONTACT_FAILURE,
+  GET_CONTACT_REQUEST,
+  GET_CONTACT_SUCCESS,
+  GET_CONTACT_FAILURE,
+  UPDATE_CONTACT_REQUEST,
+  UPDATE_CONTACT_SUCCESS,
+  UPDATE_CONTACT_FAILURE,
+  DELETE_CONTACT_REQUEST,
+  DELETE_CONTACT_SUCCESS,
+  DELETE_CONTACT_FAILURE,
+  GET_EMAIL_ARCHIVE_REQUEST,
+  GET_EMAIL_ARCHIVE_SUCCESS,
+  GET_EMAIL_ARCHIVE_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -29,6 +44,10 @@ const initialState = {
   editedEmailTemplate: null,
   incentiveSettings: null,
   emailSent: "",
+  createdContact: null,
+  contactList: [],
+  updatedContact: null,
+  archivedEmailList: [],
   error: null,
 };
 
@@ -116,7 +135,66 @@ const adminPerformanceReducer = (state = initialState, action) => {
       };
     case SEND_EMAIL_FAILURE:
       return { ...state, loading: false, error: action.payload };
-    
+
+    case CREATE_CONTACT_REQUEST:
+      return { ...state, loading: true };
+    case CREATE_CONTACT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createdContact: action.payload,
+        error: null,
+      };
+    case CREATE_CONTACT_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+
+    case GET_CONTACT_REQUEST:
+      return { ...state, loading: true };
+    case GET_CONTACT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        contactList: action.payload,
+        error: null,
+      };
+    case GET_CONTACT_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+
+    case UPDATE_CONTACT_REQUEST:
+      return { ...state, loading: true };
+    case UPDATE_CONTACT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        updatedContact: action.payload,
+        error: null,
+      };
+    case UPDATE_CONTACT_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+
+    case DELETE_CONTACT_REQUEST:
+      return { ...state, loading: true };
+    case DELETE_CONTACT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_CONTACT_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+
+    case GET_EMAIL_ARCHIVE_REQUEST:
+      return { ...state, loading: true };
+    case GET_EMAIL_ARCHIVE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        archivedEmailList: action.payload,
+        error: null,
+      };
+    case GET_EMAIL_ARCHIVE_FAILURE:
+      return { ...state, loading: false, error: action.payload };
+
     default:
       return state;
   }

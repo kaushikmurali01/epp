@@ -446,3 +446,38 @@ export const validationSchemaDocument = Yup.object().shape({
   document_name: Yup.string().required("Document name is required"),
   document_desc: Yup.string().nullable(),
 });
+
+export const addContactValidationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+
+  company_name: Yup.string().required("Company name is required"),
+
+  email: Yup.string()
+    .required("Email is required")
+    .email("Invalid email format"),
+
+  role: Yup.string()
+    .required("Role is required")
+    .max(50, "Role must be at most 50 characters"),
+
+  phone: Yup.string()
+    .required("Phone is required")
+    .matches(/^[0-9+\-\s()]*$/, "Invalid phone number format")
+    .max(10, "Phone number must be at most 10 characters"),
+
+  unit_number: Yup.string().optional(),
+
+  street_number: Yup.string().required("Street number is required"),
+
+  street_name: Yup.string().required("Street name is required"),
+
+  city: Yup.string().required("City is required"),
+
+  province: Yup.string().required("Province is required"),
+
+  country: Yup.string().required("Country is required"),
+
+  postal_code: Yup.string()
+    .required("Postal code is required")
+    .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
+});
