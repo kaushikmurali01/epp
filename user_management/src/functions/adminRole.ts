@@ -34,9 +34,10 @@ export async function AddRolePermission(request: HttpRequest, context: Invocatio
         });
 
         // Associate the role with permissions
-        const permissionRecords = requestData.permissions.map(permissionId => ({
+        const permissionRecords = requestData.permissions.map(permission => ({
             role_id: role.id,
-            permission_id: permissionId,
+            permission_id: permission.id,
+            is_default: permission.is_default,
             created_by: resp.id,
             updated_by: resp.id
         }));
@@ -83,9 +84,10 @@ export async function EditRolePermission(request: HttpRequest, context: Invocati
             });
 
             // Associate the role with new permissions
-            const permissionRecords = requestData.permissions.map(permissionId => ({
+            const permissionRecords = requestData.permissions.map(permission => ({
                 role_id: role.id,
-                permission_id: permissionId,
+                permission_id: permission.id,
+                is_default: permission.is_default,
                 created_by: resp.id,
                 updated_by: resp.id
             }));
@@ -222,7 +224,9 @@ export async function GetRolePermission(request: HttpRequest, context: Invocatio
         // console.log("permissionsData",permissionsData);
 
         // Extract permission IDs
-        const permissionIds = rolePermissions.map(rolePermission => rolePermission.Permission.id);
+        //const permissionIds = rolePermissions.map(rolePermission => rolePermission.Permission.id);
+
+        const permissionIds = rolePermissions.map(rolePermission => ({ id: rolePermission.Permission.id, is_default: rolePermission.is_default }));
 
         // Prepare the response data
         const responseData = {
