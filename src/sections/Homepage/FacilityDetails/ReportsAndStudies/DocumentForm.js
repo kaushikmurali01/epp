@@ -14,14 +14,14 @@ import {
   fetchFacilityDocumentListing,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import TextAreaField from "components/FormBuilder/TextAreaField";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const documentFileInputRef = useRef(null);
   const [documentImgUrl, setDocumentImgUrl] = useState("");
-  const [documentSelectedFile, setDocumentSelectedFile] = useState("");
-
+  const [documentSelectedFile, setDocumentSelectedFile] = useState(null);
   const [initialValues, setInitialValues] = useState({
     document_name: "",
     document_desc: "",
@@ -29,7 +29,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
 
   const handleDocumentFileChange = (event) => {
     const selectedFile = event.target.files[0];
-    setDocumentSelectedFile(URL.createObjectURL(selectedFile));
+    setDocumentSelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setDocumentImgUrl(data?.sasTokenUrl);
@@ -44,7 +44,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   };
 
   const deleteDocumentPicture = () => {
-    setDocumentSelectedFile("");
+    setDocumentSelectedFile(null);
     setDocumentImgUrl("");
   };
 
@@ -91,11 +91,68 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
           <Form>
             <Grid container rowGap={4}>
               <Grid container spacing={4}>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12}>
                   <InputLabel style={{ whiteSpace: "initial" }}>
                     Select file
                   </InputLabel>
-                  {!documentSelectedFile ? (
+                  {documentSelectedFile ? (
+                    <div style={{ display: "flex" }}>
+                      <Typography
+                        sx={{
+                          fontSize: "2rem",
+                          marginTop: "1.7rem",
+                          cursor: "pointer",
+                          color: "#2E813E",
+                          wordBreak: "break-word",
+                          overflowWrap: "break-word",
+                          maxWidth: "100%",
+                        }}
+                        variant="h5"
+                        onClick={() =>
+                          downloadFileFromUrl(
+                            documentSelectedFile,
+                            documentSelectedFile.name ||
+                              `${values?.document_name}_document`
+                          )
+                        }
+                      >
+                        {documentSelectedFile.name ||
+                          `${values?.document_name}_document`}
+                      </Typography>
+                      <div style={{ marginLeft: "20px" }}>
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#2C77E9",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                            cursor: "pointer",
+                          }}
+                          onClick={handleDocumentButtonClick}
+                        >
+                          Change File
+                        </Typography>
+                        <input
+                          type="file"
+                          ref={documentFileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleDocumentFileChange}
+                        />
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#FF5858",
+                            fontWeight: "500",
+                            fontSize: "16px !important",
+                            cursor: "pointer",
+                          }}
+                          onClick={deleteDocumentPicture}
+                        >
+                          Delete File
+                        </Typography>
+                      </div>
+                    </div>
+                  ) : (
                     <>
                       <Typography
                         my={1}
@@ -122,54 +179,6 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
                         onChange={handleDocumentFileChange}
                       />
                     </>
-                  ) : (
-                    <div style={{ display: "flex" }}>
-                      <Link
-                        target="_blank"
-                        href={documentSelectedFile}
-                        sx={{
-                          textDecoration: "none",
-                          fontSize: "1.2rem",
-                          marginTop: "1.7rem",
-                        }}
-                        variant="h5"
-                      >
-                        Uploaded document
-                      </Link>
-                      <div style={{ marginLeft: "20px" }}>
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#2C77E9",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleDocumentButtonClick}
-                        >
-                          Change File
-                        </Typography>
-                        <input
-                          type="file"
-                          ref={documentFileInputRef}
-                          style={{ display: "none" }}
-                          onChange={handleDocumentFileChange}
-                          accept={".pdf"}
-                        />
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#FF5858",
-                            fontWeight: "500",
-                            fontSize: "16px !important",
-                            cursor: "pointer",
-                          }}
-                          onClick={deleteDocumentPicture}
-                        >
-                          Delete File
-                        </Typography>
-                      </div>
-                    </div>
                   )}
                 </Grid>
               </Grid>

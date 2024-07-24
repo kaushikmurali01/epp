@@ -46,8 +46,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const dispatch = useDispatch();
   const utilityFileInputRef = useRef(null);
   const specFileInputRef = useRef(null);
-  const [utilitySelectedFile, setUtilitySelectedFile] = useState();
-  const [specSelectedFile, setSpecSelectedFile] = useState();
+  const [utilitySelectedFile, setUtilitySelectedFile] = useState(null);
+  const [specSelectedFile, setSpecSelectedFile] = useState(null);
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState(false);
   const [utilityUrlError, setUtilityUrlError] = useState(false);
@@ -114,7 +114,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       return;
     }
 
-    setUtilitySelectedFile(URL.createObjectURL(selectedFile));
+    setUtilitySelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setUtilityImgUrl(data?.sasTokenUrl);
@@ -146,7 +146,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       event.target.value = "";
       return;
     }
-    setSpecSelectedFile(URL.createObjectURL(selectedFile));
+    setSpecSelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setSpecImgUrl(data?.sasTokenUrl);
@@ -206,7 +206,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           onAddMeterSuccess();
           window.scrollTo({
             top: 0,
-            behavior: 'smooth' // for smooth scrolling
+            behavior: "smooth", // for smooth scrolling
           });
         })
         .catch((error) => {
@@ -218,7 +218,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
           onAddMeterSuccess();
           window.scrollTo({
             top: 0,
-            behavior: 'smooth' // for smooth scrolling
+            behavior: "smooth", // for smooth scrolling
           });
         })
         .catch((error) => {
@@ -279,7 +279,9 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
             <Grid container rowGap={4} sx={{ marginTop: "2rem" }}>
               <Grid container spacing={4}>
                 <Grid item>
-                  <InputLabel htmlFor="meter_type">Meter Type<span className="asterisk">*</span></InputLabel>
+                  <InputLabel htmlFor="meter_type">
+                    Meter Type<span className="asterisk">*</span>
+                  </InputLabel>
                   <Field name="meter_type">
                     {({ field, form }) => (
                       <ToggleButtonGroup
@@ -489,7 +491,8 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4}>
                   <InputLabel htmlFor="is_rg_meter">
-                    Is this a revenue-grade meter?<span className="asterisk">*</span>
+                    Is this a revenue-grade meter?
+                    <span className="asterisk">*</span>
                   </InputLabel>
                   <FormControl>
                     <Field name="is_rg_meter">
@@ -522,7 +525,10 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
               </Grid>
               <Grid container spacing={4}>
                 <Grid item xs={12} sm={4} sx={{ marginTop: "10px" }}>
-                  <InputLabel>Upload the most recent utility bill<span className="asterisk">*</span></InputLabel>
+                  <InputLabel>
+                    Upload the most recent utility bill
+                    <span className="asterisk">*</span>
+                  </InputLabel>
                   {!utilitySelectedFile ? (
                     <>
                       <Typography
@@ -559,17 +565,28 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                           marginTop: "1.7rem",
                           cursor: "pointer",
                           color: "#2E813E",
+                          wordBreak: "break-all",
+                          overflowWrap: "break-word",
+                          maxWidth: "100%",
+                          whiteSpace: "normal",
+                          hyphens: "auto",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
                         }}
                         variant="h5"
                         onClick={() =>
                           downloadFileFromUrl(
                             utilitySelectedFile,
-                            `${values?.meter_name}_utility_bill`
+                            utilitySelectedFile.name ||
+                              `${values?.meter_name}_utility_bill`
                           )
                         }
                       >
-                        {/* Uploaded utility bill */}
-                        utility_bill.pdf
+                        {utilitySelectedFile.name ||
+                          `${values?.meter_name}_utility_bill`}
                       </Typography>
                       <div style={{ marginLeft: "20px" }}>
                         <Typography
@@ -579,6 +596,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                             cursor: "pointer",
+                            textWrap: "nowrap",
                           }}
                           onClick={handleUtilityButtonClick}
                         >
@@ -598,6 +616,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                             cursor: "pointer",
+                            textWrap: "nowrap",
                           }}
                           onClick={deleteUtilityPicture}
                         >
@@ -658,17 +677,28 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             marginTop: "1.7rem",
                             cursor: "pointer",
                             color: "#2E813E",
+                            wordBreak: "break-all",
+                            overflowWrap: "break-word",
+                            maxWidth: "100%",
+                            whiteSpace: "normal",
+                            hyphens: "auto",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
                           }}
                           variant="h5"
                           onClick={() =>
                             downloadFileFromUrl(
                               specSelectedFile,
-                              `${values?.meter_name}_meter_specification`
+                              specSelectedFile.name ||
+                                `${values?.meter_name}_meter_specification`
                             )
                           }
                         >
-                          {/* Uploaded meter specification */}
-                          meter_specification.pdf
+                          {specSelectedFile.name ||
+                            `${values?.meter_name}_meter_specification`}
                         </Typography>
                         <div style={{ marginLeft: "20px" }}>
                           <Typography
@@ -678,6 +708,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                               fontWeight: "500",
                               fontSize: "16px !important",
                               cursor: "pointer",
+                              textWrap: "nowrap",
                             }}
                             onClick={handleSpecButtonClick}
                           >
@@ -697,6 +728,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                               fontWeight: "500",
                               fontSize: "16px !important",
                               cursor: "pointer",
+                              textWrap: "nowrap",
                             }}
                             onClick={deleteSpecPicture}
                           >
