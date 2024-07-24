@@ -1,11 +1,15 @@
+from threading import Thread
+
 from flask import Flask, jsonify, request
 import json
 import pandas as pd
 import numpy as np
 
+from add_file_data_to_table import AddMeterData
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
+from data_exploration_v2 import DataExplorationSummaryV2
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from summarize_data import summarize_data
@@ -682,17 +686,38 @@ def get_outlier_settings():
     op.process()
 
     information = op.data_exploration_response
-    settings = [{record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR} for record
-                in information]
+    settings = [
+        {record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR}
+        for record
+        in information]
     response = {"settings": settings, 'info': information}
     return response
 
 
-@app.route('/summary_visualisation')
+@app.route('/summary_visualisation', methods=['GET'])
 def visualise_data_exploration_summary():
     facility_id = request.args.get('facility_id', None)
     visualisation = DataExplorationVisualisation(facility_id)
     return visualisation.fetch_data()
+
+
+@app.route('/add-meter-data', methods=['POST'])
+def add_meter_data():
+    facility_id = request.json.get('facility_id', None)
+    amd = AddMeterData()
+    thread = Thread(target=amd.process)
+    thread.start()
+    return {'status': 'Processing started'}, 202
+
+
+@app.route("/data-exploration-summary-v2", methods=['GET'])
+def get_data_exploration_summary_v2():
+    facility_id = request.args.get('facility_id', None)
+    summary_type = request.args.get('summary_type', 'observe_data')
+    if not facility_id:
+        return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    des = DataExplorationSummaryV2(facility_id, summary_type)
+    return des.process()
 
 
 if __name__ == '__main__':

@@ -6,26 +6,26 @@ import config
 
 
 def dbtest(query):
-        params = {
-            'database': config.db_creds[0],
-            'user': config.db_creds[1],
-            'password': config.db_creds[2],
-            'host': config.ssh_bind_address,
-            'port': config.port
-        }
+    params = {
+        'database': config.db_creds[0],
+        'user': config.db_creds[1],
+        'password': config.db_creds[2],
+        'host': config.ssh_bind_address,
+        'port': config.port
+    }
 
-        conn = psycopg2.connect(**params)
-        curs = conn.cursor()
-        # print("database connected")
-        curs.execute(query)
-        rows = curs.fetchall()
-        # Fetch all rows from the result set
-        colnames = [desc[0] for desc in curs.description]
+    conn = psycopg2.connect(**params)
+    curs = conn.cursor()
+    # print("database connected")
+    curs.execute(query)
+    rows = curs.fetchall()
+    # Fetch all rows from the result set
+    colnames = [desc[0] for desc in curs.description]
 
-        # Create DataFrame from rows
-        df = pd.DataFrame(rows, columns=colnames)
+    # Create DataFrame from rows
+    df = pd.DataFrame(rows, columns=colnames)
 
-        return df
+    return df
 
 
 def db_execute(query, values):
@@ -103,3 +103,46 @@ def fetch_additional_stations_data(target_latitude, target_longitude):
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df
+
+# ToDO Need to improve this function to insert data into table using hourly entry file
+# def bulk_insert_df(df, table_name):
+#     # Generate the column names and the values placeholders
+#     cols = ','.join(list(df.columns))
+#     vals_placeholder = ','.join(['%s' for _ in df.columns])
+#
+#     # Generate the SQL query
+#     query = f"INSERT INTO {table_name} ({cols}) VALUES ({vals_placeholder})"
+#
+#     # Convert DataFrame to list of tuples using itertuples, excluding the index
+#     tuples = list(df.itertuples(index=False, name=None))
+#
+#     # Define the db_execute function
+#     def db_execute(query, values):
+#         with SSHTunnelForwarder(
+#                 (config.ssh_ip, 22),
+#                 ssh_private_key=config.private_key_path,
+#                 ssh_username=config.ssh_user,
+#                 remote_bind_address=(config.ssh_bind_address, 5432)
+#         ) as server:
+#             server.start()
+#             # print("server connected")
+#
+#             params = {
+#                 'database': config.db_creds[0],
+#                 'user': config.db_creds[1],
+#                 'password': config.db_creds[2],
+#                 'host': config.db_creds[3],
+#                 'port': server.local_bind_port
+#             }
+#
+#             conn = psycopg2.connect(**params)
+#             curs = conn.cursor()
+#             # print("database connected")
+#
+#             psycopg2.extras.execute_batch(curs, query, values)
+#             conn.commit()
+#             curs.close()
+#             conn.close()
+#
+#     # Execute the bulk insert
+#     db_execute(query, tuples)
