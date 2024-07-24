@@ -17,6 +17,7 @@ import {
   IconButton,
   FormControlLabel,
   Checkbox,
+  Link,
 } from "@mui/material";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import Table from "components/Table";
@@ -635,20 +636,22 @@ const AdminEntriesListing = ({
             padding: "5px 0 0 20px",
           }}
         >
-          <Typography
+          <Link
+            underline="hover"   
             variant="small"
             sx={{ color: "blue.main", cursor: "pointer" }}
             onClick={() => handleAddButtonClick(facilityMeterDetailId)}
           >
             Edit
-          </Typography>
-          <Typography
+          </Link>
+          <Link
+            underline="hover"   
             variant="small"
             sx={{ color: "danger.main", cursor: "pointer", marginLeft: "20px" }}
             onClick={() => openDeleteMeterModal()}
           >
             Delete
-          </Typography>
+          </Link>
         </Box>
       </Box>
 
@@ -717,13 +720,13 @@ const AdminEntriesListing = ({
           <Typography variant="small2" gutterBottom>
             You can upload a Green Button XML file or an Excel-compatible file.
             Use this{" "}
-            <Typography
-              variant="span2"
+            <Link
+              underline="hover"
               color="#2C77E9"
               sx={{ cursor: "pointer" }}
             >
               single meter spreadsheet
-            </Typography>{" "}
+            </Link>{" "}
             to upload the Excel file.
           </Typography>
           <Typography
