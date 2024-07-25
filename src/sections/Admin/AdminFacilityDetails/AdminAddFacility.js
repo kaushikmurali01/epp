@@ -27,6 +27,9 @@ import SliderWrapper from "components/FormBuilder/Slider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Loader from "pages/Loader";
 
+let OpenLocationCode = require("open-location-code").OpenLocationCode;
+let openLocationCode = new OpenLocationCode();
+
 const marksForEnergyTarget = [
     {
         value: 5,
@@ -61,186 +64,188 @@ const AdminAddFacilityComponent = (props) => {
         postal_code: "",
     });
 
-    const buildingFacilitystr =
-        "Is . the building/facility in the tariff class GS > 50KW?*";
+    
 
-    const FacilityConstructionStatusArray = [
-        {
-            id: 1,
-            name: "Existing Building",
-            label: "Existing Building",
-            value: "Existing Building"
-        },
-    ];
+    // const buildingFacilitystr =
+    //     "Is . the building/facility in the tariff class GS > 50KW?*";
 
-    const FacilityTypeArray = [
-        {
-            id: 1,
-            name: "Multi-Residential - Apartment",
-            label: "Multi-Residential - Apartment",
-            value: "Multi-Residential - Apartment",
-        },
-        {
-            id: 2,
-            name: "Multi-Residential – Condominium",
-            label: "Multi-Residential – Condominium",
-            value: "Multi-Residential – Condominium",
-        },
-        {
-            id: 1,
-            name: "Multi-Residential – Other",
-            label: "Multi-Residential – Other",
-            value: "Multi-Residential – Other",
-        },
-        {
-            id: 2,
-            name: "Commercial – Food Retail/Grocery",
-            label: "Commercial – Food Retail/Grocery",
-            value: "Commercial – Food Retail/Grocery",
-        },
-        {
-            id: 1,
-            name: "Commercial – Non-Food Retail",
-            label: "Commercial – Non-Food Retail",
-            value: "Commercial – Non-Food Retail",
-        },
-        {
-            id: 2,
-            name: "Commercial – Office",
-            label: "Commercial – Office",
-            value: "Commercial – Office",
-        },
-        {
-            id: 1,
-            name: "Commercial - Hotel",
-            label: "Commercial - Hotel",
-            value: "Commercial - Hotel",
-        },
-        {
-            id: 2,
-            name: "Commercial – Accommodation",
-            label: "Commercial – Accommodation",
-            value: "Commercial – Accommodation",
-        },
-        {
-            id: 1,
-            name: "Commercial – Hospitality",
-            label: "Commercial – Hospitality",
-            value: "Commercial – Hospitality",
-        },
-        {
-            id: 2,
-            name: "Commercial – Entertainment",
-            label: "Commercial – Entertainment",
-            value: "Commercial – Entertainment",
-        },
-        {
-            id: 2,
-            name: "Commercial – Long Term Care",
-            label: "Commercial – Long Term Care",
-            value: "Commercial – Long Term Care",
-        },
-        {
-            id: 2,
-            name: "Commercial – Other",
-            label: "Commercial – Other",
-            value: "Commercial – Other",
-        },
-        {
-            id: 2,
-            name: "Institutional – School",
-            label: "Institutional – School",
-            value: "Institutional – School",
-        },
-        {
-            id: 2,
-            name: "Institutional – University",
-            label: "Institutional – University",
-            value: "Institutional – University",
-        },
-        {
-            id: 2,
-            name: "Institutional – Hospital",
-            label: "Institutional – Hospital",
-            value: "Institutional – Hospital",
-        },
-        {
-            id: 2,
-            name: "Institutional – Municipal Office/Library",
-            label: "Institutional – Municipal Office/Library",
-            value: "Institutional – Municipal Office/Library",
-        },
-        {
-            id: 2,
-            name: "Institutional – Recreational/Community Centre",
-            label: "Institutional – Recreational/Community Centre",
-            value: "Institutional – Recreational/Community Centre",
-        },
-        {
-            id: 2,
-            name: "Institutional - Other",
-            label: "Institutional - Other",
-            value: "Institutional - Other",
-        },
-        {
-            id: 2,
-            name: "Industrial – Manufacturing/Assembly",
-            label: "Industrial – Manufacturing/Assembly",
-            value: "Industrial – Manufacturing/Assembly",
-        },
-        {
-            id: 2,
-            name: "Industrial - Chemical Processing",
-            label: "Industrial - Chemical Processing",
-            value: "Industrial - Chemical Processing",
-        },
-        {
-            id: 2,
-            name: "Industrial – Forestry",
-            label: "Industrial – Forestry",
-            value: "Industrial – Forestry",
-        },
-        {
-            id: 2,
-            name: "Industrial – Raw Material Refining",
-            label: "Industrial – Raw Material Refining",
-            value: "Industrial – Raw Material Refining",
-        },
-        {
-            id: 2,
-            name: "Industrial – Mining",
-            label: "Industrial – Mining",
-            value: "Industrial – Mining",
-        },
-        {
-            id: 2,
-            name: "Industrial - Other",
-            label: "Industrial - Other",
-            value: "Industrial - Other",
-        },
-    ];
+    // const FacilityConstructionStatusArray = [
+    //     {
+    //         id: 1,
+    //         name: "Existing Building",
+    //         label: "Existing Building",
+    //         value: "Existing Building"
+    //     },
+    // ];
 
-    const FacilityCategoryArray = [
-        { id: 1, name: "Commercial", label: "Commercial", value: "Commercial" },
-        {
-            id: 2,
-            name: "Institutional",
-            label: "Institutional",
-            value: "Institutional",
-        },
-        {
-            id: 3,
-            name: "Multi-Family",
-            label: "Multi-Family",
-            value: "Multi-Family",
-        },
-        { id: 4, name: "Industrial", label: "Industrial", value: "Industrial" },
-    ];
+    // const FacilityTypeArray = [
+    //     {
+    //         id: 1,
+    //         name: "Multi-Residential - Apartment",
+    //         label: "Multi-Residential - Apartment",
+    //         value: "Multi-Residential - Apartment",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Multi-Residential – Condominium",
+    //         label: "Multi-Residential – Condominium",
+    //         value: "Multi-Residential – Condominium",
+    //     },
+    //     {
+    //         id: 1,
+    //         name: "Multi-Residential – Other",
+    //         label: "Multi-Residential – Other",
+    //         value: "Multi-Residential – Other",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Food Retail/Grocery",
+    //         label: "Commercial – Food Retail/Grocery",
+    //         value: "Commercial – Food Retail/Grocery",
+    //     },
+    //     {
+    //         id: 1,
+    //         name: "Commercial – Non-Food Retail",
+    //         label: "Commercial – Non-Food Retail",
+    //         value: "Commercial – Non-Food Retail",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Office",
+    //         label: "Commercial – Office",
+    //         value: "Commercial – Office",
+    //     },
+    //     {
+    //         id: 1,
+    //         name: "Commercial - Hotel",
+    //         label: "Commercial - Hotel",
+    //         value: "Commercial - Hotel",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Accommodation",
+    //         label: "Commercial – Accommodation",
+    //         value: "Commercial – Accommodation",
+    //     },
+    //     {
+    //         id: 1,
+    //         name: "Commercial – Hospitality",
+    //         label: "Commercial – Hospitality",
+    //         value: "Commercial – Hospitality",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Entertainment",
+    //         label: "Commercial – Entertainment",
+    //         value: "Commercial – Entertainment",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Long Term Care",
+    //         label: "Commercial – Long Term Care",
+    //         value: "Commercial – Long Term Care",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Commercial – Other",
+    //         label: "Commercial – Other",
+    //         value: "Commercial – Other",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional – School",
+    //         label: "Institutional – School",
+    //         value: "Institutional – School",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional – University",
+    //         label: "Institutional – University",
+    //         value: "Institutional – University",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional – Hospital",
+    //         label: "Institutional – Hospital",
+    //         value: "Institutional – Hospital",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional – Municipal Office/Library",
+    //         label: "Institutional – Municipal Office/Library",
+    //         value: "Institutional – Municipal Office/Library",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional – Recreational/Community Centre",
+    //         label: "Institutional – Recreational/Community Centre",
+    //         value: "Institutional – Recreational/Community Centre",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Institutional - Other",
+    //         label: "Institutional - Other",
+    //         value: "Institutional - Other",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial – Manufacturing/Assembly",
+    //         label: "Industrial – Manufacturing/Assembly",
+    //         value: "Industrial – Manufacturing/Assembly",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial - Chemical Processing",
+    //         label: "Industrial - Chemical Processing",
+    //         value: "Industrial - Chemical Processing",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial – Forestry",
+    //         label: "Industrial – Forestry",
+    //         value: "Industrial – Forestry",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial – Raw Material Refining",
+    //         label: "Industrial – Raw Material Refining",
+    //         value: "Industrial – Raw Material Refining",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial – Mining",
+    //         label: "Industrial – Mining",
+    //         value: "Industrial – Mining",
+    //     },
+    //     {
+    //         id: 2,
+    //         name: "Industrial - Other",
+    //         label: "Industrial - Other",
+    //         value: "Industrial - Other",
+    //     },
+    // ];
 
-    const FacilityEnergySavingArray = [
-        { id: 1, name: "Saving 1", label: "Saving 1", value: "Saving 1" },
-        { id: 2, name: "Saving 2", label: "Saving 2", value: "Saving 2" },
-    ];
+    // const FacilityCategoryArray = [
+    //     { id: 1, name: "Commercial", label: "Commercial", value: "Commercial" },
+    //     {
+    //         id: 2,
+    //         name: "Institutional",
+    //         label: "Institutional",
+    //         value: "Institutional",
+    //     },
+    //     {
+    //         id: 3,
+    //         name: "Multi-Family",
+    //         label: "Multi-Family",
+    //         value: "Multi-Family",
+    //     },
+    //     { id: 4, name: "Industrial", label: "Industrial", value: "Industrial" },
+    // ];
+
+    // const FacilityEnergySavingArray = [
+    //     { id: 1, name: "Saving 1", label: "Saving 1", value: "Saving 1" },
+    //     { id: 2, name: "Saving 2", label: "Saving 2", value: "Saving 2" },
+    // ];
 
     const fileInputRef = useRef(null);
     const [selectedFile, setSelectedFile] = useState();
@@ -389,18 +394,45 @@ const AdminAddFacilityComponent = (props) => {
 
     const handleSubmit = (values) => {
         delete values.facility_id_submission_status;
-        const newValues = { ...values, display_pic_url: imgUrl };
+
+        const query =
+        values?.unit_number +
+        ", " +
+        values?.street_number +
+        " " +
+        values?.street_name +
+        ", " +
+        values?.city +
+        ", " +
+        values?.province +
+        " " +
+        values?.postal_code +
+        ", " +
+        values?.country;
+      const api_key = process.env.REACT_APP_AZURE_MAPS_SECRET_KEY;
+      const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`;
+
+      GET_REQUEST(apiURL).then((response) => {
+        const code = openLocationCode.encode(
+          parseFloat(response?.data?.results[0]?.position?.lat),
+          parseFloat(response?.data?.results[0]?.position?.lon)
+        );
+
+        const newValues = { 
+            ...values, 
+            display_pic_url: imgUrl,
+            facility_ubi: code,
+            latitude: parseFloat(response?.data?.results[0]?.position?.lat),
+            longitude: parseFloat(response?.data?.results[0]?.position?.lon),
+        };
+        
         if (newValues.facility_construction_status == "Existing Building") {
             newValues.facility_construction_status = 1;
         }
-        //  else if (values.facility_construction_status == "New") {
-        //     values.facility_construction_status = 2;
-        // } else if (values.facility_construction_status == "Test Facility") {
-        //     values.facility_construction_status = 3;
-        // }
 
-        // const apiURL = role == 'admin' ? facilityEndPoints.ADMIN_ADD_EDIT_FACILITY : facilityEndPoints.ADD_EDIT_FACILITY
-
+        console.log(newValues, "check New values");
+        // return;
+       
         if (!id) {
             setLoadingState(true);
             POST_REQUEST(adminFacilityEndpoints.ADMIN_ADD_EDIT_FACILITY, newValues)
@@ -464,6 +496,10 @@ const AdminAddFacilityComponent = (props) => {
                     });
                 });
         }
+
+        }).catch(error => console.log(error));
+
+        
     };
 
     const deletePicture = () => {
@@ -915,3 +951,4 @@ const mapDispatchToProps = (dispatch) => ({
 });
 
 export default connect(null, mapDispatchToProps)(AdminAddFacilityComponent);
+
