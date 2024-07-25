@@ -677,7 +677,8 @@ export async function AddResourceFacilityPermission(request: HttpRequest, contex
     try {
         // Extract emails from request
         const requestData: any = await request.json()
-        let emails = requestData.email.split(",")
+        //let emails = requestData.email.split(",")
+        let emails = requestData.email.split(",").map(email => email.trim());
         let facilityId = requestData.facilityId
         let company_id = requestData.companyId
         for (let i = 0; i < emails.length; i++) {
