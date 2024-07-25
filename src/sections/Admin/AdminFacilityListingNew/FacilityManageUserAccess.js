@@ -370,7 +370,7 @@ const handelDelete = (item, setModalConfig) => {
   }
 
   const getUserListByCompanyId = () => {
-    const apiURL = adminFacilityEndpoints.GET_USER_LIST_BY_COMPANY_ID+"/"+companyID
+    const apiURL = adminFacilityEndpoints.GET_USER_LIST_BY_COMPANY_ID+"/"+companyID+"/"+facilityId
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserList(res.data.data)
@@ -381,7 +381,7 @@ const handelDelete = (item, setModalConfig) => {
 
   useEffect(()=> {
     getUserListByCompanyId()
-  }, [])
+  }, [refreshTableData])
 
 
   const debouncedSearch = debounce((pageInfo, facility_id, search, sort_Column, sort_Order) => {

@@ -15,15 +15,23 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTabl
     const dispatch = useDispatch();
     const [dropdownConfig, setDropdownConfig] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState(userList.filter(user => user.isassign));
-    const selectedUsersPreAssigned = userList.filter(user => user.isassign)
+    const [initialSelectedUsers, setInitialSelectedUsers] = useState(userList.filter(user => user.isassign));
+    const [hasNewSelection, setHasNewSelection] = useState(false);
+    const selectedUsersPreAssigned = userList.filter(user => user.isassign);
     const dropdownRef = useRef(null);
 
     const handleCheckboxChange = (event, user) => {
+        let updatedSelectedUsers;
         if (event.target.checked) {
-            setSelectedUsers(prevSelectedUsers => [...prevSelectedUsers, user]);
+            updatedSelectedUsers = [...selectedUsers, user];
         } else {
-            setSelectedUsers(prevSelectedUsers => prevSelectedUsers.filter(selectedUser => selectedUser.id !== user.id));
+            updatedSelectedUsers = selectedUsers.filter(selectedUser => selectedUser.id !== user.id);
         }
+        setSelectedUsers(updatedSelectedUsers);
+
+        // Check if the current selected users are different from the initial selected users
+        const hasChanged = JSON.stringify(updatedSelectedUsers.map(user => user.id).sort()) !== JSON.stringify(initialSelectedUsers.map(user => user.id).sort());
+        setHasNewSelection(hasChanged);
     };
 
     const isUserSelected = (user) => {
@@ -39,7 +47,6 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTabl
             facility_id: facilityId 
         };
 
-        // return;
         POST_REQUEST(apiURL, requestBody)
             .then((response) => {
                 setModalConfig((prevState) => ({
@@ -68,7 +75,7 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTabl
         };
     }, [dropdownRef]);
 
-    console.log(selectedUsersPreAssigned, userList, "check user list")
+    console.log(selectedUsersPreAssigned, userList, "check user list");
 
     return (
         <form onSubmit={formSubmit}>
@@ -83,7 +90,7 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTabl
                     <Typography variant="body" sx={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {selectedUsers && selectedUsers.length > 0 ? selectedUsers.map((user) => {
                             return (
-                                <Typography key={user.id} variant="body" sx={{ border: '1px solid #2E813E', borderRadius: '5px', color: '#555', padding: '0.5rem' }}>{user.first_name+ " "+user.last_name}</Typography>
+                                <Typography key={user.id} variant="body" sx={{ border: '1px solid #2E813E', borderRadius: '5px', color: '#555', padding: '0.5rem' }}>{user.first_name + " " + user.last_name}</Typography>
                             );
                         })
                             :
@@ -116,7 +123,7 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTabl
                 }
             </Stack>
             <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
-                <Button type="submit" variant="contained">Submit</Button>
+                <Button type="submit" variant="contained" disabled={!hasNewSelection}>Submit</Button>
             </Grid>
         </form>
     );
