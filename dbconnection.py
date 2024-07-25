@@ -6,26 +6,36 @@ import config
 
 
 def dbtest(query):
-    params = {
-        'database': config.db_creds[0],
-        'user': config.db_creds[1],
-        'password': config.db_creds[2],
-        'host': config.ssh_bind_address,
-        'port': config.port
-    }
+    with SSHTunnelForwarder(
+            (config.ssh_ip, 22),
+            ssh_private_key=config.private_key_path,
+            ### in my case, I used a password instead of a private key
+            ssh_username=config.ssh_user,
+            # ssh_password="<mypasswd>",
+            remote_bind_address=(config.ssh_bind_address, 5432)) as server:
+        server.start()
+        # print("server connected")
 
-    conn = psycopg2.connect(**params)
-    curs = conn.cursor()
-    # print("database connected")
-    curs.execute(query)
-    rows = curs.fetchall()
-    # Fetch all rows from the result set
-    colnames = [desc[0] for desc in curs.description]
+        params = {
+            'database': config.db_creds[0],
+            'user': config.db_creds[1],
+            'password': config.db_creds[2],
+            'host': config.db_creds[3],
+            'port': server.local_bind_port
+        }
 
-    # Create DataFrame from rows
-    df = pd.DataFrame(rows, columns=colnames)
+        conn = psycopg2.connect(**params)
+        curs = conn.cursor()
+        # print("database connected")
+        curs.execute(query)
+        rows = curs.fetchall()
+        # Fetch all rows from the result set
+        colnames = [desc[0] for desc in curs.description]
 
-    return df
+        # Create DataFrame from rows
+        df = pd.DataFrame(rows, columns=colnames)
+
+        return df
 
 
 def db_execute(query, values):
@@ -103,6 +113,7 @@ def fetch_additional_stations_data(target_latitude, target_longitude):
     df = pd.read_sql_query(query, conn)
     conn.close()
     return df
+
 
 # ToDO Need to improve this function to insert data into table using hourly entry file
 # def bulk_insert_df(df, table_name):
