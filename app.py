@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import numpy as np
 
-from constants import IV_FACTOR, METER_FACTOR
+from constants import IV_FACTOR, METER_FACTOR, SUFFICIENCY_DATA
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
@@ -180,6 +180,7 @@ def check_issues():
 
 @app.route('/check_sufficiency', methods=['POST'])
 def check_sufficiency():
+    return SUFFICIENCY_DATA
     # Fetch the DataFrame from the database
     df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
                           hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
