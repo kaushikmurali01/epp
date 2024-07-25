@@ -103,7 +103,7 @@ export default function FacilityTimeline() {
     },
     {
       step: 5,
-      label: "Program Start",
+      label: "Facility Enrolled",
     },
   ];
 

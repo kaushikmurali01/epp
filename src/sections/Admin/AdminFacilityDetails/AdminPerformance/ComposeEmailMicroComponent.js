@@ -1,8 +1,8 @@
 import { ButtonGroup, Container, FormLabel, Grid, Typography } from '@mui/material';
 import InputField from 'components/FormBuilder/InputField';
 import SelectBox from 'components/FormBuilder/Select';
-import { Formik, Form } from 'formik';
-import React, { useState } from 'react';
+import { Formik, Form, Field } from 'formik';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button'; // Importing Material-UI Button
 import TextAreaField from 'components/FormBuilder/TextAreaField';
 import EvModal from 'utils/modal/EvModal';
@@ -11,6 +11,9 @@ import ReactQuill from 'react-quill';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from 'pages/Loader';
 import { getEmailTemplate, sendEmail } from '../../../../redux/admin/actions/adminPerformanceActions';
+import parse from 'html-react-parser';
+import EmailAutoCompleteWithChip from './EmailAutoCompleteWithChip';
+import { GET_REQUEST } from 'utils/HTTPRequests';
 
 const ComposeEmailMicroComponent = () => {
   const dispatch = useDispatch();
@@ -24,7 +27,7 @@ const ComposeEmailMicroComponent = () => {
 const [initialValues, setInitialValues] = useState({
   select_template: "",
   to: "",
-  cc: "", // New CC field
+  cc: [],
   subject: "",
   body: "",
 });
@@ -37,19 +40,23 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
   value: template?.id,
 }));
 
-  const handleTemplateChange = (templateId) => {
-  const selectedTemplate = emailTemplateList?.find(
-    (template) => template?.id === templateId
-  );
-  if (selectedTemplate) {
-    setInitialValues((prevValues) => ({
-      ...prevValues,
-      select_template: templateId,
-      subject: selectedTemplate?.subject,
-      body: selectedTemplate?.body,
-    }));
-  }
-};
+  // const handleTemplateChange = (templateId) => {
+  // const selectedTemplate = emailTemplateList?.find(
+  //   (template) => template?.id === templateId
+  // );
+  //   if (selectedTemplate) {
+  //   console.log(initialValues, "initial");
+  //   setInitialValues((prevValues) => ({
+  //     ...prevValues,
+  //     select_template: templateId,
+  //     subject: selectedTemplate?.subject,
+  //     body: selectedTemplate?.body,
+  //   }));
+  // }
+  // };
+  
+    console.log(initialValues, "initial outside");
+
 
 // Validation function for email addresses
 const validateEmails = (value) => {
@@ -108,47 +115,64 @@ const validateEmails = (value) => {
     color: "#242424",
   };
 
-  const handleSendEmail = (values) => {
-    const {to, cc, subject, body } = values;
-    let emailPayload = { to, cc, subject, body };
-    dispatch(sendEmail(emailPayload, facility_id))
-      .then(() => { 
-        setInitialValues((prevValues) => ({
-          ...prevValues,
-          select_template: "",
-          to: "",
-          cc: "",
-          subject: "",
-          body: "",
-        }));
-        dispatch(getEmailTemplate(facility_id));
-      })
-      .catch((error) => {
-      console.log(error);
-    })
+  const extractEmails = (data) => {
+    return data.map((item) => item.email).filter(Boolean);
   };
 
-  const openPreviewModal = () => {
+  const handleSendEmail = (values) => {
+    console.log("email values", values);
+    const {to, cc, subject, body } = values;
+    // let emailPayload = { to, cc, subject, body };
+    const emailPayload = {
+      to: extractEmails(to),
+      cc: extractEmails(cc),
+      subject,
+      body,
+    };
+    console.log(emailPayload, "payload");
+    // dispatch(sendEmail(emailPayload, facility_id))
+    //   .then(() => { 
+    //     setInitialValues((prevValues) => ({
+    //       ...prevValues,
+    //       select_template: "",
+    //       to: "",
+    //       cc: "",
+    //       subject: "",
+    //       body: "",
+    //     }));
+    //     dispatch(getEmailTemplate(facility_id));
+    //   })
+    //   .catch((error) => {
+    //   console.log(error);
+    // })
+  };
+
+  const openPreviewModal = (currentValues) => {
     setPreviewModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      headerText: 'Preview',
-      modalBodyContent: "",
+      modalBodyContent: <PreviewEmail values={currentValues} />,
     }));
-    setTimeout(() => {
-      setPreviewModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalBodyContent: <PreviewEmail />,
-      }));
-    }, 10);
   };
 
-  const PreviewEmail = () => {
+  const extractNames = (data) => {
+    console.log("extractNames input:", data);
+    if (!Array.isArray(data)) return "";
+    const result = data.map((item) => item.name || item.email).join(", ");
+    console.log("extractNames output:", result);
+    return result;
+  };
+
+  useEffect(() => {
+    console.log("initialValues updated:", initialValues);
+  }, [initialValues]);
+
+  const PreviewEmail = (values) => {
+    
     return (
       <>
         <Container sx={previewModalDesign}>
-          <Typography sx={{ fontSize: "14px !important" }}>{ initialValues?.to}<br />{initialValues?.body}</Typography>
+          <Typography sx={{ fontSize: "14px !important" }}>{ extractNames(values?.to)}<br />{parse(values?.body)}</Typography>
         </Container>
       </>
     );
@@ -192,75 +216,113 @@ const validateEmails = (value) => {
         enableReinitialize={true}
         onSubmit={handleSendEmail}
       >
-        {({ setFieldValue, values }) => (
-          <Form>
-            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-              <Grid item xs={12}>
-                <SelectBox
-                  name="select_template"
-                  label="Select Template"
-                  options={templateOptions}
-                  onChange={(e) => {
-                    setFieldValue("select_template", e.target.value);
-                    handleTemplateChange(e.target.value);
-                  }}
-                />
+        {({ setFieldValue, values }) => {
+          const handleTemplateChange = (templateId) => {
+            const selectedTemplate = emailTemplateList?.find(
+              (template) => template?.id === templateId
+            );
+            if (selectedTemplate) {
+              console.log(values, "initial");
+              setFieldValue("select_template", templateId);
+              setFieldValue("subject", selectedTemplate?.subject);
+              setFieldValue("body", selectedTemplate?.body);
+            }
+          };
+
+          return (
+            <Form>
+              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+                <Grid item xs={12}>
+                  <SelectBox
+                    name="select_template"
+                    label="Select Template"
+                    options={templateOptions}
+                    onChange={(e) => {
+                      setFieldValue("select_template", e.target.value);
+                      handleTemplateChange(e.target.value);
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                  <Field
+                    name="to"
+                    render={({ field }) => (
+                      <EmailAutoCompleteWithChip
+                        {...field}
+                        value={values.to}
+                        onChange={(newValue) => {
+                          setFieldValue("to", newValue);
+                        }}
+                        label="To*"
+                        isDisabled={false}
+                        withoutChip={true}
+                        facility_id={facility_id}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                  <Field
+                    name="cc"
+                    render={({ field }) => (
+                      <EmailAutoCompleteWithChip
+                        {...field}
+                        value={values.cc}
+                        onChange={(newValue) => {
+                          setFieldValue("cc", newValue);
+                        }}
+                        label="CC*"
+                        isDisabled={false}
+                        facility_id={facility_id}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                  <InputField name="subject" label="Subject" type="text" />
+                </Grid>
+
+                <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                  <FormLabel>Email Content</FormLabel>
+                  <ReactQuill
+                    theme="snow"
+                    value={values.body}
+                    onChange={(content) => setFieldValue("body", content)}
+                    modules={modules}
+                    formats={formats}
+                    placeholder="Compose your email..."
+                    className="rc-quill-editor"
+                    readOnly
+                  />
+                </Grid>
               </Grid>
 
-              <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <InputField name="to" label="To" type="text" />
-              </Grid>
-
-              <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <InputField
-                  name="cc"
-                  label="CC"
-                  type="text"
-                  validate={validateEmails}
-                />
-              </Grid>
-
-              <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <InputField name="subject" label="Subject" type="text" />
-              </Grid>
-
-              <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                <FormLabel>Email Content</FormLabel>
-                <ReactQuill
-                  theme="snow"
-                  value={values.body}
-                  onChange={(content) => setFieldValue("body", content)}
-                  modules={modules}
-                  formats={formats}
-                  placeholder="Compose your email..."
-                  className="rc-quill-editor"
-                  readOnly
-                />
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2} sx={{ marginTop: "20px" }}>
-              <Grid item>
-                <Button
-                  type="submit"
-                  color="primary"
-                  variant="contained"
+              <Grid container spacing={2} sx={{ marginTop: "20px" }}>
+                <Grid item>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    variant="contained"
                   // onClick={() => openEmailArchiveModal()}
-                >
-                  Send email
-                </Button>
-                <Button
-                  type="button"
-                  sx={previewButtonDesign}
-                  variant="contained"
-                  onClick={() => openPreviewModal()}
-                >
-                  Preview
-                </Button>
+                  >
+                    Send email
+                  </Button>
+                  <Button
+                    type="button"
+                    sx={previewButtonDesign}
+                    variant="contained"
+                    onClick={() => openPreviewModal(values)}
+                  >
+                    Preview
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </Form>
-        )}
+            </Form>
+          )
+        }}
       </Formik>
 
       <EvModal

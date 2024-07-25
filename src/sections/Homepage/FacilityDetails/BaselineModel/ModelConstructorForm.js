@@ -59,6 +59,7 @@ const ModelConstructorForm = ({
 
   useEffect(() => {
     setBaselinePeriodLoading(true);
+    setBaselinePeriodFailed(false);
     dispatch(fetchBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
@@ -370,17 +371,17 @@ const ModelConstructorForm = ({
             });
           };
 
-          // const handleDateRangeChange = (startDate, endDate) => {
-          //   setFieldValue("start_date", startDate);
-          //   setFieldValue("end_date", endDate);
-          //   handleSubmit({
-          //     ...values,
-          //     start_date: startDate,
-          //     end_date: endDate,
-          //   });
-          //   setBaselineStartDate(format(new Date(startDate), "yyyy-MM-dd"));
-          //   setBaselineEndDate(format(new Date(endDate), "yyyy-MM-dd"));
-          // };
+          const handleDateRangeChange = (startDate, endDate) => {
+            setFieldValue("start_date", startDate);
+            setFieldValue("end_date", endDate);
+            handleSubmit({
+              ...values,
+              start_date: startDate,
+              end_date: endDate,
+            });
+            setBaselineStartDate(format(new Date(startDate), "yyyy-MM-dd"));
+            setBaselineEndDate(format(new Date(endDate), "yyyy-MM-dd"));
+          };
 
           return (
             <Form>
@@ -389,25 +390,37 @@ const ModelConstructorForm = ({
                   <Typography variant="h6" sx={headingStyleInAccordion}>
                     Baseline period
                   </Typography>
-                  {/* <DateRangeSlider
-                    start_date={baselinePeriod?.start_date}
-                    end_date={baselinePeriod?.end_date}
-                    startLabel="Baseline Start"
-                    endLabel="Baseline End"
-                    onChange={handleDateRangeChange}
-                  />
-                  {(errors.start_date || errors.end_date) && (
-                    <div
-                      style={{
-                        color: "red",
-                        fontSize: "0.75rem",
-                        marginTop: "8px",
-                      }}
-                    >
-                      {errors.start_date || errors.end_date}
-                    </div>
-                  )} */}
-                  <Grid container spacing={4}>
+                  <Grid
+                    container
+                    mt={10}
+                    fullWidth={true}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <DateRangeSlider
+                      start_date={baselinePeriod?.start_date}
+                      end_date={baselinePeriod?.end_date}
+                      startLabel="Baseline Start"
+                      endLabel="Baseline End"
+                      onChange={handleDateRangeChange}
+                    />
+                    {(errors.start_date || errors.end_date) && (
+                      <div
+                        style={{
+                          color: "red",
+                          fontSize: "0.75rem",
+                          marginTop: "8px",
+                        }}
+                      >
+                        {errors.start_date || errors.end_date}
+                      </div>
+                    )}
+                  </Grid>
+
+                  {/* <Grid container spacing={4}>
                     <Grid item xs={12} sm={4}>
                       <InputLabel
                         htmlFor="start_date"
@@ -480,7 +493,7 @@ const ModelConstructorForm = ({
                         }}
                       />
                     </Grid>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>

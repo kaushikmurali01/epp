@@ -17,6 +17,7 @@ import {
   fetchAdminFacilityMeasureReportListing,
   updateAdminFacilityMeasureReport,
 } from "../../../../redux/admin/actions/adminFacilityActions";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const MeasureReportForm = ({
   isEdit,
@@ -29,7 +30,7 @@ const MeasureReportForm = ({
   const { id } = useParams();
   const measureFileInputRef = useRef(null);
   const [measureImgUrl, setMeasureImgUrl] = useState("");
-  const [measureSelectedFile, setMeasureSelectedFile] = useState("");
+  const [measureSelectedFile, setMeasureSelectedFile] = useState(null);
 
   const [initialValues, setInitialValues] = useState({
     measure_name: "",
@@ -79,7 +80,7 @@ const MeasureReportForm = ({
       event.target.value = "";
       return;
     }
-    setMeasureSelectedFile(URL.createObjectURL(selectedFile));
+    setMeasureSelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setMeasureImgUrl(data?.sasTokenUrl);
@@ -94,7 +95,7 @@ const MeasureReportForm = ({
   };
 
   const deleteMeasurePicture = () => {
-    setMeasureSelectedFile("");
+    setMeasureSelectedFile(null);
     setMeasureImgUrl("");
   };
 
@@ -295,48 +296,30 @@ const MeasureReportForm = ({
                     <InputLabel style={{ whiteSpace: "initial" }}>
                       Measure details
                     </InputLabel>
-                    {!measureSelectedFile ? (
-                      <>
-                        <Typography
-                          my={1}
-                          sx={{
-                            color: "#696969",
-                            fontWeight: "500",
-                            fontSize: "18px",
-                            border: "1px solid #D0D0D0",
-                            backgroundColor: "#D1FFDA",
-                            padding: "6px 34px",
-                            borderRadius: "8px",
-                            width: "140px",
-                            height: "40px",
-                            cursor: "pointer",
-                          }}
-                          onClick={handleMeasureButtonClick}
-                        >
-                          Upload
-                        </Typography>
-                        <input
-                          type="file"
-                          ref={measureFileInputRef}
-                          style={{ display: "none" }}
-                          onChange={handleMeasureFileChange}
-                          accept={".pdf"}
-                        />
-                      </>
-                    ) : (
+                    {measureSelectedFile ? (
                       <div style={{ display: "flex" }}>
-                        <Link
-                          target="_blank"
-                          href={measureSelectedFile}
+                        <Typography
                           sx={{
-                            textDecoration: "none",
-                            fontSize: "1.2rem",
+                            fontSize: "2rem",
                             marginTop: "1.7rem",
+                            cursor: "pointer",
+                            color: "#2E813E",
+                            wordBreak: "break-word",
+                            overflowWrap: "break-word",
+                            maxWidth: "100%",
                           }}
                           variant="h5"
+                          onClick={() =>
+                            downloadFileFromUrl(
+                              measureSelectedFile,
+                              measureSelectedFile.name ||
+                                `${values?.measure_name}_measure_report`
+                            )
+                          }
                         >
-                          Uploaded measure details
-                        </Link>
+                          {measureSelectedFile.name ||
+                            `${values?.measure_name}_measure_report`}
+                        </Typography>
                         <div style={{ marginLeft: "20px" }}>
                           <Typography
                             my={1}
@@ -371,6 +354,34 @@ const MeasureReportForm = ({
                           </Typography>
                         </div>
                       </div>
+                    ) : (
+                      <>
+                        <Typography
+                          my={1}
+                          sx={{
+                            color: "#696969",
+                            fontWeight: "500",
+                            fontSize: "18px",
+                            border: "1px solid #D0D0D0",
+                            backgroundColor: "#D1FFDA",
+                            padding: "6px 34px",
+                            borderRadius: "8px",
+                            width: "140px",
+                            height: "40px",
+                            cursor: "pointer",
+                          }}
+                          onClick={handleMeasureButtonClick}
+                        >
+                          Upload
+                        </Typography>
+                        <input
+                          type="file"
+                          ref={measureFileInputRef}
+                          style={{ display: "none" }}
+                          onChange={handleMeasureFileChange}
+                          accept={".pdf"}
+                        />
+                      </>
                     )}
                   </Grid>
                   <Grid item xs={12} sm={6}>

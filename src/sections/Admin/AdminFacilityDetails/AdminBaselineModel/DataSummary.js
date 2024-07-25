@@ -22,9 +22,9 @@ const DataSummary = () => {
   };
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchAdminDataExplorationSummaryList(24, activeButton));
+      dispatch(fetchAdminDataExplorationSummaryList(id, activeButton));
     } else {
-      dispatch(fetchAdminDataExplorationSummaryList(24));
+      dispatch(fetchAdminDataExplorationSummaryList(id));
     }
   }, [dispatch, id, activeButton]);
 

@@ -512,13 +512,17 @@ function Header(props) {
                     transform: "translateY(-50%)",
                   }}
                 >
-                  <Typography
+                  <Link
+                    underline="hover"
                     variant="small"
-                    sx={{ color: "blue.main", cursor: "pointer" }}
+                    sx={{
+                      color: "blue.main",
+                      cursor: "pointer",
+                    }}
                     onClick={openRequestModal}
                   >
                     Request to join company
-                  </Typography>
+                  </Link>
                 </Grid>
               ) : null}
               <Button
@@ -570,10 +574,12 @@ function Header(props) {
                           maxHeight: "2.25rem",
                         }}
                         renderValue={(selected) => {
-                            let selectedObject = companyList.find((obj) => obj.id == selectCompany);
-                            if(selectedObject) return selectedObject?.company_name
-                          }
-                        }
+                          let selectedObject = companyList.find(
+                            (obj) => obj.id == selectCompany
+                          );
+                          if (selectedObject)
+                            return selectedObject?.company_name;
+                        }}
                       >
                         {companyList.map((item) => {
                           return (
@@ -615,10 +621,17 @@ function Header(props) {
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))} */}
-                <MenuItem onClick={() => clickSetting("Profile")} sx={{ minHeight: 'auto'}}>
+                <MenuItem
+                  onClick={() => clickSetting("Profile")}
+                  sx={{ minHeight: "auto" }}
+                >
                   <Typography textAlign="center">Profile</Typography>
                 </MenuItem>
-                <MenuItem sx={{ display: { xs: "flex", md: "none",minHeight: 'auto' } }} >
+                <MenuItem
+                  sx={{
+                    display: { xs: "flex", md: "none", minHeight: "auto" },
+                  }}
+                >
                   {userDetails?.type == 2 || userDetails?.type == 3 ? (
                     <Grid
                       item
@@ -640,55 +653,65 @@ function Header(props) {
                     </Grid>
                   ) : null}
                 </MenuItem>
-             
-                  {companyList?.length > 0 &&
-                    companyList[0] != null &&
-                    (userData?.user?.type != 3 ||
-                      userData?.user?.type != 1 ||
-                      userData?.user?.type != 5) && (
-                        <MenuItem sx={{ display: { xs: "flex", md: "none" }, minHeight: 'auto' }}>
-                          <FormGroup className="theme-form-group">
-                            <FormLabel
-                              sx={{
-                                marginBottom: "0.25rem",
-                                fontSize: "0.75rem !important",
-                                lineHeight: "1 !important",
-                                fontWeight: "400",
-                              }}
-                            >
-                              Choose company
-                            </FormLabel>
-                            <FormControl sx={{ minWidth: "10rem" }}>
-                              <Select
-                                value={selectCompany}
-                                onChange={(e) => handleSelectChange(e)}
-                                displayEmpty={true}
-                                sx={{
-                                  padding: 0,
-                                  fontWeight: 600,
-                                  background: "#F3FFF6",
-                                  maxHeight: "2.25rem",
-                                }}
-                                renderValue={(selected) => {
-                                  let selectedObject = companyList.find((obj) => obj.id == selectCompany);
-                                  if(selectedObject) return selectedObject?.company_name
-                                }
-                              }
-                              >
-                                {companyList.map((item) => {
-                                  return (
-                                    <MenuItem key={item?.id} value={item?.id}>
-                                      {item?.company_name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </Select>
-                            </FormControl>
-                          </FormGroup>
-                      </MenuItem>
-                    )}
-               
-                <MenuItem onClick={() => clickSetting("Logout")} sx={{  minHeight: 'auto'}}>
+
+                {companyList?.length > 0 &&
+                  companyList[0] != null &&
+                  (userData?.user?.type != 3 ||
+                    userData?.user?.type != 1 ||
+                    userData?.user?.type != 5) && (
+                    <MenuItem
+                      sx={{
+                        display: { xs: "flex", md: "none" },
+                        minHeight: "auto",
+                      }}
+                    >
+                      <FormGroup className="theme-form-group">
+                        <FormLabel
+                          sx={{
+                            marginBottom: "0.25rem",
+                            fontSize: "0.75rem !important",
+                            lineHeight: "1 !important",
+                            fontWeight: "400",
+                          }}
+                        >
+                          Choose company
+                        </FormLabel>
+                        <FormControl sx={{ minWidth: "10rem" }}>
+                          <Select
+                            value={selectCompany}
+                            onChange={(e) => handleSelectChange(e)}
+                            displayEmpty={true}
+                            sx={{
+                              padding: 0,
+                              fontWeight: 600,
+                              background: "#F3FFF6",
+                              maxHeight: "2.25rem",
+                            }}
+                            renderValue={(selected) => {
+                              let selectedObject = companyList.find(
+                                (obj) => obj.id == selectCompany
+                              );
+                              if (selectedObject)
+                                return selectedObject?.company_name;
+                            }}
+                          >
+                            {companyList.map((item) => {
+                              return (
+                                <MenuItem key={item?.id} value={item?.id}>
+                                  {item?.company_name}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </FormGroup>
+                    </MenuItem>
+                  )}
+
+                <MenuItem
+                  onClick={() => clickSetting("Logout")}
+                  sx={{ minHeight: "auto" }}
+                >
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>

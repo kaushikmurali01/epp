@@ -18,7 +18,7 @@ import {
   Tabs,
   Tab,
   TextField,
-  IconButton
+  IconButton,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import CustomAccordion from "components/CustomAccordion";
@@ -33,10 +33,8 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import { documentFileUploadAction } from "../../../../redux/global/actions/fileUploadAction";
 import { useDispatch, useSelector } from "react-redux";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import SettingMicroComponent from "./SettingMicroComponent";
-import ComposeEmailMicroComponent from "./ComposeEmailMicroComponent";
-import ContactsMicroComponent from "./ContactsMicroComponent";
-import EmailTemplateMicroComponent from "./EmailTemplateMicroComponent";
+import BaselineSummaryAccord from "./BaselineSummaryAccord";
+import PerformancePeriodDataSummary from "./PerformancePeriodDataSummary";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -59,9 +57,7 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(0);
-  const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] = useState(0);
-  const [nonRoutineListingtabValue, setNonRoutineListingtabValue] = useState("filledData");
-  const [performanceTabs, setPerformanceTabs] = useState('firstPayDay');
+  const [performanceTabs, setPerformanceTabs] = useState("firstPayDay");
   const [visualizationActiveButton, setVisualizationActiveButton] = useState(0);
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [nonRoutineFile, setNonRoutineFile] = useState(null);
@@ -86,8 +82,8 @@ const Performance = () => {
       name: "Verified",
       label: "Verified",
       value: "Verified",
-    }
-  ]
+    },
+  ];
 
   const [initialValues, setInitialValues] = useState({
     adjusted_baseline: "",
@@ -158,16 +154,16 @@ const Performance = () => {
     borderRadius: "50px",
 
     ".MuiButtonGroup-firstButton": {
-      BorderRight: "10px"
-    }
+      BorderRight: "10px",
+    },
   };
 
   const activeButtonStyle = {
     ...buttonStyle,
     backgroundColor: "#2E813E",
     color: "#F7F7F5",
-    '&:hover': {
-      backgroundColor: '#2E813E',
+    "&:hover": {
+      backgroundColor: "#2E813E",
     },
   };
 
@@ -243,7 +239,6 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
-
   const [nonRoutinerModalConfig, setNonRoutineModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -270,31 +265,32 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
-  const [nonRoutineListingModalConfig, setNonRoutineListingModalConfig] = useState({
-    modalVisible: false,
-    modalUI: {
-      showHeader: true,
-      crossIcon: false,
-      modalClass: "",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
+  const [nonRoutineListingModalConfig, setNonRoutineListingModalConfig] =
+    useState({
+      modalVisible: false,
+      modalUI: {
+        showHeader: true,
+        crossIcon: false,
+        modalClass: "",
+        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+        headerSubTextStyle: {
+          marginTop: "1rem",
+          color: "rgba(36, 36, 36, 1)",
+          fontSize: { md: "0.875rem" },
+        },
+        fotterActionStyle: "",
+        modalBodyContentStyle: "",
       },
-      fotterActionStyle: "",
-      modalBodyContentStyle: "",
-    },
-    buttonsUI: {
-      saveButton: false,
-      cancelButton: false,
-      saveButtonName: "Sent Request",
-      cancelButtonName: "Cancel",
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    modalBodyContent: "",
-  });
+      buttonsUI: {
+        saveButton: false,
+        cancelButton: false,
+        saveButtonName: "Sent Request",
+        cancelButtonName: "Cancel",
+        saveButtonClass: "",
+        cancelButtonClass: "",
+      },
+      modalBodyContent: "",
+    });
 
   const [eventNameModalConfig, setEventNameModalConfig] = useState({
     modalVisible: false,
@@ -322,19 +318,10 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
-  const handleSubmit = (values) => { };
+  const handleSubmit = (values) => {};
 
   const handleButtonClick = (index) => {
     setActiveButton(index);
-  };
-
-  const handlePerformancePeriodButtonClick = (index) => {
-    setActiveButtonPerformancePeriod(index);
-  };
-
-  const handleChangeOfNonRoutineListing = (event, newValue) => {
-    console.log(newValue, "check tabs value")
-    setNonRoutineListingtabValue(newValue);
   };
 
   // const getNonRoutineTabsValue = useMemo((event, newValue) => {
@@ -358,11 +345,9 @@ const Performance = () => {
     uploadRoutineFile(imgUrl);
   };
 
-  const uploadRoutineFile = (data) => {
-  };
+  const uploadRoutineFile = (data) => {};
 
-  const deleteFile = () => {
-  };
+  const deleteFile = () => {};
 
   const handleButtonClickForUpload = () => {
     // Trigger the click event on the hidden file input element
@@ -509,7 +494,6 @@ const Performance = () => {
         >
           <Form>
             <Grid item container spacing={2}>
-
               <Grid item xs={12} md={6}>
                 <FormLabel>Event period from</FormLabel>
                 <DatePicker
@@ -520,7 +504,8 @@ const Performance = () => {
                     input: { color: "#111" },
                   }}
                   disableFuture
-                  format="dd/MM/yyyy" />
+                  format="dd/MM/yyyy"
+                />
               </Grid>
 
               <Grid item xs={12} md={6}>
@@ -533,18 +518,14 @@ const Performance = () => {
                     input: { color: "#111" },
                   }}
                   disableFuture
-                  format="dd/MM/yyyy" />
+                  format="dd/MM/yyyy"
+                />
               </Grid>
-
             </Grid>
 
             <Grid item container sx={{ marginTop: "20px" }}>
               <Grid item xs={12} md={6}>
-                <InputField
-                  name="event_name"
-                  label="Event name"
-                  type="text"
-                />
+                <InputField name="event_name" label="Event name" type="text" />
               </Grid>
             </Grid>
 
@@ -553,11 +534,7 @@ const Performance = () => {
             </Grid>
             <Grid item container>
               <Grid item xs={12} md={6}>
-                <TextAreaField
-                  name="comment"
-                  type="text"
-                  rows={8}
-                />
+                <TextAreaField name="comment" type="text" rows={8} />
               </Grid>
             </Grid>
 
@@ -566,16 +543,21 @@ const Performance = () => {
                 <Button
                   type="button"
                   sx={{
-                    backgroundColor: "#2E813E", color: "#ffffff", '&:hover': {
-                      backgroundColor: '#2E813E',
+                    backgroundColor: "#2E813E",
+                    color: "#ffffff",
+                    "&:hover": {
+                      backgroundColor: "#2E813E",
                     },
                   }}
-                  onClick={() => { closeNonRoutineModal(); openNonRoutineListingModal() }}>
+                  onClick={() => {
+                    closeNonRoutineModal();
+                    openNonRoutineListingModal();
+                  }}
+                >
                   Create non-routine event
                 </Button>
               </Grid>
             </Grid>
-
           </Form>
         </Formik>
       </>
@@ -583,7 +565,8 @@ const Performance = () => {
   };
 
   const NonRoutineListing = () => {
-    const [modalNonRoutineTabs, setModalNonRoutineTabs] = useState('filledData');
+    const [modalNonRoutineTabs, setModalNonRoutineTabs] =
+      useState("filledData");
 
     const handleNewChangeOfNonRoutineListing = (event, newValue) => {
       setModalNonRoutineTabs(newValue);
@@ -606,7 +589,8 @@ const Performance = () => {
               value={modalNonRoutineTabs}
               onChange={handleNewChangeOfNonRoutineListing}
               sx={{
-                display: 'inline-flex', flexWrap: 'wrap'
+                display: "inline-flex",
+                flexWrap: "wrap",
               }}
             >
               <Tab
@@ -622,10 +606,9 @@ const Performance = () => {
             </Tabs>
           </Grid>
         </Grid>
-        {modalNonRoutineTabs == 'filledData' ?
+        {modalNonRoutineTabs == "filledData" ? (
           <>
-            <TableContainer
-            >
+            <TableContainer>
               <MuiTable size="small">
                 <TableHead>
                   <TableRow sx={{ backgroundColor: "#D9D9D9" }}>
@@ -648,7 +631,8 @@ const Performance = () => {
                             input: { color: "#111" },
                           }}
                           disableFuture
-                          format="dd/MM/yyyy" />
+                          format="dd/MM/yyyy"
+                        />
                       </TableCell>
                       <TableCell key={rowIndex}>
                         <DatePicker
@@ -660,12 +644,21 @@ const Performance = () => {
                             input: { color: "#111" },
                           }}
                           disableFuture
-                          format="dd/MM/yyyy" />
+                          format="dd/MM/yyyy"
+                        />
                       </TableCell>
                       <TableCell key={rowIndex}>
                         <TextField />
                       </TableCell>
-                      <TableCell sx={{ color: "#FF5858 !important", fontSize: "16px", fontWeight: "600" }}>Delete</TableCell>
+                      <TableCell
+                        sx={{
+                          color: "#FF5858 !important",
+                          fontSize: "16px",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Delete
+                      </TableCell>
                     </TableRow>
                   ))}
               </MuiTable>
@@ -674,87 +667,94 @@ const Performance = () => {
               <Button
                 type="button"
                 sx={{
-                  backgroundColor: "#2E813E", color: "#ffffff", marginRight: "20px", '&:hover': {
-                    backgroundColor: '#2E813E',
+                  backgroundColor: "#2E813E",
+                  color: "#ffffff",
+                  marginRight: "20px",
+                  "&:hover": {
+                    backgroundColor: "#2E813E",
                   },
-                }}>
+                }}
+              >
                 Done
               </Button>
               <Button
                 type="button"
                 sx={{
-                  border: '2px solid #2E813E',
-                }}>
+                  border: "2px solid #2E813E",
+                }}
+              >
                 Add more row
               </Button>
             </Grid>
-          </> : !isFileUploaded ? (
-            <Box>
-              <Typography variant="h5">
-                Upload data in bulk for ‘non-routine event name’
-              </Typography>
-              <Typography variant="small2" gutterBottom>
-                Upload the excel file, and refer to Non-Routine Adjustment spreadsheet for the formatting details.
-              </Typography>
+          </>
+        ) : !isFileUploaded ? (
+          <Box>
+            <Typography variant="h5">
+              Upload data in bulk for ‘non-routine event name’
+            </Typography>
+            <Typography variant="small2" gutterBottom>
+              Upload the excel file, and refer to Non-Routine Adjustment
+              spreadsheet for the formatting details.
+            </Typography>
+            <Typography
+              my={1}
+              sx={{
+                color: "#2E813E",
+                fontWeight: "500",
+                fontSize: "18px",
+                backgroundColor: "#D1FFDA",
+                padding: "7px 33px",
+                borderRadius: "8px",
+                height: "40px",
+                marginTop: "20px",
+                cursor: "pointer",
+                maxWidth: "fit-content",
+              }}
+              onClick={handleButtonClickForUpload}
+            >
+              {nonRoutineFile ? nonRoutineFile?.name : "Choose File"}
+            </Typography>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              accept=".xlsx,.csv"
+            />
+            <Button
+              variant="contained"
+              onClick={() => uploadnonRoutineFile(imgUrl)}
+              style={{
+                padding: "0.2rem 1rem",
+                minWidth: "unset",
+                width: "165px",
+                height: "40px",
+              }}
+              disabled={!imgUrl}
+            >
+              Upload
+            </Button>
+          </Box>
+        ) : (
+          <Box>
+            <Typography
+              variant="h6"
+              sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
+              onClick={downloadFileFromUrl}
+            >
+              NonRoutineFile.xlsx
               <Typography
-                my={1}
-                sx={{
-                  color: "#2E813E",
-                  fontWeight: "500",
-                  fontSize: "18px",
-                  backgroundColor: "#D1FFDA",
-                  padding: "7px 33px",
-                  borderRadius: "8px",
-                  height: "40px",
-                  marginTop: "20px",
-                  cursor: "pointer",
-                  maxWidth: "fit-content",
+                sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteFile();
                 }}
-                onClick={handleButtonClickForUpload}
               >
-                {nonRoutineFile ? nonRoutineFile?.name : "Choose File"}
+                Delete
               </Typography>
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-                accept=".xlsx,.csv"
-              />
-              <Button
-                variant="contained"
-                onClick={() => uploadnonRoutineFile(imgUrl)}
-                style={{
-                  padding: "0.2rem 1rem",
-                  minWidth: "unset",
-                  width: "165px",
-                  height: "40px",
-                }}
-                disabled={!imgUrl}
-              >
-                Upload
-              </Button>
-            </Box>
-          ) : (
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
-                onClick={downloadFileFromUrl}
-              >
-                NonRoutineFile.xlsx
-                <Typography
-                  sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    deleteFile();
-                  }}
-                >
-                  Delete
-                </Typography>
-              </Typography>
-            </Box>
-          )}
+            </Typography>
+          </Box>
+        )}
       </>
     );
   };
@@ -763,212 +763,145 @@ const Performance = () => {
     return (
       <>
         <Grid container>
-
-          <Grid container sx={{ paddingBottom: "10px", borderBottom: "1px solid #54585A" }}>
+          <Grid
+            container
+            sx={{ paddingBottom: "10px", borderBottom: "1px solid #54585A" }}
+          >
             <Grid item xs={12} md={9}>
               <Grid>
-                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Event period</Typography>
-                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/05/07 to 2021/07/03</Typography>
+                <Typography
+                  sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+                >
+                  Event period
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "14px !important", color: "#242424" }}
+                >
+                  2021/05/07 to 2021/07/03
+                </Typography>
               </Grid>
               <Grid sx={{ marginTop: "20px" }}>
-                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Comment</Typography>
-                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>Lorem ipsum dolor sit amet consectetur. Venenatis vel sed sit duis pharetra neque quis nec. Amet convall</Typography>
+                <Typography
+                  sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+                >
+                  Comment
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "14px !important", color: "#242424" }}
+                >
+                  Lorem ipsum dolor sit amet consectetur. Venenatis vel sed sit
+                  duis pharetra neque quis nec. Amet convall
+                </Typography>
               </Grid>
             </Grid>
             <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
-              <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Event name</Typography>
-              <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>{eventName}</Typography>
+              <Typography
+                sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+              >
+                Event name
+              </Typography>
+              <Typography
+                sx={{ fontSize: "14px !important", color: "#242424" }}
+              >
+                {eventName}
+              </Typography>
             </Grid>
           </Grid>
 
-          <Grid container sx={{ marginTop: "10px", paddingBottom: "10px", borderBottom: "1px solid #54585A"  }}>
+          <Grid
+            container
+            sx={{
+              marginTop: "10px",
+              paddingBottom: "10px",
+              borderBottom: "1px solid #54585A",
+            }}
+          >
             <Grid item xs={12} md={9}>
               <Grid>
-                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Start date</Typography>
-                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/05/07</Typography>
+                <Typography
+                  sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+                >
+                  Start date
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "14px !important", color: "#242424" }}
+                >
+                  2021/05/07
+                </Typography>
               </Grid>
               <Grid sx={{ marginTop: "20px" }}>
-                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Non-routine adjustment</Typography>
-                <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>XXXXX</Typography>
+                <Typography
+                  sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+                >
+                  Non-routine adjustment
+                </Typography>
+                <Typography
+                  sx={{ fontSize: "14px !important", color: "#242424" }}
+                >
+                  XXXXX
+                </Typography>
               </Grid>
             </Grid>
             <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
-              <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>End date</Typography>
-              <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>2021/06/07</Typography>
+              <Typography
+                sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+              >
+                End date
+              </Typography>
+              <Typography
+                sx={{ fontSize: "14px !important", color: "#242424" }}
+              >
+                2021/06/07
+              </Typography>
             </Grid>
           </Grid>
 
           <Grid container sx={{ marginTop: "10px" }}>
             <Grid item xs={12} md={12}>
-                <Typography sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}>Upload data in bulk for ‘non-routine event name’</Typography>
-                <Typography sx={{ fontSize: "14px !important", color: "#2C77E9" }}>fileabc.xls</Typography>
-              </Grid>
+              <Typography
+                sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+              >
+                Upload data in bulk for ‘non-routine event name’
+              </Typography>
+              <Typography
+                sx={{ fontSize: "14px !important", color: "#2C77E9" }}
+              >
+                fileabc.xls
+              </Typography>
+            </Grid>
           </Grid>
 
           <Grid sx={{ marginTop: "20px" }}>
-            <Button
-              sx={{ backgroundColor: "#2C77E9", color: "#ffffff" }}
-            >
+            <Button sx={{ backgroundColor: "#2C77E9", color: "#ffffff" }}>
               Edit
             </Button>
 
             <Button
-              sx={{ backgroundColor: "#2E813E", color: "#ffffff", marginLeft: "15px" }}
+              sx={{
+                backgroundColor: "#2E813E",
+                color: "#ffffff",
+                marginLeft: "15px",
+              }}
             >
               Download
             </Button>
 
             <Button
-              sx={{ backgroundColor: "#FF5858", color: "#ffffff", marginLeft: "15px" }}
+              sx={{
+                backgroundColor: "#FF5858",
+                color: "#ffffff",
+                marginLeft: "15px",
+              }}
             >
               Delete
             </Button>
           </Grid>
-
         </Grid>
       </>
     );
   };
 
-  const baselineStyleInAccordionDetails = (
-    <Grid container display={"grid"}>
-      <Grid item>
-        <Typography sx={{ color: '#2C77E9', fontSize: '14px !important', fontWeight: '500', padding: "0.375rem 1rem", }}>
-          Baseline Energy Model
-        </Typography>
-      </Grid>
-      <Grid item container>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            Baseline Periods
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            XXXX
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid item container>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            Baseline Energy Consumption (kWh)
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            XXXX
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid item container>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            Baseline Peak Demand (kW)
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            XXXX
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid item container>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            Pre-Project Incentive ($)
-          </Typography>
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h6" sx={baselineStyleInAccordion}>
-            XXXX
-          </Typography>
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-
-  const performancePeriodDataSummaryInAccordionDetails = (
-    <Grid item xs={12} md={activeButtonPerformancePeriod === 2 ? 12 : 9}>
-      <StyledButtonGroup disableElevation variant="contained" color="primary" sx={{ marginBottom: "20px" }}>
-        <Button
-          sx={activeButtonPerformancePeriod === 0 ? activeButtonStyle : inactiveButtonStyle}
-          onClick={() => handlePerformancePeriodButtonClick(0)}
-        >
-          Observe data
-        </Button>
-        <Button
-          sx={activeButtonPerformancePeriod === 1 ? activeButtonStyle : inactiveButtonStyle}
-          onClick={() => handlePerformancePeriodButtonClick(1)}
-        >
-          Missing Data
-        </Button>
-        <Button
-          sx={activeButtonPerformancePeriod === 2 ? activeButtonStyle : inactiveButtonStyle}
-          onClick={() => handlePerformancePeriodButtonClick(2)}
-        >
-          Outliers
-        </Button>
-      </StyledButtonGroup>
-      <TableContainer
-        component={Paper}
-        sx={{
-          bgcolor: "#2E813E20",
-          boxShadow: "none",
-          border: "1px solid #2E813E",
-        }}
-      >
-        {activeButtonPerformancePeriod === 0 || activeButtonPerformancePeriod === 1 ? <MuiTable size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Parameter</TableCell>
-              <TableCell>Timestamp Start</TableCell>
-              <TableCell>Timestamp End</TableCell>
-              <TableCell>Count</TableCell>
-            </TableRow>
-          </TableHead>
-          {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-            PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
-                <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important" }} onClick={() => openParameterModal(row?.parameter)}>{row?.parameter}</TableCell>
-                <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
-                <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
-                <TableCell key={rowIndex}>{row?.count}</TableCell>
-              </TableRow>
-            ))}
-        </MuiTable> : <MuiTable size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Parameter</TableCell>
-              <TableCell>Timestamp Start</TableCell>
-              <TableCell>Timestamp End</TableCell>
-              <TableCell>Count</TableCell>
-              <TableCell>Threshold</TableCell>
-              <TableCell>Type</TableCell>
-            </TableRow>
-          </TableHead>
-          {Array.isArray(PERFORMANCE_PERIOD_DATA) &&
-            PERFORMANCE_PERIOD_DATA?.map((row, rowIndex) => (
-              <TableRow key={rowIndex}>
-                <TableCell key={rowIndex}>{row?.id}</TableCell>
-                <TableCell key={rowIndex} sx={{ color: "#2C77E9 !important" }} onClick={() => openParameterModal(row?.parameter)}>{row?.parameter}</TableCell>
-                <TableCell key={rowIndex}>{row?.timestamp_start}</TableCell>
-                <TableCell key={rowIndex}>{row?.timestamp_end}</TableCell>
-                <TableCell key={rowIndex}>{row?.count}</TableCell>
-                <TableCell key={rowIndex}>{row?.threshold}</TableCell>
-                <TableCell key={rowIndex}>{row?.type}</TableCell>
-              </TableRow>
-            ))}
-        </MuiTable>}
-      </TableContainer>
-    </Grid>
-  );
-
   const performancePeriodInformationInAccordionDetails = (
-
     <>
       <Grid
         container
@@ -985,7 +918,8 @@ const Performance = () => {
             value={performanceTabs}
             onChange={handleChangePerformance}
             sx={{
-              display: 'inline-flex', flexWrap: 'wrap'
+              display: "inline-flex",
+              flexWrap: "wrap",
             }}
           >
             <Tab
@@ -1014,11 +948,14 @@ const Performance = () => {
               fontSize: "0.875rem",
             }}
             disableRipple
-            endIcon={<AddCircleIcon
-              style={{
-                color: "text.primary",
-                fontSize: "2rem",
-              }} />}
+            endIcon={
+              <AddCircleIcon
+                style={{
+                  color: "text.primary",
+                  fontSize: "2rem",
+                }}
+              />
+            }
             onClick={() => openNonRoutineModal()}
           >
             Add non-routine event
@@ -1027,14 +964,22 @@ const Performance = () => {
       </Grid>
 
       <Grid item container flexWrap={"nowrap"} gap={"1rem"}>
-
-        <Grid item xs={12} md={9} sx={{ border: "1px solid #2E813E", borderRadius: "10px", padding: '20px', backgroundColor: '#CBFFD5' }}>
+        <Grid
+          item
+          xs={12}
+          md={9}
+          sx={{
+            border: "1px solid #2E813E",
+            borderRadius: "10px",
+            padding: "20px",
+            backgroundColor: "#CBFFD5",
+          }}
+        >
           <Formik
             enableReinitialize={true}
             initialValues={{ ...initialValues }}
           >
             <Form>
-
               <Grid item container>
                 <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
                   <Typography variant="h6" sx={baselineStyleInAccordion}>
@@ -1044,7 +989,10 @@ const Performance = () => {
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         From
                       </Typography>
                     </Grid>
@@ -1057,10 +1005,14 @@ const Performance = () => {
                           input: { color: "#111" },
                         }}
                         disableFuture
-                        format="dd/MM/yyyy" />
+                        format="dd/MM/yyyy"
+                      />
                     </Grid>
                     <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         To
                       </Typography>
                     </Grid>
@@ -1073,7 +1025,8 @@ const Performance = () => {
                           input: { color: "#111" },
                         }}
                         disableFuture
-                        format="dd/MM/yyyy" />
+                        format="dd/MM/yyyy"
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1088,14 +1041,18 @@ const Performance = () => {
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         10,345,443
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={8}>
                       <SelectBox
                         name="adjusted_baseline"
-                        options={savingReportDropdown} />
+                        options={savingReportDropdown}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1110,14 +1067,18 @@ const Performance = () => {
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         -41,137
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={8}>
                       <SelectBox
                         name="reporting_period_NG_consumption"
-                        options={savingReportDropdown} />
+                        options={savingReportDropdown}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1132,14 +1093,18 @@ const Performance = () => {
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         723,192
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={8}>
                       <SelectBox
                         name="non_routine_adjustment"
-                        options={savingReportDropdown} />
+                        options={savingReportDropdown}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1154,14 +1119,18 @@ const Performance = () => {
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         10,010
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={8}>
                       <SelectBox
                         name="NG_savings"
-                        options={savingReportDropdown} />
+                        options={savingReportDropdown}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -1170,35 +1139,52 @@ const Performance = () => {
               <Grid item container sx={{ marginTop: "20px" }}>
                 <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
                   <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    NG savings as percentage of adjusted baseline NG consumption and non-routine adjustment
+                    NG savings as percentage of adjusted baseline NG consumption
+                    and non-routine adjustment
                   </Typography>
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <Grid container spacing={2}>
                     <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography variant="h6" sx={performancePeriodStyleInAccordion}>
+                      <Typography
+                        variant="h6"
+                        sx={performancePeriodStyleInAccordion}
+                      >
                         6.5%
                       </Typography>
                     </Grid>
                     <Grid item xs={12} sm={8}>
                       <SelectBox
                         name="NG_savings_percentage"
-                        options={savingReportDropdown} />
+                        options={savingReportDropdown}
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
               </Grid>
-
             </Form>
           </Formik>
         </Grid>
 
-        <Grid item xs={12} md={3} sx={{ border: "1px solid #2E813E", borderRadius: "10px", backgroundColor: '#CBFFD5' }}>
+        <Grid
+          item
+          xs={12}
+          md={3}
+          sx={{
+            border: "1px solid #2E813E",
+            borderRadius: "10px",
+            backgroundColor: "#CBFFD5",
+          }}
+        >
           <Typography variant="h6" sx={nonRoutingStyleInAccordion}>
             Non-routine event name
           </Typography>
           <Grid sx={{ background: "#E2F8E6" }}>
-            <Typography variant="h6" sx={eventNameStyleInAccordion} onClick={() => openEventModal('Event name-1')}>
+            <Typography
+              variant="h6"
+              sx={eventNameStyleInAccordion}
+              onClick={() => openEventModal("Event name-1")}
+            >
               Event name-1
             </Typography>
             <Typography variant="h6" sx={eventNameStyleInAccordion}>
@@ -1215,154 +1201,67 @@ const Performance = () => {
             </Typography>
           </Grid>
         </Grid>
-
       </Grid>
-
     </>
   );
 
   const performancePeriodDataVisualizationInAccordionDetails = (
-
     <>
-
       <Grid item display={"flex"} justifyContent={"space-between"} gap={"1rem"}>
         <Button
-          sx={visualizationActiveButton === 0 ? activeButtonStyle : inactiveButtonStyle}
+          sx={
+            visualizationActiveButton === 0
+              ? activeButtonStyle
+              : inactiveButtonStyle
+          }
           onClick={() => handleVisualizationButtonClick(0)}
         >
           Time series
         </Button>
         <Button
-          sx={visualizationActiveButton === 1 ? activeButtonStyle : inactiveButtonStyle}
+          sx={
+            visualizationActiveButton === 1
+              ? activeButtonStyle
+              : inactiveButtonStyle
+          }
           onClick={() => handleVisualizationButtonClick(1)}
         >
           Natural gas
         </Button>
         <Button
-          sx={visualizationActiveButton === 2 ? activeButtonStyle : inactiveButtonStyle}
+          sx={
+            visualizationActiveButton === 2
+              ? activeButtonStyle
+              : inactiveButtonStyle
+          }
           onClick={() => handleVisualizationButtonClick(2)}
         >
           Category 1
         </Button>
         <Button
-          sx={visualizationActiveButton === 3 ? activeButtonStyle : inactiveButtonStyle}
+          sx={
+            visualizationActiveButton === 3
+              ? activeButtonStyle
+              : inactiveButtonStyle
+          }
           onClick={() => handleVisualizationButtonClick(3)}
         >
           Category 2
         </Button>
         <Button
-          sx={visualizationActiveButton === 4 ? activeButtonStyle : inactiveButtonStyle}
+          sx={
+            visualizationActiveButton === 4
+              ? activeButtonStyle
+              : inactiveButtonStyle
+          }
           onClick={() => handleVisualizationButtonClick(4)}
         >
           Category 3
         </Button>
       </Grid>
     </>
-
   );
 
-  const [isPerformanceSettingComponent, setIsPerformanceSettingComponent] = useState(false);
-
-  const PerformanceSettingComponent = () => {
-    const [tabValue, setTabValue] = useState("setting");
-    const handleTabChange = (event, newValue) => {
-      setTabValue(newValue);
-    }; 
-
-    const buttonConfig = {
-      compose_email: {
-        label: "Facility email archive",
-        onClick: () => {
-          // Handle click for Facility email archive
-        },
-      },
-      // contacts: {
-      //   label: "Add Contact",
-      //   onClick: () => {
-      //     // Handle click for Add Contact
-      //   },
-      // },
-      email_template: {
-        label: "Upload file",
-        onClick: () => {
-          // Handle click for Upload file
-        },
-      },
-    };
-
-    return (
-      <Grid
-        container
-        sx={{
-          width: "100%",
-          display: "flex",
-          gap: "2rem",
-          flexDirection: "column",
-        }}
-      >
-        <Grid
-          item
-          display={"flex"}
-          justifyContent={"space-between"}
-          alignItems={"center"}
-          gap={"1rem"}
-        >
-          <Grid item xs={12} md={6}>
-            <Tabs
-              className="theme-tabs-list"
-              value={tabValue}
-              onChange={handleTabChange}
-              sx={{ display: "inline-flex" }}
-            >
-              <Tab
-                value="setting"
-                label="Setting"
-                sx={{ minWidth: "10rem", textTransform: "initial" }}
-              />
-              <Tab
-                value="compose_email"
-                label="Compose email"
-                sx={{ minWidth: "10rem", textTransform: "initial" }}
-              />
-              <Tab
-                value="contacts"
-                label="Contacts"
-                sx={{ minWidth: "10rem", textTransform: "initial" }}
-              />
-              <Tab
-                value="email_template"
-                label="Email template"
-                sx={{ minWidth: "10rem", textTransform: "initial" }}
-              />
-            </Tabs>
-          </Grid>
-          {buttonConfig[tabValue] && (
-            <Grid item>
-              <Typography
-                variant="contained"
-                color="blue.main"
-                sx={{
-                  cursor: "pointer",
-                  fontSize: "0.875rem",
-                  fontWeight: 400,
-                }}
-                onClick={buttonConfig[tabValue].onClick}
-              >
-                {buttonConfig[tabValue].label}
-              </Typography>
-            </Grid>
-          )}
-        </Grid>
-        {/* Additional Grid or other components can be added here */}
-        {tabValue === "setting" && <SettingMicroComponent />}
-        {tabValue === "compose_email" && <ComposeEmailMicroComponent />}
-        {tabValue === "contacts" && <ContactsMicroComponent />}
-        {tabValue === "email_template" && <EmailTemplateMicroComponent />}
-      </Grid>
-    );
-  };
-
-  
   return (
     <>
       <Grid
@@ -1382,86 +1281,47 @@ const Performance = () => {
           justifyContent={"space-between"}
           gap={"1rem"}
         >
-          {isPerformanceSettingComponent ? (
-            <IconButton
-              onClick={() => setIsPerformanceSettingComponent(false)}
-              sx={{
-                backgroundColor: "primary.main",
-                "&:hover": {
-                  backgroundColor: "primary.main",
-                },
-                marginRight: "1rem",
-              }}
+          <StyledButtonGroup
+            disableElevation
+            variant="contained"
+            color="primary"
+          >
+            <Button
+              sx={activeButton === 0 ? activeButtonStyle : inactiveButtonStyle}
+              onClick={() => handleButtonClick(0)}
             >
-              <ArrowBackIcon
-                sx={{
-                  color: "#fff",
-                  fontSize: "1.25rem",
-                }}
-              />
-            </IconButton>
-          ) : (
-            <>
-              <StyledButtonGroup
-                disableElevation
-                variant="contained"
-                color="primary"
-              >
-                <Button
-                  sx={
-                    activeButton === 0 ? activeButtonStyle : inactiveButtonStyle
-                  }
-                  onClick={() => handleButtonClick(0)}
-                >
-                  Electricity
-                </Button>
-                <Button
-                  sx={
-                    activeButton === 1 ? activeButtonStyle : inactiveButtonStyle
-                  }
-                  onClick={() => handleButtonClick(1)}
-                >
-                  Natural gas
-                </Button>
-              </StyledButtonGroup>
-              <Typography
-                variant="h6"
-                onClick={() => {
-                  setIsPerformanceSettingComponent(true);
-                }}
-                sx={{
-                  cursor: "pointer",
-                  color: "#2C77E9",
-                  fontSize: "14px",
-                  fontWeight: 400,
-                }}
-              >
-                Setting
-              </Typography>
-              <Button
-                type="button"
-                sx={{
-                  border: "2px solid #2E813E",
-                }}
-              >
-                Refresh
-              </Button>
-              <Button
-                type="button"
-                sx={{
-                  backgroundColor: "#54585A",
-                  color: "#ffffff",
-                  "&:hover": {
-                    backgroundColor: "#54585A",
-                  },
-                }}
-              >
-                Submit Savings Report
-              </Button>
-            </>
-          )}
+              Electricity
+            </Button>
+            <Button
+              sx={activeButton === 1 ? activeButtonStyle : inactiveButtonStyle}
+              onClick={() => handleButtonClick(1)}
+            >
+              Natural gas
+            </Button>
+          </StyledButtonGroup>
+          <Button
+            type="button"
+            sx={{
+              border: "2px solid #2E813E",
+            }}
+          >
+            Refresh
+          </Button>
+          <Button
+            type="button"
+            sx={{
+              backgroundColor: "#54585A",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#54585A",
+              },
+            }}
+          >
+            Submit Savings Report
+          </Button>
         </Grid>
-        {isPerformanceSettingComponent ? null : <Grid item display={"flex"} justifyContent={"end"}>
+
+        <Grid item display={"flex"} justifyContent={"end"}>
           <Typography
             sx={{
               padding: "6px",
@@ -1476,37 +1336,33 @@ const Performance = () => {
             Savings Report has been submitted on 2020/03/05 13:35:01, pending
             verification
           </Typography>
-        </Grid>}
+        </Grid>
 
-        {isPerformanceSettingComponent ? (
-          <PerformanceSettingComponent />
-        ) : (
-          <Grid item>
-            <CustomAccordion
-              summary="Baseline summary"
-              details={baselineStyleInAccordionDetails}
-              panelId="baselineSummary"
-            />
+        <Grid item>
+          <CustomAccordion
+            summary="Baseline summary"
+            details={<BaselineSummaryAccord />}
+            panelId="baselineSummary"
+          />
 
-            <CustomAccordion
-              summary="Performance period data summary"
-              details={performancePeriodDataSummaryInAccordionDetails}
-              panelId="performancePeriodDataSummary"
-            />
+          <CustomAccordion
+            summary="Performance period data summary"
+            details={<PerformancePeriodDataSummary />}
+            panelId="performancePeriodDataSummary"
+          />
 
-            <CustomAccordion
-              summary="Performance period reporting Information"
-              details={performancePeriodInformationInAccordionDetails}
-              panelId="performancePeriodReportingInformation"
-            />
+          <CustomAccordion
+            summary="Performance period reporting Information"
+            details={performancePeriodInformationInAccordionDetails}
+            panelId="performancePeriodReportingInformation"
+          />
 
-            <CustomAccordion
-              summary="Performance period data visualization"
-              details={performancePeriodDataVisualizationInAccordionDetails}
-              panelId="performancePeriodDataVisualization"
-            />
-          </Grid>
-        )}
+          <CustomAccordion
+            summary="Performance period data visualization"
+            details={performancePeriodDataVisualizationInAccordionDetails}
+            panelId="performancePeriodDataVisualization"
+          />
+        </Grid>
       </Grid>
       <EvModal
         modalConfig={parameterModalConfig}

@@ -233,7 +233,7 @@ const FacilityHeader = () => {
         >
           <Grid item xs={6}>
             <BoxCard>
-              <Typography variant="small2">Facility ID</Typography>
+              <Typography variant="small2">Facility UBI</Typography>
               <Typography variant="h6">{facilityDetails?.facility_ubi}</Typography>
             </BoxCard>
           </Grid>

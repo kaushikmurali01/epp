@@ -46,8 +46,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   const dispatch = useDispatch();
   const utilityFileInputRef = useRef(null);
   const specFileInputRef = useRef(null);
-  const [utilitySelectedFile, setUtilitySelectedFile] = useState();
-  const [specSelectedFile, setSpecSelectedFile] = useState();
+  const [utilitySelectedFile, setUtilitySelectedFile] = useState(null);
+  const [specSelectedFile, setSpecSelectedFile] = useState(null);
   const [meterAlignment, setMeterAlignment] = useState(1);
   const [revenueAlignment, setRevenueAlignment] = useState(false);
   const [utilityUrlError, setUtilityUrlError] = useState(false);
@@ -111,7 +111,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       return;
     }
 
-    setUtilitySelectedFile(URL.createObjectURL(selectedFile));
+    setUtilitySelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setUtilityImgUrl(data?.sasTokenUrl);
@@ -126,7 +126,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const deleteUtilityPicture = () => {
-    setUtilitySelectedFile("");
+    setUtilitySelectedFile(null);
     setUtilityImgUrl("");
   };
 
@@ -143,7 +143,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       event.target.value = "";
       return;
     }
-    setSpecSelectedFile(URL.createObjectURL(selectedFile));
+    setSpecSelectedFile(selectedFile);
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         setSpecImgUrl(data?.sasTokenUrl);
@@ -158,7 +158,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const deleteSpecPicture = () => {
-    setSpecSelectedFile("");
+    setSpecSelectedFile(null);
     setSpecImgUrl("");
   };
 
@@ -560,35 +560,34 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                     </>
                   ) : (
                     <div style={{ display: "flex" }}>
-                      {/* <Link
-                        target="_blank"
-                        href={utilitySelectedFile}
-                        sx={{
-                          textDecoration: "none",
-                          fontSize: "2rem",
-                          marginTop: "1.7rem",
-                        }}
-                        variant="h5"
-                      >
-                        Uploaded utility bill
-                      </Link> */}
                       <Typography
                         sx={{
                           fontSize: "2rem",
                           marginTop: "1.7rem",
                           cursor: "pointer",
                           color: "#2E813E",
+                          wordBreak: "break-all",
+                          overflowWrap: "break-word",
+                          maxWidth: "100%",
+                          whiteSpace: "normal",
+                          hyphens: "auto",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
                         }}
                         variant="h5"
                         onClick={() =>
                           downloadFileFromUrl(
                             utilitySelectedFile,
-                            `${values?.meter_name}_utility_bill`
+                            utilitySelectedFile.name ||
+                              `${values?.meter_name}_utility_bill`
                           )
                         }
                       >
-                        {/* Uploaded utility bill */}
-                        utility_bill.pdf
+                        {utilitySelectedFile.name ||
+                          `${values?.meter_name}_utility_bill`}
                       </Typography>
                       <div style={{ marginLeft: "20px" }}>
                         <Typography
@@ -598,6 +597,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                             cursor: "pointer",
+                            textWrap: "nowrap",
                           }}
                           onClick={handleUtilityButtonClick}
                         >
@@ -617,6 +617,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             fontWeight: "500",
                             fontSize: "16px !important",
                             cursor: "pointer",
+                            textWrap: "nowrap",
                           }}
                           onClick={deleteUtilityPicture}
                         >
@@ -677,17 +678,28 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                             marginTop: "1.7rem",
                             cursor: "pointer",
                             color: "#2E813E",
+                            wordBreak: "break-all",
+                            overflowWrap: "break-word",
+                            maxWidth: "100%",
+                            whiteSpace: "normal",
+                            hyphens: "auto",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
                           }}
                           variant="h5"
                           onClick={() =>
                             downloadFileFromUrl(
                               specSelectedFile,
-                              `${values?.meter_name}_meter_specification`
+                              specSelectedFile.name ||
+                                `${values?.meter_name}_meter_specification`
                             )
                           }
                         >
-                          {/* Uploaded meter specification */}
-                          meter_specification.pdf
+                          {specSelectedFile.name ||
+                            `${values?.meter_name}_meter_specification`}
                         </Typography>
                         <div style={{ marginLeft: "20px" }}>
                           <Typography
@@ -697,6 +709,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                               fontWeight: "500",
                               fontSize: "16px !important",
                               cursor: "pointer",
+                              textWrap: "nowrap",
                             }}
                             onClick={handleSpecButtonClick}
                           >
@@ -716,6 +729,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                               fontWeight: "500",
                               fontSize: "16px !important",
                               cursor: "pointer",
+                              textWrap: "nowrap",
                             }}
                             onClick={deleteSpecPicture}
                           >
