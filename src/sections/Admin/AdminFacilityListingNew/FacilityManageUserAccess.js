@@ -169,7 +169,7 @@ const FacilityManageUserAccess = () => {
   const [searchData, setSearchData] = useState([]);
 
 
-  console.log(getParams, "getParams")
+
   const companyUserListData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityListByUsersId?.rows || []
   );
@@ -185,7 +185,8 @@ const FacilityManageUserAccess = () => {
 
 
 
-  const DeleteModelContent = () => {
+  const DeleteModelContent = ({facilityData}) => {
+    console.log(facilityData, "check item")
     return (
         <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
             <Grid item sx={{textAlign:'center'}}>
@@ -196,15 +197,10 @@ const FacilityManageUserAccess = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to delete
-                    the customer user details
+                    the user access from {facilityData.facility_name}
                 </Typography>
             </Grid>
-            <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                 <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
-                </FormGroup>
-            </Grid>
+          
         </Grid>
     )
 }
@@ -224,7 +220,7 @@ const FacilityManageUserAccess = () => {
             saveButton: true,
             cancelButton: true,
         },
-        modalBodyContent: <DeleteModelContent />,
+        modalBodyContent: <DeleteModelContent facilityData={item} />,
         saveButtonAction: () =>  handelDelete(item, setModalConfig),
     }));
    
@@ -255,7 +251,7 @@ const handelDelete = (item, setModalConfig) => {
               ...prevState,
               modalVisible: false,
           }));
-          setRefreshTableData(prevState => prevState + 1);;
+          setRefreshTableData(prevState => prevState + 1);
       }
           dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
@@ -369,7 +365,7 @@ const handelDelete = (item, setModalConfig) => {
       modalVisible: true,
     headerText: "Assign user",
     headerSubText: '',
-      modalBodyContent: <AssignedUserForm setModalConfig={setModalConfigAssignUser} userList={getUserList} facilityId={facilityId} getUserListByCompanyId={getUserListByCompanyId} />
+      modalBodyContent: <AssignedUserForm setModalConfig={setModalConfigAssignUser} userList={getUserList} facilityId={facilityId} setRefreshTableData={setRefreshTableData} />
     }));
   }
 

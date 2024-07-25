@@ -11,13 +11,12 @@ const RotateIconButton = styled(IconButton)(({ rotate }) => ({
     transition: 'all 0.1s'
 }));
 
-const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByCompanyId }) => {
+const AssignedUserForm = ({ setModalConfig, userList, facilityId, setRefreshTableData }) => {
     const dispatch = useDispatch();
     const [dropdownConfig, setDropdownConfig] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState(userList.filter(user => user.isassign));
+    const selectedUsersPreAssigned = userList.filter(user => user.isassign)
     const dropdownRef = useRef(null);
-
-    console.log(setModalConfig, "setModalConfig")
 
     const handleCheckboxChange = (event, user) => {
         if (event.target.checked) {
@@ -34,13 +33,11 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByC
     const formSubmit = (event) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         event.preventDefault();
-        console.log(selectedUsers, "selected users");
         const apiURL = adminFacilityEndpoints.ASSIGN_USER_FACILITY;
         const requestBody = {
             user_ids: selectedUsers.map(user => user.id),
             facility_id: facilityId 
         };
-        console.log(requestBody, apiURL, "check payload");
 
         // return;
         POST_REQUEST(apiURL, requestBody)
@@ -49,9 +46,8 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByC
                     ...prevState,
                     modalVisible: false,
                 }));
-                console.log(response, "response success message..")
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-                getUserListByCompanyId();
+                setRefreshTableData(prevState => prevState + 1);
             })
             .catch((error) => {
                 console.log(error, 'error');
@@ -72,6 +68,8 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByC
         };
     }, [dropdownRef]);
 
+    console.log(selectedUsersPreAssigned, userList, "check user list")
+
     return (
         <form onSubmit={formSubmit}>
             <Stack sx={{ marginBottom: '1rem' }} ref={dropdownRef}>
@@ -85,7 +83,7 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByC
                     <Typography variant="body" sx={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                         {selectedUsers && selectedUsers.length > 0 ? selectedUsers.map((user) => {
                             return (
-                                <Typography key={user.id} variant="body" sx={{ border: '1px solid #2E813E', borderRadius: '5px', color: '#555', padding: '0.5rem' }}>{user.first_name}</Typography>
+                                <Typography key={user.id} variant="body" sx={{ border: '1px solid #2E813E', borderRadius: '5px', color: '#555', padding: '0.5rem' }}>{user.first_name+ " "+user.last_name}</Typography>
                             );
                         })
                             :
@@ -108,6 +106,7 @@ const AssignedUserForm = ({ setModalConfig, userList, facilityId, getUserListByC
                                         value={user.id}
                                         checked={isUserSelected(user)}
                                         onChange={(event) => handleCheckboxChange(event, user)}
+                                        disabled={selectedUsersPreAssigned.some(preAssignedUser => preAssignedUser.id === user.id)}
                                     />}
                                     label={`${user.first_name} ${user.last_name}`}
                                 />
