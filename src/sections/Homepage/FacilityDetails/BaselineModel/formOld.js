@@ -16,6 +16,7 @@ import { headingStyleInAccordion } from "styles/commonStyles";
 import { MiniTable } from "components/MiniTable";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { DatePicker } from "@mui/x-date-pickers";
 import { checkBoxButtonStyle } from "./styles";
 import {
   SufficiencyCheck,
@@ -27,7 +28,7 @@ import {
 } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { format, isBefore, parseISO, subYears } from "date-fns";
+import { format } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
 
@@ -55,8 +56,6 @@ const ModelConstructorForm = ({
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data || []
   );
-  const [sliderStartDate, setSliderStartDate] = useState(null);
-  const [sliderEndDate, setSliderEndDate] = useState(null);
 
   useEffect(() => {
     setBaselinePeriodLoading(true);
@@ -65,16 +64,10 @@ const ModelConstructorForm = ({
       .then((res) => {
         setBaselinePeriodLoading(false);
         setBaselinePeriod(res);
-        if (res?.end_date && res?.start_date) {
-          const endDate = format(new Date(res?.end_date), "yyyy-MM-dd");
-          let startDate = format(new Date(subYears(endDate, 1)), "yyyy-MM-dd");
-          const apiStartDate = parseISO(res?.start_date);
-          if (isBefore(apiStartDate, startDate)) {
-            startDate = apiStartDate;
-          }
-          setSliderStartDate(startDate);
-          setSliderEndDate(endDate);
-        }
+        res?.start_date &&
+          setBaselineStartDate(format(new Date(res?.start_date), "yyyy-MM-dd"));
+        res.end_date &&
+          setBaselineEndDate(format(new Date(res?.end_date), "yyyy-MM-dd"));
       })
       .catch((error) => {
         setBaselinePeriodLoading(false);
@@ -82,7 +75,7 @@ const ModelConstructorForm = ({
           setBaselinePeriodFailed(true);
         }
       });
-  }, [id, meterType, dispatch]);
+  }, [id, meterType]);
 
   const independentVariables = useSelector(
     (state) => state?.baselineReducer?.independentVariableList
@@ -102,47 +95,32 @@ const ModelConstructorForm = ({
       baselineCalculated?.status === "CALCULATED" ||
       baselineCalculated?.status === "SUBMITTED"
     ) {
-      console.log("calculated or submitted");
       setCheckSufficiencyAfter(true);
       setFormData({
         ...baselineCalculated?.parameter_data,
-        start_date: format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        ),
-        end_date: format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        ),
+        start_date: new Date(baselineCalculated?.parameter_data?.start_date),
+        end_date: new Date(baselineCalculated?.parameter_data?.end_date),
       });
       setSufficiencyCheckDataLocally({
         daily: { ...baselineCalculated?.parameter_data?.daily },
         hourly: { ...baselineCalculated?.parameter_data?.hourly },
       });
-      setBaselineStartDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
-      );
-      setBaselineEndDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        )
-      );
     } else {
       setCheckSufficiencyAfter(false);
       const initialValues = {
-        start_date: sliderStartDate,
-        end_date: sliderEndDate,
+        start_date: baselinePeriod?.start_date
+          ? new Date(baselinePeriod?.start_date)
+          : null,
+        end_date: baselinePeriod?.end_date
+          ? new Date(baselinePeriod?.end_date)
+          : null,
         granularity: "hourly",
         independent_variables: [],
         meter_type: meterType,
       };
       setFormData(initialValues);
     }
-  }, [baselinePeriod, meterType, sliderStartDate, sliderEndDate]);
+  }, [baselinePeriod, meterType]);
 
   const handleSubmit = (values) => {
     const myData = {
@@ -276,8 +254,8 @@ const ModelConstructorForm = ({
           onClick={() => {
             openSeeDetails(
               checkSufficiencyAfter ? sufficiencyCheckDataLocally : null,
-              baselineStartDate ? baselineStartDate : sliderStartDate,
-              baselineEndDate ? baselineEndDate : sliderEndDate
+              baselineStartDate,
+              baselineEndDate
             );
           }}
           disabled={disableSeeDetails}
@@ -401,8 +379,8 @@ const ModelConstructorForm = ({
               start_date: startDate,
               end_date: endDate,
             });
-            setBaselineStartDate(startDate);
-            setBaselineEndDate(endDate);
+            setBaselineStartDate(format(new Date(startDate), "yyyy-MM-dd"));
+            setBaselineEndDate(format(new Date(endDate), "yyyy-MM-dd"));
           };
 
           return (
@@ -425,8 +403,6 @@ const ModelConstructorForm = ({
                     <DateRangeSlider
                       start_date={baselinePeriod?.start_date}
                       end_date={baselinePeriod?.end_date}
-                      sliderStartDate={values?.start_date}
-                      sliderEndDate={values?.end_date}
                       startLabel="Baseline Start"
                       endLabel="Baseline End"
                       onChange={handleDateRangeChange}
@@ -443,6 +419,81 @@ const ModelConstructorForm = ({
                       </div>
                     )}
                   </Grid>
+
+                  {/* <Grid container spacing={4}>
+                      <Grid item xs={12} sm={4}>
+                        <InputLabel
+                          htmlFor="start_date"
+                          style={{ whiteSpace: "initial" }}
+                        >
+                          Baseline start *
+                        </InputLabel>
+                        <DatePicker
+                          id="start_date"
+                          name="start_date"
+                          sx={{
+                            width: "100%",
+                            input: { color: "#111" },
+                          }}
+                          minDate={new Date(baselinePeriod?.start_date)}
+                          maxDate={new Date(baselinePeriod?.end_date)}
+                          value={values.start_date}
+                          onChange={(date) => {
+                            setFieldValue("start_date", date);
+                            handleSubmit({ ...values, start_date: date });
+                            setBaselineStartDate(
+                              format(new Date(date), "yyyy-MM-dd")
+                            );
+                          }}
+                          format="dd/MM/yyyy"
+                          slotProps={{
+                            textField: {
+                              helperText: errors.start_date && errors.start_date,
+                            },
+                            actionBar: {
+                              actions: ["clear", "accept"],
+                              className: "my-datepicker-actionbar",
+                            },
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={4}>
+                        <InputLabel
+                          htmlFor="end_date"
+                          style={{ whiteSpace: "initial" }}
+                        >
+                          Baseline end *
+                        </InputLabel>
+                        <DatePicker
+                          id="end_date"
+                          name="end_date"
+                          sx={{
+                            width: "100%",
+                            input: { color: "#111" },
+                          }}
+                          value={values.end_date}
+                          onChange={(date) => {
+                            setFieldValue("end_date", date);
+                            handleSubmit({ ...values, end_date: date });
+                            setBaselineEndDate(
+                              format(new Date(date), "yyyy-MM-dd")
+                            );
+                          }}
+                          minDate={new Date(baselinePeriod?.start_date)}
+                          maxDate={new Date(baselinePeriod?.end_date)}
+                          format="dd/MM/yyyy"
+                          slotProps={{
+                            textField: {
+                              helperText: errors.end_date && errors.end_date,
+                            },
+                            actionBar: {
+                              actions: ["clear", "accept"],
+                              className: "my-datepicker-actionbar",
+                            },
+                          }}
+                        />
+                      </Grid>
+                    </Grid> */}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>

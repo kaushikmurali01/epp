@@ -16,7 +16,7 @@ const BaselineSummaryAccord = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const summaryBody = {facility_id:24, meter_id:1}
+    const summaryBody = {facility_id:336, meter_type:1}
     dispatch(getBaselineDataSummary(summaryBody));
   }, [dispatch]);
   
