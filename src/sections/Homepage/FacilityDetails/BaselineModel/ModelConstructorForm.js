@@ -118,6 +118,7 @@ const ModelConstructorForm = ({
       setSufficiencyCheckDataLocally({
         daily: { ...baselineCalculated?.parameter_data?.daily },
         hourly: { ...baselineCalculated?.parameter_data?.hourly },
+        monthly: { ...baselineCalculated?.parameter_data?.monthly },
       });
       setBaselineStartDate(
         format(
@@ -254,11 +255,7 @@ const ModelConstructorForm = ({
     {
       Header: "Monthly",
       accessor: (item) =>
-        sufficiencyVerificationStatusButton(
-          item?.hourly?.status === "failed" || item?.daily?.status === "failed"
-            ? "failed"
-            : "passed"
-        ),
+        sufficiencyVerificationStatusButton(item?.monthly?.status),
     },
     {
       Header: "details",

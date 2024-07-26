@@ -1,11 +1,59 @@
 .custom-marker {
-    width: 40px; /* Adjust based on your image size */
-    height: 40px; /* Adjust based on your image size */
-    background-color: red;
-  }
-  
-  .custom-marker img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
+  background: white;
+  border: 2px solid;
+  border-radius: 50%;
+  text-align: center;
+  padding: 5px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.facility-marker {
+  border-color: green;
+}
+
+.facility-marker img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.image-placeholder {
+  width: 40px;
+  height: 40px;
+  background-color: #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+}
+
+.facility-marker span,
+.weather-station-marker span {
+  font-size: 10px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50px;
+}
+
+.weather-station-marker {
+  border-color: blue;
+  width: 40px;
+  height: 40px;
+}
+
+.weather-station-marker span {
+  font-size: 12px;
+  max-width: 100px;
+}
