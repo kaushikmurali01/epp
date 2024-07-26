@@ -7,9 +7,7 @@ import { styled } from '@mui/system';
 
 export default function EvThemeDropdown({dropdownConfig,setDropdownConfig, dataRow,handleAPISuccessCallBack,setRefreshTableData,disabledTitle}) {
   const createHandleMenuClick = (menuItem) => {
-    return () => {
-      console.log(`Clicked on ${menuItem}`);
-     
+    return () => {     
       if(dataRow && setRefreshTableData){
         setDropdownConfig((prevState) => ({
             ...prevState,
@@ -25,14 +23,13 @@ export default function EvThemeDropdown({dropdownConfig,setDropdownConfig, dataR
       }
     };
   };
-  console.log(disabledTitle, "disabledTitle")
+
 
   return (
     <Dropdown>
       <MenuButton disabled={disabledTitle} sx={{pointerEvents: disabledTitle ? 'none' : 'auto', opacity: disabledTitle ? '0.5' : '1'}}>{dropdownConfig?.title}</MenuButton>
       <Menu slots={{ listbox: Listbox }}>
         {dropdownConfig?.options && dropdownConfig?.options.map((option)=> {
-            {console.log(dataRow, option, "checked item")}
             return (
                 <MenuItem onClick={createHandleMenuClick(option.value)} disabled={dataRow.status.toLowerCase() === option.value }>{option.label}</MenuItem>
             )

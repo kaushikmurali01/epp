@@ -9,29 +9,29 @@ import {
   FormLabel,
   Grid,
   IconButton,
-  TextField,
   Typography,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-
 import { debounce } from "lodash";
 import Loader from "pages/Loader";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EvThemeTable from "components/Table/EvThemeTable";
 import NotificationsToast from "utils/notification/NotificationsToast";
-import { ENERVA_USER_MANAGEMENT } from "constants/apiEndPoints";
-import { DELETE_REQUEST } from "utils/HTTPRequests";
+import { ENERVA_USER_MANAGEMENT, adminFacilityEndpoints } from "constants/apiEndPoints";
+import { DELETE_REQUEST, GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import EvModal from "utils/modal/EvModal";
 import { capitalizeFirstChar } from "utils/helper/helper";
 import { fetchFacilityListByUserId } from "../../../redux/admin/actions/adminFacilityActions";
+import AssignedUserForm from "./AssignedUserForm";
 
 const FacilityManageUserAccess = () => {
   const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
   const [isChecked, setIsChecked] = useState(false);
   const [refreshTableData, setRefreshTableData] = useState(0);
+  const [getUserList, setUserList] = useState([]);
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
     modalUI: {
@@ -57,6 +57,24 @@ const FacilityManageUserAccess = () => {
     headerSubText: "",
     modalBodyContent: "",
   });
+  const [modalConfigAssignUser, setModalConfigAssignUser] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      modalBodyContentStyle: {width: {xs: '100%', md: "450px"}, padding: '0 1rem !important'}
+    
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonClass: "",
+      cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: "",
+      saveButtonName: "Submit",
+      cancelButtonName: "",  
+    },
+  })
 
   const columns = [
     {
@@ -120,19 +138,6 @@ const FacilityManageUserAccess = () => {
           }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* <Button
-            disabled={userData?.user?.id === item?.id}
-            style={{
-              color: "#2C77E9",
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            onClick={()=> handelManagePermission(userData,item)}
-          >
-            Manage permissions
-          </Button> */}
           <Button
             disabled={userData?.user?.id === item?.id}
             color="error"
@@ -142,7 +147,7 @@ const FacilityManageUserAccess = () => {
               minWidth: "unset",
               fontSize: "0.875rem",
             }}
-            // onClick={() => handelDeleteModalOpen(userData,item)}
+            onClick={() => handelDeleteModalOpen(userData,item)}
             // uncomment the onClick when any one work on it and update the api endpoint for this...
             
           >
@@ -157,13 +162,14 @@ const FacilityManageUserAccess = () => {
   // const { id } = useParams();
   const getParams = useLocation();
   const facilityId = getParams.state?.facilityId || '';
+  const companyID = getParams.state?.companyId || '';
   const [selectTableRow, setSelectTableRow] = useState({});
   const [sortColumn, setSortColumn] = useState("");
   const [sortOrder, setSortOrder] = useState("");
   const [searchData, setSearchData] = useState([]);
 
 
-  console.log(getParams, "getParams")
+
   const companyUserListData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityListByUsersId?.rows || []
   );
@@ -179,7 +185,8 @@ const FacilityManageUserAccess = () => {
 
 
 
-  const DeleteModelContent = () => {
+  const DeleteModelContent = ({facilityData}) => {
+    console.log(facilityData, "check item")
     return (
         <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
             <Grid item sx={{textAlign:'center'}}>
@@ -190,15 +197,10 @@ const FacilityManageUserAccess = () => {
             <Grid item>
                 <Typography variant="h4">
                     Are you sure you would like to delete
-                    the customer user details
+                    the user access from {facilityData.facility_name}
                 </Typography>
             </Grid>
-            <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
-                 <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
-                </FormGroup>
-            </Grid>
+          
         </Grid>
     )
 }
@@ -218,7 +220,7 @@ const FacilityManageUserAccess = () => {
             saveButton: true,
             cancelButton: true,
         },
-        modalBodyContent: <DeleteModelContent />,
+        modalBodyContent: <DeleteModelContent facilityData={item} />,
         saveButtonAction: () =>  handelDelete(item, setModalConfig),
     }));
    
@@ -226,9 +228,10 @@ const FacilityManageUserAccess = () => {
 
 const handelDelete = (item, setModalConfig) => {
   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
-  // for customer we need to company_id to delete
-  const entry_type = "1";
-  const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + entry_type + '/' + item.id;
+  
+  const apiURL = adminFacilityEndpoints.REMOVE_MANAGE_ACCESS_USER+"/"+item.facility_id+"/"+item.id;
+
+  console.log(apiURL,item, "check delete api url")
   // return;
   DELETE_REQUEST(apiURL)
       .then((response) => {
@@ -248,7 +251,7 @@ const handelDelete = (item, setModalConfig) => {
               ...prevState,
               modalVisible: false,
           }));
-          setRefreshTableData(prevState => prevState + 1);;
+          setRefreshTableData(prevState => prevState + 1);
       }
           dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
@@ -265,51 +268,120 @@ const handelDelete = (item, setModalConfig) => {
       })
 }
 
-  const handelInviteUserAdmin = () => {
-   
-    const data = {
-      pageInfo: { title: 'Add company user' },
-      isEdited: false,
-      facilityId: facilityId,
-      companyName: getParams.state.companyName,
-      selectTableRow: {
-        user_type : "customer",
-        user_type_id : 2,
-        company_id: facilityId,
-        isDisabled: true,
-        
-      },
-      returnPageURL: `/companies/${facilityId}/manage-access`
-    }
-    // set state on session storage
-    // navigate('/user-management/manage-access',{state: data})
-    navigate(`/companies/${facilityId}/manage-access/add-user`, {state: data})
-
-  }
   
-  const handelManagePermission = (userData,item) => {
-    if(userData?.user?.id === item?.id){
-        NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-        return;
-    }
+// const RequestToJoinForm = () => {
 
-    const data = {
-      pageInfo: { title: 'Manage company user and permissions' },
-      isEdited: true,
-      facilityId: facilityId,
-      companyName: getParams.state.companyName,
-      selectTableRow: item,
-      returnPageURL: `/companies/${facilityId}/manage-access`
-    }
+//   const initialValues = {
+//     userIds: [],
+//     facilityId: ""
+// }
+// const [dropdownConfig, setDropdownConfig] = useState({
+//   title: 'Change Status',
+//   options: [
+//       { value: 'active', label: 'Active' },
+//       { value: 'inactive', label: 'Inactive' }
+//   ],
+//   selectedValue: '',
+// });
+//   const formSubmit = (data) => {
+//     console.log(data, "check role")
+//     const apiURL = "";
+//     const requestBody = {
+//       user_ids:data.userIds,
+//       facility_id: data.facilityId
+//   }
+//     console.log(requestBody, apiURL, "check payload")
+//   return
+//     POST_REQUEST(apiURL, requestBody)
+//       .then((response) => {
+//         const successMessage = response.data.status === 200 ? `Your request to join ${response?.data?.company?.company_name} has been submitted. The company’s administrators will review your request.` : response.data.message;
 
-    navigate(`/companies/${facilityId}/manage-access/add-user`, {state: data})
-    
-}
+//         setModalConfig((prevState) => ({
+//           ...prevState,
+//           modalVisible: true,
+//           modalUI: {
+//             ...prevState.modalUI,
+//             modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem'},
+//             fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+//           },
+//           buttonsUI: {
+//             ...prevState.buttonsUI,
+//             saveButton: false,
+//             cancelButton: true,
+//             cancelButtonStyle: {
+//               backgroundColor: "primary.main",
+//               "&:hover": { backgroundColor: "primary.main" },
+//               color: "#fff",
+//             },
+//             cancelButtonName: "Okay",
+//         },
+//         headerText: "",
+//         headerSubText: '',
+//         modalBodyContent: successMessage
+//         }));
 
-  // useEffect(() => {
-  //   dispatch(fetchFacilityListByUserId(pageInfo, facilityId,searchData));
-  // }, [dispatch, pageInfo.page, pageInfo.pageSize, facilityId,searchData,refreshTableData]);
+//       })
+//       .catch((error) => {
+//         console.log(error, 'error')
+//         // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
 
+//       })
+//   }
+
+//   return (
+//     <Formik
+//       initialValues={{
+//         ...initialValues
+//       }}
+//       validationSchema= ""
+//       onSubmit={formSubmit}
+//     >
+//       <Form >
+//       <h3>sdfds</h3>
+//         <Stack sx={{ marginBottom: '1rem' }}>
+
+//             <EvThemeDropdown />
+//         </Stack>
+
+
+
+//         {/* <SelectBox /> */}
+//         <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
+//           <ButtonWrapper type="submit" variant="contained"  >
+//             Submit
+//           </ButtonWrapper>
+
+//         </Grid>
+//       </Form>
+//     </Formik>
+//   )
+// }
+
+  const handleAssignUser = ()=> {
+    console.log("assign user clicked")
+
+    setModalConfigAssignUser((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    headerText: "Assign user",
+    headerSubText: '',
+      modalBodyContent: <AssignedUserForm setModalConfig={setModalConfigAssignUser} userList={getUserList} facilityId={facilityId} setRefreshTableData={setRefreshTableData} />
+    }));
+  }
+
+  const getUserListByCompanyId = () => {
+    const apiURL = adminFacilityEndpoints.GET_USER_LIST_BY_COMPANY_ID+"/"+companyID+"/"+facilityId
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setUserList(res.data.data)
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
+  useEffect(()=> {
+    getUserListByCompanyId()
+  }, [refreshTableData])
 
 
   const debouncedSearch = debounce((pageInfo, facility_id, search, sort_Column, sort_Order) => {
@@ -339,7 +411,7 @@ useEffect(() => {
 
 
 
-  console.log(companyUserListData,facilityId, "companyUserListData")
+  console.log(getUserList, "companyUserListData")
 
 
 
@@ -373,7 +445,7 @@ useEffect(() => {
         </Typography>
         </Grid>
         <Grid item xs={12} sm={6} sx={{ display: 'flex', justifyContent: {xs: 'flex-start', sm: 'flex-end'}, alignItems: 'center', gap: {xs: '1rem', sm: '2rem'} }}>
-                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  console.log("assign user clicked")  } >
+                  <Typography variant='small' sx={{ color: 'primary.main', cursor: 'pointer' }} onClick={() =>  handleAssignUser()  } >
                     Assign User
                   </Typography>
               </Grid>
@@ -405,7 +477,9 @@ useEffect(() => {
         loadingState={loadingState}
         loaderPosition="fixed"
       />
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      {modalConfig.modalVisible && <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />}
+      {modalConfigAssignUser.modalVisible && <EvModal modalConfig={modalConfigAssignUser} setModalConfig={setModalConfigAssignUser} />}
+      
     </Container>
   );
 };

@@ -66,6 +66,9 @@ export const adminFacilityEndpoints = {
   ADMIN_FACILITY_LIST_ACTIVE: "company-facility/v1/facility-listing-admin",
   ADMIN_FACILITY_LIST_INPROCESS: "company-facility/v1/facility-inprocess-admin",
   ADMIN_FACILITY_LIST_BY_ID: "/company-facility/v1/facility-users-list",
+  GET_USER_LIST_BY_COMPANY_ID: "/company-facility/v1/user-company-drop-down",
+  ASSIGN_USER_FACILITY: "/company-facility/v1/facility-assign-user",
+  REMOVE_MANAGE_ACCESS_USER: "/company-facility/v1/remove-user-facility",
 };
 
 export const PA_MANAGEMENT = {

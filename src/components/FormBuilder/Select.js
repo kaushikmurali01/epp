@@ -19,17 +19,17 @@ const SelectBox = ({
 
   useEffect(() => {
     if (label?.includes('*')) {
-      setLabelText(label.split('*'));
-      setIsAsterisk(label.includes('*'));
+      setLabelText(label.split('*')[0]); // Use the first part of the split label
+      setIsAsterisk(true);
     } else {
       setLabelText(label);
     }
-  }, [labelText]);
+  }, [label]);
 
   const handleChange = evt => {
     const { value } = evt.target;
     setFieldValue(name, value);
-    if (onChange) onChange(evt)
+    if (onChange) onChange(evt);
   };
 
   const configSelect = {
@@ -40,7 +40,7 @@ const SelectBox = ({
     fullWidth: true,
     value: field?.value || '', // Initialize value prop with an empty string if undefined
     onChange: handleChange,
-    // onBlur: handleBlur
+    onBlur: handleBlur,
   };
 
   if (meta && meta.touched && meta.error) {
@@ -51,21 +51,22 @@ const SelectBox = ({
   return (
     <FormGroup className='theme-form-group theme-select-form-group' key={name}>
       <FormControl sx={{ width: "100%" }} >
-        {label && <>
+        {label && (
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <FormLabel>{labelText}</FormLabel>
-            {asterisk ? <span className="asterisk">*</span> : null}
+            {asterisk && <span className="asterisk">*</span>}
           </div>
-        </>}
+        )}
         <TextField {...configSelect}>
-          {/* <MenuItem value="" disabled>
-          <em>Select</em>
-      </MenuItem> */}
           {options?.length ? options.map((item) => (
             <MenuItem key={item[valueKey]} value={item?.[valueKey] || ''}>
               {item[labelKey]}
             </MenuItem>
-          )) : null}
+          )) : (
+            <MenuItem value="" disabled>
+              <em>No options available</em>
+            </MenuItem>
+          )}
         </TextField>
       </FormControl>
     </FormGroup>
