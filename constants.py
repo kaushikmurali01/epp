@@ -1,9 +1,9 @@
 METER_FACTOR = 3
 IV_FACTOR = 1.5
 
-SUFFICIENCY_DATA = {"daily": {"sufficiency": 46.86, "status": "failed"},
-                    "hourly": {"sufficiency": 46.52, "status": "failed"},
-                    "monthly": {"sufficiency": 46.52, "status": "failed",
+SUFFICIENCY_DATA = {"daily": {"sufficiency": 46.86, "status": "passed"},
+                    "hourly": {"sufficiency": 46.52, "status": "passed"},
+                    "monthly": {"sufficiency": 46.52, "status": "passed",
                                 "data": [{"month": "June 2023", "value": "0.00"},
                                          {"month": "July 2023", "value": "0.00"},
                                          {"month": "August 2023", "value": "0.00"},
