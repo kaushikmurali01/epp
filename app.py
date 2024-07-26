@@ -13,6 +13,7 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest
 from insertion_and_preparation import insert_clean_data_to_db
+from utils import process_excel
 from visualization.data_exploration import DataExplorationVisualisation
 from logging.handlers import RotatingFileHandler
 import logging
@@ -683,8 +684,10 @@ def get_outlier_settings():
     op.process()
 
     information = op.data_exploration_response
-    settings = [{record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR} for record
-                in information]
+    settings = [
+        {record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR}
+        for record
+        in information]
     response = {"settings": settings, 'info': information}
     return response
 
@@ -694,6 +697,21 @@ def visualise_data_exploration_summary():
     facility_id = request.args.get('facility_id', None)
     visualisation = DataExplorationVisualisation(facility_id)
     return visualisation.fetch_data()
+
+
+@app.route('/upload-meter-file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"})
+    file = request.files['file']
+    iv = request.form.get('iv')
+    facility_id = request.form.get('facility_id')
+    meter_id = request.form.get('meter_id')
+    if file.filename == '':
+        return jsonify({"error": "No selected file"})
+    if file:
+        result = process_excel(file, facility_id, meter_id)
+        return jsonify(result)
 
 
 if __name__ == '__main__':
