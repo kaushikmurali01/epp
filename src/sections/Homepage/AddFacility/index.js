@@ -259,13 +259,6 @@ const AddFacilityComponent = (props) => {
         parseFloat(response?.data?.results[0]?.position?.lon)
       );
 
-      // if(!code){
-      //   NotificationsToast({
-      //     message: "Please enter valid address",
-      //     type: "error",
-      //   });
-      //   return;
-      // }
 
       const newValues = {
         ...values,
@@ -279,12 +272,7 @@ const AddFacilityComponent = (props) => {
       if (newValues.facility_construction_status == "Existing Building") {
         newValues.facility_construction_status = 1;
       }
-      // else if (newValues.facility_construction_status == "New") {
-      //   newValues.facility_construction_status = 2;
-      // } else if (newValues.facility_construction_status == "Test Facility") {
-      //   newValues.facility_construction_status = 3;
-      // }
-
+     
       if (!id) {
         setLoadingState(true);
         POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)

@@ -390,11 +390,11 @@ const AdminFacilityListingNew = () => {
             <Tab
             value="enrolled_active_facilities" 
             label="Enrolled/Active Facilities" 
-            sx={{ minWidth: "10rem" }} />
+            sx={{ minWidth: "10rem", textTransform: 'inherit' }} />
             <Tab
               value="in_process_facilities"
               label="In-process Facilities"
-              sx={{ minWidth: "10rem" }}
+              sx={{ minWidth: "10rem",textTransform: 'inherit' }}
             />
 
             {/* <Tab
