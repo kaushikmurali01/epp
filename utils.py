@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def process_excel(file):
+def process_excel(file, facility_id, meter_id):
     try:
         # Read the uploaded Excel file
         df = pd.read_excel(file)
