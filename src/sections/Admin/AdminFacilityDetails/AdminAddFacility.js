@@ -308,8 +308,8 @@ const AdminAddFacilityComponent = (props) => {
         setInitialValues((prevValues) => {
             return {
                 ...formValues,
-                facility_type: value,
-                naic_code: NAICS[0]?.value,
+                facility_type: value || '',
+                naic_code: NAICS[0]?.value || '',
             };
         });
     }
@@ -390,7 +390,7 @@ const AdminAddFacilityComponent = (props) => {
         (state) => state?.facilityReducer?.userDetails?.user?.company_id
     );
 
-    console.log(userCompanyId)
+
 
     const handleSubmit = (values) => {
         delete values.facility_id_submission_status;
