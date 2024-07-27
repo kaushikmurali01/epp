@@ -6,13 +6,20 @@ import pandas as pd
 
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 from dbconnection import dbtest, db_execute_single
-from sql_queries.file_uploader import min_max_data, insert_query_facility_meter_hourly_entries
+from sql_queries.file_uploader import min_max_data, insert_query_facility_meter_hourly_entries, \
+    insert_query_facility_iv_files_table
 from azure.storage.blob import BlobServiceClient
 
 
 def create_file_record_in_table(facility_id, meter_id, meter_serial_no, created_by, file_path):
     values = [facility_id, meter_id, meter_serial_no, created_by, file_path]
     query = insert_query_facility_meter_hourly_entries
+    return db_execute_single(query, values)
+
+
+def create_file_iv_record_in_table(independent_variable_id,  file_path):
+    values = [independent_variable_id, file_path]
+    query = insert_query_facility_iv_files_table
     return db_execute_single(query, values)
 
 
@@ -73,7 +80,7 @@ def save_file_to_blob(file, blob_name):
         print(f"Error uploading file to blob storage: {str(e)}")
 
 
-def process_excel(file, facility_id, meter_id, created_by=118, meter_serial_no=00000):
+def process_excel(file, facility_id, meter_id, iv, created_by=118, meter_serial_no=00000):
     try:
         # Read the uploaded Excel file
         df = pd.read_excel(file)
@@ -99,7 +106,10 @@ def process_excel(file, facility_id, meter_id, created_by=118, meter_serial_no=0
         file.seek(0)  # Ensure file pointer is at the beginning
         blob_name = generate_blob_name()
         file_path = save_file_to_blob(file, blob_name)
-        record_id = create_file_record_in_table(facility_id, meter_id, meter_serial_no, created_by, file_path)
+        if not iv:
+            record_id = create_file_record_in_table(facility_id, meter_id, meter_serial_no, created_by, file_path)
+        else:
+            record_id = create_file_iv_record_in_table(meter_id, file_path)
         return {"success": True, "message": "File Uploaded Successfully", "path": file_path, "record_id": record_id}
     except Exception as e:
         return {"error": str(e)}

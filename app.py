@@ -737,14 +737,14 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     if file:
-        result = process_excel(file, facility_id, meter_id)
+        result = process_excel(file, facility_id, meter_id,iv)
         return jsonify(result)
 
 
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
-    amd = AddMeterData()
+    amd = AddMeterData(facility_id)
     thread = Thread(target=amd.process)
     thread.start()
     return {'status': 'Processing started'}, 202

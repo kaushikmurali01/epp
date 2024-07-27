@@ -164,6 +164,6 @@ config.py
 generarate_sample_data.py
 
 DataExplorationNew.py
-sql_queries.py
+sql_queries/data_exploration_queries.py
 test.py
 .idea

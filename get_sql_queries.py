@@ -1,5 +1,4 @@
-from sql_queries import outlier_summary, observed_data_summary, missing_data_summary, upper_bound_outlier_detail, \
-    lower_bound_outlier_detail, observed_data_detail, missing_data_detail, temperature_data_summary, \
+from sql_queries.data_exploration_queries import outlier_summary, observed_data_summary, missing_data_summary, \
     temp_outlier_summary, temp_observed_data_summary, temp_missing_data_summary
 
 
