@@ -409,21 +409,43 @@ def calculate_monthly_sufficiency(df):
 @app.route("/get_weather_data", methods=['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
-    data = request.args.get('data')
-    df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
-    df['date_time'] = pd.to_datetime(df['date_time'])
+    query = f"""
+    SELECT 
+        year, 
+        TO_CHAR(TO_DATE(month::text, 'MM'), 'Month') AS month_name,
+        month,
+        ROUND(AVG(temp), 2) AS temperature, 
+        ROUND(AVG(rel_hum), 2) AS average_humidity, 
+        ROUND(AVG(precip_amount), 2) AS average_precipitation, 
+        ROUND(AVG(wind_spd), 2) AS average_wind_speed, 
+        ROUND(AVG(station_press), 2) AS average_station_pressure
+    FROM 
+        weather_data 
+    WHERE 
+        facility_id = {facility} 
+    GROUP BY 
+        year, 
+        month 
+    ORDER BY 
+        year, 
+        month;
+    """
 
-    # Step 2: Set this column as the index
-    df.set_index('date_time', inplace=True)
+    df = dbtest(query)
+    # df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
+    # df['date_time'] = pd.to_datetime(df['date_time'])
+    #
+    # # Step 2: Set this column as the index
+    # df.set_index('date_time', inplace=True)
+    #
+    # # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+    # monthly_data = df[data].resample('M').mean()
+    #
+    # # Convert the Series to a dictionary with string keys
+    # monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
 
-    # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
-    monthly_data = df[data].resample('M').mean()
-
-    # Convert the Series to a dictionary with string keys
-    monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
-
-    # df_con = monthly_data_list.to_dict(orient= 'records')
-    return jsonify(monthly_data_list), 200
+    # # df_con = monthly_data_list.to_dict(orient= 'records')
+    return df.to_dict(orient='records'), 200
 
 
 @app.route('/insert_clean_data', methods=['POST'])
