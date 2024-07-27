@@ -460,26 +460,42 @@ const EntriesListing = ({
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
     setHourlyEntryFile(selectedFile);
-    dispatch(documentFileUploadAction(selectedFile))
-      .then((data) => {
-        setImgUrl(data?.sasTokenUrl);
-      })
-      .catch((error) => {
-        console.error("Error uploading document:", error);
-      });
+    // dispatch(documentFileUploadAction(selectedFile))
+    //   .then((data) => {
+    //     setImgUrl(data?.sasTokenUrl);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Error uploading document:", error);
+    //   });
   };
 
-  const uploadHourlyEntryFile = () => {
-    uploadEntryFile(imgUrl);
+  const uploadHourlyEntryFile = (img) => {
+    // console.log(imgUrl, img, "uploadHourlyEntryFile" )
+    // return;
+    uploadEntryFile(img);
   };
 
   const uploadEntryFile = (data) => {
-    const body = {
-      facility_id: parseInt(id),
-      facility_meter_detail_id: parseInt(facilityMeterDetailId),
-      media_url: data,
-    };
-    POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = hourlyEndPoints.ADD_MULTIPLE_HOURLY_DATA;
+    const formData = new FormData();
+    formData.append("file", hourlyEntryFile); 
+    formData.append("iv", false); 
+    formData.append("facility_id", id); 
+    formData.append("meter_id", facilityMeterDetailId); 
+
+    // const body = {
+    //   facility_id: parseInt(id),
+    //   facility_meter_detail_id: parseInt(facilityMeterDetailId),
+    //   media_url: data,
+    // };
+
+    console.log(
+      apiURL,formData,hourlyEntryFile,facilityMeterDetailId,
+      meterId, "check form data value");
+
+    // return;
+    POST_REQUEST(apiURL, formData, true, "")
       .then((response) => {
         getHourlySubHourlyEntryData();
         dispatch(fetchFacilityStatus(id));
@@ -488,8 +504,14 @@ const EntriesListing = ({
           message: "File uploaded successfully!",
           type: "success",
         });
+        // reset
+        setHourlyEntryFile(null);
+        setAcceptTermsAndCondition(false);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+
       })
       .catch((error) => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         NotificationsToast({
           message: error?.message ? error.message : "Something went wrong!",
           type: "error",
@@ -776,7 +798,7 @@ const EntriesListing = ({
               width: "165px",
               height: "40px",
             }}
-            disabled={!imgUrl || !acceptTermsAndCondition}
+            disabled={!hourlyEntryFile || !acceptTermsAndCondition}
           >
             Upload
           </Button>
