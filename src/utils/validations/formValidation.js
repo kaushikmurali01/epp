@@ -481,3 +481,22 @@ export const addContactValidationSchema = Yup.object().shape({
     .required("Postal code is required")
     .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
 });
+
+export const nonRoutineEventValidationSchema = Yup.object().shape({
+  event_from_period: Yup.date().required("Start date is required"),
+  event_to_period: Yup.date()
+    .required("End date is required")
+    .min(Yup.ref("event_from_period"), "End date can't be before start date"),
+  event_name: Yup.string().required("Event name is required"),
+  event_description: Yup.string().optional(),
+});
+
+export const nonRoutineDataValidationSchema = Yup.object().shape({
+  data_entries: Yup.array().of(
+    Yup.object().shape({
+      start_date: Yup.date().required("Start date is required"),
+      end_date: Yup.date().required("End date is required"),
+      non_routine_adjustment: Yup.number().optional(),
+    })
+  ),
+});

@@ -268,9 +268,7 @@ const RoutesComp = () => {
             ))}
           </List>
           <Typography variant="body2" style={{ marginTop: "16px" }}>
-            If you have not been granted any access yet by the administrators
-            for the company, you will not be able to see anything. Please
-            contact them to get your access.
+            If you have not been granted any access yet by the administrators for the company, you will not be able to view any of these four functions. Please contact your administrator to get your access.
           </Typography>
           <Box
             sx={{
