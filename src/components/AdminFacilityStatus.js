@@ -1,25 +1,27 @@
-import { Box, Button, useTheme } from "@mui/material";
+import React from "react";
+import { Box, useTheme } from "@mui/material";
 
 const AdminFacilityStatus = ({ children }) => {
   const { palette } = useTheme();
-  const getColor = (text) => {
-    switch (text) {
+
+  const getColors = (status) => {
+    switch (status) {
       case 0:
-        return "#E9E9E9";
+        return { background: "#E9E9E9", text: "#000000" }; // Draft
       case 1:
-        return "#d48fe3";
+        return { background: "#9C27B0", text: "#FFFFFF" }; // Ready for submission
       case 2:
-        return "#8e78de";
+        return { background: "#3F51B5", text: "#FFFFFF" }; // Submitted
       case 3:
-        return "#CFEEFF";
+        return { background: "#03A9F4", text: "#000000" }; // In review
       case 4:
-        return "#a9bf75";
+        return { background: "#2e813e", text: "#FFFFFF" }; // Baseline approved
       case 5:
-        return "#DCFF88";
+        return { background: "#1e6329", text: "#FFFFFF" }; // Approved
       case 6:
-        return "#ffa6a3";
+        return { background: "#F44336", text: "#FFFFFF" }; // Rejected
       default:
-        return "#54585A33";
+        return { background: "#9E9E9E", text: "#000000" }; // NA
     }
   };
 
@@ -44,17 +46,7 @@ const AdminFacilityStatus = ({ children }) => {
     }
   };
 
-  const isLightColor = (color) => {
-    const hex = color.replace("#", "");
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness > 155;
-  };
-
-  const backgroundColor = getColor(children);
-  const textColor = isLightColor(backgroundColor) ? "#000" : "#FFF";
+  const { background, text } = getColors(children);
 
   return (
     <Box sx={{ width: "100%", display: "flex", justifyItems: "flex-start" }}>
@@ -64,11 +56,11 @@ const AdminFacilityStatus = ({ children }) => {
           cursor: "default",
           borderRadius: "55px",
           padding: "5px 15px",
-          background: backgroundColor,
+          background: background,
+          color: text,
           textWrap: "nowrap",
-          fontStyle: 'italic',
-          color: textColor,
-          fontWeight: "medium"
+          fontStyle: "italic",
+          fontWeight: "bold",
         }}
         variant="contained"
       >
