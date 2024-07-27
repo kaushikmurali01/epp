@@ -164,6 +164,9 @@ const AddNonRoutineDataModal = ({
     setNonRoutineFile(null);
     setIsFileUploaded(false);
     setFieldValue("file_url", "");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const downloadFile = (fileUrl, fileName) => {
