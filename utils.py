@@ -1,14 +1,30 @@
 import threading
+import uuid
+from datetime import datetime
 
 import pandas as pd
 
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
-from dbconnection import dbtest
-from sql_queries.file_uploader import min_max_data
+from dbconnection import dbtest, db_execute_single
+from sql_queries.file_uploader import min_max_data, insert_query_facility_meter_hourly_entries
 from azure.storage.blob import BlobServiceClient
 
 
-# Configuration for Azure Blob Storage
+def create_file_record_in_table(facility_id, meter_id, meter_serial_no, created_by, file_path):
+    values = [facility_id, meter_id, meter_serial_no, created_by, file_path]
+    query = insert_query_facility_meter_hourly_entries
+    return db_execute_single(query, values)
+
+
+def generate_blob_name(extension="xlsx"):
+    # Generate a unique identifier
+    unique_id = uuid.uuid4()
+    # Get the current timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    # Combine the unique identifier and timestamp
+    blob_name = f"{timestamp}_{unique_id}.{extension}"
+    return blob_name
+
 
 def validate_uploaded_file_range(file_min, file_max, record_min, record_max):
     # Convert record_min and record_max to datetime
@@ -57,7 +73,7 @@ def save_file_to_blob(file, blob_name):
         print(f"Error uploading file to blob storage: {str(e)}")
 
 
-def process_excel(file, facility_id, meter_id):
+def process_excel(file, facility_id, meter_id, created_by=118, meter_serial_no=00000):
     try:
         # Read the uploaded Excel file
         df = pd.read_excel(file)
@@ -78,11 +94,12 @@ def process_excel(file, facility_id, meter_id):
         range_df['upper_limit'] = pd.to_datetime(range_df['upper_limit']).dt.strftime('%Y-%m-%d %H:%M:%S')
         response, is_valid = validate_uploaded_file_range(file_min, file_max, range_df['lower_limit'],
                                                           range_df['upper_limit'])
-        if not is_valid:
-            return {"success": is_valid, 'error': response}
+        # if not is_valid:
+        #     return {"success": is_valid, 'error': response}
         file.seek(0)  # Ensure file pointer is at the beginning
-        blob_name = "varun_test.xlsx"
+        blob_name = generate_blob_name()
         file_path = save_file_to_blob(file, blob_name)
-        return {"success": True, "message": "Your file is being processed.", "path": file_path}
+        record_id = create_file_record_in_table(facility_id, meter_id, meter_serial_no, created_by, file_path)
+        return {"success": True, "message": "File Uploaded Successfully", "path": file_path, "record_id": record_id}
     except Exception as e:
         return {"error": str(e)}
