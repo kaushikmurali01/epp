@@ -48,8 +48,11 @@ class DataExplorationVisualisation:
 
         # Extract the hour from the start date for grouping
         df['Hour'] = df['Start Date (Required)'].dt.floor('H')
+        df['Meter Reading (Required)'] = pd.to_numeric(df['Meter Reading (Required)'], errors='coerce')
 
         # Group by hour and 'Purchased From Grid', then calculate the mean meter reading
+        # hourly_mean = df.groupby(['Hour', 'Purchased From Grid'])['Meter Reading (Required)'].mean().round(
+        #     2).reset_index()
         hourly_mean = df.groupby(['Hour', 'Purchased From Grid'])['Meter Reading (Required)'].mean().round(
             2).reset_index()
 
