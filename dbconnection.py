@@ -170,7 +170,6 @@ def db_execute_single(query, values):
 
         try:
             # Execute the query and fetch the generated ID
-            print(query_with_returning, '\n\n\n', values)
             curs.execute(query_with_returning, values)
             generated_id = curs.fetchone()[0]  # Fetch the first (and only) row and get the ID
 

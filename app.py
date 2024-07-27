@@ -1,11 +1,10 @@
 from threading import Thread
 
 from flask import Flask, jsonify, request
-import json
 import pandas as pd
-import numpy as np
 
-from constants import IV_FACTOR, METER_FACTOR, SUFFICIENCY_DATA
+from components.meter_iv_uploader import MeterIVFileUploader
+from constants import SUFFICIENCY_DATA
 from add_file_data_to_table import AddMeterData
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -17,22 +16,9 @@ from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest
-from insertion_and_preparation import insert_clean_data_to_db
-from utils import process_excel
 from visualization.data_exploration import DataExplorationVisualisation
-from logging.handlers import RotatingFileHandler
-import logging
 
 app = Flask(__name__)
-
-
-# # Set up Flask logging
-# if not app.debug:
-#     file_handler = RotatingFileHandler('/var/log/flask/etl_flask.log', maxBytes=1024 * 1024 * 100, backupCount=10)
-#     file_handler.setLevel(logging.INFO)
-#     formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
-#     file_handler.setFormatter(formatter)
-#     app.logger.addHandler(file_handler)
 
 
 @app.route('/handle', methods=['GET'])
@@ -731,13 +717,14 @@ def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"})
     file = request.files['file']
-    iv = request.form.get('iv')
+    iv = False if request.form.get('iv') in [None, 'false'] else True
     facility_id = request.form.get('facility_id')
     meter_id = request.form.get('meter_id')
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     if file:
-        result = process_excel(file, facility_id, meter_id,iv)
+        meter_fu = MeterIVFileUploader(file, facility_id, meter_id, iv)
+        result = meter_fu.process()  # process_excel()
         return jsonify(result)
 
 
