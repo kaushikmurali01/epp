@@ -34,17 +34,12 @@ class DataExplorationVisualisation:
         self.df = dbtest(query)
 
     def fetch_data(self):
-        # for _, row in self.df.iterrows():
-        #     url = row['media_url']
-        #     purchased_from_grid = row['purchased_from_the_grid']
-        #     df = download_excel(url)
-        #     df['Purchased From Grid'] = purchased_from_grid
-        #     self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
         df = self.df
         start_date = 'start_date'
         end_date = 'end_date'
         reading = 'reading'
         purchased_from_grid = 'purchased_from_grid'
+        df.fillna('', inplace=True)
         df[start_date] = pd.to_datetime(df[start_date], format='%m/%d/%Y %H:%M')
         df[end_date] = pd.to_datetime(df[end_date], format='%m/%d/%Y %H:%M')
 
@@ -52,9 +47,6 @@ class DataExplorationVisualisation:
         df['Hour'] = df[start_date].dt.floor('H')
         df[reading] = pd.to_numeric(df[reading], errors='coerce')
 
-        # Group by hour and 'Purchased From Grid', then calculate the mean meter reading
-        # hourly_mean = df.groupby(['Hour', 'Purchased From Grid'])['Meter Reading (Required)'].mean().round(
-        #     2).reset_index()
         hourly_mean = df.groupby(['Hour', purchased_from_grid])[reading].mean().round(
             2).reset_index()
 
