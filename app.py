@@ -5,6 +5,7 @@ import json
 import pandas as pd
 import numpy as np
 
+from constants import IV_FACTOR, METER_FACTOR, SUFFICIENCY_DATA
 from add_file_data_to_table import AddMeterData
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -17,6 +18,7 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest
 from insertion_and_preparation import insert_clean_data_to_db
+from utils import process_excel
 from visualization.data_exploration import DataExplorationVisualisation
 from logging.handlers import RotatingFileHandler
 import logging
@@ -184,6 +186,7 @@ def check_issues():
 
 @app.route('/check_sufficiency', methods=['POST'])
 def check_sufficiency():
+    return SUFFICIENCY_DATA
     # Fetch the DataFrame from the database
     df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
                           hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
@@ -411,21 +414,43 @@ def calculate_monthly_sufficiency(df):
 @app.route("/get_weather_data", methods=['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
-    data = request.args.get('data')
-    df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
-    df['date_time'] = pd.to_datetime(df['date_time'])
+    query = f"""
+    SELECT 
+        year, 
+        TO_CHAR(TO_DATE(month::text, 'MM'), 'Month') AS month_name,
+        month,
+        ROUND(AVG(temp), 2) AS temperature, 
+        ROUND(AVG(rel_hum), 2) AS average_humidity, 
+        ROUND(AVG(precip_amount), 2) AS average_precipitation, 
+        ROUND(AVG(wind_spd), 2) AS average_wind_speed, 
+        ROUND(AVG(station_press), 2) AS average_station_pressure
+    FROM 
+        weather_data 
+    WHERE 
+        facility_id = {facility} 
+    GROUP BY 
+        year, 
+        month 
+    ORDER BY 
+        year, 
+        month;
+    """
 
-    # Step 2: Set this column as the index
-    df.set_index('date_time', inplace=True)
+    df = dbtest(query)
+    # df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
+    # df['date_time'] = pd.to_datetime(df['date_time'])
+    #
+    # # Step 2: Set this column as the index
+    # df.set_index('date_time', inplace=True)
+    #
+    # # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
+    # monthly_data = df[data].resample('M').mean()
+    #
+    # # Convert the Series to a dictionary with string keys
+    # monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
 
-    # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
-    monthly_data = df[data].resample('M').mean()
-
-    # Convert the Series to a dictionary with string keys
-    monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
-
-    # df_con = monthly_data_list.to_dict(orient= 'records')
-    return jsonify(monthly_data_list), 200
+    # # df_con = monthly_data_list.to_dict(orient= 'records')
+    return df.to_dict(orient='records'), 200
 
 
 @app.route('/insert_clean_data', methods=['POST'])
@@ -701,6 +726,21 @@ def visualise_data_exploration_summary():
     return visualisation.fetch_data()
 
 
+@app.route('/upload-meter-file', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"})
+    file = request.files['file']
+    iv = request.form.get('iv')
+    facility_id = request.form.get('facility_id')
+    meter_id = request.form.get('meter_id')
+    if file.filename == '':
+        return jsonify({"error": "No selected file"})
+    if file:
+        result = process_excel(file, facility_id, meter_id)
+        return jsonify(result)
+
+
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
@@ -721,4 +761,4 @@ def get_data_exploration_summary_v2():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", debug=True, port=5005)

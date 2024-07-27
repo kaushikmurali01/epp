@@ -16,51 +16,48 @@ class DataExplorationVisualisation:
         self.facility_id = facility_id
         query = f'''
         SELECT DISTINCT 
-            hme.facility_id, 
-            fmd.meter_type AS meter_type, 
-            hme.meter_id,
-            hme.created_by, 
-            hme.media_url, 
-            fmd.purchased_from_the_grid, 
-            fmd.is_active
+            start_date,
+            end_date,
+            facility_id, 
+            meter_type, 
+            meter_id,
+            purchased_from_grid, 
+            is_active,
+            reading
         FROM 
-            epp.facility_meter_hourly_entries hme 
-        JOIN 
-            epp.facility_meter_detail fmd
-        ON 
-            hme.facility_meter_detail_id = fmd.id
+            epp.meter_hourly_entries hme 
         WHERE
-            hme.facility_id = {facility_id} AND
-            fmd.is_active = 1;
+            facility_id = {facility_id} AND
+            is_active = true AND
+            is_independent_variable=false;
         '''
         self.df = dbtest(query)
 
     def fetch_data(self):
-        for _, row in self.df.iterrows():
-            url = row['media_url']
-            purchased_from_grid = row['purchased_from_the_grid']
-            df = download_excel(url)
-            df['Purchased From Grid'] = purchased_from_grid
-            self.combined_df = pd.concat([self.combined_df, df], ignore_index=True)
-        df = self.combined_df.copy()
-        df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], format='%m/%d/%Y %H:%M')
-        df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], format='%m/%d/%Y %H:%M')
+        df = self.df
+        start_date = 'start_date'
+        end_date = 'end_date'
+        reading = 'reading'
+        purchased_from_grid = 'purchased_from_grid'
+        df.fillna('', inplace=True)
+        df[start_date] = pd.to_datetime(df[start_date], format='%m/%d/%Y %H:%M')
+        df[end_date] = pd.to_datetime(df[end_date], format='%m/%d/%Y %H:%M')
 
         # Extract the hour from the start date for grouping
-        df['Hour'] = df['Start Date (Required)'].dt.floor('H')
+        df['Hour'] = df[start_date].dt.floor('H')
+        df[reading] = pd.to_numeric(df[reading], errors='coerce')
 
-        # Group by hour and 'Purchased From Grid', then calculate the mean meter reading
-        hourly_mean = df.groupby(['Hour', 'Purchased From Grid'])['Meter Reading (Required)'].mean().round(
+        hourly_mean = df.groupby(['Hour', purchased_from_grid])[reading].mean().round(
             2).reset_index()
 
         # Rename columns
-        hourly_mean.columns = ['Start Date (Required)', 'Purchased From Grid', 'Mean Meter Reading']
+        hourly_mean.columns = [start_date, purchased_from_grid, reading]
 
         # Calculate the end date for each hourly interval
-        hourly_mean['End Date (Required)'] = hourly_mean['Start Date (Required)'] + pd.Timedelta(hours=1)
+        hourly_mean[end_date] = hourly_mean[start_date] + pd.Timedelta(hours=1)
 
         # Convert the datetime columns to strings
-        hourly_mean['Start Date (Required)'] = hourly_mean['Start Date (Required)'].dt.strftime('%m/%d/%Y %H:%M')
-        hourly_mean['End Date (Required)'] = hourly_mean['End Date (Required)'].dt.strftime('%m/%d/%Y %H:%M')
+        hourly_mean[start_date] = hourly_mean[start_date].dt.strftime('%m/%d/%Y %H:%M')
+        hourly_mean[end_date] = hourly_mean[end_date].dt.strftime('%m/%d/%Y %H:%M')
         json_data = hourly_mean.to_dict(orient='records')
         return json_data

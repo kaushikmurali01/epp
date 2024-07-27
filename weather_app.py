@@ -87,7 +87,7 @@ def process():
 def getdata():
     facility = request.args.get('facility_id')
     df = dbtest(
-        f'SELECT DISTINCT latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
+        f'SELECT DISTINCT station_name , latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
     df_con = df.to_dict(orient='records')
     return jsonify(df_con), 200
 
@@ -122,4 +122,4 @@ def getdates():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True, port=5001)
+    app.run(host="0.0.0.0", debug=True, port=5002)
