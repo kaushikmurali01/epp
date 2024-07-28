@@ -3,8 +3,11 @@ import json
 import pandas as pd
 import numpy as np
 
+from constants import IV_FACTOR, METER_FACTOR
+from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
 from issue_detection import detect_issues, handle_issues
+from paginator import Paginator
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -15,6 +18,7 @@ from logging.handlers import RotatingFileHandler
 import logging
 
 app = Flask(__name__)
+
 
 # # Set up Flask logging
 # if not app.debug:
@@ -600,7 +604,7 @@ def idv_process():
     return jsonify(hourly_data_list), 200
 
 
-@app.route("/data-exploration-summary", methods=['GET'])
+@app.route("/data-exploration-summary-old", methods=['GET'])
 def get_data_exploration_summary():
     facility_id = request.args.get('facility_id', None)
     summary_type = request.args.get('summary_type', 'observe_data')
@@ -634,6 +638,52 @@ def get_data_exploration_summary():
         response = des_object.get_missing_data_summary()
     else:
         response = des_object.get_observe_data_summary()
+    return response
+
+
+@app.route("/data-exploration-summary", methods=['GET'])
+def get_data_exploration_summary_new():
+    """
+    facility_id: Mandatory
+    meter_id: Mandatory for PopUp
+    if summary_type is outliers then and there is a meter_type then bound is mandatory
+    :return:
+    """
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    meter = request.args.get('meter')
+    summary_type = request.args.get('summary_type', 'observed')
+    bound = request.args.get('bound')
+    if summary_type == 'outliers':
+        if meter and not bound:
+            return {'status': 'failed', 'message': "Please provide value of Bound"}, 200
+
+    page_no = request.args.get('page_number', 1)
+    page_size = request.args.get('page_size', 100)
+    de = DataExploration(facility_id, summary_type, meter, bound)
+    de.process()
+    if meter:
+        pg = Paginator(page_no, page_size)
+
+        if len(de.data_exploration_summary_response):
+            return pg.paginate_df(de.data_exploration_summary_response)
+        return []
+    return de.data_exploration_response
+
+
+@app.route("/outlier-settings", methods=['GET'])
+def get_outlier_settings():
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    op = OutlierSettings(facility_id)
+    op.process()
+
+    information = op.data_exploration_response
+    settings = [{record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR} for record
+                in information]
+    response = {"settings": settings, 'info': information}
     return response
 
 
