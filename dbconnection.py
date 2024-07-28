@@ -30,7 +30,7 @@ def get_db_connection():
             'database': config.db_creds[0],
             'user': config.db_creds[1],
             'password': config.db_creds[2],
-            'host': config.db_creds[3],
+            'host': config.ssh_bind_address,
             'port': config.port  # Assuming the database is directly accessible on this port
         }
         return psycopg2.connect(**params)
