@@ -731,7 +731,8 @@ def upload_file():
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
-    amd = AddMeterData(facility_id)
+    iv = False if request.form.get('iv') in [None, 'false'] else True
+    amd = AddMeterData(facility_id, iv)
     thread = Thread(target=amd.process)
     thread.start()
     return {'status': 'Processing started'}, 202
