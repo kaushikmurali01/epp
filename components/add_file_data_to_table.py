@@ -1,6 +1,6 @@
 import pandas as pd
 
-from dbconnection import dbtest  # , bulk_insert_df
+from dbconnection import dbtest, bulk_insert_df
 from fetch_data_from_hourly_api import download_excel
 from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query
 
@@ -15,6 +15,7 @@ class AddMeterData:
 
     def initiate_meter_download(self):
         for _, row in self.raw_df.iterrows():
+            record_id = row.get('file_record_id')
             meter_name = row.get('meter_name')
             meter_detail_id = row.get('facility_meter_detail_id')
             url = row.get('media_url')
@@ -45,16 +46,16 @@ class AddMeterData:
             df['start_month'] = df['start_date'].dt.month
             df['end_year'] = df['end_date'].dt.year
             df['end_month'] = df['end_date'].dt.month
-
+            bulk_insert_df(df, 'meter_hourly_entries', record_id, 'facility_meter_hourly_entries')
             # bulk_insert_df(df, 'meter_hourly_entries')
 
     def initiate_iv_download(self):
         for _, row in self.raw_df.iterrows():
+            record_id = row.get('file_record_id')
             meter_name = row.get('independent_variable_name')
             iv_id = row.get('independent_variable_id')
             url = row.get('media_url')
             purchased_from_grid = row.get('purchased_from_the_grid')
-            print(row)
             meter_type = None
             df = download_excel(url)
             # df['meter_id'] = meter_detail_id
@@ -82,13 +83,10 @@ class AddMeterData:
             df['start_month'] = df['start_date'].dt.month
             df['end_year'] = df['end_date'].dt.year
             df['end_month'] = df['end_date'].dt.month
-            # bulk_insert_df(df, 'meter_hourly_entries')
+            # df, table_name, record_id, file_table
+            bulk_insert_df(df, 'meter_hourly_entries', record_id, 'independent_variable_file')
 
     def process(self):
         if self.iv:
             self.initiate_iv_download()
         self.initiate_meter_download()
-
-#
-# amd = AddMeterData(336, iv=True)
-# amd.process()

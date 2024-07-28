@@ -4,8 +4,9 @@ from flask import Flask, jsonify, request
 import pandas as pd
 
 from components.meter_iv_uploader import MeterIVFileUploader
+from components.add_file_data_to_table import AddMeterData
+
 from constants import SUFFICIENCY_DATA
-from add_file_data_to_table import AddMeterData
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -731,7 +732,8 @@ def upload_file():
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
-    iv = False if request.form.get('iv') in [None, 'false'] else True
+    iv = request.json.get('iv')
+
     amd = AddMeterData(facility_id, iv)
     thread = Thread(target=amd.process)
     thread.start()

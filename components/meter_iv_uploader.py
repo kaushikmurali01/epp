@@ -1,7 +1,7 @@
 import pandas as pd
 from dbconnection import dbtest, db_execute_single
-from sql_queries.file_uploader import min_max_data, insert_query_facility_meter_hourly_entries, \
-    insert_query_facility_iv_files_table
+from sql_queries.file_uploader import insert_query_facility_meter_hourly_entries, \
+    insert_query_facility_iv_files_table, min_max_data_meter, min_max_data_iv
 from utils import generate_blob_name, save_file_to_blob
 
 
@@ -59,14 +59,21 @@ class MeterIVFileUploader:
 
             file_max = df['Start Date (Required)'].max()
             file_min = df['Start Date (Required)'].min()
+            if self.iv:
+                query = min_max_data_iv.format(self.facility_id, self.meter_id)
+            else:
+                query = min_max_data_meter.format(self.facility_id, self.meter_id)
+            range_df = dbtest(query)
+            range_df = range_df.dropna()
+            resource, is_valid = 'OK', True
 
-            range_df = dbtest(min_max_data.format(self.facility_id, self.meter_id))
-            range_df['lower_limit'] = pd.to_datetime(range_df['lower_limit']).dt.strftime('%Y-%m-%d %H:%M:%S')
-            range_df['upper_limit'] = pd.to_datetime(range_df['upper_limit']).dt.strftime('%Y-%m-%d %H:%M:%S')
-            response, is_valid = self.validate_uploaded_file_range(file_min, file_max, range_df['lower_limit'],
-                                                                   range_df['upper_limit'])
-            # if not is_valid:
-            #     return {"success": is_valid, 'error': response}
+            if len(range_df):
+                range_df['lower_limit'] = pd.to_datetime(range_df['lower_limit']).dt.strftime('%Y-%m-%d %H:%M:%S')
+                range_df['upper_limit'] = pd.to_datetime(range_df['upper_limit']).dt.strftime('%Y-%m-%d %H:%M:%S')
+                response, is_valid = self.validate_uploaded_file_range(file_min, file_max, range_df['lower_limit'],
+                                                                       range_df['upper_limit'])
+            if not is_valid:
+                return {"success": is_valid, 'error': response}
             self.file.seek(0)  # Ensure file pointer is at the beginning
             blob_name = generate_blob_name()
             file_path = save_file_to_blob(blob_name, self.file)
