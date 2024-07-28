@@ -24,7 +24,7 @@ def get_db_connection():
             'port': server.local_bind_port
         }
         conn = psycopg2.connect(**params)
-        return conn#, server  # Return the server object for later stopping
+        return conn  # , server  # Return the server object for later stopping
     else:
         params = {
             'database': config.db_creds[0],
@@ -46,6 +46,49 @@ def dbtest(query):
     curs.close()
     conn.close()
     return df
+
+
+def execute_query(query, params=None):
+    """
+    Executes a given SQL query with optional parameters.
+
+    :param query: The SQL query to be executed.
+    :param params: A tuple of parameters to be passed to the SQL query.
+    :return: A tuple containing a boolean status and a message.
+    """
+    try:
+        conn = get_db_connection()
+        curs = conn.cursor()
+        if params:
+            curs.execute(query, params)
+        else:
+            curs.execute(query)
+        conn.commit()  # Commit the transaction
+        return True, "Query executed successfully"
+    except psycopg2.Error as e:
+        return False, f'Something went wrong: {e}'
+    finally:
+        if curs:
+            curs.close()
+        if conn:
+            conn.close()
+
+
+# def execute_query(query):
+#     """
+#
+#     :param query: delete from independent_variable_file where processed = false and id=
+#     :return:
+#     """
+#     try:
+#         conn = get_db_connection()
+#         curs = conn.cursor()
+#         curs.execute(query)
+#         curs.close()
+#         conn.close()
+#         return True, "Query Executed Successfully"
+#     except:
+#         return False, 'Something went wrong'
 
 
 def db_execute(query, values):

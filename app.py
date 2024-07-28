@@ -13,10 +13,11 @@ from data_eploration_summary import DataExplorationSummary
 from data_exploration_v2 import DataExplorationSummaryV2
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
+from sql_queries.file_uploader import delete_file_query
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
-from dbconnection import dbtest
+from dbconnection import dbtest, execute_query
 from visualization.data_exploration import DataExplorationVisualisation
 
 app = Flask(__name__)
@@ -725,8 +726,23 @@ def upload_file():
         return jsonify({"error": "No selected file"})
     if file:
         meter_fu = MeterIVFileUploader(file, facility_id, meter_id, iv)
-        result = meter_fu.process()  # process_excel()
+        result = meter_fu.process()
         return jsonify(result)
+
+
+@app.route('/remove-meter-file', methods=['POST'])
+def remove_file():
+    record_id = request.json.get('record_id')
+    iv = request.json.get('iv')
+    table_name = 'facility_meter_hourly_entries'
+    if iv:
+        table_name = 'independent_variable_file'
+
+    if not record_id:
+        return jsonify({"error": "No selected file"})
+    query = delete_file_query.format(table_name, record_id)
+    status, response = execute_query(query)
+    return {'success': status, 'response': response}
 
 
 @app.route('/add-meter-data', methods=['POST'])

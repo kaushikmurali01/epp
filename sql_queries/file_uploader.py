@@ -70,3 +70,6 @@ iv_file_processing_query = """
         ivf.is_active = true AND
         ivf.processed = false;
 """
+delete_file_query = """
+DELETE FROM {} where id = {} and processed=false
+"""
