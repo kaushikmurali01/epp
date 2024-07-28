@@ -154,5 +154,6 @@ def update_line_chart(start_date, end_date):
         scenario_data = combined_data[combined_data['Scenario'] == scenario]
         fig.add_trace(go.Scatter(x=scenario_data['date'], y=scenario_data['value'], mode='lines', name=scenario))
     return fig
+
 if __name__ == '__main__':
     app.run_server(debug=True, port = 5005)
