@@ -1,8 +1,8 @@
 from threading import Thread
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
-
+import plotly.graph_objs as go
 from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
@@ -19,6 +19,7 @@ from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilitie
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query
 from visualization.data_exploration import DataExplorationVisualisation
+from visualization.visualize_line_graph import DataVisualizer
 
 app = Flask(__name__)
 
@@ -764,6 +765,36 @@ def get_data_exploration_summary_v2():
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
     des = DataExplorationSummaryV2(facility_id, summary_type)
     return des.process()
+
+
+@app.route('/graph', methods=['GET'])
+def get_graph():
+    facility_id = request.args.get('facility_id')
+    meter_id = request.args.get('meter_id')
+    data_visualizer = DataVisualizer('https://ams-enerva-dev.azure-api.net/v1/summary_visualisation?facility_id=336',facility_id,meter_id)
+    combined_data = data_visualizer.combined_data
+    start_date = request.args.get('start_date', combined_data['date'].min().strftime('%Y-%m-%d'))
+    end_date = request.args.get('end_date', combined_data['date'].max().strftime('%Y-%m-%d'))
+
+    filtered_data = combined_data[(combined_data['date'] >= start_date) & (combined_data['date'] <= end_date)]
+
+    fig = go.Figure()
+    for scenario in filtered_data['Scenario'].unique():
+        scenario_data = filtered_data[filtered_data['Scenario'] == scenario]
+        fig.add_trace(go.Scatter(x=scenario_data['date'], y=scenario_data['value'], mode='lines', name=scenario))
+
+    graph_html = fig.to_html(full_html=False)
+
+    return render_template_string('''
+        <html>
+            <head>
+                <title>Interactive Graph</title>
+            </head>
+            <body>
+                {{ graph_html|safe }}
+            </body>
+        </html>
+    ''', graph_html=graph_html)
 
 
 if __name__ == '__main__':
