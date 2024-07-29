@@ -204,9 +204,9 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .required("Annual operational hours is required")
     .min(0, "Operational hours must be a positive number between 0 and 8760")
     .max(8760, "Operational hours cannot exceed 8760 hours per year"),
-  gross_floor_area_size_category: Yup.number().required(
-    "Gross floor area size category is required"
-  ),
+  // gross_floor_area_size_category: Yup.number().required(
+  //   "Gross floor area size category is required"
+  // ),
   gross_floor_area: Yup.number()
     .required("Gross floor area is required")
     .min(0, "Gross floor area must be a positive number")

@@ -277,19 +277,19 @@ const AddFacilityComponent = (props) => {
         setLoadingState(true);
         POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
           .then((response) => {
-            if (response?.data?.data) {
-              const myDataToSend = {
-                start_year: "2024",
-                end_year: "2024",
-                start_month: "1",
-                end_month: "6",
-                facility_id: response?.data && response?.data?.data?.id,
-              };
-              POST_REQUEST(
-                WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
-                myDataToSend
-              );
-            }
+            // if (response?.data?.data) {
+            //   const myDataToSend = {
+            //     start_year: "2024",
+            //     end_year: "2024",
+            //     start_month: "1",
+            //     end_month: "6",
+            //     facility_id: response?.data && response?.data?.data?.id,
+            //   };
+            //   POST_REQUEST(
+            //     WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
+            //     myDataToSend
+            //   );
+            // }
             setLoadingState(false);
             NotificationsToast({
               message: "Facility added successfully!",
@@ -310,19 +310,19 @@ const AddFacilityComponent = (props) => {
         setLoadingState(true);
         PATCH_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY + "/" + id, newValues)
           .then((response) => {
-            if (response) {
-              const myDataToSend = {
-                start_year: "2024",
-                end_year: "2024",
-                start_month: "1",
-                end_month: "6",
-                facility_id: id,
-              };
-              POST_REQUEST(
-                WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
-                myDataToSend
-              );
-            }
+            // if (response) {
+            //   const myDataToSend = {
+            //     start_year: "2024",
+            //     end_year: "2024",
+            //     start_month: "1",
+            //     end_month: "6",
+            //     facility_id: id,
+            //   };
+            //   POST_REQUEST(
+            //     WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
+            //     myDataToSend
+            //   );
+            // }
             setLoadingState(false);
             NotificationsToast({
               message: "Facility updated successfully!",

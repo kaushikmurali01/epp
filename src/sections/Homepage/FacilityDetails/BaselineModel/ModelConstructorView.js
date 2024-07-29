@@ -24,9 +24,10 @@ import { checkBoxButtonStyle } from "./styles";
 import { getSummaryDataByMeterType } from ".";
 import {
   fetchBaselineDetailsFromDb,
+  fetchBaselinePeriod,
   fetchStationsDetails,
 } from "../../../../redux/superAdmin/actions/baselineAction";
-import { format, formatISO } from "date-fns";
+import { format, formatISO, isBefore, parseISO, subYears } from "date-fns";
 import InputField from "components/FormBuilder/InputField";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
@@ -36,6 +37,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
+  const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
   const independentVariables = useSelector(
@@ -48,12 +50,18 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
 
   useEffect(() => {
-    dispatch(fetchStationsDetails(id));
+    dispatch(fetchStationsDetails(id)).then((res) => {
+      setBaselinePeriod(res);
+    });
   }, [dispatch, id, meterType]);
 
   const weatherStationsData = useSelector(
     (state) => state?.baselineReducer?.stationDetails
   );
+  useEffect(() => {
+    dispatch(fetchBaselinePeriod(id, meterType));
+  }, [dispatch, id, meterType]);
+
   useEffect(() => {
     if (baselineListData) {
       const initialValues = getSummaryDataByMeterType(
@@ -68,6 +76,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },
+        monthly: { ...initialValues?.parameter_data?.monthly },
       });
       setBaselineStartDate(
         initialValues?.parameter_data?.start_date &&
@@ -143,11 +152,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     {
       Header: "Monthly",
       accessor: (item) =>
-        sufficiencyVerificationStatusButton(
-          item?.hourly?.status === "failed" || item?.daily?.status === "failed"
-            ? "failed"
-            : "passed"
-        ),
+        sufficiencyVerificationStatusButton(item?.monthly?.status),
     },
     {
       Header: "details",
@@ -198,8 +203,10 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   >
                     {values?.start_date && values.end_date && (
                       <DateRangeSlider
-                        start_date={values?.start_date}
-                        end_date={values?.end_date}
+                        start_date={baselinePeriod?.start_date}
+                        end_date={baselinePeriod?.end_date}
+                        sliderStartDate={values?.start_date}
+                        sliderEndDate={values?.end_date}
                         startLabel="Baseline Start"
                         endLabel="Baseline End"
                         disabled={true}
