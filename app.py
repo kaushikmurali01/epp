@@ -771,24 +771,20 @@ def get_data_exploration_summary_v2():
 def get_graph():
     facility_id = request.args.get('facility_id')
     meter_id = request.args.get('meter_id')
-    data_visualizer = DataVisualizer('https://ams-enerva-dev.azure-api.net/v1/summary_visualisation?facility_id=336',facility_id,meter_id)
+    data_visualizer = DataVisualizer(facility_id, meter_id)
     combined_data = data_visualizer.combined_data
     start_date = request.args.get('start_date', combined_data['date'].min().strftime('%Y-%m-%d'))
     end_date = request.args.get('end_date', combined_data['date'].max().strftime('%Y-%m-%d'))
 
     filtered_data = combined_data[(combined_data['date'] >= start_date) & (combined_data['date'] <= end_date)]
-
-    fig = go.Figure()
-    for scenario in filtered_data['Scenario'].unique():
-        scenario_data = filtered_data[filtered_data['Scenario'] == scenario]
-        fig.add_trace(go.Scatter(x=scenario_data['date'], y=scenario_data['value'], mode='lines', name=scenario))
+    fig = data_visualizer.generate_figure(filtered_data)
 
     graph_html = fig.to_html(full_html=False)
 
     return render_template_string('''
         <html>
             <head>
-                <title>Interactive Graph</title>
+                <title>Dash</title>
             </head>
             <body>
                 {{ graph_html|safe }}
