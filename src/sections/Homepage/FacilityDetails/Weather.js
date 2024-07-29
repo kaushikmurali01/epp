@@ -16,10 +16,19 @@ import {
   Stack,
   FormGroup,
   FormControlLabel,
-  Checkbox
+  Checkbox,
 } from "@mui/material";
 import { PowerBIEmbed } from "powerbi-client-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer} from 'recharts';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import { models } from "powerbi-client";
 import { useSelector } from "react-redux";
 import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -48,159 +57,209 @@ const Weather = () => {
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false)
+  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
 
-  const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID
-  const weatherReportId = process.env.REACT_APP_POWERBI_WEATHER_REPORT_ID
-  const weatherEmbedUrl = process.env.REACT_APP_POWERBI_WEATHER_EMBED_URL
-  const iVDataSetId = process.env.REACT_APP_POWERBI_IV_DATASET_ID
-  const iVReportId = process.env.REACT_APP_POWERBI_IV_REPORT_ID
-  const iVEmbedUrl = process.env.REACT_APP_POWERBI_IV_EMBED_URL
-  const [reportLoading, setReportLoading] = useState(true)
+  const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID;
+  const weatherReportId = process.env.REACT_APP_POWERBI_WEATHER_REPORT_ID;
+  const weatherEmbedUrl = process.env.REACT_APP_POWERBI_WEATHER_EMBED_URL;
+  const iVDataSetId = process.env.REACT_APP_POWERBI_IV_DATASET_ID;
+  const iVReportId = process.env.REACT_APP_POWERBI_IV_REPORT_ID;
+  const iVEmbedUrl = process.env.REACT_APP_POWERBI_IV_EMBED_URL;
+  const [reportLoading, setReportLoading] = useState(true);
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
-  const [independentVariable1File, setIndependentVariable1File] = useState(null);
+  const [independentVariable1File, setIndependentVariable1File] =
+    useState(null);
   const [imgUrl, setImgUrl] = useState("");
   const initialValues = {};
   const [progress, setProgress] = useState(0);
   const [weatherLoading, setWeatherLoading] = useState(false);
 
-  const selectedIv= independentVarsList?.length && independentVarsList.find(obj => obj['id'] == tabValue);
-  const selectedIvName = selectedIv ? selectedIv['name'] : undefined;
+  const selectedIv =
+    independentVarsList?.length &&
+    independentVarsList.find((obj) => obj["id"] == tabValue);
+  const selectedIvName = selectedIv ? selectedIv["name"] : undefined;
   const [weatherData, setWeatherData] = useState({});
   const [weatherParamsChecked, setWeatherParamChecked] = useState({
     temp: true,
     rel_hum: true,
     precip_amount: true,
     wind_spd: true,
-    station_press:true
-  })
+    station_press: true,
+  });
 
   useEffect(() => {
-    setIndependentVariable1File(null)
-    if(!(tabValue == 'weather') && (selectedIv?.files?.[0]?.file_path)){
-       getPowerBiTokenForIV()
+    setIndependentVariable1File(null);
+    if (!(tabValue == "weather") && selectedIv?.files?.[0]?.file_path) {
+      getPowerBiTokenForIV();
     }
   }, [selectedIvName]);
 
   useEffect(() => {
-    if(!facilityData) return;
-    if(tabValue == 'weather'){
-      getWeatherData()
+    if (!facilityData) return;
+    if (tabValue == "weather") {
+      getWeatherData();
     }
-  }, [facilityData, selectedIvName])
+  }, [facilityData, selectedIvName]);
 
   const getWeatherData = async () => {
-
-    const nameMap = [
-      'temp', 'rel_hum', 'precip_amount', 'wind_spd', 'station_press'
-    ];
-
-    try{
+    try {
       setWeatherLoading(true);
-      const [tempRes, relHumRes, precipRes, windRes, pressRes] = await Promise.all([
-        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[0]}`),
-        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[1]}`),
-        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[2]}`),
-        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[3]}`),
-        GET_REQUEST(WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA+`?facility_id=${facilityData?.id}&data=${nameMap[4]}`)
-      ]);
+      const response = await GET_REQUEST(
+        WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA +
+          `?facility_id=${facilityData?.id}`
+      );
 
-      setWeatherData({
-        temp: convertToArrayOfObjects(tempRes?.data),
-        rel_hum: convertToArrayOfObjects(relHumRes?.data),
-        precip_amount: convertToArrayOfObjects(precipRes?.data),
-        wind_spd: convertToArrayOfObjects(windRes?.data),
-        station_press: convertToArrayOfObjects(pressRes?.data)
+      const weatherData = response.data;
+
+      const shortMonthNames = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      // Format the data for all charts
+      const formattedData = {
+        temp: [],
+        rel_hum: [],
+        precip_amount: [],
+        wind_spd: [],
+        station_press: [],
+      };
+
+      weatherData.forEach((item) => {
+        const shortMonthName = shortMonthNames[item.month - 1];
+        const commonData = {
+          name: `${shortMonthName} ${item.year}`,
+          month: item.month,
+          year: item.year,
+        };
+
+        formattedData.temp.push({
+          ...commonData,
+          value: parseFloat(item.temperature),
+        });
+        formattedData.rel_hum.push({
+          ...commonData,
+          value: parseFloat(item.average_humidity),
+        });
+        formattedData.precip_amount.push({
+          ...commonData,
+          value: parseFloat(item.average_precipitation),
+        });
+        formattedData.wind_spd.push({
+          ...commonData,
+          value: parseFloat(item.average_wind_speed),
+        });
+        formattedData.station_press.push({
+          ...commonData,
+          value: parseFloat(item.average_station_pressure),
+        });
       });
 
+      setWeatherData(formattedData);
     } catch (err) {
-      setWeatherLoading(false);
+      console.error("Error fetching weather data:", err);
     } finally {
       setWeatherLoading(false);
     }
-  }
+  };
 
   const getPowerBiTokenForIV = () => {
-    const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI
+    const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI;
 
-    GET_REQUEST(apiURL).then((response) => {
-      localStorage.setItem("powerBiAccessToken", (response?.data?.access_token));
-      getPowerBiReportTokenForIV()
-    })
-    .catch((error) => {
-      console.log(error);
-      if(error?.response?.status == 403){
-      }
-      setReportLoading(false);
-    });
-  }
+    GET_REQUEST(apiURL)
+      .then((response) => {
+        localStorage.setItem(
+          "powerBiAccessToken",
+          response?.data?.access_token
+        );
+        getPowerBiReportTokenForIV();
+      })
+      .catch((error) => {
+        console.log(error);
+        if (error?.response?.status == 403) {
+        }
+        setReportLoading(false);
+      });
+  };
 
-  const getPowerBiReportTokenForIV= () => {
-    setReportLoading(true)
+  const getPowerBiReportTokenForIV = () => {
+    setReportLoading(true);
     const apiURL = POWERBI_ENDPOINTS.GET_POWERBI_TOKEN;
     const body = {
-      "datasets": [
+      datasets: [
         {
-          "id":iVDataSetId
-        }
+          id: iVDataSetId,
+        },
       ],
-      "reports": [
+      reports: [
         {
-          "allowEdit": true,
-          "id":iVReportId
-        }
-      ]
-    }
+          allowEdit: true,
+          id: iVReportId,
+        },
+      ],
+    };
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
-        localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data))
+        localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data));
         setReportParametersForIV();
       })
       .catch((error) => {
         console.log(error);
-        if(error?.response?.status == 403){
+        if (error?.response?.status == 403) {
         }
         setReportLoading(false);
       });
-  }
+  };
 
-  let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
+  let powerBiReportToken = localStorage.getItem("powerBiReportToken")
+    ? JSON.parse(localStorage.getItem("powerBiReportToken"))
+    : null;
 
   const setReportParametersForIV = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/Default.UpdateParameters`
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/Default.UpdateParameters`;
     const body = {
-      "updateDetails": [
+      updateDetails: [
         {
-          "name": "variable_id",
-          "newValue": selectedIv?.id
+          name: "variable_id",
+          newValue: selectedIv?.id,
         },
-      ]
-    }
+      ],
+    };
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
-        refreshPowerBiReportForIV()
+        refreshPowerBiReportForIV();
       })
       .catch((error) => {
-        setReportLoading(false)
+        setReportLoading(false);
         console.log(error);
       });
-  }
+  };
 
   const refreshPowerBiReportForIV = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/refreshes`
+    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${iVDataSetId}/refreshes`;
     const body = {
-      retryCount: 3
-    }
-    POWERBI_POST_REQUEST(apiURL, body, )
+      retryCount: 3,
+    };
+    POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
-        setReportLoading(false)
+        setReportLoading(false);
       })
       .catch((error) => {
-        setReportLoading(false)
+        setReportLoading(false);
         console.log(error);
       });
-  }
+  };
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -232,56 +291,70 @@ const Weather = () => {
   });
 
   const openRequestModal = (isEdit, data) => {
-      setModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalBodyContent: <AddEditIndependentVariable isEdit={isEdit} data={data} />,
-      }));
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <AddEditIndependentVariable isEdit={isEdit} data={data} />
+      ),
+    }));
   };
 
   useEffect(() => {
     getIndependentVariales();
     getWeatherStations();
-
-  }, [facilityData?.id])
+  }, [facilityData?.id]);
 
   const getIndependentVariales = () => {
-    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_INDEPENDENT_VARIABLE+`/${facilityData?.id}`;
+    const apiURL =
+      WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_INDEPENDENT_VARIABLE +
+      `/${facilityData?.id}`;
     GET_REQUEST(apiURL).then((response) => {
-      if(response?.data?.length){
-        setIndependentVarList([...(response?.data)])
+      if (response?.data?.length) {
+        setIndependentVarList([...response?.data]);
       }
     });
-  }
-  
+  };
+
   const getWeatherStations = () => {
-    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_STATION+`?facility_id=${facilityData?.id}`;
+    const apiURL =
+      WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_STATION +
+      `?facility_id=${facilityData?.id}`;
     GET_REQUEST(apiURL).then((response) => {
-      if(response?.data?.length){
-        setWeatherStations([...(response?.data)])
+      if (response?.data?.length) {
+        setWeatherStations([...response?.data]);
       }
     });
-  }
+  };
 
   const AddEditIndependentVariable = ({ isEdit, data }) => {
     const formSubmit = (data) => {
-      const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.ADD_INDEPENDENT_VARIABLE;
-      const body = {...data, facility_id: facilityData?.id};
-      POST_REQUEST(apiURL, body).then((response) => {
-        setTabValue(response?.data?.data?.id);
-        getIndependentVariales();
-        setModalConfig((prevState) => ({
-          ...prevState,
-          modalVisible: false,
-        }));
-        NotificationsToast({ message: "Independent variable created successfully", type: "success" });
-      }).catch((error) => {
-        setModalConfig((prevState) => ({
-          ...prevState,
-          modalVisible: false,
-        }));
-        NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
-      })
+      const apiURL =
+        WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.ADD_INDEPENDENT_VARIABLE;
+      const body = { ...data, facility_id: facilityData?.id };
+      POST_REQUEST(apiURL, body)
+        .then((response) => {
+          setTabValue(response?.data?.data?.id);
+          getIndependentVariales();
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          NotificationsToast({
+            message: "Independent variable created successfully",
+            type: "success",
+          });
+        })
+        .catch((error) => {
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: false,
+          }));
+          NotificationsToast({
+            message: "Something went wrong, please contact the admin.",
+            type: "error",
+          });
+        });
     };
     return (
       <>
@@ -293,19 +366,20 @@ const Weather = () => {
         >
           {({ values, setFieldValue }) => (
             <Form>
-
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
                   name="name"
                   label="Independent Variable Name"
-                  type="text" />
+                  type="text"
+                />
               </Stack>
 
               <Stack sx={{ marginBottom: "1rem" }}>
                 <InputField
                   name="description"
                   label="Independent Variable Description"
-                  type="text" />
+                  type="text"
+                />
               </Stack>
 
               <Grid display="flex" sx={{ marginTop: "1rem" }}>
@@ -319,8 +393,6 @@ const Weather = () => {
       </>
     );
   };
-
-  const handleSubmit = (values) => { };
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
@@ -337,59 +409,57 @@ const Weather = () => {
   };
 
   const uploadIndepentVariableFile = () => {
-    const apiURL = WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE+`/${tabValue}`;
+    const apiURL =
+      WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE +
+      `/${tabValue}`;
     const body = new FormData();
     body.append("file", independentVariable1File);
-    axiosInstance.post(apiURL, body, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-        setProgress(percentCompleted);
-      },
-    })
-    .then((response) => {
-      if(response){
-        setIsFileUploaded(true);
-        getIndependentVariales();
-        NotificationsToast({ message: "Independent variable file uploaded successfully", type: "success" });
-      }
-    })
-    .catch((error) => {
-      console.error('There was an error uploading the file!', error);
-      NotificationsToast({ message: "Something went wrong, please contact the admin.", type: "error" });
-    });
-  }
-
-  const downloadFileFromUrl = (fileUrl) => {
-    fetch(imgUrl).then((response) => {
-      response.blob().then((blob) => {
-        const fileURL = window.URL.createObjectURL(blob);
-        let alink = document.createElement("a");
-        alink.href = fileURL;
-        let fileName = `_independent_variable1_file.csv`
-        alink.download = fileName;
-        alink.click();
+    axiosInstance
+      .post(apiURL, body, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setProgress(percentCompleted);
+        },
+      })
+      .then((response) => {
+        if (response) {
+          setIsFileUploaded(true);
+          getIndependentVariales();
+          NotificationsToast({
+            message: "Independent variable file uploaded successfully",
+            type: "success",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("There was an error uploading the file!", error);
+        NotificationsToast({
+          message: "Something went wrong, please contact the admin.",
+          type: "error",
+        });
       });
-    });
   };
 
-  const handleCheckboxChange = (event) => { 
-    setWeatherParamChecked(prevState => ({
+  const handleCheckboxChange = (event) => {
+    setWeatherParamChecked((prevState) => ({
       ...prevState,
-      [event.target.name]: event.target.checked
+      [event.target.name]: event.target.checked,
     }));
   };
 
   const getPowerBiError = (errorDetail) => {
-    console.log('Error in setIsErrorInPowerBi',errorDetail)
-  }
- 
+    console.log("Error in setIsErrorInPowerBi", errorDetail);
+  };
+
   let powerBiConfig = {
     type: "report",
     id: tabValue == "weather" ? weatherReportId : iVReportId,
-    embedUrl: tabValue == "weather" ? weatherEmbedUrl : iVEmbedUrl, 
+    embedUrl: tabValue == "weather" ? weatherEmbedUrl : iVEmbedUrl,
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
@@ -404,147 +474,83 @@ const Weather = () => {
       },
       background: models.BackgroundType.Transparent,
     },
-  }
-
-  const  convertToArrayOfObjects = (data) => {
-    const monthOrder = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-  
-    return Object.entries(data)
-      .map(([month, value]) => ({
-        name: month,
-        value: value
-      }))
-      .sort((a, b) => monthOrder.indexOf(a.name) - monthOrder.indexOf(b.name));
-  }
-
-  const  shortenMonthNames = (data) =>{
-    const monthAbbreviations = {
-      January: 'Jan',
-      February: 'Feb',
-      March: 'Mar',
-      April: 'Apr',
-      May: 'May',
-      June: 'Jun',
-      July: 'Jul',
-      August: 'Aug',
-      September: 'Sep',
-      October: 'Oct',
-      November: 'Nov',
-      December: 'Dec'
-    };
-  
-    return data.map(item => ({
-      name: monthAbbreviations[item.name] || item.name,
-      value: item.value
-    }));
-  }
+  };
 
   const WeatherCharts = (variable) => {
-
-    const  getVariableFullName = (name) => {
+    const getVariableFullName = (name) => {
       const nameMap = {
         temp: "Temperature",
         rel_hum: "Relative Humidity",
         precip_amount: "Precipitation Amount",
         wind_spd: "Wind Speed",
-        station_press: "Atmospheric Pressure"
+        station_press: "Atmospheric Pressure",
       };
-    
+
       return nameMap[name] || name;
-    }
+    };
 
     let data = weatherData[variable];
-    if(data) {
-      data = shortenMonthNames(data)
-    }
+
+    const smallFontStyle = {
+      fontSize: "12px",
+    };
+
+    const customTooltipStyle = {
+      backgroundColor: "white",
+      border: "none",
+      borderRadius: "8px",
+      padding: "10px",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+      ...smallFontStyle,
+    };
 
     return (
-      <div style={{width: '100%', height: 300, marginLeft: '-2.25rem'}} className="weather-charts">
+      <div
+        style={{ width: "100%", height: 300, marginLeft: "-2.25rem" }}
+        className="weather-charts"
+      >
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
-            <CartesianGrid stroke="#ccc" horizontal={false}/>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="value" stroke="#A2E00A" name={getVariableFullName(variable)}/>
+            <CartesianGrid stroke="#ccc" horizontal={false} />
+            <XAxis
+              dataKey="name"
+              style={smallFontStyle}
+              tick={{ fontSize: 12 }}
+              angle={-45}
+              textAnchor="end"
+              height={50}
+              interval={0}
+            />
+            <YAxis style={smallFontStyle} tick={{ fontSize: 10 }} />
+            <Tooltip
+              contentStyle={customTooltipStyle}
+              labelStyle={smallFontStyle}
+              formatter={(value, name, props) => [
+                value,
+                getVariableFullName(variable),
+              ]}
+              labelFormatter={(label) => label}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#A2E00A"
+              name={getVariableFullName(variable)}
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
     );
-  }
-
+  };
   return (
-    <><Box
-      sx={{
-        width: "100%",
-        padding: "0 2rem",
-        marginTop: isSmallScreen && "2rem",
-      }}
-    >
-
-      <Grid
-        container
+    <>
+      <Box
         sx={{
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginTop: "1rem",
-          marginBottom: "3rem",
-          maxWidth: "80%"
+          width: "100%",
+          padding: "0 2rem",
+          marginTop: isSmallScreen && "2rem",
         }}
       >
-        <Grid item xs={12} md={8}>
-          <Tabs
-            className="theme-tabs-list"
-            value={tabValue}
-            onChange={handleChange}
-            sx={{ display: "inline-flex", maxWidth: "100%",}}
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            <Tab
-              value="weather"
-              label="Weather"
-              sx={{ minWidth: "10rem", maxWidth: "10rem" }} />
-              {independentVarsList?.length ? independentVarsList.map((item, i) => {
-                return <Tab
-                key={item?.id}
-                value={item?.id}
-                label={item?.name}
-                sx={{ minWidth: "10rem",  maxWidth: "10rem"  }}
-              />
-              }) : null
-              }
-          </Tabs>
-        </Grid>
-        <Grid item sx={{ justifySelf: "flex-end" }}>
-          <Button
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              fontSize: "0.875rem",
-            }}
-            disableRipple
-            endIcon={<AddCircleIcon
-              style={{
-                color: "text.primary",
-                fontSize: "2rem",
-              }} />}
-            onClick={() => openRequestModal(false)}
-          >
-            Add Independent Variable
-          </Button>
-        </Grid>
-      </Grid>
-
-      {tabValue == 'weather' ? <Box>
-        <Grid style={{ width: '83.33vw' }}>
-          {<MapComponent facilityData={facilityData} weatherStations={weatherStations} />}
-        </Grid>
         <Grid
           container
           sx={{
@@ -552,209 +558,292 @@ const Weather = () => {
             justifyContent: "space-between",
             marginTop: "1rem",
             marginBottom: "3rem",
+            maxWidth: "80%",
           }}
-          xs={12} md={10}
         >
-          {weatherStations?.length ? <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
-            <TableContainer
-              component={Paper}
-              sx={{
-                bgcolor: "#2E813E20",
-                boxShadow: "none",
-                border: "1px solid #2E813E",
-              }}
+          <Grid item xs={12} md={8}>
+            <Tabs
+              className="theme-tabs-list"
+              value={tabValue}
+              onChange={handleChange}
+              sx={{ display: "inline-flex", maxWidth: "100%" }}
+              variant="scrollable"
+              scrollButtons="auto"
             >
-              <MuiTable size="small">
-              <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      
-                    </TableCell>
-                    {Array.isArray(weatherStations) &&
-                      weatherStations?.map((type, index) => (
-                        <TableCell
-                          key={type.meterType}
-                          sx={{ color: "#111", fontStyle: "italic" }}
-                        >
-                          {type?.["station_name"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Latitude
-                    </TableCell>
-                    {Array.isArray(weatherStations) &&
-                      weatherStations?.map((type, index) => (
-                        <TableCell
-                          key={type.meterType}
-                          sx={{ color: "#111", fontStyle: "italic" }}
-                        >
-                          {type?.["latitude"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>                
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Longitude
-                    </TableCell>
-                    {Array.isArray(weatherStations) &&
-                      weatherStations?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["longitude"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Climate ID
-                    </TableCell>
-                    {Array.isArray(weatherStations) &&
-                      weatherStations?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["climate_id"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                  <TableRow>
-                    <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
-                      Station ID
-                    </TableCell>
-                    {Array.isArray(weatherStations) &&
-                      weatherStations?.map((count, index) => (
-                        <TableCell key={index} sx={{ color: "#111" }}>
-                          {count?.["station_id"]}
-                        </TableCell>
-                      ))}
-                  </TableRow>
-                </TableBody>
-              </MuiTable>
-            </TableContainer>
-          </Grid> : null}
-          <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
-            <Typography>Select checkboxes to see graphs</Typography>
-            <Grid item xs={12} md={6}>
-              <Formik
-                initialValues={{ ...initialValues }}
-                // validationSchema={validationSchemaFacilityDetails}
-                // onSubmit={handleSubmit}
-                enableReinitialize={true}
-              >
-                <Form>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="temp"
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={weatherParamsChecked?.temp}
-                          onChange={handleCheckboxChange}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="air_temperature"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Air temprature
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="rel_hum"
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={weatherParamsChecked?.rel_hum}
-                          onChange={handleCheckboxChange}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="relative_humidity"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Relative humidity
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="precip_amount"
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={weatherParamsChecked?.precip_amount}
-                          onChange={handleCheckboxChange}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="participation"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Precipitation
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                </Form>
-              </Formik>
+              <Tab
+                value="weather"
+                label="Weather"
+                sx={{ minWidth: "10rem", maxWidth: "10rem" }}
+              />
+              {independentVarsList?.length
+                ? independentVarsList.map((item, i) => {
+                    return (
+                      <Tab
+                        key={item?.id}
+                        value={item?.id}
+                        label={item?.name}
+                        sx={{ minWidth: "10rem", maxWidth: "10rem" }}
+                      />
+                    );
+                  })
+                : null}
+            </Tabs>
+          </Grid>
+          <Grid item sx={{ justifySelf: "flex-end" }}>
+            <Button
+              style={{
+                backgroundColor: "transparent",
+                padding: 0,
+                minWidth: "unset",
+                fontSize: "0.875rem",
+              }}
+              disableRipple
+              endIcon={
+                <AddCircleIcon
+                  style={{
+                    color: "text.primary",
+                    fontSize: "2rem",
+                  }}
+                />
+              }
+              onClick={() => openRequestModal(false)}
+            >
+              Add Independent Variable
+            </Button>
+          </Grid>
+        </Grid>
+
+        {tabValue == "weather" ? (
+          <Box>
+            <Grid style={{ width: "83.33vw" }}>
+              {
+                <MapComponent
+                  facilityData={facilityData}
+                  weatherStations={weatherStations}
+                />
+              }
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Formik
-                initialValues={{ ...initialValues }}
-                // validationSchema={validationSchemaFacilityDetails}
-                // onSubmit={handleSubmit}
-                enableReinitialize={true}
-              >
-                <Form>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="station_press"
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={weatherParamsChecked?.station_press}
-                          onChange={handleCheckboxChange}
+            <Grid
+              container
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginTop: "1rem",
+                marginBottom: "3rem",
+              }}
+              xs={12}
+              md={10}
+            >
+              {weatherStations?.length ? (
+                <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
+                  <TableContainer
+                    component={Paper}
+                    sx={{
+                      bgcolor: "#2E813E20",
+                      boxShadow: "none",
+                      border: "1px solid #2E813E",
+                    }}
+                  >
+                    <MuiTable size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell
+                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                          ></TableCell>
+                          {Array.isArray(weatherStations) &&
+                            weatherStations?.map((type, index) => (
+                              <TableCell
+                                key={type.meterType}
+                                sx={{ color: "#111", fontStyle: "italic" }}
+                              >
+                                {type?.["station_name"]}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell
+                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                          >
+                            Latitude
+                          </TableCell>
+                          {Array.isArray(weatherStations) &&
+                            weatherStations?.map((type, index) => (
+                              <TableCell
+                                key={type.meterType}
+                                sx={{ color: "#111", fontStyle: "italic" }}
+                              >
+                                {type?.["latitude"]}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                          >
+                            Longitude
+                          </TableCell>
+                          {Array.isArray(weatherStations) &&
+                            weatherStations?.map((count, index) => (
+                              <TableCell key={index} sx={{ color: "#111" }}>
+                                {count?.["longitude"]}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                          >
+                            Climate ID
+                          </TableCell>
+                          {Array.isArray(weatherStations) &&
+                            weatherStations?.map((count, index) => (
+                              <TableCell key={index} sx={{ color: "#111" }}>
+                                {count?.["climate_id"]}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                        <TableRow>
+                          <TableCell
+                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                          >
+                            Station ID
+                          </TableCell>
+                          {Array.isArray(weatherStations) &&
+                            weatherStations?.map((count, index) => (
+                              <TableCell key={index} sx={{ color: "#111" }}>
+                                {count?.["station_id"]}
+                              </TableCell>
+                            ))}
+                        </TableRow>
+                      </TableBody>
+                    </MuiTable>
+                  </TableContainer>
+                </Grid>
+              ) : null}
+              <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
+                <Typography>Select checkboxes to see graphs</Typography>
+                <Grid item xs={12} md={6}>
+                  <Formik
+                    initialValues={{ ...initialValues }}
+                    // validationSchema={validationSchemaFacilityDetails}
+                    // onSubmit={handleSubmit}
+                    enableReinitialize={true}
+                  >
+                    <Form>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Field
+                              name="temp"
+                              type="checkbox"
+                              as={Checkbox}
+                              checked={weatherParamsChecked?.temp}
+                              onChange={handleCheckboxChange}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          name="air_temperature"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Air temprature
+                            </Typography>
+                          }
                         />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="atmospheric_pressure"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Atmospheric pressure
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name="wind_spd"
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={weatherParamsChecked?.wind_spd}
-                          onChange={handleCheckboxChange}
+                      </FormGroup>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Field
+                              name="rel_hum"
+                              type="checkbox"
+                              as={Checkbox}
+                              checked={weatherParamsChecked?.rel_hum}
+                              onChange={handleCheckboxChange}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          name="relative_humidity"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Relative humidity
+                            </Typography>
+                          }
                         />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="wind_speed"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Wind speed
-                        </Typography>
-                      }
-                    />
-                  </FormGroup>
-                  {/* <FormGroup>
+                      </FormGroup>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Field
+                              name="precip_amount"
+                              type="checkbox"
+                              as={Checkbox}
+                              checked={weatherParamsChecked?.precip_amount}
+                              onChange={handleCheckboxChange}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          name="participation"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Precipitation
+                            </Typography>
+                          }
+                        />
+                      </FormGroup>
+                    </Form>
+                  </Formik>
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Formik
+                    initialValues={{ ...initialValues }}
+                    // validationSchema={validationSchemaFacilityDetails}
+                    // onSubmit={handleSubmit}
+                    enableReinitialize={true}
+                  >
+                    <Form>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Field
+                              name="station_press"
+                              type="checkbox"
+                              as={Checkbox}
+                              checked={weatherParamsChecked?.station_press}
+                              onChange={handleCheckboxChange}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          name="atmospheric_pressure"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Atmospheric pressure
+                            </Typography>
+                          }
+                        />
+                      </FormGroup>
+                      <FormGroup>
+                        <FormControlLabel
+                          control={
+                            <Field
+                              name="wind_spd"
+                              type="checkbox"
+                              as={Checkbox}
+                              checked={weatherParamsChecked?.wind_spd}
+                              onChange={handleCheckboxChange}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          name="wind_speed"
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              Wind speed
+                            </Typography>
+                          }
+                        />
+                      </FormGroup>
+                      {/* <FormGroup>
                     <FormControlLabel
                       control={
                         <Field
@@ -774,144 +863,194 @@ const Weather = () => {
                       }
                     />
                   </FormGroup> */}
-                </Form>
-              </Formik>
+                    </Form>
+                  </Formik>
+                </Grid>
+              </Grid>
+              <Grid xs={12} md={11} style={{ paddingTop: "3rem" }}>
+                {weatherParamsChecked?.temp && !weatherLoading ? (
+                  <Grid style={{ paddingBottom: "3rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Air temperature
+                    </Typography>
+                    {WeatherCharts("temp")}
+                  </Grid>
+                ) : null}
+                {weatherParamsChecked?.rel_hum && !weatherLoading ? (
+                  <Grid style={{ paddingBottom: "3rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Relative humidity
+                    </Typography>
+                    {WeatherCharts("rel_hum")}
+                  </Grid>
+                ) : null}
+                {weatherParamsChecked?.precip_amount && !weatherLoading ? (
+                  <Grid style={{ paddingBottom: "3rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Precipitation
+                    </Typography>
+                    {WeatherCharts("precip_amount")}
+                  </Grid>
+                ) : null}
+                {weatherParamsChecked?.wind_spd && !weatherLoading ? (
+                  <Grid style={{ paddingBottom: "3rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Wind speed
+                    </Typography>
+                    {WeatherCharts("wind_spd")}
+                  </Grid>
+                ) : null}
+                {weatherParamsChecked?.station_press && !weatherLoading ? (
+                  <Grid style={{ paddingBottom: "3rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Atmospheric pressure
+                    </Typography>
+                    {WeatherCharts("station_press")}
+                  </Grid>
+                ) : null}
+              </Grid>
+            </Grid>
+          </Box>
+        ) : selectedIv?.files?.[0]?.file_path ? (
+          <Grid sx={{ width: "100%" }}>
+            <Grid sx={{ width: "80%" }}>
+              <Box id="bi-report" mt={4}>
+                {!isErrorInPowerBi && !reportLoading ? (
+                  <PowerBIEmbed
+                    embedConfig={powerBiConfig}
+                    eventHandlers={
+                      new Map([
+                        [
+                          "loaded",
+                          function () {
+                            console.log("Report loaded");
+                          },
+                        ],
+                        [
+                          "rendered",
+                          function () {
+                            console.log("Report rendered");
+                          },
+                        ],
+                        [
+                          "error",
+                          function (event) {
+                            console.log("iiiiiiiiiii", event.detail);
+                            getPowerBiError(event.detail);
+                          },
+                        ],
+                        ["visualClicked", () => console.log("visual clicked")],
+                        ["pageChanged", (event) => console.log(event)],
+                      ])
+                    }
+                    cssClassName={"bi-embedded"}
+                    getEmbeddedComponent={(embeddedReport) => {
+                      window.report = embeddedReport;
+                    }}
+                  />
+                ) : (
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: "700",
+                      fontSize: "1.125rem !important",
+                      lineHeight: "106.815%",
+                      letterSpacing: "-0.01125rem",
+                    }}
+                  >
+                    Verifying data and creating visualization, please wait...
+                  </Typography>
+                )}
+              </Box>
             </Grid>
           </Grid>
-          <Grid xs={12} md={11} style={{paddingTop: '3rem'}}>
-            {weatherParamsChecked?.temp && !weatherLoading ? 
-            <Grid style={{ paddingBottom: '3rem'}}>
-              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600", marginBottom: '1rem'}}>Air temperature</Typography>
-              {WeatherCharts('temp')}
-            </Grid>
-             : null}
-            {weatherParamsChecked?.rel_hum && !weatherLoading ? 
-            <Grid style={{ paddingBottom: '3rem'}}>
-              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Relative humidity</Typography>
-              {WeatherCharts('rel_hum')}
-            </Grid>
-             : null}
-            {weatherParamsChecked?.precip_amount && !weatherLoading ? 
-            <Grid style={{ paddingBottom: '3rem'}}>
-              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Precipitation</Typography>
-              {WeatherCharts('precip_amount')}
-            </Grid>
-            : null}
-            {weatherParamsChecked?.wind_spd && !weatherLoading ? 
-            <Grid style={{ paddingBottom: '3rem'}}>
-              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Wind speed</Typography>
-              {WeatherCharts('wind_spd')}
-            </Grid>
-            : null}
-            {weatherParamsChecked?.station_press && !weatherLoading ? 
-            <Grid style={{ paddingBottom: '3rem'}}>
-              <Typography variant="h6" sx={{fontSize: "1.125rem!important", fontWeight: "600",  marginBottom: '1rem'}}>Atmospheric pressure</Typography>
-              {WeatherCharts('station_press')}
-            </Grid>
-            : null}
-          </Grid>
-        </Grid>
-      </Box> : (
-        (selectedIv?.files?.[0]?.file_path) ? 
-        <Grid sx={{width: "100%"}}>
-          <Grid sx={{width: "80%"}}>
-            <Box id="bi-report" mt={4}>
-              {((!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
-                embedConfig={powerBiConfig}
-                eventHandlers={
-                  new Map([
-                    [
-                      "loaded",
-                      function () {
-                        console.log("Report loaded");
-                      },
-                    ],
-                    [
-                      "rendered",
-                      function () {
-                        console.log("Report rendered");
-                      },
-                    ],
-                    [
-                      "error",
-                      function (event) {
-                        console.log("iiiiiiiiiii",event.detail);
-                        getPowerBiError(event.detail)
-                      },
-                    ],
-                    ["visualClicked", () => console.log("visual clicked")],
-                    ["pageChanged", (event) => console.log(event)],
-                  ])
-                }
-                cssClassName={"bi-embedded"}
-                getEmbeddedComponent={(embeddedReport) => {
-                  window.report = embeddedReport;
-                }}
-              /> : 
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: "700",
-                  fontSize: "1.125rem !important",
-                  lineHeight: "106.815%",
-                  letterSpacing: "-0.01125rem",
-                }}
-              >
-                Verifying data and creating visualization, please wait...
-              </Typography>}
-            </Box>
-          </Grid>
-        </Grid>
-        :
-        <Box>
-          <Typography variant="h5">
-            Upload data in bulk for {selectedIvName}
-          </Typography>
-          <Typography variant="small2" gutterBottom>
-            Upload the excel file, and refer to spreadsheet for the formatting details.
-          </Typography>
-          <Typography
-            my={1}
-            sx={{
-              color: "#2E813E",
-              fontWeight: "500",
-              fontSize: "18px",
-              backgroundColor: "#D1FFDA",
-              padding: "7px 33px",
-              borderRadius: "8px",
-              height: "40px",
-              marginTop: "20px",
-              cursor: "pointer",
-              maxWidth: 'fit-content'
-            }}
-            onClick={handleButtonClick}
-          >
-            {independentVariable1File ? independentVariable1File?.name : 'Choose File'}
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            accept=".xlsx,.csv"
-          />
-          <Button
-            variant="contained"
-            onClick={() => uploadIndepentVariableFile()}
-            style={{
-              padding: "0.2rem 1rem",
-              minWidth: "unset",
-              width: "165px",
-              height: "40px",
-            }}
-            disabled={!independentVariable1File}
-          >
-            Upload
-          </Button>
-        </Box>
-      )}
-
-    </Box>
+        ) : (
+          <Box>
+            <Typography variant="h5">
+              Upload data in bulk for {selectedIvName}
+            </Typography>
+            <Typography variant="small2" gutterBottom>
+              Upload the excel file, and refer to spreadsheet for the formatting
+              details.
+            </Typography>
+            <Typography
+              my={1}
+              sx={{
+                color: "#2E813E",
+                fontWeight: "500",
+                fontSize: "18px",
+                backgroundColor: "#D1FFDA",
+                padding: "7px 33px",
+                borderRadius: "8px",
+                height: "40px",
+                marginTop: "20px",
+                cursor: "pointer",
+                maxWidth: "fit-content",
+              }}
+              onClick={handleButtonClick}
+            >
+              {independentVariable1File
+                ? independentVariable1File?.name
+                : "Choose File"}
+            </Typography>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              accept=".xlsx,.csv"
+            />
+            <Button
+              variant="contained"
+              onClick={() => uploadIndepentVariableFile()}
+              style={{
+                padding: "0.2rem 1rem",
+                minWidth: "unset",
+                width: "165px",
+                height: "40px",
+              }}
+              disabled={!independentVariable1File}
+            >
+              Upload
+            </Button>
+          </Box>
+        )}
+      </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </>
   );

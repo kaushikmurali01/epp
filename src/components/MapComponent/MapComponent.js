@@ -1,86 +1,144 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useMemo } from "react";
 import {
   AzureMapsProvider,
   AzureMap,
-  AzureMapHtmlMarker,
+  AzureMapDataSourceProvider,
+  AzureMapLayerProvider,
+  AzureMapFeature,
+  AzureMapPopup,
 } from "react-azure-maps";
-import { AuthenticationType } from "azure-maps-control";
-import { Grid } from "@mui/material";
-import "./map.css"
-
-const CustomHtmlMarker = ({ longitude, latitude, imageUrl, name, isWeatherStation }) => {
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const markerContent = isWeatherStation ? (
-    <div className="custom-marker weather-station-marker">
-      <span>{name}</span>
-    </div>
-  ) : (
-    <div className="custom-marker facility-marker">
-      {imageUrl && (
-        <img 
-          src={imageUrl} 
-          alt={name} 
-          onLoad={() => setImageLoaded(true)}
-          onError={() => setImageLoaded(false)}
-          style={{ display: imageLoaded ? 'block' : 'none' }}
-        />
-      )}
-      {(!imageUrl || !imageLoaded) && (
-        <div className="image-placeholder">{name.charAt(0)}</div>
-      )}
-      <span>{name}</span>
-    </div>
-  );
-
-  return (
-    <AzureMapHtmlMarker
-      options={{
-        position: [parseFloat(longitude), parseFloat(latitude)],
-        htmlContent: markerContent,
-        pixelOffset: [0, -20],
-      }}
-    />
-  );
-};
+import { AuthenticationType, data } from "azure-maps-control";
+import "./map.css";
 
 const MapComponent = (props) => {
   const { facilityData, weatherStations } = props;
-  const mapRef = useRef(null);
 
-  const option = {
-    authOptions: {
-      authType: AuthenticationType.subscriptionKey,
-      subscriptionKey: process.env.REACT_APP_AZURE_MAPS_SECRET_KEY,
-    },
-    center: [parseFloat(facilityData?.longitude), parseFloat(facilityData?.latitude)],
-    zoom: 5,
-    showLogo: false,
+  const [popupOptions, setPopupOptions] = React.useState({});
+  const [popupProperties, setPopupProperties] = React.useState({});
+
+  const option = useMemo(
+    () => ({
+      authOptions: {
+        authType: AuthenticationType.subscriptionKey,
+        subscriptionKey: process.env.REACT_APP_AZURE_MAPS_SECRET_KEY,
+      },
+      center: [
+        parseFloat(facilityData?.longitude || 0),
+        parseFloat(facilityData?.latitude || 0),
+      ],
+      zoom: 5,
+      showLogo: false,
+    }),
+    [facilityData]
+  );
+
+  const handleMarkerClick = (e) => {
+    if (e.shapes && e.shapes.length > 0) {
+      const properties = e.shapes[0].data.properties;
+      setPopupOptions({
+        position: e.position,
+        pixelOffset: [0, -30],
+      });
+      setPopupProperties(properties);
+    }
   };
+
+  if (!facilityData) {
+    console.error("Facility data is missing");
+    return <div>Error: Facility data is missing</div>;
+  }
+
+  if (!Array.isArray(weatherStations)) {
+    console.error("Weather stations data is not an array", weatherStations);
+    return <div>Error: Invalid weather stations data</div>;
+  }
 
   return (
     <AzureMapsProvider>
-      <div style={{ height: "360px", position: "relative", width: '80%', overflow: "hidden", borderRadius: '0.5rem'}}>
-        {facilityData?.latitude && (
-          <AzureMap options={option} ref={mapRef}>
-            <CustomHtmlMarker
-              longitude={facilityData.longitude}
-              latitude={facilityData.latitude}
-              imageUrl={facilityData.display_pic_url}
-              name={facilityData.name || 'Facility'}
-              isWeatherStation={false}
+      <div style={{ height: "360px", width: "80%", borderRadius: "0.5rem" }}>
+        <AzureMap options={option}>
+          <AzureMapDataSourceProvider id="markersSource">
+            <AzureMapLayerProvider
+              id="facilityLayer"
+              options={{
+                iconOptions: {
+                  color: "green",
+                },
+                filter: ["==", ["get", "type"], "facility"],
+              }}
+              events={{
+                click: handleMarkerClick,
+              }}
+              type="SymbolLayer"
+            />
+            <AzureMapLayerProvider
+              id="weatherStationLayer"
+              options={{
+                iconOptions: {
+                  image: "pin-blue",
+                },
+                filter: ["==", ["get", "type"], "weatherStation"],
+              }}
+              events={{
+                click: handleMarkerClick,
+              }}
+              type="SymbolLayer"
+            />
+            <AzureMapFeature
+              id="facility"
+              type="Point"
+              coordinate={[
+                parseFloat(facilityData.longitude),
+                parseFloat(facilityData.latitude),
+              ]}
+              properties={{
+                type: "facility",
+                name: facilityData.facility_name,
+                display_pic_url: facilityData.display_pic_url,
+              }}
             />
             {weatherStations.map((station) => (
-              <CustomHtmlMarker
+              <AzureMapFeature
                 key={station.station_id}
-                longitude={station.longitude}
-                latitude={station.latitude}
-                name={station.station_name}
-                isWeatherStation={true}
+                type="Point"
+                coordinate={[
+                  parseFloat(station.longitude),
+                  parseFloat(station.latitude),
+                ]}
+                properties={{
+                  type: "weatherStation",
+                  name: station.station_name,
+                }}
               />
             ))}
-          </AzureMap>
-        )}
+          </AzureMapDataSourceProvider>
+          <AzureMapPopup
+            isVisible={popupProperties.name != null}
+            options={popupOptions}
+            popupContent={
+              <div style={{ padding: "8px 16px" }}>
+                <h3>{popupProperties.name}</h3>
+                <p>
+                  {popupProperties.type === "facility"
+                    ? "Facility"
+                    : "Weather Station"}
+                </p>
+                {popupProperties.type === "facility" &&
+                  popupProperties.display_pic_url && (
+                    <img
+                      src={popupProperties.display_pic_url}
+                      alt={popupProperties.name}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+              </div>
+            }
+          />
+        </AzureMap>
       </div>
     </AzureMapsProvider>
   );
