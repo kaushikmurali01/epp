@@ -3,17 +3,18 @@ import InputField from 'components/FormBuilder/InputField';
 import SelectBox from 'components/FormBuilder/Select';
 import { Formik, Form, Field } from 'formik';
 import React, { useEffect, useState } from 'react';
-import Button from '@mui/material/Button'; // Importing Material-UI Button
-import TextAreaField from 'components/FormBuilder/TextAreaField';
+import Button from '@mui/material/Button';
 import EvModal from 'utils/modal/EvModal';
-import styled from '@emotion/styled';
 import ReactQuill from 'react-quill';
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from 'pages/Loader';
 import { getEmailTemplate, sendEmail } from '../../../../redux/admin/actions/adminPerformanceActions';
 import parse from 'html-react-parser';
 import EmailAutoCompleteWithChip from './EmailAutoCompleteWithChip';
-import { GET_REQUEST } from 'utils/HTTPRequests';
+import { emailFormValidationSchema } from 'utils/validations/formValidation';
+import EditIcon from "@mui/icons-material/Edit";
+import EditOffIcon from "@mui/icons-material/EditOff";
+import IconButton from "@mui/material/IconButton";
 
 const ComposeEmailMicroComponent = () => {
   const dispatch = useDispatch();
@@ -23,6 +24,10 @@ const ComposeEmailMicroComponent = () => {
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
+
+const [selectedToContact, setSelectedToContact] = useState(null);
+
+console.log(selectedToContact, "to contact");
 
 const [initialValues, setInitialValues] = useState({
   select_template: "",
@@ -40,61 +45,31 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
   value: template?.id,
 }));
 
-  // const handleTemplateChange = (templateId) => {
-  // const selectedTemplate = emailTemplateList?.find(
-  //   (template) => template?.id === templateId
-  // );
-  //   if (selectedTemplate) {
-  //   console.log(initialValues, "initial");
-  //   setInitialValues((prevValues) => ({
-  //     ...prevValues,
-  //     select_template: templateId,
-  //     subject: selectedTemplate?.subject,
-  //     body: selectedTemplate?.body,
-  //   }));
-  // }
-  // };
-  
-    console.log(initialValues, "initial outside");
-
-
-// Validation function for email addresses
-const validateEmails = (value) => {
-  const emails = value?.split(",").map((email) => email.trim());
-  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
-  const invalidEmails = emails?.filter((email) => !emailRegex.test(email));
-  if (invalidEmails?.length > 0) {
-    return `Invalid email(s): ${invalidEmails.join(", ")}`;
-  }
-  return undefined;
-};
-  
-
-  const [previewModalConfig, setPreviewModalConfig] = useState({
-    modalVisible: false,
-    modalUI: {
-      showHeader: true,
-      crossIcon: false,
-      modalClass: "",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
+    const [previewModalConfig, setPreviewModalConfig] = useState({
+      modalVisible: false,
+      modalUI: {
+        showHeader: true,
+        crossIcon: false,
+        modalClass: "emailArchiveModal",
+        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+        headerSubTextStyle: {
+          marginTop: "1rem",
+          color: "rgba(36, 36, 36, 1)",
+          fontSize: { md: "0.875rem" },
+        },
+        fotterActionStyle: "",
+        modalBodyContentStyle: "",
       },
-      fotterActionStyle: "",
-      modalBodyContentStyle: "",
-    },
-    buttonsUI: {
-      saveButton: false,
-      cancelButton: false,
-      saveButtonName: "Sent Request",
-      cancelButtonName: "Cancel",
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    modalBodyContent: "",
-  });
+      buttonsUI: {
+        saveButton: false,
+        cancelButton: false,
+        saveButtonName: "Sent Request",
+        cancelButtonName: "Cancel",
+        saveButtonClass: "",
+        cancelButtonClass: "",
+      },
+      modalBodyContent: "",
+    });
 
   const previewButtonDesign = {
     marginLeft: "10px",
@@ -114,37 +89,28 @@ const validateEmails = (value) => {
     borderRadius: "10px",
     color: "#242424",
   };
-
-  const extractEmails = (data) => {
-    return data.map((item) => item.email).filter(Boolean);
-  };
-
+  
   const handleSendEmail = (values) => {
     console.log("email values", values);
-    const {to, cc, subject, body } = values;
-    // let emailPayload = { to, cc, subject, body };
-    const emailPayload = {
-      to: extractEmails(to),
-      cc: extractEmails(cc),
-      subject,
-      body,
-    };
+    const { to, cc, subject, body } = values;
+    const ccString = Array.isArray(cc) ? cc.join(",") : cc;
+    let emailPayload = { to, cc: ccString, subject, body };
     console.log(emailPayload, "payload");
-    // dispatch(sendEmail(emailPayload, facility_id))
-    //   .then(() => { 
-    //     setInitialValues((prevValues) => ({
-    //       ...prevValues,
-    //       select_template: "",
-    //       to: "",
-    //       cc: "",
-    //       subject: "",
-    //       body: "",
-    //     }));
-    //     dispatch(getEmailTemplate(facility_id));
-    //   })
-    //   .catch((error) => {
-    //   console.log(error);
-    // })
+    dispatch(sendEmail(emailPayload, facility_id))
+      .then(() => { 
+        setInitialValues((prevValues) => ({
+          ...prevValues,
+          select_template: "",
+          to: "",
+          cc: "",
+          subject: "",
+          body: "",
+        }));
+        dispatch(getEmailTemplate(facility_id));
+      })
+      .catch((error) => {
+      console.log(error);
+    })
   };
 
   const openPreviewModal = (currentValues) => {
@@ -163,18 +129,17 @@ const validateEmails = (value) => {
     return result;
   };
 
-  useEffect(() => {
-    console.log("initialValues updated:", initialValues);
-  }, [initialValues]);
-
   const PreviewEmail = (values) => {
-    
     return (
-      <>
-        <Container sx={previewModalDesign}>
-          <Typography sx={{ fontSize: "14px !important" }}>{ extractNames(values?.to)}<br />{parse(values?.body)}</Typography>
-        </Container>
-      </>
+      <Container sx={previewModalDesign}>
+        <Typography sx={{ fontSize: "14px !important" }}>
+          <b>
+            Dear {selectedToContact?.name ? selectedToContact.name : selectedToContact?.email}
+          </b>
+          <br />
+          {parse(values?.values?.body)}
+        </Typography>
+      </Container>
     );
   };
 
@@ -209,20 +174,25 @@ const validateEmails = (value) => {
     "table",
   ];
 
+  const [isEditableEditor, setIsEditableEditor] = useState(true);
+  const toggleEditable = () => {
+    setIsEditableEditor(!isEditableEditor);
+  };
+
   return (
     <>
       <Formik
-        initialValues={{ ...initialValues }}
+        initialValues={initialValues}
+        validationSchema={emailFormValidationSchema}
         enableReinitialize={true}
         onSubmit={handleSendEmail}
       >
-        {({ setFieldValue, values }) => {
+        {({ setFieldValue, values, isValid, dirty, touched, errors }) => {
           const handleTemplateChange = (templateId) => {
             const selectedTemplate = emailTemplateList?.find(
               (template) => template?.id === templateId
             );
             if (selectedTemplate) {
-              console.log(values, "initial");
               setFieldValue("select_template", templateId);
               setFieldValue("subject", selectedTemplate?.subject);
               setFieldValue("body", selectedTemplate?.body);
@@ -245,48 +215,52 @@ const validateEmails = (value) => {
                 </Grid>
 
                 <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <Field
+                  <EmailAutoCompleteWithChip
+                    label="To*"
+                    multiple={false}
+                    value={values.to}
+                    onChange={(newValue) => setFieldValue("to", newValue)}
+                    onSelectContact={setSelectedToContact}
+                    facility_id={facility_id}
+                    error={touched.to && errors.to}
+                    helperText={touched.to && errors.to}
+                    excludeEmails={values.cc}
                     name="to"
-                    render={({ field }) => (
-                      <EmailAutoCompleteWithChip
-                        {...field}
-                        value={values.to}
-                        onChange={(newValue) => {
-                          setFieldValue("to", newValue);
-                        }}
-                        label="To*"
-                        isDisabled={false}
-                        withoutChip={true}
-                        facility_id={facility_id}
-                      />
-                    )}
                   />
                 </Grid>
 
                 <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <Field
+                  <EmailAutoCompleteWithChip
+                    label="CC"
+                    multiple={true}
+                    value={values.cc}
+                    onChange={(newValue) => setFieldValue("cc", newValue)}
+                    onSelectContact={() => {}}
+                    facility_id={facility_id}
+                    error={touched.cc && errors.cc}
+                    helperText={touched.cc && errors.cc}
+                    excludeEmails={[values.to]}
                     name="cc"
-                    render={({ field }) => (
-                      <EmailAutoCompleteWithChip
-                        {...field}
-                        value={values.cc}
-                        onChange={(newValue) => {
-                          setFieldValue("cc", newValue);
-                        }}
-                        label="CC*"
-                        isDisabled={false}
-                        facility_id={facility_id}
-                      />
-                    )}
                   />
                 </Grid>
 
                 <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <InputField name="subject" label="Subject" type="text" />
+                  <InputField name="subject" label="Subject*" type="text" />
                 </Grid>
 
-                <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                <Grid
+                  item
+                  xs={12}
+                  sx={{ marginTop: "20px", position: "relative" }}
+                >
                   <FormLabel>Email Content</FormLabel>
+                  <IconButton
+                    sx={{ position: "absolute", right: 0, top: 0 }}
+                    onClick={toggleEditable}
+                    size="small"
+                  >
+                    {isEditableEditor ? <EditOffIcon /> : <EditIcon />}
+                  </IconButton>
                   <ReactQuill
                     theme="snow"
                     value={values.body}
@@ -295,8 +269,13 @@ const validateEmails = (value) => {
                     formats={formats}
                     placeholder="Compose your email..."
                     className="rc-quill-editor"
-                    readOnly
+                    readOnly={isEditableEditor}
                   />
+                  {touched.body && errors.body && (
+                    <Typography color="error" variant="caption">
+                      {errors.body}
+                    </Typography>
+                  )}
                 </Grid>
               </Grid>
 
@@ -306,7 +285,7 @@ const validateEmails = (value) => {
                     type="submit"
                     color="primary"
                     variant="contained"
-                  // onClick={() => openEmailArchiveModal()}
+                    disabled={!(isValid && dirty)}
                   >
                     Send email
                   </Button>
@@ -314,6 +293,7 @@ const validateEmails = (value) => {
                     type="button"
                     sx={previewButtonDesign}
                     variant="contained"
+                    disabled={!(isValid && dirty)}
                     onClick={() => openPreviewModal(values)}
                   >
                     Preview
@@ -321,7 +301,7 @@ const validateEmails = (value) => {
                 </Grid>
               </Grid>
             </Form>
-          )
+          );
         }}
       </Formik>
 

@@ -1,34 +1,30 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  TextField,
-  Chip,
   Autocomplete,
+  Chip,
   FormControl,
-  FormLabel,
   FormHelperText,
+  FormLabel,
+  TextField,
 } from "@mui/material";
-import debounce from "lodash/debounce";
-import { GET_REQUEST } from "utils/HTTPRequests";
+import { debounce } from "lodash";
 import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS } from "constants/apiEndPoints";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import { useField } from "formik";
 
 const EmailAutoCompleteWithChip = ({
-  value,
-  onChange,
-  onBlur,
   label,
-  placeholder,
-  name,
-  isDisabled,
-  withoutChip = false,
-  facility_id,
-  ...otherProps
+  multiple,
+  excludeEmails = [],
+  ...props
 }) => {
-  const [inputValue, setInputValue] = useState("");
+  const [field, meta, helpers] = useField(props);
+  const { setValue, setTouched } = helpers;
+
   const [options, setOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [labelText, setLabelText] = useState("");
   const [asterisk, setIsAsterisk] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     if (label?.includes("*")) {
@@ -39,139 +35,151 @@ const EmailAutoCompleteWithChip = ({
     }
   }, [label]);
 
-  const emailValues = Array.isArray(value) ? value : [];
+  const fetchSuggestions = async (query) => {
+    if (query.length < 2) return;
 
-  const fetchOptions = useCallback(
-    debounce(async (query) => {
-      if (query.length < 2) return;
-      setLoading(true);
-      let searchLimit = 10;
-      const apiUrl = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${facility_id}/contact-suggestions?q=${query}&limit=${searchLimit}`;
-      try {
-        const response = await GET_REQUEST(apiUrl);
-        setOptions(response.data);
-      } catch (error) {
-        console.error("Error fetching email suggestions:", error);
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
-    []
-  );
+    const searchLimit = 10;
+    const apiUrl = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${props.facility_id}/contact-suggestions?q=${query}&limit=${searchLimit}`;
+
+    try {
+      const response = await GET_REQUEST(apiUrl);
+      const filteredOptions = response.data.filter(
+        (option) => !excludeEmails.includes(option.email)
+      );
+      setOptions(filteredOptions);
+    } catch (error) {
+      console.error("Error fetching email suggestions:", error);
+    }
+  };
+
+  const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
+
+  useEffect(() => {
+    if (inputValue) {
+      debouncedFetchSuggestions(inputValue);
+    }
+  }, [inputValue, excludeEmails]);
+
+  const isValidEmail = (email) => {
+    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(String(email).toLowerCase());
+  };
+
+  // const handleInputChange = (event, newInputValue) => {
+  //   setInputValue(newInputValue);
+  // };
 
   const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
-    fetchOptions(newInputValue);
-
-    if (withoutChip) {
-      validateEmail(newInputValue);
+    if (isValidEmail(newInputValue) && !excludeEmails.includes(newInputValue)) {
+      setValue(newInputValue);
+      props.onSelectContact({ email: newInputValue });
     }
   };
 
   const handleChange = (event, newValue) => {
-    if (withoutChip) {
-      // For single email input
-      const email =
-        typeof newValue === "string" ? newValue : newValue?.email || "";
-      onChange([{ email }]);
-      validateEmail(email);
-    } else {
-      // For multiple email input
-      const updatedValue = newValue.map((item) =>
-        typeof item === "string" ? { email: item } : item
-      );
-      onChange(updatedValue);
-      // Validate all emails
-      const invalidEmails = updatedValue.filter(
-        (item) => !isValidEmail(item.email)
-      );
-      if (invalidEmails.length > 0) {
-        setError(
-          `Invalid email${invalidEmails.length > 1 ? "s" : ""}: ${invalidEmails
-            .map((item) => item.email)
-            .join(", ")}`
+    if (multiple) {
+      const validEmails = newValue
+        .map((item) => (typeof item === "string" ? item : item.email))
+        .filter(
+          (email) => isValidEmail(email) && !excludeEmails.includes(email)
         );
+      setValue(validEmails);
+    } else {
+      if (typeof newValue === "string") {
+        if (isValidEmail(newValue) && !excludeEmails.includes(newValue)) {
+          setValue(newValue);
+          props.onSelectContact({ email: newValue });
+        } else {
+          setValue("");
+          props.onSelectContact(null);
+        }
+      } else if (
+        newValue &&
+        newValue.email &&
+        !excludeEmails.includes(newValue.email)
+      ) {
+        setValue(newValue.email);
+        props.onSelectContact(newValue);
       } else {
-        setError("");
+        setValue("");
+        props.onSelectContact(null);
       }
     }
   };
 
-  const handleDelete = (emailToDelete) => {
-    const updatedValue = value.filter((item) => item.email !== emailToDelete);
-    onChange(updatedValue);
-  };
-
-  const isValidEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
-  const validateEmail = (email) => {
-    if (!isValidEmail(email)) {
-      setError("Invalid email address");
-    } else {
-      setError("");
+  const handleBlur = () => {
+    setTouched(true);
+    if (multiple) {
+      const newValues = field.value.filter(
+        (email) => !excludeEmails.includes(email)
+      );
+      if (newValues.length !== field.value.length) {
+        setValue(newValues);
+      }
+    } else if (excludeEmails.includes(field.value)) {
+      setValue("");
+      props.onSelectContact(null);
     }
   };
 
   return (
-    <FormControl fullWidth variant="outlined" error={!!error}>
-      <FormLabel htmlFor={name}>
+    <FormControl
+      fullWidth
+      variant="outlined"
+      error={!!(meta.touched && meta.error)}
+    >
+      <FormLabel htmlFor={props.name}>
         {labelText}
         {asterisk && <span className="asterisk">*</span>}
       </FormLabel>
       <Autocomplete
-        multiple={!withoutChip}
-        freeSolo
+        {...field}
+        multiple={multiple}
         options={options}
-        value={withoutChip ? emailValues[0]?.email || "" : emailValues}
-        inputValue={inputValue}
-        onInputChange={handleInputChange}
+        getOptionLabel={(option) =>
+          typeof option === "string" ? option : option.email
+        }
         onChange={handleChange}
-        getOptionLabel={(option) => option.email || option}
-        isOptionEqualToValue={(option, value) => {
-          if (typeof option === "string" && typeof value === "string") {
-            return option === value;
-          }
-          return option.email === value || option.email === value.email;
-        }}
-        loading={loading}
+        onInputChange={handleInputChange}
+        freeSolo
         renderInput={(params) => (
           <TextField
             {...params}
-            name={name}
-            placeholder={placeholder}
-            disabled={isDisabled}
-            error={!!error}
-            InputProps={{
-              ...params.InputProps,
-              style: { color: "#242424" },
+            name={props.name}
+            variant="outlined"
+            fullWidth
+            error={!!(meta.touched && meta.error)}
+            helperText={meta.touched && meta.error ? meta.error : null}
+            onBlur={handleBlur}
+            sx={{
+              "& .MuiInputBase-input": {
+                color: "#242424",
+              },
             }}
-            {...otherProps}
           />
         )}
-        renderTags={(value, getTagProps) =>
-          !withoutChip &&
-          value.map((option, index) => {
-            const email = option.email || option;
-            return (
-              <Chip
-                key={email}
-                label={email}
-                {...getTagProps({ index })}
-                color="primary"
-                variant="outlined"
-                onDelete={() => handleDelete(email)}
-                style={{
-                  backgroundColor: isValidEmail(email) ? undefined : "#ffcccb",
-                }}
-              />
-            );
-          })
+        renderOption={(props, option) => <li {...props}>{option.email}</li>}
+        renderTags={(tagValue, getTagProps) =>
+          tagValue.map((option, index) => (
+            <Chip
+              variant="outlined"
+              label={option}
+              {...getTagProps({ index })}
+              key={option}
+            />
+          ))
         }
+        filterOptions={(options, params) => {
+          const filtered = options.filter(
+            (option) =>
+              !excludeEmails.includes(
+                typeof option === "string" ? option : option.email
+              )
+          );
+          return filtered;
+        }}
       />
-      {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
   );
 };
