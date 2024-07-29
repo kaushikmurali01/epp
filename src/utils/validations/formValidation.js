@@ -500,3 +500,16 @@ export const nonRoutineDataValidationSchema = Yup.object().shape({
     })
   ),
 });
+
+export const emailFormValidationSchema = Yup.object().shape({
+  to: Yup.string()
+    .email("Invalid email address")
+    .required("To (recipient) field is required"),
+  cc: Yup.array().of(Yup.string().email("Invalid email address")),
+  subject: Yup.string()
+    .required("Subject is required")
+    .max(255, "Subject must be at most 255 characters"),
+  body: Yup.string()
+    .required("Email body is required")
+    .min(10, "Email body must be at least 10 characters"),
+});
