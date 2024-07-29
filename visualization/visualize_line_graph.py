@@ -8,10 +8,10 @@ from visualization.data_exploration import DataExplorationVisualisation
 
 
 class DataVisualizer:
-    def __init__(self, url, facility_id, meter_id):
+    def __init__(self, facility_id, meter_id):
         self.facility_id = facility_id
         self.meter_id = meter_id
-        self.url = url
+        self.url = None
         self.data = self.fetch_data()
         self.combined_data = self.process_data()
         self.data_daily = self.resample_data(self.combined_data, 'D')
