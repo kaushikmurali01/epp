@@ -50,6 +50,9 @@ import {
   fetchFacilityDetails,
   fetchFacilityStatus,
 } from "../../../redux/superAdmin/actions/facilityActions";
+import EnergyUseByHoursBasisGraph from "./EntryListing/EnergyUseByHoursBasisGraph";
+import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
+import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -95,6 +98,28 @@ const EntriesListing = ({
       "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
   });
+
+  const [viewEntriesModalConfig, setViewEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: ""
+    
+    },
+ 
+  })
+
+  const [deleteEntriesModalConfig, setDeleteEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: ""
+    
+    },
+ 
+  })
 
   const handleDeleteEntry = (id) => {
     if (id) {
@@ -450,11 +475,12 @@ const EntriesListing = ({
             setFileName(response.data?.data?.rows[0]);
             setIsFileUploaded(true);
           } else {
+            // intentionally define true here we can change once the development done..
             setIsFileUploaded(false);
           }
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const handleFileChange = (event) => {
@@ -479,10 +505,10 @@ const EntriesListing = ({
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_MULTIPLE_HOURLY_DATA;
     const formData = new FormData();
-    formData.append("file", hourlyEntryFile); 
-    formData.append("iv", false); 
-    formData.append("facility_id", id); 
-    formData.append("meter_id", facilityMeterDetailId); 
+    formData.append("file", hourlyEntryFile);
+    formData.append("iv", false);
+    formData.append("facility_id", id);
+    formData.append("meter_id", facilityMeterDetailId);
 
     // const body = {
     //   facility_id: parseInt(id),
@@ -491,7 +517,7 @@ const EntriesListing = ({
     // };
 
     console.log(
-      apiURL,formData,hourlyEntryFile,facilityMeterDetailId,
+      apiURL, formData, hourlyEntryFile, facilityMeterDetailId,
       meterId, "check form data value");
 
     // return;
@@ -527,7 +553,7 @@ const EntriesListing = ({
           getHourlySubHourlyEntryData();
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const downloadFileFromUrl = (fileUrl) => {
@@ -536,11 +562,9 @@ const EntriesListing = ({
         const fileURL = window.URL.createObjectURL(blob);
         let alink = document.createElement("a");
         alink.href = fileURL;
-        let fileName = `${
-          meterData?.meter_name
-        }_facility_meter_hourly_entries_file.${
-          imgUrl.split("/").pop().split(".").pop().split("?")[0]
-        }`;
+        let fileName = `${meterData?.meter_name
+          }_facility_meter_hourly_entries_file.${imgUrl.split("/").pop().split(".").pop().split("?")[0]
+          }`;
         alink.download = fileName;
         alink.click();
       });
@@ -551,6 +575,47 @@ const EntriesListing = ({
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
+
+  const handleViewEntries = ()=> {
+
+    setViewEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: (
+      <ViewEntryDetailListModal
+        meterId={meterData?.meter_id}
+        meterType={meterData?.meter_type}
+        facilityId={meterData?.facility_id}
+      />
+    ),
+    }));
+    
+  }
+
+  const handleDeleteEntries = ()=> {
+    console.log("deleteEntries");
+    setDeleteEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+    modalBodyContent: (
+      <DeleteEntriesModal
+        meterId={meterData?.meter_id}
+        meterType={meterData?.meter_type}
+        facilityId={meterData?.facility_id}
+        setModalConfig={setDeleteEntriesModalConfig}
+      />
+    ),
+    }));
+  }
+
+  console.log(meterData, "meterData")
+
+
+  //  return html dom
 
   return (
     <>
@@ -615,10 +680,10 @@ const EntriesListing = ({
             {meterData?.meter_type == 1
               ? "Electricity"
               : meterData?.meter_type == 2
-              ? "Natural Gas"
-              : meterData?.meter_type == 3
-              ? "Water"
-              : ""}
+                ? "Natural Gas"
+                : meterData?.meter_type == 3
+                  ? "Water"
+                  : ""}
           </Typography>
         </Box>
 
@@ -716,7 +781,29 @@ const EntriesListing = ({
             >
               Add Entry
             </Button>
-          ) : null}
+          ) :
+            (
+              <Stack direction="row" alignItems="center" gap="0.75rem">
+                <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={()=>handleViewEntries()} >
+                  View entries
+                </Link>
+                <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={()=> handleDeleteEntries()} >
+                  Delete entries
+                </Link>
+                <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} >
+                  <IconButton>
+                    <AddCircleIcon
+                      sx={{
+                        color: "text.primary",
+                        fontSize: "1.875rem",
+                      }}
+                    />
+                  </IconButton>
+                  Add entries
+                </Link>
+              </Stack>
+            )
+          }
         </Grid>
       </Grid>
 
@@ -804,25 +891,39 @@ const EntriesListing = ({
           </Button>
         </Box>
       ) : (
-        <Box>
-          <Typography
-            variant="h6"
-            sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
-            onClick={downloadFileFromUrl}
-          >
-            {meterData?.meter_name}_facility_meter_hourly_entries_file.xlsx
+        <React.Fragment>
+          <Box sx={{ display: 'none' }}>
             <Typography
-              sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
-              onClick={(event) => {
-                event.stopPropagation();
-                deleteFile();
-              }}
+              variant="h6"
+              sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
+              onClick={downloadFileFromUrl}
             >
-              Delete
+              {meterData?.meter_name}_facility_meter_hourly_entries_file.xlsx
+              <Typography
+                sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  deleteFile();
+                }}
+              >
+                Delete
+              </Typography>
             </Typography>
-          </Typography>
-        </Box>
+          </Box>
+        </React.Fragment>
       )}
+
+        {/* show here Energy use by hourly basis  graph */}
+        <Box className="hourly-graph-row" marginTop="1.5rem">
+            <Typography variant="h6">
+              Energy use by hourly basis
+            </Typography>
+            <Stack direction="row"  sx={{ width: '100%' }}>
+              <Stack direction="row"  sx={{ width: '100%' }}>
+                <EnergyUseByHoursBasisGraph />
+              </Stack>
+            </Stack>
+          </Box>
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       <EvModal
@@ -834,6 +935,22 @@ const EntriesListing = ({
         modalConfig={deleteMeterModalConfig}
         setModalConfig={setDeleteMeterModalConfig}
       />
+
+      { viewEntriesModalConfig.modalVisible && 
+        <EvModal
+          modalConfig={viewEntriesModalConfig}
+          setModalConfig={setViewEntriesModalConfig}
+        />
+      }
+
+    { deleteEntriesModalConfig.modalVisible && 
+        <EvModal
+          modalConfig={deleteEntriesModalConfig}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      }
+
+
     </>
   );
 };

@@ -283,12 +283,7 @@ const UserManagementAdminNew = () => {
       "order":sortOrder
       
     }
-    // let apiURL = `${ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST}/${
-    //   (pageInfo.page - 1) * pageInfo.pageSize
-    // }/${pageInfo.pageSize}?search=${search}&role=${role ==="0" ? "" : role}`;
-    // apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
-    // apiURL += sortOrder ? `&order=${sortOrder}` : "";
-    // const apiURL = ENERVA_USER_MANAGEMENT.GET_CUSTOMER_USER_LIST+'/0/100';
+  
     console.log(apiURL, payload, "checking api url...");
     // return;
     POST_REQUEST(apiURL,payload)

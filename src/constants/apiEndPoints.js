@@ -208,6 +208,11 @@ export const hourlyEndPoints = {
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
 };
 
+export const adminHourlyEndPoints = {
+  GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
+  DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries"
+};
+
 export const POWERBI_ENDPOINTS = {
   GET_POWERBI_TOKEN: "/GenerateToken",
   GET_AZURE_TOKEN_FOR_POWER_BI: "etl/v1/etl/access-token",
