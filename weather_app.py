@@ -5,7 +5,7 @@ from download_weather_data import download_and_load_data
 import math
 from dbconnection import dbtest
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities
-from sql_queries.nearest_weather_stations import nearest_weather_stations
+from sql_queries.nearest_weather_stations import nearest_weather_stations, min_max_date_query
 
 app = Flask(__name__)
 
@@ -87,19 +87,27 @@ def getdates():
 
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
-    print(type(facility_id))
-    print(type(meter_type))
-    user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
-    print(user_combined_data)
-    min_date = None
-    max_date = None
+    min_max_date = dbtest(min_max_date_query.format(facility_id, meter_type))
+    min_max_date = min_max_date.dropna()
+    if len(min_max_date):
+        min_date = min_max_date.min_date[0].strftime('%m/%d/%Y %H:%M')
+        max_date = min_max_date.max_date[0].strftime('%m/%d/%Y %H:%M')
+    else:
+        response = {"success": False, 'error': "Insufficient Data"}
+        return jsonify(response), 404
 
-    for key, data in user_combined_data.items():
-        min_date = data['Start Date (Required)'].min() if min_date is None else min(min_date,
-                                                                                    data['Start Date (Required)'].min())
-        max_date = data['Start Date (Required)'].max() if max_date is None else max(max_date,
-                                                                                    data['Start Date (Required)'].max())
-
+    # print(type(facility_id))
+    # print(type(meter_type))
+    # user_combined_data = fetch_and_combine_data_for_user_facilities(df, facility_id, meter_type)
+    # print(user_combined_data)
+    # min_date = None
+    # max_date = None
+    #
+    # for key, data in user_combined_data.items():
+    #     min_date = data['Start Date (Required)'].min() if min_date is None else min(min_date,
+    #                                                                                 data['Start Date (Required)'].min())
+    #     max_date = data['Start Date (Required)'].max() if max_date is None else max(max_date,
+    #                                                                                 data['Start Date (Required)'].max())
     result = {
         "min_date": min_date,
         "max_date": max_date
