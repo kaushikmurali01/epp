@@ -271,7 +271,7 @@ const Details = ({ setTab }) => {
   const [initialValues, setInitialValues] = useState({
     operational_hours: "",
     year_of_construction: "",
-    gross_floor_area_size_category: null,
+    // gross_floor_area_size_category: null,
     gross_floor_area: "",
     number_of_storeys: "",
     conditioned_gross_floor_area_including_common_area: "",
@@ -554,7 +554,7 @@ const Details = ({ setTab }) => {
                       </Grid>
                     </Grid>
                     <Grid container spacing={4}>
-                      <Grid item xs={12} sm={4}>
+                      {/* <Grid item xs={12} sm={4}>
                         <SelectBox
                           name="gross_floor_area_size_category"
                           label="Gross floor area size category (Sq ft) *"
@@ -562,7 +562,7 @@ const Details = ({ setTab }) => {
                           labelKey="label"
                           options={FLOOR_AREA_ARRAY}
                         />
-                      </Grid>
+                      </Grid> */}
                       <Grid item xs={12} sm={4}>
                         <InputField
                           name="gross_floor_area"

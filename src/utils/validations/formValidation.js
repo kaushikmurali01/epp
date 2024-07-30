@@ -211,9 +211,9 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .required("Annual operational hours is required")
     .min(0, "Operational hours must be a positive number between 0 and 8760")
     .max(8760, "Operational hours cannot exceed 8760 hours per year"),
-  gross_floor_area_size_category: Yup.number().required(
-    "Gross floor area size category is required"
-  ),
+  // gross_floor_area_size_category: Yup.number().required(
+  //   "Gross floor area size category is required"
+  // ),
   gross_floor_area: Yup.number()
     .required("Gross floor area is required")
     .min(0, "Gross floor area must be a positive number")
@@ -487,4 +487,36 @@ export const addContactValidationSchema = Yup.object().shape({
   postal_code: Yup.string()
     .required("Postal code is required")
     .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
+});
+
+export const nonRoutineEventValidationSchema = Yup.object().shape({
+  event_from_period: Yup.date().required("Start date is required"),
+  event_to_period: Yup.date()
+    .required("End date is required")
+    .min(Yup.ref("event_from_period"), "End date can't be before start date"),
+  event_name: Yup.string().required("Event name is required"),
+  event_description: Yup.string().optional(),
+});
+
+export const nonRoutineDataValidationSchema = Yup.object().shape({
+  data_entries: Yup.array().of(
+    Yup.object().shape({
+      start_date: Yup.date().required("Start date is required"),
+      end_date: Yup.date().required("End date is required"),
+      non_routine_adjustment: Yup.number().optional(),
+    })
+  ),
+});
+
+export const emailFormValidationSchema = Yup.object().shape({
+  to: Yup.string()
+    .email("Invalid email address")
+    .required("To (recipient) field is required"),
+  cc: Yup.array().of(Yup.string().email("Invalid email address")),
+  subject: Yup.string()
+    .required("Subject is required")
+    .max(255, "Subject must be at most 255 characters"),
+  body: Yup.string()
+    .required("Email body is required")
+    .min(10, "Email body must be at least 10 characters"),
 });

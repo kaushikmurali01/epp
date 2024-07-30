@@ -1,6 +1,10 @@
-import { Button, Grid } from "@mui/material";
-import React, { useState } from "react";
+import { Box, Button, Grid, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { StyledButtonGroup } from "../BaselineModel/styles";
+import { MiniTable } from "components/MiniTable";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/actions/baselineAction";
 
 const buttonStyle = {
   padding: "0.44rem 1.5rem",
@@ -27,50 +31,228 @@ const inactiveButtonStyle = {
   color: "#696969",
 };
 const PerformancePeriodDataSummary = () => {
-  const [activeButtonPerformancePeriod, setActiveButtonPerformancePeriod] =
-    useState(0);
-  const handlePerformancePeriodButtonClick = (index) => {
-    setActiveButtonPerformancePeriod(index);
+  const [activeButton, setActiveButton] = useState("observe_data");
+  const dispatch = useDispatch();
+  const { id } = useParams();
+  const handleButtonClick = (btn_name) => {
+    setActiveButton(btn_name);
   };
+
+  useEffect(() => {
+    if (activeButton === "missing_data" || activeButton === "outliers") {
+      dispatch(fetchDataExplorationSummaryList(id, activeButton));
+    } else {
+      dispatch(fetchDataExplorationSummaryList(id));
+    }
+  }, [dispatch, id, activeButton]);
+
+  const summaryData = useSelector(
+    (state) => state?.baselineReducer?.dataExplorationSummaryList
+  );
+
+    const observeDataColumn = [
+      {
+        Header: "ID",
+        accessor: "meter_type",
+      },
+      {
+        Header: "Parameter",
+        accessor: (item) => (
+          <Typography
+            // onClick={() =>
+            //   meterDetailsModal(item?.meter_type, item?.meter_name)
+            // }
+            variant="span"
+            sx={{
+              color: "primary.main",
+              fontSize: "0.875rem !important",
+              fontStyle: "italic",
+              fontWeight: 400,
+              cursor: "pointer",
+            }}
+          >
+            {item.meter_name}
+          </Typography>
+        ),
+      },
+      {
+        Header: "Timestamp start",
+        accessor: "time_stamp_start",
+      },
+      {
+        Header: "Timestamp end",
+        accessor: "time_stamp_end",
+      },
+      {
+        Header: "Count",
+        accessor: "total_records",
+      },
+    ];
+
+    const missingDataColumn = [
+      {
+        Header: "ID",
+        accessor: "meter_type",
+      },
+      {
+        Header: "Parameter",
+        accessor: (item) => (
+          <Typography
+            // onClick={() =>
+            //   meterDetailsModal(item?.meter_type, item?.meter_name)
+            // }
+            variant="span"
+            sx={{
+              color: "primary.main",
+              fontSize: "0.875rem !important",
+              fontStyle: "italic",
+              fontWeight: 400,
+              cursor: "pointer",
+            }}
+          >
+            {item.meter_name}
+          </Typography>
+        ),
+      },
+      {
+        Header: "Timestamp start",
+        accessor: "time_stamp_start",
+      },
+      {
+        Header: "Timestamp end",
+        accessor: "time_stamp_end",
+      },
+      {
+        Header: "Count",
+        accessor: "total_records",
+      },
+    ];
+
+    const outliersDataColumn = [
+      {
+        Header: "ID",
+        accessor: "meter_type",
+      },
+      {
+        Header: "Parameter",
+        accessor: (item) => (
+          <Typography
+            // onClick={() =>
+            //   meterDetailsModal(
+            //     item?.meter_type,
+            //     item?.meter_name,
+            //     item?.threshold_type
+            //   )
+            // }
+            variant="span"
+            sx={{
+              color: "primary.main",
+              fontSize: "0.875rem !important",
+              fontStyle: "italic",
+              fontWeight: 400,
+              cursor: "pointer",
+            }}
+          >
+            {item.meter_name}
+          </Typography>
+        ),
+      },
+      {
+        Header: "Timestamp start",
+        accessor: "time_stamp_start",
+      },
+      {
+        Header: "Timestamp end",
+        accessor: "time_stamp_end",
+      },
+      {
+        Header: "Count",
+        accessor: "total_records",
+      },
+      {
+        Header: "Threshold",
+        accessor: (item) => (
+          <>
+            {item?.threshold_type === "HIGHER" ? "Upper limit" : "Lower limit"}
+          </>
+        ),
+      },
+      {
+        Header: "Type",
+        accessor: "type",
+      },
+    ];
+
+  const getTableData = () => {
+    if (!summaryData) return [];
+    return Array.isArray(summaryData) ? summaryData : [];
+  };
+
+   const renderTable = () => {
+     const tableData = getTableData();
+
+     switch (activeButton) {
+       case "observe_data":
+         return <MiniTable columns={observeDataColumn} data={tableData} />;
+       case "missing_data":
+         return <MiniTable columns={missingDataColumn} data={tableData} />;
+       case "outliers":
+         return <MiniTable columns={outliersDataColumn} data={tableData} />;
+       default:
+         return null;
+     }
+   };
+  
   return (
-    <Grid item xs={12} md={activeButtonPerformancePeriod === 2 ? 12 : 9}>
-      <StyledButtonGroup
-        disableElevation
-        variant="contained"
-        color="primary"
-        sx={{ marginBottom: "20px" }}
+    <Grid
+      sx={{
+        display: "flex",
+        gap: "2rem",
+        flexDirection: "column",
+      }}
+    >
+      <Grid
+        sx={{
+          display: "flex",
+          gap: "2rem",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <Button
-          sx={
-            activeButtonPerformancePeriod === 0
-              ? activeButtonStyle
-              : inactiveButtonStyle
-          }
-          onClick={() => handlePerformancePeriodButtonClick(0)}
-        >
-          Observe data
-        </Button>
-        <Button
-          sx={
-            activeButtonPerformancePeriod === 1
-              ? activeButtonStyle
-              : inactiveButtonStyle
-          }
-          onClick={() => handlePerformancePeriodButtonClick(1)}
-        >
-          Missing Data
-        </Button>
-        <Button
-          sx={
-            activeButtonPerformancePeriod === 2
-              ? activeButtonStyle
-              : inactiveButtonStyle
-          }
-          onClick={() => handlePerformancePeriodButtonClick(2)}
-        >
-          Outliers
-        </Button>
-      </StyledButtonGroup>
+        <StyledButtonGroup disableElevation variant="contained" color="primary">
+          <Button
+            sx={
+              activeButton === "observe_data"
+                ? activeButtonStyle
+                : inactiveButtonStyle
+            }
+            onClick={() => handleButtonClick("observe_data")}
+          >
+            Observe data
+          </Button>
+          <Button
+            sx={
+              activeButton === "missing_data"
+                ? activeButtonStyle
+                : inactiveButtonStyle
+            }
+            onClick={() => handleButtonClick("missing_data")}
+          >
+            Missing Data
+          </Button>
+          <Button
+            sx={
+              activeButton === "outliers"
+                ? activeButtonStyle
+                : inactiveButtonStyle
+            }
+            onClick={() => handleButtonClick("outliers")}
+          >
+            Outliers
+          </Button>
+        </StyledButtonGroup>
+      </Grid>
+      <Grid container>{renderTable()}</Grid>
     </Grid>
   );
 };
