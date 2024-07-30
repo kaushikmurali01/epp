@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Grid, Typography, Button, Link } from "@mui/material";
 import { deleteNonRoutineEvent, getNonRoutineEventDetails, getNonRoutineEventList } from "../../../../redux/superAdmin/actions/performanceAction";
@@ -7,7 +7,10 @@ const NonRoutineEventWithDetailsModal = ({
   eventId,
   closeNonEventRoutineDetailsModal,
   openAddNonRoutineEventModal,
+  meter_type
 }) => {
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 10;
   const dispatch = useDispatch();
   const { nonRoutineEventDetails, loading } = useSelector(
     (state) => state?.performanceReducer
@@ -29,7 +32,7 @@ const NonRoutineEventWithDetailsModal = ({
     dispatch(deleteNonRoutineEvent(eventId))
       .then(() => {
         closeNonEventRoutineDetailsModal();
-        dispatch(getNonRoutineEventList(facility_id));
+        dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
       })
       .catch(console.error());
   };

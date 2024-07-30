@@ -25,7 +25,7 @@ const DatePickerField = ({ field, form: { setFieldValue } }) => {
       slots={{ openPickerIcon: ExpandMoreIcon }}
       slotProps={{
         textField: {
-          helperText: "*",
+          helperText: "required",
           // error: !field.value, // Show error state if field is empty
         },
       }}
@@ -65,7 +65,7 @@ const SelectField = ({ field }) => {
 
   useEffect(() => {
     if (!field.value) {
-      setFieldValue(field.name, "In-process");
+      setFieldValue(field.name, "Under-review");
     }
   }, [field.name, field.value, setFieldValue]);
 
@@ -78,11 +78,20 @@ const SelectField = ({ field }) => {
         submitForm();
       }}
       displayEmpty={true}
-      fullWidth
+      sx={{
+        maxWidth: "164px",
+        fontSize: "1rem",
+        "& .MuiSelect-select": {
+          fontSize: "1rem",
+        },
+      }}
     >
-      <MenuItem value="In-process">In-process</MenuItem>
-      <MenuItem value="option2">Option 2</MenuItem>
-      <MenuItem value="option3">Option 3</MenuItem>
+      <MenuItem value="Under-review">Application/P4P under review</MenuItem>
+      <MenuItem value="Approved-invoice-required">
+        Application/P4P approved, invoice required
+      </MenuItem>
+      <MenuItem value="Submitted">Invoice submitted</MenuItem>
+      <MenuItem value="Paid">Payment issued</MenuItem>
     </Select>
   );
 };
@@ -137,13 +146,19 @@ const IncentiveSettingsMicroComponent = () => {
         },
         {}
       );
+
       const updatedSettingsPayload = {
         ...updatedValues,
         preProjectIncentive: Number(values.preProjectIncentive),
         onPeakIncentiveRate: Number(values.onPeakIncentiveRate),
         offPeakIncentiveRate: Number(values.offPeakIncentiveRate),
         minimumSavings: Number(values.minimumSavings),
+        preProjectIncentiveStatus: values.preProjectIncentiveStatus,
+        p4pIncentiveStatus1: values.p4pIncentiveStatus1,
+        p4pIncentiveStatus2: values.p4pIncentiveStatus2,
+        p4pIncentiveStatus3: values.p4pIncentiveStatus3,
       };
+
       dispatch(updateIncentiveSettings(updatedSettingsPayload, facility_id))
         .then(() => {
           dispatch(getIncentiveSettings(facility_id));
@@ -172,10 +187,13 @@ const IncentiveSettingsMicroComponent = () => {
     p4pEndDate3: incentiveSettings?.p4pEndDate3 || "",
     preProjectIncentive: incentiveSettings?.preProjectIncentive || "",
     preProjectIncentiveStatus:
-      incentiveSettings?.preProjectIncentiveStatus || "In-process",
-    p4pIncentiveStatus1: incentiveSettings?.p4pIncentiveStatus1 || "In-process",
-    p4pIncentiveStatus2: incentiveSettings?.p4pIncentiveStatus2 || "In-process",
-    p4pIncentiveStatus3: incentiveSettings?.p4pIncentiveStatus3 || "In-process",
+      incentiveSettings?.preProjectIncentiveStatus || "Under-review",
+    p4pIncentiveStatus1:
+      incentiveSettings?.p4pIncentiveStatus1 || "Under-review",
+    p4pIncentiveStatus2:
+      incentiveSettings?.p4pIncentiveStatus2 || "Under-review",
+    p4pIncentiveStatus3:
+      incentiveSettings?.p4pIncentiveStatus3 || "Under-review",
     onPeakIncentiveRate: incentiveSettings?.onPeakIncentiveRate || "",
     offPeakIncentiveRate: incentiveSettings?.offPeakIncentiveRate || "",
     minimumSavings: incentiveSettings?.minimumSavings || "",

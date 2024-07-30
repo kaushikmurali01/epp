@@ -34,6 +34,7 @@ const AddNonRoutineDataModal = ({
   event_from_period,
   closeAddNonRoutineDataModal,
   editMode,
+  meter_type
 }) => {
   const dispatch = useDispatch();
   const [modalNonRoutineTabs, setModalNonRoutineTabs] = useState("filledData");
@@ -44,6 +45,9 @@ const AddNonRoutineDataModal = ({
   const [dataType, setDataType] = useState(1);
   const [fileUrl, setFileUrl] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 10;
 
   const facility_id = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
@@ -224,7 +228,7 @@ const AddNonRoutineDataModal = ({
         dispatch(addNonRoutineEventData(nonRoutineDataPayload))
           .then(() => {
             closeAddNonRoutineDataModal();
-            dispatch(getNonRoutineEventList(facility_id));
+            dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
           })
           .catch(console.error());
         setSubmitting(false);
