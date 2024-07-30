@@ -130,3 +130,12 @@ body {
         min-height: 200px;
     }
 }
+
+
+// chart common css -
+
+.bi-embedded {
+    &.energy-use-by-hour-embedded {
+        height: 450px;
+      }
+}

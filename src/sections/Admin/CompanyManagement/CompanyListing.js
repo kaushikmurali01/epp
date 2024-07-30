@@ -687,7 +687,6 @@ const CompanyListingNew = () => {
     );
   };
 
-  console.log(companyListData, "companyListData")
 
   return (
     <Container>

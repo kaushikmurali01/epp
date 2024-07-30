@@ -150,6 +150,13 @@ export const validationSchemaAddMeter = Yup.object().shape({
   is_rg_meter: Yup.bool().required("Revenue-grade meter is required"),
 });
 
+export const validationSchemaDeleteMeterEntries = Yup.object({
+  startDate: Yup.date().required('Start date is required'),
+  endDate: Yup.date()
+      .required('End date is required')
+      .min(Yup.ref('startDate'), 'End date cannot be earlier than start date')
+});
+
 export const validationSchemaEntry = Yup.object().shape({
   start_date: Yup.date()
     .max(new Date(), "Start Date cannot be in the future")

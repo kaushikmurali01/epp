@@ -23,6 +23,8 @@ const AddNonRoutineEventModal = ({
   openAddNonRoutineDataModal,
   editMode,
 }) => {
+  const [page, setPage] = useState(0);
+  const itemsPerPage = 10;
   const dispatch = useDispatch();
   const facility_id = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
@@ -70,7 +72,7 @@ const AddNonRoutineEventModal = ({
         const event_to_period = response?.data?.event_to_period;
         const event_from_period = response?.data?.event_from_period;
         closeAddNonRoutineEventModal();
-        dispatch(getNonRoutineEventList(facility_id));
+        dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
         if (!editMode.isEditing) {
           openAddNonRoutineDataModal(
             event_id,

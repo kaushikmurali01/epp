@@ -58,3 +58,29 @@ export const documentFileUploadAction = (uploadData) => {
     }
   };
 };
+
+
+export const commonDocumentFileUploadAction = (endPoint,payload,onUploadProgress) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fileUploadRequest());
+      // console.log(endPoint,payload, "check upload");
+      // return;
+      const response = await POST_REQUEST(endPoint, payload, true, "",onUploadProgress);
+      const data = response.data;
+      dispatch(fileUploadSuccess(data));
+      NotificationsToast({
+        message: data?.message || data?.error,
+        type: data?.error ? "error" : "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fileUploadFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
