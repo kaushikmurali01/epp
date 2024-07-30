@@ -11,13 +11,16 @@ from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
 from data_exploration_v2 import DataExplorationSummaryV2
+from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
+from sql_queries.nearest_weather_stations import min_max_date_query
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query
+from utils import get_nearest_stations
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
 
@@ -791,6 +794,63 @@ def get_graph():
             </body>
         </html>
     ''', graph_html=graph_html)
+
+
+@app.route('/insert_weather_data', methods=['POST'])
+def process():
+    start_year = request.json.get('start_year')
+    start_month = request.json.get('start_month')
+    end_year = request.json.get('end_year')
+    facility_id = request.json.get('facility_id')
+    end_month = request.json.get('end_month')
+
+    facility = dbtest("select id, latitude, longitude from epp.facility")
+    print("Facility data is -  - - - - - -- - -- -  -- - - -- ", facility.columns)
+    print(facility[facility['id'] == 24])
+    facility_df = facility[facility['id'] == int(facility_id)]
+    # Get nearest 3 stations
+    nearest_station_ids = get_nearest_stations(facility_df)
+    print(nearest_station_ids)
+    consolidated_df = download_and_load_data(int(start_year), int(start_month), int(end_year), int(end_month),
+                                             nearest_station_ids, int(facility_id))
+
+    return {"message": "Data inserted Succefully"}, 200
+
+
+@app.route('/get_station_details', methods=['GET'])
+def getdata():
+    facility = request.args.get('facility_id')
+    df = dbtest(
+        f'SELECT DISTINCT station_name , latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
+    df_con = df.to_dict(orient='records')
+    return jsonify(df_con), 200
+
+
+@app.route('/get_min_max_dates', methods=['GET'])
+def getdates():
+    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
+                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
+                   FROM epp.facility_meter_hourly_entries hme
+                   JOIN epp.facility_meter_detail fmd
+                   ON hme.facility_meter_detail_id = fmd.id;''')
+
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
+    min_max_date = dbtest(min_max_date_query.format(facility_id, meter_type))
+    min_max_date = min_max_date.dropna()
+    if len(min_max_date):
+        min_date = min_max_date.min_date[0].strftime('%m/%d/%Y %H:%M')
+        max_date = min_max_date.max_date[0].strftime('%m/%d/%Y %H:%M')
+    else:
+        response = {"success": False, 'error': "Insufficient Data"}
+        return jsonify(response), 404
+
+    result = {
+        "min_date": min_date,
+        "max_date": max_date
+    }
+
+    return jsonify(result), 200
 
 
 if __name__ == '__main__':
