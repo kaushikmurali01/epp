@@ -64,20 +64,6 @@ const SeeSufficiencyDetails = ({
     setActiveButton(btn_name);
   };
 
-  const getSufficiencyMonthlyData = () => {
-    if (sufficiencyCheckData?.["hourly"]?.["status"] === "passed") {
-      return sufficiencyCheckData?.["hourly"]?.["monthly_sufficiency"] || [];
-    }
-    if (sufficiencyCheckData) {
-      return (
-        sufficiencyCheckData?.["hourly"]?.["failedData"]?.[
-          "monthly_sufficiency"
-        ] || []
-      );
-    }
-    return [];
-  };
-
   const getSufficiencyData = () => {
     if (sufficiencyCheckData) {
       return sufficiencyCheckData[activeButton] || {};
@@ -85,10 +71,7 @@ const SeeSufficiencyDetails = ({
     return {};
   };
 
-  const sufficiencyData =
-    activeButton === "monthly"
-      ? getSufficiencyMonthlyData()
-      : getSufficiencyData();
+  const sufficiencyData = getSufficiencyData();
 
   return (
     <Grid container>
@@ -156,7 +139,9 @@ const SeeSufficiencyDetails = ({
         <MiniTable
           columns={userColumn}
           data={
-            activeButton === "monthly" ? sufficiencyData : [sufficiencyData]
+            activeButton === "monthly"
+              ? sufficiencyData?.data
+              : [sufficiencyData]
           }
         />
       </Grid>
