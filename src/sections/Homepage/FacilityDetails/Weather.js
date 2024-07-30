@@ -48,6 +48,7 @@ import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
 import axiosInstance from "utils/interceptor";
 import MapComponent from "components/MapComponent/MapComponent";
+import Loader from "pages/Loader";
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -66,6 +67,7 @@ const Weather = () => {
   const iVReportId = process.env.REACT_APP_POWERBI_IV_REPORT_ID;
   const iVEmbedUrl = process.env.REACT_APP_POWERBI_IV_EMBED_URL;
   const [reportLoading, setReportLoading] = useState(true);
+  const [loadingState, setLoadingState] = useState(false);
   const [tabValue, setTabValue] = useState("weather");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [independentVariable1File, setIndependentVariable1File] =
@@ -329,12 +331,14 @@ const Weather = () => {
 
   const AddEditIndependentVariable = ({ isEdit, data }) => {
     const formSubmit = (data) => {
+      setLoadingState(true);
       const apiURL =
         WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.ADD_INDEPENDENT_VARIABLE;
       const body = { ...data, facility_id: facilityData?.id };
       POST_REQUEST(apiURL, body)
         .then((response) => {
           setTabValue(response?.data?.data?.id);
+          setLoadingState(false);
           getIndependentVariales();
           setModalConfig((prevState) => ({
             ...prevState,
@@ -346,6 +350,7 @@ const Weather = () => {
           });
         })
         .catch((error) => {
+          setLoadingState(false);
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
@@ -409,6 +414,7 @@ const Weather = () => {
   };
 
   const uploadIndepentVariableFile = () => {
+    setLoadingState(true);
     const apiURL =
       WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE +
       `/${tabValue}`;
@@ -427,6 +433,7 @@ const Weather = () => {
         },
       })
       .then((response) => {
+        setLoadingState(false);
         if (response) {
           setIsFileUploaded(true);
           getIndependentVariales();
@@ -437,6 +444,7 @@ const Weather = () => {
         }
       })
       .catch((error) => {
+        setLoadingState(false);
         console.error("There was an error uploading the file!", error);
         NotificationsToast({
           message: "Something went wrong, please contact the admin.",
@@ -1052,6 +1060,12 @@ const Weather = () => {
         )}
       </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loadingState}
+        loaderPosition="fixed"
+      />
     </>
   );
 };

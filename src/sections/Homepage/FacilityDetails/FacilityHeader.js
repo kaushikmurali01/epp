@@ -7,6 +7,7 @@ import {
   Paper,
   useMediaQuery,
   styled,
+  ButtonGroup,
 } from "@mui/material";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,6 +22,57 @@ import EvModal from "utils/modal/EvModal";
 import MapsHomeWorkIcon from "@mui/icons-material/MapsHomeWork";
 import AdminFacilityStatus from "components/AdminFacilityStatus";
 import { hasPermission } from "utils/commonFunctions";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
+
+const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
+  "& .MuiButtonGroup-firstButton": {
+    borderRadius: "20.8125rem 0rem 0rem 20.8125rem",
+    borderRight: "1px solid #C9C8C8",
+  },
+  "& .MuiButtonGroup-middleButton": {
+    borderRight: "1px solid #C9C8C8",
+  },
+  "& .MuiButtonGroup-lastButton": {
+    borderRadius: "0 20.8125rem 20.8125rem 0",
+  },
+  "& .MuiButton-root": {
+    "&:hover": {
+      color: "#F7F7F5",
+    },
+  },
+}));
+
+export const buttonStyle = {
+  padding: "0.44rem 1rem",
+  lineHeight: "0.7",
+  height: "max-content",
+  fontSize: "12px!important",
+
+  ".MuiButtonGroup-firstButton": {
+    BorderRight: "10px",
+  },
+  whiteSpace: "nowrap",
+};
+
+export const activeButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: "#2E813E",
+  color: "#F7F7F5",
+};
+
+export const inactiveButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: "#EBEBEB",
+  color: "#696969",
+};
 
 const BoxCard = styled(Box)(({ theme }) => {
   return {
@@ -45,6 +97,10 @@ const FacilityHeader = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const dispatch = useDispatch();
+  const [activeButton, setActiveButton] = useState("incentive");
+  const handleButtonClick = (btn_name) => {
+    setActiveButton(btn_name);
+  };
 
   const handleDeleteFacility = () => {
     if (id) {
@@ -107,6 +163,206 @@ const FacilityHeader = () => {
       modalVisible: true,
     }));
   };
+
+  const incentiveData = [
+    { name: "Total Incentives", value: 3255, onPeak: 3255, offPeak: 0 },
+    { name: "3rd P4P Incentives", value: 1550, onPeak: 750, offPeak: 800 },
+    { name: "2nd P4P Incentives", value: 1085, onPeak: 525, offPeak: 560 },
+    { name: "1st P4P Incentives", value: 625, onPeak: 300, offPeak: 325 },
+    { name: "Pre-Project Incentives", value: 1500, onPeak: 1500, offPeak: 0 },
+  ];
+
+  const energySavingData = [
+    { name: "Total saving", value: 3255, onPeak: 3255, offPeak: 0 },
+    { name: "3rd P4P saving", value: 1550, onPeak: 750, offPeak: 800 },
+    { name: "2nd P4P saving", value: 1085, onPeak: 525, offPeak: 560 },
+    { name: "1st P4P saving", value: 625, onPeak: 300, offPeak: 325 },
+    {
+      name: "Pre-Project saving",
+      value: 1500,
+      onPeak: 1500,
+      offPeak: 0,
+    },
+  ];
+
+  function Legend() {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          mt: 0.5,
+          fontSize: 10,
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center", mr: 1 }}>
+          <Box sx={{ width: 10, height: 10, bgcolor: "#8bc34a", mr: 0.5 }} />
+          <Typography variant="caption">On-Peak</Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ width: 10, height: 10, bgcolor: "#4caf50", mr: 0.5 }} />
+          <Typography variant="caption">Off-Peak</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
+  const CustomBar = (props) => {
+    const { x, y, width, height, value, fill } = props;
+    console.log(value);
+    const displayValue =
+      typeof value === "number" ? `${value.toFixed(2)}` : value;
+    return (
+      <g>
+        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        {width > 30 && (
+          <text
+            x={x + width / 2}
+            y={y + height / 2}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="#ffffff"
+            fontSize={12}
+          >
+            {activeButton === "incentive" ? "$" : ""}
+            {displayValue}
+          </text>
+        )}
+      </g>
+    );
+  };
+
+  function IncentiveChart({ data }) {
+    const processedData = React.useMemo(() => {
+      return data.reduce((acc, item, index, array) => {
+        let transparentValue = 0;
+        let cumulativeTotal = item.value;
+
+        if (item.name.includes("2nd P4P")) {
+          const firstP4PIndex = array.findIndex((d) =>
+            d.name.includes("1st P4P")
+          );
+          transparentValue = array[firstP4PIndex].value;
+          cumulativeTotal += transparentValue;
+        } else if (item.name.includes("3rd P4P")) {
+          const firstP4PIndex = array.findIndex((d) =>
+            d.name.includes("1st P4P")
+          );
+          const secondP4PIndex = array.findIndex((d) =>
+            d.name.includes("2nd P4P")
+          );
+          transparentValue =
+            array[firstP4PIndex].value + array[secondP4PIndex].value;
+          cumulativeTotal += transparentValue;
+        }
+        return [
+          ...acc,
+          {
+            ...item,
+            transparentValue,
+            cumulativeTotal,
+          },
+        ];
+      }, []);
+    }, [data]);
+
+    const maxTotal = Math.max(
+      ...processedData.map((item) => item.cumulativeTotal)
+    );
+
+    return (
+      <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart layout="vertical" data={processedData}>
+            <XAxis type="number" domain={[0, maxTotal]} hide />
+            <YAxis
+              dataKey="name"
+              type="category"
+              tick={{
+                fontSize: 10,
+                fontWeight: 500,
+                fill: "#333",
+                textAnchor: "end",
+              }}
+            />
+            <Bar
+              dataKey="transparentValue"
+              stackId="a"
+              fill="transparent"
+              shape={(props) => <CustomBar {...props} value={null} />}
+            />
+
+            <Bar
+              dataKey="onPeak"
+              stackId="a"
+              fill="#8bc34a"
+              shape={(props) => (
+                <CustomBar {...props} value={props.payload.onPeak} />
+              )}
+            />
+            <Bar
+              dataKey="offPeak"
+              stackId="a"
+              fill="#4caf50"
+              shape={(props) => (
+                <CustomBar {...props} value={props.payload.offPeak} />
+              )}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+    );
+  }
+
+  const IncentiveEnergyChart = React.memo(function IncentiveEnergyChart({
+    incentiveData,
+    energySavingData,
+  }) {
+    return (
+      <Box sx={{ height: 141, fontFamily: "Arial, sans-serif" }}>
+        <Grid
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          gap={2}
+        >
+          <StyledButtonGroup
+            disableElevation
+            variant="contained"
+            color="primary"
+          >
+            <Button
+              sx={
+                activeButton === "incentive"
+                  ? activeButtonStyle
+                  : inactiveButtonStyle
+              }
+              onClick={() => handleButtonClick("incentive")}
+            >
+              Incentive
+            </Button>
+            <Button
+              sx={
+                activeButton === "energy_saving"
+                  ? activeButtonStyle
+                  : inactiveButtonStyle
+              }
+              onClick={() => handleButtonClick("energy_saving")}
+            >
+              Energy saving
+            </Button>
+          </StyledButtonGroup>
+          <Legend />
+        </Grid>
+        <IncentiveChart
+          data={activeButton === "incentive" ? incentiveData : energySavingData}
+        />
+      </Box>
+    );
+  });
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
@@ -217,11 +473,12 @@ const FacilityHeader = () => {
         </Grid>
 
         {/* Graph section */}
-        {/* <Grid item xs={12} md={4}>
-          <Paper variant="outlined" sx={{ height: 150 }}>
-            <Typography variant="body2">Graph Placeholder</Typography>
-          </Paper>
-        </Grid> */}
+        <Grid item xs={12} md={4}>
+          <IncentiveEnergyChart
+            incentiveData={incentiveData}
+            energySavingData={energySavingData}
+          />
+        </Grid>
 
         <Grid
           container
@@ -234,7 +491,9 @@ const FacilityHeader = () => {
           <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Facility UBI</Typography>
-              <Typography variant="h6">{facilityDetails?.facility_ubi}</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.facility_ubi}
+              </Typography>
             </BoxCard>
           </Grid>
           {/* <Grid item xs={6}>
