@@ -18,6 +18,7 @@ import {
   FormControlLabel,
   Checkbox,
   Link,
+  LinearProgress
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -45,11 +46,14 @@ import {
 } from "../../../redux/superAdmin/actions/metersActions";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import { commonDocumentFileUploadAction, documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
 import {
   fetchFacilityDetails,
   fetchFacilityStatus,
 } from "../../../redux/superAdmin/actions/facilityActions";
+import EnergyUseByHoursBasisGraph from "./EntryListing/EnergyUseByHoursBasisGraph";
+import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
+import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -63,9 +67,13 @@ const EntriesListing = ({
   const [tabValue, setTabValue] = useState("hourlyOrSub-hourlyEntries");
   const [hourlyEntryFile, setHourlyEntryFile] = useState(null);
   const [entryToDelete, setEntryToDelete] = useState("");
-  const [imgUrl, setImgUrl] = useState("");
+  const [imgUploadData, setImgUploadData] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -95,6 +103,28 @@ const EntriesListing = ({
       "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
   });
+
+  const [viewEntriesModalConfig, setViewEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: ""
+
+    },
+
+  })
+
+  const [deleteEntriesModalConfig, setDeleteEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: ""
+
+    },
+
+  })
 
   const handleDeleteEntry = (id) => {
     if (id) {
@@ -450,46 +480,75 @@ const EntriesListing = ({
             setFileName(response.data?.data?.rows[0]);
             setIsFileUploaded(true);
           } else {
+            // intentionally define true here we can change once the development done..
             setIsFileUploaded(false);
           }
         }
       })
-      .catch((error) => {});
+      .catch((error) => { });
   };
 
   const handleFileChange = (event) => {
+    setUploadProgress(0) // reset before upload progress
+    setIsUploading(true)
     const selectedFile = event.target.files[0];
     setHourlyEntryFile(selectedFile);
-    dispatch(documentFileUploadAction(selectedFile))
-      .then((data) => {
-        setImgUrl(data?.sasTokenUrl);
-      })
-      .catch((error) => {
-        console.error("Error uploading document:", error);
-      });
+    const apiURL = hourlyEndPoints.ADD_BULK_HOURLY_DATA;
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("iv", false);
+    formData.append("facility_id", id);
+    formData.append("meter_id", facilityMeterDetailId);
+
+    //  dispatch(commonDocumentFileUploadAction(apiURL,formData))
+    dispatch(commonDocumentFileUploadAction(apiURL, formData, (progressEvent) => {
+      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+      
+      setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
+    }))
+       .then((data) => {
+
+        setImgUploadData(data);
+        setIsUploading(false)
+        setUploadProgress(100); // when the upload is confirmed
+       })
+       .catch((error) => {
+         console.error("Error uploading document:", error);
+         setIsUploading(false);
+       });
   };
 
-  const uploadHourlyEntryFile = () => {
-    uploadEntryFile(imgUrl);
+  const uploadHourlyEntryFile = (imgData) => {
+    uploadEntryFile(imgData);
   };
 
   const uploadEntryFile = (data) => {
-    const body = {
-      facility_id: parseInt(id),
-      facility_meter_detail_id: parseInt(facilityMeterDetailId),
-      media_url: data,
-    };
-    POST_REQUEST(hourlyEndPoints.ADD_HOURLY_DATA, body)
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const payload = {
+      "facility_id": meterData?.facility_id,
+      "record_id": data.record_id
+  }
+
+    // return;
+    POST_REQUEST(apiURL, payload)
       .then((response) => {
-        getHourlySubHourlyEntryData();
-        dispatch(fetchFacilityStatus(id));
-        dispatch(fetchFacilityDetails(id));
+        // getHourlySubHourlyEntryData();
+        // dispatch(fetchFacilityStatus(id));
+        // dispatch(fetchFacilityDetails(id));
         NotificationsToast({
-          message: "File uploaded successfully!",
+          message: response.data.status,
           type: "success",
         });
+        // reset
+        setHourlyEntryFile(null);
+        setAcceptTermsAndCondition(false);
+        setUploadDataFormVisible(false);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+
       })
       .catch((error) => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         NotificationsToast({
           message: error?.message ? error.message : "Something went wrong!",
           type: "error",
@@ -498,37 +557,86 @@ const EntriesListing = ({
   };
 
   const deleteFile = () => {
-    DELETE_REQUEST(hourlyEndPoints.DELETE_HOURLY_DATA + fileName?.id)
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = hourlyEndPoints.DELETE_HOURLY_ENTRIES_FILE;
+    const payload = {
+      record_id: imgUploadData?.record_id,
+      iv: false,  // for hourly data independent variable will be false...
+    };
+
+    // return;
+    POST_REQUEST(apiURL, payload)
       .then((response) => {
-        if (response.data.statusCode == 200) {
-          setHourlyEntryFile(null);
-          getHourlySubHourlyEntryData();
-        }
+        setImgUploadData("")
+        setHourlyEntryFile(null)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+        // if (response.data.statusCode == 200) {
+        //   setHourlyEntryFile(null);
+        //   getHourlySubHourlyEntryData();
+        // }
       })
-      .catch((error) => {});
+      .catch((error) => { 
+        console.log(error)
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
   };
 
-  const downloadFileFromUrl = (fileUrl) => {
-    fetch(imgUrl).then((response) => {
-      response.blob().then((blob) => {
-        const fileURL = window.URL.createObjectURL(blob);
-        let alink = document.createElement("a");
-        alink.href = fileURL;
-        let fileName = `${
-          meterData?.meter_name
-        }_facility_meter_hourly_entries_file.${
-          imgUrl.split("/").pop().split(".").pop().split("?")[0]
-        }`;
-        alink.download = fileName;
-        alink.click();
-      });
-    });
-  };
+  // const downloadFileFromUrl = (fileUrl) => {
+  //   fetch(imgUrl).then((response) => {
+  //     response.blob().then((blob) => {
+  //       const fileURL = window.URL.createObjectURL(blob);
+  //       let alink = document.createElement("a");
+  //       alink.href = fileURL;
+  //       let fileName = `${meterData?.meter_name
+  //         }_facility_meter_hourly_entries_file.${imgUrl.split("/").pop().split(".").pop().split("?")[0]
+  //         }`;
+  //       alink.download = fileName;
+  //       alink.click();
+  //     });
+  //   });
+  // };
 
   const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
+
+  const handleViewEntries = () => {
+
+    setViewEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <ViewEntryDetailListModal
+          meterId={meterData?.meter_id}
+          meterType={meterData?.meter_type}
+          facilityId={meterData?.facility_id}
+        />
+      ),
+    }));
+
+  }
+
+  const handleDeleteEntries = () => {
+    setDeleteEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <DeleteEntriesModal
+          meterId={meterData?.meter_id}
+          meterType={meterData?.meter_type}
+          facilityId={meterData?.facility_id}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      ),
+    }));
+  }
+
+  //  return html dom
 
   return (
     <>
@@ -593,10 +701,10 @@ const EntriesListing = ({
             {meterData?.meter_type == 1
               ? "Electricity"
               : meterData?.meter_type == 2
-              ? "Natural Gas"
-              : meterData?.meter_type == 3
-              ? "Water"
-              : ""}
+                ? "Natural Gas"
+                : meterData?.meter_type == 3
+                  ? "Water"
+                  : ""}
           </Typography>
         </Box>
 
@@ -694,7 +802,29 @@ const EntriesListing = ({
             >
               Add Entry
             </Button>
-          ) : null}
+          ) :
+            (
+              <Stack direction="row" alignItems="center" gap="0.75rem">
+                <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
+                  View entries
+                </Link>
+                <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={() => handleDeleteEntries()} >
+                  Delete entries
+                </Link>
+                <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} onClick={() => setUploadDataFormVisible(true)} >
+                  <IconButton>
+                    <AddCircleIcon
+                      sx={{
+                        color: "text.primary",
+                        fontSize: "1.875rem",
+                      }}
+                    />
+                  </IconButton>
+                  Add entries
+                </Link>
+              </Stack>
+            )
+          }
         </Grid>
       </Grid>
 
@@ -708,99 +838,182 @@ const EntriesListing = ({
             setPageInfo={setPageInfo}
           />
         </Box>
-      ) : !isFileUploaded ? (
-        <Box>
-          <Typography variant="h5">
-            Upload data in bulk for this meter
-          </Typography>
-          <Typography variant="small2" gutterBottom>
-            You can upload a Green Button XML file or an Excel-compatible file.
-            Use this{" "}
-            <Link
-              underline="hover"
-              color="#2C77E9"
-              sx={{ cursor: "pointer" }}
-            >
-              single meter spreadsheet
-            </Link>{" "}
-            to upload the Excel file.
-          </Typography>
-          <Typography
-            my={1}
-            sx={{
-              color: "#2E813E",
-              fontWeight: "500",
-              fontSize: "18px",
-              backgroundColor: "#D1FFDA",
-              padding: "7px 33px",
-              borderRadius: "8px",
-              height: "40px",
-              marginTop: "20px",
-              cursor: "pointer",
-              maxWidth: "fit-content",
-            }}
-            onClick={handleButtonClick}
-          >
-            {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            accept=".xlsx,.csv,.xml,text/xml"
-          />
-          <Grid container mb={2} mt={2}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={acceptTermsAndCondition}
-                  sx={{ color: "text.secondary2" }}
-                  onChange={handleTermsAndConditionChange}
+      ) : uploadDataFormVisible && (
+        <React.Fragment>
+
+          <Box>
+          
+          <React.Fragment>
+            <Box>
+                  <Typography variant="h5">
+                    Upload data in bulk for this meter
+                  </Typography>
+                  <Typography variant="small2" gutterBottom>
+                    You can upload a Green Button XML file or an Excel-compatible file.
+                    Use this{" "}
+                    <Link
+                      underline="hover"
+                      color="#2C77E9"
+                      sx={{ cursor: "pointer" }}
+                    >
+                      single meter spreadsheet
+                    </Link>{" "}
+                    to upload the Excel file.
+                  </Typography>
+                 
+
+                    {isUploading ? (
+                      <>
+                          <Box sx={{mt: 4, width: {xs: "100%", md: "50%"}, maxWidth: '350px' }}>
+                              <LinearProgress variant="determinate" value={uploadProgress} />
+                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+                                  <Typography variant="body2" color="textSecondary">
+                                      {hourlyEntryFile?.name} Uploading..
+                                  </Typography>
+                                  <Typography variant="body2" color="textSecondary">
+                                      {uploadProgress}%
+                                  </Typography>
+                              </Box>
+                          </Box>
+                          {/* <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() => setIsUploading(false)}
+                              sx={{ mt: 2 }}
+                          >
+                              Cancel
+                          </Button> */}
+                      </>
+                  ): (
+                    <React.Fragment>
+                      {hourlyEntryFile ? 
+                      <Box sx={{marginTop: '1.5rem'}}>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "blue.main", display: "inline-block" }}
+                          >
+                            {hourlyEntryFile?.name}
+                          
+                          </Typography>
+
+                          <Typography
+                            variant="body2"
+                              sx={{ color: "danger.main",display: "inline-block", marginLeft: "1rem", cursor: "pointer" }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteFile();
+                              }}
+                            >
+                              Delete
+                            </Typography>
+                            {imgUploadData?.error && 
+                              <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
+                              <Typography
+                                variant="small"
+                                sx={{ color: "danger.main", }}
+                              
+                              >
+                                {imgUploadData?.error}
+                              </Typography>
+                              </Stack>
+                          }
+                      </Box>
+                      : 
+                      <Box>
+                          <Typography
+                            my={1}
+                            sx={{
+                              color: "#2E813E",
+                              fontWeight: "500",
+                              fontSize: "18px",
+                              backgroundColor: "#D1FFDA",
+                              padding: "7px 33px",
+                              borderRadius: "8px",
+                              height: "40px",
+                              marginTop: "20px",
+                              cursor: "pointer",
+                              maxWidth: "fit-content",
+                            }}
+                            onClick={handleButtonClick}
+                          >
+                            {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
+                          </Typography>
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            style={{ display: "none" }}
+                            onChange={handleFileChange}
+                            accept=".xlsx,.csv,.xml,text/xml"
+                          />
+                      </Box>
+                    }
+                         
+
+                      
+
+                       
+                    </React.Fragment>
+                  )}
+
+            </Box>
+          </React.Fragment>  
+          
+        
+            <React.Fragment>
+              <Grid container mb={2} mt={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={acceptTermsAndCondition}
+                      sx={{ color: "text.secondary2" }}
+                      onChange={handleTermsAndConditionChange}
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontSize: "14px!important" }}>
+                      I hereby certify that this is the original file from the
+                      Utility.
+                    </Typography>
+                  }
                 />
-              }
-              label={
-                <Typography sx={{ fontSize: "14px!important" }}>
-                  I hereby certify that this is the original file from the
-                  Utility.
-                </Typography>
-              }
-            />
-          </Grid>
-          <Button
-            variant="contained"
-            onClick={() => uploadHourlyEntryFile(imgUrl)}
-            style={{
-              padding: "0.2rem 1rem",
-              minWidth: "unset",
-              width: "165px",
-              height: "40px",
-            }}
-            disabled={!imgUrl || !acceptTermsAndCondition}
-          >
-            Upload
-          </Button>
-        </Box>
-      ) : (
-        <Box>
-          <Typography
-            variant="h6"
-            sx={{ color: "blue.main", cursor: "pointer", display: "flex" }}
-            onClick={downloadFileFromUrl}
-          >
-            {meterData?.meter_name}_facility_meter_hourly_entries_file.xlsx
-            <Typography
-              sx={{ color: "#FF5858", marginLeft: "1rem", cursor: "pointer" }}
-              onClick={(event) => {
-                event.stopPropagation();
-                deleteFile();
-              }}
-            >
-              Delete
-            </Typography>
-          </Typography>
-        </Box>
-      )}
+              </Grid>
+              <Button
+                variant="contained"
+                onClick={() => uploadHourlyEntryFile(imgUploadData)}
+                style={{
+                  padding: "0.2rem 1rem",
+                  minWidth: "unset",
+                  width: "165px",
+                  height: "40px",
+                }}
+                disabled={!hourlyEntryFile || !acceptTermsAndCondition || isUploading || imgUploadData?.error}
+              >
+                Upload
+              </Button>
+            </React.Fragment>
+            
+            
+
+          </Box>
+
+       
+        </React.Fragment>
+      ) }
+
+      {/* show here Energy use by hourly basis  graph */}
+      <Box className="hourly-graph-row" marginTop="1.5rem">
+        <Typography variant="h6">
+          Energy use by hourly basis
+        </Typography>
+        <Stack direction="row" sx={{ width: '100%' }}>
+          <Stack direction="row" sx={{ width: '100%' }}>
+            <EnergyUseByHoursBasisGraph />
+          </Stack>
+        </Stack>
+      </Box>
+
+
+
 
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       <EvModal
@@ -812,6 +1025,22 @@ const EntriesListing = ({
         modalConfig={deleteMeterModalConfig}
         setModalConfig={setDeleteMeterModalConfig}
       />
+
+      {viewEntriesModalConfig.modalVisible &&
+        <EvModal
+          modalConfig={viewEntriesModalConfig}
+          setModalConfig={setViewEntriesModalConfig}
+        />
+      }
+
+      {deleteEntriesModalConfig.modalVisible &&
+        <EvModal
+          modalConfig={deleteEntriesModalConfig}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      }
+
+
     </>
   );
 };
