@@ -1,4 +1,4 @@
-import { ButtonGroup, styled } from "@mui/material";
+import { ButtonGroup, ToggleButton, styled } from "@mui/material";
 
 export const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -58,3 +58,15 @@ export const checkBoxButtonStyle = {
   fontWeight: "400",
   fontSize: { sm: "0.875rem" },
 };
+
+export const CustomToggleButton = styled(ToggleButton)(({ theme }) => ({
+  borderRadius: "1.5rem",
+  margin: theme.spacing(1),
+  minWidth: "48px",
+  minHeight: "48px",
+  textTransform: "none",
+  "&.Mui-selected": {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+  },
+}));

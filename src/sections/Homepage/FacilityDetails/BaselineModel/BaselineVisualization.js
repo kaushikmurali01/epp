@@ -1,4 +1,11 @@
-import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
+import {
+  Box,
+  Grid,
+  ToggleButton,
+  Typography,
+  styled,
+  useMediaQuery,
+} from "@mui/material";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -6,6 +13,7 @@ import { GET_REQUEST } from "utils/HTTPRequests";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { models } from "powerbi-client";
 import { PowerBIEmbed } from "powerbi-client-react";
+import { CustomToggleButton } from "./styles";
 
 const BaselineVisualization = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -14,6 +22,7 @@ const BaselineVisualization = () => {
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
+  const [selectedGraphFilter, setSelectedGraphFilter] = useState();
   const dataSetId = process.env.REACT_APP_POWERBI_RADIAL_CHART_DATASET_ID;
   const reportId = process.env.REACT_APP_POWERBI_RADIAL_CHART_REPORT_ID;
   const embedUrl = process.env.REACT_APP_POWERBI_RADIAL_CHART_EMBED_URL;
@@ -152,7 +161,23 @@ const BaselineVisualization = () => {
   const getPowerBiError = (errorDetail) => {
     console.log("Error in setIsErrorInPowerBi", errorDetail);
   };
+  const filterGraphOption = [
+    { label: "Time series", value: "time_series" },
+    { label: "Heatmap", value: "heatmap" },
+    { label: "Category 1", value: "category_1" },
+    { label: "Category 2", value: "category_2" },
+    { label: "Category 3", value: "category_3" },
+  ];
 
+  const handleGraphOptionChange = (value) => {
+    if (selectedGraphFilter === value) {
+      setSelectedGraphFilter(null);
+    } else {
+      setSelectedGraphFilter(value);
+    }
+  };
+  const graphUrl =
+    "https://ams-enerva-dev.azure-api.net/v1/graph?facility_id=336";
   return (
     <Box
       sx={{
@@ -161,6 +186,23 @@ const BaselineVisualization = () => {
         marginTop: isSmallScreen && "2rem",
       }}
     >
+      {filterGraphOption.map((option) => (
+        <CustomToggleButton
+          key={option.value}
+          value={option.value}
+          selected={selectedGraphFilter === option.value}
+          onChange={() => handleGraphOptionChange(option.value)}
+        >
+          {option.label}
+        </CustomToggleButton>
+      ))}
+      <iframe
+        src={graphUrl}
+        width="100%"
+        height="500px"
+        frameBorder="0"
+        title="Facility Graph"
+      />
       <Grid>
         <Box id="bi-report" mt={4}>
           {facility_status?.timeline?.energy_and_water &&
