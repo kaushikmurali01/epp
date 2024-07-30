@@ -100,7 +100,6 @@ const EnergyUseByHoursBasisGraph = () => {
     }
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
-        console.log("resss after setting parameters", res)
         refreshPowerBiReport()
       })
       .catch((error) => {
@@ -116,7 +115,6 @@ const EnergyUseByHoursBasisGraph = () => {
     }
     POWERBI_POST_REQUEST(apiURL, body, )
       .then((res) => {
-        console.log("resss after refreshing", res)
         setReportLoading(false)
       })
       .catch((error) => {
@@ -183,7 +181,7 @@ const EnergyUseByHoursBasisGraph = () => {
                 [
                   "error",
                   function (event) {
-                    console.log("iiiiiiiiiii",event.detail);
+                    console.log(event.detail);
                     getPowerBiError(event.detail)
                   },
                 ],

@@ -204,8 +204,10 @@ export const hourlyEndPoints = {
   GET_HOURLY_DATA:
     "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
   ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
-  ADD_MULTIPLE_HOURLY_DATA: "/v1/upload-meter-file",
+  ADD_BULK_HOURLY_DATA: "/v1/upload-meter-file",
+  ADD_HOURLY_METER_DATA: "/v1/add-meter-data",
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
+  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file"
 };
 
 export const adminHourlyEndPoints = {

@@ -72,11 +72,10 @@ const ViewEntryDetailListModal = ({
       
     }
   
-    console.log(apiURL, payload, "checking api url...");
+    
     // return;
     POST_REQUEST(apiURL,payload)
       .then((res) => {
-        console.log(res, "checking result");
         if(res.data?.data?.rows instanceof Array){
           setMeterRowData(res.data?.data?.rows)
           setPageCount(res.data?.data?.count)
@@ -92,15 +91,6 @@ const ViewEntryDetailListModal = ({
     getHourlyEntriesData(pageInfo)
   }, [pageInfo]);
 
-  // const meterRawData = useSelector(
-  //   (state) => state?.baselineReducer?.rawMeterSummaryList?.data || []
-  // );
-
-  // const count = useSelector(
-  //   (state) => state?.baselineReducer?.rawMeterSummaryList?.count
-  // );
-
-  console.log(meterRawData, "check meter row data")
   
   return (
     <Grid container rowGap={4}>
