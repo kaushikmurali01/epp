@@ -5,6 +5,7 @@ from download_weather_data import download_and_load_data
 import math
 from dbconnection import dbtest
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities
+from sql_queries.nearest_weather_stations import nearest_weather_stations
 
 app = Flask(__name__)
 
@@ -34,29 +35,13 @@ def get_nearest_stations(facility_df, stations_df, n=3):
     # Ensure facility_df has at least one row
     if facility_df.empty:
         raise ValueError("facility_df must contain at least one row")
-
     # Extract facility coordinates (using the first row)
     facility_lat = float(facility_df.iloc[0]['latitude'])
     facility_lon = float(facility_df.iloc[0]['longitude'])
 
-    # Reset the index of the stations_df to ensure indices are sequential
-    stations_df.reset_index(drop=True, inplace=True)
-
-    # Calculate distances and store them in a list of tuples (distance, index)
-    distances = []
-    for index, row in stations.iterrows():
-        distance = haversine(facility_lat, facility_lon, float(row['latitude']), float(row['longitude']))
-        distances.append((distance, index))
-
-    # Sort the list by distance
-    distances.sort()
-
-    # Get the nearest n stations
-    nearest_stations_indices = [index for _, index in distances[:n]]
-    nearest_stations = stations.iloc[nearest_stations_indices]
-
-    # Return the array of station IDs
-    return nearest_stations['station_id'].values
+    query = nearest_weather_stations.format(facility_lat, facility_lon, facility_lat, n)
+    station_dataframe = dbtest(query)
+    return station_dataframe['station_id'].values
 
 
 stations = dbtest("select station_id,latitude, longitude, station_name from stations")
@@ -110,8 +95,10 @@ def getdates():
     max_date = None
 
     for key, data in user_combined_data.items():
-        min_date = data['Start Date (Required)'].min() if min_date is None else min(min_date, data['Start Date (Required)'].min())
-        max_date = data['Start Date (Required)'].max() if max_date is None else max(max_date, data['Start Date (Required)'].max())
+        min_date = data['Start Date (Required)'].min() if min_date is None else min(min_date,
+                                                                                    data['Start Date (Required)'].min())
+        max_date = data['Start Date (Required)'].max() if max_date is None else max(max_date,
+                                                                                    data['Start Date (Required)'].max())
 
     result = {
         "min_date": min_date,
