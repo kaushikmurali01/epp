@@ -5,6 +5,8 @@ import {
   Tabs,
   Typography,
   List,
+  Pagination,
+  ListItem,
 } from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers';
 import SelectBox from 'components/FormBuilder/Select';
@@ -24,6 +26,9 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
   const [activeButton, setActiveButton] = useState(0);
   const dispatch = useDispatch();
   const [editMode, setEditMode] = useState({ isEditing: false, eventId: null });
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const itemsPerPage = 10;
 
   const facility_id = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
@@ -33,9 +38,23 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
     (state) => state?.performanceReducer
   );
   
+  // useEffect(() => {
+  //   dispatch(getNonRoutineEventList(facility_id, meter_type));
+  // }, [meter_type]);
+
   useEffect(() => {
-    dispatch(getNonRoutineEventList(facility_id));
-  }, []);
+    dispatch(
+      getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage)
+    ).then((response) => {
+      if (response && response.count) {
+        setTotalPages(Math.ceil(response?.count / itemsPerPage));
+      }
+    });
+  }, [meter_type, page]);
+
+  const handlePageChange = (event, newPage) => {
+    setPage(newPage);
+  };
   
   const savingReportDropdown = [
     {
@@ -120,6 +139,7 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
           eventId={eventId}
           closeNonEventRoutineDetailsModal={closeNonEventRoutineDetailsModal}
           openAddNonRoutineEventModal={openAddNonRoutineEventModal}
+          meter_type={meter_type}
         />
       ),
     }));
@@ -161,34 +181,6 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
    },
    modalBodyContent: "",
  });
-
-
-
-
-  
-  // const openAddNonRoutineEventModal = async (eventId = null) => {
-  //   setEditMode({ isEditing: !!eventId, eventId });
-  //   if (eventId) {
-  //   // Wait for the data to be fetched
-  //   await dispatch(getNonRoutineEventDetails(eventId));
-  // }
-  //   setAddNonRoutineEventModalConfig((prevState) => ({
-  //     ...prevState,
-  //     modalVisible: true,
-  //     headerText: eventId ? "Edit Non-routine Event" : "Add Non-routine Event",
-  //     modalBodyContent: (
-  //       <AddNonRoutineEventModal
-  //         meter_type={meter_type}
-  //         closeAddNonRoutineEventModal={closeAddNonRoutineEventModal}
-  //         openAddNonRoutineDataModal={openAddNonRoutineDataModal}
-  //         editMode={editMode}
-  //         eventDetails={eventId ? nonRoutineEventDetails : null}
-  //         // Add a key to force re-render
-  //         key={Date.now()}
-  //       />
-  //     ),
-  //   }));
-  // };
 
   const openAddNonRoutineEventModal = (eventId = null) => {
     setEditMode({ isEditing: !!eventId, eventId });
@@ -255,6 +247,7 @@ const openAddNonRoutineDataModal = (
               editMode={editMode}
               eventDetails={nonRoutineEventDetails}
               key={Date.now()} // Force re-render
+              meter_type={meter_type}
             />
           ),
         }));
@@ -276,6 +269,7 @@ const openAddNonRoutineDataModal = (
           closeAddNonRoutineDataModal={closeAddNonRoutineDataModal}
           editMode={editMode}
           key={Date.now()} // Force re-render
+          meter_type={meter_type}
         />
       ),
     }));
@@ -296,12 +290,6 @@ const openAddNonRoutineDataModal = (
       modalVisible: false,
     }));
   };
-
-const handleSubmit = (values) => {};
-
-const handleButtonClick = (index) => {
-  setActiveButton(index);
-};
   
   const [addNonRoutineEventModalConfig, setAddNonRoutineEventModalConfig] = useState({
     modalVisible: false,
@@ -425,7 +413,7 @@ const handleButtonClick = (index) => {
         <Grid
           item
           xs={12}
-          md={9}
+          md={9.7}
           sx={{
             border: "1px solid #2E813E",
             borderRadius: "10px",
@@ -627,7 +615,7 @@ const handleButtonClick = (index) => {
         <Grid
           item
           xs={12}
-          md={3}
+          md={2.7}
           sx={{
             border: "1px solid #2E813E",
             borderRadius: "10px",
@@ -638,17 +626,41 @@ const handleButtonClick = (index) => {
             Non-routine event name
           </Typography>
           <Grid sx={{ background: "#E2F8E6" }}>
-            {nonRoutineEventList.length > 0 &&
-              nonRoutineEventList.map((eventItem, index) => (
-                <List
-                  key={index}
-                  variant="h6"
-                  sx={eventNameStyleInAccordion}
-                  onClick={() => openNonEventRoutineDetailsModal(eventItem?.id)}
-                >
-                  {eventItem?.event_name}
+            {nonRoutineEventList.length > 0 ? (
+              <>
+                <List>
+                  {nonRoutineEventList.map((eventItem, index) => (
+                    <ListItem
+                      key={index}
+                      variant="h6"
+                      sx={eventNameStyleInAccordion}
+                      onClick={() =>
+                        openNonEventRoutineDetailsModal(eventItem?.id)
+                      }
+                    >
+                      {eventItem?.event_name}
+                    </ListItem>
+                  ))}
                 </List>
-              ))}
+                <Pagination
+                  count={totalPages}
+                  page={page + 1}
+                  onChange={(event, newPage) =>
+                    handlePageChange(event, newPage - 1)
+                  }
+                  color="primary"
+                  sx={{ mt: 2, display: "flex", justifyContent: "center" }}
+                />
+              </>
+            ) : (
+              <Typography
+                variant="h6"
+                textAlign={"center"}
+                sx={eventNameStyleInAccordion}
+              >
+                Non-routine event is not added yet.
+              </Typography>
+            )}
           </Grid>
         </Grid>
       </Grid>

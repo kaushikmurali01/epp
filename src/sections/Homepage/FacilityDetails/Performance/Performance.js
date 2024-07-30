@@ -250,7 +250,7 @@ const Performance = () => {
         <Grid item>
           <CustomAccordion
             summary="Baseline summary"
-            details={<BaselineSummaryAccord />}
+            details={<BaselineSummaryAccord meter_type={activeButton} />}
             panelId="baselineSummary"
           />
 
@@ -262,7 +262,11 @@ const Performance = () => {
 
           <CustomAccordion
             summary="Performance period reporting Information"
-            details={<PerformancePeriodInformationAccordion meter_type={activeButton} />}
+            details={
+              <PerformancePeriodInformationAccordion
+                meter_type={activeButton}
+              />
+            }
             panelId="performancePeriodReportingInformation"
           />
 

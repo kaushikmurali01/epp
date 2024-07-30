@@ -73,14 +73,14 @@ export const addNonRoutineEvent = (nonRoutinePayload) => {
   };
 };
 
-export const getNonRoutineEventList = (facilityId) => { 
-  return async (dispatch) => { 
+export const getNonRoutineEventList = (facilityId, meter_type, page, limit) => {
+  return async (dispatch) => {
     try {
       dispatch(getNonRoutineEventListRequest());
-      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_NON_ROUTINE_EVENT_LIST}/${facilityId}/0/10`;
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_NON_ROUTINE_EVENT_LIST}/${facilityId}/${page}/${limit}?meter_type=${meter_type}`;
       const response = await GET_REQUEST(apiURL);
       dispatch(getNonRoutineEventListSuccess(response?.data?.data?.rows));
-      return (response?.data?.data?.rows);
+      return response?.data?.data;
     } catch (error) {
       console.error(error);
       dispatch(getNonRoutineEventListFailure(error));
