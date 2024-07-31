@@ -610,7 +610,7 @@ const EntriesListing = ({
       headerSubText: "",
       modalBodyContent: (
         <ViewEntryDetailListModal
-          meterId={meterData?.meter_id}
+          meterId={meterData?.id}
           meterType={meterData?.meter_type}
           facilityId={meterData?.facility_id}
         />
@@ -618,6 +618,8 @@ const EntriesListing = ({
     }));
 
   }
+
+  console.log(meterData, "meterData")
 
   const handleDeleteEntries = () => {
     setDeleteEntriesModalConfig((prevState) => ({
@@ -627,7 +629,7 @@ const EntriesListing = ({
       headerSubText: "",
       modalBodyContent: (
         <DeleteEntriesModal
-          meterId={meterData?.meter_id}
+          meterId={meterData?.id}
           meterType={meterData?.meter_type}
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
@@ -700,9 +702,9 @@ const EntriesListing = ({
           <Typography variant="h6" gutterBottom>
             {meterData?.meter_type == 1
               ? "Electricity"
-              : meterData?.meter_type == 2
+              : meterData?.meter_type == 3
                 ? "Natural Gas"
-                : meterData?.meter_type == 3
+                : meterData?.meter_type == 2
                   ? "Water"
                   : ""}
           </Typography>
