@@ -290,10 +290,10 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         }}
                       >
                         <ToggleButton value={1}>Electricity</ToggleButton>
-                        <ToggleButton value={3} disabled>
+                        <ToggleButton value={3} >
                           Natural Gas
                         </ToggleButton>
-                        <ToggleButton value={2} disabled>
+                        <ToggleButton value={2} >
                           Water
                         </ToggleButton>
                       </ToggleButtonGroup>
