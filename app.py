@@ -351,7 +351,7 @@ def clean_data():
                    JOIN epp.facility_meter_detail fmd
                    ON hme.facility_meter_detail_id = fmd.id;''')
 
-    granularity = request.json.get('granularity', '')
+    granularity = request.json.get('granularity', 'hourly')
     start_date = request.json.get('start_date', '')
     end_date = request.json.get('end_date', '')
     facility_id = request.json.get('facility_id', '')
