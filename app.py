@@ -96,53 +96,48 @@ def baseline_model_training():
     # returning baseline model metrics summary
     return jsonify(model_metrics)
 
-@app.route('/get_baseline_data_summary', methods=['POST'])
+@app.route('/get_baseline_data_summary', methods=['GET'])
 def get_baseline_data_summary():
-    data = request.get_json()
-    facility_id = int(data.get('facility_id'))
-    meter_type = int(data.get('meter_type'))
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
     
     if not facility_id or not meter_type:
         return jsonify({"error": "facility_id and meter_type are required"}), 400
     
+    try:
+        facility_id = int(facility_id)
+        meter_type = int(meter_type)
+    except ValueError:
+        return jsonify({"error": "facility_id and meter_type must be integers"}), 400
+    
     query = "SELECT baseline_data_summary FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
-    print(query)
-    debug_query = "SELECT baseline_data_summary FROM baseline_model_output_data WHERE facility_id = {} AND meter_type = {}".format(facility_id, meter_type)
-    print("Debug Query:", debug_query)
     result = db_execute(query, (facility_id, meter_type), fetch=True)
-    print(type(result))
+    
     if result and result[0]:
-        baseline_summary = result[0]
-        if isinstance(baseline_summary, str):
-            try:
-                baseline_data = json.loads(baseline_summary)
-                return jsonify({"facility_id": facility_id, "meter_type": meter_type, "baseline_summary_performance_page": baseline_data})
-            except json.JSONDecodeError:
-                return jsonify({"error": "Failed to decode JSON data"}), 500
-        else:
-            return jsonify({"error": "Unexpected data type returned"}), 500
+        return jsonify({"facility_id": facility_id, "meter_type": meter_type, "baseline_summary_performance_page": result[0]})
     else:
         return jsonify({"error": "No data found for the given facility_id and meter_type"}), 404
     
-@app.route('/get_predicted_data', methods=['POST'])
+@app.route('/get_predicted_data', methods=['GET'])
 def get_predicted_data():
-    data = request.get_json()
-    facility_id = data.get('facility_id')
-    meter_type = data.get('meter_type')
-
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
+    
     if not facility_id or not meter_type:
         return jsonify({"error": "facility_id and meter_type are required"}), 400
     
+    try:
+        facility_id = int(facility_id)
+        meter_type = int(meter_type)
+    except ValueError:
+        return jsonify({"error": "facility_id and meter_type must be integers"}), 400
+    
     query = "SELECT output_data FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
     result = db_execute(query, (facility_id, meter_type), fetch=True)
-    
+    # print(facility_id,meter_type,result)
     if result:
         predicted_data = result[0]
-        try:
-            parsed_data = json.loads(predicted_data)
-            return jsonify({"facility_id": facility_id, "meter_type": meter_type, "predicted_data": parsed_data})
-        except json.JSONDecodeError:
-            return jsonify({"error": "Error decoding the predicted data"}), 500
+        return jsonify({"facility_id": facility_id, "meter_type": meter_type, "predicted_data": predicted_data})
     else:
         return jsonify({"error": "No data found for the given facility_id and meter_type"}), 404
 

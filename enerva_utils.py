@@ -41,12 +41,17 @@ def get_db_connection():
 
 
 def db_execute(query, values, fetch=False):
+    conn = None
+    curs = None
     try:
         conn = get_db_connection()
         curs = conn.cursor()
 
         # Execute the query with parameters
         curs.execute(query, values)
+        # Print the query and values
+        # print("Executing query:", query)
+        # print("With values:", values)
         # Fetch data if required
         result = None
         if fetch:

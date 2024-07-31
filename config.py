@@ -5,7 +5,7 @@ load_dotenv(dotenv_path)
 # load_dotenv()
 
 DATABASE_NAME = os.getenv('DATABASE_NAME')
-USER = os.getenv('USER')
+USER = os.getenv('DB_USER')
 PASSWORD = os.getenv('PASSWORD')
 KEY_PATH = os.getenv('KEY_PATH')
 SSH_IP = os.getenv('SSH_IP')
