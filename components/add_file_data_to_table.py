@@ -7,14 +7,16 @@ from sql_queries.file_uploader import meter_file_processing_query, iv_file_proce
 
 
 class AddMeterData:
-    def __init__(self, facility_id, iv=False):
+    def __init__(self, facility_id, record_id, iv=False):
+        self.record_id = record_id
         self.iv = iv
         self.facility_id = facility_id
-        self.raw_data_query = meter_file_processing_query.format(self.facility_id)
-        self.iv_data_query = iv_file_processing_query.format(self.facility_id)
+        self.raw_data_query = meter_file_processing_query.format(self.facility_id, self.record_id)
+        self.iv_data_query = iv_file_processing_query.format(self.facility_id,self.record_id)
         self.raw_df = dbtest(self.raw_data_query) if not self.iv else dbtest(self.iv_data_query)
 
     def initiate_meter_download(self):
+
         for _, row in self.raw_df.iterrows():
             record_id = row.get('file_record_id')
             meter_name = row.get('meter_name')
