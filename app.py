@@ -199,10 +199,10 @@ def get_sufficiency():
     # Calculate sufficiency percentages
     hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date)
     response = {
-        "daily": {"sufficiency": round(daily, 2), "status": get_status(daily)},
-        "hourly": {"sufficiency": round(hourly, 2), "status": get_status(hourly)},
+        "daily": {"sufficiency": round(daily, 2) if round(daily, 2)<= 100 else 100, "status": get_status(daily)},
+        "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2)<= 100 else 100, "status": get_status(hourly)},
         "monthly": {
-            "sufficiency": round(monthly, 2),
+            "sufficiency": round(monthly, 2) if round(monthly, 2)<= 100 else 100,
             "status": get_status(monthly),
             "data": monthly_data
         }
@@ -235,10 +235,18 @@ def calculate_sufficiency(df, start_date, end_date):
     daily_sufficiency = (daily_sum * 100) / (total_days * meter_count)
 
     # Calculate monthly sufficiency
+    df_sorted = df.sort_values('monthly_sufficiency_percentage', ascending=False)
+
+    # Drop duplicates based on meter_id and month_name, keeping the row with the highest monthly_sufficiency_percentage
+    df_unique = df_sorted.drop_duplicates(subset=['meter_id', 'month_name'], keep='first')
+
     
-    monthly_data = df.groupby('month_name')['monthly_sufficiency_percentage'].sum().reset_index()
+    monthly_data = df_unique.groupby('month_name').agg({
+        'monthly_sufficiency_percentage': 'sum',
+        'meter_id': 'nunique'
+    }).reset_index()  
     sufficiency_data = pd.DataFrame(monthly_data)
-    monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
+    monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
     monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days  * meter_count)) * 100
     
@@ -273,7 +281,8 @@ def get_month_days_in_range(start_date, end_date):
     
     return month_days
 
-def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count):
+def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
+    print(sufficiency_data)
     month_days = get_month_days_in_range(start_date, end_date)
     sufficiency_dict = {}
     for index, row in sufficiency_data.iterrows():
@@ -281,7 +290,7 @@ def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
         value = row['monthly_sufficiency_percentage']
         for key in month_days.keys():
             if month in key:
-                sufficiency_dict[key] = f"{value*100/(month_days[key]*meter_count):.2f}"
+                sufficiency_dict[key] = f"{(value*100/(month_days[key]*row['meter_id']) if value*100/(month_days[key]*row['meter_id']) <= 100 else 100):.2f}"
                 break
     
     result =[
