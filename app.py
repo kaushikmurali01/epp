@@ -695,8 +695,8 @@ def getdates():
         return jsonify(response), 404
 
     result = {
-        "min_date": min_date,
-        "max_date": max_date
+        "start_date": min_date,
+        "end_date": max_date
     }
 
     return jsonify(result), 200
