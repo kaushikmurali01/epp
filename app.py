@@ -1,5 +1,5 @@
 from threading import Thread
-
+import calendar
 from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
 import plotly.graph_objs as go
@@ -190,61 +190,110 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    # Calculate total hours, days, and months
-    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1
-    total_days = (end_date - start_date).days + 1
-    total_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
+    
 
     # Modify the query with the provided parameters
     formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one = end_date+ timedelta(days=1),  facility_id = facility_id)
     df = dbtest(formatted_query)
 
     # Calculate sufficiency percentages
-    hourly, daily, monthly = calculate_sufficiency(df, total_hours, total_days, total_months)
-    # Prepare the response
+    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date)
     response = {
         "daily": {"sufficiency": round(daily, 2), "status": get_status(daily)},
         "hourly": {"sufficiency": round(hourly, 2), "status": get_status(hourly)},
-        "monthly": {"sufficiency": round(monthly, 2), "status": get_status(monthly), "data": [{"month": "June 2023", "value": "0.00"},
-                                         {"month": "July 2023", "value": "0.00"},
-                                         {"month": "August 2023", "value": "0.00"},
-                                         {"month": "September 2023", "value": "0.00"},
-                                         {"month": "October 2023", "value": "0.00"},
-                                         {"month": "November 2023", "value": "0.00"},
-                                         {"month": "December 2023", "value": "0.00"},
-                                         {"month": "January 2024", "value": "100.00"},
-                                         {"month": "February 2024", "value": "99.86"},
-                                         {"month": "March 2024", "value": "99.46"},
-                                         {"month": "April 2024", "value": "99.86"},
-                                         {"month": "May 2024", "value": "99.87"},
-                                         {"month": "June 2024", "value": "63.47"}]}
+        "monthly": {
+            "sufficiency": round(monthly, 2),
+            "status": get_status(monthly),
+            "data": monthly_data
+        }
     }
 
     return jsonify(response)
 
 
-def calculate_sufficiency(df, total_hours, total_days, total_months):
-    # Remove rows with blank values
-    df = df.dropna(subset=['hourly_sufficiency_percentage', 'daily_sufficiency_percentage', 'monthly_sufficiency_percentage'])
-    
+def calculate_sufficiency(df, start_date, end_date):
+    # Calculate total hours, days, and months
+    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1
+    total_days = (end_date - start_date).days + 1
+    total_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
+    # Remove the NULL row
+    df = df.dropna(subset=['meter_id'])
+
     # If the DataFrame is empty after removing blank rows, return 0 for all sufficiencies
     if df.empty:
         return 0, 0, 0
+    
+    # Calculate unique hourly and daily sufficiency
+    unique_meters = df.drop_duplicates(subset=['meter_id'])
 
-    hourly_sum = df['hourly_sufficiency_percentage'].sum()
-    daily_sum = df['daily_sufficiency_percentage'].sum()
-    monthly_sum = df['monthly_sufficiency_percentage'].sum()
+    hourly_sum = unique_meters['hourly_sufficiency_percentage'].sum()
+    daily_sum = unique_meters['daily_sufficiency_percentage'].sum()
 
-    meter_count = len(df)
-    print(meter_count)
-    hourly_sufficiency = (hourly_sum * 100) / (total_hours * len(df))
-    daily_sufficiency = (daily_sum * 100) / (total_days * len(df))
-    monthly_sufficiency = (monthly_sum * 100) / (total_months * len(df))
+    meter_count = len(unique_meters)
+   
+    hourly_sufficiency = (hourly_sum * 100) / (total_hours * meter_count)
+    daily_sufficiency = (daily_sum * 100) / (total_days * meter_count)
 
-    return hourly_sufficiency, daily_sufficiency, monthly_sufficiency
+    # Calculate monthly sufficiency
+    monthly_data = df.groupby('month_name')['monthly_sufficiency_percentage'].sum().reset_index()
+    sufficiency_data = pd.DataFrame(monthly_data)
+    monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
+    # Calculate monthly sufficiency percentage
+    monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days  * meter_count)) * 100
+    
+    
+    return hourly_sufficiency, daily_sufficiency, monthly_sufficiency, monthly_sufficiency_data
+
+
+def get_month_days_in_range(start_date, end_date):
+    
+    month_days = {}
+    current_date = start_date
+    
+    while current_date <= end_date:
+        month_name = calendar.month_name[current_date.month]
+        year = current_date.year
+        days_in_month = calendar.monthrange(year, current_date.month)[1]
+        
+        if current_date.month == start_date.month and current_date.year == start_date.year:
+            num_days = days_in_month - start_date.day + 1
+        elif current_date.month == end_date.month and current_date.year == end_date.year:
+            num_days = end_date.day
+        else:
+            num_days = days_in_month
+        
+        month_days[f"{month_name} {year}"] = num_days
+        
+        current_date = current_date.replace(
+            year=current_date.year + (1 if current_date.month == 12 else 0),
+            month=(current_date.month % 12) + 1,
+            day=1
+        )
+    
+    return month_days
+
+def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count):
+    month_days = get_month_days_in_range(start_date, end_date)
+    sufficiency_dict = {}
+    for index, row in sufficiency_data.iterrows():
+        month = row['month_name'].strip()
+        value = row['monthly_sufficiency_percentage']
+        for key in month_days.keys():
+            if month in key:
+                sufficiency_dict[key] = f"{value*100/(month_days[key]*meter_count):.2f}"
+                break
+    
+    result = {
+        "data": [
+            {"month": k, "value": sufficiency_dict.get(k, "0.00")} 
+            for k, v in month_days.items()
+        ]
+    }
+    return result  
 
 def get_status(sufficiency):
     return "passed" if sufficiency >= 90 else "failed"
+
 
 
 
@@ -643,4 +692,4 @@ def get_graph():
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", debug=True, port=5000)
+    app.run(host="0.0.0.0", debug=True, port=5005)

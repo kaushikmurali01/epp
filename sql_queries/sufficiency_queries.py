@@ -61,16 +61,19 @@ monthly_sufficiency AS (
     SELECT
         meter_id,
         meter_name,
-        COUNT(DISTINCT month) AS monthly_sufficiency
+        month,
+        TO_CHAR(month, 'Month') AS month_name,
+        COUNT(DISTINCT day)  AS monthly_sufficiency
     FROM meter_data
-    GROUP BY meter_id, meter_name
+    GROUP BY meter_id, meter_name, month
 )
 SELECT 
     COALESCE(h.meter_id, d.meter_id, m.meter_id) AS meter_id,
     COALESCE(h.meter_name, d.meter_name, m.meter_name) AS meter_name,
     h.hourly_sufficiency AS hourly_sufficiency_percentage,
     d.daily_sufficiency AS daily_sufficiency_percentage,
-    m.monthly_sufficiency AS monthly_sufficiency_percentage
+    m.monthly_sufficiency AS monthly_sufficiency_percentage,
+	m.month_name
 FROM hourly_sufficiency h
 FULL OUTER JOIN daily_sufficiency d USING (meter_id, meter_name)
 FULL OUTER JOIN monthly_sufficiency m USING (meter_id, meter_name)
