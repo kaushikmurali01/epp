@@ -224,7 +224,7 @@ def calculate_sufficiency(df, start_date, end_date):
 
     # If the DataFrame is empty after removing blank rows, return 0 for all sufficiencies
     if df.empty:
-        return 0, 0, 0
+        return 0, 0, 0, []
     
     # Calculate unique hourly and daily sufficiency
     unique_meters = df.drop_duplicates(subset=['meter_id'])
@@ -238,6 +238,7 @@ def calculate_sufficiency(df, start_date, end_date):
     daily_sufficiency = (daily_sum * 100) / (total_days * meter_count)
 
     # Calculate monthly sufficiency
+    
     monthly_data = df.groupby('month_name')['monthly_sufficiency_percentage'].sum().reset_index()
     sufficiency_data = pd.DataFrame(monthly_data)
     monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
