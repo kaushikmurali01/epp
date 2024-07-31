@@ -49,7 +49,9 @@ meter_file_processing_query = """
     WHERE
         hme.facility_id = {} AND
         fmd.is_active = 1 AND
-        hme.processed = false
+        hme.processed = false AND
+        hme.id = {}
+        
 """
 
 iv_file_processing_query = """
@@ -68,7 +70,8 @@ iv_file_processing_query = """
     WHERE 
         iv.facility_id = {} AND
         ivf.is_active = true AND
-        ivf.processed = false;
+        ivf.processed = false AND
+        ivf.id = {};
 """
 delete_file_query = """
 DELETE FROM {} where id = {} and processed=false

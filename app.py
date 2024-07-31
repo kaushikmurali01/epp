@@ -602,8 +602,14 @@ def remove_file():
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
     iv = request.json.get('iv')
+    record_id = request.json.get('record_id')
+    if not record_id:
+        return {
+            'status': 'failed',
+            'message': "Please provide Record ID"
+        }, 200
 
-    amd = AddMeterData(facility_id, iv)
+    amd = AddMeterData(facility_id, record_id, iv=iv)
     thread = Thread(target=amd.process)
     thread.start()
     return {'status': 'Processing started'}, 202
