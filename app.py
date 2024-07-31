@@ -287,12 +287,10 @@ def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
                 sufficiency_dict[key] = f"{value*100/(month_days[key]*meter_count):.2f}"
                 break
     
-    result = {
-        "data": [
+    result =[
             {"month": k, "value": sufficiency_dict.get(k, "0.00")} 
             for k, v in month_days.items()
         ]
-    }
     return result  
 
 def get_status(sufficiency):
