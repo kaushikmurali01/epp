@@ -4,45 +4,56 @@ import psycopg2.extras
 from sshtunnel import SSHTunnelForwarder
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 import pickle
-import enerva_config
 from azure.storage.blob import BlobServiceClient
 import io
 import json
 
+import config
+
+
+def get_db_connection():
+    if config.LOCAL:
+        server = SSHTunnelForwarder(
+            (config.SSH_IP, 22),
+            ssh_username=config.SSH_USER,
+            ssh_private_key=config.KEY_PATH,
+            remote_bind_address=(config.DB_HOST, 5432)
+        )
+        server.start()
+        params = {
+            'database': config.DATABASE_NAME,
+            'user': config.USER,
+            'password': config.PASSWORD,
+            'host': '127.0.0.1',  # Use localhost since we're using SSH tunneling
+            'port': server.local_bind_port
+        }
+        conn = psycopg2.connect(**params)
+        return conn  # , server  # Return the server object for later stopping
+    else:
+        params = {
+            'database': config.DATABASE_NAME,
+            'user': config.USER,
+            'password': config.PASSWORD,
+            'host': config.DB_HOST,
+            'port': config.PORT
+        }
+        return psycopg2.connect(**params)
+
+
 def db_execute(query, values, fetch=False):
-    conn = None
-    curs = None
     try:
-        with SSHTunnelForwarder(
-            (enerva_config.ssh_ip, 22),
-            ssh_private_key=enerva_config.private_key_path,
-            ssh_username=enerva_config.ssh_user,
-            remote_bind_address=(enerva_config.ssh_bind_address, 5432)
-        ) as server:
-            server.start()
-            # print("SSH tunnel established")
+        conn = get_db_connection()
+        curs = conn.cursor()
 
-            params = {
-                'database': enerva_config.db_creds[0],
-                'user': enerva_config.db_creds[1],
-                'password': enerva_config.db_creds[2],
-                'host': 'localhost',  # Connect to the local end of the tunnel
-                'port': server.local_bind_port  # Local port assigned by SSH tunnel
-            }
+        # Execute the query with parameters
+        curs.execute(query, values)
+        # Fetch data if required
+        result = None
+        if fetch:
+            result = curs.fetchone()
 
-            conn = psycopg2.connect(**params)
-            curs = conn.cursor()
-
-            # Execute the query with parameters
-            curs.execute(query, values)
-
-            # Fetch data if required
-            result = None
-            if fetch:
-                result = curs.fetchone()
-
-            conn.commit()
-            return result
+        conn.commit()
+        return result
     except Exception as e:
         print("Database operation failed:", str(e))
         return None
@@ -52,78 +63,48 @@ def db_execute(query, values, fetch=False):
             curs.close()
         if conn:
             conn.close()
-        
-# def db_execute(query, values):
-#     with SSHTunnelForwarder(
-#             (config.SSH_IP, 22),
-#             ssh_private_key=config.KEY_PATH,
-#             ssh_username=config.SSH_USER,
-#             remote_bind_address=(config.DB_HOST, 5432)
-#     ) as server:
-#         server.start()
-#         # print("server connected")
 
-#         params = {
-#             'database': config.DATABASE_NAME,
-#             'user': config.USER,
-#             'password': config.PASSWORD,
-#             'host': config.LOCAL_HOST,
-#             'port': config.PORT
-#         }
+    # try:
+    #     with SSHTunnelForwarder(
+    #         (enerva_config.ssh_ip, 22),
+    #         ssh_private_key=enerva_config.private_key_path,
+    #         ssh_username=enerva_config.ssh_user,
+    #         remote_bind_address=(enerva_config.ssh_bind_address, 5432)
+    #     ) as server:
+    #         server.start()
+    #         # print("SSH tunnel established")
+    #
+    #         params = {
+    #             'database': enerva_config.db_creds[0],
+    #             'user': enerva_config.db_creds[1],
+    #             'password': enerva_config.db_creds[2],
+    #             'host': 'localhost',  # Connect to the local end of the tunnel
+    #             'port': server.local_bind_port  # Local port assigned by SSH tunnel
+    #         }
+    #
+    #         conn = psycopg2.connect(**params)
+    #         curs = conn.cursor()
+    #
+    #         # Execute the query with parameters
+    #         curs.execute(query, values)
+    #
+    #         # Fetch data if required
+    #         result = None
+    #         if fetch:
+    #             result = curs.fetchone()
+    #
+    #         conn.commit()
+    #         return result
+    # except Exception as e:
+    #     print("Database operation failed:", str(e))
+    #     return None
+    # finally:
+    #     # Ensure cursor and connection are closed
+    #     if curs:
+    #         curs.close()
+    #     if conn:
+    #         conn.close()
 
-#         conn = psycopg2.connect(**params)
-#         curs = conn.cursor()
-#         # print("database connected")
-
-#         psycopg2.extras.execute_batch(curs, query, values)
-#         conn.commit()
-#         curs.close()
-#         conn.close()
-#         # print("Data inserted successfully")
-
-# Database functions
-# def db_execute(query, values, fetch=False):
-#     conn = None
-#     try:
-#         if config.LOCAL:
-#             # import pdb;pdb.set_trace()
-#             with SSHTunnelForwarder(
-#                     (config.SSH_IP, 22),
-#                     ssh_private_key=config.KEY_PATH,
-#                     ssh_username=config.SSH_USER,
-#                     remote_bind_address=(config.DB_HOST, 5432)) as server:
-#                 local_port = server.local_bind_port
-#                 params = {
-#                     'database': config.DATABASE_NAME,
-#                     'user': config.USER,
-#                     'password': config.PASSWORD,
-#                     'host': '127.0.0.1',  # Localhost for SSH tunnel
-#                     'port': '5432'   # Local bind port
-#                 }
-#                 conn = psycopg2.connect(**params)
-#         else:
-#             params = {
-#                 'database': config.DATABASE_NAME,
-#                 'user': config.USER,
-#                 'password': config.PASSWORD,
-#                 'host': config.DB_HOST,
-#                 'port': config.PORT
-#             }
-#             conn = psycopg2.connect(**params)
-        
-#         curs = conn.cursor()
-#         curs.execute(query, values)
-#         result = None
-#         if fetch:
-#             result = curs.fetchone()
-#         conn.commit()
-#         curs.close()
-#         return result
-#     except Exception as e:
-#         print(f"Database connection failed: {e}")
-#     finally:
-#         if conn:
-#             conn.close()
 
 def push_data_to_db(predicted_data, facility_id, meter_type, model_metrics, baseline_summary_performance_page, table_name):
     # Convert DataFrame to JSON strings for the output_data column
@@ -173,31 +154,34 @@ def fetch_table_data(table_name):
     return db_fetch_data(query)
 
 def db_fetch_data(query):
-    with SSHTunnelForwarder(
-        (config.ssh_ip, 22),
-        ssh_private_key=config.private_key_path,
-        ssh_username=config.ssh_user,
-        remote_bind_address=(config.ssh_bind_address, 5432)
-    ) as server:
-        server.start()
-        params = {
-        'database': config.DATABASE_NAME,
-        'user': config.USER,
-        'password': config.PASSWORD,
-        'host': config.DB_HOST,
-        'port': config.PORT
-        }
-        conn = psycopg2.connect(**params)
-        df = pd.read_sql_query(query, conn)
-        conn.close()
+    conn = get_db_connection()
+    curs = conn.cursor()
+
+    # with SSHTunnelForwarder(
+    #     (config.ssh_ip, 22),
+    #     ssh_private_key=config.private_key_path,
+    #     ssh_username=config.ssh_user,
+    #     remote_bind_address=(config.ssh_bind_address, 5432)
+    # ) as server:
+    #     server.start()
+    #     params = {
+    #     'database': config.DATABASE_NAME,
+    #     'user': config.USER,
+    #     'password': config.PASSWORD,
+    #     'host': config.DB_HOST,
+    #     'port': config.PORT
+    #     }
+    # conn = psycopg2.connect(**params)
+    df = pd.read_sql_query(query, conn)
+    conn.close()
     return df
 
 
 def upload_blob_from_buffer(blob_name, buffer):
 
-    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={enerva_config.account_name};AccountKey={enerva_config.storage_account_key};EndpointSuffix={enerva_config.end_point_suffix}"
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.account_name};AccountKey={config.storage_account_key};EndpointSuffix={config.end_point_suffix}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=enerva_config.container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=config.container_name, blob=blob_name)
     blob_client.upload_blob(buffer, overwrite=True)
     print(f"Upload of {blob_name} completed successfully.")
 
@@ -206,9 +190,9 @@ def download_buffer_from_blob(blob_name):
     """
     Download a blob from Azure Blob Storage and return it as a buffer.
     """
-    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={enerva_config.account_name};AccountKey={enerva_config.storage_account_key};EndpointSuffix={enerva_config.end_point_suffix}"
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.account_name};AccountKey={config.storage_account_key};EndpointSuffix={config.end_point_suffix}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=enerva_config.container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=config.container_name, blob=blob_name)
     
     # Download blob as a stream
     downloaded_blob = blob_client.download_blob()
@@ -219,21 +203,3 @@ def download_buffer_from_blob(blob_name):
     
     print(f"Download and unpickling of {blob_name} completed successfully.")
     return obj
-
-    # print(f"Download of {blob_name} completed successfully.")
-    # return buffer
-
-
-# # Azure Blob Storage functions
-# def upload_pickle_to_blob(container_name, blob_name, data_object):
-#     blob_service_client = BlobServiceClient.from_connection_string(config.storage_connection_string)
-#     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
-#     serialized_data = pickle.dumps(data_object)
-#     blob_client.upload_blob(serialized_data, overwrite=True)
-
-# def download_pickle_from_blob(container_name, blob_name):
-#     blob_service_client = BlobServiceClient.from_connection_string(config.storage_connection_string)
-#     blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
-#     blob_data = blob_client.download_blob().readall()
-#     data_object = pickle.loads(blob_data)
-#     return data_object
