@@ -221,7 +221,7 @@ def calculate_sufficiency(df, start_date, end_date):
 
     # If the DataFrame is empty after removing blank rows, return 0 for all sufficiencies
     if df.empty:
-        return 0, 0, 0
+        return 0, 0, 0, []
     
     # Calculate unique hourly and daily sufficiency
     unique_meters = df.drop_duplicates(subset=['meter_id'])
@@ -235,9 +235,13 @@ def calculate_sufficiency(df, start_date, end_date):
     daily_sufficiency = (daily_sum * 100) / (total_days * meter_count)
 
     # Calculate monthly sufficiency
-    monthly_data = df.groupby('month_name')['monthly_sufficiency_percentage'].sum().reset_index()
+    
+    monthly_data = df.groupby('month_name').agg({
+        'monthly_sufficiency_percentage': 'sum',
+        'meter_id': 'nunique'
+    }).reset_index()
     sufficiency_data = pd.DataFrame(monthly_data)
-    monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
+    monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
     monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days  * meter_count)) * 100
     
@@ -272,7 +276,7 @@ def get_month_days_in_range(start_date, end_date):
     
     return month_days
 
-def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count):
+def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
     month_days = get_month_days_in_range(start_date, end_date)
     sufficiency_dict = {}
     for index, row in sufficiency_data.iterrows():
@@ -280,7 +284,7 @@ def get_monthly_sufficiency(start_date, end_date, sufficiency_data, meter_count)
         value = row['monthly_sufficiency_percentage']
         for key in month_days.keys():
             if month in key:
-                sufficiency_dict[key] = f"{value*100/(month_days[key]*meter_count):.2f}"
+                sufficiency_dict[key] = f"{value*100/(month_days[key]*1):.2f}"
                 break
     
     result = {
