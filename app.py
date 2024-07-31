@@ -608,7 +608,7 @@ def add_meter_data():
             'status': 'failed',
             'message': "Please provide Record ID"
         }, 200
-
+    print(f"IV : {iv}")
     amd = AddMeterData(facility_id, record_id, iv=iv)
     thread = Thread(target=amd.process)
     thread.start()
