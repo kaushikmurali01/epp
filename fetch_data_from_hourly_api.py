@@ -126,7 +126,7 @@ def download_csv(url):
 
 def fetch_and_combine_data_for_independent_variables(df, variable_id):
     # Filter the DataFrame based on independent_variable_id
-    variable_id = int(variable_id)
+    variable_id = int(variable_id) if variable_id else None
     filtered_df = df[df['independent_variable_id'] == variable_id]
     print(f"Filtered DataFrame : {filtered_df}")
 
