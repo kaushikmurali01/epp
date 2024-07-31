@@ -14,5 +14,9 @@ DB_HOST = os.getenv('DB_HOST')
 LOCAL_HOST = os.getenv('LOCAL_HOST')
 LOCAL = os.getenv('IS_LOCAL')
 PORT = os.getenv('PORT')
+ACCOUNT_NAME = os.getenv('ACCOUNT_NAME')
+STORAGE_ACCOUNT_KEY = os.getenv('STORAGE_ACCOUNT_KEY')
+END_POINT_SUFFIX = os.getenv('END_POINT_SUFFIX')
+CONTAINER_NAME = os.getenv('CONTAINER_NAME')
 # if LOCAL:
 #     DB_HOST = "localhost"

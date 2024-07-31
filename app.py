@@ -24,7 +24,7 @@ def baseline_model_training():
         baseline_data = cleaned_data[(cleaned_data['Date'] >= baseline_start_date) & (cleaned_data['Date'] <= baseline_end_date)]
         baseline_data = baseline_data[['Date', 'EnergyConsumption', 'Temperature'] + input_settings.get('independent_variables', [])]
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
-        print(baseline_data)
+        # print(baseline_data)
     except:
         pass
         # print('i am here')

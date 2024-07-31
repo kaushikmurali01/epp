@@ -111,82 +111,82 @@ def db_execute(query, values, fetch=False):
     #         conn.close()
 
 
-def push_data_to_db(predicted_data, facility_id, meter_type, model_metrics, baseline_summary_performance_page, table_name):
-    # Convert DataFrame to JSON strings for the output_data column
-    output_data_json = predicted_data.to_json(orient='records')
+# def push_data_to_db(predicted_data, facility_id, meter_type, model_metrics, baseline_summary_performance_page, table_name):
+    # # Convert DataFrame to JSON strings for the output_data column
+    # output_data_json = predicted_data.to_json(orient='records')
 
-    # Convert baseline_summary_performance_page JSON to a string
-    baseline_data_summary_json = json.dumps(baseline_summary_performance_page)
+    # # Convert baseline_summary_performance_page JSON to a string
+    # baseline_data_summary_json = json.dumps(baseline_summary_performance_page)
 
-    #model metrics json to string
-    model_metrics_summary_json = json.dumps(model_metrics)
+    # #model metrics json to string
+    # model_metrics_summary_json = json.dumps(model_metrics)
 
-    # Create a list of tuples for insertion
-    values = [(facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json)]
+    # # Create a list of tuples for insertion
+    # values = [(facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json)]
 
-    # Create the SQL insert query
-    query = f"""
-    INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary)
-    VALUES (%s, %s, %s, %s, %s)
-    """
-    # Execute the query
-    db_execute(query, values)
+    # # Create the SQL insert query
+    # query = f"""
+    # INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary)
+    # VALUES (%s, %s, %s, %s, %s)
+    # """
+    # # Execute the query
+    # db_execute(query, values)
 
 
-def push_dataframe_to_db(df, table_name):
-    # Generate tuples from the DataFrame rows
-    tuples = [tuple(x) for x in df.to_numpy()]
+# def push_dataframe_to_db(df, table_name):
+#     # Generate tuples from the DataFrame rows
+#     tuples = [tuple(x) for x in df.to_numpy()]
 
-    # Comma-separated column names
-    columns = ', '.join(list(df.columns))
-    values = ', '.join(['%s'] * len(df.columns))
+#     # Comma-separated column names
+#     columns = ', '.join(list(df.columns))
+#     values = ', '.join(['%s'] * len(df.columns))
 
-    query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
-    db_execute(query, tuples)
+#     query = f"INSERT INTO {table_name} ({columns}) VALUES ({values})"
+#     db_execute(query, tuples)
     
-def push_json_to_db(json_data, table_name, json_column_name):
-    # Convert JSON data to a string suitable for SQL insertion
-    json_str = json.dumps(json_data)
+# def push_json_to_db(json_data, table_name, json_column_name):
+#     # Convert JSON data to a string suitable for SQL insertion
+#     json_str = json.dumps(json_data)
 
-    # Create the SQL insert query
-    query = f"INSERT INTO {table_name} ({json_column_name}) VALUES (%s)"
+#     # Create the SQL insert query
+#     query = f"INSERT INTO {table_name} ({json_column_name}) VALUES (%s)"
 
-    # Execute the query with the json string
-    db_execute(query, (json_str,))
+#     # Execute the query with the json string
+#     db_execute(query, (json_str,))
 
-def fetch_table_data(table_name):
-    query = f"SELECT * FROM {table_name};"
-    return db_fetch_data(query)
+# def fetch_table_data(table_name):
+#     query = f"SELECT * FROM {table_name};"
+#     return db_fetch_data(query)
 
-def db_fetch_data(query):
-    conn = get_db_connection()
-    curs = conn.cursor()
+# def db_fetch_data(query):
+#     conn = get_db_connection()
+#     curs = conn.cursor()
 
-    # with SSHTunnelForwarder(
-    #     (config.ssh_ip, 22),
-    #     ssh_private_key=config.private_key_path,
-    #     ssh_username=config.ssh_user,
-    #     remote_bind_address=(config.ssh_bind_address, 5432)
-    # ) as server:
-    #     server.start()
-    #     params = {
-    #     'database': config.DATABASE_NAME,
-    #     'user': config.USER,
-    #     'password': config.PASSWORD,
-    #     'host': config.DB_HOST,
-    #     'port': config.PORT
-    #     }
-    # conn = psycopg2.connect(**params)
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    return df
+#     # with SSHTunnelForwarder(
+#     #     (config.ssh_ip, 22),
+#     #     ssh_private_key=config.private_key_path,
+#     #     ssh_username=config.ssh_user,
+#     #     remote_bind_address=(config.ssh_bind_address, 5432)
+#     # ) as server:
+#     #     server.start()
+#     #     params = {
+#     #     'database': config.DATABASE_NAME,
+#     #     'user': config.USER,
+#     #     'password': config.PASSWORD,
+#     #     'host': config.DB_HOST,
+#     #     'port': config.PORT
+#     #     }
+#     # conn = psycopg2.connect(**params)
+#     df = pd.read_sql_query(query, conn)
+#     conn.close()
+#     return df
 
 
 def upload_blob_from_buffer(blob_name, buffer):
 
-    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.account_name};AccountKey={config.storage_account_key};EndpointSuffix={config.end_point_suffix}"
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.ACCOUNT_NAME};AccountKey={config.STORAGE_ACCOUNT_KEY};EndpointSuffix={config.END_POINT_SUFFIX}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=config.container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=config.CONTAINER_NAME, blob=blob_name)
     blob_client.upload_blob(buffer, overwrite=True)
     print(f"Upload of {blob_name} completed successfully.")
 
@@ -195,9 +195,9 @@ def download_buffer_from_blob(blob_name):
     """
     Download a blob from Azure Blob Storage and return it as a buffer.
     """
-    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.account_name};AccountKey={config.storage_account_key};EndpointSuffix={config.end_point_suffix}"
+    storage_connection_string = f"DefaultEndpointsProtocol=https;AccountName={config.ACCOUNT_NAME};AccountKey={config.STORAGE_ACCOUNT_KEY};EndpointSuffix={config.END_POINT_SUFFIX}"
     blob_service_client = BlobServiceClient.from_connection_string(storage_connection_string)
-    blob_client = blob_service_client.get_blob_client(container=config.container_name, blob=blob_name)
+    blob_client = blob_service_client.get_blob_client(container=config.CONTAINER_NAME, blob=blob_name)
     
     # Download blob as a stream
     downloaded_blob = blob_client.download_blob()
