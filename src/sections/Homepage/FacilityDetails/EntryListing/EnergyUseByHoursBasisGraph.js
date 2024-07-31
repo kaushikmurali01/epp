@@ -14,6 +14,9 @@ const EnergyUseByHoursBasisGraph = () => {
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
 
+  const meterData = useSelector(
+    (state) => state?.meterReducer?.meterDetails?.data || {}
+  );
 
   const dataSetId = process.env.REACT_APP_ENERGY_WATER_DATASET_ID
   const reportId = process.env.REACT_APP_ENERGY_WATER_REPORT_ID
@@ -74,6 +77,8 @@ const EnergyUseByHoursBasisGraph = () => {
       });
   }
 
+  console.log(facilityData, "facilityData")
+
   let powerBiReportToken = localStorage.getItem("powerBiReportToken") ? JSON.parse(localStorage.getItem("powerBiReportToken")) : null;
 
   const setReportParameters = () => {
@@ -90,7 +95,7 @@ const EnergyUseByHoursBasisGraph = () => {
         },
         {
           "name": "meter_id",
-          "newValue": "2"
+          "newValue": meterData?.meter_id
         },
         {
           "name": "granularity",

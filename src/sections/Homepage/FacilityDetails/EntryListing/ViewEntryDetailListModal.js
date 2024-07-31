@@ -98,9 +98,9 @@ const ViewEntryDetailListModal = ({
         <Typography variant="h5">
           {meterType == 1
                 ? "Electricity"
-                : meterType == 2
-                ? "Natural Gas"
                 : meterType == 3
+                ? "Natural Gas"
+                : meterType == 2
                 ? "Water"
                 : ""}
         </Typography>
