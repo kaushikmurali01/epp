@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from dbconnection import dbtest, bulk_insert_df
@@ -37,6 +38,7 @@ class AddMeterData:
                 'Start Date (Required)': 'start_date',
                 'End Date (Required)': 'end_date'
             })
+            df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
             # Convert start_date and end_date to datetime
             df['start_date'] = pd.to_datetime(df['start_date'])
             df['end_date'] = pd.to_datetime(df['end_date'])
@@ -49,42 +51,52 @@ class AddMeterData:
             bulk_insert_df(df, 'meter_hourly_entries', record_id, 'facility_meter_hourly_entries')
             # bulk_insert_df(df, 'meter_hourly_entries')
 
+    @staticmethod
+    def is_float_or_int(val):
+        return isinstance(val, (float, int))
+
     def initiate_iv_download(self):
         for _, row in self.raw_df.iterrows():
-            record_id = row.get('file_record_id')
-            meter_name = row.get('independent_variable_name')
-            iv_id = row.get('independent_variable_id')
-            url = row.get('media_url')
-            purchased_from_grid = row.get('purchased_from_the_grid')
-            meter_type = None
-            df = download_excel(url)
-            # df['meter_id'] = meter_detail_id
-            df['meter_type'] = meter_type
-            df['is_independent_variable'] = True
-            df['purchased_from_grid'] = purchased_from_grid
-            df['meter_name'] = meter_name
-            df['facility_id'] = self.facility_id
-            df['start_year'] = None
-            df['end_year'] = None
-            df['start_month'] = None
-            df['end_month'] = None
-            df['independent_variable_id'] = iv_id
-            df = df.rename(columns={
-                'Meter Reading (Required)': 'reading',
-                'Start Date (Required)': 'start_date',
-                'End Date (Required)': 'end_date'
-            })
-            # Convert start_date and end_date to datetime
-            df['start_date'] = pd.to_datetime(df['start_date'])
-            df['end_date'] = pd.to_datetime(df['end_date'])
+            try:
+                record_id = row.get('file_record_id')
+                meter_name = row.get('independent_variable_name')
+                iv_id = row.get('independent_variable_id')
+                url = row.get('media_url')
+                print(f"Processing Record : {record_id} with Url:{url}")
+                purchased_from_grid = row.get('purchased_from_the_grid')
+                meter_type = None
+                df = download_excel(url)
+                # df['meter_id'] = meter_detail_id
+                df['meter_type'] = meter_type
+                df['is_independent_variable'] = True
+                df['purchased_from_grid'] = purchased_from_grid
+                df['meter_name'] = meter_name
+                df['facility_id'] = self.facility_id
+                df['start_year'] = None
+                df['end_year'] = None
+                df['start_month'] = None
+                df['end_month'] = None
+                df['independent_variable_id'] = iv_id
+                df = df.rename(columns={
+                    'Meter Reading (Required)': 'reading',
+                    'Start Date (Required)': 'start_date',
+                    'End Date (Required)': 'end_date'
+                })
+                df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
 
-            # Extract year and month from start_date and end_date
-            df['start_year'] = df['start_date'].dt.year
-            df['start_month'] = df['start_date'].dt.month
-            df['end_year'] = df['end_date'].dt.year
-            df['end_month'] = df['end_date'].dt.month
-            # df, table_name, record_id, file_table
-            bulk_insert_df(df, 'meter_hourly_entries', record_id, 'independent_variable_file')
+                # Convert start_date and end_date to datetime
+                df['start_date'] = pd.to_datetime(df['start_date'])
+                df['end_date'] = pd.to_datetime(df['end_date'])
+
+                # Extract year and month from start_date and end_date
+                df['start_year'] = df['start_date'].dt.year
+                df['start_month'] = df['start_date'].dt.month
+                df['end_year'] = df['end_date'].dt.year
+                df['end_month'] = df['end_date'].dt.month
+                # df, table_name, record_id, file_table
+                bulk_insert_df(df, 'meter_hourly_entries', record_id, 'independent_variable_file')
+            except:
+                print(f"######### Failed to process file ############ Record ID {record_id}")
 
     def process(self):
         if self.iv:
