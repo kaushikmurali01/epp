@@ -282,7 +282,6 @@ def get_month_days_in_range(start_date, end_date):
     return month_days
 
 def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
-    print(sufficiency_data)
     month_days = get_month_days_in_range(start_date, end_date)
     sufficiency_dict = {}
     for index, row in sufficiency_data.iterrows():
