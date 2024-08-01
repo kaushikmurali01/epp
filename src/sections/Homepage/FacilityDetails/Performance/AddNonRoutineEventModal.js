@@ -105,7 +105,7 @@ const AddNonRoutineEventModal = ({
           <Grid container spacing={2}>
             <Grid item xs={12} md={6}>
               <FormLabel htmlFor="event_from_period">
-                Event period from
+                Event period from<span className="asterisk">*</span>
               </FormLabel>
               <DatePicker
                 id="event_from_period"
@@ -121,7 +121,7 @@ const AddNonRoutineEventModal = ({
                   input: { color: "#111" },
                 }}
                 disableFuture
-                format="dd/MM/yyyy"
+                format="MM/dd/yyyy"
                 slotProps={{
                   textField: {
                     helperText:
@@ -135,7 +135,9 @@ const AddNonRoutineEventModal = ({
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <FormLabel htmlFor="event_to_period">Event period to</FormLabel>
+              <FormLabel htmlFor="event_to_period">
+                Event period to<span className="asterisk">*</span>
+              </FormLabel>
               <DatePicker
                 id="event_to_period"
                 name="event_to_period"
@@ -151,7 +153,7 @@ const AddNonRoutineEventModal = ({
                 }}
                 disableFuture
                 minDate={values.event_from_period}
-                format="dd/MM/yyyy"
+                format="MM/dd/yyyy"
                 slotProps={{
                   textField: {
                     helperText:
@@ -183,10 +185,11 @@ const AddNonRoutineEventModal = ({
                     type="submit"
                     disabled={!isValid || !dirty}
                   >
-                    Save Changes
+                    Save changes
                   </Button>
                   <Button
                     variant="contained"
+                    disabled={dirty}
                     onClick={() => {
                       openAddNonRoutineDataModal(
                         editMode.eventId,
@@ -197,7 +200,7 @@ const AddNonRoutineEventModal = ({
                       closeAddNonRoutineEventModal();
                     }}
                   >
-                    Edit Routine Data
+                    Edit non-routine data
                   </Button>
                 </Grid>
               ) : (

@@ -258,7 +258,7 @@ const AddEditContactModalForm = ({
                   sx={{ marginRight: "10px" }}
                   disabled={!(isValid && dirty)}
                 >
-                  Add
+                  {contactId ? "Save" : "Add"}
                 </Button>
               </Grid>
             </Grid>

@@ -1,10 +1,11 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, FormLabel } from '@mui/material';
 import InputField from 'components/FormBuilder/InputField';
 import { Form, Formik } from 'formik';
 import React from 'react';
 import ReactQuill from 'react-quill';
 import { useDispatch } from 'react-redux';
 import { createEmailTemplate, getEmailTemplate } from '../../../../redux/admin/actions/adminPerformanceActions';
+import { addEmailTemplateValidationSchema } from 'utils/validations/formValidation';
 
 const AddEmailTemplateModalForm = ({
   facility_id,
@@ -60,9 +61,10 @@ const AddEmailTemplateModalForm = ({
   return (
     <Formik
       initialValues={{ name: "", subject: "", body: "" }}
+      validationSchema={addEmailTemplateValidationSchema}
       onSubmit={(values) => handleEmailCompose(values)}
     >
-      {({ setFieldValue, values }) => (
+      {({ setFieldValue, values, isValid, dirty }) => (
         <Form>
           <Box
             sx={{
@@ -76,17 +78,20 @@ const AddEmailTemplateModalForm = ({
               type="text"
               fullWidth
               name="name"
-              label="Name"
+              label="Name*"
               required
             />
             <InputField
               type="text"
               fullWidth
               name="subject"
-              label="Subject"
+              label="Subject*"
               required
             />
             <Box sx={{ mt: 2, mb: 2 }}>
+              <FormLabel>
+                Email Content<span style={{ color: "red", fontSize: "1rem" }}>*</span>
+              </FormLabel>
               <ReactQuill
                 theme="snow"
                 value={values.body}
@@ -105,7 +110,12 @@ const AddEmailTemplateModalForm = ({
                 gap: "1rem",
               }}
             >
-              <Button type="submit" variant="contained" color="primary">
+              <Button
+                disabled={!(isValid && dirty)}
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
                 Add email template
               </Button>
               <Button
