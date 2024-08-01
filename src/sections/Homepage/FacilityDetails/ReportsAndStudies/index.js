@@ -243,6 +243,7 @@ const ReportsAndStudies = () => {
   };
 
   const MessageComponent = ({ message }) => {
+    console.log(message)
     return (
       <Box>
         <Typography>{message}</Typography>

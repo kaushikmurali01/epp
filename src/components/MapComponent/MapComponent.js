@@ -26,7 +26,7 @@ const MapComponent = (props) => {
         parseFloat(facilityData?.longitude || 0),
         parseFloat(facilityData?.latitude || 0),
       ],
-      zoom: 5,
+      zoom: 8,
       showLogo: false,
     }),
     [facilityData]

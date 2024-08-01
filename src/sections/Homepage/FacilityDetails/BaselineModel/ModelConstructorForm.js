@@ -64,6 +64,7 @@ const ModelConstructorForm = ({
     dispatch(fetchBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
+        console.log(res);
         setBaselinePeriod(res);
         if (res?.end_date && res?.start_date) {
           const endDate = format(new Date(res?.end_date), "yyyy-MM-dd");

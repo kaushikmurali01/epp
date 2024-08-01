@@ -210,7 +210,6 @@ const FacilityHeader = () => {
 
   const CustomBar = (props) => {
     const { x, y, width, height, value, fill } = props;
-    console.log(value);
     const displayValue =
       typeof value === "number" ? `${value.toFixed(2)}` : value;
     return (
