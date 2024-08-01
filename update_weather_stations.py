@@ -110,13 +110,41 @@ def upload_chunk(conn, chunk, station_id):
         cur.close()
 
 
+# def process_station(station_id, year, month, day, time_frame):
+#     url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
+#     try:
+#         csv_folder = f"/datadrive/weather_files/{year}/{month}/{station_id}"
+#         response = requests.get(url, timeout=30)
+#         response.raise_for_status()
+#         file_path = os.path.join(csv_folder, f"{station_id}_{year}_{month}.csv")
+#         with open(file_path, 'wb') as f:
+#             f.write(response.content)
+#         csv_data = StringIO(response.content.decode('utf-8'))
+#         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
+#
+#         conn = get_db_connection()  # Create a new connection for each process
+#         for chunk in chunk_reader:
+#             if check_sufficiency(chunk):
+#                 result = upload_chunk(conn, chunk, station_id)
+#                 print(result)
+#             else:
+#                 print(f"Data chunk for station {station_id} did not pass sufficiency check")
+#
+#     except requests.RequestException as e:
+#         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
+#     except Exception as e:
+#         print(f"Error processing station {station_id}: {str(e)}")
+#     finally:
+#         conn.close()
 def process_station(station_id, year, month, day, time_frame):
-    url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
+    conn = None
     try:
+        url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
         csv_folder = f"/datadrive/weather_files/{year}/{month}/{station_id}"
+        os.makedirs(csv_folder, exist_ok=True)
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        file_path = os.path.join(csv_folder, f"{station_id}_{year}_{month}.csv")
+        file_path = f"{csv_folder}/{station_id}_{year}_{month}.csv"
         with open(file_path, 'wb') as f:
             f.write(response.content)
         csv_data = StringIO(response.content.decode('utf-8'))
@@ -135,7 +163,8 @@ def process_station(station_id, year, month, day, time_frame):
     except Exception as e:
         print(f"Error processing station {station_id}: {str(e)}")
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 
 def main():
