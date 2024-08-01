@@ -7,9 +7,21 @@ import requests
 import csv
 from datetime import datetime
 
-from dbconnection import dbtest
+from dbconnection import get_db_connection
 
+conn = get_db_connection()
 # Database connection parameters
+def dbtest(query):
+
+    curs = conn.cursor()
+    curs.execute(query)
+    rows = curs.fetchall()
+    colnames = [desc[0] for desc in curs.description]
+    df = pd.DataFrame(rows, columns=colnames)
+    curs.close()
+    conn.close()
+    return df
+
 
 # Adjust these parameters based on your system capabilities
 MAX_WORKERS = 50
@@ -48,12 +60,6 @@ COLUMN_MAPPING = {
     'Wind Chill Flag': 'wind_chill_flag',
     'Weather': 'weather'
 }
-
-
-def get_db_connection():
-    """Create a new database connection using DB_PARAMS."""
-    conn = get_db_connection()
-    return conn
 
 
 def check_sufficiency(df):
@@ -117,8 +123,6 @@ def upload_chunk(conn, chunk, station_id):
 
 def process_station(station_id, year, month, day, time_frame):
     url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
-    conn = get_db_connection()
-
     try:
         response = requests.get(url, timeout=30)
         response.raise_for_status()
