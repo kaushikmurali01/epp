@@ -7,20 +7,11 @@ import requests
 import csv
 from datetime import datetime
 
-from dbconnection import get_db_connection
+from dbconnection import get_db_connection, dbtest
 
 conn = get_db_connection()
-# Database connection parameters
-def dbtest(query):
 
-    curs = conn.cursor()
-    curs.execute(query)
-    rows = curs.fetchall()
-    colnames = [desc[0] for desc in curs.description]
-    df = pd.DataFrame(rows, columns=colnames)
-    curs.close()
-    conn.close()
-    return df
+# Database connection parameters
 
 
 # Adjust these parameters based on your system capabilities
