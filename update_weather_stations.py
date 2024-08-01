@@ -9,11 +9,6 @@ from datetime import datetime
 
 from dbconnection import get_db_connection, dbtest
 
-conn = get_db_connection()
-
-# Database connection parameters
-
-
 # Adjust these parameters based on your system capabilities
 MAX_WORKERS = 50
 CHUNK_SIZE = 100000  # Number of rows to process at a time
@@ -52,7 +47,6 @@ COLUMN_MAPPING = {
     'Weather': 'weather'
 }
 
-
 def check_sufficiency(df):
     required_columns = [
         'Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)',
@@ -71,16 +65,15 @@ def check_sufficiency(df):
         non_null_count = df[column].count()
         sufficiency_percentage = non_null_count / total_records
 
+        # Uncomment these lines if sufficiency threshold is to be enforced
         # if sufficiency_percentage < threshold:
         #     print(f"Column {column} does not meet sufficiency threshold. Only {sufficiency_percentage:.2%} of data is present")
         #     return False
 
     return True
 
-
 def rename_columns(df):
     return df.rename(columns=COLUMN_MAPPING)
-
 
 def upload_chunk(conn, chunk, station_id):
     cur = conn.cursor()
@@ -111,7 +104,6 @@ def upload_chunk(conn, chunk, station_id):
     finally:
         cur.close()
 
-
 def process_station(station_id, year, month, day, time_frame):
     url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
     try:
@@ -120,6 +112,8 @@ def process_station(station_id, year, month, day, time_frame):
 
         csv_data = StringIO(response.content.decode('utf-8'))
         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
+
+        conn = get_db_connection()  # Create a new connection for each process
         for chunk in chunk_reader:
             if check_sufficiency(chunk):
                 result = upload_chunk(conn, chunk, station_id)
@@ -134,9 +128,7 @@ def process_station(station_id, year, month, day, time_frame):
     finally:
         conn.close()
 
-
 def main():
-    # Assuming dbtest is a function that returns a list of tuples (station_id, facility_id)
     stations = dbtest("SELECT station_id FROM stations")
     current_year = datetime.now().year
     current_month = datetime.now().month
@@ -156,7 +148,6 @@ def main():
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
-
 
 if __name__ == "__main__":
     main()
