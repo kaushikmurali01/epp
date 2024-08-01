@@ -16,7 +16,7 @@ from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
-from sql_queries.nearest_weather_stations import min_max_date_query
+from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -739,15 +739,13 @@ def getdata():
 
 @app.route('/get_min_max_dates', methods=['GET'])
 def getdates():
-    df = dbtest('''SELECT distinct hme.facility_id, fmd.meter_type AS meter_type, hme.meter_id,
-                          hme.created_by, hme.media_url, fmd.purchased_from_the_grid, fmd.is_active
-                   FROM epp.facility_meter_hourly_entries hme
-                   JOIN epp.facility_meter_detail fmd
-                   ON hme.facility_meter_detail_id = fmd.id;''')
-
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
-    min_max_date = dbtest(min_max_date_query.format(facility_id, meter_type))
+    meter_id = request.args.get('meter_type')
+    if meter_id:
+        min_max_date = dbtest(min_max_meter_date_query.format(facility_id, meter_id))
+    else:
+        min_max_date = dbtest(min_max_date_query.format(facility_id, meter_type))
     min_max_date = min_max_date.dropna()
     if len(min_max_date):
         min_date = min_max_date.min_date[0].strftime('%m/%d/%Y %H:%M')

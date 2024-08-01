@@ -17,3 +17,4 @@ ORDER BY
 LIMIT {};"""
 
 min_max_date_query = """select min(start_date) as min_date, max(start_date) as max_date from meter_hourly_entries where facility_id={} and meter_type={} and is_active=true"""
+min_max_meter_date_query = """select min(start_date) as min_date, max(start_date) as max_date from meter_hourly_entries where facility_id={} and meter_id={} and is_active=true"""
