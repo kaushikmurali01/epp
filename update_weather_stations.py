@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import concurrent.futures
 import psycopg2
@@ -47,6 +49,7 @@ COLUMN_MAPPING = {
     'Weather': 'weather'
 }
 
+
 def check_sufficiency(df):
     required_columns = [
         'Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)',
@@ -72,8 +75,10 @@ def check_sufficiency(df):
 
     return True
 
+
 def rename_columns(df):
     return df.rename(columns=COLUMN_MAPPING)
+
 
 def upload_chunk(conn, chunk, station_id):
     cur = conn.cursor()
@@ -104,12 +109,16 @@ def upload_chunk(conn, chunk, station_id):
     finally:
         cur.close()
 
+
 def process_station(station_id, year, month, day, time_frame):
     url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
     try:
+        csv_folder = f"/datadrive/weather_files/{year}/{month}/{station_id}"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-
+        file_path = os.path.join(csv_folder, f"{station_id}_{year}_{month}.csv")
+        with open(file_path, 'wb') as f:
+            f.write(response.content)
         csv_data = StringIO(response.content.decode('utf-8'))
         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
 
@@ -127,6 +136,7 @@ def process_station(station_id, year, month, day, time_frame):
         print(f"Error processing station {station_id}: {str(e)}")
     finally:
         conn.close()
+
 
 def main():
     stations = dbtest("SELECT station_id FROM stations")
@@ -148,6 +158,7 @@ def main():
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
+
 
 if __name__ == "__main__":
     main()
