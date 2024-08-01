@@ -133,7 +133,7 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
     setNonEventRoutineDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      headerText: "Event Detail",
+      headerText: "Event detail",
       modalBodyContent: (
         <NonRoutineEventWithDetailsModal
           eventId={eventId}
@@ -191,7 +191,7 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
           setAddNonRoutineEventModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
-            headerText: "Edit Non-routine Event",
+            headerText: "Edit non-routine event",
             modalBodyContent: (
               <AddNonRoutineEventModal
                 meter_type={meter_type}
@@ -211,7 +211,7 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
       setAddNonRoutineEventModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,
-        headerText: "Add Non-routine Event",
+        headerText: "Non-routine event",
         modalBodyContent: (
           <AddNonRoutineEventModal
             meter_type={meter_type}
@@ -237,7 +237,7 @@ const openAddNonRoutineDataModal = (
         setAddNonRoutineDataModalConfig((prevState) => ({
           ...prevState,
           modalVisible: true,
-          headerText: "Edit Non-routine Event Data",
+          headerText: "Edit non-routine event data",
           modalBodyContent: (
             <AddNonRoutineDataModal
               event_id={event_id}

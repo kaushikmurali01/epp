@@ -503,7 +503,7 @@ export const nonRoutineDataValidationSchema = Yup.object().shape({
     Yup.object().shape({
       start_date: Yup.date().required("Start date is required"),
       end_date: Yup.date().required("End date is required"),
-      non_routine_adjustment: Yup.number().optional(),
+      non_routine_adjustment: Yup.number().required("Data is required"),
     })
   ),
 });
@@ -519,4 +519,10 @@ export const emailFormValidationSchema = Yup.object().shape({
   body: Yup.string()
     .required("Email body is required")
     .min(10, "Email body must be at least 10 characters"),
+});
+
+export const addEmailTemplateValidationSchema = Yup.object().shape({
+  name: Yup.string().required('Name is required'),
+  subject: Yup.string().required('Subject is required'),
+  body: Yup.string().required('Email content is required'),
 });

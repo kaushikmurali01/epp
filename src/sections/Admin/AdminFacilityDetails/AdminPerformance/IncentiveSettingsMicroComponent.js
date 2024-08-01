@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Formik, Field, Form, useFormikContext } from "formik";
 import { DatePicker } from "@mui/x-date-pickers";
-import { TextField, Select, MenuItem } from "@mui/material";
+import { TextField, Select, MenuItem, styled, InputAdornment, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { MiniTable } from "components/MiniTable";
 import {
@@ -12,26 +12,152 @@ import {
 import debounce from "lodash.debounce";
 import Loader from "pages/Loader";
 
-const DatePickerField = ({ field, form: { setFieldValue } }) => {
+const StyledHelperText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.error.main,
+  marginBottom: theme.spacing(-1.5),
+  textAlign: "left",
+  fontSize: "0.75rem",
+}));
+
+
+const DatePickerField = ({ field, form: { values, setFieldValue } }) => {
   const { submitForm } = useFormikContext();
 
+  const getMinMaxDates = () => {
+    const fieldNumber = parseInt(field.name.slice(-1));
+    const startFieldName = `p4pStartDate${fieldNumber}`;
+    const endFieldName = `p4pEndDate${fieldNumber}`;
+    const prevEndFieldName =
+      fieldNumber > 1 ? `p4pEndDate${fieldNumber - 1}` : null;
+
+    if (field.name.includes("StartDate")) {
+      return {
+        minDate:
+          prevEndFieldName && values[prevEndFieldName]
+            ? new Date(values[prevEndFieldName])
+            : null,
+        maxDate: values[endFieldName] ? new Date(values[endFieldName]) : null,
+      };
+    } else if (field.name.includes("EndDate")) {
+      return {
+        minDate: values[startFieldName]
+          ? new Date(values[startFieldName])
+          : null,
+        maxDate: null,
+      };
+    }
+    return { minDate: null, maxDate: null };
+  };
+
+  const { minDate, maxDate } = getMinMaxDates();
+
+  const handleDateChange = (date) => {
+    const fieldNumber = parseInt(field.name.slice(-1));
+    const startFieldName = `p4pStartDate${fieldNumber}`;
+    const endFieldName = `p4pEndDate${fieldNumber}`;
+
+    if (date) {
+      setFieldValue(field.name, date.toISOString().split("T")[0]);
+
+      // If it's a start date, automatically set the end date to one year later
+      if (field.name.includes("StartDate")) {
+        const endDate = new Date(date);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        setFieldValue(endFieldName, endDate.toISOString().split("T")[0]);
+      }
+    } else {
+      setFieldValue(field.name, "");
+      if (field.name.includes("StartDate")) {
+        setFieldValue(endFieldName, "");
+      }
+    }
+    submitForm();
+  };
+
   return (
-    <DatePicker
-      value={field.value ? new Date(field.value) : null}
-      onChange={(date) => {
-        setFieldValue(field.name, date ? date.toISOString().split("T")[0] : "");
-        submitForm();
-      }}
-      slots={{ openPickerIcon: ExpandMoreIcon }}
-      slotProps={{
-        textField: {
-          helperText: "required",
-          // error: !field.value, // Show error state if field is empty
-        },
-      }}
-    />
+    <div>
+      <StyledHelperText>*</StyledHelperText>
+      <DatePicker
+        value={field.value ? new Date(field.value) : null}
+        onChange={handleDateChange}
+        slots={{ openPickerIcon: ExpandMoreIcon }}
+        minDate={minDate}
+        maxDate={maxDate}
+      />
+    </div>
   );
 };
+
+
+
+// const DatePickerField = ({ field, form: { values, setFieldValue } }) => {
+//   const { submitForm } = useFormikContext();
+
+//   const getMinMaxDates = () => {
+//     const fieldNumber = field.name.slice(-1);
+//     const startFieldName = `p4pStartDate${fieldNumber}`;
+//     const endFieldName = `p4pEndDate${fieldNumber}`;
+
+//     if (field.name.includes("StartDate")) {
+//       return {
+//         minDate: null,
+//         maxDate: values[endFieldName] ? new Date(values[endFieldName]) : null,
+//       };
+//     } else if (field.name.includes("EndDate")) {
+//       return {
+//         minDate: values[startFieldName]
+//           ? new Date(values[startFieldName])
+//           : null,
+//         maxDate: null,
+//       };
+//     }
+//     return { minDate: null, maxDate: null };
+//   };
+
+//   const { minDate, maxDate } = getMinMaxDates();
+
+//   return (
+//     <div>
+//       <StyledHelperText>*</StyledHelperText>
+//       <DatePicker
+//         value={field.value ? new Date(field.value) : null}
+//         onChange={(date) => {
+//           setFieldValue(
+//             field.name,
+//             date ? date.toISOString().split("T")[0] : ""
+//           );
+//           submitForm();
+//         }}
+//         slots={{ openPickerIcon: ExpandMoreIcon }}
+//         minDate={minDate}
+//         maxDate={maxDate}
+//       />
+//     </div>
+//   );
+// };
+
+
+
+// const DatePickerField = ({ field, form: { setFieldValue } }) => {
+//   const { submitForm } = useFormikContext();
+
+//   return (
+//     <div>
+//       <StyledHelperText>*</StyledHelperText>
+//       <DatePicker
+//         value={field.value ? new Date(field.value) : null}
+//         onChange={(date) => {
+//           setFieldValue(
+//             field.name,
+//             date ? date.toISOString().split("T")[0] : ""
+//           );
+//           submitForm();
+//         }}
+//         slots={{ openPickerIcon: ExpandMoreIcon }}
+//       />
+//     </div>
+//   );
+// };
 
 const InputField = ({ field, form: { setFieldValue } }) => {
   const { submitForm } = useFormikContext();
@@ -220,7 +346,7 @@ const IncentiveSettingsMicroComponent = () => {
         enableReinitialize
       >
         {({ values }) => (
-          <Form>
+          <Form className="incentive-settings-table">
             <MiniTable
               columns={userColumn}
               data={[

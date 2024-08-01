@@ -4,6 +4,7 @@ import {
   Button,
   FormControl,
   FormGroup,
+  FormLabel,
   Grid,
   TextField,
 } from "@mui/material";
@@ -12,12 +13,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import Table from "components/Table";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch, useSelector } from "react-redux";
-import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
+import { parseUTCDateToLocalDate, parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
 import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
 import ReactQuill from "react-quill";
 import { deleteEmailTemplate, getEmailTemplate, updateEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
 import Loader from "pages/Loader";
+import { addEmailTemplateValidationSchema } from "utils/validations/formValidation";
 
 const EmailTemplateMicroComponent = () => {
   const dispatch = useDispatch();
@@ -88,7 +90,7 @@ const EmailTemplateMicroComponent = () => {
     {
       Header: "Date modified",
       accessor: "updated_at",
-      Cell: ({ value }) => parseUTCDateToLocalDateTime(value),
+      Cell: ({ value }) => parseUTCDateToLocalDate(value),
     },
     {
       Header: "Actions",
@@ -222,10 +224,11 @@ const EmailTemplateMicroComponent = () => {
           subject: selectedEmailTemplate?.subject,
           body: selectedEmailTemplate?.body,
         }}
+        validationSchema={addEmailTemplateValidationSchema}
         onSubmit={(values) => handleEmailUpdate(values)}
         enableReinitialize={true}
       >
-        {({ setFieldValue, values }) => (
+        {({ setFieldValue, values, dirty, isValid }) => (
           <Form>
             <Box
               sx={{
@@ -239,17 +242,20 @@ const EmailTemplateMicroComponent = () => {
                 type="text"
                 fullWidth
                 name="name"
-                label="Name"
+                label="Name*"
                 required
               />
               <InputField
                 type="text"
                 fullWidth
                 name="subject"
-                label="Subject"
+                label="Subject*"
                 required
               />
               <Box sx={{ mt: 2, mb: 2 }}>
+                <FormLabel>
+                  Email Content<span style={{ color: "red", fontSize: "1rem" }}>*</span>
+                </FormLabel>
                 <ReactQuill
                   theme="snow"
                   value={values.body}
@@ -268,7 +274,12 @@ const EmailTemplateMicroComponent = () => {
                   gap: "1rem",
                 }}
               >
-                <Button type="submit" variant="contained" color="primary">
+                <Button
+                  disabled={!(isValid && dirty)}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
                   Update email template
                 </Button>
                 <Button
