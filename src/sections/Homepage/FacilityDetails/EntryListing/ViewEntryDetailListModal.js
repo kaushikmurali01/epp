@@ -52,7 +52,7 @@ const ViewEntryDetailListModal = ({
       },
     },
     {
-      Header: "Useage ",
+      Header: "Usage ",
       accessor: "reading",
     },
   ];
