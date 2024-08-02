@@ -51,3 +51,4 @@ Thumbs.db
 # Environment files and sensitive configurations
 .env
 enerva_config.py
+config.py

@@ -13,7 +13,6 @@ app = Flask(__name__)
 def baseline_model_training():
     input_settings = request.get_json()
     try:
-        dont
         url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
         response = requests.post(url, json=input_settings)
         # print(response.json())
@@ -29,11 +28,11 @@ def baseline_model_training():
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)
     except:
-        # pass
+        pass
         # print('i am here')
-        baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
-        print(baseline_data.columns)
-        baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
+        # baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
+        # print(baseline_data.columns)
+        # baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
     granularity = input_settings.get('granularity')
     meter_type = input_settings.get('meter_type')
     facility_id = int(input_settings.get('facility_id'))
