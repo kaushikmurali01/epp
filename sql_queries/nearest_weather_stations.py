@@ -37,27 +37,6 @@ ORDER BY distance_km ASC
 LIMIT {};
 """
 
-# weather_data_query = """
-#     SELECT
-#         year,
-#         TO_CHAR(TO_DATE(month::text, 'MM'), 'Month') AS month_name,
-#         month,
-#         ROUND(AVG(temp), 2) AS temperature,
-#         ROUND(AVG(rel_hum), 2) AS average_humidity,
-#         ROUND(AVG(precip_amount), 2) AS average_precipitation,
-#         ROUND(AVG(wind_spd), 2) AS average_wind_speed,
-#         ROUND(AVG(station_press), 2) AS average_station_pressure
-#     FROM
-#         epp.weather_data_records
-#     WHERE
-#         station_id in {}
-#     GROUP BY
-#         year,
-#         month
-#     ORDER BY
-#         year,
-#         month;
-#     """
 
 weather_data_query = """
     SELECT 
@@ -77,5 +56,4 @@ weather_data_query = """
 
 min_max_date_query = """select min(start_date) as min_date, max(start_date) as max_date from meter_hourly_entries where facility_id={} and meter_type={} and is_active=true"""
 min_max_meter_date_query = """select min(start_date) as min_date, max(start_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_id={} and is_active=true"""
-
 min_max_date_query_iv = """select min(start_date) as min_date, max(start_date) as max_date from epp.meter_hourly_entries where facility_id={} and independent_variable_id={} and is_active=true"""
