@@ -383,7 +383,7 @@ const IncentiveSettingsMicroComponent = () => {
               variant="contained"
               color="primary"
             >
-              Save Settings
+              Save settings
             </Button>
           </Box>
         </Form>
