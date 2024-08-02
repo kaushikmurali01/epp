@@ -181,8 +181,8 @@ def check_issues():
 @app.route('/check_sufficiency', methods=['POST'])
 def get_sufficiency():
     facility_id = request.json.get('facility_id')
-    s_d=start_date = request.json.get('start_date')
-    e_d=end_date = request.json.get('end_date')
+    s_d = start_date = request.json.get('start_date')
+    e_d = end_date = request.json.get('end_date')
 
     # Check if all required parameters are present
     if not all([facility_id, start_date, end_date]):
@@ -193,19 +193,19 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    
 
     # Modify the query with the provided parameters
-    formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one = end_date+ timedelta(days=1),  facility_id = facility_id)
+    formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one=end_date + timedelta(days=1),
+                                               facility_id=facility_id)
     df = dbtest(formatted_query)
 
     # Calculate sufficiency percentages
     hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date)
     response = {
-        "daily": {"sufficiency": round(daily, 2) if round(daily, 2)<= 100 else 100, "status": get_status(daily)},
-        "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2)<= 100 else 100, "status": get_status(hourly)},
+        "daily": {"sufficiency": round(daily, 2) if round(daily, 2) <= 100 else 100, "status": get_status(daily)},
+        "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2) <= 100 else 100, "status": get_status(hourly)},
         "monthly": {
-            "sufficiency": round(monthly, 2) if round(monthly, 2)<= 100 else 100,
+            "sufficiency": round(monthly, 2) if round(monthly, 2) <= 100 else 100,
             "status": get_status(monthly),
             "data": monthly_data
         }
@@ -225,7 +225,7 @@ def calculate_sufficiency(df, start_date, end_date):
     # If the DataFrame is empty after removing blank rows, return 0 for all sufficiencies
     if df.empty:
         return 0, 0, 0, []
-    
+
     # Calculate unique hourly and daily sufficiency
     unique_meters = df.drop_duplicates(subset=['meter_id'])
 
@@ -233,7 +233,7 @@ def calculate_sufficiency(df, start_date, end_date):
     daily_sum = unique_meters['daily_sufficiency_percentage'].sum()
 
     meter_count = len(unique_meters)
-   
+
     hourly_sufficiency = (hourly_sum * 100) / (total_hours * meter_count)
     daily_sufficiency = (daily_sum * 100) / (total_days * meter_count)
 
@@ -243,46 +243,44 @@ def calculate_sufficiency(df, start_date, end_date):
     # Drop duplicates based on meter_id and month_name, keeping the row with the highest monthly_sufficiency_percentage
     df_unique = df_sorted.drop_duplicates(subset=['meter_id', 'month_name'], keep='first')
 
-    
     monthly_data = df_unique.groupby('month_name').agg({
         'monthly_sufficiency_percentage': 'sum',
         'meter_id': 'nunique'
-    }).reset_index()  
+    }).reset_index()
     sufficiency_data = pd.DataFrame(monthly_data)
     monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
-    monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days  * meter_count)) * 100
-    
-    
+    monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days * meter_count)) * 100
+
     return hourly_sufficiency, daily_sufficiency, monthly_sufficiency, monthly_sufficiency_data
 
 
 def get_month_days_in_range(start_date, end_date):
-    
     month_days = {}
     current_date = start_date
-    
+
     while current_date <= end_date:
         month_name = calendar.month_name[current_date.month]
         year = current_date.year
         days_in_month = calendar.monthrange(year, current_date.month)[1]
-        
+
         if current_date.month == start_date.month and current_date.year == start_date.year:
             num_days = days_in_month - start_date.day + 1
         elif current_date.month == end_date.month and current_date.year == end_date.year:
             num_days = end_date.day
         else:
             num_days = days_in_month
-        
+
         month_days[f"{month_name} {year}"] = num_days
-        
+
         current_date = current_date.replace(
             year=current_date.year + (1 if current_date.month == 12 else 0),
             month=(current_date.month % 12) + 1,
             day=1
         )
-    
+
     return month_days
+
 
 def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
     month_days = get_month_days_in_range(start_date, end_date)
@@ -292,19 +290,19 @@ def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
         value = row['monthly_sufficiency_percentage']
         for key in month_days.keys():
             if month in key:
-                sufficiency_dict[key] = f"{(value*100/(month_days[key]*row['meter_id']) if value*100/(month_days[key]*row['meter_id']) <= 100 else 100):.2f}"
+                sufficiency_dict[
+                    key] = f"{(value * 100 / (month_days[key] * row['meter_id']) if value * 100 / (month_days[key] * row['meter_id']) <= 100 else 100):.2f}"
                 break
-    
-    result =[
-            {"month": k, "value": sufficiency_dict.get(k, "0.00")} 
-            for k, v in month_days.items()
-        ]
-    return result  
+
+    result = [
+        {"month": k, "value": sufficiency_dict.get(k, "0.00")}
+        for k, v in month_days.items()
+    ]
+    return result
+
 
 def get_status(sufficiency):
     return "passed" if sufficiency >= 90 else "failed"
-
-
 
 
 # date_time, temp, rel_hum, precip_amount, wind_spd, station_press, hmdx, weather, station_id, facility_id, distance
@@ -334,19 +332,6 @@ def weather_data():
     """
 
     df = dbtest(query)
-    # df = dbtest(f'SELECT date_time, {data} FROM epp.weather_data WHERE facility_id = {facility}')
-    # df['date_time'] = pd.to_datetime(df['date_time'])
-    #
-    # # Step 2: Set this column as the index
-    # df.set_index('date_time', inplace=True)
-    #
-    # # Step 3: Resample the data on an hourly basis and summarize the "Meter Reading (Required)" column
-    # monthly_data = df[data].resample('M').mean()
-    #
-    # # Convert the Series to a dictionary with string keys
-    # monthly_data_list = {index.strftime('%B'): round(value, 2) for index, value in monthly_data.items()}
-
-    # # df_con = monthly_data_list.to_dict(orient= 'records')
     return df.to_dict(orient='records'), 200
 
 
@@ -657,7 +642,7 @@ def remove_file():
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
-    iv = request.json.get('iv',False)
+    iv = request.json.get('iv', False)
     record_id = request.json.get('record_id')
     if not record_id:
         return {
@@ -731,10 +716,14 @@ def process():
 @app.route('/get_station_details', methods=['GET'])
 def getdata():
     facility = request.args.get('facility_id')
-    df = dbtest(
-        f'SELECT DISTINCT station_name , latitude, longitude, climate_id, station_id FROM epp.weather_data WHERE facility_id = {facility}')
-    df_con = df.to_dict(orient='records')
-    return jsonify(df_con), 200
+    if facility:
+        facility = int(facility)
+        response = get_nearest_stations(facility)
+        if len(response):
+            response = response[['latitude', 'longitude', 'station_id', 'station_name', 'climate_id']]
+            df_con = response.to_dict(orient='records')
+            return jsonify(df_con), 200
+    return jsonify({"success": False, 'error': 'Insufficient Data'}), 404
 
 
 @app.route('/get_min_max_dates', methods=['GET'])
