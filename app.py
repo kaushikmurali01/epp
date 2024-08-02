@@ -16,7 +16,8 @@ from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
-from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query
+from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
+    min_max_date_query_iv
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -715,10 +716,16 @@ def getdates():
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
     meter_id = request.args.get('meter_id')
+    iv_id = request.args.get('iv_id')
     if meter_id:
         query = min_max_meter_date_query.format(facility_id, meter_id)
-    else:
+    elif meter_type:
         query = min_max_date_query.format(facility_id, meter_type)
+    elif iv_id:
+        query = min_max_date_query_iv.format(facility_id, iv_id)
+    else:
+        response = {"success": False, 'error': "Pleae provide Either of the 3 values. Meter ID, Meter Type or Independent Variable IF"}
+        return jsonify(response), 400
     min_max_date = dbtest(query)
     min_max_date = min_max_date.dropna()
     if len(min_max_date):
