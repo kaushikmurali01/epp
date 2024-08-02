@@ -7,11 +7,14 @@ from io import StringIO
 import requests
 import csv
 from datetime import datetime
+import time
+from functools import partial
+from contextlib import contextmanager
 
 from dbconnection import get_db_connection, dbtest
 
 # Adjust these parameters based on your system capabilities
-MAX_WORKERS = 10
+MAX_WORKERS = 10  # Reduced from 10 to 5
 CHUNK_SIZE = 100000  # Number of rows to process at a time
 
 # Column mapping: CSV column name to database column name

@@ -714,11 +714,12 @@ def getdata():
 def getdates():
     facility_id = request.args.get('facility_id')
     meter_type = request.args.get('meter_type')
-    meter_id = request.args.get('meter_type')
+    meter_id = request.args.get('meter_id')
     if meter_id:
-        min_max_date = dbtest(min_max_meter_date_query.format(facility_id, meter_id))
+        query = min_max_meter_date_query.format(facility_id, meter_id)
     else:
-        min_max_date = dbtest(min_max_date_query.format(facility_id, meter_type))
+        query = min_max_date_query.format(facility_id, meter_type)
+    min_max_date = dbtest(query)
     min_max_date = min_max_date.dropna()
     if len(min_max_date):
         min_date = min_max_date.min_date[0].strftime('%m/%d/%Y %H:%M')
