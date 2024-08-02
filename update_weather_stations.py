@@ -12,7 +12,7 @@ from datetime import datetime
 from dbconnection import get_db_connection, dbtest
 
 # Adjust these parameters based on your system capabilities
-MAX_WORKERS = 50
+MAX_WORKERS = 200
 CHUNK_SIZE = 100000  # Number of rows to process at a time
 
 # Column mapping: CSV column name to database column name
@@ -94,13 +94,14 @@ def upload_chunk(conn, chunk, station_id):
 
     try:
         cur.copy_expert(sql.SQL("""
-            COPY weather_data_records (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
+            COPY epp.weather_data_records (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
                                temp, temp_flag, dew_point_temp, dew_point_temp_flag, rel_hum, rel_hum_flag, 
                                precip_amount, precip_amount_flag, wind_dir, wind_dir_flag, wind_spd, wind_spd_flag, 
                                visibility_km, visibility_flag, station_press, station_press_flag, hmdx, hmdx_flag, 
                                wind_chill, wind_chill_flag, weather, station_id)
             FROM STDIN WITH CSV
         """), output)
+
         conn.commit()
         return f"Uploaded chunk for station {station_id}"
     except Exception as e:
@@ -110,43 +111,17 @@ def upload_chunk(conn, chunk, station_id):
         cur.close()
 
 
-# def process_station(station_id, year, month, day, time_frame):
-#     url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
-#     try:
-#         csv_folder = f"/datadrive/weather_files/{year}/{month}/{station_id}"
-#         response = requests.get(url, timeout=30)
-#         response.raise_for_status()
-#         file_path = os.path.join(csv_folder, f"{station_id}_{year}_{month}.csv")
-#         with open(file_path, 'wb') as f:
-#             f.write(response.content)
-#         csv_data = StringIO(response.content.decode('utf-8'))
-#         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
-#
-#         conn = get_db_connection()  # Create a new connection for each process
-#         for chunk in chunk_reader:
-#             if check_sufficiency(chunk):
-#                 result = upload_chunk(conn, chunk, station_id)
-#                 print(result)
-#             else:
-#                 print(f"Data chunk for station {station_id} did not pass sufficiency check")
-#
-#     except requests.RequestException as e:
-#         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
-#     except Exception as e:
-#         print(f"Error processing station {station_id}: {str(e)}")
-#     finally:
-#         conn.close()
 def process_station(station_id, year, month, day, time_frame):
     conn = None
     try:
         url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
-        csv_folder = f"/datadrive/weather_files/{year}/{month}/{station_id}"
-        os.makedirs(csv_folder, exist_ok=True)
+        # csv_folder = f"datadrive/weather_files/{station_id}/{year}/{month}"
+        # os.makedirs(csv_folder, exist_ok=True)
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        file_path = f"{csv_folder}/{station_id}_{year}_{month}.csv"
-        with open(file_path, 'wb') as f:
-            f.write(response.content)
+        # file_path = f"{csv_folder}/{station_id}_{year}_{month}.csv"
+        # with open(file_path, 'wb') as f:
+        #     f.write(response.content)
         csv_data = StringIO(response.content.decode('utf-8'))
         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
 
@@ -160,28 +135,34 @@ def process_station(station_id, year, month, day, time_frame):
 
     except requests.RequestException as e:
         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
+    except pd.errors.EmptyDataError:
+        print(f"Empty CSV file for station {station_id}")
+    except psycopg2.Error as e:
+        print(f"Database error for station {station_id}: {str(e)}")
     except Exception as e:
-        print(f"Error processing station {station_id}: {str(e)}")
+        print(f"Unexpected error processing station {station_id}: {str(e)}")
     finally:
         if conn:
             conn.close()
 
 
 def main():
-    stations = dbtest("SELECT station_id FROM stations")
+    stations = dbtest("SELECT station_id FROM epp.stations")
     current_year = datetime.now().year
     current_month = datetime.now().month
 
+    start_year = 2020  # You can adjust this as needed
+
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
-        for year in range(2020, 2024 + 1):
+        for year in range(start_year, current_year + 1):
             for month in range(1, 13):
                 if year == current_year and month > current_month:
                     break
                 day = 14
                 time_frame = 1
                 for station_id in stations['station_id'].values:
-                    print(station_id)
+                    print(f"Submitting task for station {station_id}, year {year}, month {month}")
                     futures.append(
                         executor.submit(process_station, station_id, year, month, day, time_frame))
 
