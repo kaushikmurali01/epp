@@ -724,7 +724,7 @@ def getdates():
     elif iv_id:
         query = min_max_date_query_iv.format(facility_id, iv_id)
     else:
-        response = {"success": False, 'error': "Pleae provide Either of the 3 values. Meter ID, Meter Type or Independent Variable IF"}
+        response = {"success": False, 'error': "Please provide Either of the 3 values. Meter ID, Meter Type or Independent Variable ID"}
         return jsonify(response), 400
     min_max_date = dbtest(query)
     min_max_date = min_max_date.dropna()
