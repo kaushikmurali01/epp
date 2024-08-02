@@ -16,7 +16,7 @@ from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
-from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query
+from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -305,34 +305,18 @@ def get_status(sufficiency):
     return "passed" if sufficiency >= 90 else "failed"
 
 
-# date_time, temp, rel_hum, precip_amount, wind_spd, station_press, hmdx, weather, station_id, facility_id, distance
 @app.route("/get_weather_data", methods=['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
-    query = f"""
-    SELECT 
-        year, 
-        TO_CHAR(TO_DATE(month::text, 'MM'), 'Month') AS month_name,
-        month,
-        ROUND(AVG(temp), 2) AS temperature, 
-        ROUND(AVG(rel_hum), 2) AS average_humidity, 
-        ROUND(AVG(precip_amount), 2) AS average_precipitation, 
-        ROUND(AVG(wind_spd), 2) AS average_wind_speed, 
-        ROUND(AVG(station_press), 2) AS average_station_pressure
-    FROM 
-        weather_data 
-    WHERE 
-        facility_id = {facility} 
-    GROUP BY 
-        year, 
-        month 
-    ORDER BY 
-        year, 
-        month;
-    """
+    station_ids = get_nearest_stations(facility)
+    if not station_ids.empty:
+        station_id_list = tuple(station_ids.station_id.values)
+        df = dbtest(weather_data_query.format(station_id_list))
+        return df.to_dict(orient='records'), 200
+    else:
+        return jsonify({'success': False, 'error': 'Insufficient Data'}), 404
 
-    df = dbtest(query)
-    return df.to_dict(orient='records'), 200
+
 
 
 @app.route('/insert_clean_data', methods=['POST'])

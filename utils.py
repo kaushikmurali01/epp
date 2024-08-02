@@ -7,7 +7,7 @@ from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 from azure.storage.blob import BlobServiceClient
 
 from dbconnection import dbtest
-from sql_queries.nearest_weather_stations import nearest_weather_stations, nearest_weather_stations_new
+from sql_queries.nearest_weather_stations import nearest_weather_stations
 
 
 def generate_blob_name(extension="xlsx"):
@@ -69,6 +69,6 @@ def haversine(lat1, lon1, lat2, lon2):
 
 def get_nearest_stations(facility, n=3):
     # Ensure facility_df has at least one row
-    query = nearest_weather_stations_new.format(facility, n)
+    query = nearest_weather_stations.format(facility, n)
     station_dataframe = dbtest(query)
     return station_dataframe#['station_id'].values
