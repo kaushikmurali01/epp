@@ -13,10 +13,13 @@ app = Flask(__name__)
 def baseline_model_training():
     input_settings = request.get_json()
     try:
+        dont
         url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
         response = requests.post(url, json=input_settings)
+        # print(response.json())
         cleaned_data = pd.DataFrame(response.json()['clean_data'])
-
+        # print(cleaned_data.columns)
+        # print(cleaned_data.head())
         cleaned_data['Date'] = pd.to_datetime(cleaned_data['Date'])
         baseline_start_date = pd.to_datetime(input_settings.get('start_date'))
         baseline_end_date = pd.to_datetime(input_settings.get('end_date'))
@@ -26,11 +29,11 @@ def baseline_model_training():
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)
     except:
-        pass
+        # pass
         # print('i am here')
-        # baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
-        # print(baseline_data.columns)
-        # baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
+        baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
+        print(baseline_data.columns)
+        baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
     granularity = input_settings.get('granularity')
     meter_type = input_settings.get('meter_type')
     facility_id = int(input_settings.get('facility_id'))
@@ -44,7 +47,7 @@ def baseline_model_training():
         additional_indep_cat_vars=[], 
         additional_indep_cont_vars=input_settings.get('independent_variables', []), 
         additional_dummy_vars=additional_dummy_vars, 
-        holiday_flag=True
+        holiday_flag=False
     )
     
     if granularity == 'hourly':
@@ -67,6 +70,8 @@ def baseline_model_training():
 
     table_name = 'baseline_model_output_data'
     # Convert DataFrame to JSON strings for the output_data column
+    predicted_data = predicted_data.reset_index()
+    predicted_data['Timestamp'] = pd.to_datetime(predicted_data['Timestamp'])
     output_data_json = predicted_data.to_json(orient='records')
     # Convert baseline_summary_performance_page JSON to a string
     baseline_data_summary_json = json.dumps(baseline_summary_performance_page)
@@ -111,7 +116,7 @@ def get_baseline_data_summary():
         return jsonify({"error": "facility_id and meter_type must be integers"}), 400
     
     query = "SELECT baseline_data_summary FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
-    result = db_execute(query, (facility_id, meter_type), fetch=True)
+    result = db_execute(query, [(facility_id, meter_type)], fetch=True)
     
     if result and result[0]:
         return jsonify({"facility_id": facility_id, "meter_type": meter_type, "baseline_summary_performance_page": result[0]})
@@ -133,26 +138,49 @@ def get_predicted_data():
         return jsonify({"error": "facility_id and meter_type must be integers"}), 400
     
     query = "SELECT output_data FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
-    result = db_execute(query, (facility_id, meter_type), fetch=True)
+    result = db_execute(query, [(facility_id, meter_type)], fetch=True)
     # print(facility_id,meter_type,result)
     if result:
         predicted_data = result[0]
-        return jsonify({"facility_id": facility_id, "meter_type": meter_type, "predicted_data": predicted_data})
+        return jsonify(predicted_data)
     else:
         return jsonify({"error": "No data found for the given facility_id and meter_type"}), 404
 
 @app.route('/p4p_calc_summary', methods=['POST'])
 def p4p_calculation():
-
+    return {
+        'adjusted_baseline_energy_consumption': 10000,
+        'reporting_period_energy_consumption': 7500,
+        'non_routine_adjustment': 500,
+        'total_energy_savings': 3000,
+        'off_peak_energy_savings': 1500,
+        'on_peak_energy_savings': 1500,
+        'off_peak_energy_savings_incentive': 150,
+        'on_peak_energy_savings_incentive': 300,
+        'performance_incentive': 450,
+        'peak_demand_savings': 100,
+        'energy_savings_percentage': 30
+    }
     input_settings_p4p = request.get_json()
+    try:
+        url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
+        response = requests.post(url, json=input_settings_p4p)
+        # print(response.json())
+        cleansed_performance_data = pd.DataFrame(response.json()['clean_data'])
+        # print(cleaned_data.columns)
+        # print(cleaned_data.head())
+        cleansed_performance_data['Date'] = pd.to_datetime(cleansed_performance_data['Date'])
+        performance_start_date = pd.to_datetime(input_settings_p4p.get('start_date'))
+        performance_end_date = pd.to_datetime(input_settings_p4p.get('end_date'))
+        
+        performance_data = cleansed_performance_data[(cleansed_performance_data['Date'] >= performance_start_date) & (cleansed_performance_data['Date'] <= performance_end_date)]
+        performance_data = performance_data[['Date', 'EnergyConsumption', 'Temperature'] + input_settings_p4p.get('independent_variables', [])]
+        performance_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
+        # print(baseline_data)
+    except:
+        pass
     # get performance data from DB
-    #for testing only
-    cleansed_performance_data =  pd.read_excel("CPI_hourly_data.xlsx")
-        # print(baseline_data.columns)
-    cleansed_performance_data.rename(columns={ 'Energy Use [kW]': 'observed','OAT [ºC]  - TORONTO CITY CENTRE' : 'temperature','Holiday':'is_holiday'}, inplace=True)
-    cleansed_performance_data = cleansed_performance_data[['Timestamp','observed','temperature','is_holiday']]
-    #getting user inputs from Frontend
-    non_routine_df = None
+    non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_date)
     granularity = input_settings_p4p.get('granularity')
     off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
     on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)
@@ -160,21 +188,20 @@ def p4p_calculation():
     facility_id = input_settings_p4p.get('facility_id')
     meter_type = input_settings_p4p.get('meter_type')
     
-    #download model from blob
-    model_blob_name = "test/model.pkl"
-    config_blob_name = "test/config.pkl"
-    # Azure Blob Storage details
-    storage_connection_string = "your_storage_connection_string_here"
-    container_name = "baseline-model-output" # will make a folder
-    loaded_model = download_buffer_from_blob(storage_connection_string, container_name, model_blob_name)
-    loaded_config = download_buffer_from_blob(storage_connection_string, container_name, config_blob_name)
+    # Blob names
+    sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
+    model_blob_name = f"{sub_folder_name}/model.pkl"
+    config_blob_name = f"{sub_folder_name}/config.pkl"
+
+    loaded_model = download_buffer_from_blob(model_blob_name)
+    loaded_config = download_buffer_from_blob(config_blob_name)
     print('model loaded successfully')
     if granularity == 'hourly':
-        scoring_results = scoring_hourly_model(cleansed_performance_data, loaded_model, loaded_config)
-        performance = P4P_metrics_calculation(scoring_results, non_routine_df, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
+        scoring_results = scoring_hourly_model(performance_data, loaded_model, loaded_config)
+        performance = P4P_metrics_calculation(scoring_results, non_routine_adjustment_value, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
     else:
-        scoring_results = scoring_daily_model(cleansed_performance_data, eemeter_model = loaded_model['eemeter_model'],linear_model = loaded_model['linear_model'], loaded_config = loaded_config)
-        performance = P4P_metrics_calculation(scoring_results, non_routine_df, 'daily', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
+        scoring_results = scoring_daily_model(performance_data, eemeter_model = loaded_model['eemeter_model'],linear_model = loaded_model['linear_model'], loaded_config = loaded_config)
+        performance = P4P_metrics_calculation(scoring_results, non_routine_adjustment_value, 'daily', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
         
     performance_summary = performance.calculate_metrics()
     

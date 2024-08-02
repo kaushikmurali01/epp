@@ -7,6 +7,8 @@ import pickle
 from azure.storage.blob import BlobServiceClient
 import io
 import json
+from io import BytesIO
+import requests
 
 import config
 
@@ -40,28 +42,40 @@ def get_db_connection():
         return psycopg2.connect(**params)
 
 
-def db_execute(query, values, fetch=False):
+def db_execute(query, values, fetch=False, fetchall=False):
     conn = None
     curs = None
     try:
-        conn = get_db_connection()
+        conn = get_db_connection()  # Assumes existing function to get database connection
         curs = conn.cursor()
 
         # Execute the query with parameters
-        curs.execute(query, values)
-        # Print the query and values
-        # print("Executing query:", query)
-        # print("With values:", values)
-        # Fetch data if required
+        curs.execute(query, values[0])
+        print('DB Query executed')
+        # Initialize result
         result = None
-        if fetch:
-            result = curs.fetchone()
+        column_names = []
 
+        # Fetch data if required
+        if fetch: #fetch one
+            result = curs.fetchone()
+            # conn.commit()
+            # return result
+        elif fetchall: #fetch all
+            result = curs.fetchall()
+            if result:
+                # Extract column names from cursor.description
+                column_names = [desc[0] for desc in curs.description]
+            #     conn.commit()
+            #     return result, column_names
+            # else:
+            #     conn.commit()
+            #     return result
         conn.commit()
-        return result
+        return result,column_names
     except Exception as e:
         print("Database operation failed:", str(e))
-        return None
+        return None, []
     finally:
         # Ensure cursor and connection are closed
         if curs:
@@ -208,3 +222,129 @@ def download_buffer_from_blob(blob_name):
     
     print(f"Download and unpickling of {blob_name} completed successfully.")
     return obj
+
+def download_non_routine_file_from_url(url, save_path=None):
+    """
+    Download a file from a given URL by extracting the file extension before the query string and optionally save it to the specified local path or return as a DataFrame.
+
+    Args:
+    url (str): URL of the file to download.
+    save_path (str, optional): Local path where the file should be saved, if None, returns DataFrame.
+
+    Returns:
+    pd.DataFrame or None: DataFrame if save_path is None, else None.
+    """
+    try:
+        # Extract the filename before the query string
+        base_url = url.split('?')[0]
+        file_extension = base_url.split('.')[-1].lower()
+
+        response = requests.get(url)
+        if response.status_code == 200:
+            if save_path:
+                with open(save_path, 'wb') as f:
+                    f.write(response.content)
+                print(f"File downloaded successfully and saved to {save_path}")
+                return None
+            else:
+                content = BytesIO(response.content)
+                if file_extension == 'csv':
+                    df = pd.read_csv(content)
+                    print("CSV file loaded into DataFrame successfully.")
+                elif file_extension == 'xlsx':
+                    df = pd.read_excel(content)
+                    print("Excel file loaded into DataFrame successfully.")
+                else:
+                    print("Unknown file type based on URL extension.")
+                    return None
+                return df
+        else:
+            print(f"Failed to download the file. Status code: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"An error occurred while downloading the file: {e}")
+        return None
+
+import pandas as pd
+
+def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_date):
+    """
+    Fetches and calculates non-routine adjustment data based on the specified parameters.
+
+    Args:
+    facility_id (int): Facility ID for filtering.
+    meter_type (int): Meter type for filtering.
+    start_date (str): Start date in 'YYYY-MM-DD' format.
+    end_date (str): End date in 'YYYY-MM-DD' format.
+    db_execute (function): Function to execute database queries.
+    download_non_routine_file_from_url (function): Function to download files from URLs and return as DataFrame.
+
+    Returns:
+    DataFrame: The resulting DataFrame containing the filtered data.
+    float: Total non-routine adjustment including direct entries and values from URLs.
+    """
+    query = """
+    SELECT
+        nrdem.id, 
+        nrdem.type,
+        nrm.id AS nrm_id,
+        nrm.event_name,
+        nrdem.start_date,
+        nrdem.end_date,
+        nrm.facility_id,
+        nrm.meter_type,
+        CASE 
+            WHEN nrdem.type = 1 THEN nrdem.non_routine_adjustment
+            WHEN nrdem.type = 2 THEN nrdem.file_url
+            ELSE NULL
+        END AS result
+    FROM
+        non_routine_model nrm
+    JOIN
+        non_routine_data_entry_model nrdem ON nrm.id = nrdem.non_routine_id
+    WHERE
+        nrm.facility_id = %s AND
+        nrm.meter_type = %s AND
+        (
+            (nrdem.type = 1 AND nrdem.start_date >= %s AND nrdem.end_date <= %s)
+            OR
+            nrdem.type = 2
+        );
+    """
+
+    # Define parameters
+    params = (facility_id, meter_type, start_date, end_date)
+    # Execute the query
+    results = db_execute(query, params, fetch=False, fetchall=True)
+    data = results[0]
+    # Variables to store results
+    non_routine_from_direct_entry = 0
+    non_routine_adjustment_from_urls = 0
+    urls = []
+    # Process results
+    if data:
+        for row in data:
+            if row[1] == 1:  # Check if type is 1
+                non_routine_from_direct_entry += float(row[8])  # Assuming 'result' is at index 8
+            elif row[1] == 2:  # Check if type is 2
+                urls.append(row[8])  # Assuming 'result' is at index 8
+
+    # Initialize an empty DataFrame
+    non_routine_dfs = pd.DataFrame()
+    # Loop through each URL, download the DataFrame, and concatenate directly
+    for url in urls:
+        df_url = download_non_routine_file_from_url(url)
+        if df_url is not None:
+            # Concatenate directly to the main DataFrame
+            non_routine_dfs = pd.concat([non_routine_dfs, df_url], ignore_index=True)
+
+    # Apply the filter and calculate the total adjustment
+    if not non_routine_dfs.empty:
+        non_routine_dfs['Start Date'] = pd.to_datetime(non_routine_dfs['Start Date'])
+        non_routine_dfs['End Date'] = pd.to_datetime(non_routine_dfs['End Date'])
+        # Applying the filter
+        non_routine_dfs_filtered = non_routine_dfs[(non_routine_dfs['Start Date'] >= pd.to_datetime(start_date)) & (non_routine_dfs['End Date'] <= pd.to_datetime(end_date))]
+        non_routine_adjustment_from_urls = non_routine_dfs_filtered['Non-Routine Adjustment Value'].sum()
+
+    total_non_routine_adjustment = non_routine_adjustment_from_urls + non_routine_from_direct_entry
+    return  total_non_routine_adjustment

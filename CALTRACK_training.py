@@ -179,6 +179,7 @@ class EnergyModel:
     def feature_engineering_eemeter_hourly_model(self,baseline_data,segment_type):
         self.segment_type = segment_type
         self.training_data = baseline_data
+        print(self.training_data.head())
         # Fit the baseline model
         baseline_data_hourly = em.HourlyBaselineData(self.training_data[['observed', 'temperature']], is_electricity_data=True)
         self.baseline_data_hourly = baseline_data_hourly
@@ -375,7 +376,7 @@ class EnergyModel:
             reporting_predictions['Residual'] = reporting_predictions['observed'] - reporting_predictions['predicted']
         else:
             print("Some independent variables are missing from the reporting DataFrame.")
-        
+        print(reporting_predictions.head())
         # self.reporting_predictions = reporting_predictions.copy()
         return reporting_predictions
   
