@@ -1,5 +1,4 @@
 import os
-
 import pandas as pd
 import concurrent.futures
 import psycopg2
@@ -12,7 +11,7 @@ from datetime import datetime
 from dbconnection import get_db_connection, dbtest
 
 # Adjust these parameters based on your system capabilities
-MAX_WORKERS = 200
+MAX_WORKERS = 10
 CHUNK_SIZE = 100000  # Number of rows to process at a time
 
 # Column mapping: CSV column name to database column name
@@ -48,6 +47,15 @@ COLUMN_MAPPING = {
     'Wind Chill Flag': 'wind_chill_flag',
     'Weather': 'weather'
 }
+
+
+@contextmanager
+def get_db_connection_from_pool():
+    conn = get_db_connection()
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def check_sufficiency(df):
@@ -111,25 +119,32 @@ def upload_chunk(conn, chunk, station_id):
         cur.close()
 
 
+def upload_chunk_with_retry(chunk, station_id, max_retries=3, initial_delay=1):
+    retries = 0
+    while retries < max_retries:
+        try:
+            with get_db_connection_from_pool() as conn:
+                return upload_chunk(conn, chunk, station_id)
+        except psycopg2.Error as e:
+            retries += 1
+            if retries == max_retries:
+                raise
+            time.sleep(initial_delay * (2 ** (retries - 1)))  # Exponential backoff
+
+
 def process_station(station_id, year, month, day, time_frame):
-    conn = None
     try:
         url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
-        # csv_folder = f"datadrive/weather_files/{station_id}/{year}/{month}"
-        # os.makedirs(csv_folder, exist_ok=True)
         response = requests.get(url, timeout=30)
         response.raise_for_status()
-        # file_path = f"{csv_folder}/{station_id}_{year}_{month}.csv"
-        # with open(file_path, 'wb') as f:
-        #     f.write(response.content)
         csv_data = StringIO(response.content.decode('utf-8'))
         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
 
-        conn = get_db_connection()  # Create a new connection for each process
         for chunk in chunk_reader:
             if check_sufficiency(chunk):
-                result = upload_chunk(conn, chunk, station_id)
+                result = upload_chunk_with_retry(chunk, station_id)
                 print(result)
+                time.sleep(1)  # Add a small delay between chunk uploads
             else:
                 print(f"Data chunk for station {station_id} did not pass sufficiency check")
 
@@ -137,13 +152,8 @@ def process_station(station_id, year, month, day, time_frame):
         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
     except pd.errors.EmptyDataError:
         print(f"Empty CSV file for station {station_id}")
-    except psycopg2.Error as e:
-        print(f"Database error for station {station_id}: {str(e)}")
     except Exception as e:
         print(f"Unexpected error processing station {station_id}: {str(e)}")
-    finally:
-        if conn:
-            conn.close()
 
 
 def main():
@@ -151,7 +161,7 @@ def main():
     current_year = datetime.now().year
     current_month = datetime.now().month
 
-    start_year = 2020  # You can adjust this as needed
+    start_year = 2023  # You can adjust this as needed
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
@@ -165,6 +175,7 @@ def main():
                     print(f"Submitting task for station {station_id}, year {year}, month {month}")
                     futures.append(
                         executor.submit(process_station, station_id, year, month, day, time_frame))
+                    time.sleep(0.1)  # Add a small delay between task submissions
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
