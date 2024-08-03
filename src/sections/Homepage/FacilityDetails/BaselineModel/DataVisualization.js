@@ -189,8 +189,9 @@ const DataVisualization = () => {
     }
   };
 
-  const graphUrl = `https://ams-enerva-dev.azure-api.net/v1/graph?facility_id=${id}`;
-
+  // const graphUrl = `https://ams-enerva-dev.azure-api.net/v1/graph?facility_id=${id}`;
+  const graphUrl = `http://172.183.115.159:5006/?facility_id=336`;
+  //
   return (
     <Box
       sx={{

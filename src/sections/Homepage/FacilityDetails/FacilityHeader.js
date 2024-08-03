@@ -198,11 +198,15 @@ const FacilityHeader = () => {
       >
         <Box sx={{ display: "flex", alignItems: "center", mr: 1 }}>
           <Box sx={{ width: 10, height: 10, bgcolor: "#8bc34a", mr: 0.5 }} />
-          <Typography variant="caption">On-Peak</Typography>
+          <Typography variant="caption">
+            On-Peak {activeButton === "incentive" ? "Incentive" : "Saving"}
+          </Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Box sx={{ width: 10, height: 10, bgcolor: "#4caf50", mr: 0.5 }} />
-          <Typography variant="caption">Off-Peak</Typography>
+          <Typography variant="caption">
+            Off-Peak {activeButton === "incentive" ? "Incentive" : "Saving"}
+          </Typography>
         </Box>
       </Box>
     );
@@ -210,9 +214,10 @@ const FacilityHeader = () => {
 
   const CustomBar = (props) => {
     const { x, y, width, height, value, fill } = props;
-    console.log(value);
     const displayValue =
-      typeof value === "number" ? `${value.toFixed(2)}` : value;
+      typeof value === "number" && activeButton === "incentive"
+        ? `$${value.toFixed(2)}`
+        : value;
     return (
       <g>
         <rect x={x} y={y} width={width} height={height} fill={fill} />
@@ -222,10 +227,9 @@ const FacilityHeader = () => {
             y={y + height / 2}
             textAnchor="middle"
             dominantBaseline="central"
-            fill="#ffffff"
-            fontSize={12}
+            fill="#000000"
+            fontSize={10}
           >
-            {activeButton === "incentive" ? "$" : ""}
             {displayValue}
           </text>
         )}
@@ -274,7 +278,11 @@ const FacilityHeader = () => {
     return (
       <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart layout="vertical" data={processedData}>
+          <BarChart
+            layout="vertical"
+            data={processedData}
+            margin={{ left: 45 }}
+          >
             <XAxis type="number" domain={[0, maxTotal]} hide />
             <YAxis
               dataKey="name"
@@ -284,7 +292,9 @@ const FacilityHeader = () => {
                 fontWeight: 500,
                 fill: "#333",
                 textAnchor: "end",
+                width: 160,
               }}
+              wrapperStyle={{ whiteSpace: "nowrap" }}
             />
             <Bar
               dataKey="transparentValue"
@@ -325,9 +335,8 @@ const FacilityHeader = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            justifyContent: "space-between",
           }}
-          gap={2}
         >
           <StyledButtonGroup
             disableElevation
@@ -367,7 +376,7 @@ const FacilityHeader = () => {
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2} justifyContent="space-between">
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
             <Box
               sx={{
@@ -473,7 +482,7 @@ const FacilityHeader = () => {
         </Grid>
 
         {/* Graph section */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={5}>
           <IncentiveEnergyChart
             incentiveData={incentiveData}
             energySavingData={energySavingData}

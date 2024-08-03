@@ -77,23 +77,49 @@ const DateRangeSlider = ({
       // Ensure both values are within the valid range
       updatedRange = updatedRange.map((value) => Math.min(value, maxEndDays));
 
-      // Ensure minimum 1 day between start and end
-      const minDistance = 1;
-      if (activeThumb === 0) {
-        updatedRange[0] = Math.min(
-          updatedRange[0],
-          updatedRange[1] - minDistance
-        );
+      const oneYearBeforeEnd = subYears(endDateObj, 1);
+      const oneYearInDays = differenceInDays(endDateObj, oneYearBeforeEnd);
+      const availableDays = differenceInDays(endDateObj, startDateObj);
+
+      if (availableDays <= oneYearInDays) {
+        // Allow independent movement when range is less than one year
+        const minDistance = 1; // Minimum 1 day between start and end
+        if (activeThumb === 0) {
+          updatedRange[0] = Math.min(
+            updatedRange[0],
+            updatedRange[1] - minDistance
+          );
+        } else {
+          updatedRange[1] = Math.max(
+            updatedRange[1],
+            updatedRange[0] + minDistance
+          );
+        }
+      } else if (maxEndDays > oneYearInDays) {
+        if (activeThumb === 0) {
+          const newStart = Math.min(
+            updatedRange[0],
+            maxEndDays - oneYearInDays
+          );
+          updatedRange = [
+            newStart,
+            Math.min(newStart + oneYearInDays, maxEndDays),
+          ];
+        } else {
+          const newEnd = Math.min(updatedRange[1], maxEndDays);
+          updatedRange = [Math.max(0, newEnd - oneYearInDays), newEnd];
+        }
       } else {
-        updatedRange[1] = Math.max(
-          updatedRange[1],
-          updatedRange[0] + minDistance
-        );
+        if (activeThumb === 0) {
+          updatedRange[0] = Math.min(updatedRange[0], updatedRange[1] - 1);
+        } else {
+          updatedRange[1] = Math.min(updatedRange[1], maxEndDays);
+        }
       }
 
       setRange(updatedRange);
     },
-    [maxEndDays]
+    [maxEndDays, endDateObj]
   );
 
   const handleMouseDown = useCallback(

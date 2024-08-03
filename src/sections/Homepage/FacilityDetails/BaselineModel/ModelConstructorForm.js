@@ -57,6 +57,7 @@ const ModelConstructorForm = ({
   );
   const [sliderStartDate, setSliderStartDate] = useState(null);
   const [sliderEndDate, setSliderEndDate] = useState(null);
+  const [errorStatusMessage, setErrorStatusMessage] = useState("");
 
   useEffect(() => {
     setBaselinePeriodLoading(true);
@@ -64,6 +65,7 @@ const ModelConstructorForm = ({
     dispatch(fetchBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
+        console.log(res);
         setBaselinePeriod(res);
         if (res?.end_date && res?.start_date) {
           const endDate = format(new Date(res?.end_date), "yyyy-MM-dd");
@@ -79,6 +81,9 @@ const ModelConstructorForm = ({
       .catch((error) => {
         setBaselinePeriodLoading(false);
         if (error) {
+          if (error?.response?.status === 404) {
+            setErrorStatusMessage(error?.response?.data?.error);
+          } else setErrorStatusMessage("");
           setBaselinePeriodFailed(true);
         }
       });
@@ -285,34 +290,16 @@ const ModelConstructorForm = ({
     },
   ];
 
-  if (
-    (baselinePeriod?.start_date === null &&
-      baselinePeriod?.end_date === null) ||
-    baselinePeriodLoading
-  ) {
+  if (baselinePeriodLoading) {
     return (
       <Grid>
         <Grid item xs={12}>
-          {baselinePeriodLoading ? (
-            <Typography
-              variant="h6"
-              sx={{ marginTop: "2rem", marginBottom: "2rem" }}
-            >
-              Fetching baseline period information, Please wait...
-            </Typography>
-          ) : (
-            <Typography
-              variant="h6"
-              sx={{
-                marginTop: "2rem",
-                marginBottom: "2rem",
-                color: "#FF5858",
-              }}
-            >
-              Insufficient data, please upload sufficient data then try again
-              later.
-            </Typography>
-          )}
+          <Typography
+            variant="h6"
+            sx={{ marginTop: "2rem", marginBottom: "2rem" }}
+          >
+            Fetching baseline period information, Please wait...
+          </Typography>
         </Grid>
       </Grid>
     );
@@ -330,8 +317,10 @@ const ModelConstructorForm = ({
               color: "#FF5858",
             }}
           >
-            Insufficient data or there was some error while fetching baseline
-            period information, please try again later!
+            {errorStatusMessage
+              ? errorStatusMessage
+              : `There was some error while fetching baseline
+            period information, please try again later!`}
           </Typography>
         </Grid>
       </Grid>

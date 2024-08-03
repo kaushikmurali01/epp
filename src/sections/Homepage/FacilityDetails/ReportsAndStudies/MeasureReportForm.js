@@ -147,6 +147,7 @@ const MeasureReportForm = ({
         });
     }
   };
+
   return (
     <>
       <Formik
@@ -156,6 +157,20 @@ const MeasureReportForm = ({
         onSubmit={handleFormSubmit}
       >
         {({ values, setFieldValue, errors }) => {
+          const handleMeasureCategoryChange = (event) => {
+            const newValue = event.target.value;
+            setFieldValue("measure_category", newValue);
+            if (
+              newValue === "onSiteGeneration" ||
+              newValue === "fuelSwitching"
+            ) {
+              openAlertMessageModal(
+                newValue === "onSiteGeneration"
+                  ? "Behind-the-meter generation projects are not eligible measures."
+                  : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details."
+              );
+            }
+          };
           return (
             <Form>
               <Grid container rowGap={4}>
@@ -176,15 +191,7 @@ const MeasureReportForm = ({
                       valueKey="value"
                       labelKey="label"
                       options={MEASURE_REPORT_CATEGORY}
-                      onBlur={() => {
-                        (values.measure_category === "onSiteGeneration" ||
-                          values.measure_category === "fuelSwitching") &&
-                          openAlertMessageModal(
-                            values.measure_category === "onSiteGeneration"
-                              ? "Behind-the-meter generation projects are not eligible measures."
-                              : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details."
-                          );
-                      }}
+                      onChange={handleMeasureCategoryChange}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>
