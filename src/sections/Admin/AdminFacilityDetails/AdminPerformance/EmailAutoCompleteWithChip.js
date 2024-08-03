@@ -35,6 +35,13 @@ const EmailAutoCompleteWithChip = ({
     }
   }, [label]);
 
+  // Initialize field.value as an empty array for multiple mode
+  useEffect(() => {
+    if (multiple && !Array.isArray(field.value)) {
+      setValue([]);
+    }
+  }, [multiple, field.value, setValue]);
+
   const fetchSuggestions = async (query) => {
     if (query.length < 2) return;
 
@@ -65,13 +72,13 @@ const EmailAutoCompleteWithChip = ({
     return re.test(String(email).toLowerCase());
   };
 
-  // const handleInputChange = (event, newInputValue) => {
-  //   setInputValue(newInputValue);
-  // };
-
   const handleInputChange = (event, newInputValue) => {
     setInputValue(newInputValue);
-    if (isValidEmail(newInputValue) && !excludeEmails.includes(newInputValue)) {
+    if (
+      !multiple &&
+      isValidEmail(newInputValue) &&
+      !excludeEmails.includes(newInputValue)
+    ) {
       setValue(newInputValue);
       props.onSelectContact({ email: newInputValue });
     }
@@ -111,13 +118,14 @@ const EmailAutoCompleteWithChip = ({
   const handleBlur = () => {
     setTouched(true);
     if (multiple) {
-      const newValues = field.value.filter(
+      const currentValue = Array.isArray(field.value) ? field.value : [];
+      const newValues = currentValue.filter(
         (email) => !excludeEmails.includes(email)
       );
-      if (newValues.length !== field.value.length) {
+      if (newValues.length !== currentValue.length) {
         setValue(newValues);
       }
-    } else if (excludeEmails.includes(field.value)) {
+    } else if (field.value && excludeEmails.includes(field.value)) {
       setValue("");
       props.onSelectContact(null);
     }
@@ -137,6 +145,7 @@ const EmailAutoCompleteWithChip = ({
         {...field}
         multiple={multiple}
         options={options}
+        value={multiple ? field.value || [] : field.value}
         getOptionLabel={(option) =>
           typeof option === "string" ? option : option.email
         }
