@@ -526,3 +526,13 @@ export const addEmailTemplateValidationSchema = Yup.object().shape({
   subject: Yup.string().required('Subject is required'),
   body: Yup.string().required('Email content is required'),
 });
+
+export const incentiveSettingValidationSchema = Yup.object().shape({
+  p4pStartDate1: Yup.date().required("Required"),
+  p4pEndDate1: Yup.date().required("Required"),
+  p4pStartDate2: Yup.date().required("Required"),
+  p4pEndDate2: Yup.date().required("Required"),
+  p4pStartDate3: Yup.date().required("Required"),
+  p4pEndDate3: Yup.date().required("Required"),
+  // Add other fields as needed
+});
