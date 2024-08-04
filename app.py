@@ -7,7 +7,7 @@ from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
-from meter_uploader import MeterDataUploader
+from meter_uploader import MeterDataUploader, MeterDataUploaderIV
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -609,7 +609,10 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     if file:
-        uploader = MeterDataUploader(file, facility_id, meter_id, iv)
+        if iv:
+            uploader = MeterDataUploaderIV(file, facility_id, meter_id, iv)
+        else:
+            uploader = MeterDataUploader(file, facility_id, meter_id, iv)
         result = uploader.process()
         return jsonify(result)
 
@@ -639,7 +642,6 @@ def add_meter_data():
             'status': 'failed',
             'message': "Please provide Record ID"
         }, 200
-    print(f"IV : {iv}")
     amd = AddMeterData(facility_id, record_id, iv=iv)
     thread = Thread(target=amd.process)
     thread.start()

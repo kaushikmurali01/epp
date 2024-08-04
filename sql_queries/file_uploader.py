@@ -62,9 +62,9 @@ iv_file_processing_query = """
         ivf.file_path AS media_url,
         ivf.processed
     FROM 
-        independent_variable AS iv
+        epp.independent_variable AS iv
     JOIN 
-        independent_variable_file AS ivf
+        epp.independent_variable_file AS ivf
     ON 
         iv.id = ivf.independent_variable_id
     WHERE 

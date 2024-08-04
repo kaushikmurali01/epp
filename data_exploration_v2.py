@@ -30,9 +30,6 @@ class DataExplorationSummaryV2:
             self.temperature_query = get_temp_observed_data_summary(self.facility_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
         self.temp_df = dbtest(self.temperature_query)
-        # if len(self.temp_df):
-        #     import pdb;pdb.set_trace()
-        #     self.temp_df = self.temp_df.drop(['start_date', 'end_date'], axis=1)
 
     def process(self):
         self.setup_query()
