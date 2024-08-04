@@ -413,9 +413,7 @@ export const fetchRawSummaryMeterList = (
   };
 };
 
-export const fetchOutliersSettingsData = (
-  facilityId,
-) => {
+export const fetchOutliersSettingsData = (facilityId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchOutliersSettingsRequest());
