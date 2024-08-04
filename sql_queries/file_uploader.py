@@ -2,7 +2,7 @@ min_max_data_meter = """
     SELECT 
         MIN(start_date)::timestamp AS lower_limit, 
         MAX(start_date)::timestamp AS upper_limit 
-    FROM meter_hourly_entries 
+    FROM epp.meter_hourly_entries 
     WHERE facility_id={} AND meter_id={}
 """
 
@@ -10,19 +10,19 @@ min_max_data_iv = """
     SELECT 
         MIN(start_date)::timestamp AS lower_limit, 
         MAX(start_date)::timestamp AS upper_limit 
-    FROM meter_hourly_entries 
+    FROM epp.meter_hourly_entries 
     WHERE facility_id={} AND independent_variable_id={}
 """
 
 # min_max_data.format(facility_id, meter_type)
 insert_query_facility_meter_hourly_entries = """
-    INSERT INTO facility_meter_hourly_entries (
+    INSERT INTO epp.facility_meter_hourly_entries (
         facility_id, facility_meter_detail_id, meter_id, created_by, media_url
     ) VALUES (%s, %s, %s, %s, %s)
 """
 
 insert_query_facility_iv_files_table = """
-    INSERT INTO independent_variable_file (
+    INSERT INTO epp.independent_variable_file (
         independent_variable_id,  file_path
     ) VALUES (%s, %s)
 """
@@ -76,3 +76,4 @@ iv_file_processing_query = """
 delete_file_query = """
 DELETE FROM {} where id = {} and processed=false
 """
+meter_start_date_end_data = """select meter_active, meter_inactive from epp.facility_meter_detail where id={}"""

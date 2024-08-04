@@ -7,6 +7,7 @@ from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
+from meter_uploader import MeterDataUploader
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -318,8 +319,6 @@ def weather_data():
         return jsonify({'success': False, 'error': 'Insufficient Data'}), 404
 
 
-
-
 @app.route('/insert_clean_data', methods=['POST'])
 def clean_data():
     # Fetch the DataFrame from the database
@@ -601,11 +600,17 @@ def upload_file():
     iv = False if request.form.get('iv') in [None, 'false'] else True
     facility_id = request.form.get('facility_id')
     meter_id = request.form.get('meter_id')
+    if not facility_id:
+        return jsonify({'error': "Please Provide Facility ID"})
+    if not meter_id:
+        if iv:
+            return jsonify({'error': "Please Provide Independent Variable ID"})
+        return jsonify({'error': "Please Provide Meter ID"})
     if file.filename == '':
         return jsonify({"error": "No selected file"})
     if file:
-        meter_fu = MeterIVFileUploader(file, facility_id, meter_id, iv)
-        result = meter_fu.process()
+        uploader = MeterDataUploader(file, facility_id, meter_id, iv)
+        result = uploader.process()
         return jsonify(result)
 
 
@@ -613,7 +618,7 @@ def upload_file():
 def remove_file():
     record_id = request.json.get('record_id')
     iv = request.json.get('iv')
-    table_name = 'facility_meter_hourly_entries'
+    table_name = 'epp.facility_meter_hourly_entries'
     if iv:
         table_name = 'independent_variable_file'
 
@@ -724,7 +729,8 @@ def getdates():
     elif iv_id:
         query = min_max_date_query_iv.format(facility_id, iv_id)
     else:
-        response = {"success": False, 'error': "Please provide Either of the 3 values. Meter ID, Meter Type or Independent Variable ID"}
+        response = {"success": False,
+                    'error': "Please provide Either of the 3 values. Meter ID, Meter Type or Independent Variable ID"}
         return jsonify(response), 400
     min_max_date = dbtest(query)
     min_max_date = min_max_date.dropna()

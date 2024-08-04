@@ -50,7 +50,7 @@ class AddMeterData:
             df['start_month'] = df['start_date'].dt.month
             df['end_year'] = df['end_date'].dt.year
             df['end_month'] = df['end_date'].dt.month
-            bulk_insert_df(df, 'meter_hourly_entries', record_id, 'facility_meter_hourly_entries')
+            bulk_insert_df(df, 'epp.meter_hourly_entries', record_id, 'epp.facility_meter_hourly_entries')
             # bulk_insert_df(df, 'meter_hourly_entries')
 
     @staticmethod
@@ -96,7 +96,7 @@ class AddMeterData:
                 df['end_year'] = df['end_date'].dt.year
                 df['end_month'] = df['end_date'].dt.month
                 # df, table_name, record_id, file_table
-                bulk_insert_df(df, 'meter_hourly_entries', record_id, 'independent_variable_file')
+                bulk_insert_df(df, 'epp.meter_hourly_entries', record_id, 'independent_variable_file')
             except:
                 print(f"######### Failed to process file ############ Record ID {record_id}")
 

@@ -1,7 +1,7 @@
 import pandas as pd
 from dbconnection import dbtest, db_execute_single
 from sql_queries.file_uploader import insert_query_facility_meter_hourly_entries, \
-    insert_query_facility_iv_files_table, min_max_data_meter, min_max_data_iv
+    insert_query_facility_iv_files_table, min_max_data_meter, min_max_data_iv, meter_start_date_end_data
 from utils import generate_blob_name, save_file_to_blob
 
 
@@ -43,6 +43,15 @@ class MeterIVFileUploader:
         if file_max < record_min or file_min > record_max:
             return "OK", True
         return "Duplicate Data Detected", False
+
+    def validate_file_date(self, file_start, file_end):
+        meter_active_date = dbtest(meter_start_date_end_data.format(self.meter_id))
+        meter_active_date['meter_active'] = pd.to_datetime(meter_active_date['meter_active'],
+                                                           format='%Y-%m-%d %H:%M:%S')
+        meter_active_date['meter_inactive'] = pd.to_datetime(meter_active_date['meter_inactive'],
+                                                             format='%Y-%m-%d %H:%M:%S')
+        if meter_active_date.meter_active[0] > file_start:
+            pass
 
     def process(self):
         try:

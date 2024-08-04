@@ -35,7 +35,7 @@ meter_data AS (
         date_trunc('hour', start_date) AS hour,
         date_trunc('day', start_date) AS day,
         date_trunc('month', start_date) AS month
-    FROM meter_hourly_entries
+    FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
     AND start_date >= '{start_date}' AND start_date < '{end_date_one}'
     ORDER BY meter_id, date_trunc('hour', start_date), start_date
