@@ -1,46 +1,165 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Formik, Field, Form, useFormikContext } from "formik";
+import { Formik, Field, Form } from "formik";
 import { DatePicker } from "@mui/x-date-pickers";
-import { TextField, Select, MenuItem } from "@mui/material";
+import {
+  TextField,
+  Select,
+  MenuItem,
+  styled,
+  Button,
+  Box,
+  Typography,
+} from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { MiniTable } from "components/MiniTable";
 import {
   getIncentiveSettings,
   updateIncentiveSettings,
 } from "../../../../redux/admin/actions/adminPerformanceActions";
-import debounce from "lodash.debounce";
 import Loader from "pages/Loader";
+import { incentiveSettingValidationSchema } from "utils/validations/formValidation";
 
-const DatePickerField = ({ field, form: { setFieldValue } }) => {
-  const { submitForm } = useFormikContext();
+const StyledHelperText = styled(Typography)(({ theme }) => ({
+  color: theme.palette.error.main,
+  marginBottom: theme.spacing(-1.5),
+  textAlign: "left",
+  fontSize: "0.75rem",
+}));
+
+const DatePickerField = ({ field, form: { setFieldValue, values } }) => {
+  const handleDateChange = (date) => {
+    if (date) {
+      // Adjust for timezone offset
+      const adjustedDate = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+      );
+      const formattedDate = adjustedDate.toISOString().split("T")[0];
+      setFieldValue(field.name, formattedDate);
+
+      const fieldNumber = parseInt(field.name.slice(-1));
+      const isStartDate = field.name.includes("StartDate");
+
+      if (isStartDate) {
+        // Set end date to one year later (minus one day) for the current period
+        const endDate = new Date(adjustedDate);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        endDate.setDate(endDate.getDate() - 1);
+        setFieldValue(
+          `p4pEndDate${fieldNumber}`,
+          endDate.toISOString().split("T")[0]
+        );
+
+        // Set start and end dates for subsequent periods
+        for (let i = fieldNumber + 1; i <= 3; i++) {
+          const nextStartDate = new Date(endDate);
+          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          setFieldValue(
+            `p4pStartDate${i}`,
+            nextStartDate.toISOString().split("T")[0]
+          );
+
+          const nextEndDate = new Date(nextStartDate);
+          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
+          nextEndDate.setDate(nextEndDate.getDate() - 1);
+          setFieldValue(
+            `p4pEndDate${i}`,
+            nextEndDate.toISOString().split("T")[0]
+          );
+
+          endDate.setTime(nextEndDate.getTime());
+        }
+      } else {
+        // If it's an end date, update subsequent periods
+        for (let i = fieldNumber + 1; i <= 3; i++) {
+          const nextStartDate = new Date(adjustedDate);
+          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          setFieldValue(
+            `p4pStartDate${i}`,
+            nextStartDate.toISOString().split("T")[0]
+          );
+
+          const nextEndDate = new Date(nextStartDate);
+          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
+          nextEndDate.setDate(nextEndDate.getDate() - 1);
+          setFieldValue(
+            `p4pEndDate${i}`,
+            nextEndDate.toISOString().split("T")[0]
+          );
+
+          adjustedDate.setTime(nextEndDate.getTime());
+        }
+      }
+    } else {
+      setFieldValue(field.name, null);
+    }
+  };
+
+  const getMinMaxDates = () => {
+    const fieldNumber = parseInt(field.name.slice(-1));
+    const isStartDate = field.name.includes("StartDate");
+
+    if (isStartDate) {
+      const prevEndDate =
+        fieldNumber > 1 ? values[`p4pEndDate${fieldNumber - 1}`] : null;
+      const currentEndDate = values[`p4pEndDate${fieldNumber}`];
+      return {
+        minDate: prevEndDate ? new Date(prevEndDate) : null,
+        maxDate: currentEndDate ? new Date(currentEndDate) : null,
+      };
+    } else {
+      const currentStartDate = values[`p4pStartDate${fieldNumber}`];
+      return {
+        minDate: currentStartDate ? new Date(currentStartDate) : null,
+        maxDate: null,
+      };
+    }
+  };
+
+  const { minDate, maxDate } = getMinMaxDates();
 
   return (
-    <DatePicker
-      value={field.value ? new Date(field.value) : null}
-      onChange={(date) => {
-        setFieldValue(field.name, date ? date.toISOString().split("T")[0] : "");
-        submitForm();
-      }}
-      slots={{ openPickerIcon: ExpandMoreIcon }}
-      slotProps={{
-        textField: {
-          helperText: "required",
-          // error: !field.value, // Show error state if field is empty
-        },
-      }}
-    />
+    <div>
+      <StyledHelperText>*</StyledHelperText>
+      <DatePicker
+        value={field.value ? new Date(field.value) : null}
+        onChange={handleDateChange}
+        slots={{ openPickerIcon: ExpandMoreIcon }}
+        minDate={minDate}
+        maxDate={maxDate}
+        format="MM/dd/yyyy"
+        sx={{
+          "& .MuiInputBase-input": {
+            color: "#242424",
+          },
+        }}
+      />
+    </div>
   );
 };
 
-const InputField = ({ field, form: { setFieldValue } }) => {
-  const { submitForm } = useFormikContext();
+const InputField = ({ field }) => {
+  const handleKeyDown = (evt) => {
+    // Allow only numbers, decimal point, backspace, delete, arrow keys
+    if (
+      !/[\d.]/.test(evt.key) &&
+      !["Backspace", "Delete", "ArrowLeft", "ArrowRight"].includes(evt.key)
+    ) {
+      evt.preventDefault();
+    }
 
-  const handleChange = (event) => {
-    const { value } = event.target;
-    const numericValue = value.replace(/[^0-9.]/g, "");
-    setFieldValue(field.name, numericValue ? Number(numericValue) : "");
-    submitForm();
+    // Prevent multiple decimal points
+    if (evt.key === "." && field.value.includes(".")) {
+      evt.preventDefault();
+    }
+  };
+
+  const handleChange = (evt) => {
+    const value = evt.target.value;
+    // Allow empty string or valid number with optional decimal point
+    if (value === "" || /^\d*\.?\d*$/.test(value)) {
+      field.onChange(evt);
+    }
   };
 
   return (
@@ -48,41 +167,30 @@ const InputField = ({ field, form: { setFieldValue } }) => {
       {...field}
       type="text"
       value={field.value || ""}
-      inputProps={{
-        inputMode: "numeric",
-        pattern: "[0-9]*",
+      onKeyDown={handleKeyDown}
+      onChange={handleChange}
+      sx={{
+        "& .MuiInputBase-input": {
+          color: "#242424",
+        },
       }}
-      onKeyDown={(evt) =>
-        ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()
-      }
-      onBlur={handleChange}
     />
   );
 };
 
-const SelectField = ({ field }) => {
-  const { setFieldValue, submitForm } = useFormikContext();
-
-  useEffect(() => {
-    if (!field.value) {
-      setFieldValue(field.name, "Under-review");
-    }
-  }, [field.name, field.value, setFieldValue]);
-
+const SelectField = ({ field, form: { setFieldValue } }) => {
   return (
     <Select
       {...field}
-      onChange={(e) => {
-        const value = e.target.value;
-        setFieldValue(field.name, value);
-        submitForm();
-      }}
-      displayEmpty={true}
+      onChange={(e) => setFieldValue(field.name, e.target.value)}
+      // displayEmpty={true}
       sx={{
         maxWidth: "164px",
+        minWidth: "156px",
         fontSize: "1rem",
         "& .MuiSelect-select": {
           fontSize: "1rem",
+          color: "#242424",
         },
       }}
     >
@@ -104,6 +212,7 @@ const IncentiveSettingsMicroComponent = () => {
   const { incentiveSettings, loading, error } = useSelector(
     (state) => state.adminPerformanceReducer
   );
+  const [formValues, setFormValues] = useState(null);
 
   useEffect(() => {
     if (facility_id) {
@@ -113,62 +222,54 @@ const IncentiveSettingsMicroComponent = () => {
     }
   }, [dispatch, facility_id]);
 
-  const requiredFields = [
-    "p4pStartDate1",
-    "p4pEndDate1",
-    "p4pStartDate2",
-    "p4pEndDate2",
-    "p4pStartDate3",
-    "p4pEndDate3",
-  ];
+  useEffect(() => {
+    if (incentiveSettings) {
+      setFormValues({
+        p4pStartDate1: incentiveSettings.p4pStartDate1 || "",
+        p4pEndDate1: incentiveSettings.p4pEndDate1 || "",
+        p4pStartDate2: incentiveSettings.p4pStartDate2 || "",
+        p4pEndDate2: incentiveSettings.p4pEndDate2 || "",
+        p4pStartDate3: incentiveSettings.p4pStartDate3 || "",
+        p4pEndDate3: incentiveSettings.p4pEndDate3 || "",
+        preProjectIncentive: incentiveSettings.preProjectIncentive || "",
+        preProjectIncentiveStatus:
+          incentiveSettings.preProjectIncentiveStatus || "",
+        p4pIncentiveStatus1: incentiveSettings.p4pIncentiveStatus1 || "",
+        p4pIncentiveStatus2: incentiveSettings.p4pIncentiveStatus2 || "",
+        p4pIncentiveStatus3: incentiveSettings.p4pIncentiveStatus3 || "",
+        onPeakIncentiveRate: incentiveSettings.onPeakIncentiveRate || "",
+        offPeakIncentiveRate: incentiveSettings.offPeakIncentiveRate || "",
+        minimumSavings: incentiveSettings.minimumSavings || "",
+      });
+    }
+  }, [incentiveSettings]);
 
-  const validateForm = (values) => {
-    return requiredFields.every(
-      (field) => values[field] && values[field].trim() !== ""
-    );
-  };
-
-  const debouncedUpdateSettings = useCallback(
-    debounce((values) => {
-      if (!validateForm(values)) {
-        console.log("Not all required fields are filled");
-        return; // Don't proceed with API call if validation fails
+  const handleSubmit = (values) => {
+    const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      if (typeof value === "string" && value.trim() === "") {
+        delete acc[key];
+      } else {
+        acc[key] = value;
       }
+      return acc;
+    }, {});
 
-      const updatedValues = Object.entries(values).reduce(
-        (acc, [key, value]) => {
-          if (typeof value === "string" && value.trim() === "") {
-            delete acc[key];
-          } else {
-            acc[key] = value;
-          }
-          return acc;
-        },
-        {}
-      );
+    const payload = {
+      ...updatedValues,
+      preProjectIncentive: values.preProjectIncentive,
+      onPeakIncentiveRate: values.onPeakIncentiveRate,
+      offPeakIncentiveRate: values.offPeakIncentiveRate,
+      minimumSavings: values.minimumSavings,
+    };
 
-      const updatedSettingsPayload = {
-        ...updatedValues,
-        preProjectIncentive: Number(values.preProjectIncentive),
-        onPeakIncentiveRate: Number(values.onPeakIncentiveRate),
-        offPeakIncentiveRate: Number(values.offPeakIncentiveRate),
-        minimumSavings: Number(values.minimumSavings),
-        preProjectIncentiveStatus: values.preProjectIncentiveStatus,
-        p4pIncentiveStatus1: values.p4pIncentiveStatus1,
-        p4pIncentiveStatus2: values.p4pIncentiveStatus2,
-        p4pIncentiveStatus3: values.p4pIncentiveStatus3,
-      };
-
-      dispatch(updateIncentiveSettings(updatedSettingsPayload, facility_id))
-        .then(() => {
-          dispatch(getIncentiveSettings(facility_id));
-        })
-        .catch((error) => {
-          console.error("Error updating settings:", error);
-        });
-    }, 1500),
-    [dispatch]
-  );
+    dispatch(updateIncentiveSettings(payload, facility_id))
+      .then(() => {
+        dispatch(getIncentiveSettings(facility_id));
+      })
+      .catch((error) => {
+        console.error("Error updating settings:", error);
+      });
+  };
 
   const userColumn = [
     { Header: "", accessor: "id" },
@@ -177,27 +278,6 @@ const IncentiveSettingsMicroComponent = () => {
     { Header: "2nd P4P", accessor: "second_p4p" },
     { Header: "3rd P4P", accessor: "third_p4p" },
   ];
-
-  const initialValues = {
-    p4pStartDate1: incentiveSettings?.p4pStartDate1 || "",
-    p4pEndDate1: incentiveSettings?.p4pEndDate1 || "",
-    p4pStartDate2: incentiveSettings?.p4pStartDate2 || "",
-    p4pEndDate2: incentiveSettings?.p4pEndDate2 || "",
-    p4pStartDate3: incentiveSettings?.p4pStartDate3 || "",
-    p4pEndDate3: incentiveSettings?.p4pEndDate3 || "",
-    preProjectIncentive: incentiveSettings?.preProjectIncentive || "",
-    preProjectIncentiveStatus:
-      incentiveSettings?.preProjectIncentiveStatus || "Under-review",
-    p4pIncentiveStatus1:
-      incentiveSettings?.p4pIncentiveStatus1 || "Under-review",
-    p4pIncentiveStatus2:
-      incentiveSettings?.p4pIncentiveStatus2 || "Under-review",
-    p4pIncentiveStatus3:
-      incentiveSettings?.p4pIncentiveStatus3 || "Under-review",
-    onPeakIncentiveRate: incentiveSettings?.onPeakIncentiveRate || "",
-    offPeakIncentiveRate: incentiveSettings?.offPeakIncentiveRate || "",
-    minimumSavings: incentiveSettings?.minimumSavings || "",
-  };
 
   const renderField = (fieldName, type) => {
     switch (type) {
@@ -212,89 +292,103 @@ const IncentiveSettingsMicroComponent = () => {
     }
   };
 
-  return (
-    <>
-      <Formik
-        initialValues={initialValues}
-        onSubmit={debouncedUpdateSettings}
-        enableReinitialize
-      >
-        {({ values }) => (
-          <Form>
-            <MiniTable
-              columns={userColumn}
-              data={[
-                {
-                  id: "Pay-for-performance start",
-                  first_column: null,
-                  first_p4p: renderField("p4pStartDate1", "date"),
-                  second_p4p: renderField("p4pStartDate2", "date"),
-                  third_p4p: renderField("p4pStartDate3", "date"),
-                },
-                {
-                  id: "Pay-for-performance end",
-                  first_column: null,
-                  first_p4p: renderField("p4pEndDate1", "date"),
-                  second_p4p: renderField("p4pEndDate2", "date"),
-                  third_p4p: renderField("p4pEndDate3", "date"),
-                },
-                {
-                  id: "Pre-Project incentive ($)",
-                  first_column: renderField("preProjectIncentive", "number"),
-                  first_p4p: null,
-                  second_p4p: null,
-                  third_p4p: null,
-                },
-                {
-                  id: "Pre-Project incentive status",
-                  first_column: renderField(
-                    "preProjectIncentiveStatus",
-                    "select"
-                  ),
-                  first_p4p: null,
-                  second_p4p: null,
-                  third_p4p: null,
-                },
-                {
-                  id: "Pay-for-performance incentive status",
-                  first_column: null,
-                  first_p4p: renderField("p4pIncentiveStatus1", "select"),
-                  second_p4p: renderField("p4pIncentiveStatus2", "select"),
-                  third_p4p: renderField("p4pIncentiveStatus3", "select"),
-                },
-                {
-                  id: "On-peak Pay-for-performance incentive rate ($/kWh)",
-                  first_column: null,
-                  first_p4p: renderField("onPeakIncentiveRate", "number"),
-                  second_p4p: null,
-                  third_p4p: null,
-                },
-                {
-                  id: "Off-peak Pay-for-performance incentive rate ($/kWh)",
-                  first_column: null,
-                  first_p4p: renderField("offPeakIncentiveRate", "number"),
-                  second_p4p: null,
-                  third_p4p: null,
-                },
-                {
-                  id: "Minimum savings (%)",
-                  first_column: renderField("minimumSavings", "number"),
-                  first_p4p: null,
-                  second_p4p: null,
-                  third_p4p: null,
-                },
-              ]}
-            />
-          </Form>
-        )}
-      </Formik>
+  if (!formValues) {
+    return (
       <Loader
         sectionLoader
         minHeight="100vh"
         loadingState={loading}
         loaderPosition="fixed"
       />
-    </>
+    );
+  }
+
+  return (
+    <Formik
+      initialValues={formValues}
+      validationSchema={incentiveSettingValidationSchema}
+      onSubmit={handleSubmit}
+      enableReinitialize
+    >
+      {({ values, isValid, dirty }) => (
+        <Form className="incentive-settings-table">
+          <MiniTable
+            columns={userColumn}
+            data={[
+              {
+                id: "Pay-for-performance start",
+                first_column: null,
+                first_p4p: renderField("p4pStartDate1", "date"),
+                second_p4p: renderField("p4pStartDate2", "date"),
+                third_p4p: renderField("p4pStartDate3", "date"),
+              },
+              {
+                id: "Pay-for-performance end",
+                first_column: null,
+                first_p4p: renderField("p4pEndDate1", "date"),
+                second_p4p: renderField("p4pEndDate2", "date"),
+                third_p4p: renderField("p4pEndDate3", "date"),
+              },
+              {
+                id: "Pre-Project incentive ($)",
+                first_column: renderField("preProjectIncentive", "number"),
+                first_p4p: null,
+                second_p4p: null,
+                third_p4p: null,
+              },
+              {
+                id: "Pre-Project incentive status",
+                first_column: renderField(
+                  "preProjectIncentiveStatus",
+                  "select"
+                ),
+                first_p4p: null,
+                second_p4p: null,
+                third_p4p: null,
+              },
+              {
+                id: "Pay-for-performance incentive status",
+                first_column: null,
+                first_p4p: renderField("p4pIncentiveStatus1", "select"),
+                second_p4p: renderField("p4pIncentiveStatus2", "select"),
+                third_p4p: renderField("p4pIncentiveStatus3", "select"),
+              },
+              {
+                id: "On-peak Pay-for-performance incentive rate ($/kWh)",
+                first_column: null,
+                first_p4p: renderField("onPeakIncentiveRate", "number"),
+                second_p4p: null,
+                third_p4p: null,
+              },
+              {
+                id: "Off-peak Pay-for-performance incentive rate ($/kWh)",
+                first_column: null,
+                first_p4p: renderField("offPeakIncentiveRate", "number"),
+                second_p4p: null,
+                third_p4p: null,
+              },
+              {
+                id: "Minimum savings (%)",
+                first_column: renderField("minimumSavings", "number"),
+                first_p4p: null,
+                second_p4p: null,
+                third_p4p: null,
+              },
+            ]}
+          />
+          <Box mt={4} display="flex" justifyContent="center">
+            <Button
+              type="submit"
+              disabled={!(isValid && dirty)}
+              variant="contained"
+              color="primary"
+            >
+              Save settings
+            </Button>
+          </Box>
+        </Form>
+      )}
+    </Formik>
   );
 };
 

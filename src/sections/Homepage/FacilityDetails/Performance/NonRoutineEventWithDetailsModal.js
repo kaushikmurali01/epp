@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Grid, Typography, Button, Link } from "@mui/material";
+import { Grid, Typography, Button, Link, Box } from "@mui/material";
 import { deleteNonRoutineEvent, getNonRoutineEventDetails, getNonRoutineEventList } from "../../../../redux/superAdmin/actions/performanceAction";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const NonRoutineEventWithDetailsModal = ({
   eventId,
@@ -20,12 +21,38 @@ const NonRoutineEventWithDetailsModal = ({
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
   );
 
-  useEffect(() => {
-    dispatch(getNonRoutineEventDetails(eventId));
-  }, [dispatch, eventId]);
+useEffect(() => {
+  dispatch(getNonRoutineEventDetails(eventId));
+}, [dispatch, eventId, facility_id, meter_type]);
+
+const getUploadedFiles = () => {
+  if (
+    nonRoutineEventDetails.dataEntries &&
+    nonRoutineEventDetails.dataEntries.length > 0
+  ) {
+    const firstEntry = nonRoutineEventDetails.dataEntries[0];
+    if (firstEntry.type === 2) {
+      return nonRoutineEventDetails.dataEntries.map((entry, index) => {
+        const extension = entry.file_url
+          .split("/")
+          .pop()
+          .split(".")
+          .pop()
+          .split("?")[0];
+        return {
+          id: entry.id,
+          file_url: entry.file_url,
+          name: `non-routine-data-file-${index + 1}`,
+          fullName: `non-routine-data-file-${index + 1}.${extension}`,
+        };
+      });
+    }
+  }
+  return [];
+};
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-CA");
+    return new Date(dateString).toLocaleDateString();
   };
 
   const handleDeleteEvent = () => {
@@ -161,32 +188,38 @@ const NonRoutineEventWithDetailsModal = ({
         </Grid>
       )}
 
-      {nonRoutineEventDetails.dataEntries &&
-        nonRoutineEventDetails.dataEntries.some((entry) => entry.file_url) && (
-          <Grid container sx={{ marginTop: "10px" }}>
-            <Grid item xs={12} md={12}>
+      {getUploadedFiles().length > 0 && (
+        <Box sx={{ marginTop: "1rem" }}>
+          <Typography
+            sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
+          >
+            Uploaded files:
+          </Typography>
+          {getUploadedFiles().map((file, index) => (
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: "0.5rem",
+              }}
+            >
               <Typography
-                sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
-              >
-                Upload data in bulk for '{nonRoutineEventDetails.event_name}'
-              </Typography>
-              <Link
-                underline="hover"
-                sx={{
-                  fontSize: "14px !important",
-                  color: "#2C77E9",
-                  cursor: "pointer",
-                }}
-              >
-                {
-                  nonRoutineEventDetails.dataEntries.find(
-                    (entry) => entry.file_url
-                  ).file_url
+                variant="body1"
+                sx={{ color: "blue.main", cursor: "pointer" }}
+                onClick={() =>
+                  downloadFileFromUrl(
+                    file.file_url,
+                    file.name || `non_routine_file_${index + 1}`
+                  )
                 }
-              </Link>
-            </Grid>
-          </Grid>
-        )}
+              >
+                {file.fullName}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
+      )}
 
       <Grid sx={{ marginTop: "20px" }}>
         <Button

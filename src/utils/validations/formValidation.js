@@ -503,7 +503,7 @@ export const nonRoutineDataValidationSchema = Yup.object().shape({
     Yup.object().shape({
       start_date: Yup.date().required("Start date is required"),
       end_date: Yup.date().required("End date is required"),
-      non_routine_adjustment: Yup.number().optional(),
+      non_routine_adjustment: Yup.number().required("Data is required"),
     })
   ),
 });
@@ -519,4 +519,20 @@ export const emailFormValidationSchema = Yup.object().shape({
   body: Yup.string()
     .required("Email body is required")
     .min(10, "Email body must be at least 10 characters"),
+});
+
+export const addEmailTemplateValidationSchema = Yup.object().shape({
+  name: Yup.string().required('Name is required'),
+  subject: Yup.string().required('Subject is required'),
+  body: Yup.string().required('Email content is required'),
+});
+
+export const incentiveSettingValidationSchema = Yup.object().shape({
+  p4pStartDate1: Yup.date().required("Required"),
+  p4pEndDate1: Yup.date().required("Required"),
+  p4pStartDate2: Yup.date().required("Required"),
+  p4pEndDate2: Yup.date().required("Required"),
+  p4pStartDate3: Yup.date().required("Required"),
+  p4pEndDate3: Yup.date().required("Required"),
+  // Add other fields as needed
 });

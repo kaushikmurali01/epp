@@ -139,3 +139,12 @@ body {
         height: 450px;
       }
 }
+
+.incentive-settings-table{
+    .css-1wla4b3-MuiTable-root .MuiTableCell-root:first-of-type {
+            min-width: 13rem;
+        }
+    .css-1wla4b3-MuiTable-root .MuiTableCell-root:last-child {
+        text-align: left;
+    }
+}

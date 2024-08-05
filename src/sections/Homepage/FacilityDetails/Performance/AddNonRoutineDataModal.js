@@ -27,6 +27,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
 import { nonRoutineDataValidationSchema } from "utils/validations/formValidation";
+import { downloadFileFromUrl } from "utils/helper/helper";
 
 const AddNonRoutineDataModal = ({
   event_id,
@@ -70,6 +71,7 @@ const AddNonRoutineDataModal = ({
             if (firstEntry.type === 1) {
               // Handle filled data (type 1)
               setDataType(1);
+              setModalNonRoutineTabs("filledData");
               setInitialData(
                 nonRoutineEventDetails.dataEntries.map((entry) => ({
                   id: entry.id,
@@ -83,12 +85,17 @@ const AddNonRoutineDataModal = ({
             } else if (firstEntry.type === 2) {
               // Handle file upload (type 2)
               setDataType(2);
+              setModalNonRoutineTabs("uploadData");
               setUploadedFiles(
-                nonRoutineEventDetails.dataEntries.map((entry, index) => ({
-                  id: entry.id,
-                  file_url: entry.file_url,
-                  name: `non-routine-data-file-${index + 1}`,
-                }))
+                nonRoutineEventDetails.dataEntries.map((entry, index) => {
+                  const extension = entry.file_url.split("/").pop().split(".").pop().split("?")[0];
+                  return {
+                    id: entry.id,
+                    file_url: entry.file_url,
+                    name: `non-routine-data-file-${index + 1}`,
+                    fullName: `non-routine-data-file-${index + 1}.${extension}`,
+                  };
+                })
               );
               setInitialData([]);
             }
@@ -98,6 +105,7 @@ const AddNonRoutineDataModal = ({
             setInitialData([]);
             setUploadedFiles([]);
             setFileUrl("");
+            setModalNonRoutineTabs("filledData");
           }
         })
         .catch((error) => {
@@ -109,6 +117,7 @@ const AddNonRoutineDataModal = ({
       setInitialData([]);
       setUploadedFiles([]);
       setFileUrl("");
+      setModalNonRoutineTabs("filledData");
     }
   }, [editMode]);
 
@@ -151,12 +160,17 @@ const AddNonRoutineDataModal = ({
         const newFile = {
           id: null,
           file_url: data?.sasTokenUrl,
-          name: `non-routine-data-file-${uploadedFiles.length + 1
-            }${fileExtension}`,
+          name: `non-routine-data-file-${
+            uploadedFiles.length + 1
+          }`,
+          fullName: `non-routine-data-file-${
+            uploadedFiles.length + 1
+          }${fileExtension}`,
         };
         setFieldValue("type", 2);
         setNonRoutineFile(selectedFile);
         setIsFileUploaded(true);
+        setUploadedFiles([...uploadedFiles, newFile]);
       })
       .catch((error) => {
         console.error("Error uploading file:", error);
@@ -171,27 +185,6 @@ const AddNonRoutineDataModal = ({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
-
-  const downloadFile = (fileUrl, fileName) => {
-    fetch(fileUrl)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.style.display = "none";
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-      })
-      .catch((error) => console.error("Error downloading file:", error));
-  };
-
-  const getFileExtension = (url) => {
-    const parts = url.split(".");
-    return `.${parts[parts.length - 1].split("?")[0]}`;
   };
 
   return (
@@ -224,11 +217,18 @@ const AddNonRoutineDataModal = ({
             file_url: newFile ? newFile.file_url : "",
           };
         }
-        
+
         dispatch(addNonRoutineEventData(nonRoutineDataPayload))
           .then(() => {
             closeAddNonRoutineDataModal();
-            dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
+            dispatch(
+              getNonRoutineEventList(
+                facility_id,
+                meter_type,
+                page,
+                itemsPerPage
+              )
+            );
           })
           .catch(console.error());
         setSubmitting(false);
@@ -265,12 +265,12 @@ const AddNonRoutineDataModal = ({
                 <Tab
                   value="filledData"
                   label="Filled data"
-                  sx={{ minWidth: "10rem" }}
+                  sx={{ minWidth: "10rem", textTransform: "revert" }}
                 />
                 <Tab
                   value="uploadData"
                   label="Upload data in bulk"
-                  sx={{ minWidth: "10rem" }}
+                  sx={{ minWidth: "10rem", textTransform: "revert" }}
                 />
               </Tabs>
             </Grid>
@@ -281,9 +281,16 @@ const AddNonRoutineDataModal = ({
                 <MuiTable size="small">
                   <TableHead>
                     <TableRow sx={{ backgroundColor: "#D9D9D9" }}>
-                      <TableCell>Start date*</TableCell>
-                      <TableCell>End date*</TableCell>
-                      <TableCell>Non-routine adjustment</TableCell>
+                      <TableCell>
+                        Start date<span className="asterisk">*</span>
+                      </TableCell>
+                      <TableCell>
+                        End date<span className="asterisk">*</span>
+                      </TableCell>
+                      <TableCell>
+                        Non-routine adjustment
+                        <span className="asterisk">*</span>
+                      </TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
@@ -307,7 +314,7 @@ const AddNonRoutineDataModal = ({
                                     input: { color: "#111" },
                                   }}
                                   disableFuture
-                                  format="dd/MM/yyyy"
+                                  format="MM/dd/yyyy"
                                   minDate={parseISO(event_from_period)}
                                   maxDate={parseISO(event_to_period)}
                                 />
@@ -333,7 +340,7 @@ const AddNonRoutineDataModal = ({
                                   }}
                                   minDate={parseISO(event_from_period)}
                                   maxDate={parseISO(event_to_period)}
-                                  format="dd/MM/yyyy"
+                                  format="MM/dd/yyyy"
                                 />
                                 {touched.data_entries?.[index]?.end_date &&
                                   errors.data_entries?.[index]?.end_date && (
@@ -344,7 +351,16 @@ const AddNonRoutineDataModal = ({
                               </TableCell>
                               <TableCell>
                                 <TextField
+                                  sx={{
+                                    "& .MuiInputBase-input": {
+                                      color: "#242424",
+                                    },
+                                  }}
                                   value={entry.non_routine_adjustment}
+                                  onKeyDown={(evt) =>
+                                    ["e", "E", "+", "-"].includes(evt.key) &&
+                                    evt.preventDefault()
+                                  }
                                   onChange={(e) => {
                                     setFieldValue(
                                       `data_entries[${index}].non_routine_adjustment`,
@@ -430,24 +446,24 @@ const AddNonRoutineDataModal = ({
           )}
           {modalNonRoutineTabs === "uploadData" && (
             <Box>
-              <Typography variant="h5">
-                Upload data in bulk for 'non-routine event name'
-              </Typography>
-              <Typography
-                variant="body2"
-                gutterBottom
-                sx={{ color: "#242424", fontStyle: "italic" }}
-              >
-                Upload the excel file, and refer to{" "}
-                <Link
-                  underline="hover"
-                  color={"blue.main"}
-                  sx={{ cursor: "pointer" }}
+              <Typography variant="h5">Upload data in bulk</Typography>
+              {!nonRoutineFile && (
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ color: "#242424", fontStyle: "italic" }}
                 >
-                  Non-Routine Adjustment spreadsheet
-                </Link>{" "}
-                for the formatting details.
-              </Typography>
+                  Upload the excel file, and refer to{" "}
+                  <Link
+                    underline="hover"
+                    color={"blue.main"}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Non-Routine Adjustment spreadsheet
+                  </Link>{" "}
+                  for the formatting details.
+                </Typography>
+              )}
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
               >
@@ -457,7 +473,8 @@ const AddNonRoutineDataModal = ({
                   >
                     <Typography
                       variant="body1"
-                      sx={{ color: "blue.main", cursor: "pointer" }}>
+                      sx={{ color: "blue.main", cursor: "pointer" }}
+                    >
                       {nonRoutineFile.name}
                     </Typography>
                     <Link
@@ -531,9 +548,14 @@ const AddNonRoutineDataModal = ({
                       <Typography
                         variant="body1"
                         sx={{ color: "blue.main", cursor: "pointer" }}
-                        onClick={() => downloadFile(file.file_url, file.name)}
+                        onClick={() =>
+                          downloadFileFromUrl(
+                            file.file_url,
+                            file.name || `non_routine_file_${index + 1}`
+                          )
+                        }
                       >
-                        {file.name}
+                        {file.fullName}
                       </Typography>
                       <Link
                         underline="hover"
@@ -543,7 +565,7 @@ const AddNonRoutineDataModal = ({
                           cursor: "pointer",
                         }}
                         onClick={() => {
-                          if (file?.id) { 
+                          if (file?.id) {
                             dispatch(deleteNonRoutineEventData(file.id))
                               .then(() => {
                                 closeAddNonRoutineDataModal();

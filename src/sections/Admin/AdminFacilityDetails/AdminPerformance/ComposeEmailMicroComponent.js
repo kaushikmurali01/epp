@@ -155,7 +155,6 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
       ],
       ["link", "image"],
       ["clean"],
-      ["table"],
     ],
   };
 
@@ -171,7 +170,6 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
     "indent",
     "link",
     "image",
-    "table",
   ];
 
   const [isEditableEditor, setIsEditableEditor] = useState(true);

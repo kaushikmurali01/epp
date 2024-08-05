@@ -167,7 +167,7 @@ const PerformanceSettingComponent = () => {
     setAddContactModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      headerText: contactId ? "Edit Contact" : "Add Contact",
+      headerText: contactId ? "Edit contact" : "Add contact",
       modalBodyContent: (
         <AddEditContactModalForm
           contactId={contactId}

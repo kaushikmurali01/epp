@@ -158,6 +158,7 @@ const ReportsAndStudies = () => {
           pageInfo={measurePageInfo}
           setAddMeasureModalConfig={setAddMeasureModalConfig}
           openAlertMessageModal={openAlertMessageModal}
+          key={Date.now()}
         />
       ),
     }));
@@ -223,9 +224,9 @@ const ReportsAndStudies = () => {
     },
     buttonsUI: {
       saveButton: false,
-      cancelButton: true,
+      cancelButton: false,
       saveButtonName: "",
-      cancelButtonName: "Ok",
+      cancelButtonName: "",
       saveButtonClass: "",
       cancelButtonClass: "",
     },
@@ -235,6 +236,11 @@ const ReportsAndStudies = () => {
   });
 
   const openAlertMessageModal = (message) => {
+    setAddMeasureModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
+
     setAlertMessageModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -243,13 +249,43 @@ const ReportsAndStudies = () => {
   };
 
   const MessageComponent = ({ message }) => {
+    function handleReturnButton() {
+      setAlertMessageModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    }
+    function handleSendHelpButton() {
+      const body = { status: "REQUESTED" };
+      // dispatch(submitRejectedBaselineDB(baseline_id, body));
+      setAlertMessageModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    }
     return (
       <Box>
         <Typography>{message}</Typography>
+        <Grid container sx={{ justifyContent: "center" }} gap={2} mt={4}>
+          <Button
+            sx={{
+              background: "none",
+              color: "#242424",
+              borderColor: "#242424",
+            }}
+            variant="outlined"
+            onClick={handleReturnButton}
+          >
+            Return back
+          </Button>
+          <Button variant="contained" onClick={handleSendHelpButton}>
+            Send help request
+          </Button>
+        </Grid>
       </Box>
     );
   };
-  
+
   return (
     <Box
       sx={{
