@@ -278,6 +278,8 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
     },
     headerText: "Delete Meter",
     headerSubText: "Are you sure you want to delete this meter?",
@@ -507,7 +509,11 @@ const EntriesListing = ({
       setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
     }))
        .then((data) => {
-
+        // setHourlyEntryFile
+        console.log(data, "check data");
+        if(data?.message === undefined || data === undefined) {
+          setHourlyEntryFile(null)
+        }
         setImgUploadData(data);
         setIsUploading(false)
         setUploadProgress(100); // when the upload is confirmed
@@ -542,6 +548,7 @@ const EntriesListing = ({
         });
         // reset
         setHourlyEntryFile(null);
+        setImgUploadData("")
         setAcceptTermsAndCondition(false);
         setUploadDataFormVisible(false);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -556,14 +563,16 @@ const EntriesListing = ({
       });
   };
 
-  const deleteFile = () => {
+  const deleteFile = (imgData) => {
+
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.DELETE_HOURLY_ENTRIES_FILE;
     const payload = {
-      record_id: imgUploadData?.record_id,
+      record_id: imgData?.record_id,
       iv: false,  // for hourly data independent variable will be false...
     };
 
+    console.log(imgData, apiURL, payload, "checking upload data")
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
@@ -841,11 +850,7 @@ const EntriesListing = ({
           />
         </Box>
       ) : uploadDataFormVisible && (
-        <React.Fragment>
-
           <Box>
-          
-          <React.Fragment>
             <Box>
                   <Typography variant="h5">
                     Upload data in bulk for this meter
@@ -888,7 +893,7 @@ const EntriesListing = ({
                       </>
                   ): (
                     <React.Fragment>
-                      {hourlyEntryFile ? 
+                      {imgUploadData?.record_id ? 
                       <Box sx={{marginTop: '1.5rem'}}>
                           <Typography
                             variant="body2"
@@ -903,20 +908,20 @@ const EntriesListing = ({
                               sx={{ color: "danger.main",display: "inline-block", marginLeft: "1rem", cursor: "pointer" }}
                               onClick={(event) => {
                                 event.stopPropagation();
-                                deleteFile();
+                                deleteFile(imgUploadData);
                               }}
                             >
                               Delete
                             </Typography>
                             {imgUploadData?.error && 
                               <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
-                              <Typography
-                                variant="small"
-                                sx={{ color: "danger.main", }}
-                              
-                              >
-                                {imgUploadData?.error}
-                              </Typography>
+                                <Typography
+                                  variant="small"
+                                  sx={{ color: "danger.main", }}
+                                
+                                >
+                                  {imgUploadData?.error}
+                                </Typography>
                               </Stack>
                           }
                       </Box>
@@ -947,6 +952,18 @@ const EntriesListing = ({
                             onChange={handleFileChange}
                             accept=".xlsx,.csv,.xml,text/xml"
                           />
+
+                            {imgUploadData?.error && 
+                              <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
+                                <Typography
+                                  variant="small"
+                                  sx={{ color: "danger.main", }}
+                                
+                                >
+                                  {imgUploadData?.error}
+                                </Typography>
+                              </Stack>
+                              }
                       </Box>
                     }
                          
@@ -957,11 +974,9 @@ const EntriesListing = ({
                     </React.Fragment>
                   )}
 
-            </Box>
-          </React.Fragment>  
-          
+            </Box>          
         
-            <React.Fragment>
+            <Box>
               <Grid container mb={2} mt={2}>
                 <FormControlLabel
                   control={
@@ -992,21 +1007,15 @@ const EntriesListing = ({
               >
                 Upload
               </Button>
-            </React.Fragment>
-            
-            
-
+            </Box>
           </Box>
-
-       
-        </React.Fragment>
       ) }
 
       {/* show here Energy use by hourly basis  graph */}
-      <Box className="hourly-graph-row" marginTop="1.5rem">
-        <Typography variant="h6">
+      <Box className="hourly-graph-row" >
+        {/* <Typography variant="h6">
           Energy use by hourly basis
-        </Typography>
+        </Typography> */}
         <Stack direction="row" sx={{ width: '100%' }}>
           <Stack direction="row" sx={{ width: '100%' }}>
             <EnergyUseByHoursBasisGraph />
