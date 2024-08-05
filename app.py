@@ -18,7 +18,7 @@ from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
 from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv
+    min_max_date_query_iv, min_max_general
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -310,10 +310,26 @@ def get_status(sufficiency):
 @app.route("/get_weather_data", methods=['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
+    if facility:
+        facility = int(facility)
     station_ids = get_nearest_stations(facility)
+    min_max_date = dbtest(min_max_general.format(facility))
+    min_max_date = min_max_date.dropna()
+    if len(min_max_date):
+        min_date = min_max_date.min_date[0].strftime('%Y-%m-%d %H:%M:%S')
+        max_date = min_max_date.max_date[0].strftime('%Y-%m-%d %H:%M:%S')
+    else:
+        response = {"success": False, 'error': "Insufficient Data"}
+        return jsonify(response), 404
+
     if not station_ids.empty:
+        # Securely format station IDs
         station_id_list = tuple(station_ids.station_id.values)
-        df = dbtest(weather_data_query.format(station_id_list))
+        station_ids_str = ','.join(
+            str(int(id)) for id in station_id_list)  # Ensure each ID is an integer to avoid injection
+        # Format the SQL query with validated inputs
+        formatted_query = weather_data_query.format(station_ids_str, min_date, max_date)
+        df = dbtest(formatted_query)
         return df.to_dict(orient='records'), 200
     else:
         return jsonify({'success': False, 'error': 'Insufficient Data'}), 404
