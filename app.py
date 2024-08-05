@@ -692,13 +692,12 @@ def process():
     facility_id = request.json.get('facility_id')
     end_month = request.json.get('end_month')
 
-    facility = dbtest("select id, latitude, longitude from epp.facility")
-    print("Facility data is -  - - - - - -- - -- -  -- - - -- ", facility.columns)
-    print(facility[facility['id'] == 24])
-    facility_df = facility[facility['id'] == int(facility_id)]
+    # facility = dbtest("select id, latitude, longitude from epp.facility")
+    # print("Facility data is -  - - - - - -- - -- -  -- - - -- ", facility.columns)
+    # print(facility[facility['id'] == 24])
+    # facility_df = facility[facility['id'] == int(facility_id)]
     # Get nearest 3 stations
-    nearest_station_ids = get_nearest_stations(facility_df)
-    print(nearest_station_ids)
+    nearest_station_ids = get_nearest_stations(facility_id)
     consolidated_df = download_and_load_data(int(start_year), int(start_month), int(end_year), int(end_month),
                                              nearest_station_ids, int(facility_id))
 
