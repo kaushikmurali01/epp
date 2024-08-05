@@ -27,7 +27,7 @@ import {
 } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { format, isBefore, parseISO, subYears } from "date-fns";
+import { format, isAfter, isBefore, max, parseISO, subYears } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
 
@@ -65,13 +65,12 @@ const ModelConstructorForm = ({
     dispatch(fetchBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
-        console.log(res);
         setBaselinePeriod(res);
         if (res?.end_date && res?.start_date) {
           const endDate = format(new Date(res?.end_date), "yyyy-MM-dd");
           let startDate = format(new Date(subYears(endDate, 1)), "yyyy-MM-dd");
-          const apiStartDate = parseISO(res?.start_date);
-          if (isBefore(apiStartDate, startDate)) {
+          const apiStartDate = format(new Date(res?.start_date), "yyyy-MM-dd");
+          if (isAfter(apiStartDate, startDate)) {
             startDate = apiStartDate;
           }
           setSliderStartDate(startDate);
@@ -157,7 +156,7 @@ const ModelConstructorForm = ({
       start_date:
         values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
       end_date:
-        values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
+        values.end_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
     setActivateCalculateBaseline(true);
     setCheckSufficiencyAfter(false);
