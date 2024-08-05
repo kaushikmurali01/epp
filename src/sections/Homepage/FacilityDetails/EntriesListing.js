@@ -27,7 +27,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
 import { format, getYear } from "date-fns";
-import { entriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
+import { adminHourlyEndPoints, entriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
   GET_REQUEST,
@@ -70,10 +70,12 @@ const EntriesListing = ({
   const [imgUploadData, setImgUploadData] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [meterRawData, setMeterRowData] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const getDataProcessingLoader =  sessionStorage?.getItem("dataProcessingLoader") === 'true'
+const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessingLoader || false);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -164,6 +166,8 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
     },
     headerText: "Delete entry",
     headerSubText: "Are you sure you want to delete this entry?",
@@ -287,6 +291,7 @@ const EntriesListing = ({
     saveButtonAction: handleDeleteMeter,
   });
 
+  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
@@ -511,7 +516,7 @@ const EntriesListing = ({
        .then((data) => {
         // setHourlyEntryFile
         console.log(data, "check data");
-        if(data?.message === undefined || data === undefined) {
+        if(data?.message === undefined || data === undefined || !data.success) {
           setHourlyEntryFile(null)
         }
         setImgUploadData(data);
@@ -539,19 +544,22 @@ const EntriesListing = ({
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
-        // getHourlySubHourlyEntryData();
-        // dispatch(fetchFacilityStatus(id));
-        // dispatch(fetchFacilityDetails(id));
+
         NotificationsToast({
           message: response.data.status,
           type: "success",
         });
+
         // reset
         setHourlyEntryFile(null);
         setImgUploadData("")
         setAcceptTermsAndCondition(false);
         setUploadDataFormVisible(false);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      
+         // Start polling for data
+           startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+     
 
       })
       .catch((error) => {
@@ -562,6 +570,30 @@ const EntriesListing = ({
         });
       });
   };
+
+  // Polling GET API to retrieve the data
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
+    // Start data processing loader
+    setDataProcessingLoader(true);
+    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+    const checkInterval = setInterval(async () => {
+      try {
+        const response = await getHourlyEntriesData("processingLoader");
+        if (response.data?.data?.rows?.length > 0) {
+          // Data is retrieved successfully, stop polling
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem("dataProcessingLoader");
+          clearInterval(checkInterval);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+  
+    return checkInterval;
+  };
+  
 
   const deleteFile = (imgData) => {
 
@@ -590,20 +622,7 @@ const EntriesListing = ({
       });
   };
 
-  // const downloadFileFromUrl = (fileUrl) => {
-  //   fetch(imgUrl).then((response) => {
-  //     response.blob().then((blob) => {
-  //       const fileURL = window.URL.createObjectURL(blob);
-  //       let alink = document.createElement("a");
-  //       alink.href = fileURL;
-  //       let fileName = `${meterData?.meter_name
-  //         }_facility_meter_hourly_entries_file.${imgUrl.split("/").pop().split(".").pop().split("?")[0]
-  //         }`;
-  //       alink.download = fileName;
-  //       alink.click();
-  //     });
-  //   });
-  // };
+  
 
   const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
   const handleTermsAndConditionChange = (event) => {
@@ -628,7 +647,7 @@ const EntriesListing = ({
 
   }
 
-  console.log(meterData, "meterData")
+
 
   const handleDeleteEntries = () => {
     setDeleteEntriesModalConfig((prevState) => ({
@@ -642,10 +661,68 @@ const EntriesListing = ({
           meterType={meterData?.meter_type}
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
+          
         />
       ),
     }));
   }
+
+
+ 
+  const getHourlyEntriesData = async (loader) => {
+    console.log(loader, "checking loaders...");
+    if(loader === "processingLoader"){
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    }else {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    }
+
+    let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
+    let payload = {
+      "facility_id": meterData?.facility_id,
+      "limit": 10,
+      "offset": 0,
+      "meter_id": meterData?.id,
+      "meter_type": meterData?.meter_type
+    }
+  
+    try {
+      const res = await POST_REQUEST(apiURL, payload);
+      console.log(res, "check view entry list");
+      if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
+        setMeterRowData(res.data?.data?.rows);
+        setUploadDataFormVisible(false);
+      }
+
+      if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+        setUploadDataFormVisible(true);
+      }
+
+    
+
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      return res;  // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      throw error;  // Throw the error to be caught in polling
+    }
+  }
+  
+  useEffect(()=> {
+    console.log(getDataProcessingLoader,sessionStorage?.getItem("dataProcessingLoader") === 'true', dataProcessingLoader, "session storage check")
+    if (dataProcessingLoader) {
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+    }
+  }, [])
+
+  useEffect(() => {
+
+    if(Object.keys(meterData).length > 0){
+      console.log(meterData, "meterData check")
+      getHourlyEntriesData()
+    }
+  }, [meterData]);
 
   //  return html dom
 
@@ -849,7 +926,7 @@ const EntriesListing = ({
             setPageInfo={setPageInfo}
           />
         </Box>
-      ) : uploadDataFormVisible && (
+      ) : (uploadDataFormVisible && !dataProcessingLoader) && (
           <Box>
             <Box>
                   <Typography variant="h5">
@@ -953,14 +1030,14 @@ const EntriesListing = ({
                             accept=".xlsx,.csv,.xml,text/xml"
                           />
 
-                            {imgUploadData?.error && 
+                            {!imgUploadData?.success && 
                               <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
                                 <Typography
                                   variant="small"
                                   sx={{ color: "danger.main", }}
                                 
                                 >
-                                  {imgUploadData?.error}
+                                  {imgUploadData?.message}
                                 </Typography>
                               </Stack>
                               }
@@ -1011,17 +1088,26 @@ const EntriesListing = ({
           </Box>
       ) }
 
+      {dataProcessingLoader && 
+        <Box>
+          <Typography variant="body2" color="textSecondary">
+            Be patient, file processing is running...
+        </Typography>
+         
+        </Box>
+      }
+
       {/* show here Energy use by hourly basis  graph */}
-      <Box className="hourly-graph-row" >
-        {/* <Typography variant="h6">
-          Energy use by hourly basis
-        </Typography> */}
-        <Stack direction="row" sx={{ width: '100%' }}>
+      {meterRawData?.length > 0 &&
+        <Box className="hourly-graph-row" >
+        
           <Stack direction="row" sx={{ width: '100%' }}>
-            <EnergyUseByHoursBasisGraph />
+            <Stack direction="row" sx={{ width: '100%' }}>
+              <EnergyUseByHoursBasisGraph />
+            </Stack>
           </Stack>
-        </Stack>
-      </Box>
+        </Box>
+      } 
 
 
 

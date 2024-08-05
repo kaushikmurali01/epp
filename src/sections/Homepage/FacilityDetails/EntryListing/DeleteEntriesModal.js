@@ -15,7 +15,7 @@ const DeleteEntriesModal = ({
     meterType,
     facilityId,
     independentVariableId,
-    setModalConfig
+    setModalConfig,
 }) => {
     const dispatch = useDispatch();
     const [startDate, setStartDate] = useState(null);
@@ -37,16 +37,20 @@ const DeleteEntriesModal = ({
                 console.log(res.data, "check min max range data")
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
-                setModalConfig((prevState) => ({
-                    ...prevState,
-                    modalVisible: true,
-                   
-                  }));
-
             })
             .catch((error) => {
                 console.log(error);
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+                setModalConfig((prevState) => ({
+                    ...prevState,
+                    modalVisible: false,
+                   
+                  }));
+
+                  NotificationsToast({
+                    message: error?.response?.data.error || "Something went wrong!",
+                    type: "error",
+                  });
             });
     };
 
@@ -60,6 +64,7 @@ const DeleteEntriesModal = ({
             "start_date": formattedStartDate,
             "end_date": formattedEndDate,
             "meter_id": meterId,
+            "facility_id": facilityId
         }
 
        

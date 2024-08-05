@@ -49,7 +49,8 @@ export const MiniTable = ({ columns, data }) => {
           ))}
         </TableHead>
         <TableBody {...getTableBodyProps()} size="small">
-          {rows.map((row) => {
+          {rows?.length > 0  ? 
+          (rows.map((row) => {
             prepareRow(row);
             return (
               <TableRow
@@ -75,7 +76,17 @@ export const MiniTable = ({ columns, data }) => {
                 })}
               </TableRow>
             );
-          })}
+          })
+          ) : (
+           <TableRow>
+              <TableCell
+                colSpan={columns.length}
+                sx={{ textAlign: "center !important" }}
+              >
+                No Data found.
+              </TableCell>
+            </TableRow>
+            )}
         </TableBody>
       </MUITable>
     </TableContainer>

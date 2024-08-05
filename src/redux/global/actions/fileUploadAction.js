@@ -69,9 +69,16 @@ export const commonDocumentFileUploadAction = (endPoint,payload,onUploadProgress
       const response = await POST_REQUEST(endPoint, payload, true, "",onUploadProgress);
       const data = response.data;
       dispatch(fileUploadSuccess(data));
+      // if(data?.status === false){
+      //    NotificationsToast({
+      //   message: data?.message || data?.error,
+      //   type: data?.error ? "error" : "success",
+      // });
+      // }
+     
       NotificationsToast({
         message: data?.message || data?.error,
-        type: data?.error ? "error" : "success",
+        type: data?.success ? "success" : "error",
       });
       return data;
     } catch (error) {
