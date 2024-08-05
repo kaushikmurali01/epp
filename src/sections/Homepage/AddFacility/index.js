@@ -254,12 +254,21 @@ const AddFacilityComponent = (props) => {
     const api_key = process.env.REACT_APP_AZURE_MAPS_SECRET_KEY;
     const apiURL = `https://atlas.microsoft.com/search/address/json?api-version=1.0&subscription-key=${api_key}&query=${query}`;
     GET_REQUEST(apiURL).then((response) => {
+      if (
+        response?.data?.results[0]?.address?.countrySubdivisionName.toLowerCase() !==
+        values?.province?.toLowerCase()
+      ) {
+        NotificationsToast({
+          message:
+            "The facility's address is not within the selected province!",
+          type: "error",
+        });
+        return;
+      }
       const code = openLocationCode.encode(
         parseFloat(response?.data?.results[0]?.position?.lat),
         parseFloat(response?.data?.results[0]?.position?.lon)
       );
-
-
       const newValues = {
         ...values,
         display_pic_url: imgUrl,
@@ -272,7 +281,7 @@ const AddFacilityComponent = (props) => {
       if (newValues.facility_construction_status == "Existing Building") {
         newValues.facility_construction_status = 1;
       }
-     
+
       if (!id) {
         setLoadingState(true);
         POST_REQUEST(facilityEndPoints.ADD_EDIT_FACILITY, newValues)
