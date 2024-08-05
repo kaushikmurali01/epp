@@ -52,6 +52,8 @@ import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
 import axiosInstance from "utils/interceptor";
 import MapComponent from "components/MapComponent/MapComponent";
 import Loader from "pages/Loader";
+import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
+import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -322,7 +324,6 @@ const Weather = () => {
 
   })
 
-  console.log(selectedIv, "selectedIv")
   const openRequestModal = (isEdit, data) => {
     setModalConfig((prevState) => ({
       ...prevState,
@@ -436,14 +437,11 @@ const Weather = () => {
   };
 
   const handleButtonClick = () => {
-    // Trigger the click event on the hidden file input element
     fileInputRef.current.click();
   };
 
   const handleFileChange = (event) => {
-    console.log(facilityData,independentVarsList,tabValue, "facilityData")
-    // const selectedFile = event.target.files[0];
-    // setIndependentVariable1File(selectedFile);
+
     setUploadProgress(0) // reset before upload progress
     setIsUploading(true)
     const selectedFile = event.target.files[0];
@@ -458,7 +456,7 @@ const Weather = () => {
     // console.log(apiURL, formData, selectedIv, "check data")
 
     // return
-    //  dispatch(commonDocumentFileUploadAction(apiURL,formData))
+
     dispatch(commonDocumentFileUploadAction(apiURL, formData, (progressEvent) => {
       const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
       
@@ -517,44 +515,10 @@ const Weather = () => {
           type: "error",
         });
       });
-    // const apiURL =
-    //   WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.UPLOAD_INDEPENDENT_VARIABLE_FILE +
-    //   `/${tabValue}`;
-    // const body = new FormData();
-    // body.append("file", independentVariable1File);
-    // axiosInstance
-    //   .post(apiURL, body, {
-    //     headers: {
-    //       "Content-Type": "multipart/form-data",
-    //     },
-    //     onUploadProgress: (progressEvent) => {
-    //       const percentCompleted = Math.round(
-    //         (progressEvent.loaded * 100) / progressEvent.total
-    //       );
-    //       setProgress(percentCompleted);
-    //     },
-    //   })
-    //   .then((response) => {
-    //     setLoadingState(false);
-    //     if (response) {
-    //       setIsFileUploaded(true);
-    //       getIndependentVariales();
-    //       NotificationsToast({
-    //         message: "Independent variable file uploaded successfully",
-    //         type: "success",
-    //       });
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     setLoadingState(false);
-    //     console.error("There was an error uploading the file!", error);
-    //     NotificationsToast({
-    //       message: "Something went wrong, please contact the admin.",
-    //       type: "error",
-    //     });
-    //   });
+   
   };
 
+  console.log(facilityData, "facilityData")
   const deleteFile = (imgData) => {
 
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -588,6 +552,45 @@ const Weather = () => {
       [event.target.name]: event.target.checked,
     }));
   };
+
+  const handleViewEntries = () => {
+
+    setViewEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <ViewEntryDetailListModal
+          meterId=""
+          meterType=""
+          facilityId={facilityData?.id}
+          independentVariableId = {selectedIv?.id}
+          // selectedIv
+        />
+      ),
+    }));
+
+  }
+
+  const handleDeleteEntries = () => {
+    setDeleteEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <DeleteEntriesModal
+        meterId=""
+        meterType=""
+        facilityId={facilityData?.id}
+        independentVariableId = {selectedIv?.id}
+        setModalConfig={setDeleteEntriesModalConfig}
+        />
+      ),
+    }));
+  }
+
 
   const getPowerBiError = (errorDetail) => {
     console.log("Error in setIsErrorInPowerBi", errorDetail);
@@ -1093,12 +1096,12 @@ const Weather = () => {
               <Box>
                 <Stack direction="row" justifyContent="flex-end" alignItems="center" gap="0.75rem">
                 <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} 
-                // onClick={() => handleViewEntries()} 
+                onClick={() => handleViewEntries()} 
                 >
                   View entries
                 </Link>
                 <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} 
-                // onClick={() => handleDeleteEntries()} 
+                onClick={() => handleDeleteEntries()} 
                 >
                   Delete entries
                 </Link>

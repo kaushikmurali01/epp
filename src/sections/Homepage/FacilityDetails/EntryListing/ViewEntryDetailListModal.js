@@ -12,7 +12,8 @@ import { adminHourlyEndPoints } from "constants/apiEndPoints";
 const ViewEntryDetailListModal = ({
   meterId,
   meterType,
-  facilityId
+  facilityId,
+  independentVariableId
 }) => {
   const [pageInfo, setPageInfo] = useState({
     page: 1,
@@ -62,15 +63,26 @@ const ViewEntryDetailListModal = ({
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
     let payload = {
-      "meter_id": meterId,
+      // "meter_id": meterId,
+      // "meter_type": meterType,
       "facility_id": facilityId,
-      "meter_type": meterType,
       "limit": 10,
       "offset": (pageInfo.page - 1) * pageInfo.pageSize,
       // "start_date": "2021-07-26",
       // "end_date": "2021-07-27",
       
     }
+
+    if(independentVariableId){
+      payload.independent_variable_id =  independentVariableId
+    } else{
+      payload.meter_id = meterId;
+      payload.meter_type = meterType;
+    }
+    // else {
+    //   payload.meter_id = meterId,
+    //   payload.meter_type = meterType
+    // }
   
     
     // return;
