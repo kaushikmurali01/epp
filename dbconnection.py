@@ -168,6 +168,18 @@ def db_execute_single(query, values):
     return generated_id
 
 
+def refresh_materialised_view(view='epp.combined_meter_weather_readings'):
+    query = f"REFRESH MATERIALIZED VIEW {view};"
+    conn = get_db_connection()
+    curs = conn.cursor()
+    curs.execute(query, None)
+    curs.close()
+    conn.close()
+
+
+
+
+
 def bulk_insert_df(df, table_name, record_id, file_table):
     cols = ','.join(list(df.columns))
     vals_placeholder = ','.join(['%s' for _ in df.columns])

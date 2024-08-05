@@ -22,7 +22,7 @@ from sql_queries.nearest_weather_stations import min_max_date_query, min_max_met
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
-from dbconnection import dbtest, execute_query
+from dbconnection import dbtest, execute_query, refresh_materialised_view
 from utils import get_nearest_stations
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
@@ -764,6 +764,12 @@ def getdates():
     }
 
     return jsonify(result), 200
+
+
+@app.route('/refresh_view', methods=['POST'])
+def refresh_view():
+    view = request.json.get('view')
+    refresh_materialised_view(view)
 
 
 if __name__ == '__main__':
