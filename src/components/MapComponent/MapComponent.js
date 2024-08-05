@@ -55,7 +55,7 @@ const MapComponent = (props) => {
 
   return (
     <AzureMapsProvider>
-      <div style={{ height: "360px", width: "80%", borderRadius: "0.5rem" }}>
+      <div style={{ height: "360px", width: "100%", borderRadius: "0.5rem" }}>
         <AzureMap options={option}>
           <AzureMapDataSourceProvider id="markersSource">
             <AzureMapLayerProvider
