@@ -94,7 +94,7 @@ class AddMeterData:
             return f"Failed to process record ID: {record_id}. Error: {str(e)}"
 
     def process_files(self):
-        with ThreadPoolExecutor(max_workers=50) as executor:  # Adjust max_workers as needed
+        with ThreadPoolExecutor(max_workers=500) as executor:  # Adjust max_workers as needed
             futures = [executor.submit(self.process_file, row) for _, row in self.raw_df.iterrows()]
 
             for future in as_completed(futures):
