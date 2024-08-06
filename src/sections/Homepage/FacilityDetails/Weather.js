@@ -683,8 +683,8 @@ const Weather = () => {
     );
   };
 
-  console.log(tabValue, "tabValue")
 
+  console.log(weatherData, "weatherData")
   return (
     <>
       <Box
@@ -758,24 +758,28 @@ const Weather = () => {
 
         {tabValue == "weather" ? (
           <Box>
-            <Grid style={{ width: "100%" }}>
-              {
-                <MapComponent
-                  facilityData={facilityData}
-                  weatherStations={weatherStations}
-                />
-              }
+            {/* <Grid container mb="2.5rem">
+                <Grid item xs={12}>
+                   <iframe style={{width: '100%', minHeight: ' 100vh', border: '1px solid #ccc'}} src={`http://172.183.115.159:5005/graph?variable_id=${selectedIv?.id}`}></iframe>
+                </Grid>
+            </Grid> */}
+
+            <Grid container  mb="2.5rem">
+              <Grid item xs={12}>
+                  {
+                    <MapComponent
+                      facilityData={facilityData}
+                      weatherStations={weatherStations}
+                    />
+                  }
+              </Grid>
+             
             </Grid>
             <Grid
               container
-              sx={{
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: "1rem",
-                marginBottom: "3rem",
-              }}
               xs={12}
-              md={10}
+              mb="2.5rem"
+              alignItems="flex-start"
             >
               {weatherStations?.length ? (
                 <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
@@ -865,229 +869,241 @@ const Weather = () => {
                   </TableContainer>
                 </Grid>
               ) : null}
-              <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
-                <Typography>Select checkboxes to see graphs</Typography>
-                <Grid item xs={12} md={6}>
-                  <Formik
-                    initialValues={{ ...initialValues }}
-                    // validationSchema={validationSchemaFacilityDetails}
-                    // onSubmit={handleSubmit}
-                    enableReinitialize={true}
-                  >
-                    <Form>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name="temp"
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={weatherParamsChecked?.temp}
-                              onChange={handleCheckboxChange}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          name="air_temperature"
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              Air temprature
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name="rel_hum"
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={weatherParamsChecked?.rel_hum}
-                              onChange={handleCheckboxChange}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          name="relative_humidity"
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              Relative humidity
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name="precip_amount"
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={weatherParamsChecked?.precip_amount}
-                              onChange={handleCheckboxChange}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          name="participation"
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              Precipitation
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                    </Form>
-                  </Formik>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Formik
-                    initialValues={{ ...initialValues }}
-                    // validationSchema={validationSchemaFacilityDetails}
-                    // onSubmit={handleSubmit}
-                    enableReinitialize={true}
-                  >
-                    <Form>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name="station_press"
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={weatherParamsChecked?.station_press}
-                              onChange={handleCheckboxChange}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          name="atmospheric_pressure"
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              Atmospheric pressure
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                      <FormGroup>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name="wind_spd"
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={weatherParamsChecked?.wind_spd}
-                              onChange={handleCheckboxChange}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          name="wind_speed"
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              Wind speed
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                      {/* <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Field
-                          name=""
-                          type="checkbox"
-                          as={Checkbox}
-                          checked={checked}
-                          onChange={handleCheckboxChange}
-                        />
-                      }
-                      sx={{ color: "text.secondary2" }}
-                      name="daily_solar_radiation"
-                      label={
-                        <Typography sx={{ fontSize: "14px!important" }}>
-                          Daily solar radiation (Horizontal)
-                        </Typography>
-                      }
-                    />
-                  </FormGroup> */}
-                    </Form>
-                  </Formik>
-                </Grid>
+                  {Object.keys(weatherData)?.length > 0 && 
+                    <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
+
+                      <Typography>Select checkboxes to see graphs</Typography>
+                      <Grid item xs={12} md={6}>
+                        <Formik
+                          initialValues={{ ...initialValues }}
+                          // validationSchema={validationSchemaFacilityDetails}
+                          // onSubmit={handleSubmit}
+                          enableReinitialize={true}
+                        >
+                          <Form>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <Field
+                                    name="temp"
+                                    type="checkbox"
+                                    as={Checkbox}
+                                    checked={weatherParamsChecked?.temp}
+                                    onChange={handleCheckboxChange}
+                                  />
+                                }
+                                sx={{ color: "text.secondary2" }}
+                                name="air_temperature"
+                                label={
+                                  <Typography sx={{ fontSize: "14px!important" }}>
+                                    Air temprature
+                                  </Typography>
+                                }
+                              />
+                            </FormGroup>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <Field
+                                    name="rel_hum"
+                                    type="checkbox"
+                                    as={Checkbox}
+                                    checked={weatherParamsChecked?.rel_hum}
+                                    onChange={handleCheckboxChange}
+                                  />
+                                }
+                                sx={{ color: "text.secondary2" }}
+                                name="relative_humidity"
+                                label={
+                                  <Typography sx={{ fontSize: "14px!important" }}>
+                                    Relative humidity
+                                  </Typography>
+                                }
+                              />
+                            </FormGroup>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <Field
+                                    name="precip_amount"
+                                    type="checkbox"
+                                    as={Checkbox}
+                                    checked={weatherParamsChecked?.precip_amount}
+                                    onChange={handleCheckboxChange}
+                                  />
+                                }
+                                sx={{ color: "text.secondary2" }}
+                                name="participation"
+                                label={
+                                  <Typography sx={{ fontSize: "14px!important" }}>
+                                    Precipitation
+                                  </Typography>
+                                }
+                              />
+                            </FormGroup>
+                          </Form>
+                        </Formik>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Formik
+                          initialValues={{ ...initialValues }}
+                          // validationSchema={validationSchemaFacilityDetails}
+                          // onSubmit={handleSubmit}
+                          enableReinitialize={true}
+                        >
+                          <Form>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <Field
+                                    name="station_press"
+                                    type="checkbox"
+                                    as={Checkbox}
+                                    checked={weatherParamsChecked?.station_press}
+                                    onChange={handleCheckboxChange}
+                                  />
+                                }
+                                sx={{ color: "text.secondary2" }}
+                                name="atmospheric_pressure"
+                                label={
+                                  <Typography sx={{ fontSize: "14px!important" }}>
+                                    Atmospheric pressure
+                                  </Typography>
+                                }
+                              />
+                            </FormGroup>
+                            <FormGroup>
+                              <FormControlLabel
+                                control={
+                                  <Field
+                                    name="wind_spd"
+                                    type="checkbox"
+                                    as={Checkbox}
+                                    checked={weatherParamsChecked?.wind_spd}
+                                    onChange={handleCheckboxChange}
+                                  />
+                                }
+                                sx={{ color: "text.secondary2" }}
+                                name="wind_speed"
+                                label={
+                                  <Typography sx={{ fontSize: "14px!important" }}>
+                                    Wind speed
+                                  </Typography>
+                                }
+                              />
+                            </FormGroup>
+                            {/* <FormGroup>
+                          <FormControlLabel
+                            control={
+                              <Field
+                                name=""
+                                type="checkbox"
+                                as={Checkbox}
+                                checked={checked}
+                                onChange={handleCheckboxChange}
+                              />
+                            }
+                            sx={{ color: "text.secondary2" }}
+                            name="daily_solar_radiation"
+                            label={
+                              <Typography sx={{ fontSize: "14px!important" }}>
+                                Daily solar radiation (Horizontal)
+                              </Typography>
+                            }
+                          />
+                        </FormGroup> */}
+                          </Form>
+                        </Formik>
+                      </Grid>
+                    </Grid>
+                  }
               </Grid>
-              <Grid xs={12} md={11} style={{ paddingTop: "3rem" }}>
-                {weatherParamsChecked?.temp && !weatherLoading ? (
-                  <Grid style={{ paddingBottom: "3rem" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.125rem!important",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      Air temperature
-                    </Typography>
-                    {WeatherCharts("temp")}
-                  </Grid>
-                ) : null}
-                {weatherParamsChecked?.rel_hum && !weatherLoading ? (
-                  <Grid style={{ paddingBottom: "3rem" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.125rem!important",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      Relative humidity
-                    </Typography>
-                    {WeatherCharts("rel_hum")}
-                  </Grid>
-                ) : null}
-                {weatherParamsChecked?.precip_amount && !weatherLoading ? (
-                  <Grid style={{ paddingBottom: "3rem" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.125rem!important",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      Precipitation
-                    </Typography>
-                    {WeatherCharts("precip_amount")}
-                  </Grid>
-                ) : null}
-                {weatherParamsChecked?.wind_spd && !weatherLoading ? (
-                  <Grid style={{ paddingBottom: "3rem" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.125rem!important",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      Wind speed
-                    </Typography>
-                    {WeatherCharts("wind_spd")}
-                  </Grid>
-                ) : null}
-                {weatherParamsChecked?.station_press && !weatherLoading ? (
-                  <Grid style={{ paddingBottom: "3rem" }}>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontSize: "1.125rem!important",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
-                      }}
-                    >
-                      Atmospheric pressure
-                    </Typography>
-                    {WeatherCharts("station_press")}
-                  </Grid>
-                ) : null}
-              </Grid>
-            </Grid>
+
+                <Grid container>
+                  {((weatherParamsChecked?.temp && !weatherLoading) && weatherData?.temp?.length > 0) ? (
+                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "1.125rem!important",
+                          fontWeight: "600",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        Air temperature
+                      </Typography>
+                      {WeatherCharts("temp")}
+                    </Grid>
+                  ) : null}
+
+                  {((weatherParamsChecked?.rel_hum && !weatherLoading) && weatherData?.rel_hum?.length > 0) ? (
+                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "1.125rem!important",
+                          fontWeight: "600",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        Relative humidity
+                      </Typography>
+                      {WeatherCharts("rel_hum")}
+                    </Grid>
+                  ) : null}
+
+                  {((weatherParamsChecked?.precip_amount && !weatherLoading) && weatherData?.precip_amount?.length > 0) ? (
+                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "1.125rem!important",
+                          fontWeight: "600",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        Precipitation
+                      </Typography>
+                      {WeatherCharts("precip_amount")}
+                    </Grid>
+                  ) : null}
+
+                  {((weatherParamsChecked?.wind_spd && !weatherLoading) && weatherData?.wind_spd?.length > 0) ? (
+                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "1.125rem!important",
+                          fontWeight: "600",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        Wind speed
+                      </Typography>
+                      {WeatherCharts("wind_spd")}
+                    </Grid>
+                  ) : null}
+
+                  {((weatherParamsChecked?.station_press && !weatherLoading ) && weatherData?.station_press?.length > 0)? (
+                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontSize: "1.125rem!important",
+                          fontWeight: "600",
+                          marginBottom: "1rem",
+                        }}
+                      >
+                        Atmospheric pressure
+                      </Typography>
+                      {WeatherCharts("station_press")}
+                    </Grid>
+                  ) : null}
+
+                </Grid>
+            
+              
+            
           </Box>
         ) : 
         <React.Fragment>
@@ -1265,7 +1281,6 @@ const Weather = () => {
             selectedIv?.files?.[0]?.file_path ? (
               <Grid sx={{ width: "100%" }}>
                 <Grid sx={{ width: "100%" }}>
-               
                   <Box id="bi-report" mt={4}>
                     {!isErrorInPowerBi && !reportLoading ? (
                       <PowerBIEmbed
