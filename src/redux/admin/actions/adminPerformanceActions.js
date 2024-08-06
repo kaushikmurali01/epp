@@ -1,4 +1,4 @@
-import { DELETE_REQUEST, GET_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
+import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import {
   createEmailTemplateFailure,
   createEmailTemplateRequest,
@@ -36,9 +36,36 @@ import {
   getEmailArchiveFailure,
   getEmailArchiveRequest,
   getEmailArchiveSuccess,
+  getAdminBaselineDataSummaryFailure,
+  getAdminBaselineDataSummaryRequest,
+  getAdminBaselineDataSummarySuccess,
+  createAdminNonRoutineEventFailure,
+  createAdminNonRoutineEventRequest,
+  createAdminNonRoutineEventSuccess,
+  getAdminNonRoutineEventListFailure,
+  getAdminNonRoutineEventListRequest,
+  getAdminNonRoutineEventListSuccess,
+  addAdminNonRoutineEventDataFailure,
+  addAdminNonRoutineEventDataRequest,
+  addAdminNonRoutineEventDataSuccess,
+  getAdminNonRoutineEventDetailRequest,
+  getAdminNonRoutineEventDetailSuccess,
+  getAdminNonRoutineEventDetailFailure,
+  deleteAdminNonRoutineEventDataRequest,
+  deleteAdminNonRoutineEventDataSuccess,
+  deleteAdminNonRoutineEventRequest,
+  deleteAdminNonRoutineEventSuccess,
+  deleteAdminNonRoutineEventFailure,
+  deleteAdminNonRoutineEventDataFailure,
+  editAdminNonRoutineEventFailure,
+  editAdminNonRoutineEventRequest,
+  editAdminNonRoutineEventSuccess,
+  editAdminNonRoutineEventDataRequest,
+  editAdminNonRoutineEventDataSuccess,
+  editAdminNonRoutineEventDataFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
-import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS } from "constants/apiEndPoints";
+import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
 
 export const createEmailTemplate = (templateData) => {
   return async (dispatch) => {
@@ -290,6 +317,192 @@ export const getEmailArchiveList = (facilityId) => {
       return response;
     } catch (error) {
       dispatch(getEmailArchiveFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getAdminBaselineDataSummary = (summaryBody) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getAdminBaselineDataSummaryRequest());
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}`;
+      const response = await POST_REQUEST(endpointWithParams, summaryBody);
+      const data = response.data;
+      dispatch(getAdminBaselineDataSummarySuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(getAdminBaselineDataSummaryFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
+    }
+  };
+};
+
+export const addAdminNonRoutineEvent = (nonRoutinePayload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(createAdminNonRoutineEventRequest());
+      let apiUrl = PERFORMANCE_ENDPOINTS.ADD_NON_ROUTINE_EVENT;
+      const response = await POST_REQUEST(apiUrl, nonRoutinePayload);
+      dispatch(createAdminNonRoutineEventSuccess(response?.data));
+      return response?.data;
+    } catch (error) {
+      console.error(error);
+      dispatch(createAdminNonRoutineEventFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getAdminNonRoutineEventList = (
+  facilityId,
+  meter_type,
+  page,
+  limit
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getAdminNonRoutineEventListRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_NON_ROUTINE_EVENT_LIST}/${facilityId}/${page}/${limit}?meter_type=${meter_type}`;
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getAdminNonRoutineEventListSuccess(response?.data?.data?.rows));
+      return response?.data?.data;
+    } catch (error) {
+      console.error(error);
+      dispatch(getAdminNonRoutineEventListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const addAdminNonRoutineEventData = (nonRoutineDataPayload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(addAdminNonRoutineEventDataRequest());
+      let apiUrl = PERFORMANCE_ENDPOINTS.ADD_NON_ROUTINE_EVENT_DATA;
+      const response = await POST_REQUEST(apiUrl, nonRoutineDataPayload);
+      dispatch(addAdminNonRoutineEventDataSuccess(response?.data));
+      return response?.data;
+    } catch (error) {
+      console.error(error);
+      dispatch(addAdminNonRoutineEventDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getAdminNonRoutineEventDetails = (eventId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getAdminNonRoutineEventDetailRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_NON_ROUTINE_EVENT_DETAIL}/${eventId}`;
+      const response = await GET_REQUEST(apiURL);
+      const data = response?.data?.data;
+      dispatch(getAdminNonRoutineEventDetailSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getAdminNonRoutineEventDetailFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteAdminNonRoutineEvent = (eventId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteAdminNonRoutineEventRequest());
+      let apiUrl = PERFORMANCE_ENDPOINTS.DELETE_NON_ROUTINE_EVENT;
+      const response = await DELETE_REQUEST(`${apiUrl}/${eventId}`);
+      dispatch(deleteAdminNonRoutineEventSuccess(response.data));
+      NotificationsToast({
+        message: response?.message
+          ? response.message
+          : "Non routine event deleted successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteAdminNonRoutineEventFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteAdminNonRoutineEventData = (data_entry_id) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteAdminNonRoutineEventDataRequest());
+      let apiUrl = PERFORMANCE_ENDPOINTS.DELETE_NON_ROUTINE_EVENT_DATA;
+      const response = await DELETE_REQUEST(`${apiUrl}/${data_entry_id}`);
+      dispatch(deleteAdminNonRoutineEventDataSuccess(response.data));
+      NotificationsToast({
+        message: response?.message
+          ? response.message
+          : "Non routine event data deleted successfully.",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteAdminNonRoutineEventDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminNonRoutineEvent = (eventId, payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(editAdminNonRoutineEventRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.EDIT_NON_ROUTINE_EVENT}/${eventId}`;
+      const response = await PATCH_REQUEST(apiURL, payload);
+      dispatch(editAdminNonRoutineEventSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(editAdminNonRoutineEventFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminNonRoutineEventData = (eventId, payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(editAdminNonRoutineEventDataRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.EDIT_NON_ROUTINE_EVENT}/${eventId}`;
+      const response = await PATCH_REQUEST(apiURL, payload);
+      dispatch(editAdminNonRoutineEventDataSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(editAdminNonRoutineEventDataFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

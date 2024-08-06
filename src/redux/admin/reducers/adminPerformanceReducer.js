@@ -35,6 +35,33 @@ import {
   GET_EMAIL_ARCHIVE_REQUEST,
   GET_EMAIL_ARCHIVE_SUCCESS,
   GET_EMAIL_ARCHIVE_FAILURE,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_REQUEST,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_SUCCESS,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_FAILURE,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_REQUEST,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_SUCCESS,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_FAILURE,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_REQUEST,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_SUCCESS,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -48,6 +75,9 @@ const initialState = {
   contactList: [],
   updatedContact: null,
   archivedEmailList: [],
+  adminBaselineSummaryData: [],
+  adminNonRoutineEventList: [],
+  adminNonRoutineEventDetails: [],
   error: null,
 };
 
@@ -194,6 +224,181 @@ const adminPerformanceReducer = (state = initialState, action) => {
       };
     case GET_EMAIL_ARCHIVE_FAILURE:
       return { ...state, loading: false, error: action.payload };
+
+    case GET_ADMIN_BASELINE_DATA_SUMMARY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_BASELINE_DATA_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminBaselineSummaryData: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_BASELINE_DATA_SUMMARY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CREATE_ADMIN_NON_ROUTINE_EVENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case CREATE_ADMIN_NON_ROUTINE_EVENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case CREATE_ADMIN_NON_ROUTINE_EVENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_ADMIN_NON_ROUTINE_EVENT_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_NON_ROUTINE_EVENT_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminNonRoutineEventList: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_NON_ROUTINE_EVENT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case ADD_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADD_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminNonRoutineEventList: action.payload,
+        error: null,
+      };
+    case ADD_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminNonRoutineEventDetails: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     default:
       return state;

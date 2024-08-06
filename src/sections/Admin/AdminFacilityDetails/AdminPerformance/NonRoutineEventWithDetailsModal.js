@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Grid, Typography, Button, Link, Box } from "@mui/material";
-import { deleteNonRoutineEvent, getNonRoutineEventDetails, getNonRoutineEventList } from "../../../../redux/superAdmin/actions/performanceAction";
 import { downloadFileFromUrl } from "utils/helper/helper";
+import { deleteAdminNonRoutineEvent, getAdminNonRoutineEventDetails, getAdminNonRoutineEventList } from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const NonRoutineEventWithDetailsModal = ({
   eventId,
@@ -13,26 +13,26 @@ const NonRoutineEventWithDetailsModal = ({
   const [page, setPage] = useState(0);
   const itemsPerPage = 10;
   const dispatch = useDispatch();
-  const { nonRoutineEventDetails, loading } = useSelector(
-    (state) => state?.performanceReducer
+  const { adminNonRoutineEventDetails, loading } = useSelector(
+    (state) => state?.adminPerformanceReducer
   );
 
   const facility_id = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.id
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
 useEffect(() => {
-  dispatch(getNonRoutineEventDetails(eventId));
+  dispatch(getAdminNonRoutineEventDetails(eventId));
 }, [dispatch, eventId, facility_id, meter_type]);
 
 const getUploadedFiles = () => {
   if (
-    nonRoutineEventDetails.dataEntries &&
-    nonRoutineEventDetails.dataEntries.length > 0
+    adminNonRoutineEventDetails.dataEntries &&
+    adminNonRoutineEventDetails.dataEntries.length > 0
   ) {
-    const firstEntry = nonRoutineEventDetails.dataEntries[0];
+    const firstEntry = adminNonRoutineEventDetails.dataEntries[0];
     if (firstEntry.type === 2) {
-      return nonRoutineEventDetails.dataEntries.map((entry, index) => {
+      return adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
         const extension = entry.file_url
           .split("/")
           .pop()
@@ -56,10 +56,10 @@ const getUploadedFiles = () => {
   };
 
   const handleDeleteEvent = () => {
-    dispatch(deleteNonRoutineEvent(eventId))
+    dispatch(deleteAdminNonRoutineEvent(eventId))
       .then(() => {
         closeNonEventRoutineDetailsModal();
-        dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
+        dispatch(getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
       })
       .catch(console.error());
   };
@@ -82,8 +82,8 @@ const getUploadedFiles = () => {
               Event period
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {formatDate(nonRoutineEventDetails.event_from_period)} to{" "}
-              {formatDate(nonRoutineEventDetails.event_to_period)}
+              {formatDate(adminNonRoutineEventDetails.event_from_period)} to{" "}
+              {formatDate(adminNonRoutineEventDetails.event_to_period)}
             </Typography>
           </Grid>
           <Grid sx={{ marginTop: "20px" }}>
@@ -93,7 +93,7 @@ const getUploadedFiles = () => {
               Comment
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {nonRoutineEventDetails.event_description}
+              {adminNonRoutineEventDetails.event_description}
             </Typography>
           </Grid>
         </Grid>
@@ -104,14 +104,14 @@ const getUploadedFiles = () => {
             Event name
           </Typography>
           <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-            {nonRoutineEventDetails.event_name}
+            {adminNonRoutineEventDetails.event_name}
           </Typography>
         </Grid>
       </Grid>
 
-      {nonRoutineEventDetails.dataEntries &&
-      nonRoutineEventDetails.dataEntries.length > 0 ? (
-        nonRoutineEventDetails.dataEntries.map((entry, index) => {
+      {adminNonRoutineEventDetails.dataEntries &&
+      adminNonRoutineEventDetails.dataEntries.length > 0 ? (
+        adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
           return (
             entry.start_date &&
             entry.end_date && (

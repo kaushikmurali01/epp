@@ -41,7 +41,7 @@ const PerformancePeriodDataSummary = () => {
 
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton));
+      dispatch(fetchDataExplorationSummaryList(id, activeButton)); //right now we are fetching the data from baseline
     } else {
       dispatch(fetchDataExplorationSummaryList(id));
     }

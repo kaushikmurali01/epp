@@ -8,43 +8,45 @@ import {
   Pagination,
   ListItem,
 } from "@mui/material";
-import { DatePicker } from '@mui/x-date-pickers';
-import SelectBox from 'components/FormBuilder/Select';
-import { Formik, Form } from 'formik';
 import React, { useEffect, useState } from 'react';
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useDispatch, useSelector } from 'react-redux';
 import EvModal from "utils/modal/EvModal";
-import { getNonRoutineEventDetails, getNonRoutineEventList } from "../../../../redux/superAdmin/actions/performanceAction";
 import Loader from "pages/Loader";
 import NonRoutineEventWithDetailsModal from "./NonRoutineEventWithDetailsModal";
 import AddNonRoutineDataModal from "./AddNonRoutineDataModal";
 import AddNonRoutineEventModal from "./AddNonRoutineEventModal";
+import { getAdminNonRoutineEventDetails, getAdminNonRoutineEventList, getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
+import SavingsReportForm from "./SavingsReportForm";
 
-
-const PerformancePeriodInformationAccordion = ({meter_type}) => {
+const PerformancePeriodInformationAccordion = ({
+  meter_type,
+  submitTrigger,
+  refreshTrigger,
+  onDateValidation,
+}) => {
   const [activeButton, setActiveButton] = useState(0);
   const dispatch = useDispatch();
   const [editMode, setEditMode] = useState({ isEditing: false, eventId: null });
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
-
+  const [responseCount, setResponseCount] = useState(0);
+  
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
-  
-  console.log(facility_id, "id");
-  
-  const { loading, nonRoutineEventList, nonRoutineEventDetails } = useSelector(
-    (state) => state?.performanceReducer
-  );
+ 
+  const { loading, incentiveSettings, adminNonRoutineEventList, adminNonRoutineEventDetails } =
+    useSelector((state) => state?.adminPerformanceReducer);
 
   useEffect(() => {
+    dispatch(getIncentiveSettings(facility_id));
     dispatch(
-      getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage)
+      getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage)
     ).then((response) => {
       if (response && response.count) {
+        setResponseCount(response.count);
         setTotalPages(Math.ceil(response?.count / itemsPerPage));
       }
     });
@@ -52,54 +54,6 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
-  };
-  
-  const savingReportDropdown = [
-    {
-      id: 1,
-      name: "Estimated",
-      label: "Estimated",
-      value: "Estimated",
-    },
-    {
-      id: 2,
-      name: "Submitted",
-      label: "Submitted",
-      value: "Submitted",
-    },
-    {
-      id: 3,
-      name: "Verified",
-      label: "Verified",
-      value: "Verified",
-    },
-  ];
-  const [performanceTabs, setPerformanceTabs] = useState("firstPayDay");
-
-  const handleChangePerformance = (event, newValue) => {
-    setPerformanceTabs(newValue);
-  };
-  const [initialValues, setInitialValues] = useState({
-    adjusted_baseline: "",
-    reporting_period_NG_consumption: "",
-    non_routine_adjustment: "",
-    NG_savings: "",
-    NG_savings_percentage: "",
-  });
-
-  const performancePeriodStyleInAccordion = {
-    color: "#2E813E",
-    fontSize: "16px",
-    fontStyle: "normal",
-    fontWeight: 400,
-  };
-
-  const performancePeriodStyleInArea = {
-    // textAlign: "center",
-    // justifyContent: "center",
-    display: "flex",
-    alignItems: "center",
-    // marginTop: "12px",
   };
 
   const nonRoutingStyleInAccordion = {
@@ -118,14 +72,6 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
     fontWeight: 500,
     cursor: "pointer",
   };
-  const baselineStyleInAccordion = {
-    color: "#242424",
-    padding: "0.375rem 1rem",
-    fontSize: "14px",
-    fontStyle: "normal",
-    fontWeight: 500,
-  };
-
 
   const openNonEventRoutineDetailsModal = (eventId) => {
     setNonEventRoutineDetailsModalConfig((prevState) => ({
@@ -150,41 +96,40 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
     }));
   };
 
-  
- const [
-   nonEventRoutineDetailsModalConfig,
-   setNonEventRoutineDetailsModalConfig,
- ] = useState({
-   modalVisible: false,
-   modalUI: {
-     showHeader: true,
-     crossIcon: false,
-     modalClass: "emailArchiveModal",
-     headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-     headerSubTextStyle: {
-       marginTop: "1rem",
-       color: "rgba(36, 36, 36, 1)",
-       fontSize: { md: "0.875rem" },
-     },
-     fotterActionStyle: "",
-     modalBodyContentStyle: "",
-   },
-   buttonsUI: {
-     saveButton: false,
-     cancelButton: false,
-     saveButtonName: "Edit",
-     cancelButtonName: "Download",
-     saveButtonClass: "",
-     cancelButtonClass: "",
-   },
-   modalBodyContent: "",
- });
+  const [
+    nonEventRoutineDetailsModalConfig,
+    setNonEventRoutineDetailsModalConfig,
+  ] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "emailArchiveModal",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Edit",
+      cancelButtonName: "Download",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
 
   const openAddNonRoutineEventModal = (eventId = null) => {
     setEditMode({ isEditing: !!eventId, eventId });
 
     if (eventId) {
-      dispatch(getNonRoutineEventDetails(eventId))
+      dispatch(getAdminNonRoutineEventDetails(eventId))
         .then(() => {
           setAddNonRoutineEventModalConfig((prevState) => ({
             ...prevState,
@@ -204,7 +149,6 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
           console.error("Error fetching event details:", error);
           // Handle error (e.g., show error message)
         });
-      
     } else {
       setAddNonRoutineEventModalConfig((prevState) => ({
         ...prevState,
@@ -222,58 +166,57 @@ const PerformancePeriodInformationAccordion = ({meter_type}) => {
     }
   };
 
-const openAddNonRoutineDataModal = (
-  event_id,
-  event_to_period,
-  event_from_period,
-  isEditing = false
-) => {
-  const editMode = { isEditing, eventId: event_id };
-  if (isEditing) {
-    dispatch(getNonRoutineEventDetails(event_id))
-      .then(() => {
-        setAddNonRoutineDataModalConfig((prevState) => ({
-          ...prevState,
-          modalVisible: true,
-          headerText: "Edit non-routine event data",
-          modalBodyContent: (
-            <AddNonRoutineDataModal
-              event_id={event_id}
-              event_to_period={event_to_period}
-              event_from_period={event_from_period}
-              closeAddNonRoutineDataModal={closeAddNonRoutineDataModal}
-              editMode={editMode}
-              eventDetails={nonRoutineEventDetails}
-              key={Date.now()} // Force re-render
-              meter_type={meter_type}
-            />
-          ),
-        }));
-      })
-      .catch((error) => {
-        console.error("Error fetching event details:", error);
-        // Handle error (e.g., show error message)
-      });
-  } else {
-    setAddNonRoutineDataModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      headerText: "Add Non-routine Event Data",
-      modalBodyContent: (
-        <AddNonRoutineDataModal
-          event_id={event_id}
-          event_to_period={event_to_period}
-          event_from_period={event_from_period}
-          closeAddNonRoutineDataModal={closeAddNonRoutineDataModal}
-          editMode={editMode}
-          key={Date.now()} // Force re-render
-          meter_type={meter_type}
-        />
-      ),
-    }));
-  }
-};
-
+  const openAddNonRoutineDataModal = (
+    event_id,
+    event_to_period,
+    event_from_period,
+    isEditing = false
+  ) => {
+    const editMode = { isEditing, eventId: event_id };
+    if (isEditing) {
+      dispatch(getAdminNonRoutineEventDetails(event_id))
+        .then(() => {
+          setAddNonRoutineDataModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: true,
+            headerText: "Edit non-routine event data",
+            modalBodyContent: (
+              <AddNonRoutineDataModal
+                event_id={event_id}
+                event_to_period={event_to_period}
+                event_from_period={event_from_period}
+                closeAddNonRoutineDataModal={closeAddNonRoutineDataModal}
+                editMode={editMode}
+                eventDetails={adminNonRoutineEventDetails}
+                key={Date.now()} // Force re-render
+                meter_type={meter_type}
+              />
+            ),
+          }));
+        })
+        .catch((error) => {
+          console.error("Error fetching event details:", error);
+          // Handle error (e.g., show error message)
+        });
+    } else {
+      setAddNonRoutineDataModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        headerText: "Add Non-routine Event Data",
+        modalBodyContent: (
+          <AddNonRoutineDataModal
+            event_id={event_id}
+            event_to_period={event_to_period}
+            event_from_period={event_from_period}
+            closeAddNonRoutineDataModal={closeAddNonRoutineDataModal}
+            editMode={editMode}
+            key={Date.now()} // Force re-render
+            meter_type={meter_type}
+          />
+        ),
+      }));
+    }
+  };
 
   const closeAddNonRoutineEventModal = () => {
     setAddNonRoutineEventModalConfig((prevState) => ({
@@ -288,32 +231,33 @@ const openAddNonRoutineDataModal = (
       modalVisible: false,
     }));
   };
-  
-  const [addNonRoutineEventModalConfig, setAddNonRoutineEventModalConfig] = useState({
-    modalVisible: false,
-    modalUI: {
-      showHeader: true,
-      crossIcon: false,
-      modalClass: "emailArchiveModal",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
+
+  const [addNonRoutineEventModalConfig, setAddNonRoutineEventModalConfig] =
+    useState({
+      modalVisible: false,
+      modalUI: {
+        showHeader: true,
+        crossIcon: false,
+        modalClass: "emailArchiveModal",
+        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+        headerSubTextStyle: {
+          marginTop: "1rem",
+          color: "rgba(36, 36, 36, 1)",
+          fontSize: { md: "0.875rem" },
+        },
+        fotterActionStyle: "",
+        modalBodyContentStyle: "",
       },
-      fotterActionStyle: "",
-      modalBodyContentStyle: "",
-    },
-    buttonsUI: {
-      saveButton: false,
-      cancelButton: false,
-      saveButtonName: "Sent Request",
-      cancelButtonName: "Cancel",
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    modalBodyContent: "",
-  });
+      buttonsUI: {
+        saveButton: false,
+        cancelButton: false,
+        saveButtonName: "Sent Request",
+        cancelButtonName: "Cancel",
+        saveButtonClass: "",
+        cancelButtonClass: "",
+      },
+      modalBodyContent: "",
+    });
 
   const [addNonRoutineDataModalConfig, setAddNonRoutineDataModalConfig] =
     useState({
@@ -342,9 +286,64 @@ const openAddNonRoutineDataModal = (
       modalBodyContent: "",
     });
 
- 
-
+  const [performanceP4PCalcTab, setPerformanceP4PCalcTab] =
+    useState(1);
+    const [p4PStartEndDates, setP4PStartEndDates] = useState({
+      startDate: "",
+      endDate: "",
+    });
   
+  const [p4pIncentiveStatus, setP4PIncentiveStatus] = useState();
+
+  const handleChangePerformance = (event, newValue) => {
+    setPerformanceP4PCalcTab(newValue);
+  };
+
+  useEffect(() => {
+    let startDate = "";
+    let endDate = "";
+    let p4pIncentiveStatus = "";
+
+    if (incentiveSettings) {
+      switch (performanceP4PCalcTab) {
+        case 1:
+          startDate = incentiveSettings.p4pStartDate1;
+          endDate = incentiveSettings.p4pEndDate1;
+          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus1;
+          break;
+        case 2:
+          startDate = incentiveSettings.p4pStartDate2;
+          endDate = incentiveSettings.p4pEndDate2;
+          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus2;
+          break;
+        case 3:
+          startDate = incentiveSettings.p4pStartDate3;
+          endDate = incentiveSettings.p4pEndDate3;
+          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus3;
+          break;
+        default:
+          break;
+      }
+    }
+
+    setP4PStartEndDates({ startDate, endDate });
+    setP4PIncentiveStatus(p4pIncentiveStatus);
+  }, [performanceP4PCalcTab, incentiveSettings]);
+  
+  const initialMeterData = {
+    adjusted_baseline_energy_consumption: 11109772,
+    reporting_period_energy_consumption: 10345443,
+    non_routine_adjustment: -41137,
+    total_energy_savings: 733202,
+    off_peak_energy_savings: 10010,
+    on_peak_energy_savings: 723192,
+    off_peak_energy_savings_incentive: "",
+    on_peak_energy_savings_incentive: "-",
+    performance_incentive: "-",
+    peak_demand_savings: 91,
+    energy_savings_percentage: 6.5,
+  };
+
   return (
     <>
       <Grid
@@ -359,7 +358,7 @@ const openAddNonRoutineDataModal = (
         <Grid item xs={12} md={9}>
           <Tabs
             className="theme-tabs-list"
-            value={performanceTabs}
+            value={performanceP4PCalcTab}
             onChange={handleChangePerformance}
             sx={{
               display: "inline-flex",
@@ -367,17 +366,17 @@ const openAddNonRoutineDataModal = (
             }}
           >
             <Tab
-              value="firstPayDay"
+              value={1}
               label="First pay-for-performance"
               sx={{ minWidth: "10rem" }}
             />
             <Tab
-              value="secondPayDay"
+              value={2}
               label="Second pay-for-performance"
               sx={{ minWidth: "10rem" }}
             />
             <Tab
-              value="thirdPayDay"
+              value={3}
               label="Third pay-for-performance"
               sx={{ minWidth: "10rem" }}
             />
@@ -408,206 +407,17 @@ const openAddNonRoutineDataModal = (
       </Grid>
 
       <Grid item container flexWrap={"nowrap"} gap={"1rem"}>
-        <Grid
-          item
-          xs={12}
-          md={9.7}
-          sx={{
-            border: "1px solid #2E813E",
-            borderRadius: "10px",
-            padding: "20px",
-            backgroundColor: "#CBFFD5",
-          }}
-        >
-          <Formik
-            enableReinitialize={true}
-            initialValues={{ ...initialValues }}
-          >
-            <Form>
-              <Grid item container>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    Pay-for-performance period
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        From
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <DatePicker
-                        id="from_date"
-                        name="from_date"
-                        sx={{
-                          width: "100%",
-                          input: { color: "#111" },
-                        }}
-                        disableFuture
-                        format="dd/MM/yyyy"
-                      />
-                    </Grid>
-                    <Grid item xs={12} md={2} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        To
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <DatePicker
-                        id="to_date"
-                        name="to_date"
-                        sx={{
-                          width: "100%",
-                          input: { color: "#111" },
-                        }}
-                        disableFuture
-                        format="dd/MM/yyyy"
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item container sx={{ marginTop: "20px" }}>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    Adjusted baseline NG consumption
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        10,345,443
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={8}>
-                      <SelectBox
-                        name="adjusted_baseline"
-                        options={savingReportDropdown}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item container sx={{ marginTop: "20px" }}>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    Reporting period NG consumption
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        -41,137
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={8}>
-                      <SelectBox
-                        name="reporting_period_NG_consumption"
-                        options={savingReportDropdown}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item container sx={{ marginTop: "20px" }}>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    Non-routine adjustment
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        723,192
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={8}>
-                      <SelectBox
-                        name="non_routine_adjustment"
-                        options={savingReportDropdown}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item container sx={{ marginTop: "20px" }}>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    NG savings
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        10,010
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={8}>
-                      <SelectBox
-                        name="NG_savings"
-                        options={savingReportDropdown}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-
-              <Grid item container sx={{ marginTop: "20px" }}>
-                <Grid item xs={12} md={6} sx={performancePeriodStyleInArea}>
-                  <Typography variant="h6" sx={baselineStyleInAccordion}>
-                    NG savings as percentage of adjusted baseline NG consumption
-                    and non-routine adjustment
-                  </Typography>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} md={4} sx={performancePeriodStyleInArea}>
-                      <Typography
-                        variant="h6"
-                        sx={performancePeriodStyleInAccordion}
-                      >
-                        6.5%
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={8}>
-                      <SelectBox
-                        name="NG_savings_percentage"
-                        options={savingReportDropdown}
-                      />
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Form>
-          </Formik>
+        <Grid xs={12} md={9.3}>
+          <SavingsReportForm
+            meterType={meter_type}
+            performanceP4PCalcTab={performanceP4PCalcTab}
+            p4PStartEndDates={p4PStartEndDates}
+            p4pIncentiveStatus={p4pIncentiveStatus}
+            initialData={initialMeterData}
+            submitTrigger={submitTrigger}
+            refreshTrigger={refreshTrigger}
+            onDateValidation={onDateValidation}
+          />
         </Grid>
 
         <Grid
@@ -624,10 +434,10 @@ const openAddNonRoutineDataModal = (
             Non-routine event name
           </Typography>
           <Grid sx={{ background: "#E2F8E6" }}>
-            {nonRoutineEventList.length > 0 ? (
+            {adminNonRoutineEventList.length > 0 ? (
               <>
                 <List>
-                  {nonRoutineEventList.map((eventItem, index) => (
+                  {adminNonRoutineEventList.map((eventItem, index) => (
                     <ListItem
                       key={index}
                       variant="h6"
@@ -640,15 +450,17 @@ const openAddNonRoutineDataModal = (
                     </ListItem>
                   ))}
                 </List>
-                <Pagination
-                  count={totalPages}
-                  page={page + 1}
-                  onChange={(event, newPage) =>
-                    handlePageChange(event, newPage - 1)
-                  }
-                  color="primary"
-                  sx={{ mt: 2, display: "flex", justifyContent: "center" }}
-                />
+                {responseCount > 10 && (
+                  <Pagination
+                    count={totalPages}
+                    page={page + 1}
+                    onChange={(event, newPage) =>
+                      handlePageChange(event, newPage - 1)
+                    }
+                    color="primary"
+                    sx={{ mt: 2, display: "flex", justifyContent: "center" }}
+                  />
+                )}
               </>
             ) : (
               <Typography
@@ -684,6 +496,6 @@ const openAddNonRoutineDataModal = (
       />
     </>
   );
-}
+};
 
 export default PerformancePeriodInformationAccordion;

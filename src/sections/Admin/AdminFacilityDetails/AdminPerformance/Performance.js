@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
   Button,
@@ -22,7 +22,6 @@ import PerformancePeriodInformationAccordion from "./PerformancePeriodInformatio
 import PerformancePeriodDataVisualization from "./PerformancePeriodDataVisualization";
 import PerformanceSettingComponent from "./PerformanceSettingComponent";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -125,7 +124,6 @@ const Performance = () => {
     modalBodyContent: "",
   });
 
-
   const openParameterModal = (parameterName) => {
     setParameterModalConfig((prevState) => ({
       ...prevState,
@@ -175,7 +173,22 @@ const Performance = () => {
     );
   };
 
+  const [submitTrigger, setSubmitTrigger] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
+  const [isDateValid, setIsDateValid] = useState(false);
+
+  const handleSubmitSavingsReport = useCallback(() => {
+    setSubmitTrigger(true);
+  }, []);
+
+  const handleRefreshReport = useCallback(() => {
+    setRefreshTrigger(true);
+  }, []);
+
+  const handleDateValidation = (isValid) => {
+    setIsDateValid(isValid);
+  };
 
   return (
     <>
@@ -254,6 +267,7 @@ const Performance = () => {
               </Typography>
               <Button
                 type="button"
+                onClick={handleRefreshReport}
                 sx={{
                   border: "2px solid #2E813E",
                 }}
@@ -262,13 +276,9 @@ const Performance = () => {
               </Button>
               <Button
                 type="button"
-                sx={{
-                  backgroundColor: "#54585A",
-                  color: "#ffffff",
-                  "&:hover": {
-                    backgroundColor: "#54585A",
-                  },
-                }}
+                variant="contained"
+                onClick={handleSubmitSavingsReport}
+                disabled={!isDateValid}
               >
                 Submit Savings Report
               </Button>
@@ -316,6 +326,9 @@ const Performance = () => {
               details={
                 <PerformancePeriodInformationAccordion
                   meter_type={activeButton}
+                  submitTrigger={submitTrigger}
+                  refreshTrigger={refreshTrigger}
+                  onDateValidation={handleDateValidation}
                 />
               }
               panelId="performancePeriodReportingInformation"

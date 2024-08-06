@@ -459,7 +459,7 @@ const AddNonRoutineDataModal = ({
                     color={"blue.main"}
                     sx={{ cursor: "pointer" }}
                   >
-                    Non-Routine Adjustment spreadsheet
+                    non-routine adjustment spreadsheet
                   </Link>{" "}
                   for the formatting details.
                 </Typography>

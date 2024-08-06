@@ -148,3 +148,20 @@ body {
         text-align: left;
     }
 }
+
+.savings-report-table{
+    .MuiTableRow-root th{
+        padding: 0;
+    }
+    .MuiTableBody-root{
+        tr{
+            td:nth-child(2){
+                text-align: end;
+            }
+
+            td:last-child {
+                text-align: start;
+            }
+        }
+    }
+}

@@ -9,13 +9,13 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import InputField from "components/FormBuilder/InputField";
 import TextAreaField from "components/FormBuilder/TextAreaField";
-import {
-  addNonRoutineEvent,
-  getNonRoutineEventDetails,
-  getNonRoutineEventList,
-  updateNonRoutineEvent,
-} from "../../../../redux/superAdmin/actions/performanceAction";
 import { nonRoutineEventValidationSchema } from "utils/validations/formValidation";
+import {
+  addAdminNonRoutineEvent,
+  getAdminNonRoutineEventDetails,
+  getAdminNonRoutineEventList,
+  updateAdminNonRoutineEvent,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const AddNonRoutineEventModal = ({
   meter_type,
@@ -27,7 +27,7 @@ const AddNonRoutineEventModal = ({
   const itemsPerPage = 10;
   const dispatch = useDispatch();
   const facility_id = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.id
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
   const [initialValues, setInitialValues] = useState({
@@ -37,21 +37,21 @@ const AddNonRoutineEventModal = ({
     event_description: "",
   });
 
-  const { nonRoutineEventDetails, loading } = useSelector(
-    (state) => state?.performanceReducer
+  const { adminNonRoutineEventDetails, loading } = useSelector(
+    (state) => state?.adminPerformanceReducer
   );
 
   useEffect(() => {
     if (editMode.isEditing && editMode.eventId) {
-      dispatch(getNonRoutineEventDetails(editMode.eventId))
+      dispatch(getAdminNonRoutineEventDetails(editMode.eventId))
         .then(() => {
           setInitialValues({
-            event_to_period: new Date(nonRoutineEventDetails.event_to_period),
+            event_to_period: new Date(adminNonRoutineEventDetails.event_to_period),
             event_from_period: new Date(
-              nonRoutineEventDetails.event_from_period
+              adminNonRoutineEventDetails.event_from_period
             ),
-            event_name: nonRoutineEventDetails.event_name,
-            event_description: nonRoutineEventDetails.event_description,
+            event_name: adminNonRoutineEventDetails.event_name,
+            event_description: adminNonRoutineEventDetails.event_description,
           });
         })
         .catch((error) => {
@@ -63,8 +63,8 @@ const AddNonRoutineEventModal = ({
   const handleSubmit = (values) => {
     const payload = { ...values, facility_id, meter_type };
     const action = editMode.isEditing
-      ? updateNonRoutineEvent(editMode.eventId, payload)
-      : addNonRoutineEvent(payload);
+      ? updateAdminNonRoutineEvent(editMode.eventId, payload)
+      : addAdminNonRoutineEvent(payload);
 
     dispatch(action)
       .then((response) => {
@@ -72,7 +72,7 @@ const AddNonRoutineEventModal = ({
         const event_to_period = response?.data?.event_to_period;
         const event_from_period = response?.data?.event_from_period;
         closeAddNonRoutineEventModal();
-        dispatch(getNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
+        dispatch(getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
         if (!editMode.isEditing) {
           openAddNonRoutineDataModal(
             event_id,
@@ -193,8 +193,8 @@ const AddNonRoutineEventModal = ({
                     onClick={() => {
                       openAddNonRoutineDataModal(
                         editMode.eventId,
-                        nonRoutineEventDetails.event_to_period,
-                        nonRoutineEventDetails.event_from_period,
+                        adminNonRoutineEventDetails.event_to_period,
+                        adminNonRoutineEventDetails.event_from_period,
                         true // isEditing is true when editing existing data
                       );
                       closeAddNonRoutineEventModal();
