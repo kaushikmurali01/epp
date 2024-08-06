@@ -148,3 +148,19 @@ body {
         text-align: left;
     }
 }
+
+/* HTML: <div class="loader"></div> */
+.progress-loader {
+    width: 12px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    animation: l5 1s infinite linear alternate;
+  }
+
+  @keyframes l5 {
+      0%  {box-shadow: 20px 0 #2e813e, -20px 0 #2e813e20;background: #2e813e }
+      33% {box-shadow: 20px 0 #2e813e, -20px 0 #2e813e20;background: #2e813e20}
+      66% {box-shadow: 20px 0 #2e813e20,-20px 0 #2e813e; background: #2e813e20}
+      100%{box-shadow: 20px 0 #2e813e20,-20px 0 #2e813e; background: #2e813e }
+  }
+  

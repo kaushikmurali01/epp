@@ -54,6 +54,7 @@ import {
 import EnergyUseByHoursBasisGraph from "./EntryListing/EnergyUseByHoursBasisGraph";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import Loader from "pages/Loader";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -709,19 +710,22 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
     }
   }
   
-  useEffect(()=> {
-    console.log(getDataProcessingLoader,sessionStorage?.getItem("dataProcessingLoader") === 'true', dataProcessingLoader, "session storage check")
-    if (dataProcessingLoader) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
-    }
-  }, [])
+  // useEffect(()=> {
+  //   console.log(getDataProcessingLoader,sessionStorage?.getItem("dataProcessingLoader") === 'true', dataProcessingLoader, "session storage check")
+   
+  // }, [meterData])
 
   useEffect(() => {
 
-    if(Object.keys(meterData).length > 0){
+    if(Object.keys(meterData).length > 0 && !dataProcessingLoader){
       console.log(meterData, "meterData check")
       getHourlyEntriesData()
     }
+
+    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+    }
+
   }, [meterData]);
 
   //  return html dom
@@ -1088,11 +1092,12 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
           </Box>
       ) }
 
-      {dataProcessingLoader && 
-        <Box>
-          <Typography variant="body2" color="textSecondary">
-            Be patient, file processing is running...
+      {(dataProcessingLoader) && 
+        <Box sx={{ display: "flex", gap: '1rem', alignItems: 'center'}}>
+          <Typography variant="body2" color="textSecondary" sx={{marginRight: '1rem'}} >
+            Be patient, file processing is running
         </Typography>
+        <div class="progress-loader"></div>
          
         </Box>
       }
