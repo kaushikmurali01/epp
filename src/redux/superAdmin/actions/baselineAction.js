@@ -114,7 +114,10 @@ export const fetchBaselinePeriod = (facilityId, meterType) => {
       console.error(error);
       dispatch(fetchBaselinePeriodFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message:
+          error?.response?.status >= 400
+            ? error?.response?.data?.error
+            : error?.message,
         type: "error",
       });
       throw error;
