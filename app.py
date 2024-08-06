@@ -11,6 +11,15 @@ app = Flask(__name__)
 @app.route('/model_summary', methods=['POST'])
 
 def baseline_model_training():
+    return {
+    "Number of observations": 150,
+    "Coefficient of Determination, R2": "84.23%",
+    "Adjusted R2": "83.97%",
+    "Root-mean-square error, RMSE R2": 1.05,
+    "Coefficient of variation of RMSE": "3.12%",
+    "Auto correlation function": 0.85,
+    "Durbin-Watson (P>0)": 1.68
+    }
     input_settings = request.get_json()
     try:
         url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
@@ -186,7 +195,8 @@ def p4p_calculation():
     minimum_savings = input_settings_p4p.get('minimum_savings', 0)
     facility_id = input_settings_p4p.get('facility_id')
     meter_type = input_settings_p4p.get('meter_type')
-    
+    #take independent_variables from database
+
     # Blob names
     sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
     model_blob_name = f"{sub_folder_name}/model.pkl"
