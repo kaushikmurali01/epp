@@ -180,7 +180,8 @@ export class AdminFacilityService {
     facilityId: number
   ): Promise<Facility[]> {
     try {
-      if (body.company_id) {
+      let checkFacility = await Facility.findOne({ where: { id: facilityId } });
+      if (body.company_id && body.company_id != checkFacility?.company_id) {
         const obj = {
           facility_construction_status: body.facility_construction_status,
           facility_name: body.facility_name,
@@ -818,13 +819,16 @@ where facility_id=p.id) as total_user_count from (SELECT
     facility_id: number
   ): Promise<Facility[]> {
     try {
+      let findFacility = await Facility.findOne({ where: { id: facility_id } });
       let findUser = await User.findOne({ where: { id: user_id } });
-      await UserResourceFacilityPermission.destroy({
-        where: {
-          email: findUser?.email,
-          facility_id,
-        },
-      });
+      if (findUser) {
+        await UserResourceFacilityPermission.destroy({
+          where: {
+            email: findUser?.email,
+            facility_id,
+          },
+        });
+      }
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success
@@ -837,10 +841,27 @@ where facility_id=p.id) as total_user_count from (SELECT
 
   static async getUserInFromCompnay(
     userToken: IUserToken | any,
-    company_id: number
+    company_id: number,
+    facility_id: number
   ): Promise<Facility[]> {
     try {
-      let query = `Select id,email,first_name,last_name from users where id in (select user_id from user_company_role where compnay_id=${company_id})`;
+      let query = `SELECT 
+   distinct( u.id),
+    u.email,
+    u.first_name,
+    u.last_name,
+    CASE 
+        WHEN urfp.email IS NOT NULL THEN true
+        ELSE false
+    END AS isAssign
+FROM 
+    users u
+JOIN 
+    user_company_role ucr ON u.id = ucr.user_id
+LEFT JOIN 
+    user_resource_facility_permission urfp ON u.email = urfp.email and urfp.company_id=${company_id} and urfp.facility_id=${facility_id}
+WHERE 
+    ucr.company_id = ${company_id}`;
       let result = await rawQuery(query);
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,

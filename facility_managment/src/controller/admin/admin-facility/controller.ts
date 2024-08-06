@@ -215,7 +215,7 @@ export class AdminFacilityController {
   ): Promise<Facility[]> {
     try {
       const result = await AdminFacilityService.facilityAssignUser(
-        Object(decodedToken),
+        decodedToken,
         user_ids,
         facility_id
       );
@@ -235,7 +235,7 @@ export class AdminFacilityController {
   ): Promise<Facility[]> {
     try {
       const result = await AdminFacilityService.removeUserFromFacility(
-        Object(decodedToken),
+        decodedToken,
         user_id,
         facility_id
       );
@@ -248,15 +248,17 @@ export class AdminFacilityController {
       throw this.errorMessage;
     }
   }
-  
+
   static async getUserInFromCompnay(
     decodedToken: IUserToken,
-    company_id: number
+    company_id: number,
+    facility_id: number
   ): Promise<Facility[]> {
     try {
       const result = await AdminFacilityService.getUserInFromCompnay(
-        Object(decodedToken),
-        company_id
+        decodedToken,
+        company_id,
+        facility_id
       );
       return result;
     } catch (error) {
@@ -272,7 +274,7 @@ export class AdminFacilityController {
    * Delete facility by the user.
    * @returns {number} response_code - API Response Code
    * @returns {string} response_message - API Response Message
-   * @returns {object[]} response_data - API Response Data
+   * @returns {]} response_data - API Response Daa
    */
   static async deleteFacility(
     decodedToken: IUserToken,

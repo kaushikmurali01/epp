@@ -8,6 +8,7 @@ class UserResourceFacilityPermission extends Model {
     public resource_permission_id: number;
     public facility_id: number;
     public company_id: number;
+    public is_created: boolean;
     public createdAt!: Date;
     public updatedAt!: Date;
 }
@@ -32,6 +33,11 @@ UserResourceFacilityPermission.init(
             type: DataTypes.INTEGER,
             allowNull: false,
         },
+        is_created: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false,
+          },
         company_id: {
             type: DataTypes.INTEGER,
             allowNull: true,

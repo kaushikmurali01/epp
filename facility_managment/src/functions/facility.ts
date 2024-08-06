@@ -23,7 +23,7 @@ import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.in
 import { EmailController } from "../controller/sentEmail/controller";
 import { FacilityNonRoutineEventController } from "../controller/facility_non_routine_event/controller";
 import { ContactController } from "../controller/contact/controller";
-
+import { number } from "yup";
 
 // Facility User CRUD
 
@@ -146,8 +146,7 @@ export async function getUserInFromCompnay(
 ): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    const requestData: any = await request.json();
-    const { company_id } = request.params;
+    const { company_id, facility_id } = request.params;
 
     // Fetch values from decoded token
     const decodedToken = await decodeToken(request, context, async () =>
@@ -155,7 +154,8 @@ export async function getUserInFromCompnay(
     );
     const result = await AdminFacilityController.getUserInFromCompnay(
       decodedToken,
-      Number(company_id)
+      Number(company_id),
+      Number(facility_id)
     );
 
     // Prepare response body
@@ -174,7 +174,6 @@ export async function removeUserFromFacility(
 ): Promise<HttpResponseInit> {
   try {
     // Fetch params
-    const requestData: any = await request.json();
     const { facility_id, user_id } = request.params;
 
     // Fetch values from decoded token
@@ -564,6 +563,112 @@ export async function addFacilityNonRoutineDataEntry(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function geteHourlyEntries(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const requestData = await request.json();
+    const result = await FacilityNonRoutineEventController.geteHourlyEntries(
+      decodedToken,
+      requestData
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function deleteHourlyEntries(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const requestData = await request.json();
+    const result = await FacilityNonRoutineEventController.deleteHourlyEntries(
+      decodedToken,
+      requestData
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function removeFacilityNonRoutineDataEntry(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const { id } = request.params;
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.removeFacilityNonRoutineDataEntry(
+        decodedToken,
+        Number(id)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function removeFacilityNonRoutine(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const { id } = request.params;
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result =
+      await FacilityNonRoutineEventController.removeFacilityNonRoutine(
+        decodedToken,
+        Number(id)
+      );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function editFacilityNonRoutineDataEntry(
   request: HttpRequest,
   context: InvocationContext
@@ -667,6 +772,66 @@ export async function addBaselineData(
 
     // Get all result
     const result = await FacilityController.addBaselineData(
+      decodedToken,
+      Number(facility_id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addPerformanceData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facility_id } = request.params;
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.addPerformanceData(
+      decodedToken,
+      Number(facility_id),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function addSavingPlanRequest(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facility_id } = request.params;
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.addSavingPlanRequest(
       decodedToken,
       Number(facility_id),
       Object(requestData)
@@ -2486,21 +2651,32 @@ export async function addContact(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const facility_id = parseInt(request.params.facilityId);
     const contactData = Object(await request.json());
-    const result = await ContactController.addContact({...contactData, facility_id}, decodedToken);
+    console.log(contactData, "aaaaa", decodedToken);
+    const result = await ContactController.addContact(
+      { ...contactData, facility_id },
+      decodedToken
+    );
     return { body: JSON.stringify(result) };
   } catch (error) {
-    if (error.message.includes("Missing required fields") || error.message.includes("Invalid email format")) {
-      return { 
-        status: HTTP_STATUS_CODES.BAD_REQUEST, 
-        body: JSON.stringify({ error: error.message })
+    if (
+      error.message.includes("Missing required fields") ||
+      error.message.includes("Invalid email format")
+    ) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        body: JSON.stringify({ error: error.message }),
       };
     }
-    return { 
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
-      body: JSON.stringify({ error: "An unexpected error occurred while adding the contact." })
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({
+        error: "An unexpected error occurred while adding the contact.",
+      }),
     };
   }
 }
@@ -2510,14 +2686,19 @@ export async function getContacts(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const facilityId = parseInt(request.params.facilityId);
-    const result = await ContactController.getContacts(facilityId, decodedToken);
+    const result = await ContactController.getContacts(
+      facilityId,
+      decodedToken
+    );
     return { body: JSON.stringify(result) };
   } catch (error) {
-    return { 
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
-      body: JSON.stringify({ error: error.message })
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({ error: error.message }),
     };
   }
 }
@@ -2527,22 +2708,35 @@ export async function updateContact(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const facilityId = parseInt(request.params.facilityId);
     const id = parseInt(request.params.id);
     const contactData = await request.json();
-    const result = await ContactController.updateContact(id, facilityId, contactData, decodedToken);
+    const result = await ContactController.updateContact(
+      id,
+      facilityId,
+      contactData,
+      decodedToken
+    );
     return { body: JSON.stringify(result) };
   } catch (error) {
-    if (error.message.includes("Missing required fields") || error.message.includes("Invalid email format") || error.message.includes("Contact not found")) {
-      return { 
-        status: HTTP_STATUS_CODES.BAD_REQUEST, 
-        body: JSON.stringify({ error: error.message })
+    if (
+      error.message.includes("Missing required fields") ||
+      error.message.includes("Invalid email format") ||
+      error.message.includes("Contact not found")
+    ) {
+      return {
+        status: HTTP_STATUS_CODES.BAD_REQUEST,
+        body: JSON.stringify({ error: error.message }),
       };
     }
-    return { 
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
-      body: JSON.stringify({ error: "An unexpected error occurred while updating the contact." })
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({
+        error: "An unexpected error occurred while updating the contact.",
+      }),
     };
   }
 }
@@ -2552,21 +2746,25 @@ export async function deleteContact(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const facilityId = parseInt(request.params.facilityId);
     const id = parseInt(request.params.id);
     await ContactController.deleteContact(id, facilityId, decodedToken);
     return { status: HTTP_STATUS_CODES.NO_CONTENT };
   } catch (error) {
     if (error.message.includes("Contact not found")) {
-      return { 
-        status: 404, 
-        body: JSON.stringify({ error: error.message })
+      return {
+        status: 404,
+        body: JSON.stringify({ error: error.message }),
       };
     }
-    return { 
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
-      body: JSON.stringify({ error: "An unexpected error occurred while deleting the contact." })
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({
+        error: "An unexpected error occurred while deleting the contact.",
+      }),
     };
   }
 }
@@ -2575,17 +2773,24 @@ export async function getContactSuggestions(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
-    const decodedToken = await decodeToken(request, context, async () => Promise.resolve({}));
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
     const facilityId = parseInt(request.params.facilityId);
-    const query = request.query.get('q') || '';
-    const limit = parseInt(request.query.get('limit') || '10');
+    const query = request.query.get("q") || "";
+    const limit = parseInt(request.query.get("limit") || "10");
 
-    const result = await ContactController.getContactSuggestions(facilityId, query, limit, decodedToken);
+    const result = await ContactController.getContactSuggestions(
+      facilityId,
+      query,
+      limit,
+      decodedToken
+    );
     return { body: JSON.stringify(result) };
   } catch (error) {
-    return { 
-      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR, 
-      body: JSON.stringify({ error: error.message })
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({ error: error.message }),
     };
   }
 }
@@ -2603,7 +2808,18 @@ app.http("add-contact", {
   route: "facility/{facilityId}/contact",
   handler: addContact,
 });
-
+app.http("remove-hourly-entry", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "facility/removeHourlyEntries",
+  handler: deleteHourlyEntries,
+});
+app.http("get-hourly-entry", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "facility/getHourlyEntries",
+  handler: geteHourlyEntries,
+});
 app.http("get-contacts", {
   methods: ["GET"],
   authLevel: "anonymous",
@@ -2700,7 +2916,7 @@ app.http(`facility-listing-post`, {
 });
 app.http(`user-company-drop-down`, {
   methods: ["GET"],
-  route: "user-company-drop-down/{company_id}",
+  route: "user-company-drop-down/{company_id}/{facility_id}",
   authLevel: "anonymous",
   handler: getUserInFromCompnay,
 });
@@ -2760,6 +2976,18 @@ app.http("add-non-routine-data_entry", {
   authLevel: "anonymous",
   handler: addFacilityNonRoutineDataEntry,
 });
+app.http("remove-non-routine-data_entry", {
+  methods: ["DELETE"],
+  route: "removeNonRoutineData/{id}",
+  authLevel: "anonymous",
+  handler: removeFacilityNonRoutineDataEntry,
+});
+app.http("remove-non-routine", {
+  methods: ["DELETE"],
+  route: "removeNonRoutine/{id}",
+  authLevel: "anonymous",
+  handler: removeFacilityNonRoutine,
+});
 app.http("edit-non-routine-data_entry", {
   methods: ["PATCH"],
   route: "editNonRoutineData/{id}",
@@ -2789,6 +3017,18 @@ app.http("detail-non-routine-event", {
   route: "nonRoutineEventDetail/{id}",
   authLevel: "anonymous",
   handler: getFacilityNonRoutineEventById,
+});
+app.http("add-performance-data", {
+  methods: ["POST"],
+  route: "performance/{facility_id}",
+  authLevel: "anonymous",
+  handler: addPerformanceData,
+});
+app.http("add-saving-plan-request", {
+  methods: ["POST"],
+  route: "savingPlan/{facility_id}",
+  authLevel: "anonymous",
+  handler: addSavingPlanRequest,
 });
 app.http("add-baseline", {
   methods: ["POST"],

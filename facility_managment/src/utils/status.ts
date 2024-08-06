@@ -1,3 +1,5 @@
+import { verify } from "crypto";
+
 export const HTTP_STATUS_CODES = {
   SUCCESS: 200,
   NO_CONTENT: 204,
@@ -48,6 +50,14 @@ export const BASE_LINE_STATUS = {
   draft: "DRAFT",
   created: "CREATED",
   submit: "SUBMITTED",
+  rejected: "REJECTED",
+  requested: "REQUESTED",
+};
+export const PERFORMANCE_STATUS = {
+  draft: "DRAFT",
+  created: "CREATED",
+  submit: "SUBMITTED",
+  verify: "VERIFIED",
   rejected: "REJECTED",
   requested: "REQUESTED",
 };

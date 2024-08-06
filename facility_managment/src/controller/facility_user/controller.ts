@@ -155,6 +155,26 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
+  static async addSavingPlanRequest(
+    decodedToken: IUserToken,
+    facility_id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.addSavingPlanRequest(
+        Object(decodedToken),
+        facility_id,
+        body
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
   static async addBaselineData(
     decodedToken: IUserToken,
     facility_id: number,
@@ -162,6 +182,26 @@ export class FacilityController {
   ): Promise<Facility[]> {
     try {
       const result = await FacilityService.addBaselineData(
+        Object(decodedToken),
+        facility_id,
+        body
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  static async addPerformanceData(
+    decodedToken: IUserToken,
+    facility_id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.addPerformanceData(
         Object(decodedToken),
         facility_id,
         body

@@ -38,7 +38,7 @@ export class ContactService {
 
       const newContact = await Contact.create({
         ...contactData,
-        created_by: decodedToken.userId,
+        created_by: decodedToken.id,
       });
       return newContact.toJSON();
     } catch (error) {
@@ -71,7 +71,7 @@ export class ContactService {
 
       await contact.update({
         ...contactData,
-        updated_by: decodedToken.userId,
+        updated_by: decodedToken.id,
       });
       return contact.toJSON();
     } catch (error) {

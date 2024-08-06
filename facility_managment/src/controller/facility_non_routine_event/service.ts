@@ -5,7 +5,9 @@ import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { NonRoutineModel } from "../../models/facility_non_routine_event.model";
 import { NonRoutineDataEntryModel } from "../../models/non_routine_data_entry.model";
-import { Model } from "sequelize";
+import { Model, Op } from "sequelize";
+import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
+import { errorMonitor } from "events";
 
 export class FacilityNonRoutineEventSevice {
   static async getFacilityNonRoutineEventById(
@@ -47,8 +49,9 @@ export class FacilityNonRoutineEventSevice {
       }
       const result = await NonRoutineModel.findAndCountAll({
         where: { facility_id: facilityId, ...whereObj },
-        offset,
+        offset: Number(offset * limit),
         limit,
+        order: [["created_at", "desc"]],
       });
 
       const resp = ResponseHandler.getResponse(
@@ -103,6 +106,174 @@ export class FacilityNonRoutineEventSevice {
       );
     }
   }
+
+  static async geteHourlyEntries(
+    decodedToken: any,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      let start_date = new Date(body.start_date);
+      let end_date = new Date(body.end_date);
+      let facility_id = body.facility_id;
+      let obj: any = {};
+      if (body.independent_variable_id) {
+        obj.independent_variable_id = body.independent_variable_id;
+        obj.is_independent_variable = true;
+      }
+      if (body.meter_type) {
+        obj.meter_id = body.meter_id;
+        obj.meter_type = body.meter_type;
+      }
+      if (body.start_date && body.end_date) {
+        const startOffset = new Date(start_date).getTimezoneOffset() * 60000;
+        const endOffset = new Date(end_date).getTimezoneOffset() * 60000;
+        const start = new Date(start_date.getTime() - startOffset);
+        start.setHours(0, 0, 0, 0); // Set to start of the day in local time
+
+        const end = new Date(end_date.getTime() - endOffset);
+        end.setHours(23, 59, 59, 999);
+        obj = {
+          ...obj,
+          start_date: {
+            [Op.gte]: start,
+          },
+          end_date: {
+            [Op.lte]: end,
+          },
+        };
+      }
+      if (facility_id) {
+        let data = await MeterHourlyEntries.findAndCountAll({
+          where: {
+            ...obj,
+            facility_id,
+          },
+          offset: body.offset || 0,
+          limit: body.limit || 10,
+          order: [["start_date", "desc"]],
+        });
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          data
+        );
+      } else {
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.BAD_REQUEST,
+          RESPONSE_MESSAGES.invalidJson
+        );
+      }
+    } catch (error) {
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
+    }
+  }
+  static async deleteHourlyEntries(
+    userToken: IUserToken,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      let start_date = new Date(body.start_date);
+      let end_date = new Date(body.end_date);
+      let facility_id = body.facility_id;
+      let obj: any = {};
+      if (body.independent_variable_id) {
+        obj.independent_variable_id = body.independent_variable_id;
+        obj.is_independent_variable = true;
+      }
+      if (body.meter_type) {
+        obj.meter_id = body.meter_id;
+        obj.meter_type = body.meter_type;
+      }
+      if (body.start_date && body.end_date) {
+        const startOffset = new Date(start_date).getTimezoneOffset() * 60000;
+        const endOffset = new Date(end_date).getTimezoneOffset() * 60000;
+        const start = new Date(start_date.getTime() - startOffset);
+        start.setHours(0, 0, 0, 0); // Set to start of the day in local time
+
+        const end = new Date(end_date.getTime() - endOffset);
+        end.setHours(23, 59, 59, 999);
+        obj = {
+          ...obj,
+          start_date: {
+            [Op.gte]: start,
+          },
+          end_date: {
+            [Op.lte]: end,
+          },
+        };
+      }
+      if (facility_id) {
+        await MeterHourlyEntries.destroy({
+          where: {
+            ...obj,
+            facility_id,
+          },
+        });
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success
+        );
+      } else {
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.BAD_REQUEST,
+          RESPONSE_MESSAGES.invalidJson
+        );
+      }
+    } catch (error) {
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
+    }
+  }
+  static async removeFacilityNonRoutineDataEntry(
+    userToken: IUserToken,
+    id: number
+  ): Promise<NonRoutineModel[]> {
+    try {
+      await NonRoutineDataEntryModel.destroy({
+        where: { id },
+      });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success
+      );
+    } catch (error) {
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
+    }
+  }
+  static async removeFacilityNonRoutine(
+    userToken: IUserToken,
+    id: number
+  ): Promise<NonRoutineModel[]> {
+    try {
+      await NonRoutineDataEntryModel.destroy({
+        where: { non_routine_id: id },
+      });
+      await NonRoutineModel.destroy({
+        where: { id },
+      });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success
+      );
+    } catch (error) {
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
+    }
+  }
   static async addFacilityNonRoutineDataEntry(
     userToken: IUserToken,
     body: IBaseInterface
@@ -121,21 +292,38 @@ export class FacilityNonRoutineEventSevice {
         let dataEntries = body.data_entries;
         let array = [];
         let result;
+        dataEntries = JSON.parse(JSON.stringify(dataEntries));
         if (dataEntries.length) {
           for (let i = 0; i < dataEntries.length; i++) {
-            const obj: any = {
-              non_routine_adjustment: dataEntries[i].non_routine_adjustment,
-              start_date: dataEntries[i].start_date || null,
-              end_date: dataEntries[i].end_date || null,
-              non_routine_id: body.non_routine_id,
-              file_url: body.file_url,
-              type: body.type,
-              created_by: userToken.id,
-              updated_by: userToken.id,
-            };
-            array.push(obj);
-            result = await NonRoutineDataEntryModel.bulkCreate(array);
+            if (dataEntries[i].id) {
+              const obj: any = {
+                non_routine_adjustment: dataEntries[i].non_routine_adjustment,
+                start_date: dataEntries[i].start_date || null,
+                end_date: dataEntries[i].end_date || null,
+                non_routine_id: body.non_routine_id,
+                file_url: body.file_url,
+                type: body.type,
+                created_by: userToken.id,
+                updated_by: userToken.id,
+              };
+              await NonRoutineDataEntryModel.update(obj, {
+                where: { id: dataEntries[i].id },
+              });
+            } else {
+              const obj: any = {
+                non_routine_adjustment: dataEntries[i].non_routine_adjustment,
+                start_date: dataEntries[i].start_date || null,
+                end_date: dataEntries[i].end_date || null,
+                non_routine_id: body.non_routine_id,
+                file_url: body.file_url,
+                type: body.type,
+                created_by: userToken.id,
+                updated_by: userToken.id,
+              };
+              array.push(obj);
+            }
           }
+          result = await NonRoutineDataEntryModel.bulkCreate(array);
         } else {
           const obj: any = {
             non_routine_adjustment: null,
@@ -147,7 +335,7 @@ export class FacilityNonRoutineEventSevice {
             created_by: userToken.id,
             updated_by: userToken.id,
           };
-          result = await NonRoutineDataEntryModel.create(array);
+          result = await NonRoutineDataEntryModel.create(obj);
         }
 
         return ResponseHandler.getResponse(

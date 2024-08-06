@@ -5,6 +5,7 @@ import {
   BASELINE_USER_TYPE,
   BASE_LINE_STATUS,
   HTTP_STATUS_CODES,
+  PERFORMANCE_STATUS,
   RESPONSE_MESSAGES,
   STATUS,
   userType,
@@ -35,6 +36,8 @@ import { rawQuery } from "../../services/database";
 import { ParticipantAgreement } from "../../models/participant_agreement.model";
 import { IFacilityAttributes } from "../../interfaces/facility.interface";
 import { IParticipantAgreementAttributes } from "../../interfaces/participant_agreement.interface";
+import { FacilitySavePerformance } from "../../models/facility_save_performance.model";
+import { SavingPlanRequest } from "../../models/saving_plan_request.model";
 
 export class FacilityService {
   static async getFacility(
@@ -169,9 +172,11 @@ export class FacilityService {
           findRole.role_id === userType.SUPER_ADMIN ||
           findRole.role_id === userType.ENERVA_ADMIN)
       ) {
-        let companyQuery =""
-        if(companyId){
-          companyQuery+=` AND f.company_id = ${companyId || userToken.company_id}`
+        let companyQuery = "";
+        if (companyId) {
+          companyQuery += ` AND f.company_id = ${
+            companyId || userToken.company_id
+          }`;
         }
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
@@ -337,9 +342,9 @@ LIMIT
           findRole.role_id === userType.SUPER_ADMIN ||
           findRole.role_id === userType.ENERVA_ADMIN)
       ) {
-        let companyQuery =""
-        if(companyId){
-          companyQuery+=` where f.company_id=${companyId}`
+        let companyQuery = "";
+        if (companyId) {
+          companyQuery += ` where f.company_id=${companyId}`;
         }
         count =
           await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT f.*, usp.first_name as assign_firstname, 
@@ -584,6 +589,60 @@ LIMIT
         };
         findExist = await Baseline.create(obj);
       }
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        findExist
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async addPerformanceData(
+    userToken: IUserToken,
+    facility_id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      let findExist = await FacilitySavePerformance.findOne({
+        where: { facility_id: facility_id, meter_type: body.meter_type },
+      });
+      if (!findExist) {
+        const obj: any = {
+          facility_id: facility_id,
+          parameter_data: body.data,
+          meter_type: body.meter_type,
+          performance_type: body.performance_type || 1,
+          status: PERFORMANCE_STATUS.submit,
+          created_by: userToken.id,
+          updated_by: userToken.id,
+        };
+        findExist = await FacilitySavePerformance.create(obj);
+      }
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        findExist
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async addSavingPlanRequest(
+    userToken: IUserToken,
+    facility_id: number,
+    body: IBaseInterface
+  ): Promise<Facility[]> {
+    try {
+      const obj: any = {
+        facility_id: facility_id,
+        measure_category: body.measure_category,
+        meter_type: body.meter_type,
+        status: PERFORMANCE_STATUS.requested,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      let findExist = await SavingPlanRequest.create(obj);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,

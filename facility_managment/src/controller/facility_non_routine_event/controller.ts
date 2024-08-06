@@ -103,6 +103,89 @@ export class FacilityNonRoutineEventController {
       throw this.errorMessage;
     }
   }
+  
+  static async deleteHourlyEntries(
+    decodedToken: IUserToken,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      // await validatorApiResponse(addFacilityCharSchema, body);
+      const result =
+        await FacilityNonRoutineEventSevice.deleteHourlyEntries(
+          Object(decodedToken),
+          body,
+        );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  static async geteHourlyEntries(
+    decodedToken: IUserToken,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      // await validatorApiResponse(addFacilityCharSchema, body);
+      const result =
+        await FacilityNonRoutineEventSevice.geteHourlyEntries(
+          Object(decodedToken),
+          body,
+        );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  
+  static async removeFacilityNonRoutineDataEntry(
+    decodedToken: IUserToken,
+    id: number
+  ): Promise<NonRoutineModel[]> {
+    try {
+      // await validatorApiResponse(addFacilityCharSchema, body);
+      const result =
+        await FacilityNonRoutineEventSevice.removeFacilityNonRoutineDataEntry(
+          Object(decodedToken),
+          id
+        );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  deleteHourlyEntries
+  static async removeFacilityNonRoutine(
+    decodedToken: IUserToken,
+    id: number
+  ): Promise<NonRoutineModel[]> {
+    try {
+      // await validatorApiResponse(addFacilityCharSchema, body);
+      const result =
+        await FacilityNonRoutineEventSevice.removeFacilityNonRoutine(
+          Object(decodedToken),
+          id
+        );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
   /**
    * Patch edit facility non routine detail by the user.
    * @param {number} event.params.facilityId - Facility Id.
