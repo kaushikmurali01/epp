@@ -69,7 +69,9 @@ def clean_raw_data(dataframe):
 
     new_df = df
     new_df['Temperature'] = new_df.Temperature.interpolate()
-    new_df[['Date', 'EnergyConsumption', 'Temperature', 'IV-101', 'IV-102', 'IV-103']]
+    output_columns = ['Date', 'EnergyConsumption', 'Temperature']
+    output_columns.extend([i for i in iv_columns ])
+    new_df[output_columns]
 
     # Apply the function to the EnergyConsumption column
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
