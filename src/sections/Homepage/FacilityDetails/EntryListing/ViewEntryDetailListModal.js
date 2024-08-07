@@ -56,13 +56,13 @@ const ViewEntryDetailListModal = ({
     },
   ];
 
-  const getHourlyEntriesData = (pageInfo) => {
+  const getHourlyEntriesData = (pageInfoData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
     let payload = {
       "facility_id": facilityId,
-      "limit": 10,
-      "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+      "limit": pageInfoData.pageSize,
+      "offset": (pageInfoData.page - 1) * pageInfoData.pageSize,
     }
 
     if (independentVariableId) {
