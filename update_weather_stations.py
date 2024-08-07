@@ -11,7 +11,7 @@ import time
 from functools import partial
 from contextlib import contextmanager
 
-from dbconnection import get_db_connection, dbtest
+from dbconnection import get_db_connection, dbtest, refresh_materialised_view
 
 # Adjust these parameters based on your system capabilities
 MAX_WORKERS = 10  # Reduced from 10 to 5
@@ -182,6 +182,7 @@ def main():
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
+    refresh_materialised_view()
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, bulk_insert_df
+from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view
 from openpyxl import load_workbook
 import io
 import requests
@@ -102,3 +102,4 @@ class AddMeterData:
 
     def process(self):
         self.process_files()
+        refresh_materialised_view()
