@@ -16,6 +16,7 @@ const DeleteEntriesModal = ({
     facilityId,
     independentVariableId,
     setModalConfig,
+    setRefreshPageData
 }) => {
     const dispatch = useDispatch();
     const [startDate, setStartDate] = useState(null);
@@ -85,6 +86,7 @@ const DeleteEntriesModal = ({
                     message: "Entry deleted successfully!",
                     type: "success",
                 });
+                setRefreshPageData(prevState => prevState + 1);
           }else {
             NotificationsToast({
                 message: res?.data.message || "Something went wrong!",
