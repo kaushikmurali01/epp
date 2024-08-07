@@ -3,11 +3,14 @@ import calendar
 from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
 import plotly.graph_objs as go
+
+from components.dataCleaner import clean_raw_data
 from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
 from meter_uploader import MeterDataUploader, MeterDataUploaderIV
+from sql_queries.data_cleaning import data_cleaning_query
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -770,6 +773,45 @@ def getdates():
 def refresh_view():
     view = request.json.get('view')
     refresh_materialised_view(view)
+
+
+@app.route('/get_clean_data', methods=['GET'])
+def get_clean_data():
+    try:
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        facility_id = request.args.get('facility_id')
+
+        if not all([start_date, end_date, facility_id]):
+            return jsonify({"error": "Missing required parameters"}), 400
+
+        try:
+            facility_id = int(facility_id)
+        except ValueError:
+            return jsonify({"error": "Invalid parameter format"}), 400
+
+        temp1, temp2, temp3 = get_nearest_stations(facility_id, n=3)
+
+        clean_data_query = data_cleaning_query.format(temp1, temp2, temp3, facility_id, temp1, temp2, temp3, start_date,
+                                                      end_date)
+
+        df = dbtest(clean_data_query)
+
+        if df.empty:
+            return jsonify({"error": "No data found for the given parameters"}), 404
+
+        cleaned_data = clean_raw_data(df)
+        if isinstance(cleaned_data, pd.DataFrame):
+            cleaned_data['Date'] = pd.to_datetime(cleaned_data['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+            return jsonify({"clean_data": cleaned_data.to_dict('records')})
+        elif isinstance(cleaned_data, dict):
+            return jsonify({"clean_data": cleaned_data})
+        else:
+            return jsonify({"error": "Unexpected data format after cleaning"}), 500
+
+    except Exception as e:
+        print(f"Error: {str(e)}")  # Log the full error
+        return jsonify({"error": "An unexpected error occurred"}), 500
 
 
 if __name__ == '__main__':
