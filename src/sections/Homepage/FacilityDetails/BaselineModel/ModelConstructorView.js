@@ -50,16 +50,16 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
 
   useEffect(() => {
-    dispatch(fetchStationsDetails(id)).then((res) => {
-      setBaselinePeriod(res);
-    });
+    dispatch(fetchStationsDetails(id));
   }, [dispatch, id, meterType]);
 
   const weatherStationsData = useSelector(
     (state) => state?.baselineReducer?.stationDetails
   );
   useEffect(() => {
-    dispatch(fetchBaselinePeriod(id, meterType));
+    dispatch(fetchBaselinePeriod(id, meterType)).then((res) => {
+      setBaselinePeriod(res);
+    });
   }, [dispatch, id, meterType]);
 
   useEffect(() => {
@@ -184,6 +184,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     <Grid container>
       <Formik initialValues={formData} enableReinitialize={true}>
         {({ values, setFieldValue, errors }) => {
+          console.log(values);
           return (
             <Form>
               <Grid container display={"grid"} gap={"2rem"}>
@@ -213,27 +214,6 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                       />
                     )}
                   </Grid>
-                  {/* <Grid container spacing={4}>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="start_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline start *
-                      </InputLabel>
-
-                      <InputField name="start_date" isDisabled="true" />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="end_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline end *
-                      </InputLabel>
-                      <InputField name="end_date" isDisabled="true" />
-                    </Grid>
-                  </Grid> */}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>
