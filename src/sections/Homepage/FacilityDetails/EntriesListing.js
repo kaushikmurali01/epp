@@ -77,6 +77,7 @@ const EntriesListing = ({
   const [uploadProgress, setUploadProgress] = useState(0);
   const getDataProcessingLoader =  sessionStorage?.getItem("dataProcessingLoader") === 'true'
 const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessingLoader || false);
+const [refreshPageData, setRefreshPageData] = useState(0)
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -662,6 +663,7 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
           meterType={meterData?.meter_type}
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
+          setRefreshPageData={setRefreshPageData}
           
         />
       ),
@@ -696,6 +698,7 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
       }
 
       if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+        setMeterRowData(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
 
@@ -726,7 +729,8 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
     }
 
-  }, [meterData]);
+  }, [meterData, refreshPageData]);
+
 
   //  return html dom
 
@@ -896,25 +900,30 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
             </Button>
           ) :
             (
-              <Stack direction="row" alignItems="center" gap="0.75rem">
-                <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
-                  View entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={() => handleDeleteEntries()} >
-                  Delete entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} onClick={() => setUploadDataFormVisible(true)} >
-                  <IconButton>
-                    <AddCircleIcon
-                      sx={{
-                        color: "text.primary",
-                        fontSize: "1.875rem",
-                      }}
-                    />
-                  </IconButton>
-                  Add entries
-                </Link>
-              </Stack>
+              <React.Fragment>
+                { meterRawData?.length > 0 &&
+                <Stack direction="row" alignItems="center" gap="0.75rem">
+                  <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
+                    View entries
+                  </Link>
+                  <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={() => handleDeleteEntries()} >
+                    Delete entries
+                  </Link>
+                  <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} onClick={() => setUploadDataFormVisible(true)} >
+                    <IconButton>
+                      <AddCircleIcon
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.875rem",
+                        }}
+                      />
+                    </IconButton>
+                    Add entries
+                  </Link>
+                </Stack>
+              }
+                </React.Fragment>
+             
             )
           }
         </Grid>
@@ -1095,7 +1104,7 @@ const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessi
       {(dataProcessingLoader) && 
         <Box sx={{ display: "flex", gap: '1rem', alignItems: 'center'}}>
           <Typography variant="body2" color="textSecondary" sx={{marginRight: '1rem'}} >
-            Be patient, file processing is running
+            Be patience, file processing is running
         </Typography>
         <div class="progress-loader"></div>
          
