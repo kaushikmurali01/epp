@@ -11,41 +11,35 @@ app = Flask(__name__)
 @app.route('/model_summary', methods=['POST'])
 
 def baseline_model_training():
-    return {
-    "Number of observations": 150,
-    "Coefficient of Determination, R2": "84.23%",
-    "Adjusted R2": "83.97%",
-    "Root-mean-square error, RMSE R2": 1.05,
-    "Coefficient of variation of RMSE": "3.12%",
-    "Auto correlation function": 0.85,
-    "Durbin-Watson (P>0)": 1.68
-    }
     input_settings = request.get_json()
+    
     try:
-        url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
-        response = requests.post(url, json=input_settings)
-        # print(response.json())
-        cleaned_data = pd.DataFrame(response.json()['clean_data'])
+        granularity = input_settings.get('granularity')
+        meter_type = input_settings.get('meter_type')
+        facility_id = int(input_settings.get('facility_id'))
+        baseline_start_date = pd.to_datetime(input_settings.get('start_date'))
+        baseline_end_date = pd.to_datetime(input_settings.get('end_date'))
+        dummy_variables = input_settings.get('dummyVariables', {})
+        selected_independent_variables_ids = input_settings.get('independent_variables', [])
+        response = fetch_data_from_api(facility_id, baseline_start_date, baseline_end_date)
+        cleaned_data = pd.DataFrame(response['clean_data'])
         # print(cleaned_data.columns)
         # print(cleaned_data.head())
         cleaned_data['Date'] = pd.to_datetime(cleaned_data['Date'])
         baseline_start_date = pd.to_datetime(input_settings.get('start_date'))
         baseline_end_date = pd.to_datetime(input_settings.get('end_date'))
         
+        selected_independent_variables = get_independent_vars_names(selected_independent_variables_ids, facility_id)
+
         baseline_data = cleaned_data[(cleaned_data['Date'] >= baseline_start_date) & (cleaned_data['Date'] <= baseline_end_date)]
-        baseline_data = baseline_data[['Date', 'EnergyConsumption', 'Temperature'] + input_settings.get('independent_variables', [])]
+        baseline_data = baseline_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)
-    except:
-        pass
-        # print('i am here')
-        # baseline_data = pd.read_excel("CPI_hourly_data.xlsx")
-        # print(baseline_data.columns)
-        # baseline_data.rename(columns={ 'Energy Use [kW]': 'Energy Use'}, inplace=True)
-    granularity = input_settings.get('granularity')
-    meter_type = input_settings.get('meter_type')
-    facility_id = int(input_settings.get('facility_id'))
-    dummy_variables = input_settings.get('dummyVariables', {})
+    except Exception as e:
+    # This will catch any exception and print a message about what went wrong
+        # raise
+        print(f"An error occurred: {e}")
+       
     additional_dummy_vars = [key for key, value in dummy_variables.items() if value]
     
     model = EnergyModel()
@@ -53,7 +47,7 @@ def baseline_model_training():
     processed_data = model.indep_vars_processing(
         columns_to_remove=[], 
         additional_indep_cat_vars=[], 
-        additional_indep_cont_vars=input_settings.get('independent_variables', []), 
+        additional_indep_cont_vars=selected_independent_variables, 
         additional_dummy_vars=additional_dummy_vars, 
         holiday_flag=False
     )
@@ -74,8 +68,6 @@ def baseline_model_training():
        
     model_metrics = model.evaluate(predicted_data)
 
-    # print(model_metrics)
-
     table_name = 'baseline_model_output_data'
     # Convert DataFrame to JSON strings for the output_data column
     predicted_data = predicted_data.reset_index()
@@ -86,7 +78,7 @@ def baseline_model_training():
     #model metrics json to string
     model_metrics_summary_json = json.dumps(model_metrics)
     # Create a list of tuples for insertion
-    values = [(facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json)]
+    values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json)
     # Create the SQL insert query
     query = f"""
     INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary)
@@ -94,8 +86,6 @@ def baseline_model_training():
     """
     # Execute the query
     db_execute(query, values)
-    # push_data_to_db(predicted_data.reset_index(), facility_id, meter_type, model_metrics, baseline_summary_performance_page, table_name)
-    
     #push model to blob storage
     # Blob names
     sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
@@ -116,7 +106,6 @@ def get_baseline_data_summary():
     
     if not facility_id or not meter_type:
         return jsonify({"error": "facility_id and meter_type are required"}), 400
-    
     try:
         facility_id = int(facility_id)
         meter_type = int(meter_type)
@@ -124,7 +113,7 @@ def get_baseline_data_summary():
         return jsonify({"error": "facility_id and meter_type must be integers"}), 400
     
     query = "SELECT baseline_data_summary FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
-    result = db_execute(query, [(facility_id, meter_type)], fetch=True)
+    result = db_execute(query, (facility_id, meter_type), fetch=True)
     
     if result and result[0]:
         return jsonify({"facility_id": facility_id, "meter_type": meter_type, "baseline_summary_performance_page": result[0]})
@@ -146,7 +135,7 @@ def get_predicted_data():
         return jsonify({"error": "facility_id and meter_type must be integers"}), 400
     
     query = "SELECT output_data FROM baseline_model_output_data WHERE facility_id = %s AND meter_type = %s"
-    result = db_execute(query, [(facility_id, meter_type)], fetch=True)
+    result = db_execute(query, (facility_id, meter_type), fetch=True)
     # print(facility_id,meter_type,result)
     if result:
         predicted_data = result[0]
@@ -156,19 +145,6 @@ def get_predicted_data():
 
 @app.route('/p4p_calc_summary', methods=['POST'])
 def p4p_calculation():
-    return {
-        'adjusted_baseline_energy_consumption': 10000,
-        'reporting_period_energy_consumption': 7500,
-        'non_routine_adjustment': 500,
-        'total_energy_savings': 3000,
-        'off_peak_energy_savings': 1500,
-        'on_peak_energy_savings': 1500,
-        'off_peak_energy_savings_incentive': 150,
-        'on_peak_energy_savings_incentive': 300,
-        'performance_incentive': 450,
-        'peak_demand_savings': 100,
-        'energy_savings_percentage': 30
-    }
     input_settings_p4p = request.get_json()
     try:
         url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
@@ -185,10 +161,12 @@ def p4p_calculation():
         performance_data = performance_data[['Date', 'EnergyConsumption', 'Temperature'] + input_settings_p4p.get('independent_variables', [])]
         performance_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)
-    except:
-        pass
+    except Exception as e:
+    # This will catch any exception and print a message about what went wrong
+        print(f"An error occurred: {e}")
     # get performance data from DB
     non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_date)
+    # enerva_user_input_settings
     granularity = input_settings_p4p.get('granularity')
     off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
     on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)

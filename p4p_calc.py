@@ -4,9 +4,9 @@ import holidays
 import json
 
 class P4P_metrics_calculation:
-    def __init__(self, df, non_routine_df, model_type, off_peak_incentive=0, on_peak_incentive=0, minimum_savings=0, meter_type=None):
+    def __init__(self, df, non_routine_value, model_type, off_peak_incentive=0, on_peak_incentive=0, minimum_savings=0, meter_type=None):
         self.df = df
-        self.non_routine_df = non_routine_df if non_routine_df is not None else pd.DataFrame()
+        self.non_routine_value = non_routine_value if non_routine_value is not None else 0
         self.model_type = model_type
         self.off_peak_incentive = off_peak_incentive
         self.on_peak_incentive = on_peak_incentive
@@ -39,7 +39,7 @@ class P4P_metrics_calculation:
     def calculate_energy_savings(self, filtered_df, peak_demand, on_peak_energy_savings):
         adjusted_baseline_energy_consumption = self.df['predicted'].sum()
         reporting_period_energy_consumption = self.df['observed'].sum()
-        non_routine_adjustment = self.non_routine_df['consumption'].sum() if not self.non_routine_df.empty else 0
+        non_routine_adjustment = self.non_routine_value
         total_energy_savings = adjusted_baseline_energy_consumption - reporting_period_energy_consumption + non_routine_adjustment
 
         if self.meter_type == 1:  # Electricity

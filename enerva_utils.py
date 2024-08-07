@@ -50,29 +50,24 @@ def db_execute(query, values, fetch=False, fetchall=False):
         curs = conn.cursor()
 
         # Execute the query with parameters
-        curs.execute(query, values[0])
+        curs.execute(query, values)  # Use `values` directly without indexing
         print('DB Query executed')
-        # Initialize result
         result = None
         column_names = []
 
         # Fetch data if required
-        if fetch: #fetch one
+        if fetch:
             result = curs.fetchone()
-            # conn.commit()
-            # return result
-        elif fetchall: #fetch all
+        elif fetchall:
             result = curs.fetchall()
             if result:
-                # Extract column names from cursor.description
                 column_names = [desc[0] for desc in curs.description]
-            #     conn.commit()
-            #     return result, column_names
-            # else:
-            #     conn.commit()
-            #     return result
+        
         conn.commit()
-        return result,column_names
+        if fetchall:
+            return result, column_names
+        return result
+
     except Exception as e:
         print("Database operation failed:", str(e))
         return None, []
@@ -82,6 +77,7 @@ def db_execute(query, values, fetch=False, fetchall=False):
             curs.close()
         if conn:
             conn.close()
+
 
     # try:
     #     with SSHTunnelForwarder(
@@ -314,37 +310,79 @@ def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_dat
 
     # Define parameters
     params = (facility_id, meter_type, start_date, end_date)
-    # Execute the query
-    results = db_execute(query, params, fetch=False, fetchall=True)
-    data = results[0]
-    # Variables to store results
-    non_routine_from_direct_entry = 0
-    non_routine_adjustment_from_urls = 0
-    urls = []
-    # Process results
-    if data:
-        for row in data:
-            if row[1] == 1:  # Check if type is 1
-                non_routine_from_direct_entry += float(row[8])  # Assuming 'result' is at index 8
-            elif row[1] == 2:  # Check if type is 2
-                urls.append(row[8])  # Assuming 'result' is at index 8
+    try:
+        # Execute the query
+        results = db_execute(query, params, fetch=False, fetchall=True)
+        data = results[0]
+        # Variables to store results
+        non_routine_from_direct_entry = 0
+        non_routine_adjustment_from_urls = 0
+        urls = []
+        # Process results
+        if data:
+            for row in data:
+                if row[1] == 1:  # Check if type is 1
+                    non_routine_from_direct_entry += float(row[8])  # Assuming 'result' is at index 8
+                elif row[1] == 2:  # Check if type is 2
+                    urls.append(row[8])  # Assuming 'result' is at index 8
 
-    # Initialize an empty DataFrame
-    non_routine_dfs = pd.DataFrame()
-    # Loop through each URL, download the DataFrame, and concatenate directly
-    for url in urls:
-        df_url = download_non_routine_file_from_url(url)
-        if df_url is not None:
-            # Concatenate directly to the main DataFrame
-            non_routine_dfs = pd.concat([non_routine_dfs, df_url], ignore_index=True)
+        # Initialize an empty DataFrame
+        non_routine_dfs = pd.DataFrame()
+        # Loop through each URL, download the DataFrame, and concatenate directly
+        for url in urls:
+            df_url = download_non_routine_file_from_url(url)
+            if df_url is not None:
+                # Concatenate directly to the main DataFrame
+                non_routine_dfs = pd.concat([non_routine_dfs, df_url], ignore_index=True)
 
-    # Apply the filter and calculate the total adjustment
-    if not non_routine_dfs.empty:
-        non_routine_dfs['Start Date'] = pd.to_datetime(non_routine_dfs['Start Date'])
-        non_routine_dfs['End Date'] = pd.to_datetime(non_routine_dfs['End Date'])
-        # Applying the filter
-        non_routine_dfs_filtered = non_routine_dfs[(non_routine_dfs['Start Date'] >= pd.to_datetime(start_date)) & (non_routine_dfs['End Date'] <= pd.to_datetime(end_date))]
-        non_routine_adjustment_from_urls = non_routine_dfs_filtered['Non-Routine Adjustment Value'].sum()
+        # Apply the filter and calculate the total adjustment
+        if not non_routine_dfs.empty:
+            non_routine_dfs['Start Date'] = pd.to_datetime(non_routine_dfs['Start Date'])
+            non_routine_dfs['End Date'] = pd.to_datetime(non_routine_dfs['End Date'])
+            # Applying the filter
+            non_routine_dfs_filtered = non_routine_dfs[(non_routine_dfs['Start Date'] >= pd.to_datetime(start_date)) & (non_routine_dfs['End Date'] <= pd.to_datetime(end_date))]
+            non_routine_adjustment_from_urls = non_routine_dfs_filtered['Non-Routine Adjustment Value'].sum()
 
-    total_non_routine_adjustment = non_routine_adjustment_from_urls + non_routine_from_direct_entry
-    return  total_non_routine_adjustment
+        total_non_routine_adjustment = non_routine_adjustment_from_urls + non_routine_from_direct_entry
+        return  total_non_routine_adjustment
+    except:
+        return None
+    
+
+def fetch_data_from_api(facility_id, start_date, end_date):
+    # Define the API endpoint
+    url = "https://ams-enerva-dev.azure-api.net/v1/get_clean_data"
+
+    # Set up parameters for the GET request
+    params = {
+        'facility_id': facility_id,
+        'start_date': start_date,
+        'end_date': end_date
+    }
+
+    # Make the GET request
+    response = requests.get(url, params=params)
+
+    # Check if the request was successful
+    if response.status_code == 200:
+        # Process the data (assuming JSON response)
+        data = response.json()
+        return data
+    else:
+        # Handle errors (you might want to raise an exception or return an error message)
+        return f"Failed to fetch data: {response.status_code}"
+    
+def get_independent_vars_names(selected_independent_variables_ids, facility_id):
+    # SQL query to retrieve all independent variables for the given facility
+    iv_mapping_query = "SELECT id, name FROM independent_variable WHERE facility_id= %s"
+    
+    # Execute the database query
+    mapping_values, cols = db_execute(iv_mapping_query, (facility_id,), fetchall=True)
+    
+    # Convert the list of tuples to a dictionary for easier access
+    iv_dict = {id_: name for id_, name in mapping_values}
+    
+    # Filter the names based on selected IDs
+    selected_names = [iv_dict[id_] for id_ in selected_independent_variables_ids if id_ in iv_dict]
+    
+    return selected_names
