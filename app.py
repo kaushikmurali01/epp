@@ -790,7 +790,7 @@ def get_clean_data():
         except ValueError:
             return jsonify({"error": "Invalid parameter format"}), 400
 
-        temp1, temp2, temp3 = get_nearest_stations(facility_id, n=3)
+        temp1, temp2, temp3 = get_nearest_stations(facility_id, n=3).station_id.values
 
         clean_data_query = data_cleaning_query.format(temp1, temp2, temp3, facility_id, temp1, temp2, temp3, start_date,
                                                       end_date)

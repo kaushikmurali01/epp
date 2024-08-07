@@ -71,4 +71,4 @@ def get_nearest_stations(facility, n=3):
     # Ensure facility_df has at least one row
     query = nearest_weather_stations.format(facility, n)
     station_dataframe = dbtest(query)
-    return station_dataframe['station_id'].values
+    return station_dataframe
