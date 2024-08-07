@@ -71,7 +71,8 @@ const EntriesListing = ({
   const [imgUploadData, setImgUploadData] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [meterRawData, setMeterRowData] = useState([]);
+
+  const [viewEntryList, setViewEntryList] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -520,7 +521,6 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     }))
        .then((data) => {
         // setHourlyEntryFile
-        console.log(data, "check data");
         if(data?.message === undefined || data === undefined || !data.success) {
           setHourlyEntryFile(null)
         }
@@ -609,17 +609,13 @@ const [refreshPageData, setRefreshPageData] = useState(0)
       iv: false,  // for hourly data independent variable will be false...
     };
 
-    console.log(imgData, apiURL, payload, "checking upload data")
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
         setImgUploadData("")
         setHourlyEntryFile(null)
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-        // if (response.data.statusCode == 200) {
-        //   setHourlyEntryFile(null);
-        //   getHourlySubHourlyEntryData();
-        // }
+       
       })
       .catch((error) => { 
         console.log(error)
@@ -676,7 +672,6 @@ const [refreshPageData, setRefreshPageData] = useState(0)
 
  
   const getHourlyEntriesData = async (loader) => {
-    console.log(loader, "checking loaders...");
     if(loader === "processingLoader"){
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
     }else {
@@ -694,14 +689,13 @@ const [refreshPageData, setRefreshPageData] = useState(0)
   
     try {
       const res = await POST_REQUEST(apiURL, payload);
-      console.log(res, "check view entry list");
       if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
-        setMeterRowData(res.data?.data?.rows);
+        setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
       }
 
       if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
-        setMeterRowData(res.data?.data?.rows);
+        setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
 
@@ -716,15 +710,11 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     }
   }
   
-  // useEffect(()=> {
-  //   console.log(getDataProcessingLoader,sessionStorage?.getItem("dataProcessingLoader") === 'true', dataProcessingLoader, "session storage check")
-   
-  // }, [meterData])
 
   useEffect(() => {
 
     if(Object.keys(meterData).length > 0 && !dataProcessingLoader){
-      console.log(meterData, "meterData check")
+
       getHourlyEntriesData()
     }
 
@@ -733,6 +723,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     }
 
   }, [meterData, refreshPageData]);
+
 
 
   //  return html dom
@@ -904,7 +895,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           ) :
             (
               <React.Fragment>
-                { meterRawData?.length > 0 &&
+                { viewEntryList?.length > 0 &&
                 <Stack direction="row" alignItems="center" gap="0.75rem">
                   <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
                     View entries
@@ -1116,7 +1107,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
             }
 
             {/* show here Energy use by hourly basis  graph */}
-            {meterRawData?.length > 0 &&
+            {viewEntryList?.length > 0 &&
               <Box className="hourly-graph-row" >
               
                 <Stack direction="row" sx={{ width: '100%' }}>

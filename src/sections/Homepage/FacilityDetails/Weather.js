@@ -96,7 +96,8 @@ const Weather = () => {
   });
 
   const [imgUploadData, setImgUploadData] = useState("");
-  const [meterRawData, setMeterRowData] = useState([]);
+  // const [meterRawData, setMeterRowData] = useState([]);
+  const [viewEntryList, setViewEntryList] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -468,9 +469,10 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     }))
        .then((data) => {
 
-        if(data?.message === undefined || data === undefined) {
+        if(data?.message === undefined || data === undefined || !data.success) {
           setIndependentVariable1File(null)
         }
+       
         setImgUploadData(data);
         setIsUploading(false)
         setUploadProgress(100); // when the upload is confirmed
@@ -490,7 +492,8 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
     const payload = {
       "facility_id": facilityData?.id,
-      "record_id": data.record_id
+      "record_id": data.record_id,
+      "iv": true
   }
 
   console.log(apiURL,payload, "checking payload")
@@ -569,12 +572,12 @@ const [refreshPageData, setRefreshPageData] = useState(0)
       const res = await POST_REQUEST(apiURL, payload);
       console.log(res, "check view entry list");
       if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
-        setMeterRowData(res.data?.data?.rows);
+        setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
       }
 
       if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
-        setMeterRowData(res.data?.data?.rows);
+        setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
 
@@ -605,10 +608,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
         setImgUploadData("")
         setIndependentVariable1File(null)
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-        // if (response.data.statusCode == 200) {
-        //   setHourlyEntryFile(null);
-        //   getHourlySubHourlyEntryData();
-        // }
+       
       })
       .catch((error) => { 
         console.log(error)
@@ -624,7 +624,8 @@ const [refreshPageData, setRefreshPageData] = useState(0)
   };
 
   const handleViewEntries = () => {
-
+    const activeTab = independentVarsList.find(item => item.id === selectedIv?.id);
+    console.log(activeTab, "activeTab")
     setViewEntriesModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -636,6 +637,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           meterType=""
           facilityId={facilityData?.id}
           independentVariableId = {selectedIv?.id}
+          ivName= {activeTab?.name}
           // selectedIv
         />
       ),
@@ -769,7 +771,8 @@ const [refreshPageData, setRefreshPageData] = useState(0)
   }, [facilityData,selectedIv, refreshPageData]);
 
 
-  console.log(weatherData, "weatherData")
+  console.log(imgUploadData,"imgUploadData")
+
   return (
     <>
       <Box
@@ -843,12 +846,6 @@ const [refreshPageData, setRefreshPageData] = useState(0)
 
         {tabValue === "weather" ? (
           <Box>
-            {/* <Grid container mb="2.5rem">
-                <Grid item xs={12}>
-                   <iframe style={{width: '100%', minHeight: ' 100vh', border: '1px solid #ccc'}} src={`http://172.183.115.159:5005/graph?variable_id=${selectedIv?.id}`}></iframe>
-                </Grid>
-            </Grid> */}
-
             <Grid container  mb="2.5rem">
               <Grid item xs={12}>
                   {
@@ -1193,7 +1190,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
         ) : 
         <React.Fragment>
           {
-            (selectedIv?.files?.[0]?.file_path) &&
+            (viewEntryList?.length > 0) &&
               <Box>
                 <Stack direction="row" justifyContent="flex-end" alignItems="center" gap="0.75rem">
                 <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} 
@@ -1225,7 +1222,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           }
           {
            
-            (uploadDataFormVisible || !selectedIv?.files?.[0]?.file_path) &&
+            (uploadDataFormVisible && !dataProcessingLoader) &&
               <Box sx={{marginBottom: '1.5rem'}}>
                   <Typography variant="h5">
                     Upload data in bulk for {selectedIvName}
@@ -1320,17 +1317,17 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                               onChange={handleFileChange}
                               accept=".xlsx,.csv"
                             />
-                              {imgUploadData?.error && 
-                              <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
-                                <Typography
-                                  variant="small"
-                                  sx={{ color: "danger.main", }}
-                                
-                                >
-                                  {imgUploadData?.error}
-                                </Typography>
-                              </Stack>
-                              }
+                             {!imgUploadData?.success && 
+                                <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
+                                  <Typography
+                                    variant="small"
+                                    sx={{ color: "danger.main", }}
+                                  
+                                  >
+                                    {imgUploadData?.message}
+                                  </Typography>
+                                </Stack>
+                                }
                         </Box>
                       }
                         
@@ -1373,10 +1370,15 @@ const [refreshPageData, setRefreshPageData] = useState(0)
 
           {
 
-            selectedIv?.files?.[0]?.file_path ? (
-              <Grid sx={{ width: "100%" }}>
+             viewEntryList?.length > 0  ? (
+              <Grid sx={{ width: "100%", marginTop: '2.5rem' }}>
                 <Grid sx={{ width: "100%" }}>
-                  <Box id="bi-report" mt={4}>
+                  <Grid container mb="2.5rem">
+                    <Grid item xs={12}>
+                      <iframe style={{width: '100%', minHeight: ' 100vh', border: '1px solid #ccc'}} src={`http://172.183.115.159:5005/graph?variable_id=${selectedIv?.id}`}></iframe>
+                    </Grid>
+                </Grid>
+                  {/* <Box id="bi-report" mt={4}>
                     {!isErrorInPowerBi && !reportLoading ? (
                       <PowerBIEmbed
                         embedConfig={powerBiConfig}
@@ -1423,7 +1425,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                         Verifying data and creating visualization, please wait...
                       </Typography>
                     )}
-                  </Box>
+                  </Box> */}
                 </Grid>
               </Grid>
             ) : (
