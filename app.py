@@ -811,7 +811,7 @@ def get_clean_data():
 
     except Exception as e:
         print(f"Error: {str(e)}")  # Log the full error
-        return jsonify({"error": "An unexpected error occurred"}), 500
+        return jsonify({"error": "An unexpected error occurred", "detail": str(e)}), 500
 
 
 if __name__ == '__main__':
