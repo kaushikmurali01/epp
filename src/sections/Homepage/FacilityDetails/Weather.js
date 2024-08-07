@@ -45,7 +45,7 @@ import ButtonWrapper from "components/FormBuilder/Button";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
 import { commonDocumentFileUploadAction, documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
-import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS, hourlyEndPoints } from "constants/apiEndPoints";
+import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS, adminHourlyEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
@@ -96,9 +96,13 @@ const Weather = () => {
   });
 
   const [imgUploadData, setImgUploadData] = useState("");
+  const [meterRawData, setMeterRowData] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const getDataProcessingLoader =  sessionStorage?.getItem("dataProcessingLoader") === 'true'
+const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessingLoader || false);
+const [refreshPageData, setRefreshPageData] = useState(0)
 
   useEffect(() => {
     setIndependentVariable1File(null);
@@ -451,7 +455,7 @@ const Weather = () => {
     formData.append("file", selectedFile);
     formData.append("iv", true);
     formData.append("facility_id", facilityData?.id);
-    formData.append("meter_id", selectedIv?.id);
+    formData.append("meter_id", selectedIv?.id );
 
     // console.log(apiURL, formData, selectedIv, "check data")
 
@@ -507,6 +511,9 @@ const Weather = () => {
         setUploadDataFormVisible(false);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
+         // Start polling for data
+         startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -518,7 +525,70 @@ const Weather = () => {
    
   };
 
-  console.log(facilityData, "facilityData")
+   // Polling GET API to retrieve the data
+   const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
+    // Start data processing loader
+    setDataProcessingLoader(true);
+    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+    const checkInterval = setInterval(async () => {
+      try {
+        const response = await getHourlyEntriesData("processingLoader");
+        if (response.data?.data?.rows?.length > 0) {
+          // Data is retrieved successfully, stop polling
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem("dataProcessingLoader");
+          clearInterval(checkInterval);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+  
+    return checkInterval;
+  };
+
+
+  const getHourlyEntriesData = async (loader) => {
+    console.log(loader, "checking loaders...");
+    if(loader === "processingLoader"){
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    }else {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    }
+
+    let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
+    let payload = {
+      "facility_id": facilityData?.id,
+      "limit": 10,
+      "offset": 0,
+      "independent_variable_id": selectedIv?.id,
+    }
+  
+    try {
+      const res = await POST_REQUEST(apiURL, payload);
+      console.log(res, "check view entry list");
+      if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
+        setMeterRowData(res.data?.data?.rows);
+        setUploadDataFormVisible(false);
+      }
+
+      if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+        setMeterRowData(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+      }
+
+    
+
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      return res;  // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      throw error;  // Throw the error to be caught in polling
+    }
+  }
+
   const deleteFile = (imgData) => {
 
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -586,6 +656,7 @@ const Weather = () => {
         facilityId={facilityData?.id}
         independentVariableId = {selectedIv?.id}
         setModalConfig={setDeleteEntriesModalConfig}
+          setRefreshPageData={setRefreshPageData}
         />
       ),
     }));
@@ -684,6 +755,20 @@ const Weather = () => {
   };
 
 
+  useEffect(() => {
+
+    if(Object.keys(facilityData).length > 0 && !dataProcessingLoader && selectedIv){
+      console.log(facilityData, "facilityData check")
+      getHourlyEntriesData()
+    }
+
+    if (Object.keys(facilityData).length > 0 && dataProcessingLoader && selectedIv) {
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+    }
+
+  }, [facilityData,selectedIv, refreshPageData]);
+
+
   console.log(weatherData, "weatherData")
   return (
     <>
@@ -756,7 +841,7 @@ const Weather = () => {
           </Grid>
         </Grid>
 
-        {tabValue == "weather" ? (
+        {tabValue === "weather" ? (
           <Box>
             {/* <Grid container mb="2.5rem">
                 <Grid item xs={12}>
@@ -1273,6 +1358,16 @@ const Weather = () => {
                           Upload
                         </Button>
                   </Box>
+            </Box>
+          }
+
+        {(dataProcessingLoader) && 
+            <Box sx={{ display: "flex", gap: '1rem', alignItems: 'center'}}>
+              <Typography variant="body2" color="textSecondary" sx={{marginRight: '1rem'}} >
+                Be patience, file processing is running
+            </Typography>
+            <div class="progress-loader"></div>
+            
             </Box>
           }
 
