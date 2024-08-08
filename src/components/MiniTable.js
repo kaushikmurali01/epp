@@ -73,7 +73,7 @@ export const MiniTable = ({ columns, data, firstChildColored = false }) => {
                             background: "#CBFFD5",
                           },
                           borderBottom: "none",
-                          padding: "2px 10px!important",
+                          padding: "6px 10px!important",
                         }}
                       >
                         {cell.render("Cell")}

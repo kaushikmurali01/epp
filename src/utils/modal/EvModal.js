@@ -22,7 +22,7 @@ const BootstrapDialog = styled(Dialog)(({ theme, evModalStyle }) => ({
     ...evModalStyle?.dialogActions,
   },
   '& .MuiDialog-paper': {
-    maxWidth: evModalStyle?.paperMaxWidth || 'sm',  // Set default max-width to 'sm'
+    maxWidth: evModalStyle?.paperMaxWidth || 'sm', 
     ...evModalStyle?.dialogPaper,
   },
 }));

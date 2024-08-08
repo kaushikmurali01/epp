@@ -36,10 +36,10 @@ const ViewEntryDetailListModal = ({
     {
       Header: "Start Date",
       accessor: (item) => (
-        <>
+        <Typography variant="small" sx={{fontWeight: '400'}}>
           {item?.["start_date"] &&
             formatDateToLocal(item?.["start_date"])}
-        </>
+        </Typography>
       ),
     },
     {
