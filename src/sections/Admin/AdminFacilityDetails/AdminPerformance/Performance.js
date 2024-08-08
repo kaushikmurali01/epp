@@ -174,17 +174,12 @@ const Performance = () => {
   };
 
   const [submitTrigger, setSubmitTrigger] = useState(false);
-  // const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   const [isDateValid, setIsDateValid] = useState(false);
 
   const handleSubmitSavingsReport = useCallback(() => {
     setSubmitTrigger(true);
   }, []);
-
-  // const handleRefreshReport = useCallback(() => {
-  //   setRefreshTrigger(true);
-  // }, []);
 
   const handleDateValidation = (isValid) => {
     setIsDateValid(isValid);
@@ -268,15 +263,6 @@ const Performance = () => {
               >
                 Setting
               </Typography>
-              {/* <Button
-                type="button"
-                onClick={handleRefreshReport}
-                sx={{
-                  border: "2px solid #2E813E",
-                }}
-              >
-                Refresh
-              </Button> */}
               <Button
                 type="button"
                 variant="contained"
@@ -333,7 +319,6 @@ const Performance = () => {
                   meter_type={activeButton}
                   submitTrigger={submitTrigger}
                   setSubmitTrigger={setSubmitTrigger}
-                  // refreshTrigger={refreshTrigger}
                   onDateValidation={handleDateValidation}
                 />
               }

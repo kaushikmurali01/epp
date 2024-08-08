@@ -38,6 +38,12 @@ import {
   SCORE_PERFORMANCE_DATA_REQUEST,
   SCORE_PERFORMANCE_DATA_SUCCESS,
   SCORE_PERFORMANCE_DATA_FAILURE,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+  GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
 } from "../actionTypes";
 
 export const getBaselineDataSummaryRequest = () => ({
@@ -219,5 +225,33 @@ export const getPerformanceReportSuccess = (data) => ({
 
 export const getPerformanceReportFailure = (error) => ({
   type: GET_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getPerformanceDataMinMaxDateRequest = () => ({
+  type: GET_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+});
+
+export const getPerformanceDataMinMaxDateSuccess = (data) => ({
+  type: GET_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  payload: data,
+});
+
+export const getPerformanceDataMinMaxDateFailure = (error) => ({
+  type: GET_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  payload: error,
+});
+
+export const getPerformanceDataVisualizationRequest = () => ({
+  type: GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+});
+
+export const getPerformanceDataVisualizationSuccess = (data) => ({
+  type: GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  payload: data,
+});
+
+export const getPerformanceDataVisualizationFailure = (error) => ({
+  type: GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
   payload: error,
 });

@@ -38,6 +38,12 @@ import {
   SCORE_PERFORMANCE_DATA_REQUEST,
   SCORE_PERFORMANCE_DATA_SUCCESS,
   SCORE_PERFORMANCE_DATA_FAILURE,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+  GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -46,6 +52,8 @@ const initialState = {
   nonRoutineEventDetails: [],
   calculatedPerformanceReport: {},
   performanceReportInDB: {},
+  performanceDataMinMaxDate: {},
+  performanceDataVisualization: {},
   loading: false,
   error: null,
 };
@@ -245,7 +253,7 @@ const performanceReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-    
+
     case CALCULATE_PERFORMANCE_REPORT_REQUEST:
       return {
         ...state,
@@ -299,6 +307,46 @@ const performanceReducer = (state = initialState, action) => {
         error: null,
       };
     case GET_PERFORMANCE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performanceDataMinMaxDate: action.payload,
+        error: null,
+      };
+    case GET_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performanceDataVisualization: action.payload,
+        error: null,
+      };
+    case GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE:
       return {
         ...state,
         loading: false,

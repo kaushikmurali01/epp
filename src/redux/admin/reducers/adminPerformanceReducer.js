@@ -74,6 +74,12 @@ import {
   SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
   SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
   SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -92,6 +98,8 @@ const initialState = {
   adminNonRoutineEventDetails: [],
   adminCalculatedPerformanceReport: {},
   adminPerformanceReportInDB: {},
+  adminPerformanceDataMinMaxDate: {},
+  adminPerformanceDataVisualization: {},
   error: null,
 };
 
@@ -486,6 +494,46 @@ const adminPerformanceReducer = (state = initialState, action) => {
         error: null,
       };
     case GET_ADMIN_PERFORMANCE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminPerformanceDataMinMaxDate: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminPerformanceDataVisualization: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE:
       return {
         ...state,
         loading: false,

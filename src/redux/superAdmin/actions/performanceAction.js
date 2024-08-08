@@ -1,4 +1,4 @@
-import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
+import { PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
 import {
   getBaselineDataSummaryFailure,
   getBaselineDataSummaryRequest,
@@ -39,6 +39,12 @@ import {
   scorePerformanceDataRequest,
   scorePerformanceDataSuccess,
   scorePerformanceDataFailure,
+  getPerformanceDataMinMaxDateRequest,
+  getPerformanceDataMinMaxDateSuccess,
+  getPerformanceDataMinMaxDateFailure,
+  getPerformanceDataVisualizationRequest,
+  getPerformanceDataVisualizationSuccess,
+  getPerformanceDataVisualizationFailure,
 } from "../actionCreators/performanceActionCreator";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -290,6 +296,45 @@ export const getPerformanceReportFromDB = (facility_id, meter_type) => {
     } catch (error) {
       console.error(error);
       dispatch(getPerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceDataMinMaxDate = (facility_id, meter_type) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceDataMinMaxDateRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_DATA_MIN_MAX_DATE}?facility_id=${facility_id}&meter_type=${meter_type}`;
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getPerformanceDataMinMaxDateSuccess(response.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceDataMinMaxDateFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceDataVisualization = (
+  facility_id,
+  meter_type
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceDataVisualizationRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_DATA_VISUALIZATION}`;
+      const response = await GET_REQUEST(apiURL, facility_id, meter_type);
+      dispatch(getPerformanceDataVisualizationSuccess(response.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceDataVisualizationFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

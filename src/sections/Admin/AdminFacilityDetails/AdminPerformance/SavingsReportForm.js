@@ -5,7 +5,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { MiniTable } from "components/MiniTable";
 import { useDispatch, useSelector } from "react-redux";
 import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
-import { isEqual, parseISO } from "date-fns";
+import { format, isEqual, parseISO } from "date-fns";
 import { calculateAdminPerformanceReport, updateAdminPerformanceReportInDB } from "../../../../redux/admin/actions/adminPerformanceActions";
 import EvModal from "utils/modal/EvModal";
 
@@ -73,11 +73,11 @@ const SavingsReportForm = ({
   );
 
   const [p4PStartEndDates, setP4PStartEndDates] = useState({
-    startDate: "",
-    endDate: "",
+    startDate: null,
+    endDate: null,
   });
 
-  const [p4pIncentiveStatus, setP4pIncentiveStatus] = useState();
+  const [p4pIncentiveStatus, setP4pIncentiveStatus] = useState("Under-review");
 
    const [submitReportModalConfig, setSubmitReportModalConfig] = useState({
      modalVisible: false,
@@ -140,26 +140,29 @@ const SavingsReportForm = ({
   }, [initialData]);
 
   useEffect(() => {
-    let startDate = "";
-    let endDate = "";
-    let p4pIncentiveStatus = "";
+    let startDate = null;
+    let endDate = null;
+    let p4pIncentiveStatus = "Under-review";
 
     if (incentiveSettings) {
       switch (performanceP4PCalcTab) {
         case 1:
-          startDate = incentiveSettings.p4pStartDate1;
-          endDate = incentiveSettings.p4pEndDate1;
-          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus1;
+          startDate = incentiveSettings.p4pStartDate1 || null;
+          endDate = incentiveSettings.p4pEndDate1 || null;
+          p4pIncentiveStatus =
+            incentiveSettings.p4pIncentiveStatus1 || "Under-review";
           break;
         case 2:
-          startDate = incentiveSettings.p4pStartDate2;
-          endDate = incentiveSettings.p4pEndDate2;
-          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus2;
+          startDate = incentiveSettings.p4pStartDate2 || null;
+          endDate = incentiveSettings.p4pEndDate2 || null;
+          p4pIncentiveStatus =
+            incentiveSettings.p4pIncentiveStatus2 || "Under-review";
           break;
         case 3:
-          startDate = incentiveSettings.p4pStartDate3;
-          endDate = incentiveSettings.p4pEndDate3;
-          p4pIncentiveStatus = incentiveSettings.p4pIncentiveStatus3;
+          startDate = incentiveSettings.p4pStartDate3 || null;
+          endDate = incentiveSettings.p4pEndDate3 || null;
+          p4pIncentiveStatus =
+            incentiveSettings.p4pIncentiveStatus3 || "Under-review";
           break;
         default:
           break;
@@ -179,17 +182,15 @@ const SavingsReportForm = ({
   }, [submitTrigger]);
 
   useEffect(() => {
-    // Check if selectedEndDate is equal to setting's EndDate
     if (selectedEndDate && p4PStartEndDates?.endDate) {
-      let endDate = parseISO(p4PStartEndDates.endDate);
-      console.log(endDate);
-
-      const isDateValid = isEqual(
-        parseISO(selectedEndDate.toISOString().split("T")[0]),
-        parseISO(endDate.toISOString().split("T")[0])
-      );
+      let endDate = p4PStartEndDates.endDate;
+      const isDateValid = endDate
+        ? isEqual(
+            format(selectedEndDate, "yyyy-MM-dd"),
+            format(endDate, "yyyy-MM-dd")
+          )
+        : false;
       onDateValidation(isDateValid);
-      console.log(isDateValid);
     } else {
       onDateValidation(false);
     }
@@ -197,18 +198,18 @@ const SavingsReportForm = ({
 
   const handleDateChange = (newValue) => {
     setSelectedEndDate(newValue);
-    if (newValue && p4PStartEndDates.startDate) {
+    if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
         start_date: p4PStartEndDates.startDate,
-        end_date: newValue.toISOString().split("T")[0],
+        end_date: format(newValue, "yyyy-MM-dd"),
         facility_id: facility_id,
         meter_type: meterType,
       };
 
+      console.log(payload, "refresh payload - result");
       try {
         const result = dispatch(calculateAdminPerformanceReport(payload));
         // setFormData(result.data);
-        console.log(payload, result, "refresh payload - result");
       } catch (error) {
         console.error("Error calculating performance report:", error);
       }
@@ -386,9 +387,9 @@ const SavingsReportForm = ({
   const data = [
     {
       metric: "Pay-for-performance period",
-      value: `From ${parseUTCDateToLocalDateTime(
-        p4PStartEndDates?.startDate
-      )}, to`,
+      value: p4PStartEndDates?.startDate
+        ? `From ${parseUTCDateToLocalDateTime(p4PStartEndDates.startDate)}, to`
+        : "N/A",
       unit: (
         <DatePicker
           sx={{
@@ -399,7 +400,9 @@ const SavingsReportForm = ({
           }}
           value={selectedEndDate}
           onChange={handleDateChange}
-          maxDate={parseISO(p4PStartEndDates?.endDate)}
+          maxDate={
+            p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
+          }
         />
       ),
     },
@@ -448,7 +451,7 @@ const SavingsReportForm = ({
         enableReinitialize
       >
         <Form className="savings-report-table">
-          <MiniTable columns={columns} data={data} />
+          <MiniTable columns={columns} data={data} firstChildColored={true} />
         </Form>
       </Formik>
       <EvModal

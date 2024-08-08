@@ -74,6 +74,12 @@ import {
   SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
   SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
   SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -422,5 +428,33 @@ export const getAdminPerformanceReportSuccess = (data) => ({
 
 export const getAdminPerformanceReportFailure = (error) => ({
   type: GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceDataMinMaxDateRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+});
+
+export const getAdminPerformanceDataMinMaxDateSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceDataMinMaxDateFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceDataVisualizationRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+});
+
+export const getAdminPerformanceDataVisualizationSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceDataVisualizationFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
   payload: error,
 });

@@ -1,37 +1,16 @@
 import { Box, Button, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-// import { StyledButtonGroup } from "../BaselineModel/styles";
 import { MiniTable } from "components/MiniTable";
+import EvModal from "utils/modal/EvModal";
+import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/actions/baselineAction";
-import { StyledButtonGroup } from "../AdminBaselineModel/styles";
-import { scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { activeButtonStyle, inactiveButtonStyle, StyledButtonGroup } from "../AdminBaselineModel/styles";
+import { getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { format } from "date-fns";
+import Loader from "pages/Loader";
+import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
 
-const buttonStyle = {
-  padding: "0.44rem 1.5rem",
-  lineHeight: "1",
-  height: "max-content",
-  borderRadius: "50px",
-
-  ".MuiButtonGroup-firstButton": {
-    BorderRight: "10px",
-  },
-};
-const activeButtonStyle = {
-  ...buttonStyle,
-  backgroundColor: "#2E813E",
-  color: "#F7F7F5",
-  "&:hover": {
-    backgroundColor: "#2E813E",
-  },
-};
-
-const inactiveButtonStyle = {
-  ...buttonStyle,
-  backgroundColor: "#EBEBEB",
-  color: "#696969",
-};
 const PerformancePeriodDataSummary = ({meter_type}) => {
   const [activeButton, setActiveButton] = useState("observe_data");
   const dispatch = useDispatch();
@@ -40,37 +19,129 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     setActiveButton(btn_name);
   };
 
-  const facility_id = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
+  const { adminPerformanceDataMinMaxDate , loading} = useSelector(
+    (state) => state?.adminPerformanceReducer
   );
 
-  let payloadForScoring = { meter_type, facility_id };
-
   useEffect(() => {
+    dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type))
+      .then(() => {
+        const payload = {
+          facility_id: Number(id),
+          meter_type: meter_type,
+          start_date: format(
+            adminPerformanceDataMinMaxDate.min_date,
+            "yyyy-MM-dd"
+          ),
+          end_date: format(
+            adminPerformanceDataMinMaxDate.max_date,
+            "yyyy-MM-dd"
+          ),
+        };
+        dispatch(
+          scoreAdminPerformanceData(payload)
+        );
+      })
+      .catch((error) => {
+        console.error(error);
+    })
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton)); //right now we are fetching the data from baseline
+      dispatch(fetchDataExplorationSummaryList(id, activeButton));
     } else {
       dispatch(fetchDataExplorationSummaryList(id));
     }
-    dispatch(scoreAdminPerformanceData(payloadForScoring));
-  }, [dispatch, id, activeButton]);
+  }, [dispatch, id, activeButton, meter_type]);
 
   const summaryData = useSelector(
     (state) => state?.baselineReducer?.dataExplorationSummaryList
   );
 
+  console.log(adminPerformanceDataMinMaxDate);
+  
+
+  const [performanceDataMeterDetailsModalConfig, setperformanceDataMeterDetailsModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
+
+  const openPerformanceDataMeterDetailsModal = (
+    meterType,
+    meterName,
+    meterId,
+    count,
+    bound
+  ) => {
+    setperformanceDataMeterDetailsModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <PerformanceDataMeterDetailsModal
+          setperformanceDataMeterDetailsModalConfig={
+            setperformanceDataMeterDetailsModalConfig
+          }
+          meterType={meterType}
+          meterName={meterName}
+          meterId={meterId}
+          summary_type={activeButton}
+          count={count}
+          bound={bound}
+        />
+      ),
+    }));
+  };
+
   const observeDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          // onClick={() =>
-          //   meterDetailsModal(item?.meter_type, item?.meter_name)
-          // }
+          onClick={() =>
+            openPerformanceDataMeterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -80,7 +151,8 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
             cursor: "pointer",
           }}
         >
-          {item.meter_name}
+          {item?.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -100,16 +172,32 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
 
   const missingDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          // onClick={() =>
-          //   meterDetailsModal(item?.meter_type, item?.meter_name)
-          // }
+          onClick={() =>
+            openPerformanceDataMeterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -120,6 +208,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -139,20 +228,33 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
 
   const outliersDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          // onClick={() =>
-          //   meterDetailsModal(
-          //     item?.meter_type,
-          //     item?.meter_name,
-          //     item?.threshold_type
-          //   )
-          // }
+          onClick={() =>
+            openPerformanceDataMeterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records,
+              item?.bound_type
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -163,6 +265,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -180,9 +283,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     },
     {
       Header: "Threshold",
-      accessor: (item) => (
-        <>{item?.threshold_type === "HIGHER" ? "Upper limit" : "Lower limit"}</>
-      ),
+      accessor: "bound_type",
     },
     {
       Header: "Type",
@@ -212,7 +313,6 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
 
   return (
     <Grid
-      container
       sx={{
         display: "flex",
         gap: "2rem",
@@ -260,7 +360,17 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
           </Button>
         </StyledButtonGroup>
       </Grid>
-      <Box sx={{ width: "100%", overflowX: "scroll" }}>{renderTable()}</Box>
+      <Grid container>{renderTable()}</Grid>
+      <EvModal
+        modalConfig={performanceDataMeterDetailsModalConfig}
+        setModalConfig={setperformanceDataMeterDetailsModalConfig}
+      />
+      <Loader
+        sectionLoader
+        minHeight="100vh"
+        loadingState={loading}
+        loaderPosition="fixed"
+      />
     </Grid>
   );
 };
