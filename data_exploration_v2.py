@@ -4,12 +4,14 @@ from constants import METER_FACTOR
 from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, \
     get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
-
+from sql_queries.data_exploration_queries import observed_data_summary_list
 
 class DataExplorationSummaryV2:
-    def __init__(self, facility_id, summary_type):
+    def __init__(self, facility_id, summary_type, meter_name=None, meter_id=None):
         self.facility_id = facility_id
         self.summary_type = summary_type
+        self.meter_name = meter_name
+        self.meter_id = meter_id
         self.query = None
         self.temperature_query = None
         self.raw_df = pd.DataFrame()
@@ -29,9 +31,7 @@ class DataExplorationSummaryV2:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
             self.temperature_query = get_temp_observed_data_summary(self.facility_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
-        print(self.query)
         self.temp_df = dbtest(self.temperature_query)
-        print(self.temperature_query)
 
 
     def process(self):
@@ -44,22 +44,20 @@ class DataExplorationSummaryV2:
             if self.outliers:
                 self.raw_df.sort_values(by=['bound_type', 'meter_type'], inplace=True)
         return self.raw_df.to_dict(orient='records')
-    
-    def get_paginated_list(self, page_size, page_no):
-        self.setup_query()
-        start_idx = (page_no - 1) * page_size
-        end_idx = start_idx + page_size
 
-        paginated_df = self.raw_df.iloc[start_idx:end_idx]
-        total_records = len(self.raw_df)
-        total_pages = (total_records + page_size - 1) // page_size
-
-        response = {
-            'page_no': page_no,
-            'page_size': page_size,
-            'total_pages': total_pages,
-            'total_records': total_records,
-            'data': paginated_df.to_dict(orient='records')
-        }
+    def setup_listing_query(self, page_size, page_no):
+        if self.missing_data:
+            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+        elif self.outliers:
+            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+        else:
+            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+        self.raw_df = dbtest(self.query)
         
-        return jsonify(response)
+
+    def get_paginated_list(self, page_size, page_no):
+        self.setup_listing_query(page_size, page_no)
+        paginated_df = self.raw_df.to_dict(orient='records')
+        
+        
+        return paginated_df
