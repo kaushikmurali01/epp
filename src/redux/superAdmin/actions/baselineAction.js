@@ -283,7 +283,7 @@ export const submitRejectedBaselineDB = (facilityId, dataBody) => {
       const data = response.data;
       dispatch(submitRejectBaselineDbSuccess(data));
       NotificationsToast({
-        message: "Baseline submitted successfully",
+        message: "Help request sent successfully",
         type: "success",
       });
       return data;
@@ -375,6 +375,7 @@ export const fetchRawSummaryMeterList = (
   summaryType,
   meterType,
   detail,
+  meterId,
   bound,
   pageNumber,
   pageSize
@@ -392,6 +393,7 @@ export const fetchRawSummaryMeterList = (
       if (detail) {
         endpointWithParams += `&detail=${detail}`;
       }
+      endpointWithParams += `&meter_id=${meterId}`;
       if (bound) {
         endpointWithParams += `&bound=${bound}`;
       }

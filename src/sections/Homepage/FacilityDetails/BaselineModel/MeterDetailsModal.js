@@ -11,7 +11,9 @@ const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
   meterType,
   meterName,
+  meterId,
   summary_type,
+  count,
   bound,
 }) => {
   const [pageInfo, setPageInfo] = useState({
@@ -28,7 +30,8 @@ const MeterDetailsModal = ({
           id,
           summary_type,
           meterType,
-          true,
+          1,
+          meterId,
           bound,
           pageInfo.page,
           pageInfo.pageSize
@@ -40,7 +43,8 @@ const MeterDetailsModal = ({
           id,
           summary_type,
           meterType,
-          true,
+          1,
+          meterId,
           false,
           pageInfo.page,
           pageInfo.pageSize
@@ -50,24 +54,21 @@ const MeterDetailsModal = ({
   }, [dispatch, id, meterType, pageInfo.page, pageInfo.pageSize]);
 
   const meterRawData = useSelector(
-    (state) => state?.baselineReducer?.rawMeterSummaryList?.data || []
+    (state) => state?.baselineReducer?.rawMeterSummaryList || []
   );
 
-  const count = useSelector(
-    (state) => state?.baselineReducer?.rawMeterSummaryList?.count
-  );
+  // const count = useSelector(
+  //   (state) => state?.baselineReducer?.rawMeterSummaryList?.count
+  // );x
 
   const observeDataColumn = [
     {
       Header: "Start Date",
       accessor: (item) => (
-        <>
-          {item?.["Start Date (Required)"] &&
-            format(
-              new Date(item?.["Start Date (Required)"]),
-              "yyyy-MM-dd HH:mm"
-            )}
-        </>
+        <Typography variant="small" sx={{fontWeight:400, color:"#54585A"}}>
+          {item?.start_date &&
+            format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")}
+        </Typography>
       ),
     },
     {
@@ -75,18 +76,15 @@ const MeterDetailsModal = ({
       accessor: (item) => {
         return (
           <>
-            {item?.["End Date (Required)"] &&
-              format(
-                new Date(item?.["End Date (Required)"]),
-                "yyyy-MM-dd HH:mm"
-              )}
+            {item?.end_date &&
+              format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")}
           </>
         );
       },
     },
     {
       Header: "Meter Reading",
-      accessor: "Meter Reading (Required)",
+      accessor: "reading",
     },
   ];
   return (

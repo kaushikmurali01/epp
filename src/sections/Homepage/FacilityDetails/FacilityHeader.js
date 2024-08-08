@@ -9,13 +9,14 @@ import {
   styled,
   ButtonGroup,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   deleteFacility,
   fetchFacilityDetails,
   fetchFacilityListing,
+  getWaterfallData,
   submitFacilityForApproval,
 } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
@@ -102,6 +103,22 @@ const FacilityHeader = () => {
     setActiveButton(btn_name);
   };
 
+  const incentiveData = useSelector(
+    (state) => state?.facilityReducer?.waterfallData?.data || []
+  );
+  const energySavingData = useSelector(
+    (state) => state?.facilityReducer?.waterfallData?.data || []
+  );
+
+  useEffect(() => {
+    const graphData = {
+      facility_id: id,
+      meter_type: 1,
+      energySaving: activeButton === "incentive" ? false : true,
+    };
+    dispatch(getWaterfallData(graphData));
+  }, [dispatch, id, activeButton]);
+
   const handleDeleteFacility = () => {
     if (id) {
       dispatch(deleteFacility(id))
@@ -164,19 +181,19 @@ const FacilityHeader = () => {
     }));
   };
 
-  const incentiveData = [
-    { name: "Total", value: 3255, onPeak: 3255, offPeak: 0 },
-    { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
-    { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
-    { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
-    { name: "Pre-Project", value: 1500, onPeak: 1500, offPeak: 0 },
-  ];
+  // const incentiveData = [
+  //   { name: "Total", value: 3255, onPeak: 3255, offPeak: 0 },
+  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
+  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
+  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
+  //   { name: "Pre-Project", value: 1500, onPeak: 1500, offPeak: 0 },
+  // ];
 
-  const energySavingData = [
-    { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
-    { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
-    { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
-  ];
+  // const energySavingData = [
+  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
+  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
+  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
+  // ];
 
   function Legend() {
     return (
@@ -235,7 +252,7 @@ const FacilityHeader = () => {
 
   function IncentiveChart({ data }) {
     const processedData = React.useMemo(() => {
-      return data.reduce((acc, item, index, array) => {
+      return data?.reduce((acc, item, index, array) => {
         let transparentValue = 0;
         let cumulativeTotal = item.value;
 

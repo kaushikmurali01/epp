@@ -68,6 +68,9 @@ import {
   SEND_HELP_REQ_FOR_MEASURE_REQUEST,
   SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
   SEND_HELP_REQ_FOR_MEASURE_FAILURE,
+  GET_WATERFALL_DATA_REQUEST,
+  GET_WATERFALL_DATA_SUCCESS,
+  GET_WATERFALL_DATA_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -81,6 +84,7 @@ const initialState = {
   facilityMeasureReportDetails: [],
   facilityDocumentList: [],
   facilityDocumentDetails: [],
+  waterfallData: [],
   loading: false,
   error: null,
 };
@@ -508,6 +512,25 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case SEND_HELP_REQ_FOR_MEASURE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case GET_WATERFALL_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_WATERFALL_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        waterfallData: action.payload,
+        error: null,
+      };
+    case GET_WATERFALL_DATA_FAILURE:
       return {
         ...state,
         loading: false,
