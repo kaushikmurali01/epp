@@ -122,8 +122,19 @@ const DataSummary = () => {
 
   const observeDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
@@ -159,8 +170,19 @@ const DataSummary = () => {
 
   const missingDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
@@ -196,8 +218,19 @@ const DataSummary = () => {
 
   const outliersDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",

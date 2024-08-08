@@ -23,6 +23,7 @@ import { useParams } from "react-router-dom";
 import {
   fetchFacilityDocumentListing,
   fetchFacilityMeasureReportListing,
+  sendHelpRequestForMeasure,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import Loader from "pages/Loader";
 import CustomPagination from "components/CustomPagination";
@@ -235,7 +236,7 @@ const ReportsAndStudies = () => {
     modalBodyContent: "",
   });
 
-  const openAlertMessageModal = (message) => {
+  const openAlertMessageModal = (message, type) => {
     setAddMeasureModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,
@@ -244,11 +245,13 @@ const ReportsAndStudies = () => {
     setAlertMessageModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
-      modalBodyContent: <MessageComponent message={message} />,
+      modalBodyContent: (
+        <MessageComponent message={message} measureType={type} />
+      ),
     }));
   };
 
-  const MessageComponent = ({ message }) => {
+  const MessageComponent = ({ message, measureType }) => {
     function handleReturnButton() {
       setAlertMessageModalConfig((prevState) => ({
         ...prevState,
@@ -256,8 +259,8 @@ const ReportsAndStudies = () => {
       }));
     }
     function handleSendHelpButton() {
-      const body = { status: "REQUESTED" };
-      // dispatch(submitRejectedBaselineDB(baseline_id, body));
+      const body = { measure_category: measureType };
+      dispatch(sendHelpRequestForMeasure(id, body));
       setAlertMessageModalConfig((prevState) => ({
         ...prevState,
         modalVisible: false,
