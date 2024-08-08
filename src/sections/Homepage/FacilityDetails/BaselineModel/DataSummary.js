@@ -62,7 +62,7 @@ const DataSummary = () => {
     saveButtonAction: "",
   });
 
-  const meterDetailsModal = (meterType, meterName, bound) => {
+  const meterDetailsModal = (meterType, meterName, meterId, count, bound) => {
     setMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -71,7 +71,9 @@ const DataSummary = () => {
           setMeterDetailsModalConfig={setMeterDetailsModalConfig}
           meterType={meterType}
           meterName={meterName}
+          meterId={meterId}
           summary_type={activeButton}
+          count={count}
           bound={bound}
         />
       ),
@@ -140,7 +142,14 @@ const DataSummary = () => {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -150,7 +159,8 @@ const DataSummary = () => {
             cursor: "pointer",
           }}
         >
-          {item.meter_name}
+          {item?.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -188,7 +198,14 @@ const DataSummary = () => {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -199,6 +216,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -240,7 +258,9 @@ const DataSummary = () => {
             meterDetailsModal(
               item?.meter_type,
               item?.meter_name,
-              item?.threshold_type
+              item?.meter_id,
+              item?.total_records,
+              item?.bound_type
             )
           }
           variant="span"
@@ -253,6 +273,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -270,9 +291,7 @@ const DataSummary = () => {
     },
     {
       Header: "Threshold",
-      accessor: (item) => (
-        <>{item?.threshold_type === "HIGHER" ? "Upper limit" : "Lower limit"}</>
-      ),
+      accessor: "bound_type",
     },
     {
       Header: "Type",
