@@ -255,9 +255,8 @@ def p4p_calculation():
 @app.route('/get_performance_scoring_data', methods=['GET'])
 def scoring_data_for_visual():
     try:
-        input_settings_p4p = request.get_json()
-        meter_type = input_settings_p4p.get('meter_type')
-        facility_id = int(input_settings_p4p.get('facility_id'))
+        facility_id = request.args.get('facility_id')
+        meter_type = request.args.get('meter_type')
         # performance_start_date = pd.to_datetime(input_settings_p4p.get('start_date'))
         # performance_end_date = pd.to_datetime(input_settings_p4p.get('end_date'))
         query = """
