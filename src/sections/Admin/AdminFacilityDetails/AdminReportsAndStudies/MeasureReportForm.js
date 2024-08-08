@@ -24,7 +24,6 @@ const MeasureReportForm = ({
   measureId,
   pageInfo,
   setAddMeasureModalConfig,
-  openAlertMessageModal,
 }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -176,15 +175,6 @@ const MeasureReportForm = ({
                       valueKey="value"
                       labelKey="label"
                       options={MEASURE_REPORT_CATEGORY}
-                      onBlur={() => {
-                        (values.measure_category === "onSiteGeneration" ||
-                          values.measure_category === "fuelSwitching") &&
-                          openAlertMessageModal(
-                            values.measure_category === "onSiteGeneration"
-                              ? "Behind-the-meter generation projects are not eligible measures."
-                              : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details."
-                          );
-                      }}
                     />
                   </Grid>
                   <Grid item xs={12} sm={6}>

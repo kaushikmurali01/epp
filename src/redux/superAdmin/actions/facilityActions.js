@@ -66,6 +66,9 @@ import {
   deleteFacilityDocumentRequest,
   deleteFacilityDocumentSuccess,
   deleteFacilityDocumentFailure,
+  sendHelpReqForMeasureCategoryRequest,
+  sendHelpReqForMeasureCategorySuccess,
+  sendHelpReqForMeasureCategoryFailure,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -571,6 +574,28 @@ export const deleteFacilityDocument = (documentId) => {
     } catch (error) {
       console.error(error);
       dispatch(deleteFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const sendHelpRequestForMeasure = (facility, measureData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(sendHelpReqForMeasureCategoryRequest());
+      const endpointWithParams = `${facilityEndPoints.SEND_HELP_REQ_FOR_MEASURE_CATEGORY}/${facility}`;
+      const response = await POST_REQUEST(endpointWithParams, measureData);
+      const data = response.data;
+      dispatch(sendHelpReqForMeasureCategorySuccess(data));
+      NotificationsToast({
+        message: "Help request sent successfully",
+        type: "success",
+      });
+    } catch (error) {
+      dispatch(sendHelpReqForMeasureCategoryFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

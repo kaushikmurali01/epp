@@ -65,6 +65,9 @@ import {
   ADD_FACILITY_DOCUMENT_REQUEST,
   ADD_FACILITY_DOCUMENT_SUCCESS,
   ADD_FACILITY_DOCUMENT_FAILURE,
+  SEND_HELP_REQ_FOR_MEASURE_REQUEST,
+  SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
+  SEND_HELP_REQ_FOR_MEASURE_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -487,6 +490,24 @@ const facilityReducer = (state = initialState, action) => {
         error: null,
       };
     case DELETE_FACILITY_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case SEND_HELP_REQ_FOR_MEASURE_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SEND_HELP_REQ_FOR_MEASURE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case SEND_HELP_REQ_FOR_MEASURE_FAILURE:
       return {
         ...state,
         loading: false,

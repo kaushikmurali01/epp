@@ -29,6 +29,7 @@ export const facilityEndPoints = {
     "company-facility/v1/facility-saving-document-details",
   DELETE_FACILITY_SAVING_DOCUMENT:
     "company-facility/v1/facility-saving-document",
+  SEND_HELP_REQ_FOR_MEASURE_CATEGORY: "company-facility/v1/savingPlan",
 };
 
 export const adminFacilityEndpoints = {
@@ -247,7 +248,7 @@ export const BASELINE_ENDPOINTS = {
   ADD_ASSIGNEE_DB: "company-facility/v1/baseline/addAssignee",
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
-  FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary",
+  FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary-v2",
   FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
 };
 
