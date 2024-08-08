@@ -1228,7 +1228,15 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                     Upload data in bulk for {selectedIvName}
                   </Typography>
                   <Typography variant="small2" gutterBottom>
-                    Upload the excel file, and refer to spreadsheet for the formatting
+                    Upload the excel file, and refer to {" "}
+                    <Link
+                        underline="hover"
+                        color="#2C77E9"
+                        sx={{ cursor: "pointer" }}
+                      >
+                       spreadsheet
+                      </Link>{" "}
+                     for the formatting
                     details.
                   </Typography>
                     <Box>

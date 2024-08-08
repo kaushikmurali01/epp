@@ -395,7 +395,7 @@ const FacilityEnrolledActive = ({
                     >
                         Logs
                     </Button>
-                    <Button
+                    {/* <Button
                         disableRipple
                         style={{
                             color: "#2C77E9",
@@ -408,7 +408,7 @@ const FacilityEnrolledActive = ({
                         onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
                     >
                         Edit
-                    </Button>
+                    </Button> */}
                     <Button
                         disableRipple
                         style={{
