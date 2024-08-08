@@ -63,6 +63,18 @@ import {
   editAdminNonRoutineEventDataRequest,
   editAdminNonRoutineEventDataSuccess,
   editAdminNonRoutineEventDataFailure,
+  calculateAdminPerformanceReportRequest,
+  calculateAdminPerformanceReportSuccess,
+  calculateAdminPerformanceReportFailure,
+  updateAdminPerformanceReportRequest,
+  updateAdminPerformanceReportSuccess,
+  updateAdminPerformanceReportFailure,
+  getAdminPerformanceReportRequest,
+  getAdminPerformanceReportSuccess,
+  getAdminPerformanceReportFailure,
+  scoreAdminPerformanceDataRequest,
+  scoreAdminPerformanceDataSuccess,
+  scoreAdminPerformanceDataFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
 import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
@@ -503,6 +515,78 @@ export const updateAdminNonRoutineEventData = (eventId, payload) => {
     } catch (error) {
       console.error(error);
       dispatch(editAdminNonRoutineEventDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const scoreAdminPerformanceData = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(scoreAdminPerformanceDataRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.SCORE_PERFORMANCE_DATA}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(scoreAdminPerformanceDataSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(scoreAdminPerformanceDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const calculateAdminPerformanceReport = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(calculateAdminPerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.CALCULATE_PERFORMANCE_REPORT}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(calculateAdminPerformanceReportSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(calculateAdminPerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminPerformanceReportInDB = (facility_id, payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateAdminPerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.UPDATE_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(updateAdminPerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(updateAdminPerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getAdminPerformanceReportFromDB = (facility_id, meter_type) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getAdminPerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL);
+      dispatch(getAdminPerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(getAdminPerformanceReportFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

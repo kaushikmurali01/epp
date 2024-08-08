@@ -26,6 +26,18 @@ import {
   DELETE_NON_ROUTINE_EVENT_DATA_FAILURE,
   DELETE_NON_ROUTINE_EVENT_DATA_REQUEST,
   DELETE_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  CALCULATE_PERFORMANCE_REPORT_FAILURE,
+  CALCULATE_PERFORMANCE_REPORT_REQUEST,
+  CALCULATE_PERFORMANCE_REPORT_SUCCESS,
+  UPDATE_PERFORMANCE_REPORT_REQUEST,
+  UPDATE_PERFORMANCE_REPORT_SUCCESS,
+  UPDATE_PERFORMANCE_REPORT_FAILURE,
+  GET_PERFORMANCE_REPORT_REQUEST,
+  GET_PERFORMANCE_REPORT_SUCCESS,
+  GET_PERFORMANCE_REPORT_FAILURE,
+  SCORE_PERFORMANCE_DATA_REQUEST,
+  SCORE_PERFORMANCE_DATA_SUCCESS,
+  SCORE_PERFORMANCE_DATA_FAILURE,
 } from "../actionTypes";
 
 export const getBaselineDataSummaryRequest = () => ({
@@ -151,5 +163,61 @@ export const deleteNonRoutineEventDataSuccess = (data) => ({
 
 export const deleteNonRoutineEventDataFailure = (error) => ({
   type: DELETE_NON_ROUTINE_EVENT_DATA_FAILURE,
+  payload: error,
+});
+
+export const scorePerformanceDataRequest = () => ({
+  type: SCORE_PERFORMANCE_DATA_REQUEST,
+});
+
+export const scorePerformanceDataSuccess = (data) => ({
+  type: SCORE_PERFORMANCE_DATA_SUCCESS,
+  payload: data,
+});
+
+export const scorePerformanceDataFailure = (error) => ({
+  type: SCORE_PERFORMANCE_DATA_FAILURE,
+  payload: error,
+});
+
+export const calculatePerformanceReportRequest = () => ({
+  type: CALCULATE_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const calculatePerformanceReportSuccess = (data) => ({
+  type: CALCULATE_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const calculatePerformanceReportFailure = (error) => ({
+  type: CALCULATE_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const updatePerformanceReportRequest = () => ({
+  type: UPDATE_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const updatePerformanceReportSuccess = (data) => ({
+  type: UPDATE_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const updatePerformanceReportFailure = (error) => ({
+  type: UPDATE_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getPerformanceReportRequest = () => ({
+  type: GET_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const getPerformanceReportSuccess = (data) => ({
+  type: GET_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const getPerformanceReportFailure = (error) => ({
+  type: GET_PERFORMANCE_REPORT_FAILURE,
   payload: error,
 });

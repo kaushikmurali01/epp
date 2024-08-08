@@ -62,6 +62,18 @@ import {
   GET_ADMIN_BASELINE_DATA_SUMMARY_REQUEST,
   GET_ADMIN_BASELINE_DATA_SUMMARY_SUCCESS,
   GET_ADMIN_BASELINE_DATA_SUMMARY_FAILURE,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  GET_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  GET_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
+  SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
+  SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -78,6 +90,8 @@ const initialState = {
   adminBaselineSummaryData: [],
   adminNonRoutineEventList: [],
   adminNonRoutineEventDetails: [],
+  adminCalculatedPerformanceReport: {},
+  adminPerformanceReportInDB: {},
   error: null,
 };
 
@@ -394,6 +408,84 @@ const adminPerformanceReducer = (state = initialState, action) => {
         error: null,
       };
     case DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case SCORE_ADMIN_PERFORMANCE_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case SCORE_ADMIN_PERFORMANCE_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminCalculatedPerformanceReport: action.payload,
+        error: null,
+      };
+    case CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case GET_ADMIN_PERFORMANCE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminPerformanceReportInDB: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_PERFORMANCE_REPORT_FAILURE:
       return {
         ...state,
         loading: false,

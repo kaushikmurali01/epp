@@ -174,7 +174,7 @@ const Performance = () => {
   };
 
   const [submitTrigger, setSubmitTrigger] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
+  // const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   const [isDateValid, setIsDateValid] = useState(false);
 
@@ -182,9 +182,9 @@ const Performance = () => {
     setSubmitTrigger(true);
   }, []);
 
-  const handleRefreshReport = useCallback(() => {
-    setRefreshTrigger(true);
-  }, []);
+  // const handleRefreshReport = useCallback(() => {
+  //   setRefreshTrigger(true);
+  // }, []);
 
   const handleDateValidation = (isValid) => {
     setIsDateValid(isValid);
@@ -196,7 +196,7 @@ const Performance = () => {
         container
         sx={{
           width: "100%",
-          padding: "0 2rem",
+          padding: { xs: "0", md: "0 2rem" },
           marginTop: isSmallScreen && "2rem",
           display: "flex",
           gap: "2rem",
@@ -206,8 +206,11 @@ const Performance = () => {
         <Grid
           item
           display={"flex"}
+          alignItems={"center"}
           justifyContent={"space-between"}
+          flexWrap={"wrap"}
           gap={"1rem"}
+          width={"100%"}
         >
           {isPerformanceSettingComponent ? (
             <IconButton
@@ -265,7 +268,7 @@ const Performance = () => {
               >
                 Setting
               </Typography>
-              <Button
+              {/* <Button
                 type="button"
                 onClick={handleRefreshReport}
                 sx={{
@@ -273,7 +276,7 @@ const Performance = () => {
                 }}
               >
                 Refresh
-              </Button>
+              </Button> */}
               <Button
                 type="button"
                 variant="contained"
@@ -287,15 +290,15 @@ const Performance = () => {
         </Grid>
 
         {isPerformanceSettingComponent ? null : (
-          <Grid item display={"flex"} justifyContent={"end"}>
+          <Grid item display={"flex"} justifyContent={"end"} width={"100%"}>
             <Typography
               sx={{
-                padding: "6px",
+                padding: "6px 8px 6px 8px",
                 backgroundColor: "#CFEEFF",
                 color: "#1976AA",
                 borderRadius: "12rem",
                 fontStyle: "italic",
-                fontSize: "14px !important",
+                fontSize: { xs: "12px", md: "14px !important" },
                 fontWeight: "400",
               }}
             >
@@ -308,7 +311,7 @@ const Performance = () => {
         {isPerformanceSettingComponent ? (
           <PerformanceSettingComponent />
         ) : (
-          <Grid item>
+          <Grid item width={"100%"}>
             <CustomAccordion
               summary="Baseline summary"
               details={<BaselineSummaryAccord meter_type={activeButton} />}
@@ -317,7 +320,9 @@ const Performance = () => {
 
             <CustomAccordion
               summary="Performance period data summary"
-              details={<PerformancePeriodDataSummary />}
+              details={
+                <PerformancePeriodDataSummary meter_type={activeButton} />
+              }
               panelId="performancePeriodDataSummary"
             />
 
@@ -327,7 +332,8 @@ const Performance = () => {
                 <PerformancePeriodInformationAccordion
                   meter_type={activeButton}
                   submitTrigger={submitTrigger}
-                  refreshTrigger={refreshTrigger}
+                  setSubmitTrigger={setSubmitTrigger}
+                  // refreshTrigger={refreshTrigger}
                   onDateValidation={handleDateValidation}
                 />
               }

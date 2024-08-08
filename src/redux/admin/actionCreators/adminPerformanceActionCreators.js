@@ -62,6 +62,18 @@ import {
   DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
   DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
   DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  GET_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  GET_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
+  SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
+  SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -354,5 +366,61 @@ export const deleteAdminNonRoutineEventDataSuccess = (data) => ({
 
 export const deleteAdminNonRoutineEventDataFailure = (error) => ({
   type: DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  payload: error,
+});
+
+export const scoreAdminPerformanceDataRequest = () => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
+});
+
+export const scoreAdminPerformanceDataSuccess = (data) => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
+  payload: data,
+});
+
+export const scoreAdminPerformanceDataFailure = (error) => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
+  payload: error,
+});
+
+export const calculateAdminPerformanceReportRequest = () => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const calculateAdminPerformanceReportSuccess = (data) => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const calculateAdminPerformanceReportFailure = (error) => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const updateAdminPerformanceReportRequest = () => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const updateAdminPerformanceReportSuccess = (data) => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const updateAdminPerformanceReportFailure = (error) => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceReportRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const getAdminPerformanceReportSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceReportFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
   payload: error,
 });

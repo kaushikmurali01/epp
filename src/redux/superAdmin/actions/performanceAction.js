@@ -27,6 +27,18 @@ import {
   editNonRoutineEventDataRequest,
   editNonRoutineEventDataSuccess,
   editNonRoutineEventDataFailure,
+  calculatePerformanceReportRequest,
+  calculatePerformanceReportSuccess,
+  calculatePerformanceReportFailure,
+  updatePerformanceReportRequest,
+  updatePerformanceReportSuccess,
+  updatePerformanceReportFailure,
+  getPerformanceReportRequest,
+  getPerformanceReportSuccess,
+  getPerformanceReportFailure,
+  scorePerformanceDataRequest,
+  scorePerformanceDataSuccess,
+  scorePerformanceDataFailure,
 } from "../actionCreators/performanceActionCreator";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -206,6 +218,78 @@ export const updateNonRoutineEventData = (eventId, payload) => {
     } catch (error) {
       console.error(error);
       dispatch(editNonRoutineEventDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const scorePerformanceData = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(scorePerformanceDataRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.SCORE_PERFORMANCE_DATA}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(scorePerformanceDataSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(scorePerformanceDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const calculatePerformanceReport = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(calculatePerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.CALCULATE_PERFORMANCE_REPORT}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(calculatePerformanceReportSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(calculatePerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updatePerformanceReportInDB = (facility_id, payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updatePerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.UPDATE_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(updatePerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(updatePerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceReportFromDB = (facility_id, meter_type) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL);
+      dispatch(getPerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceReportFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

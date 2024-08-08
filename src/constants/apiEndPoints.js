@@ -250,7 +250,7 @@ export const BASELINE_ENDPOINTS = {
 };
 
 export const PERFORMANCE_ENDPOINTS = {
-  GET_BASELINE_DATA_SUMMARY: "model/v1/get_baseline_data_summary",
+  GET_BASELINE_DATA_SUMMARY: "model/v1/get_baseline_data_summary/v2",
   ADD_NON_ROUTINE_EVENT: "/company-facility/v1/addNonRoutineEvent",
   GET_NON_ROUTINE_EVENT_LIST: "/company-facility/v1/nonRoutineEventList",
   ADD_NON_ROUTINE_EVENT_DATA: "/company-facility/v1/addNonRoutineData",
@@ -259,6 +259,10 @@ export const PERFORMANCE_ENDPOINTS = {
   EDIT_NON_ROUTINE_EVENT_DATA: "/company-facility/v1/editNonRoutineData",
   DELETE_NON_ROUTINE_EVENT: "/company-facility/v1/removeNonRoutine",
   DELETE_NON_ROUTINE_EVENT_DATA: "/company-facility/v1/removeNonRoutineData",
+  SCORE_PERFORMANCE_DATA: "/model/v1/score_performance_data",
+  CALCULATE_PERFORMANCE_REPORT: "/model/v1/p4p_calc_summary",
+  UPDATE_PERFORMANCE_REPORT: "/company-facility/v1/performance",
+  GET_PERFORMANCE_REPORT: "/company-facility/v1/performance",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
