@@ -21,7 +21,7 @@ from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
 from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv, min_max_general
+    min_max_date_query_iv, min_max_general, min_max_performance
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -683,11 +683,11 @@ def get_data_exploration_summary_v2():
         if page_size > 100:
             page_size = 100
         if not all([meter_name, meter_id]):
-            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200 
+            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200
 
     des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
     if list_data == '1':
-        
+
         return des.get_paginated_list(page_size, page_no)
     else:
         return des.process()
@@ -859,6 +859,26 @@ def get_workflow():
             workflows.append(workflow)
         return jsonify({'workflow': workflow}), 200
     return jsonify({"error": "No Workflow Created Yet"}), 404
+
+
+@app.route('/get-performance-min-max', methods=['GET'])
+def get_performance_min_max():
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
+    if not facility_id:
+        return jsonify({"error": "Please Provide Facility ID"}), 400
+    if not meter_type:
+        return jsonify({"error": "Please Provide Meter Type"}), 400
+
+    facility_id, meter_type = int(facility_id), int(meter_type)
+    query = min_max_performance.format(facility_id, meter_type)
+    df = dbtest(query)
+    df.dropna(inplace=True)
+    if len(df):
+        min_data = df.baseline_start_date.min()
+        max_data = df.baseline_end_date.max()
+        return {'min_date': min_data, 'max_date': max_data}
+    return jsonify({"error": "Insufficient Data"}), 404
 
 
 if __name__ == '__main__':

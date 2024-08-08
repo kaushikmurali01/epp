@@ -101,3 +101,17 @@ min_max_date_query = """select min(start_date) as min_date, max(end_date) as max
 min_max_meter_date_query = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_id={} and is_active=true"""
 min_max_date_query_iv = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and independent_variable_id={} and is_active=true"""
 min_max_general = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and is_active=true"""
+
+
+min_max_performance = """
+    SELECT 
+      model_input_settings->>'baseline_start_date' AS baseline_start_date,
+      model_input_settings->>'baseline_end_date' AS baseline_end_date,
+      facility_id,
+      meter_type
+    FROM 
+      epp.baseline_model_output_data
+    WHERE 
+      facility_id = {} -- Placeholder for facility_id
+      AND meter_type = {}; -- Placeholder for meter_type
+  """
