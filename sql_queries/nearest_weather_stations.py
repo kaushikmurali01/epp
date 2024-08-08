@@ -1,22 +1,48 @@
+# nearest_weather_stations = """
+# WITH facility_location AS (
+#     SELECT latitude, longitude
+#     FROM epp.facility
+#     WHERE id = {}
+# ),
+# station_stats AS (
+#     SELECT
+#         station_name,
+#         station_id,
+#         latitude,
+#         longitude,
+#         climate_id,
+#
+#         COUNT(*) AS total_records,
+#         ROUND(COUNT(temp) * 100.0 / NULLIF(COUNT(*), 0), 2) AS temp_sufficiency
+#     FROM epp.weather_data_records
+#     GROUP BY station_id, station_name, latitude, longitude ,climate_id
+#     HAVING COUNT(temp) * 100.0 / NULLIF(COUNT(*), 0) > 80
+# )
+# SELECT
+#     s.station_name,
+#     s.station_id,
+#     s.latitude,
+#     s.longitude,
+#     s.temp_sufficiency,
+#     s.total_records,
+#     s.climate_id,
+#
+#     6371 * 2 * ASIN(SQRT(
+#         POWER(SIN(RADIANS(f.latitude - s.latitude) / 2), 2) +
+#         COS(RADIANS(s.latitude)) * COS(RADIANS(f.latitude)) *
+#         POWER(SIN(RADIANS(f.longitude - s.longitude) / 2), 2)
+#     )) AS distance_km
+# FROM station_stats s, facility_location f
+# ORDER BY distance_km ASC
+# LIMIT {};
+# """
+
+
 nearest_weather_stations = """
 WITH facility_location AS (
     SELECT latitude, longitude 
     FROM epp.facility 
     WHERE id = {}
-),
-station_stats AS (
-    SELECT 
-        station_name, 
-        station_id, 
-        latitude, 
-        longitude,
-        climate_id, 
-
-        COUNT(*) AS total_records, 
-        ROUND(COUNT(temp) * 100.0 / NULLIF(COUNT(*), 0), 2) AS temp_sufficiency 
-    FROM epp.weather_data_records 
-    GROUP BY station_id, station_name, latitude, longitude ,climate_id
-    HAVING COUNT(temp) * 100.0 / NULLIF(COUNT(*), 0) > 80
 )
 SELECT 
     s.station_name, 
@@ -26,15 +52,15 @@ SELECT
     s.temp_sufficiency, 
     s.total_records, 
     s.climate_id, 
-
     6371 * 2 * ASIN(SQRT(
         POWER(SIN(RADIANS(f.latitude - s.latitude) / 2), 2) + 
         COS(RADIANS(s.latitude)) * COS(RADIANS(f.latitude)) * 
         POWER(SIN(RADIANS(f.longitude - s.longitude) / 2), 2)
     )) AS distance_km 
-FROM station_stats s, facility_location f
+FROM weather_data_agg s, facility_location f
 ORDER BY distance_km ASC 
 LIMIT {};
+
 """
 
 weather_data_query = """
