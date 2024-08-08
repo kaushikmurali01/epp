@@ -22,6 +22,27 @@ from statsmodels.regression.linear_model import OLS
 from statsmodels.tools import add_constant
 import statsmodels.api as sm
 
+def adjust_and_finalize_data(processed_data,preserved_columns, modelling_independent_variables):
+    # Preserve columns that need to be kept regardless of their presence in modelling_independent_variables
+    # preserved_columns = ['observed', 'temperature']
+    all_required_columns = modelling_independent_variables + preserved_columns
+    
+    # Step 1: Remove any columns not needed (not in modelling_independent_variables or preserved_columns)
+    processed_data = processed_data.loc[:, processed_data.columns.isin(all_required_columns)]
+    
+    # Step 2: Add missing modelling independent variables with default values of zero
+    missing_cols = [col for col in modelling_independent_variables if col not in processed_data.columns]
+    for col in missing_cols:
+        processed_data[col] = 0
+
+    # Ensure the columns order is correct for consistency
+    # Including preserved columns at the end to maintain structure
+    final_columns_order = [col for col in modelling_independent_variables if col in processed_data.columns] + preserved_columns
+    processed_data = processed_data[final_columns_order]
+
+    return processed_data
+
+
 def create_iterator(scoring_data, segment_type, model_process_variables):
     # Define segment types
     prediction_segment_type = {

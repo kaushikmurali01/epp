@@ -6,6 +6,7 @@ from CALTRACK_scoring import *
 from enerva_utils import *
 from p4p_calc import *
 import json
+import pytz
 
 app = Flask(__name__)
 @app.route('/model_summary', methods=['POST'])
@@ -43,7 +44,7 @@ def baseline_model_training():
     additional_dummy_vars = [key for key, value in dummy_variables.items() if value]
     
     model = EnergyModel()
-    model.load_process_data(baseline_data)
+    model.load_process_data(baseline_data.copy())
     processed_data = model.indep_vars_processing(
         columns_to_remove=[], 
         additional_indep_cat_vars=[], 
@@ -53,21 +54,31 @@ def baseline_model_training():
     )
     
     if granularity == 'hourly':
-        model.feature_engineering_eemeter_hourly_model(processed_data, "three_month_weighted")
+        model.feature_engineering_eemeter_hourly_model(processed_data.copy(), "three_month_weighted")
         model.training_hourly_model()
-        predicted_data = model.scoring_hourly_model(processed_data)
-        baseline_summary_performance_page = model.get_baseline_summary(predicted_data, 'hourly',meter_type)
+        predicted_data = model.scoring_hourly_model(processed_data.copy())
+        baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'hourly',meter_type)
         # Get buffers from the model save function
         model_buffer, config_buffer = model.save_model_to_buffer('hourly')
     else:
-        model.training_daily_model(processed_data, ignore_disqualification=True)
-        predicted_data = model.scoring_daily_model(processed_data, ignore_disqualification=True)
-        baseline_summary_performance_page = model.get_baseline_summary(predicted_data, 'daily',meter_type)
+        model.training_daily_model(processed_data.copy(), ignore_disqualification=True)
+        predicted_data = model.scoring_daily_model(processed_data.copy(), ignore_disqualification=True)
+        baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'daily',meter_type)
         # Get buffers from the model save function
         model_buffer, config_buffer = model.save_model_to_buffer('daily')
        
     model_metrics = model.evaluate(predicted_data)
-
+    input_settings_dump = {
+        "granularity" : granularity,
+        "meter_type" : meter_type,
+        "facility_id" : facility_id,
+        "baseline_start_date" : str(baseline_start_date),
+        "baseline_end_date" : str(baseline_end_date),
+        "modelling_independent_variables" : list(model.independent_variables),
+        "independent_variables_name" : selected_independent_variables,
+        "dummy_variables" : dummy_variables,
+    }
+    model_input_settings = json.dumps(input_settings_dump)
     table_name = 'baseline_model_output_data'
     # Convert DataFrame to JSON strings for the output_data column
     predicted_data = predicted_data.reset_index()
@@ -78,11 +89,11 @@ def baseline_model_training():
     #model metrics json to string
     model_metrics_summary_json = json.dumps(model_metrics)
     # Create a list of tuples for insertion
-    values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json)
+    values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json,model_input_settings)
     # Create the SQL insert query
     query = f"""
-    INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary)
-    VALUES (%s, %s, %s, %s, %s)
+    INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary,model_input_settings)
+    VALUES (%s, %s, %s, %s, %s, %s)
     """
     # Execute the query
     db_execute(query, values)
@@ -142,57 +153,136 @@ def get_predicted_data():
         return jsonify(predicted_data)
     else:
         return jsonify({"error": "No data found for the given facility_id and meter_type"}), 404
+    
+@app.route('/score_performance_data', methods=['POST'])
+def score_data():
+    try:
+        input_settings_scoring = request.get_json()
+        scoring_start_date = pd.to_datetime(input_settings_scoring.get('start_date'))
+        scoring_end_date = pd.to_datetime(input_settings_scoring.get('end_date'))
+        facility_id = input_settings_scoring.get('facility_id')
+        meter_type = input_settings_scoring.get('meter_type')
+        query = """
+        SELECT model_input_settings 
+        FROM baseline_model_output_data 
+        WHERE facility_id = %s AND meter_type = %s;
+        """
+        values = (facility_id, meter_type)
+        result = db_execute(query, values, fetch=True)
+        baseline_model_settings = result[0]
+        granularity = baseline_model_settings['granularity']
+        selected_independent_variables = baseline_model_settings['independent_variables_name']
+        dummy_variables = baseline_model_settings['dummy_variables']
+        modelling_independent_variables = baseline_model_settings['modelling_independent_variables']
+        response = fetch_data_from_api(facility_id, scoring_start_date, scoring_end_date)
+        cleansed_scoring_data = pd.DataFrame(response['clean_data'])
+        cleansed_scoring_data['Date'] = pd.to_datetime(cleansed_scoring_data['Date'])
+        scoring_data = cleansed_scoring_data[(cleansed_scoring_data['Date'] >= scoring_start_date) & (cleansed_scoring_data['Date'] <= scoring_end_date)]
+        scoring_data = scoring_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]
+        scoring_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
+
+        model = EnergyModel()
+        model.load_process_data(scoring_data.copy())
+        processed_scoring_data = model.indep_vars_processing(
+            columns_to_remove=[], 
+            additional_indep_cat_vars=[], 
+            additional_indep_cont_vars=selected_independent_variables, 
+            additional_dummy_vars=list(dummy_variables), 
+            holiday_flag=False
+        )
+        preserved_columns = ['observed', 'temperature']
+        processed_scoring_data = adjust_and_finalize_data(processed_scoring_data,preserved_columns, modelling_independent_variables)
+
+        # Blob names
+        sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
+        model_blob_name = f"{sub_folder_name}/model.pkl"
+        config_blob_name = f"{sub_folder_name}/config.pkl"
+
+        loaded_model = download_buffer_from_blob(model_blob_name)
+        loaded_config = download_buffer_from_blob(config_blob_name)
+        print('model loaded successfully')
+        if granularity == 'hourly':
+            scoring_results = scoring_hourly_model(processed_scoring_data.copy(), loaded_model, loaded_config)
+        else:
+            scoring_results = scoring_daily_model(processed_scoring_data.copy(), eemeter_model = loaded_model['eemeter_model'],linear_model = loaded_model['linear_model'], loaded_config = loaded_config)
+        #make a new table in db to store these results
+        print('Data scoring successfully done. Saving results to DB...')
+        scoring_results = scoring_results.reset_index()
+        scoring_results['Timestamp'] = pd.to_datetime(scoring_results['Timestamp'])
+        output_scoring_data_json = scoring_results.to_json(orient='records')
+        insert_scoring_data(facility_id, meter_type, json.dumps(baseline_model_settings), output_scoring_data_json)
+        return "Data scoring and saving to DB completed successfully", 200 #http ok
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return str(e), 500  # HTTP 500 Internal Server Error
 
 @app.route('/p4p_calc_summary', methods=['POST'])
 def p4p_calculation():
-    input_settings_p4p = request.get_json()
     try:
-        url = 'https://ams-enerva-dev.azure-api.net/v1/insert_clean_data'
-        response = requests.post(url, json=input_settings_p4p)
-        # print(response.json())
-        cleansed_performance_data = pd.DataFrame(response.json()['clean_data'])
-        # print(cleaned_data.columns)
-        # print(cleaned_data.head())
-        cleansed_performance_data['Date'] = pd.to_datetime(cleansed_performance_data['Date'])
+        input_settings_p4p = request.get_json()
+        meter_type = input_settings_p4p.get('meter_type')
+        facility_id = int(input_settings_p4p.get('facility_id'))
         performance_start_date = pd.to_datetime(input_settings_p4p.get('start_date'))
         performance_end_date = pd.to_datetime(input_settings_p4p.get('end_date'))
-        
-        performance_data = cleansed_performance_data[(cleansed_performance_data['Date'] >= performance_start_date) & (cleansed_performance_data['Date'] <= performance_end_date)]
-        performance_data = performance_data[['Date', 'EnergyConsumption', 'Temperature'] + input_settings_p4p.get('independent_variables', [])]
-        performance_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
-        # print(baseline_data)
+        query = """
+        SELECT baseline_model_settings, scoring_data 
+        FROM scoring_data_output 
+        WHERE facility_id = %s AND meter_type = %s;
+        """
+        values = (facility_id, meter_type)
+        result = db_execute(query, values, fetch=True)
+        baseline_model_settings = result[0]
+        scoring_data_master = pd.DataFrame(result[1])
+        #assuming json automatically converts it into UTC
+        # est_offset = pytz.FixedOffset(-300)  # UTC-5:00
+        scoring_data_master['Timestamp'] = pd.to_datetime(scoring_data_master['Timestamp'],unit= 'ms')
+        # scoring_data_master['Timestamp'] = scoring_data_master['Timestamp'].apply(lambda x: est_offset.localize(x))
+        performance_scored_data = scoring_data_master[(scoring_data_master['Timestamp'] >= performance_start_date) & (scoring_data_master['Timestamp'] <= performance_end_date)]
+        non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, performance_start_date, performance_end_date)
+        granularity = baseline_model_settings['granularity']
+
+        # enerva_user_input_settings
+        off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
+        on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)
+        minimum_savings = input_settings_p4p.get('minimum_savings', 0)
+        #take independent_variables from database
+        if granularity == 'hourly':
+            performance = P4P_metrics_calculation(performance_scored_data, non_routine_adjustment_value, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
+        else:
+            performance = P4P_metrics_calculation(performance_scored_data, non_routine_adjustment_value, 'daily', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
+            
+        performance_summary = performance.calculate_metrics()
+        print("performance calculation done successfully")
+        return jsonify(performance_summary)
     except Exception as e:
-    # This will catch any exception and print a message about what went wrong
         print(f"An error occurred: {e}")
-    # get performance data from DB
-    non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_date)
-    # enerva_user_input_settings
-    granularity = input_settings_p4p.get('granularity')
-    off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
-    on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)
-    minimum_savings = input_settings_p4p.get('minimum_savings', 0)
-    facility_id = input_settings_p4p.get('facility_id')
-    meter_type = input_settings_p4p.get('meter_type')
-    #take independent_variables from database
-
-    # Blob names
-    sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
-    model_blob_name = f"{sub_folder_name}/model.pkl"
-    config_blob_name = f"{sub_folder_name}/config.pkl"
-
-    loaded_model = download_buffer_from_blob(model_blob_name)
-    loaded_config = download_buffer_from_blob(config_blob_name)
-    print('model loaded successfully')
-    if granularity == 'hourly':
-        scoring_results = scoring_hourly_model(performance_data, loaded_model, loaded_config)
-        performance = P4P_metrics_calculation(scoring_results, non_routine_adjustment_value, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
-    else:
-        scoring_results = scoring_daily_model(performance_data, eemeter_model = loaded_model['eemeter_model'],linear_model = loaded_model['linear_model'], loaded_config = loaded_config)
-        performance = P4P_metrics_calculation(scoring_results, non_routine_adjustment_value, 'daily', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
-        
-    performance_summary = performance.calculate_metrics()
+        return str(e), 500  # HTTP 500 Internal Server Error
     
-    return jsonify(performance_summary)
+@app.route('/get_performance_scoring_data', methods=['GET'])
+def scoring_data_for_visual():
+    try:
+        input_settings_p4p = request.get_json()
+        meter_type = input_settings_p4p.get('meter_type')
+        facility_id = int(input_settings_p4p.get('facility_id'))
+        # performance_start_date = pd.to_datetime(input_settings_p4p.get('start_date'))
+        # performance_end_date = pd.to_datetime(input_settings_p4p.get('end_date'))
+        query = """
+        SELECT baseline_model_settings, scoring_data 
+        FROM scoring_data_output 
+        WHERE facility_id = %s AND meter_type = %s;
+        """
+        values = (facility_id, meter_type)
+        result = db_execute(query, values, fetch=True)
+        baseline_model_settings = result[0]
+        # scoring_data_master = pd.DataFrame(result[1])
+        # #assuming json automatically converts it into UTC
+        # # est_offset = pytz.FixedOffset(-300)  # UTC-5:00
+        # scoring_data_master['Timestamp'] = pd.to_datetime(scoring_data_master['Timestamp'],unit= 'ms')
+        # scoring_data_master['Timestamp'] = scoring_data_master['Timestamp'].apply(lambda x: est_offset.localize(x))
+        return result[1]
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return str(e), 500  # HTTP 500 Internal Server Error
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0",debug=True,port =5004)

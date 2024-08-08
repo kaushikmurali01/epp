@@ -386,3 +386,16 @@ def get_independent_vars_names(selected_independent_variables_ids, facility_id):
     selected_names = [iv_dict[id_] for id_ in selected_independent_variables_ids if id_ in iv_dict]
     
     return selected_names
+
+def insert_scoring_data(facility_id, meter_type, baseline_model_settings, scoring_data):
+    # SQL INSERT statement
+    query = """
+    INSERT INTO scoring_data_output (facility_id, meter_type, baseline_model_settings, scoring_data)
+    VALUES (%s, %s, %s, %s);
+    """
+
+    # Tuple of values to be inserted
+    values = (facility_id, meter_type, baseline_model_settings, scoring_data)
+
+    # Use the db_execute function to run the query
+    db_execute(query, values)
