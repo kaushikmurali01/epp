@@ -671,10 +671,26 @@ def add_meter_data():
 def get_data_exploration_summary_v2():
     facility_id = request.args.get('facility_id', None)
     summary_type = request.args.get('summary_type', 'observe_data')
+    list_data = request.args.get('list', '0')
+    page_size = int(request.args.get('page_size', 10))
+    page_no = int(request.args.get('page_no', 1))
+
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
+    
+    if list_data == '1':
+        meter_name = request.args.get('meter_name', None)
+        meter_id = request.args.get('meter_id', None)
+        if page_size > 100:
+            page_size = 100
+        if not all([meter_name, meter_id]):
+            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200    
+
     des = DataExplorationSummaryV2(facility_id, summary_type)
-    return des.process()
+    if list_data == '1':
+        return des.get_paginated_list(page_size, page_no)
+    else:
+        return des.process()
 
 
 @app.route('/graph', methods=['GET'])
