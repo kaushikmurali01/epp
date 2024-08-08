@@ -835,6 +835,7 @@ def get_clean_data():
             return jsonify({"error": "Unexpected data format after cleaning"}), 500
 
     except Exception as e:
+        raise
         print(f"Error: {str(e)}")  # Log the full error
         return jsonify({"error": "An unexpected error occurred", "detail": str(e)}), 500
 
