@@ -21,7 +21,7 @@ from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
 from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv, min_max_general, min_max_performance
+    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -871,13 +871,15 @@ def get_performance_min_max():
         return jsonify({"error": "Please Provide Meter Type"}), 400
 
     facility_id, meter_type = int(facility_id), int(meter_type)
-    query = min_max_performance.format(facility_id, meter_type)
+    query = get_base_line_min_max.format(facility_id, meter_type)
     df = dbtest(query)
     df.dropna(inplace=True)
     if len(df):
-        min_data = df.baseline_start_date.min()
         max_data = df.baseline_end_date.max()
-        return {'min_date': min_data, 'max_date': max_data}
+        min_max_df = dbtest(min_max_performance.format(facility_id, max_data))
+        min_max_df.dropna(inplace=True)
+        if len(min_max_df):
+            return {'min_date': min_max_df.min_date.min(), 'min_date': min_max_df.min_date.max()}
     return jsonify({"error": "Insufficient Data"}), 404
 
 
