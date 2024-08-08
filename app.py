@@ -174,6 +174,7 @@ def score_data():
         selected_independent_variables = baseline_model_settings['independent_variables_name']
         dummy_variables = baseline_model_settings['dummy_variables']
         modelling_independent_variables = baseline_model_settings['modelling_independent_variables']
+        #get clean performance data
         response = fetch_data_from_api(facility_id, scoring_start_date, scoring_end_date)
         cleansed_scoring_data = pd.DataFrame(response['clean_data'])
         cleansed_scoring_data['Date'] = pd.to_datetime(cleansed_scoring_data['Date'])
@@ -224,15 +225,9 @@ def p4p_calculation():
         facility_id = int(input_settings_p4p.get('facility_id'))
         performance_start_date = pd.to_datetime(input_settings_p4p.get('start_date'))
         performance_end_date = pd.to_datetime(input_settings_p4p.get('end_date'))
-        query = """
-        SELECT baseline_model_settings, scoring_data 
-        FROM scoring_data_output 
-        WHERE facility_id = %s AND meter_type = %s;
-        """
-        values = (facility_id, meter_type)
-        result = db_execute(query, values, fetch=True)
-        baseline_model_settings = result[0]
-        scoring_data_master = pd.DataFrame(result[1])
+        result = fetch_scoring_and_incentive_data(facility_id, meter_type)
+        baseline_model_settings = result['baseline_model_settings']
+        scoring_data_master = pd.DataFrame(result['scoring_data'])
         #assuming json automatically converts it into UTC
         # est_offset = pytz.FixedOffset(-300)  # UTC-5:00
         scoring_data_master['Timestamp'] = pd.to_datetime(scoring_data_master['Timestamp'],unit= 'ms')
@@ -240,12 +235,11 @@ def p4p_calculation():
         performance_scored_data = scoring_data_master[(scoring_data_master['Timestamp'] >= performance_start_date) & (scoring_data_master['Timestamp'] <= performance_end_date)]
         non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, performance_start_date, performance_end_date)
         granularity = baseline_model_settings['granularity']
+        pre_project_incentive = result['incentive_settings']['pre_project_incentive']
+        on_peak_incentive = result['incentive_settings']['on_peak_incentive_rate']
+        off_peak_incentive = result['incentive_settings']['off_peak_incentive_rate']
+        minimum_savings = result['incentive_settings']['minimum_savings']
 
-        # enerva_user_input_settings
-        off_peak_incentive = input_settings_p4p.get('off_peak_incentive', 0)
-        on_peak_incentive = input_settings_p4p.get('on_peak_incentive', 0)
-        minimum_savings = input_settings_p4p.get('minimum_savings', 0)
-        #take independent_variables from database
         if granularity == 'hourly':
             performance = P4P_metrics_calculation(performance_scored_data, non_routine_adjustment_value, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
         else:

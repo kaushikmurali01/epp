@@ -399,3 +399,51 @@ def insert_scoring_data(facility_id, meter_type, baseline_model_settings, scorin
 
     # Use the db_execute function to run the query
     db_execute(query, values)
+
+def fetch_scoring_and_incentive_data(facility_id, meter_type):
+    """
+    Fetches scoring data and conditional incentive settings based on facility ID and meter type.
+    
+    Parameters:
+    facility_id (int): The ID of the facility.
+    meter_type (int): The type of meter.
+
+    Returns:
+    dict: A dictionary containing baseline model settings, scoring data, and incentive settings.
+    """
+    # SQL query to fetch data
+    query = """
+    SELECT 
+        a.baseline_model_settings, 
+        a.scoring_data, 
+        CASE WHEN a.meter_type = 1 THEN b.pre_project_incentive ELSE NULL END as pre_project_incentive,
+        CASE WHEN a.meter_type = 1 THEN b.on_peak_incentive_rate ELSE NULL END as on_peak_incentive_rate,
+        CASE WHEN a.meter_type = 1 THEN b.off_peak_incentive_rate ELSE NULL END as off_peak_incentive_rate,
+        CASE WHEN a.meter_type = 1 THEN b.minimum_savings ELSE NULL END as minimum_savings
+    FROM 
+        scoring_data_output a
+    LEFT JOIN 
+        incentive_settings b ON a.facility_id = b.facility_id 
+    WHERE 
+        a.facility_id = %s AND a.meter_type = %s;
+    """
+    
+    # Execute the query
+    values = (facility_id, meter_type)
+    result = db_execute(query, values, fetch=True)
+    
+    # Prepare the results to return
+    if result:
+        return {
+            'baseline_model_settings': result[0],
+            'scoring_data': result[1],
+            'incentive_settings': {
+                'pre_project_incentive': float(result[2]) if result[2] is not None else 0.0,
+                'on_peak_incentive_rate': float(result[3]) if result[3] is not None else 0.0,
+                'off_peak_incentive_rate': float(result[4]) if result[4] is not None else 0.0,
+                'minimum_savings': float(result[5]) if result[5] is not None else 0.0
+            }
+        }
+    else:
+        print("No data found for the given facility_id and meter_type.")
+        return None
