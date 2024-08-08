@@ -13,14 +13,15 @@ const ViewEntryDetailListModal = ({
   meterId,
   meterType,
   facilityId,
-  independentVariableId
+  independentVariableId,
+  ivName
 }) => {
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     pageSize: 10,
   });
 
-  const [meterRawData, setMeterRowData] = useState([]);
+  const [viewEntryList, setViewEntryList] = useState([]);
   const [count, setPageCount] = useState("");
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -35,10 +36,10 @@ const ViewEntryDetailListModal = ({
     {
       Header: "Start Date",
       accessor: (item) => (
-        <>
+        <Typography variant="small" sx={{fontWeight: '400'}}>
           {item?.["start_date"] &&
             formatDateToLocal(item?.["start_date"])}
-        </>
+        </Typography>
       ),
     },
     {
@@ -56,13 +57,13 @@ const ViewEntryDetailListModal = ({
     },
   ];
 
-  const getHourlyEntriesData = (pageInfo) => {
+  const getHourlyEntriesData = (pageInfoData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
     let payload = {
       "facility_id": facilityId,
-      "limit": 10,
-      "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+      "limit": pageInfoData.pageSize,
+      "offset": (pageInfoData.page - 1) * pageInfoData.pageSize,
     }
 
     if (independentVariableId) {
@@ -75,7 +76,7 @@ const ViewEntryDetailListModal = ({
     POST_REQUEST(apiURL, payload)
       .then((res) => {
         if (res.data?.data?.rows instanceof Array) {
-          setMeterRowData(res.data?.data?.rows);
+          setViewEntryList(res.data?.data?.rows);
           setPageCount(res.data?.data?.count);
         }
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -92,21 +93,21 @@ const ViewEntryDetailListModal = ({
   return (
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
-        <Typography variant="h5">
+        <Typography variant="h5" sx={{ textTransform: 'capitalize'}}>
           {meterType == 1
                 ? "Electricity"
                 : meterType == 3
                 ? "Natural Gas"
                 : meterType == 2
                 ? "Water"
-                : ""}
+                : ivName || ""}
         </Typography>
         <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
           Download as Excel
         </Typography>
       </Grid>
       <Grid container>
-        <MiniTable columns={observeDataColumn} data={meterRawData} />
+        <MiniTable columns={observeDataColumn} data={viewEntryList} />
         <CustomPagination
           count={count}
           pageInfo={pageInfo}
