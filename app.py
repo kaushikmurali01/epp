@@ -674,12 +674,12 @@ def get_data_exploration_summary_v2():
     list_data = request.args.get('detail', '0')
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
+    meter_name = request.args.get('meter', None)
+    meter_id = request.args.get('meter_id', None)
 
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
     if list_data == '1':
-        meter_name = request.args.get('meter', None)
-        meter_id = request.args.get('meter_id', None)
         if page_size > 100:
             page_size = 100
         if not all([meter_name, meter_id]):
