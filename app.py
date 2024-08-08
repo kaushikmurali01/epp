@@ -677,14 +677,14 @@ def get_data_exploration_summary_v2():
 
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
-    
+
     if list_data == '1':
         meter_name = request.args.get('meter_name', None)
         meter_id = request.args.get('meter_id', None)
         if page_size > 100:
             page_size = 100
         if not all([meter_name, meter_id]):
-            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200    
+            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200
 
     des = DataExplorationSummaryV2(facility_id, summary_type)
     if list_data == '1':
@@ -797,7 +797,7 @@ def get_clean_data():
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
         facility_id = request.args.get('facility_id')
-        weather_station = request.args.get('station_id',None)
+        weather_station = request.args.get('station_id')
 
         if not all([start_date, end_date, facility_id]):
             return jsonify({"error": "Missing required parameters"}), 400
@@ -811,6 +811,8 @@ def get_clean_data():
         if weather_station:
             weather_station = int(weather_station)
             order = [temp1, temp2, temp3]
+            if weather_station not in order:
+                return jsonify({"error": "Invalid Station ID"}), 400
             order.pop(order.index(weather_station))
             order = [weather_station] + order
             temp1, temp2, temp3 = order
