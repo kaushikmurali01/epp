@@ -118,5 +118,5 @@ get_base_line_min_max = """
 
 
 min_max_performance = """
-select min(start_date) as min_date, max(start_date) as max_date from meter_hourly_entries where facility_id={} and meter_type=1 and start_date > '{}'
+select min(start_date) as min_date, max(start_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_type=1 and start_date > '{}'
 """
