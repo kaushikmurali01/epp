@@ -797,6 +797,7 @@ def get_clean_data():
         start_date = request.args.get('start_date')
         end_date = request.args.get('end_date')
         facility_id = request.args.get('facility_id')
+        weather_station = request.args.get('station_id',None)
 
         if not all([start_date, end_date, facility_id]):
             return jsonify({"error": "Missing required parameters"}), 400
@@ -807,6 +808,12 @@ def get_clean_data():
             return jsonify({"error": "Invalid parameter format"}), 400
 
         temp1, temp2, temp3 = get_nearest_stations(facility_id, n=3).station_id.values
+        if weather_station:
+            weather_station = int(weather_station)
+            order = [temp1, temp2, temp3]
+            order.pop(order.index(weather_station))
+            order = [weather_station] + order
+            temp1, temp2, temp3 = order
 
         clean_data_query = data_cleaning_query.format(temp1, temp2, temp3, facility_id, temp1, temp2, temp3, start_date,
                                                       end_date)
