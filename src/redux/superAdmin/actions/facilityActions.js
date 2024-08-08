@@ -66,6 +66,12 @@ import {
   deleteFacilityDocumentRequest,
   deleteFacilityDocumentSuccess,
   deleteFacilityDocumentFailure,
+  sendHelpReqForMeasureCategoryRequest,
+  sendHelpReqForMeasureCategorySuccess,
+  sendHelpReqForMeasureCategoryFailure,
+  getWaterfallDataRequest,
+  getWaterfallDataFailure,
+  getWaterfallDataSuccess,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -575,6 +581,48 @@ export const deleteFacilityDocument = (documentId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+    }
+  };
+};
+
+export const sendHelpRequestForMeasure = (facility, measureData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(sendHelpReqForMeasureCategoryRequest());
+      const endpointWithParams = `${facilityEndPoints.SEND_HELP_REQ_FOR_MEASURE_CATEGORY}/${facility}`;
+      const response = await POST_REQUEST(endpointWithParams, measureData);
+      const data = response.data;
+      dispatch(sendHelpReqForMeasureCategorySuccess(data));
+      NotificationsToast({
+        message: "Help request sent successfully",
+        type: "success",
+      });
+    } catch (error) {
+      dispatch(sendHelpReqForMeasureCategoryFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getWaterfallData = (measureData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getWaterfallDataRequest());
+      const endpointWithParams = `${facilityEndPoints.GET_WATERFALL_DATA}`;
+      const response = await POST_REQUEST(endpointWithParams, measureData);
+      const data = response.data;
+      dispatch(getWaterfallDataSuccess(data));
+      return data;
+    } catch (error) {
+      dispatch(getWaterfallDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
     }
   };
 };

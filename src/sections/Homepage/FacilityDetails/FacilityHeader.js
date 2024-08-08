@@ -9,13 +9,14 @@ import {
   styled,
   ButtonGroup,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   deleteFacility,
   fetchFacilityDetails,
   fetchFacilityListing,
+  getWaterfallData,
   submitFacilityForApproval,
 } from "../../../redux/superAdmin/actions/facilityActions";
 import EvModal from "utils/modal/EvModal";
@@ -102,6 +103,22 @@ const FacilityHeader = () => {
     setActiveButton(btn_name);
   };
 
+  const incentiveData = useSelector(
+    (state) => state?.facilityReducer?.waterfallData?.data || []
+  );
+  const energySavingData = useSelector(
+    (state) => state?.facilityReducer?.waterfallData?.data || []
+  );
+
+  useEffect(() => {
+    const graphData = {
+      facility_id: id,
+      meter_type: 1,
+      energySaving: activeButton === "incentive" ? false : true,
+    };
+    dispatch(getWaterfallData(graphData));
+  }, [dispatch, id, activeButton]);
+
   const handleDeleteFacility = () => {
     if (id) {
       dispatch(deleteFacility(id))
@@ -164,26 +181,19 @@ const FacilityHeader = () => {
     }));
   };
 
-  const incentiveData = [
-    { name: "Total Incentives", value: 3255, onPeak: 3255, offPeak: 0 },
-    { name: "3rd P4P Incentives", value: 1550, onPeak: 750, offPeak: 800 },
-    { name: "2nd P4P Incentives", value: 1085, onPeak: 525, offPeak: 560 },
-    { name: "1st P4P Incentives", value: 625, onPeak: 300, offPeak: 325 },
-    { name: "Pre-Project Incentives", value: 1500, onPeak: 1500, offPeak: 0 },
-  ];
+  // const incentiveData = [
+  //   { name: "Total", value: 3255, onPeak: 3255, offPeak: 0 },
+  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
+  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
+  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
+  //   { name: "Pre-Project", value: 1500, onPeak: 1500, offPeak: 0 },
+  // ];
 
-  const energySavingData = [
-    { name: "Total saving", value: 3255, onPeak: 3255, offPeak: 0 },
-    { name: "3rd P4P saving", value: 1550, onPeak: 750, offPeak: 800 },
-    { name: "2nd P4P saving", value: 1085, onPeak: 525, offPeak: 560 },
-    { name: "1st P4P saving", value: 625, onPeak: 300, offPeak: 325 },
-    {
-      name: "Pre-Project saving",
-      value: 1500,
-      onPeak: 1500,
-      offPeak: 0,
-    },
-  ];
+  // const energySavingData = [
+  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
+  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
+  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
+  // ];
 
   function Legend() {
     return (
@@ -214,23 +224,26 @@ const FacilityHeader = () => {
 
   const CustomBar = (props) => {
     const { x, y, width, height, value, fill } = props;
-    const displayValue =
+    const displayIncentiveValue =
       typeof value === "number" && activeButton === "incentive"
         ? `$${value.toFixed(2)}`
         : value;
+    const displaySavingValue = `${value}kWh`;
     return (
       <g>
-        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        <rect x={x} y={y} width={width} height={15} fill={fill} />
         {width > 30 && (
           <text
             x={x + width / 2}
-            y={y + height / 2}
+            y={y + 15 / 2}
             textAnchor="middle"
             dominantBaseline="central"
             fill="#000000"
             fontSize={10}
           >
-            {displayValue}
+            {activeButton === "incentive"
+              ? displayIncentiveValue
+              : displaySavingValue}
           </text>
         )}
       </g>
@@ -239,7 +252,7 @@ const FacilityHeader = () => {
 
   function IncentiveChart({ data }) {
     const processedData = React.useMemo(() => {
-      return data.reduce((acc, item, index, array) => {
+      return data?.reduce((acc, item, index, array) => {
         let transparentValue = 0;
         let cumulativeTotal = item.value;
 
@@ -281,7 +294,7 @@ const FacilityHeader = () => {
           <BarChart
             layout="vertical"
             data={processedData}
-            margin={{ left: 45 }}
+            margin={{ left: 25 }}
           >
             <XAxis type="number" domain={[0, maxTotal]} hide />
             <YAxis
@@ -319,6 +332,60 @@ const FacilityHeader = () => {
                 <CustomBar {...props} value={props.payload.offPeak} />
               )}
             />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+    );
+  }
+
+  function EnergySavingsChart({ data }) {
+    const totalSavings = data.reduce(
+      (sum, item) => sum + item.onPeak + item.offPeak,
+      0
+    );
+    return (
+      <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart layout="vertical" data={data} margin={{ left: 25 }}>
+            <XAxis type="number" hide />
+            <YAxis
+              dataKey="name"
+              type="category"
+              tick={{
+                fontSize: 10,
+                fontWeight: 500,
+                fill: "#333",
+                textAnchor: "end",
+                width: 160,
+              }}
+              wrapperStyle={{ whiteSpace: "nowrap" }}
+            />
+            <Bar
+              dataKey="onPeak"
+              stackId="a"
+              fill="#8bc34a"
+              shape={(props) => (
+                <CustomBar {...props} value={props.payload.onPeak} />
+              )}
+            />
+            <Bar
+              dataKey="offPeak"
+              stackId="a"
+              fill="#4caf50"
+              shape={(props) => (
+                <CustomBar {...props} value={props.payload.offPeak} />
+              )}
+            />
+            <text
+              x="50%"
+              y="100%"
+              dy={-5}
+              textAnchor="middle"
+              fill="#333"
+              fontSize={10}
+            >
+              Minimum savings: {totalSavings}
+            </text>
           </BarChart>
         </ResponsiveContainer>
       </Box>
@@ -366,9 +433,11 @@ const FacilityHeader = () => {
           </StyledButtonGroup>
           <Legend />
         </Grid>
-        <IncentiveChart
-          data={activeButton === "incentive" ? incentiveData : energySavingData}
-        />
+        {activeButton === "incentive" ? (
+          <IncentiveChart data={incentiveData} />
+        ) : (
+          <EnergySavingsChart data={energySavingData} />
+        )}
       </Box>
     );
   });
@@ -376,7 +445,7 @@ const FacilityHeader = () => {
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2} justifyContent="space-between">
-        <Grid item xs={12} md={3}>
+        <Grid item xs={12} md={3.5}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
             <Box
               sx={{
@@ -493,7 +562,7 @@ const FacilityHeader = () => {
           container
           item
           xs={12}
-          md={4}
+          md={3.5}
           spacing={1}
           justifyContent="flex-end"
         >

@@ -29,6 +29,8 @@ export const facilityEndPoints = {
     "company-facility/v1/facility-saving-document-details",
   DELETE_FACILITY_SAVING_DOCUMENT:
     "company-facility/v1/facility-saving-document",
+  SEND_HELP_REQ_FOR_MEASURE_CATEGORY: "company-facility/v1/savingPlan",
+  GET_WATERFALL_DATA: "company-facility/v1/facility/getWaterFallData",
 };
 
 export const adminFacilityEndpoints = {
@@ -207,12 +209,13 @@ export const hourlyEndPoints = {
   ADD_BULK_HOURLY_DATA: "/v1/upload-meter-file",
   ADD_HOURLY_METER_DATA: "/v1/add-meter-data",
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
-  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file"
+  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file",
 };
 
 export const adminHourlyEndPoints = {
   GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
-  DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries"
+  DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries",
+  // MIN_MAX_PERIOD: "/v1/get_min_max_dates",
 };
 
 export const POWERBI_ENDPOINTS = {
@@ -245,7 +248,7 @@ export const BASELINE_ENDPOINTS = {
   ADD_ASSIGNEE_DB: "company-facility/v1/baseline/addAssignee",
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
-  FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary",
+  FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary-v2",
   FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
 };
 

@@ -110,6 +110,8 @@ const MeterListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
     },
     headerText: "Delete Meter",
     headerSubText: "Are you sure you want to delete this meter?",

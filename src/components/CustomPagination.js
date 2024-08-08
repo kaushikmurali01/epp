@@ -117,7 +117,7 @@ const CustomPagination = ({
             }}
           >
             {rowsPerPageArr.map((item) => (
-              <MenuItem value={item} sx={{ fontSize: "0.875rem" }}>
+              <MenuItem key={item} value={item} sx={{ fontSize: "0.875rem" }}>
                 {item}
               </MenuItem>
             ))}

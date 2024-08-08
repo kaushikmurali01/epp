@@ -388,7 +388,7 @@ const FacilityEnrolledInProcess = ({
                     >
                         Logs
                     </Button>
-                    <Button
+                    {/* <Button
                         disableRipple
                         style={{
                             color: "#2C77E9",
@@ -401,7 +401,7 @@ const FacilityEnrolledInProcess = ({
                         onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
                     >
                         Edit
-                    </Button>
+                    </Button> */}
                     <Button
                         disableRipple
                         style={{

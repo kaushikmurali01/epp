@@ -12,14 +12,22 @@ import { Stack } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+const BootstrapDialog = styled(Dialog)(({ theme, evModalStyle }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
+    ...evModalStyle?.dialogContent,
   },
   '& .MuiDialogActions-root': {
     padding: theme.spacing(2),
+    ...evModalStyle?.dialogActions,
+  },
+  '& .MuiDialog-paper': {
+    maxWidth: evModalStyle?.paperMaxWidth || 'sm', 
+    ...evModalStyle?.dialogPaper,
   },
 }));
+
+
 
 export default function EvModal(props) {
   const dispatch = useDispatch();
@@ -62,12 +70,32 @@ export default function EvModal(props) {
     }
   };
 
+  // this is the example how we can pass the evModalStyle from props
+
+  // const evModalStyle = {
+  //   dialog: {
+  //     backgroundColor: 'lightblue',
+  //   },
+  //   dialogContent: {
+  //     backgroundColor: 'white',
+  //   },
+  //   dialogActions: {
+  //     backgroundColor: 'lightgray',
+  //   },
+  //   dialogPaper: {
+  //     backgroundColor: 'red',
+  //   },
+  //   paperMaxWidth: '720px',  // Set the desired max-width
+  // }
+ 
+
   return (
     <React.Fragment>
       <BootstrapDialog
         onClose={handleClose}
         open={modalVisible}
         className={`theme-modal ${modalUI.modalClass}`}
+        evModalStyle={modalUI?.evModalStyle}
       >
         {modalUI?.showHeader && 
           <Stack sx={{ p: headerText ? 2 : 0 }}>

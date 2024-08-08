@@ -65,6 +65,12 @@ import {
   DELETE_FACILITY_DOCUMENT_REQUEST,
   DELETE_FACILITY_DOCUMENT_SUCCESS,
   DELETE_FACILITY_DOCUMENT_FAILURE,
+  SEND_HELP_REQ_FOR_MEASURE_REQUEST,
+  SEND_HELP_REQ_FOR_MEASURE_FAILURE,
+  SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
+  GET_WATERFALL_DATA_REQUEST,
+  GET_WATERFALL_DATA_SUCCESS,
+  GET_WATERFALL_DATA_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -372,5 +378,33 @@ export const deleteFacilityDocumentSuccess = (data) => ({
 
 export const deleteFacilityDocumentFailure = (error) => ({
   type: DELETE_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const sendHelpReqForMeasureCategoryRequest = () => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_REQUEST,
+});
+
+export const sendHelpReqForMeasureCategorySuccess = (data) => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
+  payload: data,
+});
+
+export const sendHelpReqForMeasureCategoryFailure = (error) => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_FAILURE,
+  payload: error,
+});
+
+export const getWaterfallDataRequest = () => ({
+  type: GET_WATERFALL_DATA_REQUEST,
+});
+
+export const getWaterfallDataSuccess = (data) => ({
+  type: GET_WATERFALL_DATA_SUCCESS,
+  payload: data,
+});
+
+export const getWaterfallDataFailure = (error) => ({
+  type: GET_WATERFALL_DATA_FAILURE,
   payload: error,
 });

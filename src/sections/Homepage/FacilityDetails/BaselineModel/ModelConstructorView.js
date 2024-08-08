@@ -40,26 +40,28 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
+  const [disableSeeDetails, setDisableSeeDetails] = useState(false);
   const independentVariables = useSelector(
     (state) => state?.baselineReducer?.independentVariableList
   );
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data
   );
-
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
 
   useEffect(() => {
-    dispatch(fetchStationsDetails(id)).then((res) => {
-      setBaselinePeriod(res);
-    });
+    dispatch(fetchStationsDetails(id));
   }, [dispatch, id, meterType]);
 
   const weatherStationsData = useSelector(
     (state) => state?.baselineReducer?.stationDetails
   );
   useEffect(() => {
-    dispatch(fetchBaselinePeriod(id, meterType));
+    dispatch(fetchBaselinePeriod(id, meterType))
+      .then((res) => {
+        setBaselinePeriod(res);
+      })
+      .catch((err) => {});
   }, [dispatch, id, meterType]);
 
   useEffect(() => {
@@ -70,6 +72,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
       );
       if (initialValues) {
         setFormData(initialValues?.parameter_data);
+        if (initialValues?.parameter_data?.length <= 0) {
+          console.log(initialValues.parameter_data);
+          setDisableSeeDetails(true);
+        } else {
+          setDisableSeeDetails(false);
+        }
       } else {
         setFormData(null);
       }
@@ -174,6 +182,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
               baselineEndDate
             );
           }}
+          disabled={disableSeeDetails}
         >
           See details
         </Typography>
@@ -201,10 +210,16 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                       justifyContent: "center",
                     }}
                   >
-                    {values?.start_date && values.end_date && (
+                    {baselinePeriod?.start_date && baselinePeriod?.end_date && (
                       <DateRangeSlider
-                        start_date={baselinePeriod?.start_date}
-                        end_date={baselinePeriod?.end_date}
+                        start_date={format(
+                          new Date(baselinePeriod?.start_date),
+                          "yyyy-MM-dd"
+                        )}
+                        end_date={format(
+                          new Date(baselinePeriod?.end_date),
+                          "yyyy-MM-dd"
+                        )}
                         sliderStartDate={values?.start_date}
                         sliderEndDate={values?.end_date}
                         startLabel="Baseline Start"
@@ -213,27 +228,6 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                       />
                     )}
                   </Grid>
-                  {/* <Grid container spacing={4}>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="start_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline start *
-                      </InputLabel>
-
-                      <InputField name="start_date" isDisabled="true" />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="end_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline end *
-                      </InputLabel>
-                      <InputField name="end_date" isDisabled="true" />
-                    </Grid>
-                  </Grid> */}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>

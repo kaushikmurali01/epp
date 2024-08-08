@@ -27,7 +27,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
 import { format, getYear } from "date-fns";
-import { entriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
+import { adminHourlyEndPoints, entriesEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
   GET_REQUEST,
@@ -54,6 +54,7 @@ import {
 import EnergyUseByHoursBasisGraph from "./EntryListing/EnergyUseByHoursBasisGraph";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import Loader from "pages/Loader";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -70,10 +71,14 @@ const EntriesListing = ({
   const [imgUploadData, setImgUploadData] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
+
+  const [viewEntryList, setViewEntryList] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-
+  const getDataProcessingLoader =  sessionStorage?.getItem("dataProcessingLoader") === 'true'
+const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessingLoader || false);
+const [refreshPageData, setRefreshPageData] = useState(0)
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -109,7 +114,10 @@ const EntriesListing = ({
     modalUI: {
       ...modalConfig.modalUI,
       showHeader: false,
-      modalBodyContentStyle: ""
+      modalBodyContentStyle: "",
+      evModalStyle : {
+        paperMaxWidth: '720px',  // Set the desired max-width
+      }
 
     },
 
@@ -164,6 +172,8 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
     },
     headerText: "Delete entry",
     headerSubText: "Are you sure you want to delete this entry?",
@@ -278,6 +288,8 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
     },
     headerText: "Delete Meter",
     headerSubText: "Are you sure you want to delete this meter?",
@@ -285,6 +297,7 @@ const EntriesListing = ({
     saveButtonAction: handleDeleteMeter,
   });
 
+  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
@@ -507,7 +520,10 @@ const EntriesListing = ({
       setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
     }))
        .then((data) => {
-
+        // setHourlyEntryFile
+        if(data?.message === undefined || data === undefined || !data.success) {
+          setHourlyEntryFile(null)
+        }
         setImgUploadData(data);
         setIsUploading(false)
         setUploadProgress(100); // when the upload is confirmed
@@ -533,18 +549,22 @@ const EntriesListing = ({
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
-        // getHourlySubHourlyEntryData();
-        // dispatch(fetchFacilityStatus(id));
-        // dispatch(fetchFacilityDetails(id));
+
         NotificationsToast({
           message: response.data.status,
           type: "success",
         });
+
         // reset
         setHourlyEntryFile(null);
+        setImgUploadData("")
         setAcceptTermsAndCondition(false);
         setUploadDataFormVisible(false);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      
+         // Start polling for data
+           startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+     
 
       })
       .catch((error) => {
@@ -556,11 +576,36 @@ const EntriesListing = ({
       });
   };
 
-  const deleteFile = () => {
+  // Polling GET API to retrieve the data
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
+    // Start data processing loader
+    setDataProcessingLoader(true);
+    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+    const checkInterval = setInterval(async () => {
+      try {
+        const response = await getHourlyEntriesData("processingLoader");
+        if (response.data?.data?.rows?.length > 0) {
+          // Data is retrieved successfully, stop polling
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem("dataProcessingLoader");
+          clearInterval(checkInterval);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }, 3000); // Poll every 3 seconds
+  
+    return checkInterval;
+  };
+  
+
+  const deleteFile = (imgData) => {
+
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.DELETE_HOURLY_ENTRIES_FILE;
     const payload = {
-      record_id: imgUploadData?.record_id,
+      record_id: imgData?.record_id,
       iv: false,  // for hourly data independent variable will be false...
     };
 
@@ -570,10 +615,7 @@ const EntriesListing = ({
         setImgUploadData("")
         setHourlyEntryFile(null)
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-        // if (response.data.statusCode == 200) {
-        //   setHourlyEntryFile(null);
-        //   getHourlySubHourlyEntryData();
-        // }
+       
       })
       .catch((error) => { 
         console.log(error)
@@ -581,20 +623,7 @@ const EntriesListing = ({
       });
   };
 
-  // const downloadFileFromUrl = (fileUrl) => {
-  //   fetch(imgUrl).then((response) => {
-  //     response.blob().then((blob) => {
-  //       const fileURL = window.URL.createObjectURL(blob);
-  //       let alink = document.createElement("a");
-  //       alink.href = fileURL;
-  //       let fileName = `${meterData?.meter_name
-  //         }_facility_meter_hourly_entries_file.${imgUrl.split("/").pop().split(".").pop().split("?")[0]
-  //         }`;
-  //       alink.download = fileName;
-  //       alink.click();
-  //     });
-  //   });
-  // };
+  
 
   const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
   const handleTermsAndConditionChange = (event) => {
@@ -619,7 +648,7 @@ const EntriesListing = ({
 
   }
 
-  console.log(meterData, "meterData")
+
 
   const handleDeleteEntries = () => {
     setDeleteEntriesModalConfig((prevState) => ({
@@ -633,10 +662,69 @@ const EntriesListing = ({
           meterType={meterData?.meter_type}
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
+          setRefreshPageData={setRefreshPageData}
+          
         />
       ),
     }));
   }
+
+
+ 
+  const getHourlyEntriesData = async (loader) => {
+    if(loader === "processingLoader"){
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    }else {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    }
+
+    let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
+    let payload = {
+      "facility_id": meterData?.facility_id,
+      "limit": 10,
+      "offset": 0,
+      "meter_id": meterData?.id,
+      "meter_type": meterData?.meter_type
+    }
+  
+    try {
+      const res = await POST_REQUEST(apiURL, payload);
+      if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(false);
+      }
+
+      if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+      }
+
+    
+
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      return res;  // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      throw error;  // Throw the error to be caught in polling
+    }
+  }
+  
+
+  useEffect(() => {
+
+    if(Object.keys(meterData).length > 0 && !dataProcessingLoader){
+
+      getHourlyEntriesData()
+    }
+
+    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+    }
+
+  }, [meterData, refreshPageData]);
+
+
 
   //  return html dom
 
@@ -806,25 +894,30 @@ const EntriesListing = ({
             </Button>
           ) :
             (
-              <Stack direction="row" alignItems="center" gap="0.75rem">
-                <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
-                  View entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={() => handleDeleteEntries()} >
-                  Delete entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} onClick={() => setUploadDataFormVisible(true)} >
-                  <IconButton>
-                    <AddCircleIcon
-                      sx={{
-                        color: "text.primary",
-                        fontSize: "1.875rem",
-                      }}
-                    />
-                  </IconButton>
-                  Add entries
-                </Link>
-              </Stack>
+              <React.Fragment>
+                { viewEntryList?.length > 0 &&
+                <Stack direction="row" alignItems="center" gap="0.75rem">
+                  <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} onClick={() => handleViewEntries()} >
+                    View entries
+                  </Link>
+                  <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} onClick={() => handleDeleteEntries()} >
+                    Delete entries
+                  </Link>
+                  <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} onClick={() => setUploadDataFormVisible(true)} >
+                    <IconButton>
+                      <AddCircleIcon
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.875rem",
+                        }}
+                      />
+                    </IconButton>
+                    Add entries
+                  </Link>
+                </Stack>
+              }
+                </React.Fragment>
+             
             )
           }
         </Grid>
@@ -840,179 +933,194 @@ const EntriesListing = ({
             setPageInfo={setPageInfo}
           />
         </Box>
-      ) : uploadDataFormVisible && (
-        <React.Fragment>
-
+      ) : (uploadDataFormVisible && !dataProcessingLoader) ? (
           <Box>
-          
-          <React.Fragment>
-            <Box>
-                  <Typography variant="h5">
-                    Upload data in bulk for this meter
-                  </Typography>
-                  <Typography variant="small2" gutterBottom>
-                    You can upload a Green Button XML file or an Excel-compatible file.
-                    Use this{" "}
-                    <Link
-                      underline="hover"
-                      color="#2C77E9"
-                      sx={{ cursor: "pointer" }}
-                    >
-                      single meter spreadsheet
-                    </Link>{" "}
-                    to upload the Excel file.
-                  </Typography>
-                 
-
-                    {isUploading ? (
-                      <>
-                          <Box sx={{mt: 4, width: {xs: "100%", md: "50%"}, maxWidth: '350px' }}>
-                              <LinearProgress variant="determinate" value={uploadProgress} />
-                              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-                                  <Typography variant="body2" color="textSecondary">
-                                      {hourlyEntryFile?.name} Uploading..
-                                  </Typography>
-                                  <Typography variant="body2" color="textSecondary">
-                                      {uploadProgress}%
-                                  </Typography>
-                              </Box>
-                          </Box>
-                          {/* <Button
-                              variant="outlined"
-                              color="error"
-                              onClick={() => setIsUploading(false)}
-                              sx={{ mt: 2 }}
-                          >
-                              Cancel
-                          </Button> */}
-                      </>
-                  ): (
-                    <React.Fragment>
-                      {hourlyEntryFile ? 
-                      <Box sx={{marginTop: '1.5rem'}}>
-                          <Typography
-                            variant="body2"
-                            sx={{ color: "blue.main", display: "inline-block" }}
-                          >
-                            {hourlyEntryFile?.name}
-                          
-                          </Typography>
-
-                          <Typography
-                            variant="body2"
-                              sx={{ color: "danger.main",display: "inline-block", marginLeft: "1rem", cursor: "pointer" }}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                deleteFile();
-                              }}
-                            >
-                              Delete
-                            </Typography>
-                            {imgUploadData?.error && 
-                              <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
-                              <Typography
-                                variant="small"
-                                sx={{ color: "danger.main", }}
-                              
-                              >
-                                {imgUploadData?.error}
-                              </Typography>
-                              </Stack>
-                          }
-                      </Box>
-                      : 
-                      <Box>
-                          <Typography
-                            my={1}
-                            sx={{
-                              color: "#2E813E",
-                              fontWeight: "500",
-                              fontSize: "18px",
-                              backgroundColor: "#D1FFDA",
-                              padding: "7px 33px",
-                              borderRadius: "8px",
-                              height: "40px",
-                              marginTop: "20px",
-                              cursor: "pointer",
-                              maxWidth: "fit-content",
-                            }}
-                            onClick={handleButtonClick}
-                          >
-                            {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
-                          </Typography>
-                          <input
-                            type="file"
-                            ref={fileInputRef}
-                            style={{ display: "none" }}
-                            onChange={handleFileChange}
-                            accept=".xlsx,.csv,.xml,text/xml"
-                          />
-                      </Box>
-                    }
-                         
-
-                      
-
-                       
-                    </React.Fragment>
-                  )}
-
-            </Box>
-          </React.Fragment>  
-          
-        
-            <React.Fragment>
-              <Grid container mb={2} mt={2}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={acceptTermsAndCondition}
-                      sx={{ color: "text.secondary2" }}
-                      onChange={handleTermsAndConditionChange}
-                    />
-                  }
-                  label={
-                    <Typography sx={{ fontSize: "14px!important" }}>
-                      I hereby certify that this is the original file from the
-                      Utility.
+              <Box>
+                    <Typography variant="h5">
+                      Upload data in bulk for this meter
                     </Typography>
-                  }
-                />
-              </Grid>
-              <Button
-                variant="contained"
-                onClick={() => uploadHourlyEntryFile(imgUploadData)}
-                style={{
-                  padding: "0.2rem 1rem",
-                  minWidth: "unset",
-                  width: "165px",
-                  height: "40px",
-                }}
-                disabled={!hourlyEntryFile || !acceptTermsAndCondition || isUploading || imgUploadData?.error}
-              >
-                Upload
-              </Button>
-            </React.Fragment>
-            
-            
+                    <Typography variant="small2" gutterBottom>
+                      You can upload a Green Button XML file or an Excel-compatible file.
+                      Use this{" "}
+                      <Link
+                        underline="hover"
+                        color="#2C77E9"
+                        sx={{ cursor: "pointer" }}
+                      >
+                        single meter spreadsheet
+                      </Link>{" "}
+                      to upload the Excel file.
+                    </Typography>
+                  
 
+                      {isUploading ? (
+                        <>
+                            <Box sx={{mt: 4, width: {xs: "100%", md: "50%"}, maxWidth: '350px' }}>
+                                <LinearProgress variant="determinate" value={uploadProgress} />
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+                                    <Typography variant="body2" color="textSecondary">
+                                        {hourlyEntryFile?.name} Uploading..
+                                    </Typography>
+                                    <Typography variant="body2" color="textSecondary">
+                                        {uploadProgress}%
+                                    </Typography>
+                                </Box>
+                            </Box>
+                            {/* <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => setIsUploading(false)}
+                                sx={{ mt: 2 }}
+                            >
+                                Cancel
+                            </Button> */}
+                        </>
+                    ): (
+                      <React.Fragment>
+                        {imgUploadData?.record_id ? 
+                        <Box sx={{marginTop: '1.5rem'}}>
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "blue.main", display: "inline-block" }}
+                            >
+                              {hourlyEntryFile?.name}
+                            
+                            </Typography>
+
+                            <Typography
+                              variant="body2"
+                                sx={{ color: "danger.main",display: "inline-block", marginLeft: "1rem", cursor: "pointer" }}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  deleteFile(imgUploadData);
+                                }}
+                              >
+                                Delete
+                              </Typography>
+                              {imgUploadData?.error && 
+                                <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
+                                  <Typography
+                                    variant="small"
+                                    sx={{ color: "danger.main", }}
+                                  
+                                  >
+                                    {imgUploadData?.error}
+                                  </Typography>
+                                </Stack>
+                            }
+                        </Box>
+                        : 
+                        <Box>
+                            <Typography
+                              my={1}
+                              sx={{
+                                color: "#2E813E",
+                                fontWeight: "500",
+                                fontSize: "18px",
+                                backgroundColor: "#D1FFDA",
+                                padding: "7px 33px",
+                                borderRadius: "8px",
+                                height: "40px",
+                                marginTop: "20px",
+                                cursor: "pointer",
+                                maxWidth: "fit-content",
+                              }}
+                              onClick={handleButtonClick}
+                            >
+                              {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
+                            </Typography>
+                            <input
+                              type="file"
+                              ref={fileInputRef}
+                              style={{ display: "none" }}
+                              onChange={handleFileChange}
+                              accept=".xlsx,.csv,.xml,text/xml"
+                            />
+
+                              {!imgUploadData?.success && 
+                                <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
+                                  <Typography
+                                    variant="small"
+                                    sx={{ color: "danger.main", }}
+                                  
+                                  >
+                                    {imgUploadData?.message}
+                                  </Typography>
+                                </Stack>
+                                }
+                        </Box>
+                      }
+                          
+
+                        
+
+                        
+                      </React.Fragment>
+                    )}
+
+              </Box>          
+          
+              <Box>
+                <Grid container mb={2} mt={2}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={acceptTermsAndCondition}
+                        sx={{ color: "text.secondary2" }}
+                        onChange={handleTermsAndConditionChange}
+                      />
+                    }
+                    label={
+                      <Typography sx={{ fontSize: "14px!important" }}>
+                        I hereby certify that this is the original file from the
+                        Utility.
+                      </Typography>
+                    }
+                  />
+                </Grid>
+                <Button
+                  variant="contained"
+                  onClick={() => uploadHourlyEntryFile(imgUploadData)}
+                  style={{
+                    padding: "0.2rem 1rem",
+                    minWidth: "unset",
+                    width: "165px",
+                    height: "40px",
+                  }}
+                  disabled={!hourlyEntryFile || !acceptTermsAndCondition || isUploading || imgUploadData?.error}
+                >
+                  Upload
+                </Button>
+              </Box>
+              
           </Box>
+      ) : (
+        <Box>
+           {(dataProcessingLoader) && 
+              <Box sx={{ display: "flex", gap: '1rem', alignItems: 'center'}}>
+                <Typography variant="body2" color="textSecondary" sx={{marginRight: '1rem'}} >
+                  Be patience, file processing is running
+              </Typography>
+              <div class="progress-loader"></div>
+              
+              </Box>
+            }
 
-       
-        </React.Fragment>
+            {/* show here Energy use by hourly basis  graph */}
+            {viewEntryList?.length > 0 &&
+              <Box className="hourly-graph-row" >
+              
+                <Stack direction="row" sx={{ width: '100%' }}>
+                  <Stack direction="row" sx={{ width: '100%' }}>
+                    <EnergyUseByHoursBasisGraph />
+                  </Stack>
+                </Stack>
+              </Box>
+            } 
+        </Box>
       ) }
 
-      {/* show here Energy use by hourly basis  graph */}
-      <Box className="hourly-graph-row" marginTop="1.5rem">
-        <Typography variant="h6">
-          Energy use by hourly basis
-        </Typography>
-        <Stack direction="row" sx={{ width: '100%' }}>
-          <Stack direction="row" sx={{ width: '100%' }}>
-            <EnergyUseByHoursBasisGraph />
-          </Stack>
-        </Stack>
-      </Box>
+     
 
 
 
