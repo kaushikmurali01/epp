@@ -29,7 +29,10 @@ class DataExplorationSummaryV2:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
             self.temperature_query = get_temp_observed_data_summary(self.facility_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
+        print(self.query)
         self.temp_df = dbtest(self.temperature_query)
+        print(self.temperature_query)
+
 
     def process(self):
         self.setup_query()
@@ -41,3 +44,22 @@ class DataExplorationSummaryV2:
             if self.outliers:
                 self.raw_df.sort_values(by=['bound_type', 'meter_type'], inplace=True)
         return self.raw_df.to_dict(orient='records')
+    
+    def get_paginated_list(self, page_size, page_no):
+        self.setup_query()
+        start_idx = (page_no - 1) * page_size
+        end_idx = start_idx + page_size
+
+        paginated_df = self.raw_df.iloc[start_idx:end_idx]
+        total_records = len(self.raw_df)
+        total_pages = (total_records + page_size - 1) // page_size
+
+        response = {
+            'page_no': page_no,
+            'page_size': page_size,
+            'total_pages': total_pages,
+            'total_records': total_records,
+            'data': paginated_df.to_dict(orient='records')
+        }
+        
+        return jsonify(response)
