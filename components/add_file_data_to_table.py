@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view
+from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow
 from openpyxl import load_workbook
 import io
 import requests
@@ -88,7 +88,8 @@ class AddMeterData:
             df['end_month'] = df['end_date'].dt.month
             bulk_insert_df(df, 'epp.meter_hourly_entries', record_id,
                            'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries')
-
+            field = 'weather_iv' if self.iv else 'ew'
+            update_workflow(field, self.facility_id)
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
             return f"Failed to process record ID: {record_id}. Error: {str(e)}"

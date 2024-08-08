@@ -814,5 +814,26 @@ def get_clean_data():
         return jsonify({"error": "An unexpected error occurred", "detail": str(e)}), 500
 
 
+@app.route('/get-workflow', methods=['GET'])
+def get_workflow():
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return jsonify({"error": "Please Provide Facility ID"}), 400
+    facility_id = int(facility_id)
+    query = "SELECT * FROM epp.workflow WHERE facility_id={}".format(facility_id)
+    df = dbtest(query)
+    print(df.head())
+    df.dropna(inplace=True)
+    if not df.empty:
+        fields = ['id', 'facility_id', 'detail', 'ew', 'weather_iv', 'savings', 'baseline', 'performance']
+
+        workflows = []
+        for _, row in df.iterrows():
+            workflow = {field: row[field] if field in row else None for field in fields}
+            workflows.append(workflow)
+        return jsonify({'workflow': workflow}), 200
+    return jsonify({"error": "No Workflow Created Yet"}), 404
+
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)

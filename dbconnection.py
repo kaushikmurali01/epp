@@ -198,3 +198,17 @@ def bulk_insert_df(df, table_name, record_id, file_table):
         conn.close()
 
     db_execute(insert_query, update_query, tuples, record_id)
+
+
+def update_workflow(field, facility):
+    query = "UPDATE epp.workflow set {} =true where facility_id ={}".format(field, facility)
+    conn = get_db_connection()
+    curs = conn.cursor()
+    curs.execute(query)
+    conn.commit()
+    curs.close()
+    conn.close()
+
+
+
+
