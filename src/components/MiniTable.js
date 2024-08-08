@@ -10,7 +10,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 
-export const MiniTable = ({ columns, data }) => {
+export const MiniTable = ({ columns, data, firstChildColored = false }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({
       columns,
@@ -49,36 +49,42 @@ export const MiniTable = ({ columns, data }) => {
           ))}
         </TableHead>
         <TableBody {...getTableBodyProps()} size="small">
-          {rows?.length > 0  ? 
-          (rows.map((row) => {
-            prepareRow(row);
-            return (
-              <TableRow
-                {...row.getRowProps()}
-                size="small"
-                sx={{ background: "#EBFFEF", borderBottom: "none" }}
-              >
-                {row.cells.map((cell) => {
-                  return (
-                    <TableCell
-                      {...cell.getCellProps()}
-                      size="small"
-                      padding="none"
-                      sx={{
-                        "&:first-child": { background: "#CBFFD5" },
-                        borderBottom: "none",
-                        padding: "10px!important",
-                      }}
-                    >
-                      {cell.render("Cell")}
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })
+          {rows?.length > 0 ? (
+            rows.map((row, index) => {
+              prepareRow(row);
+              return (
+                <TableRow
+                  {...row.getRowProps()}
+                  size="small"
+                  // sx={{ background: "#EBFFEF", borderBottom: "none" }}
+                  sx={{
+                    background: index % 2 === 0 ? "#FFFFFF" : "#EBFFEF",
+                    borderBottom: "none",
+                  }}
+                >
+                  {row.cells.map((cell) => {
+                    return (
+                      <TableCell
+                        {...cell.getCellProps()}
+                        size="small"
+                        padding="none"
+                        sx={{
+                          "&:first-child": firstChildColored && {
+                            background: "#CBFFD5",
+                          },
+                          borderBottom: "none",
+                          padding: "2px 10px!important",
+                        }}
+                      >
+                        {cell.render("Cell")}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })
           ) : (
-           <TableRow>
+            <TableRow>
               <TableCell
                 colSpan={columns.length}
                 sx={{ textAlign: "center !important" }}
@@ -86,7 +92,7 @@ export const MiniTable = ({ columns, data }) => {
                 No Data found.
               </TableCell>
             </TableRow>
-            )}
+          )}
         </TableBody>
       </MUITable>
     </TableContainer>

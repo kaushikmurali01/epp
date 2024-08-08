@@ -167,7 +167,8 @@ const MeasureReportForm = ({
               openAlertMessageModal(
                 newValue === "onSiteGeneration"
                   ? "Behind-the-meter generation projects are not eligible measures."
-                  : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details."
+                  : "To avoid penalizing for the increase in electricity consumption, a non-routine adjustment to the baseline energy model is required. Please contact us for more details.",
+                newValue
               );
             }
           };
