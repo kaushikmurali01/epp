@@ -73,7 +73,7 @@ SELECT
     ROUND(AVG(precip_amount)::numeric, 2) AS average_precipitation, 
     ROUND(AVG(wind_spd)::numeric, 2) AS average_wind_speed, 
     ROUND(AVG(station_press)::numeric, 2) AS average_station_pressure 
-FROM epp.weather_data_records 
+FROM epp.weather_data_agg 
 WHERE station_id in ({}) AND 
 date_time BETWEEN '{}' AND '{}'
 GROUP BY year, month 
