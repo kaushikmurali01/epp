@@ -5,6 +5,7 @@ from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, \
     get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
 from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list
+from utils import get_nearest_stations
 
 class DataExplorationSummaryV2:
     def __init__(self, facility_id, summary_type, meter_name=None, meter_id=None):
@@ -21,17 +22,22 @@ class DataExplorationSummaryV2:
         self.outliers = True if summary_type == "outliers" else False
 
     def setup_query(self):
+        station_id = get_nearest_stations(self.facility_id)
+        print(station_id['station_id'].tolist())
+
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
-            self.temperature_query = get_temp_missing_data_summary(self.facility_id)
+            station_id = get_nearest_stations(self.facility_id)
+            self.temperature_query = get_temp_missing_data_summary(station_id)
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False)
-            self.temperature_query = get_temp_outlier_summary(self.facility_id, METER_FACTOR)
+            station_id = get_nearest_stations(self.facility_id)
+            self.temperature_query = get_temp_outlier_summary(station_id, METER_FACTOR)
         else:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
-            self.temperature_query = get_temp_observed_data_summary(self.facility_id, METER_FACTOR)
+            station_id = get_nearest_stations(self.facility_id)
+            self.temperature_query = get_temp_observed_data_summary(station_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
-        print(self.query)
         self.temp_df = dbtest(self.temperature_query)
 
 
@@ -47,6 +53,8 @@ class DataExplorationSummaryV2:
         return self.raw_df.to_dict(orient='records')
 
     def setup_listing_query(self, page_size, page_no, bound):
+        station_id = get_nearest_stations(self.facility_id)
+        print(station_id['station_id'].tolist())
         if self.missing_data:
             self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
         elif self.outliers:
@@ -62,7 +70,6 @@ class DataExplorationSummaryV2:
 
     def get_paginated_list(self, page_size, page_no, bound= None):
         self.setup_listing_query(page_size, page_no, bound)
-        print(bound)
         paginated_df = self.raw_df.to_dict(orient='records')
         
         
