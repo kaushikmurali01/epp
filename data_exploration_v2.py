@@ -22,20 +22,16 @@ class DataExplorationSummaryV2:
         self.outliers = True if summary_type == "outliers" else False
 
     def setup_query(self):
-        station_id = get_nearest_stations(self.facility_id)
-        print(station_id['station_id'].tolist())
-
+        get_station_id = get_nearest_stations(self.facility_id)
+        station_id= tuple(get_station_id['station_id'].tolist())
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
-            station_id = get_nearest_stations(self.facility_id)
             self.temperature_query = get_temp_missing_data_summary(station_id)
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False)
-            station_id = get_nearest_stations(self.facility_id)
             self.temperature_query = get_temp_outlier_summary(station_id, METER_FACTOR)
         else:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
-            station_id = get_nearest_stations(self.facility_id)
             self.temperature_query = get_temp_observed_data_summary(station_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
         self.temp_df = dbtest(self.temperature_query)
