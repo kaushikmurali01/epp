@@ -60,7 +60,7 @@ daily_sufficiency AS (
 monthly_sufficiency AS (
     SELECT
         meter_id,
-        meter_name,
+        meter_name as m_name,
         month,
         TO_CHAR(month, 'Month') AS month_name,
         COUNT(DISTINCT day)  AS monthly_sufficiency
