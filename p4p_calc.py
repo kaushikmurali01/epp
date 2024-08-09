@@ -63,7 +63,7 @@ class P4P_metrics_calculation:
                 'off_peak_energy_savings_incentive': round(off_peak_energy_savings_incentive, 1),
                 'on_peak_energy_savings_incentive': round(on_peak_energy_savings_incentive, 1),
                 'performance_incentive': round(performance_incentive, 1),
-                'peak_demand_savings': round(peak_demand_savings, 1),
+                'peak_demand_savings': round(peak_demand, 1),
                 'energy_savings_percentage': round(energy_savings_percentage, 1)
             }
         else:  # Natural gas or water
