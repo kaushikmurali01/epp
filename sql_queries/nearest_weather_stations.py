@@ -7,13 +7,13 @@ WITH facility_location AS (
 SELECT 
     s.name as station_name, 
     s.station_id, 
-    s.latitude, 
-    s.longitude, 
+    s.latitude_decimal as latitude, 
+    s.longitude_decimal as longitude, 
     s.climate_id, 
     6371 * 2 * ASIN(SQRT(
-        POWER(SIN(RADIANS(f.latitude - s.latitude) / 2), 2) + 
-        COS(RADIANS(s.latitude)) * COS(RADIANS(f.latitude)) * 
-        POWER(SIN(RADIANS(f.longitude - s.longitude) / 2), 2)
+        POWER(SIN(RADIANS(f.latitude - s.latitude_decimal) / 2), 2) + 
+        COS(RADIANS(s.latitude_decimal)) * COS(RADIANS(f.latitude)) * 
+        POWER(SIN(RADIANS(f.longitude - s.longitude_decimal) / 2), 2)
     )) AS distance_km 
 FROM epp.weather_stations s, facility_location f where s.hly_last_year = {}
 ORDER BY distance_km ASC 
