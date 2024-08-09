@@ -4,7 +4,7 @@ from constants import METER_FACTOR
 from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, \
     get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
-from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list
+from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list
 from utils import get_nearest_stations
 
 class DataExplorationSummaryV2:
@@ -49,18 +49,29 @@ class DataExplorationSummaryV2:
         return self.raw_df.to_dict(orient='records')
 
     def setup_listing_query(self, page_size, page_no, bound):
-        station_id = get_nearest_stations(self.facility_id)
-        print(station_id['station_id'].tolist())
-        if self.missing_data:
-            self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
-        elif self.outliers:
-            if bound == 'Lower limit':
-                outliers_query = outlier_summary_lower_bound_list
+        if self.meter_name == '104':
+            if self.missing_data:
+                self.query = temp_missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            elif self.outliers:
+                if bound == 'Lower limit':
+                    outliers_query = temp_outlier_summary_lower_bound_list
+                else:
+                    outliers_query = temp_outlier_summary_upper_bound_list
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
-                outliers_query = outlier_summary_upper_bound_list
-            self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
         else:
-            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            if self.missing_data:
+                self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            elif self.outliers:
+                if bound == 'Lower limit':
+                    outliers_query = outlier_summary_lower_bound_list
+                else:
+                    outliers_query = outlier_summary_upper_bound_list
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            else:
+                self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+
         self.raw_df = dbtest(self.query)
         
 
