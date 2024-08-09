@@ -391,7 +391,11 @@ def insert_scoring_data(facility_id, meter_type, baseline_model_settings, scorin
     # SQL INSERT statement
     query = """
     INSERT INTO scoring_data_output (facility_id, meter_type, baseline_model_settings, scoring_data)
-    VALUES (%s, %s, %s, %s);
+    VALUES (%s, %s, %s, %s)
+    ON CONFLICT (facility_id) DO UPDATE
+    SET meter_type = EXCLUDED.meter_type,
+        baseline_model_settings = EXCLUDED.baseline_model_settings,
+        scoring_data = EXCLUDED.scoring_data;
     """
 
     # Tuple of values to be inserted

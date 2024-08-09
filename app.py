@@ -12,9 +12,8 @@ app = Flask(__name__)
 @app.route('/model_summary', methods=['POST'])
 
 def baseline_model_training():
-    input_settings = request.get_json()
-    
     try:
+        input_settings = request.get_json()
         granularity = input_settings.get('granularity')
         meter_type = input_settings.get('meter_type')
         facility_id = int(input_settings.get('facility_id'))
@@ -36,79 +35,86 @@ def baseline_model_training():
         baseline_data = baseline_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)
+        # except Exception as e:
+        # # This will catch any exception and print a message about what went wrong
+        #     # raise
+        #     print(f"An error occurred: {e}")
+        
+        additional_dummy_vars = [key for key, value in dummy_variables.items() if value]
+        
+        model = EnergyModel()
+        model.load_process_data(baseline_data.copy())
+        processed_data = model.indep_vars_processing(
+            columns_to_remove=[], 
+            additional_indep_cat_vars=[], 
+            additional_indep_cont_vars=selected_independent_variables, 
+            additional_dummy_vars=additional_dummy_vars, 
+            holiday_flag=False
+        )
+        
+        if granularity == 'hourly':
+            model.feature_engineering_eemeter_hourly_model(processed_data.copy(), "three_month_weighted")
+            model.training_hourly_model()
+            predicted_data = model.scoring_hourly_model(processed_data.copy())
+            baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'hourly',meter_type)
+            # Get buffers from the model save function
+            model_buffer, config_buffer = model.save_model_to_buffer('hourly')
+        else:
+            model.training_daily_model(processed_data.copy(), ignore_disqualification=True)
+            predicted_data = model.scoring_daily_model(processed_data.copy(), ignore_disqualification=True)
+            baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'daily',meter_type)
+            # Get buffers from the model save function
+            model_buffer, config_buffer = model.save_model_to_buffer('daily')
+        
+        model_metrics = model.evaluate(predicted_data)
+        input_settings_dump = {
+            "granularity" : granularity,
+            "meter_type" : meter_type,
+            "facility_id" : facility_id,
+            "baseline_start_date" : str(baseline_start_date),
+            "baseline_end_date" : str(baseline_end_date),
+            "modelling_independent_variables" : list(model.independent_variables),
+            "independent_variables_name" : selected_independent_variables,
+            "dummy_variables" : dummy_variables,
+        }
+        model_input_settings = json.dumps(input_settings_dump)
+        table_name = 'baseline_model_output_data'
+        # Convert DataFrame to JSON strings for the output_data column
+        predicted_data = predicted_data.reset_index()
+        predicted_data['Timestamp'] = pd.to_datetime(predicted_data['Timestamp'])
+        output_data_json = predicted_data.to_json(orient='records')
+        # Convert baseline_summary_performance_page JSON to a string
+        baseline_data_summary_json = json.dumps(baseline_summary_performance_page)
+        #model metrics json to string
+        model_metrics_summary_json = json.dumps(model_metrics)
+        # Create a list of tuples for insertion
+        values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json,model_input_settings)
+        # Create the SQL insert query
+        query = f"""
+        INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary, meter_type, model_metrics_summary, model_input_settings)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (facility_id) DO UPDATE
+        SET output_data = EXCLUDED.output_data,
+            baseline_data_summary = EXCLUDED.baseline_data_summary,
+            model_metrics_summary = EXCLUDED.model_metrics_summary,
+            model_input_settings = EXCLUDED.model_input_settings
+        """
+        # Execute the query
+        db_execute(query, values)
+        #push model to blob storage
+        # Blob names
+        sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
+        model_blob_name = f"{sub_folder_name}/model.pkl"
+        config_blob_name = f"{sub_folder_name}/config.pkl"
+        # Upload the model directly
+        upload_blob_from_buffer(model_blob_name, model_buffer)
+        # Upload the configuration directly
+        upload_blob_from_buffer(config_blob_name, config_buffer)
+        # returning baseline model metrics summary
+        return jsonify(model_metrics)
     except Exception as e:
-    # This will catch any exception and print a message about what went wrong
-        # raise
         print(f"An error occurred: {e}")
-       
-    additional_dummy_vars = [key for key, value in dummy_variables.items() if value]
-    
-    model = EnergyModel()
-    model.load_process_data(baseline_data.copy())
-    processed_data = model.indep_vars_processing(
-        columns_to_remove=[], 
-        additional_indep_cat_vars=[], 
-        additional_indep_cont_vars=selected_independent_variables, 
-        additional_dummy_vars=additional_dummy_vars, 
-        holiday_flag=False
-    )
-    
-    if granularity == 'hourly':
-        model.feature_engineering_eemeter_hourly_model(processed_data.copy(), "three_month_weighted")
-        model.training_hourly_model()
-        predicted_data = model.scoring_hourly_model(processed_data.copy())
-        baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'hourly',meter_type)
-        # Get buffers from the model save function
-        model_buffer, config_buffer = model.save_model_to_buffer('hourly')
-    else:
-        model.training_daily_model(processed_data.copy(), ignore_disqualification=True)
-        predicted_data = model.scoring_daily_model(processed_data.copy(), ignore_disqualification=True)
-        baseline_summary_performance_page = model.get_baseline_summary(predicted_data.copy(), 'daily',meter_type)
-        # Get buffers from the model save function
-        model_buffer, config_buffer = model.save_model_to_buffer('daily')
-       
-    model_metrics = model.evaluate(predicted_data)
-    input_settings_dump = {
-        "granularity" : granularity,
-        "meter_type" : meter_type,
-        "facility_id" : facility_id,
-        "baseline_start_date" : str(baseline_start_date),
-        "baseline_end_date" : str(baseline_end_date),
-        "modelling_independent_variables" : list(model.independent_variables),
-        "independent_variables_name" : selected_independent_variables,
-        "dummy_variables" : dummy_variables,
-    }
-    model_input_settings = json.dumps(input_settings_dump)
-    table_name = 'baseline_model_output_data'
-    # Convert DataFrame to JSON strings for the output_data column
-    predicted_data = predicted_data.reset_index()
-    predicted_data['Timestamp'] = pd.to_datetime(predicted_data['Timestamp'])
-    output_data_json = predicted_data.to_json(orient='records')
-    # Convert baseline_summary_performance_page JSON to a string
-    baseline_data_summary_json = json.dumps(baseline_summary_performance_page)
-    #model metrics json to string
-    model_metrics_summary_json = json.dumps(model_metrics)
-    # Create a list of tuples for insertion
-    values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json,model_input_settings)
-    # Create the SQL insert query
-    query = f"""
-    INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary,meter_type,model_metrics_summary,model_input_settings)
-    VALUES (%s, %s, %s, %s, %s, %s)
-    """
-    # Execute the query
-    db_execute(query, values)
-    #push model to blob storage
-    # Blob names
-    sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
-    model_blob_name = f"{sub_folder_name}/model.pkl"
-    config_blob_name = f"{sub_folder_name}/config.pkl"
-    # Upload the model directly
-    upload_blob_from_buffer(model_blob_name, model_buffer)
-    # Upload the configuration directly
-    upload_blob_from_buffer(config_blob_name, config_buffer)
-
-    # returning baseline model metrics summary
-    return jsonify(model_metrics)
+        return str(e), 500  # HTTP 500 Internal Server Error
 
 @app.route('/get_baseline_data_summary', methods=['GET'])
 def get_baseline_data_summary():
@@ -177,6 +183,7 @@ def score_data():
         #get clean performance data
         response = fetch_data_from_api(facility_id, scoring_start_date, scoring_end_date)
         cleansed_scoring_data = pd.DataFrame(response['clean_data'])
+        print(cleansed_scoring_data.head())
         cleansed_scoring_data['Date'] = pd.to_datetime(cleansed_scoring_data['Date'])
         scoring_data = cleansed_scoring_data[(cleansed_scoring_data['Date'] >= scoring_start_date) & (cleansed_scoring_data['Date'] <= scoring_end_date)]
         scoring_data = scoring_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]
@@ -191,9 +198,11 @@ def score_data():
             additional_dummy_vars=list(dummy_variables), 
             holiday_flag=False
         )
+        print(modelling_independent_variables)
+        print(selected_independent_variables)
         preserved_columns = ['observed', 'temperature']
         processed_scoring_data = adjust_and_finalize_data(processed_scoring_data,preserved_columns, modelling_independent_variables)
-
+        print(processed_scoring_data.head())
         # Blob names
         sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
         model_blob_name = f"{sub_folder_name}/model.pkl"
