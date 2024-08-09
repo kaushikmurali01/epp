@@ -168,6 +168,7 @@ const DeleteEntriesModal = ({
                                                     format="dd/MM/yyyy"
                                                     slotProps={{
                                                         textField: {
+                                                            readOnly: true, // Make the input field read-only
                                                             helperText: errors.startDate && touched.startDate ? errors.startDate : "",
                                                             FormHelperTextProps: { style: { color: '#FF5858' } }
                                                         },
@@ -206,6 +207,7 @@ const DeleteEntriesModal = ({
                                                     format="dd/MM/yyyy"
                                                     slotProps={{
                                                         textField: {
+                                                             readOnly: true, // Make the input field read-only
                                                             helperText: errors.endDate && touched.endDate ? errors.endDate : "",
                                                             FormHelperTextProps: { style: { color: '#FF5858' } }
                                                         },
