@@ -31,6 +31,7 @@ class DataExplorationSummaryV2:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
             self.temperature_query = get_temp_observed_data_summary(self.facility_id, METER_FACTOR)
         self.raw_df = dbtest(self.query)
+        print(self.query)
         self.temp_df = dbtest(self.temperature_query)
 
 
