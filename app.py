@@ -10,7 +10,7 @@ from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
 from meter_uploader import MeterDataUploader, MeterDataUploaderIV
-from sql_queries.data_cleaning import data_cleaning_query
+from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -817,8 +817,7 @@ def get_clean_data():
             order = [weather_station] + order
             temp1, temp2, temp3 = order
 
-        clean_data_query = data_cleaning_query.format(temp1, temp2, temp3, facility_id, temp1, temp2, temp3, start_date,
-                                                      end_date)
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id)
 
         df = dbtest(clean_data_query)
 
