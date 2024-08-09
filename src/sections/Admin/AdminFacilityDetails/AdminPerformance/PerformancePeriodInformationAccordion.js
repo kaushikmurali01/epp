@@ -19,6 +19,7 @@ import AddNonRoutineEventModal from "./AddNonRoutineEventModal";
 import {
   getAdminNonRoutineEventDetails,
   getAdminNonRoutineEventList,
+  getAdminPerformanceReportFromDB,
   getIncentiveSettings,
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import SavingsReportForm from "./SavingsReportForm";
@@ -47,6 +48,7 @@ const PerformancePeriodInformationAccordion = ({
     incentiveSettings,
     adminNonRoutineEventList,
     adminNonRoutineEventDetails,
+    adminPerformanceReportInDB,
   } = useSelector((state) => state?.adminPerformanceReducer);
 
   useEffect(() => {
@@ -295,133 +297,41 @@ const PerformancePeriodInformationAccordion = ({
       modalBodyContent: "",
     });
 
-  // const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
-  // const handleChangePerformance = (event, newValue) => {
-  //   setPerformanceP4PCalcTab(newValue);
-  // };
-  
-  // const [performanceTypeStatus, setPerformanceTypeStatus] = useState({
-  //   1: "active",
-  //   2: "in-active",
-  //   3: "in-active",
-  // });
-
-  // const [performanceData, setPerformanceData] = useState(
-  // //   {
-  // //   adjusted_baseline_energy_consumption: {
-  // //     value: 11109772,
-  // //     status: "Submitted",
-  // //   },
-  // //   reporting_period_energy_consumption: {
-  // //     value: 10345443,
-  // //     status: "Submitted",
-  // //   },
-  // //   non_routine_adjustment: { value: -41137, status: "Submitted" },
-  // //   total_energy_savings: { value: 733202, status: "Submitted" },
-  // //   off_peak_energy_savings: { value: 10010, status: "Submitted" },
-  // //   on_peak_energy_savings: { value: 723192, status: "Submitted" },
-  // //   off_peak_energy_savings_incentive: {
-  // //     value: 23,
-  // //     status: "Submitted",
-  // //   },
-  // //   on_peak_energy_savings_incentive: {
-  // //     value: 14,
-  // //     status: "Submitted",
-  // //   },
-  // //   performance_incentive: { value: 34, status: "Submitted" },
-  // //   peak_demand_savings: { value: 91, status: "Submitted" },
-  // //   energy_savings_percentage: { value: 6.5, status: "Submitted" },
-  // //   incremental_yoy_savings: { value: "N/A", status: "Submitted" },
-  // // }
-  // );
-
-  const [performanceData, setPerformanceData] = useState();
-    const [performanceTypeStatus, setPerformanceTypeStatus] = useState({
-      1: "active",
-      2: "in-active",
-      3: "in-active",
-    });
+  const [submittedP4Ps, setSubmittedP4Ps] = useState([]);
+  const [performanceReports, setPerformanceReports] = useState({});
   const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
-  
-  
 
-  // useEffect(() => {
-  //   // Fetch performance data
-  //   const fetchPerformanceData = async () => {
-  //     try {
-  //       // Replace this with your actual API call
-  //       // const response = await dispatch(fetchPerformanceDataAction(meter_type));
-  //       const response = {
-  //         data: {
-  //           adjusted_baseline_energy_consumption: {
-  //             value: 11109772,
-  //             status: "Submitted",
-  //           },
-  //           reporting_period_energy_consumption: {
-  //             value: 10345443,
-  //             status: "Submitted",
-  //           },
-  //           non_routine_adjustment: { value: -41137, status: "Submitted" },
-  //           total_energy_savings: { value: 733202, status: "Submitted" },
-  //           off_peak_energy_savings: { value: 10010, status: "Submitted" },
-  //           on_peak_energy_savings: { value: 723192, status: "Submitted" },
-  //           off_peak_energy_savings_incentive: {
-  //             value: 23,
-  //             status: "Submitted",
-  //           },
-  //           on_peak_energy_savings_incentive: {
-  //             value: 12,
-  //             status: "Submitted",
-  //           },
-  //           performance_incentive: { value: 34, status: "Submitted" },
-  //           peak_demand_savings: { value: 91, status: "Submitted" },
-  //           energy_savings_percentage: { value: 6.5, status: "Submitted" },
-  //           incremental_yoy_savings: { value: "N/A", status: "Submitted" },
-  //         },
-  //         performance_type: 1,
-  //         performance_type_status: {
-  //           1: "in-active",
-  //           2: "active",
-  //           3: "in-active",
-  //         },
-  //         meter_type: 1,
-  //       };
-  //       setPerformanceData(response.data);
-  //       setPerformanceTypeStatus(response.data.performance_type_status);
-  //       setPerformanceP4PCalcTab(response.data.performance_type);
-  //     } catch (error) {
-  //       console.error("Error fetching performance data:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    dispatch(getAdminPerformanceReportFromDB(facility_id, meter_type));
+  }, [dispatch, facility_id, meter_type]);
 
-  //   fetchPerformanceData();
-  // }, [dispatch, meter_type]);
-    
+  useEffect(() => {
+    if (adminPerformanceReportInDB) {
+      const newPerformanceReports = { ...performanceReports };
+      const performanceType = adminPerformanceReportInDB.performance_type;
+      if (performanceType) {
+        newPerformanceReports[performanceType] = adminPerformanceReportInDB;
+        setPerformanceReports(newPerformanceReports);
+      }
 
-  
-  // const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(() => {
-  //   for (let i = 1; i <= 3; i++) {
-  //     if (performanceTypeStatus[i] === "active") {
-  //       return i;
-  //     }
-  //   }
-  //   return 1; // Default to 1 if no active tabs
-  // });
+      const submittedTypes = [];
+      if (
+        adminPerformanceReportInDB.performance_type &&
+        adminPerformanceReportInDB.status === "SUBMITTED"
+      ) {
+        submittedTypes.push(adminPerformanceReportInDB.performance_type);
+      }
+      setSubmittedP4Ps(submittedTypes);
+    }
+  }, [adminPerformanceReportInDB]);
 
   const handleChangePerformance = (event, newValue) => {
-    if (performanceTypeStatus[newValue] === "active") {
-      setPerformanceP4PCalcTab(newValue);
-    }
+    setPerformanceP4PCalcTab(newValue);
   };
 
-  const updatePerformanceTypeStatus = (newStatus) => {
-    setPerformanceTypeStatus(newStatus);
-    for (let i = 1; i <= 3; i++) {
-      if (newStatus[i] === "active") {
-        setPerformanceP4PCalcTab(i);
-        break;
-      }
-    };
+  const isTabDisabled = (tabValue) => {
+    if (tabValue === 1) return false;
+    return !submittedP4Ps.includes(tabValue - 1);
   };
 
   return (
@@ -453,19 +363,19 @@ const PerformancePeriodInformationAccordion = ({
               value={1}
               label="First pay-for-performance"
               sx={{ minWidth: { xs: "auto", md: "10rem" } }}
-              disabled={performanceTypeStatus[1] === "in-active"}
+              disabled={isTabDisabled(1)}
             />
             <Tab
               value={2}
               label="Second pay-for-performance"
               sx={{ minWidth: { xs: "auto", md: "10rem" } }}
-              disabled={performanceTypeStatus[2] === "in-active"}
+              disabled={isTabDisabled(2)}
             />
             <Tab
               value={3}
               label="Third pay-for-performance"
               sx={{ minWidth: { xs: "auto", md: "10rem" } }}
-              disabled={performanceTypeStatus[3] === "in-active"}
+              disabled={isTabDisabled(3)}
             />
           </Tabs>
         </Grid>
@@ -504,22 +414,25 @@ const PerformancePeriodInformationAccordion = ({
       <Grid
         item
         container
-        sx={{ flexWrap: { xs: "wrap", md: "nowrap" }, gap: "1rem", overflow: "auto", width: "100%" }}
+        sx={{
+          flexWrap: { xs: "wrap", md: "nowrap" },
+          gap: "1rem",
+          overflow: "auto",
+          width: "100%",
+        }}
       >
         <Grid item xs={12} md={9.3}>
           <SavingsReportForm
             meterType={meter_type}
             performanceP4PCalcTab={performanceP4PCalcTab}
-            // p4PStartEndDates={p4PStartEndDates}
-            // p4pIncentiveStatus={p4pIncentiveStatus}
-            // initialData={initialMeterData}
             submitTrigger={submitTrigger}
             setSubmitTrigger={setSubmitTrigger}
             refreshTrigger={refreshTrigger}
             onDateValidation={onDateValidation}
-            performanceTypeStatus={performanceTypeStatus}
-            updatePerformanceTypeStatus={updatePerformanceTypeStatus}
-            initialData={performanceData}
+            initialData={
+              performanceReports[performanceP4PCalcTab]?.parameter_data
+            }
+            isSubmitted={submittedP4Ps.includes(performanceP4PCalcTab)}
           />
         </Grid>
 

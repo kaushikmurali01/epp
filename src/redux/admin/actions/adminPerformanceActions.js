@@ -343,12 +343,12 @@ export const getEmailArchiveList = (facilityId) => {
   };
 };
 
-export const getAdminBaselineDataSummary = (summaryBody) => {
+export const getAdminBaselineDataSummary = (facility_id, meter_type) => {
   return async (dispatch) => {
     try {
       dispatch(getAdminBaselineDataSummaryRequest());
-      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}`;
-      const response = await POST_REQUEST(endpointWithParams, summaryBody);
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}?facility_id=${facility_id}&meter_type=${meter_type}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(getAdminBaselineDataSummarySuccess(data));
       return data;
@@ -587,9 +587,9 @@ export const getAdminPerformanceReportFromDB = (facility_id, meter_type) => {
   return async (dispatch) => {
     try {
       dispatch(getAdminPerformanceReportRequest());
-      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}`;
-      const response = await POST_REQUEST(apiURL);
-      dispatch(getAdminPerformanceReportSuccess(response));
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}/${meter_type}`;
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getAdminPerformanceReportSuccess(response?.data?.data));
     } catch (error) {
       console.error(error);
       dispatch(getAdminPerformanceReportFailure(error));

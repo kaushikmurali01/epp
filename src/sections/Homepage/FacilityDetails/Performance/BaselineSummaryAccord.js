@@ -26,8 +26,7 @@ const BaselineSummaryAccord = ({ meter_type }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const summaryBody = { facility_id: 336, meter_type };
-    dispatch(getBaselineDataSummary(summaryBody));
+    dispatch(getBaselineDataSummary(facility_id, meter_type));
     if (facility_id) {
       dispatch(getIncentiveSettings(facility_id));
     }

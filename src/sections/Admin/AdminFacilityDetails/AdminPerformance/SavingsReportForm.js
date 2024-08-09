@@ -6,7 +6,10 @@ import { MiniTable } from "components/MiniTable";
 import { useDispatch, useSelector } from "react-redux";
 import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
 import { format, isEqual, parseISO } from "date-fns";
-import { calculateAdminPerformanceReport, updateAdminPerformanceReportInDB } from "../../../../redux/admin/actions/adminPerformanceActions";
+import {
+  calculateAdminPerformanceReport,
+  updateAdminPerformanceReportInDB,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
 import EvModal from "utils/modal/EvModal";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
@@ -48,15 +51,12 @@ const SelectBox = ({ name, options, value, onChange, disabled = false }) => (
 
 const SavingsReportForm = ({
   meterType,
-  // p4PStartEndDates,
   initialData,
   submitTrigger,
   setSubmitTrigger,
   performanceP4PCalcTab,
   onDateValidation,
-  // p4pIncentiveStatus,
-  performanceTypeStatus,
-  updatePerformanceTypeStatus,
+  isSubmitted,
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
@@ -68,7 +68,7 @@ const SavingsReportForm = ({
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
-  const { incentiveSettings } = useSelector(
+  const { incentiveSettings, adminCalculatedPerformanceReport } = useSelector(
     (state) => state?.adminPerformanceReducer
   );
 
@@ -79,52 +79,55 @@ const SavingsReportForm = ({
 
   const [p4pIncentiveStatus, setP4pIncentiveStatus] = useState("Under-review");
 
-   const [submitReportModalConfig, setSubmitReportModalConfig] = useState({
-     modalVisible: false,
-     modalUI: {
-       showHeader: true,
-       crossIcon: false,
-       modalClass: "",
-       headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-       headerSubTextStyle: {
-         marginTop: "1rem",
-         fontSize: { xs: "14px", md: "18px" },
-         fontWeight: 600,
-         color: "rgba(36, 36, 36, 1)",
-       },
-       fotterActionStyle: "",
-       modalBodyContentStyle: {
-         padding: "0 24px 20px 18px !important",
-         fontWeight: 400,
-         fontSize: { xs: "12px", md: "14px" },
-         lineHeight: "18px",
-         color: "#242424",
-       },
-     },
-     buttonsUI: {
-       saveButton: false,
-       cancelButton: false,
-       saveButtonName: "Sent Request",
-       cancelButtonName: "Cancel",
-       saveButtonClass: "",
-       cancelButtonClass: "",
-     },
-     modalBodyContent: "",
-   });
+  const [submitReportModalConfig, setSubmitReportModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        fontSize: { xs: "14px", md: "18px" },
+        fontWeight: 600,
+        color: "rgba(36, 36, 36, 1)",
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: {
+        padding: "0 24px 20px 18px !important",
+        fontWeight: 400,
+        fontSize: { xs: "12px", md: "14px" },
+        lineHeight: "18px",
+        color: "#242424",
+      },
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    modalBodyContent: "",
+  });
 
-   const openSubmitReportModal = () => {
-     setSubmitReportModalConfig((prevState) => ({
-       ...prevState,
-       modalVisible: true,
-       headerText: <Grid container sx={{ justifyContent: "center" }}>
-        <figure>
-          <img src="/images/new_user_popup_icon.svg" alt="" />
-        </figure>
-       </Grid>,
-       headerSubText: "Thank you for submitting Savings Report!",
-       modalBodyContent: "We have received your 1st Pay-for-Performance Period Savings Report and will review it shortly. Please note that this process may take some time. We appreciate your patience and understanding.  Once reviewed, you will receive an email.",
-     }));
-   };
+  const openSubmitReportModal = () => {
+    setSubmitReportModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: (
+        <Grid container sx={{ justifyContent: "center" }}>
+          <figure>
+            <img src="/images/new_user_popup_icon.svg" alt="" />
+          </figure>
+        </Grid>
+      ),
+      headerSubText: "Thank you for submitting Savings Report!",
+      modalBodyContent:
+        "We have received your 1st Pay-for-Performance Period Savings Report and will review it shortly. Please note that this process may take some time. We appreciate your patience and understanding.  Once reviewed, you will receive an email.",
+    }));
+  };
 
   useEffect(() => {
     if (initialData) {
@@ -136,8 +139,15 @@ const SavingsReportForm = ({
       });
       setFormData(newFormData);
       setStatuses(newStatuses);
+      setSelectedEndDate(
+        p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
+      );
+    } else {
+      setFormData({});
+      setStatuses({});
+      setSelectedEndDate(null);
     }
-  }, [initialData]);
+  }, [initialData, performanceP4PCalcTab]);
 
   useEffect(() => {
     let startDate = null;
@@ -197,6 +207,7 @@ const SavingsReportForm = ({
   }, [selectedEndDate, p4PStartEndDates?.endDate, onDateValidation]);
 
   const handleDateChange = (newValue) => {
+    if (isSubmitted) return;
     setSelectedEndDate(newValue);
     if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
@@ -205,112 +216,42 @@ const SavingsReportForm = ({
         facility_id: facility_id,
         meter_type: meterType,
       };
-
-      console.log(payload, "refresh payload - result");
       try {
-        const result = dispatch(calculateAdminPerformanceReport(payload));
-        // setFormData(result.data);
+        dispatch(calculateAdminPerformanceReport(payload));
       } catch (error) {
         console.error("Error calculating performance report:", error);
       }
     }
   };
 
+  useEffect(() => {
+    if (adminCalculatedPerformanceReport) {
+      setFormData(adminCalculatedPerformanceReport);
+    }
+  }, [adminCalculatedPerformanceReport]);
 
   const handleSaveSavingsReport = useCallback(() => {
-    let newPerformanceTypeStatus = { ...performanceTypeStatus };
-
-    if (performanceP4PCalcTab === 1) {
-      newPerformanceTypeStatus = {
-        1: "in-active",
-        2: "active",
-        3: "in-active",
-      };
-    } else if (performanceP4PCalcTab === 2) {
-      newPerformanceTypeStatus = {
-        1: "in-active",
-        2: "in-active",
-        3: "active",
-      };
-    }
-
-    updatePerformanceTypeStatus(newPerformanceTypeStatus);
-
-    // Set all statuses to "Submitted"
-    // const newStatuses = Object.keys(formData).reduce((acc, key) => {
-    //   acc[key] = "Submitted";
-    //   return acc;
-    // }, {});
-    // setStatuses(newStatuses);
-
     const report = {
       data: Object.entries(formData).reduce((acc, [key, value]) => {
         acc[key] = { value, status: "Submitted" };
         return acc;
       }, {}),
       performance_type: performanceP4PCalcTab,
-      performance_type_status: newPerformanceTypeStatus,
       meter_type: meterType,
     };
-    console.log(report);
     dispatch(updateAdminPerformanceReportInDB(facility_id, report))
       .then(() => {
         openSubmitReportModal();
       })
       .catch((error) => {
         console.error(error);
-    })
-  }, [
-    formData,
-    performanceP4PCalcTab,
-    meterType,
-    performanceTypeStatus,
-    updatePerformanceTypeStatus,
-  ]);
-
+      });
+  }, [formData, performanceP4PCalcTab, meterType]);
 
   const handleChange = (name, value) => {
+    if (isSubmitted) return;
     setStatuses((prev) => ({ ...prev, [name]: value }));
   };
-
-  // const handleSaveSavingsReport = useCallback(() => {
-  //   let newPerformanceTypeStatus = { ...performanceTypeStatus };
-
-  //   if (performanceP4PCalcTab === 1) {
-  //     newPerformanceTypeStatus = {
-  //       1: "in-active",
-  //       2: "active",
-  //       3: "in-active",
-  //     };
-  //   } else if (performanceP4PCalcTab === 2) {
-  //     newPerformanceTypeStatus = {
-  //       1: "in-active",
-  //       2: "in-active",
-  //       3: "active",
-  //     };
-  //   }
-
-  //   updatePerformanceTypeStatus(newPerformanceTypeStatus);
-
-  //   // Set all statuses to "Submitted"
-  //   // const newStatuses = Object.keys(formData).reduce((acc, key) => {
-  //   //   acc[key] = "Submitted";
-  //   //   return acc;
-  //   // }, {});
-  //   // setStatuses(newStatuses);
-
-  //   const report = {
-  //     data: Object.entries(formData).reduce((acc, [key, value]) => {
-  //       acc[key] = { value, status: "Submitted" };
-  //       return acc;
-  //     }, {}),
-  //     performance_type: performanceP4PCalcTab,
-  //     performance_type_status: newPerformanceTypeStatus,
-  //     meter_type: meterType,
-  //     facility_id: facility_id,
-  //   };
-  //   console.log(report);
-  // }, [formData, statuses, performanceP4PCalcTab, meterType, facility_id]);
 
   const getFields = () => {
     if (meterType === 1) {
@@ -403,24 +344,30 @@ const SavingsReportForm = ({
           maxDate={
             p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
           }
+          disabled={isSubmitted}
         />
       ),
     },
-    ...fields.map((field) => ({
-      metric: field.label,
-      value: formData[field.name] || "-",
-      unit: (
-        <SelectBox
-          name={field.name}
-          options={standardOptions.map((option) => ({
-            value: option,
-            name: option,
-          }))}
-          value={statuses[field.name] || "Estimated"}
-          onChange={handleChange}
-        />
-      ),
-    })),
+    ...fields.map((field) => {
+      const value = formData[field.name];
+      const displayValue = value === 0 ? 0 : value || "-";
+      return {
+        metric: field.label,
+        value: displayValue,
+        unit: (
+          <SelectBox
+            name={field.name}
+            options={standardOptions.map((option) => ({
+              value: option,
+              name: option,
+            }))}
+            value={statuses[field.name] || "Estimated"}
+            onChange={handleChange}
+            disabled={isSubmitted}
+          />
+        ),
+      };
+    }),
     {
       metric: "Performance incentive payment status",
       value: "-",

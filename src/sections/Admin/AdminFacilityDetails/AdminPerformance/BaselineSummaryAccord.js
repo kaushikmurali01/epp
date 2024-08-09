@@ -23,14 +23,14 @@ const BaselineSummaryAccord = ({ meter_type }) => {
     (state) => state?.adminPerformanceReducer
   );
   const dispatch = useDispatch();
+console.log(incentiveSettings);
 
-  // useEffect(() => {
-  //   const summaryBody = { facility_id: 336, meter_type };
-  //   dispatch(getAdminBaselineDataSummary(summaryBody));
-  //   if (facility_id) {
-  //     dispatch(getIncentiveSettings(facility_id));
-  //   }
-  // }, [dispatch, meter_type, facility_id]);
+  useEffect(() => {
+    dispatch(getAdminBaselineDataSummary(facility_id, meter_type));
+    if (facility_id) {
+      dispatch(getIncentiveSettings(facility_id));
+    }
+  }, [dispatch, meter_type, facility_id]);
 
   const baselineSummary =
     adminBaselineSummaryData?.baseline_summary_performance_page || {};

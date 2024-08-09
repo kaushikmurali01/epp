@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { activeButtonStyle, inactiveButtonStyle, StyledButtonGroup } from "../AdminBaselineModel/styles";
 import { getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import Loader from "pages/Loader";
 import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
 
@@ -19,47 +19,51 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     setActiveButton(btn_name);
   };
 
-  const { adminPerformanceDataMinMaxDate , loading} = useSelector(
+  const { adminPerformanceDataMinMaxDate, incentiveSettings, loading} = useSelector(
     (state) => state?.adminPerformanceReducer
   );
 
   useEffect(() => {
-    dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type))
-      .then(() => {
-        const payload = {
-          facility_id: Number(id),
-          meter_type: meter_type,
-          start_date: format(
-            adminPerformanceDataMinMaxDate.min_date,
-            "yyyy-MM-dd"
-          ),
-          end_date: format(
-            adminPerformanceDataMinMaxDate.max_date,
-            "yyyy-MM-dd"
-          ),
-        };
-        dispatch(
-          scoreAdminPerformanceData(payload)
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-    })
     if (activeButton === "missing_data" || activeButton === "outliers") {
       dispatch(fetchDataExplorationSummaryList(id, activeButton));
     } else {
       dispatch(fetchDataExplorationSummaryList(id));
     }
   }, [dispatch, id, activeButton, meter_type]);
+  
+  useEffect(() => {
+    dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type));
+  }, [dispatch, id, meter_type]);
+
+  useEffect(() => {
+    if (
+      adminPerformanceDataMinMaxDate &&
+      adminPerformanceDataMinMaxDate.min_date &&
+      adminPerformanceDataMinMaxDate.max_date
+    ) {
+      console.log("abcdefg");
+      
+      const payload = {
+        facility_id: Number(id),
+        meter_type: meter_type,
+        start_date: format(
+          new Date(adminPerformanceDataMinMaxDate.min_date),
+          "yyyy-MM-dd"
+        ),
+        end_date: format(
+          new Date(adminPerformanceDataMinMaxDate.max_date),
+          "yyyy-MM-dd"
+        ),
+      };
+      dispatch(scoreAdminPerformanceData(payload));
+    }
+  }, [dispatch, id, meter_type, adminPerformanceDataMinMaxDate]);
 
   const summaryData = useSelector(
     (state) => state?.baselineReducer?.dataExplorationSummaryList
-  );
+  );  
 
-  console.log(adminPerformanceDataMinMaxDate);
-  
-
-  const [performanceDataMeterDetailsModalConfig, setperformanceDataMeterDetailsModalConfig] = useState({
+  const [performanceDataMeterDetailsModalConfig, setPerformanceDataMeterDetailsModalConfig] = useState({
     modalVisible: false,
     modalUI: {
       showHeader: true,
@@ -95,13 +99,13 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     count,
     bound
   ) => {
-    setperformanceDataMeterDetailsModalConfig((prevState) => ({
+    setPerformanceDataMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
       modalBodyContent: (
         <PerformanceDataMeterDetailsModal
-          setperformanceDataMeterDetailsModalConfig={
-            setperformanceDataMeterDetailsModalConfig
+          setPerformanceDataMeterDetailsModalConfig={
+            setPerformanceDataMeterDetailsModalConfig
           }
           meterType={meterType}
           meterName={meterName}
@@ -363,7 +367,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
       <Grid container>{renderTable()}</Grid>
       <EvModal
         modalConfig={performanceDataMeterDetailsModalConfig}
-        setModalConfig={setperformanceDataMeterDetailsModalConfig}
+        setModalConfig={setPerformanceDataMeterDetailsModalConfig}
       />
       <Loader
         sectionLoader

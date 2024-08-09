@@ -49,14 +49,12 @@ import {
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 
-export const getBaselineDataSummary = (
-  summaryBody,
-) => {
+export const getBaselineDataSummary = (facility_id, meter_type) => {
   return async (dispatch) => {
     try {
       dispatch(getBaselineDataSummaryRequest());
-      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}`;
-      const response = await POST_REQUEST(endpointWithParams, summaryBody);
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}?facility_id=${facility_id}&meter_type=${meter_type}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(getBaselineDataSummarySuccess(data));
       return data;
