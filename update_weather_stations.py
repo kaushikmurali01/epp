@@ -14,7 +14,7 @@ from contextlib import contextmanager
 from dbconnection import get_db_connection, dbtest, refresh_materialised_view
 
 # Adjust these parameters based on your system capabilities
-MAX_WORKERS = 10  # Reduced from 10 to 5
+MAX_WORKERS = 100  # Reduced from 10 to 5
 CHUNK_SIZE = 100000  # Number of rows to process at a time
 
 # Column mapping: CSV column name to database column name
@@ -160,11 +160,12 @@ def process_station(station_id, year, month, day, time_frame):
 
 
 def main():
-    stations = dbtest("SELECT station_id FROM epp.stations")
+    start_year = 2019  # You can adjust this as needed
+    stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
     current_year = datetime.now().year
     current_month = datetime.now().month
 
-    start_year = 2023  # You can adjust this as needed
+
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
