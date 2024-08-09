@@ -193,6 +193,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     <Grid container>
       <Formik initialValues={formData} enableReinitialize={true}>
         {({ values, setFieldValue, errors }) => {
+          console.log(values?.independent_variables, independentVariables)
           return (
             <Form>
               <Grid container display={"grid"} gap={"2rem"}>
@@ -296,8 +297,8 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                             name={variableItem?.name}
                             type="checkbox"
                             as={Checkbox}
-                            checked={values?.independent_variables?.includes(
-                              variableItem?.id
+                            checked={+values?.independent_variables?.includes(
+                              +variableItem?.id
                             )}
                             disabled
                           />
