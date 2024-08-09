@@ -198,11 +198,11 @@ def score_data():
             additional_dummy_vars=list(dummy_variables), 
             holiday_flag=False
         )
-        print(modelling_independent_variables)
-        print(selected_independent_variables)
+        # print(modelling_independent_variables)
+        # print(selected_independent_variables)
         preserved_columns = ['observed', 'temperature']
         processed_scoring_data = adjust_and_finalize_data(processed_scoring_data,preserved_columns, modelling_independent_variables)
-        print(processed_scoring_data.head())
+        # print(processed_scoring_data.head())
         # Blob names
         sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
         model_blob_name = f"{sub_folder_name}/model.pkl"
