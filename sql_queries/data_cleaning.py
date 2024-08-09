@@ -73,7 +73,7 @@ def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_
                    meter_name, reading, meter_type, facility_id
             FROM epp.meter_hourly_entries
             WHERE is_active = true 
-              AND start_date BETWEEN {start_date} AND {end_date}
+              AND start_date BETWEEN '{start_date}' AND '{end_date}'
               AND (facility_id = 409 OR meter_id IN ({temp1}, {temp2}, {temp3}))
             
             UNION ALL
@@ -84,7 +84,7 @@ def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_
                    NULL::integer AS facility_id
             FROM epp.weather_data_records 
             WHERE station_id IN ({temp1}, {temp2}, {temp3})
-              AND date_time BETWEEN {start_date} AND {end_date}
+              AND date_time BETWEEN '{start_date}' AND '{end_date}'
         ) combined_data
     )
     SELECT start_date,
