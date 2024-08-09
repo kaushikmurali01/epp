@@ -408,8 +408,6 @@ const ModelConstructorForm = ({
                     }}
                   >
                     <DateRangeSlider
-                      // start_date={baselinePeriod?.start_date}
-                      // end_date={baselinePeriod?.end_date}
                       start_date= {format(new Date(baselinePeriod?.start_date), "yyyy-MM-dd")}
                       end_date={format(new Date(baselinePeriod?.end_date), "yyyy-MM-dd")}
                       sliderStartDate={values?.start_date}

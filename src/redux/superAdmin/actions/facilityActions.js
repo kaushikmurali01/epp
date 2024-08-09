@@ -69,6 +69,9 @@ import {
   sendHelpReqForMeasureCategoryRequest,
   sendHelpReqForMeasureCategorySuccess,
   sendHelpReqForMeasureCategoryFailure,
+  getWaterfallDataRequest,
+  getWaterfallDataFailure,
+  getWaterfallDataSuccess,
 } from "../actionCreators/facililityActionCreators";
 import {
   DELETE_REQUEST,
@@ -600,6 +603,26 @@ export const sendHelpRequestForMeasure = (facility, measureData) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+    }
+  };
+};
+
+export const getWaterfallData = (measureData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getWaterfallDataRequest());
+      const endpointWithParams = `${facilityEndPoints.GET_WATERFALL_DATA}`;
+      const response = await POST_REQUEST(endpointWithParams, measureData);
+      const data = response.data;
+      dispatch(getWaterfallDataSuccess(data));
+      return data;
+    } catch (error) {
+      dispatch(getWaterfallDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
     }
   };
 };

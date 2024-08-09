@@ -30,6 +30,7 @@ export const facilityEndPoints = {
   DELETE_FACILITY_SAVING_DOCUMENT:
     "company-facility/v1/facility-saving-document",
   SEND_HELP_REQ_FOR_MEASURE_CATEGORY: "company-facility/v1/savingPlan",
+  GET_WATERFALL_DATA: "company-facility/v1/facility/getWaterFallData",
 };
 
 export const adminFacilityEndpoints = {
@@ -208,14 +209,13 @@ export const hourlyEndPoints = {
   ADD_BULK_HOURLY_DATA: "/v1/upload-meter-file",
   ADD_HOURLY_METER_DATA: "/v1/add-meter-data",
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
-  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file"
+  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file",
 };
 
 export const adminHourlyEndPoints = {
   GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
   DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries",
   // MIN_MAX_PERIOD: "/v1/get_min_max_dates",
-
 };
 
 export const POWERBI_ENDPOINTS = {
