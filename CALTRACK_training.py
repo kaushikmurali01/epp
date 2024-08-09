@@ -471,8 +471,8 @@ class EnergyModel:
             }
     
         # If you need the result as a JSON string
-        json_summary = json.dumps(summary, indent=4)  # The 'indent' parameter is optional, for pretty-printing
-        return json_summary  # or just 'return summary' if you prefer a Python dict
+        # json_summary = json.dumps(summary, indent=4)  # The 'indent' parameter is optional, for pretty-printing
+        return summary  # or just 'return summary' if you prefer a Python dict
 
         
     def training_hourly_model_sm(self):
