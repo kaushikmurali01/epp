@@ -39,6 +39,7 @@ def baseline_model_training():
     except Exception as e:
     # This will catch any exception and print a message about what went wrong
         # raise
+        print("Response Not Found:{}".format(response))
         print(f"An error occurred: {e}")
        
     additional_dummy_vars = [key for key, value in dummy_variables.items() if value]
