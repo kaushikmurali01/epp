@@ -255,7 +255,7 @@ def calculate_sufficiency(df, start_date, end_date):
     sufficiency_data = pd.DataFrame(monthly_data)
     monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
-    monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days * meter_count)) * 100
+    monthly_sufficiency = (monthly_data['monthly_sufficiency_percentage'].sum() / (total_days if total_days >=364 else 365  * meter_count)) * 100
 
     return hourly_sufficiency, daily_sufficiency, monthly_sufficiency, monthly_sufficiency_data
 
