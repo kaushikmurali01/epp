@@ -47,6 +47,9 @@ const DataSummary = () => {
       },
       fotterActionStyle: "",
       modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px", // Set the desired max-width
+      },
     },
     buttonsUI: {
       saveButton: false,

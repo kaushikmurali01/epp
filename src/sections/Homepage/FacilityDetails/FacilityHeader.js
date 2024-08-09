@@ -104,12 +104,14 @@ const FacilityHeader = () => {
   };
 
   const incentiveData = useSelector(
-    (state) => state?.facilityReducer?.waterfallData?.data || []
+    (state) => state?.facilityReducer?.waterfallData?.data?.data || []
   );
   const energySavingData = useSelector(
-    (state) => state?.facilityReducer?.waterfallData?.data || []
+    (state) => state?.facilityReducer?.waterfallData?.data?.data || []
   );
-
+  const minimumSaving = useSelector(
+    (state) => state?.facilityReducer?.waterfallData?.data?.minimumSaving || []
+  );
   useEffect(() => {
     const graphData = {
       facility_id: id,
@@ -339,10 +341,6 @@ const FacilityHeader = () => {
   }
 
   function EnergySavingsChart({ data }) {
-    const totalSavings = data.reduce(
-      (sum, item) => sum + item.onPeak + item.offPeak,
-      0
-    );
     return (
       <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
         <ResponsiveContainer width="100%" height="100%">
@@ -384,7 +382,7 @@ const FacilityHeader = () => {
               fill="#333"
               fontSize={10}
             >
-              Minimum savings: {totalSavings}
+              Minimum savings: {minimumSaving}
             </text>
           </BarChart>
         </ResponsiveContainer>
