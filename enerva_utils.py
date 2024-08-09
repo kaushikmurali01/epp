@@ -392,7 +392,7 @@ def insert_scoring_data(facility_id, meter_type, baseline_model_settings, scorin
     query = """
     INSERT INTO scoring_data_output (facility_id, meter_type, baseline_model_settings, scoring_data)
     VALUES (%s, %s, %s, %s)
-    ON CONFLICT (facility_id) DO UPDATE
+    ON CONFLICT (facility_id, meter_type) DO UPDATE
     SET meter_type = EXCLUDED.meter_type,
         baseline_model_settings = EXCLUDED.baseline_model_settings,
         scoring_data = EXCLUDED.scoring_data;

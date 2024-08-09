@@ -91,13 +91,13 @@ def baseline_model_training():
         values = (facility_id, output_data_json, baseline_data_summary_json,meter_type,model_metrics_summary_json,model_input_settings)
         # Create the SQL insert query
         query = f"""
-        INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary, meter_type, model_metrics_summary, model_input_settings)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        ON CONFLICT (facility_id) DO UPDATE
-        SET output_data = EXCLUDED.output_data,
-            baseline_data_summary = EXCLUDED.baseline_data_summary,
-            model_metrics_summary = EXCLUDED.model_metrics_summary,
-            model_input_settings = EXCLUDED.model_input_settings
+            INSERT INTO {table_name} (facility_id, output_data, baseline_data_summary, meter_type, model_metrics_summary, model_input_settings)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (facility_id, meter_type) DO UPDATE
+            SET output_data = EXCLUDED.output_data,
+                baseline_data_summary = EXCLUDED.baseline_data_summary,
+                model_metrics_summary = EXCLUDED.model_metrics_summary,
+                model_input_settings = EXCLUDED.model_input_settings;
         """
         # Execute the query
         db_execute(query, values)
