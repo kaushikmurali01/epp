@@ -10,7 +10,7 @@ from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
 from meter_uploader import MeterDataUploader, MeterDataUploaderIV
-from sql_queries.data_cleaning import data_cleaning_query
+from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -21,7 +21,7 @@ from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query
 from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv, min_max_general
+    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -684,10 +684,10 @@ def get_data_exploration_summary_v2():
         if page_size > 100:
             page_size = 100
         if not all([meter_name, meter_id]):
-            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200 
+            return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200
 
     des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
-    if list_data == '1':        
+    if list_data == '1':
         return des.get_paginated_list(page_size, page_no, bound)
     else:
         return des.process()
@@ -817,8 +817,7 @@ def get_clean_data():
             order = [weather_station] + order
             temp1, temp2, temp3 = order
 
-        clean_data_query = data_cleaning_query.format(temp1, temp2, temp3, facility_id, temp1, temp2, temp3, start_date,
-                                                      end_date)
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id)
 
         df = dbtest(clean_data_query)
 
@@ -858,6 +857,31 @@ def get_workflow():
             workflows.append(workflow)
         return jsonify({'workflow': workflow}), 200
     return jsonify({"error": "No Workflow Created Yet"}), 404
+
+
+@app.route('/get-performance-min-max', methods=['GET'])
+def get_performance_min_max():
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
+    if not facility_id:
+        return jsonify({"error": "Please Provide Facility ID"}), 400
+    if not meter_type:
+        return jsonify({"error": "Please Provide Meter Type"}), 400
+
+    facility_id, meter_type = int(facility_id), int(meter_type)
+    query = get_base_line_min_max.format(facility_id, meter_type)
+    df = dbtest(query)
+    df.dropna(inplace=True)
+    if len(df):
+        max_data = df.baseline_end_date.max()
+        min_max_df = dbtest(min_max_performance.format(facility_id, max_data))
+        print(min_max_performance.format(facility_id, max_data))
+        min_max_df.dropna(inplace=True)
+        if len(min_max_df):
+            return {'min_date': min_max_df.min_date.min(), 'max_date': min_max_df.max_date.max()}
+        return jsonify({"error": "Insufficient Data"}), 404
+
+    return jsonify({"error": "Insufficient Data"}), 404
 
 
 if __name__ == '__main__':
