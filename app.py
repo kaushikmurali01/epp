@@ -676,6 +676,7 @@ def get_data_exploration_summary_v2():
     page_no = int(request.args.get('page_number', 1))
     meter_name = request.args.get('meter', None)
     meter_id = request.args.get('meter_id', None)
+    bound = request.args.get('bound', 'Lower limit')
 
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
@@ -686,9 +687,8 @@ def get_data_exploration_summary_v2():
             return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200 
 
     des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
-    if list_data == '1':
-        
-        return des.get_paginated_list(page_size, page_no)
+    if list_data == '1':        
+        return des.get_paginated_list(page_size, page_no, bound)
     else:
         return des.process()
 

@@ -4,7 +4,7 @@ from constants import METER_FACTOR
 from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, \
     get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
-from sql_queries.data_exploration_queries import observed_data_summary_list
+from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list
 
 class DataExplorationSummaryV2:
     def __init__(self, facility_id, summary_type, meter_name=None, meter_id=None):
@@ -45,18 +45,23 @@ class DataExplorationSummaryV2:
                 self.raw_df.sort_values(by=['bound_type', 'meter_type'], inplace=True)
         return self.raw_df.to_dict(orient='records')
 
-    def setup_listing_query(self, page_size, page_no):
+    def setup_listing_query(self, page_size, page_no, bound):
         if self.missing_data:
-            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
         elif self.outliers:
-            self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+            if bound == 'Lower limit':
+                outliers_query = outlier_summary_lower_bound_list
+            else:
+                outliers_query = outlier_summary_upper_bound_list
+            self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
         else:
             self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
         self.raw_df = dbtest(self.query)
         
 
-    def get_paginated_list(self, page_size, page_no):
-        self.setup_listing_query(page_size, page_no)
+    def get_paginated_list(self, page_size, page_no, bound= None):
+        self.setup_listing_query(page_size, page_no, bound)
+        print(bound)
         paginated_df = self.raw_df.to_dict(orient='records')
         
         
