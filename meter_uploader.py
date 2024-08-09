@@ -49,6 +49,11 @@ class BaseDataUploader:
             raise ValueError(f"No valid sheets found. Invalid sheets: {', '.join(invalid_sheets)}")
         if self.merged_df.empty:
             raise ValueError("No valid data found in the Excel file.")
+        if invalid_sheets:
+            invalid_sheets_join = invalid_sheets[0]
+            if len(invalid_sheets) > 1:
+                invalid_sheets_join = ','.join(invalid_sheets)
+            raise ValueError("Invalid Sheet(s):{}".format(invalid_sheets_join))
 
         self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'])
         self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'])
@@ -179,7 +184,6 @@ class MeterDataUploader(BaseDataUploader):
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
         meter_active_start = pd.to_datetime(datetime.combine(self.meter_active.date(), time.min))
         max_date = pd.to_datetime(max_date)
-
         invalid_dates = self.merged_df[
             (self.merged_df['Start Date (Required)'] < meter_active_start) |
             (self.merged_df['End Date (Required)'] > max_date)
