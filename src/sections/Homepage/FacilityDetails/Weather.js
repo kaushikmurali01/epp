@@ -312,7 +312,10 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     modalUI: {
       ...modalConfig.modalUI,
       showHeader: false,
-      modalBodyContentStyle: ""
+      modalBodyContentStyle: "",
+      evModalStyle : {
+        paperMaxWidth: '720px',  // Set the desired max-width
+      }
 
     },
 
