@@ -363,9 +363,12 @@ export const fetchDataExplorationSummaryList = (
       console.error(error);
       dispatch(fetchDataExplorationSummaryListFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error?.response?.data?.error
+          : error.message ,
         type: "error",
       });
+      throw error;
     }
   };
 };

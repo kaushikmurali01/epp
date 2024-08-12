@@ -35,6 +35,51 @@ import {
   DELETE_CONTACT_REQUEST,
   DELETE_CONTACT_SUCCESS,
   DELETE_CONTACT_FAILURE,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_FAILURE,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_REQUEST,
+  GET_ADMIN_BASELINE_DATA_SUMMARY_SUCCESS,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  CREATE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_FAILURE,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_REQUEST,
+  GET_ADMIN_NON_ROUTINE_EVENT_LIST_SUCCESS,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  ADD_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_FAILURE,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_REQUEST,
+  GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_SUCCESS,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+  DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  GET_ADMIN_PERFORMANCE_REPORT_REQUEST,
+  GET_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
+  SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
+  SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -201,5 +246,215 @@ export const getEmailArchiveSuccess = (data) => ({
 
 export const getEmailArchiveFailure = (error) => ({
   type: GET_EMAIL_ARCHIVE_FAILURE,
+  payload: error,
+});
+
+export const getAdminBaselineDataSummaryRequest = () => ({
+  type: GET_ADMIN_BASELINE_DATA_SUMMARY_REQUEST,
+});
+
+export const getAdminBaselineDataSummarySuccess = (data) => ({
+  type: GET_ADMIN_BASELINE_DATA_SUMMARY_SUCCESS,
+  payload: data,
+});
+
+export const getAdminBaselineDataSummaryFailure = (error) => ({
+  type: GET_ADMIN_BASELINE_DATA_SUMMARY_FAILURE,
+  payload: error,
+});
+
+export const createAdminNonRoutineEventRequest = () => ({
+  type: CREATE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+});
+
+export const createAdminNonRoutineEventSuccess = (data) => ({
+  type: CREATE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  payload: data,
+});
+
+export const createAdminNonRoutineEventFailure = (error) => ({
+  type: CREATE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  payload: error,
+});
+
+export const getAdminNonRoutineEventListRequest = () => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_LIST_REQUEST,
+});
+
+export const getAdminNonRoutineEventListSuccess = (data) => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_LIST_SUCCESS,
+  payload: data,
+});
+
+export const getAdminNonRoutineEventListFailure = (error) => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_LIST_FAILURE,
+  payload: error,
+});
+
+export const addAdminNonRoutineEventDataRequest = () => ({
+  type: ADD_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+});
+
+export const addAdminNonRoutineEventDataSuccess = (data) => ({
+  type: ADD_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  payload: data,
+});
+
+export const addAdminNonRoutineEventDataFailure = (error) => ({
+  type: ADD_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  payload: error,
+});
+
+export const getAdminNonRoutineEventDetailRequest = () => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_REQUEST,
+});
+
+export const getAdminNonRoutineEventDetailSuccess = (data) => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_SUCCESS,
+  payload: data,
+});
+
+export const getAdminNonRoutineEventDetailFailure = (error) => ({
+  type: GET_ADMIN_NON_ROUTINE_EVENT_DETAIL_FAILURE,
+  payload: error,
+});
+
+export const editAdminNonRoutineEventRequest = () => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+});
+
+export const editAdminNonRoutineEventSuccess = (data) => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  payload: data,
+});
+
+export const editAdminNonRoutineEventFailure = (error) => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  payload: error,
+});
+
+export const editAdminNonRoutineEventDataRequest = () => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+});
+
+export const editAdminNonRoutineEventDataSuccess = (data) => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  payload: data,
+});
+
+export const editAdminNonRoutineEventDataFailure = (error) => ({
+  type: EDIT_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  payload: error,
+});
+
+export const deleteAdminNonRoutineEventRequest = () => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_REQUEST,
+});
+
+export const deleteAdminNonRoutineEventSuccess = (data) => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_SUCCESS,
+  payload: data,
+});
+
+export const deleteAdminNonRoutineEventFailure = (error) => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_FAILURE,
+  payload: error,
+});
+
+export const deleteAdminNonRoutineEventDataRequest = () => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_REQUEST,
+});
+
+export const deleteAdminNonRoutineEventDataSuccess = (data) => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_SUCCESS,
+  payload: data,
+});
+
+export const deleteAdminNonRoutineEventDataFailure = (error) => ({
+  type: DELETE_ADMIN_NON_ROUTINE_EVENT_DATA_FAILURE,
+  payload: error,
+});
+
+export const scoreAdminPerformanceDataRequest = () => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_REQUEST,
+});
+
+export const scoreAdminPerformanceDataSuccess = (data) => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS,
+  payload: data,
+});
+
+export const scoreAdminPerformanceDataFailure = (error) => ({
+  type: SCORE_ADMIN_PERFORMANCE_DATA_FAILURE,
+  payload: error,
+});
+
+export const calculateAdminPerformanceReportRequest = () => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const calculateAdminPerformanceReportSuccess = (data) => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const calculateAdminPerformanceReportFailure = (error) => ({
+  type: CALCULATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const updateAdminPerformanceReportRequest = () => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const updateAdminPerformanceReportSuccess = (data) => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const updateAdminPerformanceReportFailure = (error) => ({
+  type: UPDATE_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceReportRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_REQUEST,
+});
+
+export const getAdminPerformanceReportSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceReportFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceDataMinMaxDateRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_REQUEST,
+});
+
+export const getAdminPerformanceDataMinMaxDateSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceDataMinMaxDateFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_MIN_MAX_DATE_FAILURE,
+  payload: error,
+});
+
+export const getAdminPerformanceDataVisualizationRequest = () => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
+});
+
+export const getAdminPerformanceDataVisualizationSuccess = (data) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
+  payload: data,
+});
+
+export const getAdminPerformanceDataVisualizationFailure = (error) => ({
+  type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
   payload: error,
 });

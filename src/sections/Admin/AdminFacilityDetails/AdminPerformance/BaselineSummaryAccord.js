@@ -1,9 +1,8 @@
 import { Grid, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getBaselineDataSummary } from "../../../../redux/superAdmin/actions/performanceAction";
-import { getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
 import Loader from "pages/Loader";
+import { getAdminBaselineDataSummary, getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const baselineStyleInAccordion = {
   color: "#242424",
@@ -15,27 +14,28 @@ const baselineStyleInAccordion = {
 
 const BaselineSummaryAccord = ({ meter_type }) => {
   const facility_id = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.id
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
   const incentiveSettings = useSelector(
     (state) => state?.adminPerformanceReducer?.incentiveSettings
   );
-  const { baselineSummaryData, loading } = useSelector(
-    (state) => state?.performanceReducer
+  const { adminBaselineSummaryData, loading } = useSelector(
+    (state) => state?.adminPerformanceReducer
   );
   const dispatch = useDispatch();
+console.log(incentiveSettings);
 
   useEffect(() => {
-    dispatch(getBaselineDataSummary(facility_id, meter_type));
+    dispatch(getAdminBaselineDataSummary(facility_id, meter_type))
+      .then()
+      .catch((err) => {});
     if (facility_id) {
       dispatch(getIncentiveSettings(facility_id));
     }
   }, [dispatch, meter_type, facility_id]);
 
-  console.log(baselineSummaryData, incentiveSettings, "baselineSummaryData");
-
   const baselineSummary =
-    baselineSummaryData?.baseline_summary_performance_page || {};
+    adminBaselineSummaryData?.baseline_summary_performance_page || {};
 
   return (
     <>

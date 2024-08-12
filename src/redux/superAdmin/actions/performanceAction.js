@@ -1,4 +1,4 @@
-import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
+import { PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
 import {
   getBaselineDataSummaryFailure,
   getBaselineDataSummaryRequest,
@@ -27,18 +27,34 @@ import {
   editNonRoutineEventDataRequest,
   editNonRoutineEventDataSuccess,
   editNonRoutineEventDataFailure,
+  calculatePerformanceReportRequest,
+  calculatePerformanceReportSuccess,
+  calculatePerformanceReportFailure,
+  updatePerformanceReportRequest,
+  updatePerformanceReportSuccess,
+  updatePerformanceReportFailure,
+  getPerformanceReportRequest,
+  getPerformanceReportSuccess,
+  getPerformanceReportFailure,
+  scorePerformanceDataRequest,
+  scorePerformanceDataSuccess,
+  scorePerformanceDataFailure,
+  getPerformanceDataMinMaxDateRequest,
+  getPerformanceDataMinMaxDateSuccess,
+  getPerformanceDataMinMaxDateFailure,
+  getPerformanceDataVisualizationRequest,
+  getPerformanceDataVisualizationSuccess,
+  getPerformanceDataVisualizationFailure,
 } from "../actionCreators/performanceActionCreator";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 
-export const getBaselineDataSummary = (
-  summaryBody,
-) => {
+export const getBaselineDataSummary = (facility_id, meter_type) => {
   return async (dispatch) => {
     try {
       dispatch(getBaselineDataSummaryRequest());
-      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}`;
-      const response = await POST_REQUEST(endpointWithParams, summaryBody);
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_BASELINE_DATA_SUMMARY}?facility_id=${facility_id}&meter_type=${meter_type}`;
+      const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(getBaselineDataSummarySuccess(data));
       return data;
@@ -206,6 +222,117 @@ export const updateNonRoutineEventData = (eventId, payload) => {
     } catch (error) {
       console.error(error);
       dispatch(editNonRoutineEventDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const scorePerformanceData = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(scorePerformanceDataRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.SCORE_PERFORMANCE_DATA}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(scorePerformanceDataSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(scorePerformanceDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const calculatePerformanceReport = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(calculatePerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.CALCULATE_PERFORMANCE_REPORT}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(calculatePerformanceReportSuccess(response?.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(calculatePerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updatePerformanceReportInDB = (facility_id, payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updatePerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.UPDATE_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL, payload);
+      dispatch(updatePerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(updatePerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceReportFromDB = (facility_id, meter_type) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceReportRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}`;
+      const response = await POST_REQUEST(apiURL);
+      dispatch(getPerformanceReportSuccess(response));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceDataMinMaxDate = (facility_id, meter_type) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceDataMinMaxDateRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_DATA_MIN_MAX_DATE}?facility_id=${facility_id}&meter_type=${meter_type}`;
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getPerformanceDataMinMaxDateSuccess(response.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceDataMinMaxDateFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getPerformanceDataVisualization = (
+  facility_id,
+  meter_type
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(getPerformanceDataVisualizationRequest());
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_DATA_VISUALIZATION}`;
+      const response = await GET_REQUEST(apiURL, facility_id, meter_type);
+      dispatch(getPerformanceDataVisualizationSuccess(response.data));
+    } catch (error) {
+      console.error(error);
+      dispatch(getPerformanceDataVisualizationFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
