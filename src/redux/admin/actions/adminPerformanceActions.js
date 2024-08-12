@@ -356,7 +356,9 @@ export const getAdminBaselineDataSummary = (facility_id, meter_type) => {
       console.error(error);
       dispatch(getAdminBaselineDataSummaryFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error?.response?.data?.error
+          : error.message,
         type: "error",
       });
       throw error;
@@ -615,6 +617,7 @@ export const getAdminPerformanceDataMinMaxDate = (facility_id, meter_type) => {
         message: error?.response?.data?.error ? error.response?.data?.error : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };

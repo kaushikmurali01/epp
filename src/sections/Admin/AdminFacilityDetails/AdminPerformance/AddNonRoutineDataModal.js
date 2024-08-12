@@ -288,7 +288,8 @@ const AddNonRoutineDataModal = ({
                         End date<span className="asterisk">*</span>
                       </TableCell>
                       <TableCell>
-                        Non-routine adjustment<span className="asterisk">*</span>
+                        Non-routine adjustment
+                        <span className="asterisk">*</span>
                       </TableCell>
                       <TableCell>Action</TableCell>
                     </TableRow>
@@ -378,7 +379,9 @@ const AddNonRoutineDataModal = ({
                                     let data_entry_id = entry?.id;
                                     if (data_entry_id) {
                                       dispatch(
-                                        deleteAdminNonRoutineEventData(data_entry_id)
+                                        deleteAdminNonRoutineEventData(
+                                          data_entry_id
+                                        )
                                       )
                                         .then(() => {
                                           remove(index);
@@ -441,24 +444,25 @@ const AddNonRoutineDataModal = ({
           )}
           {modalNonRoutineTabs === "uploadData" && (
             <Box>
-              <Typography variant="h5">
-                Upload data in bulk
-              </Typography>
-              {!nonRoutineFile && <Typography
-                variant="body2"
-                gutterBottom
-                sx={{ color: "#242424", fontStyle: "italic" }}
-              >
-                Upload the excel file, and refer to{" "}
-                <Link
-                  underline="hover"
-                  color={"blue.main"}
-                  sx={{ cursor: "pointer" }}
+              <Typography variant="h5">Upload data in bulk</Typography>
+              {!nonRoutineFile && (
+                <Typography
+                  variant="body2"
+                  gutterBottom
+                  sx={{ color: "#242424", fontStyle: "italic" }}
                 >
-                  non-routine adjustment spreadsheet
-                </Link>{" "}
-                for the formatting details.
-              </Typography>}
+                  Upload the excel file, and refer to{" "}
+                  <Link
+                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
+                    underline="hover"
+                    color={"blue.main"}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    non-routine adjustment spreadsheet
+                  </Link>{" "}
+                  for the formatting details.
+                </Typography>
+              )}
               <Box
                 sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
               >

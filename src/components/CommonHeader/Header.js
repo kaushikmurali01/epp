@@ -490,6 +490,18 @@ function Header(props) {
                     Contact us
                   </Typography>
                 </MenuItem>
+                <MenuItem sx={{ py: "6px", px: "12px" }}>
+                  <Link
+                    variant="body2"
+                    component="a"
+                    target="_blank"
+                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    User guide
+                  </Link>
+                </MenuItem>
               </Box>
             )}
           </Box>
@@ -806,6 +818,16 @@ function Header(props) {
                       }
                     >
                       Contact us
+                    </MenuItem>
+                    <MenuItem>
+                      <Link
+                        target="_blank"
+                        href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                        sx={{ textDecoration: "none" }}
+                        color="dark.light"
+                      >
+                        User guide
+                      </Link>
                     </MenuItem>
                     <Divider />
                     <MenuItem>

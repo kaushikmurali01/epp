@@ -455,6 +455,7 @@ const AddNonRoutineDataModal = ({
                 >
                   Upload the excel file, and refer to{" "}
                   <Link
+                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                     underline="hover"
                     color={"blue.main"}
                     sx={{ cursor: "pointer" }}

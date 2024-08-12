@@ -275,8 +275,8 @@ const Performance = () => {
           )}
         </Grid>
 
-        {isPerformanceSettingComponent ? null : (
-          <Grid item display={"flex"} justifyContent={"end"} width={"100%"}>
+        {!isPerformanceSettingComponent && submitTrigger && (
+          <Grid item display="flex" justifyContent="end" width="100%">
             <Typography
               sx={{
                 padding: "6px 8px 6px 8px",

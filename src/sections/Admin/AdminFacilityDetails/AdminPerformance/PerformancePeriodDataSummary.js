@@ -25,14 +25,22 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
 
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton));
+      dispatch(fetchDataExplorationSummaryList(id, activeButton))
+        .then()
+        .catch((error) => 
+          console.error(error)
+        );
     } else {
       dispatch(fetchDataExplorationSummaryList(id));
     }
   }, [dispatch, id, activeButton, meter_type]);
   
   useEffect(() => {
-    dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type));
+    dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type))
+      .then()
+      .catch((error) => {
+        console.error(error);
+      });
   }, [dispatch, id, meter_type]);
 
   useEffect(() => {
