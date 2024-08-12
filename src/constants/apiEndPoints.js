@@ -263,6 +263,12 @@ export const PERFORMANCE_ENDPOINTS = {
   EDIT_NON_ROUTINE_EVENT_DATA: "/company-facility/v1/editNonRoutineData",
   DELETE_NON_ROUTINE_EVENT: "/company-facility/v1/removeNonRoutine",
   DELETE_NON_ROUTINE_EVENT_DATA: "/company-facility/v1/removeNonRoutineData",
+  SCORE_PERFORMANCE_DATA: "/model/v1/score_performance_data",
+  CALCULATE_PERFORMANCE_REPORT: "/model/v1/p4p_calc_summary",
+  UPDATE_PERFORMANCE_REPORT: "/company-facility/v1/performance",
+  GET_PERFORMANCE_REPORT: "/company-facility/v1/performance",
+  GET_PERFORMANCE_DATA_MIN_MAX_DATE: "/weather/v1/get-performance-min-max",
+  GET_PERFORMANCE_DATA_VISUALIZATION: "/model/v1/get_performance_scoring_data",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {

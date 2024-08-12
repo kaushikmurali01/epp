@@ -149,6 +149,22 @@ body {
     }
 }
 
+.savings-report-table{
+    .MuiTableRow-root th{
+        padding: 0;
+    }
+    .MuiTableBody-root{
+        tr{
+            td:nth-child(2){
+                text-align: end;
+            }
+
+            td:last-child {
+                text-align: start;
+            }
+        }
+    }
+}
 /* HTML: <div class="loader"></div> */
 .progress-loader {
     width: 12px;

@@ -18,16 +18,16 @@ import { DatePicker } from "@mui/x-date-pickers";
 import { Formik, Form, FieldArray } from "formik";
 import React, { useEffect, useRef, useState } from "react";
 import { documentFileUploadAction, fileUploadAction } from "../../../../redux/global/actions/fileUploadAction";
-import {
-  addNonRoutineEventData,
-  deleteNonRoutineEventData,
-  getNonRoutineEventDetails,
-  getNonRoutineEventList,
-} from "../../../../redux/superAdmin/actions/performanceAction";
 import { format, parseISO } from "date-fns";
 import { useDispatch, useSelector } from "react-redux";
 import { nonRoutineDataValidationSchema } from "utils/validations/formValidation";
 import { downloadFileFromUrl } from "utils/helper/helper";
+import {
+  addAdminNonRoutineEventData,
+  deleteAdminNonRoutineEventData,
+  getAdminNonRoutineEventDetails,
+  getAdminNonRoutineEventList,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const AddNonRoutineDataModal = ({
   event_id,
@@ -51,29 +51,29 @@ const AddNonRoutineDataModal = ({
   const itemsPerPage = 10;
 
   const facility_id = useSelector(
-    (state) => state?.facilityReducer?.facilityDetails?.data?.id
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
-  const { nonRoutineEventDetails, loading } = useSelector(
-    (state) => state?.performanceReducer
+  const { adminNonRoutineEventDetails, loading } = useSelector(
+    (state) => state?.adminPerformanceReducer
   );
 
   useEffect(() => {
     if (editMode.isEditing && editMode.eventId) {
-      dispatch(getNonRoutineEventDetails(editMode.eventId))
+      dispatch(getAdminNonRoutineEventDetails(editMode.eventId))
         .then(() => {
           if (
-            nonRoutineEventDetails.dataEntries &&
-            nonRoutineEventDetails.dataEntries.length > 0
+            adminNonRoutineEventDetails.dataEntries &&
+            adminNonRoutineEventDetails.dataEntries.length > 0
           ) {
-            const firstEntry = nonRoutineEventDetails.dataEntries[0];
+            const firstEntry = adminNonRoutineEventDetails.dataEntries[0];
 
             if (firstEntry.type === 1) {
               // Handle filled data (type 1)
               setDataType(1);
               setModalNonRoutineTabs("filledData");
               setInitialData(
-                nonRoutineEventDetails.dataEntries.map((entry) => ({
+                adminNonRoutineEventDetails.dataEntries.map((entry) => ({
                   id: entry.id,
                   start_date: entry.start_date
                     ? parseISO(entry.start_date)
@@ -87,7 +87,7 @@ const AddNonRoutineDataModal = ({
               setDataType(2);
               setModalNonRoutineTabs("uploadData");
               setUploadedFiles(
-                nonRoutineEventDetails.dataEntries.map((entry, index) => {
+                adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
                   const extension = entry.file_url.split("/").pop().split(".").pop().split("?")[0];
                   return {
                     id: entry.id,
@@ -218,11 +218,11 @@ const AddNonRoutineDataModal = ({
           };
         }
 
-        dispatch(addNonRoutineEventData(nonRoutineDataPayload))
+        dispatch(addAdminNonRoutineEventData(nonRoutineDataPayload))
           .then(() => {
             closeAddNonRoutineDataModal();
             dispatch(
-              getNonRoutineEventList(
+              getAdminNonRoutineEventList(
                 facility_id,
                 meter_type,
                 page,
@@ -357,10 +357,6 @@ const AddNonRoutineDataModal = ({
                                     },
                                   }}
                                   value={entry.non_routine_adjustment}
-                                  onKeyDown={(evt) =>
-                                    ["e", "E", "+", "-"].includes(evt.key) &&
-                                    evt.preventDefault()
-                                  }
                                   onChange={(e) => {
                                     setFieldValue(
                                       `data_entries[${index}].non_routine_adjustment`,
@@ -383,7 +379,9 @@ const AddNonRoutineDataModal = ({
                                     let data_entry_id = entry?.id;
                                     if (data_entry_id) {
                                       dispatch(
-                                        deleteNonRoutineEventData(data_entry_id)
+                                        deleteAdminNonRoutineEventData(
+                                          data_entry_id
+                                        )
                                       )
                                         .then(() => {
                                           remove(index);
@@ -567,7 +565,7 @@ const AddNonRoutineDataModal = ({
                         }}
                         onClick={() => {
                           if (file?.id) {
-                            dispatch(deleteNonRoutineEventData(file.id))
+                            dispatch(deleteAdminNonRoutineEventData(file.id))
                               .then(() => {
                                 closeAddNonRoutineDataModal();
                               })

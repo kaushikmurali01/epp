@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import EvModal from 'utils/modal/EvModal';
 import ReactQuill from 'react-quill';
+import "react-quill/dist/quill.snow.css";
 import { useDispatch, useSelector } from 'react-redux';
 import Loader from 'pages/Loader';
 import { getEmailTemplate, sendEmail } from '../../../../redux/admin/actions/adminPerformanceActions';
@@ -119,14 +120,6 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
       modalVisible: true,
       modalBodyContent: <PreviewEmail values={currentValues} />,
     }));
-  };
-
-  const extractNames = (data) => {
-    console.log("extractNames input:", data);
-    if (!Array.isArray(data)) return "";
-    const result = data.map((item) => item.name || item.email).join(", ");
-    console.log("extractNames output:", result);
-    return result;
   };
 
   const PreviewEmail = (values) => {
