@@ -179,7 +179,7 @@ const BaselineModel = () => {
       }}
     >
       <Stack spacing={2}>
-        <Breadcrumbs
+        {/* <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
           aria-label="breadcrumb"
           sx={{
@@ -189,7 +189,7 @@ const BaselineModel = () => {
           }}
         >
           {breadcrumbs}
-        </Breadcrumbs>
+        </Breadcrumbs> */}
       </Stack>
       <Grid
         container

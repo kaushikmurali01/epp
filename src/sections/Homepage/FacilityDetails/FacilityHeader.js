@@ -184,7 +184,7 @@ const FacilityHeader = () => {
   };
 
   // const incentiveData = [
-  //   { name: "Total", value: 3255, onPeak: 3255, offPeak: 0 },
+  //   { name: "Total", value: -3255, onPeak: 3255, offPeak: 0 },
   //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
   //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
   //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },

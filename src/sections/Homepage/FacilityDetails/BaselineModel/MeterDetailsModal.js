@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchRawSummaryMeterList } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useParams } from "react-router-dom";
-import { format } from "date-fns";
+import { format, formatISO, parse, parseISO } from "date-fns";
 
 const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
@@ -59,15 +59,32 @@ const MeterDetailsModal = ({
 
   // const count = useSelector(
   //   (state) => state?.baselineReducer?.rawMeterSummaryList?.count
-  // );x
+  // );
+  function convertDateFormat(inputDate) {
+    // Split the string and extract the relevant parts
+    const parts = inputDate.split(" ");
+    const day = parts[1].padStart(2, "0");
+    const month = (
+      "0" +
+      (new Date(parts[2] + " 1, 2012").getMonth() + 1)
+    ).slice(-2);
+    const year = parts[3];
+    const time = parts[4].slice(0, 5);
 
+    // Combine the parts in the desired format
+    return `${year}-${month}-${day} ${time}`;
+  }
   const observeDataColumn = [
     {
       Header: "Start Date",
       accessor: (item) => (
-        <Typography variant="small" sx={{fontWeight:400, color:"#54585A"}}>
-          {item?.start_date &&
-            format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")}
+        <Typography variant="small" sx={{ fontWeight: 400, color: "#54585A" }}>
+          {/* {item?.start_date &&
+            format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")} */}
+          {item?.meter_type === 104
+            ? item?.start_date &&
+              format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")
+            : item?.start_date && convertDateFormat(item?.start_date)}
         </Typography>
       ),
     },
@@ -76,8 +93,12 @@ const MeterDetailsModal = ({
       accessor: (item) => {
         return (
           <>
-            {item?.end_date &&
-              format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")}
+            {/* {item?.end_date &&
+              format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")} */}
+            {item?.meter_type === 104
+              ? item?.end_date &&
+                format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")
+              : item?.end_date && convertDateFormat(item?.end_date)}
           </>
         );
       },

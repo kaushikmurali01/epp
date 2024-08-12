@@ -637,7 +637,7 @@ const AdminEntriesListing = ({
           }}
         >
           <Link
-            underline="hover"   
+            underline="hover"
             variant="small"
             sx={{ color: "blue.main", cursor: "pointer" }}
             onClick={() => handleAddButtonClick(facilityMeterDetailId)}
@@ -645,7 +645,7 @@ const AdminEntriesListing = ({
             Edit
           </Link>
           <Link
-            underline="hover"   
+            underline="hover"
             variant="small"
             sx={{ color: "danger.main", cursor: "pointer", marginLeft: "20px" }}
             onClick={() => openDeleteMeterModal()}
@@ -721,6 +721,7 @@ const AdminEntriesListing = ({
             You can upload a Green Button XML file or an Excel-compatible file.
             Use this{" "}
             <Link
+              href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
               underline="hover"
               color="#2C77E9"
               sx={{ cursor: "pointer" }}
