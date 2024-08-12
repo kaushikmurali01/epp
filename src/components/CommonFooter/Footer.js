@@ -5,7 +5,12 @@ import { Grid, Box, Container, Link, Typography, Stack } from "@mui/material";
 
 function Copyright() {
   return (
-    <Typography variant="small" component='small'  color="dark.light" sx={{ fontWeight: '300'}}>
+    <Typography
+      variant="small"
+      component="small"
+      color="dark.light"
+      sx={{ fontWeight: "300" }}
+    >
       {"Copyright © "}
       {new Date().getFullYear()}
       {" Enerva Energy Solutions Inc. All Rights Reserved"}
@@ -14,11 +19,11 @@ function Copyright() {
 }
 
 const footerContentRow = {
-  display:'flex', 
-  flexDirection: 'column',
-  width: { sm: 'calc(100% - 8rem)', lg: 'calc(100% - 8rem)'},
-  paddingLeft: { sm: '1rem', lg : '7.25rem' }
-}
+  display: "flex",
+  flexDirection: "column",
+  width: { sm: "calc(100% - 8rem)", lg: "calc(100% - 8rem)" },
+  paddingLeft: { sm: "1rem", lg: "7.25rem" },
+};
 
 export default function Footer() {
   return (
@@ -72,6 +77,7 @@ export default function Footer() {
                 >
                   If you need assistance, please contact Customer Support at{" "}
                   <Link
+                    target="_blank"
                     href={"mailto:info@energyperformanceprogram.ca"}
                     sx={{ textDecoration: "none" }}
                     color="blue.main"
