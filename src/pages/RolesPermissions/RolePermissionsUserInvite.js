@@ -16,6 +16,8 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     const [selectedPermissions, setSelectedPermissions] = useState([]);
 
     const [permissionStates, setPermissionStates] = useState([]);
+    const [initialPermissionStates, setInitialPermissionStates] = useState([]);
+
 
     const handleSelectChange = (event) => {
         setSelectRoleType(event.target.value);
@@ -31,28 +33,25 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         });
     };
 
-    const handleAlignment = (event, index,permission) => {
-        // if(permission.is_active === 0){
-        //     NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-        //     return;
-        // }
+  
 
+    const handleAlignment = (event, index, permission) => {
         setPermissionStates((prevStates) => {
             const newStates = [...prevStates];
             const permissionId = permissions[index]?.id;
-            const isSelected = !newStates.includes(permissionId);
+            const isSelected = !newStates.some((perm) => perm.id === permissionId);
 
             if (isSelected) {
-                newStates.push(permissionId);
+                newStates.push({ id: permissionId, is_default: 1 }); // Default is 1 when selected
                 setSelectedPermissions((prevSelectedPermissions) => [
                     ...prevSelectedPermissions,
-                    permissions[index],
+                    { id: permissionId, is_default: 1 },
                 ]);
             } else {
-                const updatedStates = newStates.filter((id) => id !== permissionId);
+                const updatedStates = newStates.filter((perm) => perm.id !== permissionId);
                 setSelectedPermissions((prevSelectedPermissions) =>
                     prevSelectedPermissions.filter(
-                        (permission) => permission?.id !== permissionId
+                        (perm) => perm?.id !== permissionId
                     )
                 );
                 return updatedStates;
@@ -62,10 +61,57 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         });
     };
 
+
+    // const handleDefaultPermissions = (event, index, permission) => {
+    //     const isDefault = event.target.value === 'yes' ? 1 : 0;
+
+    //     setPermissionStates((prevStates) => {
+    //         const newStates = prevStates.map((perm) =>
+    //             perm.id === permission.id ? { ...perm, is_default: isDefault } : perm
+    //         );
+
+    //         setSelectedPermissions((prevSelectedPermissions) =>
+    //             prevSelectedPermissions.map((perm) =>
+    //                 perm.id === permission.id ? { ...perm, is_default: isDefault } : perm
+    //             )
+    //         );
+
+    //         return newStates;
+    //     });
+    // };
+
+    const handleDefaultPermissions = (event, index, permission) => {
+        const isDefault = event.target.value === 'yes' ? 1 : 0;
+    
+        setPermissionStates((prevStates) => {
+            const newStates = prevStates.map((perm) =>
+                perm.id === permission.id ? { ...perm, is_default: isDefault } : perm
+            );
+    
+            // Update the selectedPermissions state accordingly
+            setSelectedPermissions((prevSelectedPermissions) => {
+                const updatedPermissions = prevSelectedPermissions.map((perm) =>
+                    perm.id === permission.id ? { ...perm, is_default: isDefault } : perm
+                );
+    
+                // Check if permission is missing from selectedPermissions and add it if necessary
+                if (!updatedPermissions.some((perm) => perm.id === permission.id)) {
+                    updatedPermissions.push({ ...permission, is_default: isDefault });
+                }
+    
+                return updatedPermissions;
+            });
+    
+            return newStates;
+        });
+    };
+    
+
+
     const getPermissionList = () => {
         //check if we have type or not in page info, if we have type then it is user management admin page
-       
-        const apiURL =  ROLES_PERMISSIONS_MANAGEMENT.GET_ALL_PERMISSIONS_LIST;
+
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.GET_ALL_PERMISSIONS_LIST;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
@@ -79,12 +125,20 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     const handelInviteSubmit = () => {
         const apiURL = inviteAPIURL;
-        const permissionIds = selectedPermissions.map(permission => permission.id);
+        // const permissionIds = selectedPermissions.map(permission => permission.id);
+         // We can simply map over permissionStates to extract only the id and is_default for each permission.
+        const mergedPermissions = permissionStates.map(permission => ({
+            id: permission.id,
+            is_default: permission.is_default,
+        }));
+
         const requestBody = {
             "role_name": roleName,
             "user_type": selectRoleType,
-            "permissions": permissionIds
+            "permissions": mergedPermissions
         }
+
+        console.log(requestBody, "check permissions submission");
         // return;
         if (isEdited) {
             requestBody.role_id = selectTableRow?.role_id;
@@ -122,12 +176,14 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
     }
 
     const getUserPermissionListAPI = (item) => {
-         const apiURL =  ROLES_PERMISSIONS_MANAGEMENT.GET_ROLE_PERMISSIONS_BY_ID+'/'+item?.role_id+'/'+ selectRoleType;
+        const apiURL = ROLES_PERMISSIONS_MANAGEMENT.GET_ROLE_PERMISSIONS_BY_ID + '/' + item?.role_id + '/' + selectRoleType;
         GET_REQUEST(apiURL)
             .then((res) => {
                 const userPermissions = res.data?.permissionIds || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission?.id));
+                setInitialPermissionStates(userPermissions); // Store the initial permission states
                 setPermissionStates(userPermissions);
+                
                 setSelectedPermissions(userPermissionObjects);
             })
             .catch((error) => {
@@ -135,12 +191,12 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
             });
     };
 
-    useEffect(()=> {
+    useEffect(() => {
         scrollTop();
         return () => {
             scrollTop();
         };
-    },[])
+    }, [])
 
     useEffect(() => {
         if (Object.keys(selectTableRow).length !== 0) {
@@ -151,11 +207,28 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
         }
     }, [selectTableRow, permissions]);
 
+  
     useEffect(() => {
-       
-        setIsFormValid(roleName && selectRoleType !== '')
-    }, [roleName, selectRoleType])
-
+        // Check if role name and user type are selected
+        const isRoleAndTypeValid = roleName && selectRoleType !== '';
+    
+        // Check if any permissions are selected
+        const arePermissionsSelected = permissionStates.length > 0;
+    
+        // Check if permissions have been modified compared to the initial state
+        const arePermissionsModified = permissionStates.some((perm, index) => {
+            const initialPerm = initialPermissionStates[index];
+            return (
+                !initialPerm ||
+                initialPerm.id !== perm.id ||
+                initialPerm.is_default !== perm.is_default
+            );
+        });
+    
+        // Update isFormValid based on all conditions
+        setIsFormValid(isRoleAndTypeValid && arePermissionsSelected && arePermissionsModified);
+    }, [roleName, selectRoleType, permissionStates, initialPermissionStates]);
+    
 
     useEffect(() => {
         if (selectRoleType) {
@@ -166,7 +239,6 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     }, [selectRoleType,]);
 
-    
 
     return (
         <Box component="section">
@@ -193,18 +265,18 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                         </Typography>
                     </Grid>
                 </Grid>
-                <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
+                <Grid container sx={{ alignItems: 'center', justifyContent: { xs: 'flex-start', md: 'space-between' }, gap: '1.5rem' }}>
                     <Grid item xs={12} md={6} sx={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
 
 
                         {invitePageInfo?.type === 'default' ?
-                            <Stack flexDirection="row" sx={{display: 'flex', width: '100%', gap:'2rem'}}>
-                                <Box component='div' sx={{ borderRight: { md: '1px solid #ccc' }, paddingRight: { md: '2rem'} }}>
-                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}} >Role type </Typography>
+                            <Stack flexDirection="row" sx={{ display: 'flex', width: '100%', gap: '2rem' }}>
+                                <Box component='div' sx={{ borderRight: { md: '1px solid #ccc' }, paddingRight: { md: '2rem' } }}>
+                                    <Typography variant='span' sx={{ marginBottom: '0.5rem', display: 'inline-block' }} >Role type </Typography>
                                     <Typography variant='h5'>{selectTableRow?.rolename}</Typography>
                                 </Box>
                                 <Box component='div'>
-                                    <Typography variant='span' sx={{marginBottom: '0.5rem', display: 'inline-block'}}  >User type</Typography>
+                                    <Typography variant='span' sx={{ marginBottom: '0.5rem', display: 'inline-block' }}  >User type</Typography>
                                     <Typography variant='h5'>{selectTableRow?.userType}</Typography>
                                 </Box>
                             </Stack>
@@ -259,39 +331,44 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                             disabled={!isFormValid}
                         >
                             {invitePageInfo?.type === 'default' ? 'Save'
-                            :
-                             isEdited ? 'Update' : ' Add role'
+                                :
+                                isEdited ? 'Update' : ' Add role'
                             }
-                           
+
 
                         </Button>
                     </Grid>
                 </Grid>
 
                 {permissions?.length > 0 ?
-                    <Box component='div' sx={{ width: { xs: '100%', sm: '85%' } }} >
+                    <Box component='div' sx={{ width: { xs: '100%' } }} >
                         <Grid container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                            <Grid item>
+                            <Grid item sx={{ width: { xs: '100%', sm: '60%' } }}>
                                 <Typography variant='small'>List of Permissions</Typography>
                             </Grid>
-                            <Grid item>
-                                <Typography variant='small'>Toggle to grant</Typography>
+                            <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }} >
+                                <Typography variant='small'>Toggle to make visible</Typography>
+                            </Grid>
+                            <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }}>
+                                <Typography variant='small'>Toggle to make default</Typography>
                             </Grid>
                         </Grid>
-                        <Stack >
+                        <Stack>
                             {permissions && permissions.map((permission, index) => {
-                                const isPermissionSelected = permissionStates?.includes(permission?.id);
+                                // Check if the current permission is selected and if it's set as default
+                                const isPermissionSelected = permissionStates.some((perm) => perm.id === permission.id);
+                                const isDefaultSelected = permissionStates.find((perm) => perm.id === permission.id)?.is_default === 1;
+
                                 return (
                                     <Grid key={permission?.id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                        <Grid item xs={12} md={10}>
+                                        <Grid item sx={{ width: { xs: '100%', sm: '60%' } }}>
                                             <Typography variant='body2'>{permission.permission_description} </Typography>
                                         </Grid>
-                                        <Grid item>
+                                        <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }}>
                                             <ToggleButtonGroup
-
                                                 value={isPermissionSelected ? 'yes' : 'no'}
                                                 exclusive
-                                                onChange={(event) => handleAlignment(event, index,permission)}
+                                                onChange={(event) => handleAlignment(event, index, permission)}
                                                 aria-label="text alignment"
                                                 key={permission?.id}
                                             >
@@ -302,12 +379,30 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
-
+                                        </Grid>
+                                        <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }}>
+                                            <ToggleButtonGroup
+                                                value={isDefaultSelected ? 'yes' : 'no'}
+                                                exclusive
+                                                onChange={(event) => handleDefaultPermissions(event, index, permission)}
+                                                aria-label="default permission alignment"
+                                                key={permission?.id + "_default"}
+                                                disabled={!isPermissionSelected}  // Disable 
+                                            >
+                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                    Yes
+                                                </ToggleButton>
+                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                    No
+                                                </ToggleButton>
+                                            </ToggleButtonGroup>
                                         </Grid>
                                     </Grid>
                                 )
                             })}
                         </Stack>
+
+
                     </Box>
                     :
                     <Box component='div' >

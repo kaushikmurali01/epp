@@ -99,7 +99,12 @@ const theme = createTheme({
 
           ".MuiToggleButtonGroup-grouped": {
             backgroundColor: '#F7F7F5',
-            minWidth: '4rem'
+            minWidth: '3rem',
+            padding: '0.5rem',
+            [getTheme.breakpoints.up("md")]: {
+              minWidth: '4rem',
+              padding: '0.75rem'
+            },
 
           },
           ".Mui-selected": {
@@ -279,7 +284,7 @@ const theme = createTheme({
       lineHeight: "1rem",
       color: "#808080",
       fontWeight: "400",
-      [getTheme.breakpoints.up("sm")]: {
+      [getTheme.breakpoints.up("md")]: {
         fontSize: "0.875rem",
         lineHeight: "1.25rem",
       },
