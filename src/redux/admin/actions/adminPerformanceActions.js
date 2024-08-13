@@ -585,11 +585,15 @@ export const updateAdminPerformanceReportInDB = (facility_id, payload) => {
   };
 };
 
-export const getAdminPerformanceReportFromDB = (facility_id, meter_type) => {
+export const getAdminPerformanceReportFromDB = (
+  facility_id,
+  meter_type,
+  performance_type
+) => {
   return async (dispatch) => {
     try {
       dispatch(getAdminPerformanceReportRequest());
-      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}/${meter_type}`;
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}/${meter_type}?performance_type=${performance_type}`;
       const response = await GET_REQUEST(apiURL);
       dispatch(getAdminPerformanceReportSuccess(response?.data?.data));
     } catch (error) {

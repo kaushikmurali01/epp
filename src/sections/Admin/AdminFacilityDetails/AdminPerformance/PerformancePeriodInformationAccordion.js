@@ -30,6 +30,8 @@ const PerformancePeriodInformationAccordion = ({
   setSubmitTrigger,
   refreshTrigger,
   onDateValidation,
+  onSubmittedP4PsChange,
+  onSubmissionDateChange,
 }) => {
   const [activeButton, setActiveButton] = useState(0);
   const dispatch = useDispatch();
@@ -297,33 +299,56 @@ const PerformancePeriodInformationAccordion = ({
       modalBodyContent: "",
     });
 
-  const [submittedP4Ps, setSubmittedP4Ps] = useState([]);
-  const [performanceReports, setPerformanceReports] = useState({});
+  const [submittedP4Ps, setSubmittedP4Ps] = useState({});
   const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
 
   useEffect(() => {
-    dispatch(getAdminPerformanceReportFromDB(facility_id, meter_type));
-  }, [dispatch, facility_id, meter_type]);
+    dispatch(
+      getAdminPerformanceReportFromDB(
+        facility_id,
+        meter_type,
+        performanceP4PCalcTab
+      )
+    );
+  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab]);
 
   useEffect(() => {
     if (adminPerformanceReportInDB) {
-      const newPerformanceReports = { ...performanceReports };
       const performanceType = adminPerformanceReportInDB.performance_type;
-      if (performanceType) {
-        newPerformanceReports[performanceType] = adminPerformanceReportInDB;
-        setPerformanceReports(newPerformanceReports);
-      }
 
-      const submittedTypes = [];
       if (
-        adminPerformanceReportInDB.performance_type &&
+        performanceType &&
         adminPerformanceReportInDB.status === "SUBMITTED"
       ) {
-        submittedTypes.push(adminPerformanceReportInDB.performance_type);
+        setSubmittedP4Ps((prevSubmittedP4Ps) => {
+          const updatedP4Ps = { ...prevSubmittedP4Ps };
+          if (!updatedP4Ps[meter_type]) {
+            updatedP4Ps[meter_type] = [];
+          }
+          if (!updatedP4Ps[meter_type].includes(performanceType)) {
+            updatedP4Ps[meter_type] = [
+              ...updatedP4Ps[meter_type],
+              performanceType,
+            ];
+          }
+          return updatedP4Ps;
+        });
       }
-      setSubmittedP4Ps(submittedTypes);
+      if (performanceType === performanceP4PCalcTab) {
+        onSubmissionDateChange(adminPerformanceReportInDB.submit_date);
+      }
     }
-  }, [adminPerformanceReportInDB]);
+  }, [
+    adminPerformanceReportInDB,
+    performanceP4PCalcTab,
+    onSubmissionDateChange,
+  ]);
+
+  useEffect(() => {
+    const isSubmitted =
+      submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) || false;
+    onSubmittedP4PsChange(isSubmitted);
+  }, [submittedP4Ps, performanceP4PCalcTab, onSubmittedP4PsChange, meter_type]);
 
   const handleChangePerformance = (event, newValue) => {
     setPerformanceP4PCalcTab(newValue);
@@ -331,7 +356,8 @@ const PerformancePeriodInformationAccordion = ({
 
   const isTabDisabled = (tabValue) => {
     if (tabValue === 1) return false;
-    return !submittedP4Ps.includes(tabValue - 1);
+    const submittedP4PsForMeterType = submittedP4Ps[meter_type] || [];
+    return !submittedP4PsForMeterType.includes(tabValue - 1);
   };
 
   return (
@@ -423,16 +449,21 @@ const PerformancePeriodInformationAccordion = ({
       >
         <Grid item xs={12} md={9.3}>
           <SavingsReportForm
-            meterType={meter_type}
+            meter_type={meter_type}
             performanceP4PCalcTab={performanceP4PCalcTab}
             submitTrigger={submitTrigger}
             setSubmitTrigger={setSubmitTrigger}
             refreshTrigger={refreshTrigger}
             onDateValidation={onDateValidation}
             initialData={
-              performanceReports[performanceP4PCalcTab]?.parameter_data
+              adminPerformanceReportInDB === null
+                ? null
+                : adminPerformanceReportInDB?.parameter_data
             }
-            isSubmitted={submittedP4Ps.includes(performanceP4PCalcTab)}
+            isSubmitted={
+              submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) ||
+              false
+            }
           />
         </Grid>
 

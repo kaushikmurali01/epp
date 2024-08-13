@@ -8,6 +8,7 @@ import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMon
 import { format, isEqual, parseISO } from "date-fns";
 import {
   calculateAdminPerformanceReport,
+  getAdminPerformanceReportFromDB,
   updateAdminPerformanceReportInDB,
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import EvModal from "utils/modal/EvModal";
@@ -50,7 +51,7 @@ const SelectBox = ({ name, options, value, onChange, disabled = false }) => (
 );
 
 const SavingsReportForm = ({
-  meterType,
+  meter_type,
   initialData,
   submitTrigger,
   setSubmitTrigger,
@@ -214,7 +215,7 @@ const SavingsReportForm = ({
         start_date: p4PStartEndDates.startDate,
         end_date: format(newValue, "yyyy-MM-dd"),
         facility_id: facility_id,
-        meter_type: meterType,
+        meter_type: meter_type,
       };
       try {
         dispatch(calculateAdminPerformanceReport(payload));
@@ -237,16 +238,17 @@ const SavingsReportForm = ({
         return acc;
       }, {}),
       performance_type: performanceP4PCalcTab,
-      meter_type: meterType,
+      meter_type: meter_type,
     };
     dispatch(updateAdminPerformanceReportInDB(facility_id, report))
       .then(() => {
         openSubmitReportModal();
+        getAdminPerformanceReportFromDB(facility_id, meter_type)
       })
       .catch((error) => {
         console.error(error);
       });
-  }, [formData, performanceP4PCalcTab, meterType]);
+  }, [formData, performanceP4PCalcTab, meter_type]);
 
   const handleChange = (name, value) => {
     if (isSubmitted) return;
@@ -254,7 +256,7 @@ const SavingsReportForm = ({
   };
 
   const getFields = () => {
-    if (meterType === 1) {
+    if (meter_type === 1) {
       // Electricity
       return [
         {
@@ -329,7 +331,7 @@ const SavingsReportForm = ({
     {
       metric: "Pay-for-performance period",
       value: p4PStartEndDates?.startDate
-        ? `From ${parseUTCDateToLocalDateTime(p4PStartEndDates.startDate)}, to`
+        ? `From ${format(p4PStartEndDates.startDate, "yyyy-MM-dd, HH:MM")}, to`
         : "N/A",
       unit: (
         <DatePicker

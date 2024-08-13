@@ -311,7 +311,7 @@ const IncentiveSettingsMicroComponent = () => {
       enableReinitialize
     >
       {({ values, isValid, dirty }) => (
-        <Form className="incentive-settings-table">
+        <Form className="incentive-settings-table" style={{width: "100%"}}>
           <MiniTable
             columns={userColumn}
             data={[
