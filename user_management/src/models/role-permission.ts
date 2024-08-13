@@ -46,6 +46,10 @@ RolePermission.init(
         updated_by: {
             type: DataTypes.INTEGER,
             allowNull: true,
+        },
+        is_default: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
         }
     },
     {
