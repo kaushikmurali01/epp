@@ -688,7 +688,8 @@ def get_data_exploration_summary_v2():
 
     des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
     if list_data == '1':
-        return des.get_paginated_list(page_size, page_no, bound)
+        response =  des.get_paginated_list(page_size, page_no, bound)
+        return jsonify(response)
     else:
         return des.process()
 
