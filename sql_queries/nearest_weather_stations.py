@@ -48,7 +48,7 @@ SELECT
     ROUND(AVG(wind_spd)::numeric, 2) AS average_wind_speed, 
     ROUND(AVG(station_press)::numeric, 2) AS average_station_pressure 
 FROM epp.weather_data_records 
-WHERE station_id in ({}) AND 
+WHERE station_id = {} AND 
 date_time BETWEEN '{}' AND '{}'
 GROUP BY year, month 
 ORDER BY year, month;

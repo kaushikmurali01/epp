@@ -255,7 +255,8 @@ def calculate_sufficiency(df, start_date, end_date):
     sufficiency_data = pd.DataFrame(monthly_data)
     monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
-    monthly_sufficiency = ((monthly_data['monthly_sufficiency_percentage'].sum() / (total_days * meter_count)) * 100 )  if total_days >=364 else 0  
+    monthly_sufficiency = ((monthly_data['monthly_sufficiency_percentage'].sum() / (
+                total_days * meter_count)) * 100) if total_days >= 364 else 0
 
     return hourly_sufficiency, daily_sufficiency, monthly_sufficiency, monthly_sufficiency_data
 
@@ -313,9 +314,25 @@ def get_status(sufficiency):
 @app.route("/get_weather_data", methods=['GET'])
 def weather_data():
     facility = request.args.get('facility_id')
+    station = request.args.get('station_id')
     if facility:
         facility = int(facility)
+    if station:
+        station = int(station)
+    if not facility:
+        response = {"success": False, 'error': "Please Provide Facility ID"}
+        return jsonify(response), 400
+    if not station:
+        response = {"success": False, 'error': "Please Provide Station ID"}
+        return jsonify(response), 400
     station_ids = get_nearest_stations(facility)
+    station_id_list = None
+    if not station_ids.empty:
+        station_id_list = [int(station_id) for station_id in station_ids.station_id.values]
+        print(station_id_list, station)
+    if station not in station_id_list:
+        response = {"success": False, 'error': "Please Provide Valid Station ID"}
+        return jsonify(response), 400
     min_max_date = dbtest(min_max_general.format(facility))
     min_max_date = min_max_date.dropna()
     if len(min_max_date):
@@ -325,13 +342,8 @@ def weather_data():
         response = {"success": False, 'error': "Insufficient Data"}
         return jsonify(response), 404
 
-    if not station_ids.empty:
-        # Securely format station IDs
-        station_id_list = tuple(station_ids.station_id.values)
-        station_ids_str = ','.join(
-            str(int(id)) for id in station_id_list)  # Ensure each ID is an integer to avoid injection
-        # Format the SQL query with validated inputs
-        formatted_query = weather_data_query.format(station_ids_str, min_date, max_date)
+    if station:
+        formatted_query = weather_data_query.format(station, min_date, max_date)
         df = dbtest(formatted_query)
         return df.to_dict(orient='records'), 200
     else:
@@ -688,7 +700,7 @@ def get_data_exploration_summary_v2():
 
     des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
     if list_data == '1':
-        response =  des.get_paginated_list(page_size, page_no, bound)
+        response = des.get_paginated_list(page_size, page_no, bound)
         return jsonify(response)
     else:
         return des.process()
