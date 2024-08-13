@@ -62,7 +62,7 @@ export const getBaselineDataSummary = (facility_id, meter_type) => {
       console.error(error);
       dispatch(getBaselineDataSummaryFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data?.error ? error.response?.data?.error : "Something went wrong!",
         type: "error",
       });
       throw error;
@@ -284,13 +284,17 @@ export const updatePerformanceReportInDB = (facility_id, payload) => {
   };
 };
 
-export const getPerformanceReportFromDB = (facility_id, meter_type) => {
+export const getPerformanceReportFromDB = (
+  facility_id,
+  meter_type,
+  performance_type
+) => {
   return async (dispatch) => {
     try {
       dispatch(getPerformanceReportRequest());
-      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}`;
-      const response = await POST_REQUEST(apiURL);
-      dispatch(getPerformanceReportSuccess(response));
+      let apiURL = `${PERFORMANCE_ENDPOINTS.GET_PERFORMANCE_REPORT}/${facility_id}/${meter_type}?performance_type=${performance_type}`;
+      const response = await GET_REQUEST(apiURL);
+      dispatch(getPerformanceReportSuccess(response?.data?.data));
     } catch (error) {
       console.error(error);
       dispatch(getPerformanceReportFailure(error));
@@ -313,9 +317,12 @@ export const getPerformanceDataMinMaxDate = (facility_id, meter_type) => {
       console.error(error);
       dispatch(getPerformanceDataMinMaxDateFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error.response?.data?.error
+          : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };

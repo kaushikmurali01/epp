@@ -187,7 +187,7 @@ const Performance = () => {
           )}
         </Grid>
 
-        {!isPerformanceSettingComponent && submittedP4P && submissionDate && (
+        {submittedP4P && submissionDate && (
           <Grid item display="flex" justifyContent="end" width="100%">
             <Typography
               sx={{

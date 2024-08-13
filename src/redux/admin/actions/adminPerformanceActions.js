@@ -545,6 +545,7 @@ export const scoreAdminPerformanceData = (payload) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      throw error;
     }
   };
 };
