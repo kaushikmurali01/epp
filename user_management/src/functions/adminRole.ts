@@ -33,7 +33,7 @@ export async function AddRolePermission(request: HttpRequest, context: Invocatio
             updated_by: resp.id
         });
 
-        // Associate the role with permissions
+        // Associate the role with permissions.
         const permissionRecords = requestData.permissions.map(permissionId => ({
             role_id: role.id,
             permission_id: permissionId,
