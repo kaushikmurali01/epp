@@ -1,6 +1,10 @@
 import { IUserToken } from "../../interfaces/usertoken.interface";
 import { ResponseHandler } from "../../utils/response-handler";
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from "../../utils/status";
+import {
+  HTTP_STATUS_CODES,
+  PERFORMANCE_TYPE,
+  RESPONSE_MESSAGES,
+} from "../../utils/status";
 import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { NonRoutineModel } from "../../models/facility_non_routine_event.model";
@@ -8,6 +12,9 @@ import { NonRoutineDataEntryModel } from "../../models/non_routine_data_entry.mo
 import { Model, Op } from "sequelize";
 import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
 import { errorMonitor } from "events";
+import { number } from "yup";
+import { FacilitySavePerformance } from "../../models/facility_save_performance.model";
+import { IncentiveSettings } from "../../models/incentiveSettings.model";
 
 export class FacilityNonRoutineEventSevice {
   static async getFacilityNonRoutineEventById(
@@ -150,7 +157,7 @@ export class FacilityNonRoutineEventSevice {
           },
           offset: body.offset || 0,
           limit: body.limit || 10,
-          order: [["start_date", "desc"]],
+          order: [["start_date", "asc"]],
         });
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
@@ -163,6 +170,187 @@ export class FacilityNonRoutineEventSevice {
           RESPONSE_MESSAGES.invalidJson
         );
       }
+    } catch (error) {
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
+    }
+  }
+  static async waterfallData(
+    decodedToken: any,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      let findSetting = await IncentiveSettings.findOne({
+        where: { facility_id: body.facility_id },
+      });
+      let minimumSaving = Number(findSetting?.minimumSavings) || 0;
+
+      let findData1p4p: any = await FacilitySavePerformance.findOne({
+        where: {
+          facility_id: body.facility_id,
+          meter_type: body.meter_type,
+          performance_type: PERFORMANCE_TYPE.p4p1,
+        },
+      });
+      let findData2p4p: any = await FacilitySavePerformance.findOne({
+        where: {
+          facility_id: body.facility_id,
+          meter_type: body.meter_type,
+          performance_type: PERFORMANCE_TYPE.p4p2,
+        },
+      });
+      let findData3p4p: any = await FacilitySavePerformance.findOne({
+        where: {
+          facility_id: body.facility_id,
+          meter_type: body.meter_type,
+          performance_type: PERFORMANCE_TYPE.p4p3,
+        },
+      });
+      let returnObj = [],
+        finalResult = {};
+      if (body.energySaving) {
+        if (findSetting || findData1p4p || findData2p4p || findData3p4p) {
+          returnObj = [
+            {
+              name: "3rd P4P",
+              value:
+                Number(findData3p4p?.parameter_data?.on_peak_energy_savings) +
+                Number(findData3p4p?.parameter_data?.off_peak_energy_savings),
+              onPeak: Number(
+                findData3p4p?.parameter_data?.on_peak_energy_savings
+              ),
+              offPeak: Number(
+                findData3p4p?.parameter_data?.off_peak_energy_savings
+              ),
+            },
+            {
+              name: "2nd P4P",
+              value:
+                Number(findData2p4p?.parameter_data?.on_peak_energy_savings) +
+                Number(findData2p4p?.parameter_data?.off_peak_energy_savings),
+              onPeak: Number(
+                findData2p4p?.parameter_data?.on_peak_energy_savings
+              ),
+              offPeak: Number(
+                findData2p4p?.parameter_data?.off_peak_energy_savings
+              ),
+            },
+            {
+              name: "1st P4P",
+              value:
+                Number(findData1p4p?.parameter_data?.on_peak_energy_savings) +
+                Number(findData1p4p?.parameter_data?.off_peak_energy_savings),
+              onPeak: Number(
+                findData1p4p?.parameter_data?.on_peak_energy_savings
+              ),
+              offPeak: Number(
+                findData1p4p?.parameter_data?.off_peak_energy_savings
+              ),
+            },
+          ];
+          finalResult = { data: returnObj, minimumSaving };
+        } else {
+          returnObj = [
+            { name: "3rd P4P", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "2nd P4P", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "1st P4P", value: 0, onPeak: 0, offPeak: 0 },
+          ];
+        }
+        finalResult = { data: returnObj, minimumSaving };
+      } else {
+        if (findSetting || findData1p4p || findData2p4p || findData3p4p) {
+          returnObj = [
+            {
+              name: "3rd P4P",
+              value:
+                Number(
+                  findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+                ) +
+                Number(
+                  findData3p4p?.parameter_data
+                    ?.off_peak_energy_savings_incentive
+                ),
+              onPeak: Number(
+                findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+              ),
+              offPeak: Number(
+                findData3p4p?.parameter_data?.off_peak_energy_savings_incentive
+              ),
+            },
+            {
+              name: "2nd P4P",
+              value:
+                Number(
+                  findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+                ) +
+                Number(
+                  findData2p4p?.parameter_data
+                    ?.off_peak_energy_savings_incentive
+                ),
+              onPeak: Number(
+                findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+              ),
+              offPeak: Number(
+                findData2p4p?.parameter_data?.off_peak_energy_savings_incentive
+              ),
+            },
+            {
+              name: "1st P4P",
+              value:
+                Number(
+                  findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+                ) +
+                Number(
+                  findData1p4p?.parameter_data
+                    ?.off_peak_energy_savings_incentive
+                ),
+              onPeak: Number(
+                findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+              ),
+              offPeak: Number(
+                findData1p4p?.parameter_data?.off_peak_energy_savings_incentive
+              ),
+            },
+            {
+              name: "Pre-Project",
+              value: Number(findSetting?.preProjectIncentive),
+              onPeak: Number(findSetting?.preProjectIncentive),
+              offPeak: 0,
+            },
+          ];
+          let totalValueobj: any = {};
+          returnObj.map((ele) => {
+            totalValueobj.value += ele.value;
+            totalValueobj.onPeak += ele.onPeak;
+            totalValueobj.offPeak += ele.offPeak;
+          }),
+            returnObj.unshift({
+              name: "Total",
+              value: totalValueobj.value,
+              onPeak: totalValueobj.onPeak,
+              offPeak: totalValueobj.offPeak,
+            });
+          finalResult = { data: returnObj };
+        } else {
+          returnObj = [
+            { name: "Total", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "3rd P4P", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "2nd P4P", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "1st P4P", value: 0, onPeak: 0, offPeak: 0 },
+            { name: "Pre-Project", value: 0, onPeak: 0, offPeak: 0 },
+          ];
+        }
+        finalResult = { data: returnObj };
+      }
+
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        finalResult
+      );
     } catch (error) {
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.BAD_REQUEST,
@@ -199,10 +387,10 @@ export class FacilityNonRoutineEventSevice {
         obj = {
           ...obj,
           start_date: {
-            [Op.gte]: start,
-          },
-          end_date: {
-            [Op.lte]: end,
+            [Op.and]: {
+              [Op.gte]: start,
+              [Op.lte]: end,
+            },
           },
         };
       }

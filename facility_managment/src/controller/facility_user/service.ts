@@ -38,6 +38,7 @@ import { IFacilityAttributes } from "../../interfaces/facility.interface";
 import { IParticipantAgreementAttributes } from "../../interfaces/participant_agreement.interface";
 import { FacilitySavePerformance } from "../../models/facility_save_performance.model";
 import { SavingPlanRequest } from "../../models/saving_plan_request.model";
+import { FacilityMeasure } from "../../models/facility_measure.model";
 
 export class FacilityService {
   static async getFacility(
@@ -527,6 +528,14 @@ LIMIT
         updated_by: userToken.id,
       };
       const result = await Facility.create(obj);
+      const findUser = await User.findOne({ where: { id: userToken.id } });
+      await UserResourceFacilityPermission.create({
+        email: findUser.email,
+        facility_id: result.id,
+        is_created: true,
+        resource_permission_id: 5,
+        company_id: result?.company_id,
+      });
       const meter_type1: any = {
         facility_id: result.id,
         parameter_data: [],
@@ -598,6 +607,29 @@ LIMIT
       throw error;
     }
   }
+  static async getPerformanceData(
+    userToken: IUserToken,
+    facility_id: number,
+    meter_type: number,
+    performance_type: number
+  ): Promise<Facility[]> {
+    try {
+      let findExist = await FacilitySavePerformance.findOne({
+        where: {
+          facility_id: facility_id,
+          meter_type: meter_type,
+          performance_type: performance_type,
+        },
+      });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        findExist
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
   static async addPerformanceData(
     userToken: IUserToken,
     facility_id: number,
@@ -605,14 +637,20 @@ LIMIT
   ): Promise<Facility[]> {
     try {
       let findExist = await FacilitySavePerformance.findOne({
-        where: { facility_id: facility_id, meter_type: body.meter_type },
+        where: {
+          facility_id: facility_id,
+          meter_type: body.meter_type,
+          performance_type: Number(body.performance_type),
+        },
       });
       if (!findExist) {
         const obj: any = {
           facility_id: facility_id,
           parameter_data: body.data,
           meter_type: body.meter_type,
-          performance_type: body.performance_type || 1,
+          user_type: BASELINE_USER_TYPE.USER,
+          submit_date: new Date(),
+          performance_type: Number(body.performance_type) || 1,
           status: PERFORMANCE_STATUS.submit,
           created_by: userToken.id,
           updated_by: userToken.id,
@@ -643,6 +681,12 @@ LIMIT
         updated_by: userToken.id,
       };
       let findExist = await SavingPlanRequest.create(obj);
+      await FacilityMeasure.create({
+        facility_id: facility_id,
+        measure_category: body.measure_category,
+        is_active: STATUS.IS_BLOCKED,
+        created_by: userToken.id,
+      });
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,

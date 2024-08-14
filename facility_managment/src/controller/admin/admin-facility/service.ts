@@ -1,4 +1,7 @@
 import {
+  ADMIN_STATUS,
+  BASELINE_USER_TYPE,
+  BASE_LINE_STATUS,
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
@@ -14,6 +17,7 @@ import {
   FACILITY_APPROVAL_STATUS,
   FACILITY_ID_GENERAL_STATUS,
   FACILITY_ID_SUBMISSION_STATUS,
+  FACILITY_METER_TYPE,
 } from "../../../utils/facility-status";
 import { Company } from "../../../models/company.model";
 import { ParticipantAgreement } from "../../../models/participant_agreement.model";
@@ -25,6 +29,7 @@ import { getEmailTemplate } from "../../../helper/mail-template.helper";
 import { Email } from "../../../helper/email-sender.helper";
 import { rawQuery } from "../../../services/database";
 import { UserResourceFacilityPermission } from "../../../models/user-resource-permission";
+import { Baseline } from "../../../models/facility_baseline.model";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -164,6 +169,39 @@ export class AdminFacilityService {
       };
 
       const result = await Facility.create(obj);
+      const meter_type1: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        meter_type: FACILITY_METER_TYPE.ELECTRICITY,
+        status: BASE_LINE_STATUS.draft,
+        admin_status: ADMIN_STATUS.pending,
+        user_type: BASELINE_USER_TYPE.USER,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      const meter_type2: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        meter_type: FACILITY_METER_TYPE.NATURAL_GAS,
+        admin_status: ADMIN_STATUS.pending,
+        status: BASE_LINE_STATUS.draft,
+        created_by: userToken.id,
+        user_type: BASELINE_USER_TYPE.USER,
+        updated_by: userToken.id,
+      };
+      const meter_type3: any = {
+        facility_id: result.id,
+        parameter_data: [],
+        admin_status: ADMIN_STATUS.pending,
+        meter_type: FACILITY_METER_TYPE.WATER,
+        user_type: BASELINE_USER_TYPE.USER,
+        status: BASE_LINE_STATUS.draft,
+        created_by: userToken.id,
+        updated_by: userToken.id,
+      };
+      await Baseline.create(meter_type1);
+      await Baseline.create(meter_type2);
+      await Baseline.create(meter_type3);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -229,7 +267,39 @@ export class AdminFacilityService {
           { where: { id: facilityId } }
         );
         const result = await Facility.create(obj);
-
+        const meter_type1: any = {
+          facility_id: result.id,
+          parameter_data: [],
+          meter_type: FACILITY_METER_TYPE.ELECTRICITY,
+          status: BASE_LINE_STATUS.draft,
+          admin_status: ADMIN_STATUS.pending,
+          user_type: BASELINE_USER_TYPE.USER,
+          created_by: userToken.id,
+          updated_by: userToken.id,
+        };
+        const meter_type2: any = {
+          facility_id: result.id,
+          parameter_data: [],
+          meter_type: FACILITY_METER_TYPE.NATURAL_GAS,
+          admin_status: ADMIN_STATUS.pending,
+          status: BASE_LINE_STATUS.draft,
+          created_by: userToken.id,
+          user_type: BASELINE_USER_TYPE.USER,
+          updated_by: userToken.id,
+        };
+        const meter_type3: any = {
+          facility_id: result.id,
+          parameter_data: [],
+          admin_status: ADMIN_STATUS.pending,
+          meter_type: FACILITY_METER_TYPE.WATER,
+          user_type: BASELINE_USER_TYPE.USER,
+          status: BASE_LINE_STATUS.draft,
+          created_by: userToken.id,
+          updated_by: userToken.id,
+        };
+        await Baseline.create(meter_type1);
+        await Baseline.create(meter_type2);
+        await Baseline.create(meter_type3);
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,

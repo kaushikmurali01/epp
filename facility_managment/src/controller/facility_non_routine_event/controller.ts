@@ -144,6 +144,26 @@ export class FacilityNonRoutineEventController {
       throw this.errorMessage;
     }
   }
+  static async waterfallData(
+    decodedToken: IUserToken,
+    body: any
+  ): Promise<NonRoutineModel[]> {
+    try {
+      // await validatorApiResponse(addFacilityCharSchema, body);
+      const result =
+        await FacilityNonRoutineEventSevice.waterfallData(
+          Object(decodedToken),
+          body,
+        );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
   
   static async removeFacilityNonRoutineDataEntry(
     decodedToken: IUserToken,

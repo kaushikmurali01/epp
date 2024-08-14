@@ -46,6 +46,11 @@ export const STATUS = {
   IS_BLOCKED: 2,
   IS_DELETED: 3,
 };
+export const PERFORMANCE_TYPE = {
+  p4p1: 1,
+  p4p2: 2,
+  p4p3: 3,
+};
 export const BASE_LINE_STATUS = {
   draft: "DRAFT",
   created: "CREATED",

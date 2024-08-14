@@ -102,7 +102,6 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
-  
 
   /**
    * Get facility by ID.
@@ -215,6 +214,28 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
+  static async getPerformanceData(
+    decodedToken: IUserToken,
+    facility_id: number,
+    meter_type: number,
+    performance_type: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getPerformanceData(
+        Object(decodedToken),
+        facility_id,
+        meter_type,
+        performance_type
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
   static async editBaselineData(
     decodedToken: IUserToken,
     id: number,
@@ -275,7 +296,7 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
-  
+
   static async assigneToBaseline(
     decodedToken: IUserToken,
     id: number,

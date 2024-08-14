@@ -23,7 +23,6 @@ import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.in
 import { EmailController } from "../controller/sentEmail/controller";
 import { FacilityNonRoutineEventController } from "../controller/facility_non_routine_event/controller";
 import { ContactController } from "../controller/contact/controller";
-import { number } from "yup";
 
 // Facility User CRUD
 
@@ -588,6 +587,31 @@ export async function geteHourlyEntries(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function waterfallData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const requestData = await request.json();
+    const result = await FacilityNonRoutineEventController.waterfallData(
+      decodedToken,
+      requestData
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function deleteHourlyEntries(
   request: HttpRequest,
   context: InvocationContext
@@ -805,6 +829,36 @@ export async function addPerformanceData(
       decodedToken,
       Number(facility_id),
       Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function getPerformanceData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facility_id, meter_type } = request.params;
+    const performance_type = request.query.get("performance_type") || 1;
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.getPerformanceData(
+      decodedToken,
+      Number(facility_id),
+      Number(meter_type),
+      Number(performance_type)
     );
 
     // Prepare response body
@@ -2820,6 +2874,13 @@ app.http("get-hourly-entry", {
   route: "facility/getHourlyEntries",
   handler: geteHourlyEntries,
 });
+app.http("get-waterfall-data", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "facility/getWaterFallData",
+  handler: waterfallData,
+});
+
 app.http("get-contacts", {
   methods: ["GET"],
   authLevel: "anonymous",
@@ -3023,6 +3084,12 @@ app.http("add-performance-data", {
   route: "performance/{facility_id}",
   authLevel: "anonymous",
   handler: addPerformanceData,
+});
+app.http("get-performance-data", {
+  methods: ["GET"],
+  route: "performance/{facility_id}/{meter_type}",
+  authLevel: "anonymous",
+  handler: getPerformanceData,
 });
 app.http("add-saving-plan-request", {
   methods: ["POST"],

@@ -13,6 +13,7 @@
     "buildUtils": "cd node_modules/enerva-utils && tsc",
     "dev": "npm run clean && npm run build && npm run buildUtils && func start --watch",
     "deploy-dev": "npm run clean && npm run build && npm run buildUtils && func azure functionapp publish CompanyFacility",
+    "deploy-prod": "npm run clean && npm run build && npm run buildUtils && func azure functionapp publish CompanyFacilityProd",
     "deploy-stage": "npm run clean && npm run build && npm run buildUtils && func azure functionapp publish CompanyFacilitystg"
   },
   "dependencies": {

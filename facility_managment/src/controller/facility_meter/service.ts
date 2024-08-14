@@ -16,6 +16,9 @@ import { Facility } from "../../models/facility.model";
 import { FacilityMeterDetail } from "../../models/facility_meter_details.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { rawQuery } from "../../services/database";
+import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
+import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
+import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
 
 export class FacilityMeterService {
   static async getFacilityMeterListing(
@@ -146,6 +149,15 @@ export class FacilityMeterService {
           { where: { id: findFacilityId.facility_id } }
         );
       }
+      await FacilityMeterHourlyEntries.update(
+        { is_active: STATUS.IS_DELETED },
+        { where: { meter_id: id } }
+      );
+      await FacilityMeterMonthlyEntries.update(
+        { is_active: STATUS.IS_DELETED },
+        { where: { meter_id: id } }
+      );
+      await MeterHourlyEntries.destroy({ where: { meter_id: id } });
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
