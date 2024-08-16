@@ -14,7 +14,6 @@ const SeeSufficiencyDetails = ({
   baselineEndDate,
 }) => {
   const [activeButton, setActiveButton] = useState("hourly");
-
   const sufficiency_check_data = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckData
   );
@@ -41,7 +40,7 @@ const SeeSufficiencyDetails = ({
       ),
     },
     {
-      Header: "Coverage",
+      Header: "90",
       accessor: (item) => (
         <Typography
           variant="span"
@@ -65,20 +64,6 @@ const SeeSufficiencyDetails = ({
     setActiveButton(btn_name);
   };
 
-  const getSufficiencyMonthlyData = () => {
-    if (sufficiencyCheckData?.["hourly"]?.["status"] === "passed") {
-      return sufficiencyCheckData?.["hourly"]?.["monthly_sufficiency"] || [];
-    }
-    if (sufficiencyCheckData) {
-      return (
-        sufficiencyCheckData?.["hourly"]?.["failedData"]?.[
-          "monthly_sufficiency"
-        ] || []
-      );
-    }
-    return [];
-  };
-
   const getSufficiencyData = () => {
     if (sufficiencyCheckData) {
       return sufficiencyCheckData[activeButton] || {};
@@ -86,10 +71,7 @@ const SeeSufficiencyDetails = ({
     return {};
   };
 
-  const sufficiencyData =
-    activeButton === "monthly"
-      ? getSufficiencyMonthlyData()
-      : getSufficiencyData();
+  const sufficiencyData = getSufficiencyData();
 
   return (
     <Grid container>
@@ -157,7 +139,9 @@ const SeeSufficiencyDetails = ({
         <MiniTable
           columns={userColumn}
           data={
-            activeButton === "monthly" ? sufficiencyData : [sufficiencyData]
+            activeButton === "monthly"
+              ? sufficiencyData?.data
+              : [sufficiencyData]
           }
         />
       </Grid>

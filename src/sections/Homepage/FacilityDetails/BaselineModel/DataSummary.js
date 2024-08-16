@@ -163,7 +163,7 @@ const DataSummary = () => {
           }}
         >
           {item?.meter_name}
-          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -219,7 +219,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
-          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -276,7 +276,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
-          {item.m_id && item?.meter_id !== 0 ? `, ${item?.m_id}` : ""}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -298,7 +298,16 @@ const DataSummary = () => {
     },
     {
       Header: "Type",
-      accessor: "type",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontWeight: 400,
+          }}
+        >
+          local
+        </Typography>
+      ),
     },
   ];
 

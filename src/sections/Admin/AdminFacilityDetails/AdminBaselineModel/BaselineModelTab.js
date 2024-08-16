@@ -40,7 +40,7 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       baselineListData,
       activeButton
     );
-    if (baselineDataStoredInDB?.status === "REQUESTED") {
+    if (baselineDataStoredInDB?.status !== "ACCEPTED") {
       setRenderFormComp(true);
     } else {
       setRenderFormComp(false);

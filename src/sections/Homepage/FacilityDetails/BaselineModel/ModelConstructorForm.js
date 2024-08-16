@@ -106,7 +106,6 @@ const ModelConstructorForm = ({
       baselineCalculated?.status === "CALCULATED" ||
       baselineCalculated?.status === "SUBMITTED"
     ) {
-      console.log("calculated or submitted");
       setCheckSufficiencyAfter(true);
       setFormData({
         ...baselineCalculated?.parameter_data,
@@ -408,8 +407,14 @@ const ModelConstructorForm = ({
                     }}
                   >
                     <DateRangeSlider
-                      start_date= {format(new Date(baselinePeriod?.start_date), "yyyy-MM-dd")}
-                      end_date={format(new Date(baselinePeriod?.end_date), "yyyy-MM-dd")}
+                      start_date={format(
+                        new Date(baselinePeriod?.start_date),
+                        "yyyy-MM-dd"
+                      )}
+                      end_date={format(
+                        new Date(baselinePeriod?.end_date),
+                        "yyyy-MM-dd"
+                      )}
                       sliderStartDate={values?.start_date}
                       sliderEndDate={values?.end_date}
                       startLabel="Baseline Start"

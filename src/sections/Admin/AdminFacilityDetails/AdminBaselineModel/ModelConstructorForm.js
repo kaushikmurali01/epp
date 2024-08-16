@@ -34,9 +34,10 @@ import {
 } from "utils/dropdownConstants/dropdownConstants";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
-import { format } from "date-fns";
+import { format, isAfter, subYears } from "date-fns";
 import { useParams } from "react-router-dom";
 import { getSummaryDataByMeterType } from ".";
+import DateRangeSlider from "components/DateRangeSlider";
 
 const ModelConstructorForm = ({
   handleSufficiencySettings,
@@ -55,11 +56,9 @@ const ModelConstructorForm = ({
     heating_balance_unit: "",
     cooling_balance_unit: "",
   });
+  const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselinePeriodLoading, setBaselinePeriodLoading] = useState(true);
   const [baselinePeriodFailed, setBaselinePeriodFailed] = useState(false);
-  const baselinePeriod = useSelector(
-    (state) => state?.adminBaselineReducer?.baselinePeriod
-  );
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
   const [activateCalculateBaseline, setActivateCalculateBaseline] =
@@ -69,23 +68,41 @@ const ModelConstructorForm = ({
   const baselineListData = useSelector(
     (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data || []
   );
+  const [checkSufficiencyAfter, setCheckSufficiencyAfter] = useState(false);
+  const [sufficiencyCheckDataLocally, setSufficiencyCheckDataLocally] =
+    useState(null);
+  const [sliderStartDate, setSliderStartDate] = useState(null);
+  const [sliderEndDate, setSliderEndDate] = useState(null);
+  const [errorStatusMessage, setErrorStatusMessage] = useState("");
+
   useEffect(() => {
     setBaselinePeriodLoading(true);
+    setBaselinePeriodFailed(false);
     dispatch(fetchAdminBaselinePeriod(id, meterType))
       .then((res) => {
         setBaselinePeriodLoading(false);
-        res?.start_date &&
-          setBaselineStartDate(format(new Date(res?.start_date), "yyyy-MM-dd"));
-        res.end_date &&
-          setBaselineEndDate(format(new Date(res?.end_date), "yyyy-MM-dd"));
+        setBaselinePeriod(res);
+        if (res?.end_date && res?.start_date) {
+          const endDate = format(new Date(res?.end_date), "yyyy-MM-dd");
+          let startDate = format(new Date(subYears(endDate, 1)), "yyyy-MM-dd");
+          const apiStartDate = format(new Date(res?.start_date), "yyyy-MM-dd");
+          if (isAfter(apiStartDate, startDate)) {
+            startDate = apiStartDate;
+          }
+          setSliderStartDate(startDate);
+          setSliderEndDate(endDate);
+        }
       })
       .catch((error) => {
         setBaselinePeriodLoading(false);
         if (error) {
+          if (error?.response?.status === 404) {
+            setErrorStatusMessage(error?.response?.data?.error);
+          } else setErrorStatusMessage("");
           setBaselinePeriodFailed(true);
         }
       });
-  }, [id, meterType]);
+  }, [id, meterType, dispatch]);
 
   const independentVariables = useSelector(
     (state) => state?.adminBaselineReducer?.independentVariableList
@@ -117,35 +134,79 @@ const ModelConstructorForm = ({
   ];
 
   useEffect(() => {
-    const initialValues = {
-      start_date: baselinePeriod?.start_date
-        ? new Date(baselinePeriod?.start_date)
-        : null,
-      end_date: baselinePeriod?.end_date
-        ? new Date(baselinePeriod?.end_date)
-        : null,
-      granularity: "hourly",
-      dummyVariables: {
-        Hours: false,
-        Months: false,
-        Years: false,
-        Weeks: false,
-        Dates: false,
-        Weekdays: false,
-        Weekdays_hours: false,
-      },
-      weatherStation: formData?.weatherStation || "",
-      independent_variables: [],
-      meter_type: meterType,
-    };
-    Object.keys(initialValues.dummyVariables).forEach((key) => {
-      if (sufficiencyCheckData.hasOwnProperty(key)) {
-        initialValues.dummyVariables[key] = sufficiencyCheckData[key];
-      }
-    });
+    const baselineCalculated = getSummaryDataByMeterType(
+      baselineListData,
+      meterType
+    );
+    if (baselineCalculated?.status === "SUBMITTED") {
+      console.log("submitted");
+      setCheckSufficiencyAfter(true);
+      setFormData({
+        ...baselineCalculated?.parameter_data,
+        start_date: format(
+          new Date(baselineCalculated?.parameter_data?.start_date),
+          "yyyy-MM-dd"
+        ),
+        end_date: format(
+          new Date(baselineCalculated?.parameter_data?.end_date),
+          "yyyy-MM-dd"
+        ),
+        dummyVariables: !baselineCalculated?.parameter_data?.dummyVariables
+          ? {
+              Hours: false,
+              Months: false,
+              Years: false,
+              Weeks: false,
+              Dates: false,
+              Weekdays: false,
+              Weekdays_hours: false,
+            }
+          : !baselineCalculated?.parameter_data?.dummyVariables,
+      });
+      setSufficiencyCheckDataLocally({
+        daily: { ...baselineCalculated?.parameter_data?.daily },
+        hourly: { ...baselineCalculated?.parameter_data?.hourly },
+        monthly: { ...baselineCalculated?.parameter_data?.monthly },
+      });
+      setBaselineStartDate(
+        format(
+          new Date(baselineCalculated?.parameter_data?.start_date),
+          "yyyy-MM-dd"
+        )
+      );
+      setBaselineEndDate(
+        format(
+          new Date(baselineCalculated?.parameter_data?.end_date),
+          "yyyy-MM-dd"
+        )
+      );
+    } else {
+      const initialValues = {
+        start_date: sliderStartDate,
+        end_date: sliderEndDate,
+        granularity: "hourly",
+        dummyVariables: {
+          Hours: false,
+          Months: false,
+          Years: false,
+          Weeks: false,
+          Dates: false,
+          Weekdays: false,
+          Weekdays_hours: false,
+        },
+        weatherStation: formData?.weatherStation || "",
+        independent_variables: [],
+        meter_type: meterType,
+      };
+      Object.keys(initialValues.dummyVariables).forEach((key) => {
+        if (sufficiencyCheckData.hasOwnProperty(key)) {
+          initialValues.dummyVariables[key] = sufficiencyCheckData[key];
+        }
+      });
 
-    setFormData(initialValues);
-  }, [baselinePeriod, meterType]);
+      setFormData(initialValues);
+    }
+  }, [baselinePeriod, meterType, sliderStartDate, sliderEndDate]);
 
   const handleSubmit = (values) => {
     const myData = {
@@ -263,11 +324,7 @@ const ModelConstructorForm = ({
     {
       Header: "Monthly",
       accessor: (item) =>
-        sufficiencyVerificationStatusButton(
-          item?.hourly?.status === "failed" || item?.daily?.status === "failed"
-            ? "failed"
-            : "passed"
-        ),
+        sufficiencyVerificationStatusButton(item?.monthly?.status),
     },
     {
       Header: "settings",
@@ -303,7 +360,11 @@ const ModelConstructorForm = ({
             fontWeight: 400,
           }}
           onClick={() => {
-            openSeeDetails(null, baselineStartDate, baselineEndDate);
+            openSeeDetails(
+              checkSufficiencyAfter ? sufficiencyCheckDataLocally : null,
+              baselineStartDate ? baselineStartDate : sliderStartDate,
+              baselineEndDate ? baselineEndDate : sliderEndDate
+            );
           }}
           disabled={disableSeeDetails}
         >
@@ -313,34 +374,16 @@ const ModelConstructorForm = ({
     },
   ];
 
-  if (
-    (baselinePeriod?.start_date === null &&
-      baselinePeriod?.end_date === null) ||
-    baselinePeriodLoading
-  ) {
+  if (baselinePeriodLoading) {
     return (
       <Grid>
         <Grid item xs={12}>
-          {baselinePeriodLoading ? (
-            <Typography
-              variant="h6"
-              sx={{ marginTop: "2rem", marginBottom: "2rem" }}
-            >
-              Fetching baseline period information, Please wait...
-            </Typography>
-          ) : (
-            <Typography
-              variant="h6"
-              sx={{
-                marginTop: "2rem",
-                marginBottom: "2rem",
-                color: "#FF5858",
-              }}
-            >
-              Insufficient data, please upload sufficient data then try again
-              later.
-            </Typography>
-          )}
+          <Typography
+            variant="h6"
+            sx={{ marginTop: "2rem", marginBottom: "2rem" }}
+          >
+            Fetching baseline period information, Please wait...
+          </Typography>
         </Grid>
       </Grid>
     );
@@ -358,13 +401,16 @@ const ModelConstructorForm = ({
               color: "#FF5858",
             }}
           >
-            There was some error while fetching baseline period information,
-            please try again later!
+            {errorStatusMessage
+              ? errorStatusMessage
+              : `There was some error while fetching baseline
+            period information, please try again later!`}
           </Typography>
         </Grid>
       </Grid>
     );
   }
+
   const getIdByMeterType = (meter_type) => {
     const meter = getSummaryDataByMeterType(baselineListData, meter_type);
     return meter ? meter?.id : null;
@@ -419,6 +465,18 @@ const ModelConstructorForm = ({
             });
           };
 
+          const handleDateRangeChange = (startDate, endDate) => {
+            setFieldValue("start_date", startDate);
+            setFieldValue("end_date", endDate);
+            handleSubmit({
+              ...values,
+              start_date: startDate,
+              end_date: endDate,
+            });
+            setBaselineStartDate(startDate);
+            setBaselineEndDate(endDate);
+          };
+          console.log(values, "values");
           return (
             <Form>
               <Grid container rowGap={4}>
@@ -428,79 +486,42 @@ const ModelConstructorForm = ({
                       Baseline period
                     </Typography>
                   </Grid>
-                  <Grid container spacing={4}>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="start_date"
-                        style={{ whiteSpace: "initial" }}
+                  <Grid
+                    container
+                    mt={10}
+                    fullWidth={true}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <DateRangeSlider
+                      start_date={format(
+                        new Date(baselinePeriod?.start_date),
+                        "yyyy-MM-dd"
+                      )}
+                      end_date={format(
+                        new Date(baselinePeriod?.end_date),
+                        "yyyy-MM-dd"
+                      )}
+                      sliderStartDate={values?.start_date}
+                      sliderEndDate={values?.end_date}
+                      startLabel="Baseline Start"
+                      endLabel="Baseline End"
+                      onChange={handleDateRangeChange}
+                    />
+                    {(errors.start_date || errors.end_date) && (
+                      <div
+                        style={{
+                          color: "red",
+                          fontSize: "0.75rem",
+                          marginTop: "8px",
+                        }}
                       >
-                        Baseline start *
-                      </InputLabel>
-                      <DatePicker
-                        id="start_date"
-                        name="start_date"
-                        sx={{
-                          width: "100%",
-                          input: { color: "#111" },
-                        }}
-                        minDate={new Date(baselinePeriod?.start_date)}
-                        maxDate={new Date(baselinePeriod?.end_date)}
-                        value={values.start_date}
-                        onChange={(date) => {
-                          setFieldValue("start_date", date);
-                          handleSubmit({ ...values, start_date: date });
-                          setBaselineStartDate(
-                            format(new Date(date), "yyyy-MM-dd")
-                          );
-                        }}
-                        format="dd/MM/yyyy"
-                        slotProps={{
-                          textField: {
-                            helperText: errors.start_date && errors.start_date,
-                          },
-                          actionBar: {
-                            actions: ["clear", "accept"],
-                            className: "my-datepicker-actionbar",
-                          },
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="end_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline end *
-                      </InputLabel>
-                      <DatePicker
-                        id="end_date"
-                        name="end_date"
-                        sx={{
-                          width: "100%",
-                          input: { color: "#111" },
-                        }}
-                        value={values.end_date}
-                        onChange={(date) => {
-                          setFieldValue("end_date", date);
-                          handleSubmit({ ...values, end_date: date });
-                          setBaselineEndDate(
-                            format(new Date(date), "yyyy-MM-dd")
-                          );
-                        }}
-                        minDate={new Date(baselinePeriod?.start_date)}
-                        maxDate={new Date(baselinePeriod?.end_date)}
-                        format="dd/MM/yyyy"
-                        slotProps={{
-                          textField: {
-                            helperText: errors.end_date && errors.end_date,
-                          },
-                          actionBar: {
-                            actions: ["clear", "accept"],
-                            className: "my-datepicker-actionbar",
-                          },
-                        }}
-                      />
-                    </Grid>
+                        {errors.start_date || errors.end_date}
+                      </div>
+                    )}
                   </Grid>
                 </Grid>
 
@@ -606,39 +627,40 @@ const ModelConstructorForm = ({
                     </Typography>
                   </Grid>
                   <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
-                    {Object.keys(values.dummyVariables).map((dummyVar) => (
-                      <FormGroup key={dummyVar}>
-                        <FormControlLabel
-                          control={
-                            <Field
-                              name={`dummyVariables.${dummyVar}`}
-                              type="checkbox"
-                              as={Checkbox}
-                              checked={values.dummyVariables[dummyVar]}
-                              onChange={(event) => {
-                                setFieldValue(
-                                  `dummyVariables.${dummyVar}`,
-                                  event.target.checked
-                                );
-                                handleSubmit({
-                                  ...values,
-                                  dummyVariables: {
-                                    ...values.dummyVariables,
-                                    [dummyVar]: event.target.checked,
-                                  },
-                                });
-                              }}
-                            />
-                          }
-                          sx={{ color: "text.secondary2" }}
-                          label={
-                            <Typography sx={{ fontSize: "14px!important" }}>
-                              {dummyVar}
-                            </Typography>
-                          }
-                        />
-                      </FormGroup>
-                    ))}
+                    {values?.dummyVariables &&
+                      Object.keys(values?.dummyVariables)?.map((dummyVar) => (
+                        <FormGroup key={dummyVar}>
+                          <FormControlLabel
+                            control={
+                              <Field
+                                name={`dummyVariables.${dummyVar}`}
+                                type="checkbox"
+                                as={Checkbox}
+                                checked={values.dummyVariables[dummyVar]}
+                                onChange={(event) => {
+                                  setFieldValue(
+                                    `dummyVariables.${dummyVar}`,
+                                    event.target.checked
+                                  );
+                                  handleSubmit({
+                                    ...values,
+                                    dummyVariables: {
+                                      ...values.dummyVariables,
+                                      [dummyVar]: event.target.checked,
+                                    },
+                                  });
+                                }}
+                              />
+                            }
+                            sx={{ color: "text.secondary2" }}
+                            label={
+                              <Typography sx={{ fontSize: "14px!important" }}>
+                                {dummyVar}
+                              </Typography>
+                            }
+                          />
+                        </FormGroup>
+                      ))}
                   </Box>
                 </Grid>
                 <Grid container spacing={4}>
