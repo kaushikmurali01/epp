@@ -12,7 +12,7 @@ import EvLoader from 'utils/loader/EvLoader';
 
 const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL, getCompanyList }) => {
     const dispatch = useDispatch();
-    // console.log(selectTableRow, "selectTableRow", Object.keys(selectTableRow).length)
+
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [userEmail, setUserEmail] = useState(selectTableRow?.email || '');
     const [selectRoleType, setSelectRoleType] = useState(selectTableRow?.role_id || '');
@@ -153,7 +153,21 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const apiURL = invitePageInfo?.type !== null ? ENERVA_USER_MANAGEMENT.GET_EV_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id : USER_MANAGEMENT.GET_DEFAULT_PERMISSIONS_BY_ROLE_ID + '/' + permission_id;
         GET_REQUEST(apiURL)
             .then((res) => {
-                setPermission(res.data)
+                const resultData = res.data;
+
+                // Filter permissions where `is_default` is 1
+                const defaultPermissions = resultData.filter(permission => permission.is_default === 1);
+    
+                // Map to permission IDs
+                const defaultPermissionIds = defaultPermissions.map(permission => permission.permission_id);
+    
+                // Set the states
+                setPermission(resultData);
+                setPermissionStates(defaultPermissionIds);
+                setSelectedPermissions(defaultPermissions);
+
+                setInitialPermissions(defaultPermissionIds); // Set initial permissions
+              
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             }).catch((error) => {
                 console.log(error)
@@ -161,6 +175,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             });
 
     }
+
 
     const permissionUpDate = (apiURL, requestBody, handelAccept) => {
         POST_REQUEST(apiURL, requestBody)
@@ -264,6 +279,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 requestBody.company = selectCompanyType;
             }
 
+            // return
             POST_REQUEST(apiURL, requestBody)
                 .then((response) => {
                     if (response.data.status === 200) {
@@ -296,7 +312,10 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             .then((res) => {
                 const userPermissions = res.data?.permissions || []; // Assuming permissions is an array of permission IDs
                 const userPermissionObjects = permissions.filter(permission => userPermissions.includes(permission.permission_id));
+            //    if(isEdited){
                 setPermissionStates(userPermissions);
+            //    }
+
                 setSelectedPermissions(userPermissionObjects);
                 setInitialPermissions(userPermissions); // Set initial permissions
             })
@@ -308,10 +327,11 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     useEffect(() => {
         if (Object.keys(selectTableRow).length !== 0) {
             getUserPermissionListAPI(selectTableRow);
-        } else {
-            setPermissionStates([]);
-            setSelectedPermissions([]);
-        }
+        } 
+        // else {
+        //     setPermissionStates([]);
+        //     setSelectedPermissions([]);
+        // }
     }, [selectTableRow, permissions]);
 
     useEffect(() => {
@@ -336,6 +356,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         }
 
     }, [selectRoleType]);
+
 
 
     return (
