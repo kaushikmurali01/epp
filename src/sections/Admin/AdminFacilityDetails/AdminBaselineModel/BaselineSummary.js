@@ -77,7 +77,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
           <Grid item container>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
-                Coefficient of variation of RMSE
+                Coefficient of variation of RMSE, CV(RMSE)
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>

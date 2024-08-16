@@ -24,6 +24,7 @@ import { checkBoxButtonStyle } from "./styles";
 import { getSummaryDataByMeterType } from ".";
 import {
   fetchAdminBaselineDetailsFromDb,
+  fetchAdminBaselinePeriod,
   fetchAdminStationsDetails,
 } from "../../../../redux/admin/actions/adminBaselineAction";
 import { format } from "date-fns";
@@ -35,8 +36,10 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
+  const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselineStartDate, setBaselineStartDate] = useState("");
   const [baselineEndDate, setBaselineEndDate] = useState("");
+  const [disableSeeDetails, setDisableSeeDetails] = useState(false);
   const independentVariables = useSelector(
     (state) => state?.adminBaselineReducer?.independentVariableList
   );
@@ -45,13 +48,21 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
   );
 
   const [sufficiencyCheckData, setSufficiencyCheckData] = useState({});
+  useEffect(() => {
+    dispatch(fetchAdminStationsDetails(id));
+  }, [dispatch, id, meterType]);
 
   const weatherStationsData = useSelector(
     (state) => state?.adminBaselineReducer?.stationDetails
   );
 
-  const [seeDetailsButtonDisabled, setSeeDetailsButtonDisabled] =
-    useState(false);
+  useEffect(() => {
+    dispatch(fetchAdminBaselinePeriod(id, meterType))
+      .then((res) => {
+        setBaselinePeriod(res);
+      })
+      .catch((err) => {});
+  }, [dispatch, id, meterType]);
 
   useEffect(() => {
     if (baselineListData) {
@@ -59,20 +70,21 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         baselineListData,
         meterType
       );
-      if (!initialValues || initialValues?.status === "DRAFT") {
-        setSeeDetailsButtonDisabled(true);
-      } else {
-        setSeeDetailsButtonDisabled(false);
-      }
-      console.log(initialValues);
       if (initialValues) {
         setFormData(initialValues?.parameter_data);
+        if (initialValues?.parameter_data?.length <= 0) {
+          console.log(initialValues.parameter_data);
+          setDisableSeeDetails(true);
+        } else {
+          setDisableSeeDetails(false);
+        }
       } else {
         setFormData(null);
       }
       setSufficiencyCheckData({
         daily: { ...initialValues?.parameter_data?.daily },
         hourly: { ...initialValues?.parameter_data?.hourly },
+        monthly: { ...initialValues?.parameter_data?.monthly },
       });
       setBaselineStartDate(
         initialValues?.parameter_data?.start_date &&
@@ -88,8 +100,6 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
             "yyyy-MM-dd"
           )
       );
-    } else {
-      setSeeDetailsButtonDisabled(false);
     }
   }, [id, meterType]);
 
@@ -150,11 +160,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     {
       Header: "Monthly",
       accessor: (item) =>
-        sufficiencyVerificationStatusButton(
-          item?.hourly?.status === "failed" || item?.daily?.status === "failed"
-            ? "failed"
-            : "passed"
-        ),
+        sufficiencyVerificationStatusButton(item?.monthly?.status),
     },
     {
       Header: "details",
@@ -176,7 +182,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
               baselineEndDate
             );
           }}
-          disabled={seeDetailsButtonDisabled}
+          disabled={disableSeeDetails}
         >
           See details
         </Typography>
@@ -194,31 +200,23 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   <Typography variant="h6" sx={headingStyleInAccordion}>
                     Baseline period
                   </Typography>
-                  {/* <DateRangeSlider
-                    start_date={values?.start_date}
-                    end_date={values?.end_date}
-                  /> */}
-                  <Grid container spacing={4}>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="start_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline start *
-                      </InputLabel>
-
-                      <InputField name="start_date" isDisabled="true" />
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                      <InputLabel
-                        htmlFor="end_date"
-                        style={{ whiteSpace: "initial" }}
-                      >
-                        Baseline end *
-                      </InputLabel>
-                      <InputField name="end_date" isDisabled="true" />
-                    </Grid>
-                  </Grid>
+                  {baselinePeriod?.start_date && baselinePeriod?.end_date && (
+                    <DateRangeSlider
+                      start_date={format(
+                        new Date(baselinePeriod?.start_date),
+                        "yyyy-MM-dd"
+                      )}
+                      end_date={format(
+                        new Date(baselinePeriod?.end_date),
+                        "yyyy-MM-dd"
+                      )}
+                      sliderStartDate={values?.start_date}
+                      sliderEndDate={values?.end_date}
+                      startLabel="Baseline Start"
+                      endLabel="Baseline End"
+                      disabled={true}
+                    />
+                  )}
                 </Grid>
                 <Grid item sx={{ overflowX: "scroll" }}>
                   <Typography variant="h6" sx={headingStyleInAccordion}>

@@ -11,6 +11,10 @@ const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
   meterType,
   meterName,
+  meterId,
+  summary_type,
+  count,
+  bound,
 }) => {
   const [pageInfo, setPageInfo] = useState({
     page: 1,
@@ -20,55 +24,86 @@ const MeterDetailsModal = ({
   const dispatch = useDispatch();
   const { id } = useParams();
   useEffect(() => {
-    dispatch(
-      fetchAdminRawSummaryMeterList(
-        id,
-        meterType,
-        true,
-        pageInfo.page,
-        pageInfo.pageSize
-      )
-    );
+    if (summary_type === "outliers") {
+      dispatch(
+        fetchAdminRawSummaryMeterList(
+          id,
+          summary_type,
+          meterType,
+          1,
+          meterId,
+          bound,
+          pageInfo.page,
+          pageInfo.pageSize
+        )
+      );
+    } else {
+      dispatch(
+        fetchAdminRawSummaryMeterList(
+          id,
+          summary_type,
+          meterType,
+          1,
+          meterId,
+          false,
+          pageInfo.page,
+          pageInfo.pageSize
+        )
+      );
+    }
   }, [dispatch, id, meterType, pageInfo.page, pageInfo.pageSize]);
 
   const meterRawData = useSelector(
-    (state) => state?.adminBaselineReducer?.rawMeterSummaryList?.data || []
+    (state) => state?.adminBaselineReducer?.rawMeterSummaryList || []
   );
 
-  const count = useSelector(
-    (state) => state?.adminBaselineReducer?.rawMeterSummaryList?.count
-  );
+  function convertDateFormat(inputDate) {
+    // Split the string and extract the relevant parts
+    const parts = inputDate.split(" ");
+    const day = parts[1].padStart(2, "0");
+    const month = (
+      "0" +
+      (new Date(parts[2] + " 1, 2012").getMonth() + 1)
+    ).slice(-2);
+    const year = parts[3];
+    const time = parts[4].slice(0, 5);
+
+    // Combine the parts in the desired format
+    return `${year}-${month}-${day} ${time}`;
+  }
 
   const observeDataColumn = [
     {
-      Header: "Start Date(Required)",
+      Header: "Start Date",
       accessor: (item) => (
-        <>
-          {item?.["Start Date (Required)"] &&
-            format(
-              new Date(item?.["Start Date (Required)"]),
-              "yyyy-MM-dd HH:mm"
-            )}
-        </>
+        <Typography variant="small" sx={{ fontWeight: 400, color: "#54585A" }}>
+          {/* {item?.start_date &&
+            format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")} */}
+          {item?.meter_type === 104
+            ? item?.start_date &&
+              format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")
+            : item?.start_date && convertDateFormat(item?.start_date)}
+        </Typography>
       ),
     },
     {
-      Header: "End Date(Required)",
+      Header: "End Date",
       accessor: (item) => {
         return (
           <>
-            {item?.["End Date (Required)"] &&
-              format(
-                new Date(item?.["End Date (Required)"]),
-                "yyyy-MM-dd HH:mm"
-              )}
+            {/* {item?.end_date &&
+              format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")} */}
+            {item?.meter_type === 104
+              ? item?.end_date &&
+                format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")
+              : item?.end_date && convertDateFormat(item?.end_date)}
           </>
         );
       },
     },
     {
-      Header: "Usage (Required)",
-      accessor: "Usage (Required)",
+      Header: "Meter Reading",
+      accessor: "reading",
     },
   ];
   return (
