@@ -9,14 +9,52 @@ from utils import generate_blob_name, save_file_to_blob
 
 
 class BaseDataUploader:
-    def __init__(self, file, facility_id, meter_id, created_by=None, meter_serial_no=None):
+    def __init__(self, file, facility_id, meter_id, iv, created_by=None, meter_serial_no=None):
         self.facility_id = facility_id
+        self.iv= iv
         self.excel_file = file
         self.meter_id = meter_id
         self.created_by = created_by
         self.meter_serial_no = meter_serial_no
         self.required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
         self.merged_df = pd.DataFrame()
+
+    def get_meter_dates(self):
+        query = f"""
+        SELECT meter_active, meter_inactive 
+        FROM epp.facility_meter_detail 
+        WHERE id = {self.meter_id}
+        """
+        df = dbtest(query)
+        if not df.empty:
+            self.meter_active = df.iloc[0]['meter_active']
+            self.meter_inactive = df.iloc[0]['meter_inactive']
+        else:
+            raise ValueError(f"No meter details found for meter_id {self.meter_id}")
+
+    def validate_date_range(self):
+        self.get_meter_dates()
+        current_date = datetime.now().replace(minute=0, second=0, microsecond=0)
+        max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
+        meter_active_start = pd.to_datetime(datetime.combine(self.meter_active.date(), time.min))
+        max_date = pd.to_datetime(max_date)
+        invalid_dates = self.merged_df[
+            (self.merged_df['Start Date (Required)'] < meter_active_start) |
+            (self.merged_df['End Date (Required)'] > max_date)
+            ]
+
+        if not invalid_dates.empty:
+            print("Invalid Dates Details:")
+            print(invalid_dates[['Start Date (Required)', 'End Date (Required)']])
+            # Handle or log the invalid dates as needed
+            # For example, removing these rows:
+            # self.merged_df = self.merged_df[~self.merged_df.index.isin(invalid_dates.index)]
+
+            raise ValueError(
+                f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
+                f"Allowed range: {meter_active_start.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}. "
+                f"Consider reviewing these entries."
+            )
 
     def validate_and_read_excel_sheets(self):
         try:
@@ -55,6 +93,13 @@ class BaseDataUploader:
                 invalid_sheets_join = ','.join(invalid_sheets)
             raise ValueError("Invalid Sheet(s):{}".format(invalid_sheets_join))
 
+        # Convert 'Start Date (Required)' to datetime, setting invalid values to NaN
+        self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'],
+                                                                 errors='coerce')
+
+        # Convert 'End Date (Required)' to datetime, setting invalid values to NaN
+        self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'], errors='coerce')
+
     def check_duplicates(self):
         duplicates = self.merged_df[
             self.merged_df.duplicated(subset=['Start Date (Required)', 'End Date (Required)'], keep=False)]
@@ -79,11 +124,18 @@ class BaseDataUploader:
     def check_overlaps(self, chunk_size=100000):
         min_start = self.merged_df['Start Date (Required)'].min()
         max_end = self.merged_df['End Date (Required)'].max()
-        query = f"""
-        SELECT start_date, end_date 
-        FROM epp.meter_hourly_entries 
-        WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' AND meter_id = {self.meter_id}
-        """
+        if self.iv:
+            query = f"""
+                    SELECT start_date, end_date 
+                    FROM epp.meter_hourly_entries 
+                    WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' AND independent_variable_id = {self.meter_id}
+                    """
+        else:
+            query = f"""
+            SELECT start_date, end_date 
+            FROM epp.meter_hourly_entries 
+            WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' AND meter_id = {self.meter_id}
+            """
         df = dbtest(query)
         overlaps = []
         with ThreadPoolExecutor(max_workers=5) as executor:
@@ -110,12 +162,11 @@ class BaseDataUploader:
         if end_date_missing:
             raise ValueError("End Date (Required) has Missing values")
 
-
     def validate(self):
         try:
             self.validate_and_read_excel_sheets()
-            self.check_duplicates()
-            self.check_invalid_dates()
+            # self.check_duplicates()
+            # self.check_invalid_dates()
             self.validate_date_range()
             self.check_overlaps()
             return True, "File Validated Successfully"
@@ -127,8 +178,10 @@ class BaseDataUploader:
     def create_file_record_in_table(self, file_path):
         raise NotImplementedError("This method should be implemented in child classes")
 
-    def validate_date_range(self):
-        raise NotImplementedError("This method should be implemented in child classes")
+    # def get_meter_dates(self):
+    #     raise NotImplementedError("This method should be implemented in child classes")
+    # def validate_date_range(self):
+    #     raise NotImplementedError("This method should be implemented in child classes")
 
     def process(self):
         valid, error_message = self.validate()
@@ -152,70 +205,6 @@ class MeterDataUploader(BaseDataUploader):
     def __init__(self, file, facility_id, meter_id, iv, created_by=None, meter_serial_no=None):
         super().__init__(file, facility_id, meter_id, created_by, meter_serial_no)
         self.iv = iv
-
-    def get_meter_dates(self):
-        query = f"""
-        SELECT meter_active, meter_inactive 
-        FROM epp.facility_meter_detail 
-        WHERE id = {self.meter_id}
-        """
-        df = dbtest(query)
-        if not df.empty:
-            self.meter_active = df.iloc[0]['meter_active']
-            self.meter_inactive = df.iloc[0]['meter_inactive']
-        else:
-            raise ValueError(f"No meter details found for meter_id {self.meter_id}")
-
-    # def validate_date_range(self):
-    #     self.get_meter_dates()
-    #     current_date = datetime.now().replace(minute=0)
-    #     max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
-    #     meter_active_start = datetime.combine(self.meter_active.date(), time.min)
-    #     meter_active_start = pd.to_datetime(meter_active_start)
-    #     max_date = pd.to_datetime(max_date)
-    #     print("DataFrame Sample Data:")
-    #     print(self.merged_df[['Start Date (Required)', 'End Date (Required)']].head())
-    #     invalid_dates = self.merged_df[
-    #         (self.merged_df['Start Date (Required)'] < meter_active_start) |
-    #         (self.merged_df['End Date (Required)'] > max_date)
-    #         ]
-    #     # print("Debugging Dates:")
-    #     # print("Meter Active Start:", meter_active_start)
-    #     # print("Max Date:", max_date)
-    #     # print("DataFrame Date Types:")
-    #     # print(self.merged_df['Start Date (Required)'].dtype)
-    #     # print(self.merged_df['End Date (Required)'].dtype)
-    #
-    #     if not invalid_dates.empty:
-    #
-    #         raise ValueError(
-    #             f"Excel contains entries outside the allowed date range. "
-    #             f"Allowed range: {meter_active_start.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}"
-    #         )
-
-    def validate_date_range(self):
-        self.get_meter_dates()
-        current_date = datetime.now().replace(minute=0, second=0, microsecond=0)
-        max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
-        meter_active_start = pd.to_datetime(datetime.combine(self.meter_active.date(), time.min))
-        max_date = pd.to_datetime(max_date)
-        invalid_dates = self.merged_df[
-            (self.merged_df['Start Date (Required)'] < meter_active_start) |
-            (self.merged_df['End Date (Required)'] > max_date)
-            ]
-
-        if not invalid_dates.empty:
-            print("Invalid Dates Details:")
-            print(invalid_dates[['Start Date (Required)', 'End Date (Required)']])
-            # Handle or log the invalid dates as needed
-            # For example, removing these rows:
-            # self.merged_df = self.merged_df[~self.merged_df.index.isin(invalid_dates.index)]
-
-            raise ValueError(
-                f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
-                f"Allowed range: {meter_active_start.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}. "
-                f"Consider reviewing these entries."
-            )
 
     def create_file_record_in_table(self, file_path):
         values = [self.facility_id, self.meter_id, self.meter_serial_no, self.created_by, file_path]
