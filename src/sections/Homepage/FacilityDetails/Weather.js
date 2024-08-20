@@ -71,7 +71,7 @@ const Weather = () => {
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
   const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
-
+  const [selectedStation, setSelectedStation] = useState(null);
   const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID;
   const weatherReportId = process.env.REACT_APP_POWERBI_WEATHER_REPORT_ID;
   const weatherEmbedUrl = process.env.REACT_APP_POWERBI_WEATHER_EMBED_URL;
@@ -124,17 +124,18 @@ const Weather = () => {
 
   useEffect(() => {
     if (!facilityData) return;
-    if (tabValue == "weather") {
-      getWeatherData();
+    if (tabValue == "weather" && selectedStation) {
+      getWeatherData(selectedStation);
     }
-  }, [facilityData, selectedIvName]);
+  }, [facilityData, selectedIvName, selectedStation]);
 
-  const getWeatherData = async () => {
+  const getWeatherData = async (station_id) => {
     try {
       setWeatherLoading(true);
       const response = await GET_REQUEST(
         WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.GET_WEATHER_DATA +
-          `?facility_id=${facilityData?.id}`
+          `?facility_id=${facilityData?.id}` +
+          `&station_id=${station_id}`
       );
 
       const weatherData = response.data;
@@ -371,6 +372,7 @@ const Weather = () => {
     GET_REQUEST(apiURL).then((response) => {
       if (response?.data?.length) {
         setWeatherStations([...response?.data]);
+        setSelectedStation(response?.data[0]?.station_id);
       }
     });
   };
@@ -713,7 +715,6 @@ const Weather = () => {
     };
 
     let data = weatherData[variable];
-    console.log(data, data.length, "aksjaksjkj");
     const smallFontStyle = {
       fontSize: "12px",
     };
@@ -785,8 +786,6 @@ const Weather = () => {
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
     }
   }, [facilityData, selectedIv, refreshPageData]);
-
-  console.log(imgUploadData, "imgUploadData");
 
   return (
     <>
@@ -892,10 +891,30 @@ const Weather = () => {
                             {Array.isArray(weatherStations) &&
                               weatherStations?.map((type, index) => (
                                 <TableCell
-                                  key={type.meterType}
-                                  sx={{ color: "#111", fontStyle: "italic" }}
+                                  key={type.station_id}
+                                  sx={{
+                                    color:
+                                      selectedStation === type.station_id
+                                        ? "#1976AA"
+                                        : "#111",
+                                    textTransform: "capitalize",
+                                    fontStyle: "italic",
+                                    cursor: "pointer",
+                                    ":hover": {
+                                      textDecoration: "underline",
+                                      color: "#1976AA!important",
+                                    },
+                                    ...(selectedStation === type.station_id && {
+                                      fontWeight: "bold",
+                                      textDecoration: "underline",
+                                    }),
+                                  }}
+                                  onClick={() => {
+                                    setSelectedStation(type.station_id);
+                                    getWeatherData(type.station_id);
+                                  }}
                                 >
-                                  {type?.["station_name"]}
+                                  {type?.["station_name"].toLowerCase()}
                                 </TableCell>
                               ))}
                           </TableRow>
@@ -993,7 +1012,7 @@ const Weather = () => {
                               name="air_temperature"
                               label={
                                 <Typography sx={{ fontSize: "14px!important" }}>
-                                  Air temprature
+                                  Air temperature
                                 </Typography>
                               }
                             />
