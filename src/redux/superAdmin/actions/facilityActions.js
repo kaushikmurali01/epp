@@ -269,6 +269,7 @@ export const fetchFacilityStatus = (facilityId) => {
   return async (dispatch) => {
     try {
       dispatch(fetchFacilityStatusRequest());
+      // const endpointWithParams = `${facilityEndPoints.GET_WORKFLOW_STATUS}?facility_id=${facilityId}`;
       const endpointWithParams = `${facilityEndPoints.GET_FACILITY_STATUS}/${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;

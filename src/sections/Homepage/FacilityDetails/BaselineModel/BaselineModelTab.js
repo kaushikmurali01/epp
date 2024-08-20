@@ -63,9 +63,9 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
     if (
       baselineDataStoredInDB?.user_type === 1 &&
       (baselineDataStoredInDB?.status === "SUBMITTED" ||
-        baselineDataStoredInDB?.status === "REVIEWED" 
-        ||baselineDataStoredInDB?.status === "REQUESTED"
-      )
+        baselineDataStoredInDB?.status === "REVIEWED" ||
+        baselineDataStoredInDB?.status === "REQUESTED" ||
+        baselineDataStoredInDB?.status === "ACCEPTED")
     ) {
       setRenderViewOnlyComp(true);
     } else {

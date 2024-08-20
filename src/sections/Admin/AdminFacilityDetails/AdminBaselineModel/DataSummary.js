@@ -61,7 +61,7 @@ const DataSummary = () => {
     saveButtonAction: "",
   });
 
-  const meterDetailsModal = (meterType, meterName) => {
+  const meterDetailsModal = (meterType, meterName, meterId, count, bound) => {
     setMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -70,6 +70,10 @@ const DataSummary = () => {
           setMeterDetailsModalConfig={setMeterDetailsModalConfig}
           meterType={meterType}
           meterName={meterName}
+          meterId={meterId}
+          summary_type={activeButton}
+          count={count}
+          bound={bound}
         />
       ),
     }));
@@ -119,14 +123,32 @@ const DataSummary = () => {
 
   const observeDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -136,7 +158,8 @@ const DataSummary = () => {
             cursor: "pointer",
           }}
         >
-          {item.meter_name}
+          {item?.meter_name}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -156,14 +179,32 @@ const DataSummary = () => {
 
   const missingDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -174,6 +215,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -193,14 +235,33 @@ const DataSummary = () => {
 
   const outliersDataColumn = [
     {
-      Header: "ID",
-      accessor: "meter_type",
+      Header: "Index",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+            cursor: "pointer",
+          }}
+        >
+          {index + 1}
+        </Typography>
+      ),
     },
     {
       Header: "Parameter",
       accessor: (item) => (
         <Typography
-          onClick={() => meterDetailsModal(item?.meter_type, item?.meter_name)}
+          onClick={() =>
+            meterDetailsModal(
+              item?.meter_type,
+              item?.meter_name,
+              item?.meter_id,
+              item?.total_records,
+              item?.bound_type
+            )
+          }
           variant="span"
           sx={{
             color: "primary.main",
@@ -211,6 +272,7 @@ const DataSummary = () => {
           }}
         >
           {item.meter_name}
+          {item.m_id && item?.meter_type !== 104 ? `, ${item?.m_id}` : ""}
         </Typography>
       ),
     },
@@ -228,13 +290,42 @@ const DataSummary = () => {
     },
     {
       Header: "Threshold",
-      accessor: "threshould",
+      accessor: "bound_type",
     },
     {
       Header: "Type",
-      accessor: "type",
+      accessor: (item, index) => (
+        <Typography
+          sx={{
+            fontSize: "0.875rem !important",
+            fontWeight: 400,
+          }}
+        >
+          local
+        </Typography>
+      ),
     },
   ];
+
+  const getTableData = () => {
+    if (!summaryData) return [];
+    return Array.isArray(summaryData) ? summaryData : [];
+  };
+
+  const renderTable = () => {
+    const tableData = getTableData();
+
+    switch (activeButton) {
+      case "observe_data":
+        return <MiniTable columns={observeDataColumn} data={tableData} />;
+      case "missing_data":
+        return <MiniTable columns={missingDataColumn} data={tableData} />;
+      case "outliers":
+        return <MiniTable columns={outliersDataColumn} data={tableData} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <Grid
@@ -296,22 +387,12 @@ const DataSummary = () => {
               }}
               onClick={detailsAndSettingModal}
             >
-              Details & Setting
+              Details
             </Button>
           </Box>
         )}
       </Grid>
-      <Grid container>
-        {activeButton === "observe_data" && (
-          <MiniTable columns={observeDataColumn} data={summaryData} />
-        )}
-        {activeButton === "missing_data" && (
-          <MiniTable columns={missingDataColumn} data={summaryData} />
-        )}
-        {activeButton === "outliers" && (
-          <MiniTable columns={outliersDataColumn} data={summaryData} />
-        )}
-      </Grid>
+      <Grid container>{renderTable()}</Grid>
       <EvModal
         modalConfig={meterDetailsModalConfig}
         setModalConfig={setMeterDetailsModalConfig}

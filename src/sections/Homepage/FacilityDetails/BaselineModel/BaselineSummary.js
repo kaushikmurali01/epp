@@ -63,7 +63,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
           <Grid item container>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
-                Root-mean-square error, RMSE R2
+                Root-mean-square error, RMSE
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
@@ -79,14 +79,14 @@ const BaselineSummary = ({ summaryData, meterType }) => {
           <Grid item container>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
-                Coefficient of variation of R 0.00%
+                Coefficient of variation of RMSE, CV(RMSE)
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
-                    "Coefficient of variation of R 0.00%"
+                    "Coefficient of variation of RMSE"
                   ]
                 }
               </Typography>

@@ -44,8 +44,15 @@ import { validationSchemaIndependentVariable } from "utils/validations/formValid
 import ButtonWrapper from "components/FormBuilder/Button";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
-import { commonDocumentFileUploadAction, documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
-import { WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS, adminHourlyEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
+import {
+  commonDocumentFileUploadAction,
+  documentFileUploadAction,
+} from "../../../redux/global/actions/fileUploadAction";
+import {
+  WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS,
+  adminHourlyEndPoints,
+  hourlyEndPoints,
+} from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
@@ -101,9 +108,12 @@ const Weather = () => {
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const getDataProcessingLoader =  sessionStorage?.getItem("dataProcessingLoader") === 'true'
-const [dataProcessingLoader, setDataProcessingLoader] = useState(getDataProcessingLoader || false);
-const [refreshPageData, setRefreshPageData] = useState(0)
+  const getDataProcessingLoader =
+    sessionStorage?.getItem("dataProcessingLoader") === "true";
+  const [dataProcessingLoader, setDataProcessingLoader] = useState(
+    getDataProcessingLoader || false
+  );
+  const [refreshPageData, setRefreshPageData] = useState(0);
 
   useEffect(() => {
     setIndependentVariable1File(null);
@@ -313,24 +323,20 @@ const [refreshPageData, setRefreshPageData] = useState(0)
       ...modalConfig.modalUI,
       showHeader: false,
       modalBodyContentStyle: "",
-      evModalStyle : {
-        paperMaxWidth: '720px',  // Set the desired max-width
-      }
-
+      evModalStyle: {
+        paperMaxWidth: "720px", // Set the desired max-width
+      },
     },
-
-  })
+  });
 
   const [deleteEntriesModalConfig, setDeleteEntriesModalConfig] = useState({
     ...modalConfig,
     modalUI: {
       ...modalConfig.modalUI,
       showHeader: false,
-      modalBodyContentStyle: ""
-
+      modalBodyContentStyle: "",
     },
-
-  })
+  });
 
   const openRequestModal = (isEdit, data) => {
     setModalConfig((prevState) => ({
@@ -449,9 +455,8 @@ const [refreshPageData, setRefreshPageData] = useState(0)
   };
 
   const handleFileChange = (event) => {
-
-    setUploadProgress(0) // reset before upload progress
-    setIsUploading(true)
+    setUploadProgress(0); // reset before upload progress
+    setIsUploading(true);
     const selectedFile = event.target.files[0];
     setIndependentVariable1File(selectedFile);
     const apiURL = hourlyEndPoints.ADD_BULK_HOURLY_DATA;
@@ -459,67 +464,69 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     formData.append("file", selectedFile);
     formData.append("iv", true);
     formData.append("facility_id", facilityData?.id);
-    formData.append("meter_id", selectedIv?.id );
+    formData.append("meter_id", selectedIv?.id);
 
     // console.log(apiURL, formData, selectedIv, "check data")
 
     // return
 
-    dispatch(commonDocumentFileUploadAction(apiURL, formData, (progressEvent) => {
-      const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-      
-      setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
-    }))
-       .then((data) => {
+    dispatch(
+      commonDocumentFileUploadAction(apiURL, formData, (progressEvent) => {
+        const progress = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
 
-        if(data?.message === undefined || data === undefined || !data.success) {
-          setIndependentVariable1File(null)
+        setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
+      })
+    )
+      .then((data) => {
+        if (
+          data?.message === undefined ||
+          data === undefined ||
+          !data.success
+        ) {
+          setIndependentVariable1File(null);
         }
-       
-        setImgUploadData(data);
-        setIsUploading(false)
-        setUploadProgress(100); // when the upload is confirmed
-       })
-       .catch((error) => {
-         console.error("Error uploading document:", error);
-         setIsUploading(false);
-       });
-  };
-  
 
-  
+        setImgUploadData(data);
+        setIsUploading(false);
+        setUploadProgress(100); // when the upload is confirmed
+      })
+      .catch((error) => {
+        console.error("Error uploading document:", error);
+        setIsUploading(false);
+      });
+  };
 
   const uploadIndepentVariableFile = (data) => {
-    
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
     const payload = {
-      "facility_id": facilityData?.id,
-      "record_id": data.record_id,
-      "iv": true
-  }
+      facility_id: facilityData?.id,
+      record_id: data.record_id,
+      iv: true,
+    };
 
-  console.log(apiURL,payload, "checking payload")
+    console.log(apiURL, payload, "checking payload");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
         // getHourlySubHourlyEntryData();
         // dispatch(fetchFacilityStatus(id));
         // dispatch(fetchFacilityDetails(id));
-      
+
         NotificationsToast({
           message: response.data.status,
           type: "success",
         });
         // reset
         setIndependentVariable1File(null);
-        setImgUploadData("")
+        setImgUploadData("");
         setUploadDataFormVisible(false);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
-         // Start polling for data
-         startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
-
+        // Start polling for data
+        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -528,11 +535,13 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           type: "error",
         });
       });
-   
   };
 
-   // Polling GET API to retrieve the data
-   const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
+  // Polling GET API to retrieve the data
+  const startPollingForData = (
+    setDataProcessingLoader,
+    getHourlyEntriesData
+  ) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
@@ -547,74 +556,72 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           clearInterval(checkInterval);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       }
     }, 3000); // Poll every 3 seconds
-  
+
     return checkInterval;
   };
 
-
   const getHourlyEntriesData = async (loader) => {
     console.log(loader, "checking loaders...");
-    if(loader === "processingLoader"){
+    if (loader === "processingLoader") {
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-    }else {
+    } else {
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     }
 
     let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
     let payload = {
-      "facility_id": facilityData?.id,
-      "limit": 10,
-      "offset": 0,
-      "independent_variable_id": selectedIv?.id,
-    }
-  
+      facility_id: facilityData?.id,
+      limit: 10,
+      offset: 0,
+      independent_variable_id: selectedIv?.id,
+    };
+
     try {
       const res = await POST_REQUEST(apiURL, payload);
       console.log(res, "check view entry list");
-      if (res.data?.data?.rows instanceof Array && res.data?.data?.rows.length > 0) {
+      if (
+        res.data?.data?.rows instanceof Array &&
+        res.data?.data?.rows.length > 0
+      ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
       }
 
-      if(loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+      if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
 
-    
-
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-      return res;  // Return the response for polling check
+      return res; // Return the response for polling check
     } catch (error) {
       console.log(error);
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-      throw error;  // Throw the error to be caught in polling
+      throw error; // Throw the error to be caught in polling
     }
-  }
+  };
 
   const deleteFile = (imgData) => {
-
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.DELETE_HOURLY_ENTRIES_FILE;
     const payload = {
       record_id: imgData?.record_id,
-      iv: false,  // for hourly data independent variable will be false...
+      iv: false, // for hourly data independent variable will be false...
     };
 
-    console.log(imgData, apiURL, payload, "checking upload data")
+    console.log(imgData, apiURL, payload, "checking upload data");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
-        setImgUploadData("")
-        setIndependentVariable1File(null)
+        setImgUploadData("");
+        setIndependentVariable1File(null);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-       
       })
-      .catch((error) => { 
-        console.log(error)
+      .catch((error) => {
+        console.log(error);
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   };
@@ -627,8 +634,10 @@ const [refreshPageData, setRefreshPageData] = useState(0)
   };
 
   const handleViewEntries = () => {
-    const activeTab = independentVarsList.find(item => item.id === selectedIv?.id);
-    console.log(activeTab, "activeTab")
+    const activeTab = independentVarsList.find(
+      (item) => item.id === selectedIv?.id
+    );
+    console.log(activeTab, "activeTab");
     setViewEntriesModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -639,14 +648,13 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           meterId=""
           meterType=""
           facilityId={facilityData?.id}
-          independentVariableId = {selectedIv?.id}
-          ivName= {activeTab?.name}
+          independentVariableId={selectedIv?.id}
+          ivName={activeTab?.name}
           // selectedIv
         />
       ),
     }));
-
-  }
+  };
 
   const handleDeleteEntries = () => {
     setDeleteEntriesModalConfig((prevState) => ({
@@ -656,17 +664,16 @@ const [refreshPageData, setRefreshPageData] = useState(0)
       headerSubText: "",
       modalBodyContent: (
         <DeleteEntriesModal
-        meterId=""
-        meterType=""
-        facilityId={facilityData?.id}
-        independentVariableId = {selectedIv?.id}
-        setModalConfig={setDeleteEntriesModalConfig}
+          meterId=""
+          meterType=""
+          facilityId={facilityData?.id}
+          independentVariableId={selectedIv?.id}
+          setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
         />
       ),
     }));
-  }
-
+  };
 
   const getPowerBiError = (errorDetail) => {
     console.log("Error in setIsErrorInPowerBi", errorDetail);
@@ -706,7 +713,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     };
 
     let data = weatherData[variable];
-
+    console.log(data, data.length, "aksjaksjkj");
     const smallFontStyle = {
       fontSize: "12px",
     };
@@ -719,6 +726,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
       boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
       ...smallFontStyle,
     };
+    const intervalMonthGap = data?.length > 70 ? 6 : 3;
 
     return (
       <div
@@ -735,7 +743,7 @@ const [refreshPageData, setRefreshPageData] = useState(0)
               angle={-45}
               textAnchor="end"
               height={50}
-              interval={0}
+              interval={intervalMonthGap}
             />
             <YAxis style={smallFontStyle} tick={{ fontSize: 10 }} />
             <Tooltip
@@ -759,22 +767,26 @@ const [refreshPageData, setRefreshPageData] = useState(0)
     );
   };
 
-
   useEffect(() => {
-
-    if(Object.keys(facilityData).length > 0 && !dataProcessingLoader && selectedIv){
-      console.log(facilityData, "facilityData check")
-      getHourlyEntriesData()
+    if (
+      Object.keys(facilityData).length > 0 &&
+      !dataProcessingLoader &&
+      selectedIv
+    ) {
+      console.log(facilityData, "facilityData check");
+      getHourlyEntriesData();
     }
 
-    if (Object.keys(facilityData).length > 0 && dataProcessingLoader && selectedIv) {
+    if (
+      Object.keys(facilityData).length > 0 &&
+      dataProcessingLoader &&
+      selectedIv
+    ) {
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
     }
+  }, [facilityData, selectedIv, refreshPageData]);
 
-  }, [facilityData,selectedIv, refreshPageData]);
-
-
-  console.log(imgUploadData,"imgUploadData")
+  console.log(imgUploadData, "imgUploadData");
 
   return (
     <>
@@ -847,237 +859,237 @@ const [refreshPageData, setRefreshPageData] = useState(0)
           </Grid>
         </Grid>
 
-        {tabValue === "weather" ? (
-          <Box>
-            <Grid container  mb="2.5rem">
-              <Grid item xs={12}>
+        {
+          tabValue === "weather" ? (
+            <Box>
+              <Grid container mb="2.5rem">
+                <Grid item xs={12}>
                   {
                     <MapComponent
                       facilityData={facilityData}
                       weatherStations={weatherStations}
                     />
                   }
-              </Grid>
-             
-            </Grid>
-            <Grid
-              container
-              xs={12}
-              mb="2.5rem"
-              alignItems="flex-start"
-            >
-              {weatherStations?.length ? (
-                <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
-                  <TableContainer
-                    component={Paper}
-                    sx={{
-                      bgcolor: "#2E813E20",
-                      boxShadow: "none",
-                      border: "1px solid #2E813E",
-                    }}
-                  >
-                    <MuiTable size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell
-                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
-                          ></TableCell>
-                          {Array.isArray(weatherStations) &&
-                            weatherStations?.map((type, index) => (
-                              <TableCell
-                                key={type.meterType}
-                                sx={{ color: "#111", fontStyle: "italic" }}
-                              >
-                                {type?.["station_name"]}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        <TableRow>
-                          <TableCell
-                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
-                          >
-                            Latitude
-                          </TableCell>
-                          {Array.isArray(weatherStations) &&
-                            weatherStations?.map((type, index) => (
-                              <TableCell
-                                key={type.meterType}
-                                sx={{ color: "#111", fontStyle: "italic" }}
-                              >
-                                {type?.["latitude"]}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
-                          >
-                            Longitude
-                          </TableCell>
-                          {Array.isArray(weatherStations) &&
-                            weatherStations?.map((count, index) => (
-                              <TableCell key={index} sx={{ color: "#111" }}>
-                                {count?.["longitude"]}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
-                          >
-                            Climate ID
-                          </TableCell>
-                          {Array.isArray(weatherStations) &&
-                            weatherStations?.map((count, index) => (
-                              <TableCell key={index} sx={{ color: "#111" }}>
-                                {count?.["climate_id"]}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                        <TableRow>
-                          <TableCell
-                            sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
-                          >
-                            Station ID
-                          </TableCell>
-                          {Array.isArray(weatherStations) &&
-                            weatherStations?.map((count, index) => (
-                              <TableCell key={index} sx={{ color: "#111" }}>
-                                {count?.["station_id"]}
-                              </TableCell>
-                            ))}
-                        </TableRow>
-                      </TableBody>
-                    </MuiTable>
-                  </TableContainer>
                 </Grid>
-              ) : null}
-                  {Object.keys(weatherData)?.length > 0 && 
-                    <Grid container item xs={12} md={5} sx={{ padding: " 0px 17px" }}>
-
-                      <Typography>Select checkboxes to see graphs</Typography>
-                      <Grid item xs={12} md={6}>
-                        <Formik
-                          initialValues={{ ...initialValues }}
-                          // validationSchema={validationSchemaFacilityDetails}
-                          // onSubmit={handleSubmit}
-                          enableReinitialize={true}
-                        >
-                          <Form>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Field
-                                    name="temp"
-                                    type="checkbox"
-                                    as={Checkbox}
-                                    checked={weatherParamsChecked?.temp}
-                                    onChange={handleCheckboxChange}
-                                  />
-                                }
-                                sx={{ color: "text.secondary2" }}
-                                name="air_temperature"
-                                label={
-                                  <Typography sx={{ fontSize: "14px!important" }}>
-                                    Air temprature
-                                  </Typography>
-                                }
-                              />
-                            </FormGroup>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Field
-                                    name="rel_hum"
-                                    type="checkbox"
-                                    as={Checkbox}
-                                    checked={weatherParamsChecked?.rel_hum}
-                                    onChange={handleCheckboxChange}
-                                  />
-                                }
-                                sx={{ color: "text.secondary2" }}
-                                name="relative_humidity"
-                                label={
-                                  <Typography sx={{ fontSize: "14px!important" }}>
-                                    Relative humidity
-                                  </Typography>
-                                }
-                              />
-                            </FormGroup>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Field
-                                    name="precip_amount"
-                                    type="checkbox"
-                                    as={Checkbox}
-                                    checked={weatherParamsChecked?.precip_amount}
-                                    onChange={handleCheckboxChange}
-                                  />
-                                }
-                                sx={{ color: "text.secondary2" }}
-                                name="participation"
-                                label={
-                                  <Typography sx={{ fontSize: "14px!important" }}>
-                                    Precipitation
-                                  </Typography>
-                                }
-                              />
-                            </FormGroup>
-                          </Form>
-                        </Formik>
-                      </Grid>
-                      <Grid item xs={12} md={6}>
-                        <Formik
-                          initialValues={{ ...initialValues }}
-                          // validationSchema={validationSchemaFacilityDetails}
-                          // onSubmit={handleSubmit}
-                          enableReinitialize={true}
-                        >
-                          <Form>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Field
-                                    name="station_press"
-                                    type="checkbox"
-                                    as={Checkbox}
-                                    checked={weatherParamsChecked?.station_press}
-                                    onChange={handleCheckboxChange}
-                                  />
-                                }
-                                sx={{ color: "text.secondary2" }}
-                                name="atmospheric_pressure"
-                                label={
-                                  <Typography sx={{ fontSize: "14px!important" }}>
-                                    Atmospheric pressure
-                                  </Typography>
-                                }
-                              />
-                            </FormGroup>
-                            <FormGroup>
-                              <FormControlLabel
-                                control={
-                                  <Field
-                                    name="wind_spd"
-                                    type="checkbox"
-                                    as={Checkbox}
-                                    checked={weatherParamsChecked?.wind_spd}
-                                    onChange={handleCheckboxChange}
-                                  />
-                                }
-                                sx={{ color: "text.secondary2" }}
-                                name="wind_speed"
-                                label={
-                                  <Typography sx={{ fontSize: "14px!important" }}>
-                                    Wind speed
-                                  </Typography>
-                                }
-                              />
-                            </FormGroup>
-                            {/* <FormGroup>
+              </Grid>
+              <Grid container xs={12} mb="2.5rem" alignItems="flex-start">
+                {weatherStations?.length ? (
+                  <Grid item xs={12} md={7} sx={{ textAlign: "center" }}>
+                    <TableContainer
+                      component={Paper}
+                      sx={{
+                        bgcolor: "#2E813E20",
+                        boxShadow: "none",
+                        border: "1px solid #2E813E",
+                      }}
+                    >
+                      <MuiTable size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell
+                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                            ></TableCell>
+                            {Array.isArray(weatherStations) &&
+                              weatherStations?.map((type, index) => (
+                                <TableCell
+                                  key={type.meterType}
+                                  sx={{ color: "#111", fontStyle: "italic" }}
+                                >
+                                  {type?.["station_name"]}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell
+                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                            >
+                              Latitude
+                            </TableCell>
+                            {Array.isArray(weatherStations) &&
+                              weatherStations?.map((type, index) => (
+                                <TableCell
+                                  key={type.meterType}
+                                  sx={{ color: "#111", fontStyle: "italic" }}
+                                >
+                                  {type?.["latitude"]}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                            >
+                              Longitude
+                            </TableCell>
+                            {Array.isArray(weatherStations) &&
+                              weatherStations?.map((count, index) => (
+                                <TableCell key={index} sx={{ color: "#111" }}>
+                                  {count?.["longitude"]}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                            >
+                              Climate ID
+                            </TableCell>
+                            {Array.isArray(weatherStations) &&
+                              weatherStations?.map((count, index) => (
+                                <TableCell key={index} sx={{ color: "#111" }}>
+                                  {count?.["climate_id"]}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                          <TableRow>
+                            <TableCell
+                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                            >
+                              Station ID
+                            </TableCell>
+                            {Array.isArray(weatherStations) &&
+                              weatherStations?.map((count, index) => (
+                                <TableCell key={index} sx={{ color: "#111" }}>
+                                  {count?.["station_id"]}
+                                </TableCell>
+                              ))}
+                          </TableRow>
+                        </TableBody>
+                      </MuiTable>
+                    </TableContainer>
+                  </Grid>
+                ) : null}
+                {Object.keys(weatherData)?.length > 0 && (
+                  <Grid
+                    container
+                    item
+                    xs={12}
+                    md={5}
+                    sx={{ padding: " 0px 17px" }}
+                  >
+                    <Typography>Select checkboxes to see graphs</Typography>
+                    <Grid item xs={12} md={6}>
+                      <Formik
+                        initialValues={{ ...initialValues }}
+                        // validationSchema={validationSchemaFacilityDetails}
+                        // onSubmit={handleSubmit}
+                        enableReinitialize={true}
+                      >
+                        <Form>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name="temp"
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={weatherParamsChecked?.temp}
+                                  onChange={handleCheckboxChange}
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              name="air_temperature"
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  Air temprature
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name="rel_hum"
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={weatherParamsChecked?.rel_hum}
+                                  onChange={handleCheckboxChange}
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              name="relative_humidity"
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  Relative humidity
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name="precip_amount"
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={weatherParamsChecked?.precip_amount}
+                                  onChange={handleCheckboxChange}
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              name="participation"
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  Precipitation
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                        </Form>
+                      </Formik>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Formik
+                        initialValues={{ ...initialValues }}
+                        // validationSchema={validationSchemaFacilityDetails}
+                        // onSubmit={handleSubmit}
+                        enableReinitialize={true}
+                      >
+                        <Form>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name="station_press"
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={weatherParamsChecked?.station_press}
+                                  onChange={handleCheckboxChange}
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              name="atmospheric_pressure"
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  Atmospheric pressure
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                          <FormGroup>
+                            <FormControlLabel
+                              control={
+                                <Field
+                                  name="wind_spd"
+                                  type="checkbox"
+                                  as={Checkbox}
+                                  checked={weatherParamsChecked?.wind_spd}
+                                  onChange={handleCheckboxChange}
+                                />
+                              }
+                              sx={{ color: "text.secondary2" }}
+                              name="wind_speed"
+                              label={
+                                <Typography sx={{ fontSize: "14px!important" }}>
+                                  Wind speed
+                                </Typography>
+                              }
+                            />
+                          </FormGroup>
+                          {/* <FormGroup>
                           <FormControlLabel
                             control={
                               <Field
@@ -1097,166 +1109,198 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                             }
                           />
                         </FormGroup> */}
-                          </Form>
-                        </Formik>
-                      </Grid>
+                        </Form>
+                      </Formik>
                     </Grid>
-                  }
+                  </Grid>
+                )}
               </Grid>
 
-                <Grid container>
-                  {((weatherParamsChecked?.temp && !weatherLoading) && weatherData?.temp?.length > 0) ? (
-                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.125rem!important",
-                          fontWeight: "600",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        Air temperature
-                      </Typography>
-                      {WeatherCharts("temp")}
-                    </Grid>
-                  ) : null}
-
-                  {((weatherParamsChecked?.rel_hum && !weatherLoading) && weatherData?.rel_hum?.length > 0) ? (
-                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.125rem!important",
-                          fontWeight: "600",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        Relative humidity
-                      </Typography>
-                      {WeatherCharts("rel_hum")}
-                    </Grid>
-                  ) : null}
-
-                  {((weatherParamsChecked?.precip_amount && !weatherLoading) && weatherData?.precip_amount?.length > 0) ? (
-                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.125rem!important",
-                          fontWeight: "600",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        Precipitation
-                      </Typography>
-                      {WeatherCharts("precip_amount")}
-                    </Grid>
-                  ) : null}
-
-                  {((weatherParamsChecked?.wind_spd && !weatherLoading) && weatherData?.wind_spd?.length > 0) ? (
-                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.125rem!important",
-                          fontWeight: "600",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        Wind speed
-                      </Typography>
-                      {WeatherCharts("wind_spd")}
-                    </Grid>
-                  ) : null}
-
-                  {((weatherParamsChecked?.station_press && !weatherLoading ) && weatherData?.station_press?.length > 0)? (
-                    <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontSize: "1.125rem!important",
-                          fontWeight: "600",
-                          marginBottom: "1rem",
-                        }}
-                      >
-                        Atmospheric pressure
-                      </Typography>
-                      {WeatherCharts("station_press")}
-                    </Grid>
-                  ) : null}
-
-                </Grid>
-            
-              
-            
-          </Box>
-        ) : 
-        <React.Fragment>
-          {
-            (viewEntryList?.length > 0) &&
-              <Box>
-                <Stack direction="row" justifyContent="flex-end" alignItems="center" gap="0.75rem">
-                <Link underline="hover" variant="body2" sx={{ color: '#56B2AE', cursor: "pointer" }} 
-                onClick={() => handleViewEntries()} 
-                >
-                  View entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'danger.main', cursor: "pointer" }} 
-                onClick={() => handleDeleteEntries()} 
-                >
-                  Delete entries
-                </Link>
-                <Link underline="hover" variant="body2" sx={{ color: 'primary.main', cursor: "pointer" }} 
-                onClick={() => setUploadDataFormVisible(true)} 
-                
-                >
-                  <IconButton>
-                    <AddCircleIcon
+              <Grid container>
+                {weatherParamsChecked?.temp &&
+                !weatherLoading &&
+                weatherData?.temp?.length > 0 ? (
+                  <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                    <Typography
+                      variant="h6"
                       sx={{
-                        color: "text.primary",
-                        fontSize: "1.875rem",
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
                       }}
-                    />
-                  </IconButton>
-                  Add entries
-                </Link>
-              </Stack>
-             </Box>
-          }
-          {
-           
-            (uploadDataFormVisible && !dataProcessingLoader) &&
-              <Box sx={{marginBottom: '1.5rem'}}>
+                    >
+                      Air temperature
+                    </Typography>
+                    {WeatherCharts("temp")}
+                  </Grid>
+                ) : null}
+
+                {weatherParamsChecked?.rel_hum &&
+                !weatherLoading &&
+                weatherData?.rel_hum?.length > 0 ? (
+                  <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Relative humidity
+                    </Typography>
+                    {WeatherCharts("rel_hum")}
+                  </Grid>
+                ) : null}
+
+                {weatherParamsChecked?.precip_amount &&
+                !weatherLoading &&
+                weatherData?.precip_amount?.length > 0 ? (
+                  <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Precipitation
+                    </Typography>
+                    {WeatherCharts("precip_amount")}
+                  </Grid>
+                ) : null}
+
+                {weatherParamsChecked?.wind_spd &&
+                !weatherLoading &&
+                weatherData?.wind_spd?.length > 0 ? (
+                  <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Wind speed
+                    </Typography>
+                    {WeatherCharts("wind_spd")}
+                  </Grid>
+                ) : null}
+
+                {weatherParamsChecked?.station_press &&
+                !weatherLoading &&
+                weatherData?.station_press?.length > 0 ? (
+                  <Grid item xs={12} style={{ marginBottom: "2.5rem" }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontSize: "1.125rem!important",
+                        fontWeight: "600",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      Atmospheric pressure
+                    </Typography>
+                    {WeatherCharts("station_press")}
+                  </Grid>
+                ) : null}
+              </Grid>
+            </Box>
+          ) : (
+            <React.Fragment>
+              {viewEntryList?.length > 0 && (
+                <Box>
+                  <Stack
+                    direction="row"
+                    justifyContent="flex-end"
+                    alignItems="center"
+                    gap="0.75rem"
+                  >
+                    <Link
+                      underline="hover"
+                      variant="body2"
+                      sx={{ color: "#56B2AE", cursor: "pointer" }}
+                      onClick={() => handleViewEntries()}
+                    >
+                      View entries
+                    </Link>
+                    <Link
+                      underline="hover"
+                      variant="body2"
+                      sx={{ color: "danger.main", cursor: "pointer" }}
+                      onClick={() => handleDeleteEntries()}
+                    >
+                      Delete entries
+                    </Link>
+                    <Link
+                      underline="hover"
+                      variant="body2"
+                      sx={{ color: "primary.main", cursor: "pointer" }}
+                      onClick={() => setUploadDataFormVisible(true)}
+                    >
+                      <IconButton>
+                        <AddCircleIcon
+                          sx={{
+                            color: "text.primary",
+                            fontSize: "1.875rem",
+                          }}
+                        />
+                      </IconButton>
+                      Add entries
+                    </Link>
+                  </Stack>
+                </Box>
+              )}
+              {uploadDataFormVisible && !dataProcessingLoader && (
+                <Box sx={{ marginBottom: "1.5rem" }}>
                   <Typography variant="h5">
                     Upload data in bulk for {selectedIvName}
                   </Typography>
                   <Typography variant="small2" gutterBottom>
-                    Upload the excel file, and refer to {" "}
+                    Upload the excel file, and refer to{" "}
                     <Link
-                        underline="hover"
-                        color="#2C77E9"
-                        sx={{ cursor: "pointer" }}
-                      >
-                       spreadsheet
-                      </Link>{" "}
-                     for the formatting
-                    details.
+                      href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
+                      underline="hover"
+                      color="#2C77E9"
+                      sx={{ cursor: "pointer" }}
+                    >
+                      spreadsheet
+                    </Link>{" "}
+                    for the formatting details.
                   </Typography>
-                    <Box>
-                  {isUploading ? (
-                          <>
-                              <Box sx={{mt: 4, width: {xs: "100%", md: "50%"}, maxWidth: '350px' }}>
-                                  <LinearProgress variant="determinate" value={uploadProgress} />
-                                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
-                                      <Typography variant="body2" color="textSecondary">
-                                          {independentVariable1File?.name} Uploading..
-                                      </Typography>
-                                      <Typography variant="body2" color="textSecondary">
-                                          {uploadProgress}%
-                                      </Typography>
-                                  </Box>
-                              </Box>
-                              {/* <Button
+                  <Box>
+                    {isUploading ? (
+                      <>
+                        <Box
+                          sx={{
+                            mt: 4,
+                            width: { xs: "100%", md: "50%" },
+                            maxWidth: "350px",
+                          }}
+                        >
+                          <LinearProgress
+                            variant="determinate"
+                            value={uploadProgress}
+                          />
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              mt: 1,
+                            }}
+                          >
+                            <Typography variant="body2" color="textSecondary">
+                              {independentVariable1File?.name} Uploading..
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                              {uploadProgress}%
+                            </Typography>
+                          </Box>
+                        </Box>
+                        {/* <Button
                                   variant="outlined"
                                   color="error"
                                   onClick={() => setIsUploading(false)}
@@ -1264,43 +1308,49 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                               >
                                   Cancel
                               </Button> */}
-                          </>
+                      </>
                     ) : (
                       <React.Fragment>
-                        {imgUploadData?.record_id ? 
-                              <Box sx={{marginTop: '1.5rem'}}>
-                              <Typography
-                                variant="body2"
-                                sx={{ color: "blue.main", display: "inline-block" }}
-                              >
-                                {independentVariable1File?.name}
+                        {imgUploadData?.record_id ? (
+                          <Box sx={{ marginTop: "1.5rem" }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "blue.main",
+                                display: "inline-block",
+                              }}
+                            >
+                              {independentVariable1File?.name}
+                            </Typography>
 
-                              </Typography>
-
-                              <Typography
-                                variant="body2"
-                                  sx={{ color: "danger.main",display: "inline-block", marginLeft: "1rem", cursor: "pointer" }}
-                                  onClick={(event) => {
-                                    event.stopPropagation();
-                                    deleteFile(imgUploadData);
-                                  }}
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "danger.main",
+                                display: "inline-block",
+                                marginLeft: "1rem",
+                                cursor: "pointer",
+                              }}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                deleteFile(imgUploadData);
+                              }}
+                            >
+                              Delete
+                            </Typography>
+                            {imgUploadData?.error && (
+                              <Stack direction="row" sx={{ marginTop: "1rem" }}>
+                                <Typography
+                                  variant="small"
+                                  sx={{ color: "danger.main" }}
                                 >
-                                  Delete
+                                  {imgUploadData?.error}
                                 </Typography>
-                                {imgUploadData?.error && 
-                                  <Stack direction="row" sx={{ marginTop: '1rem'}}>
-                                  <Typography
-                                    variant="small"
-                                    sx={{ color: "danger.main", }}
-                                  
-                                  >
-                                    {imgUploadData?.error}
-                                  </Typography>
-                                  </Stack>
-                              }
-                              </Box>
-                        :   
-                        <Box >
+                              </Stack>
+                            )}
+                          </Box>
+                        ) : (
+                          <Box>
                             <Typography
                               sx={{
                                 color: "#2E813E",
@@ -1313,7 +1363,6 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                                 marginTop: "1.25rem",
                                 cursor: "pointer",
                                 maxWidth: "fit-content",
-                                
                               }}
                               onClick={handleButtonClick}
                             >
@@ -1328,68 +1377,79 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                               onChange={handleFileChange}
                               accept=".xlsx,.csv"
                             />
-                             {!imgUploadData?.success && 
-                                <Stack direction="row" sx={{ marginTop: '0.5rem'}}>
-                                  <Typography
-                                    variant="small"
-                                    sx={{ color: "danger.main", }}
-                                  
-                                  >
-                                    {imgUploadData?.message}
-                                  </Typography>
-                                </Stack>
-                                }
-                        </Box>
-                      }
-                        
+                            {!imgUploadData?.success && (
+                              <Stack
+                                direction="row"
+                                sx={{ marginTop: "0.5rem" }}
+                              >
+                                <Typography
+                                  variant="small"
+                                  sx={{ color: "danger.main" }}
+                                >
+                                  {imgUploadData?.message}
+                                </Typography>
+                              </Stack>
+                            )}
+                          </Box>
+                        )}
                       </React.Fragment>
-
-                    ) 
-                    
-                    }
-
-                    </Box>
-
-                    <Box sx={{marginTop:'1rem'}}>
-                      <Button
-                          variant="contained"
-                          onClick={() => uploadIndepentVariableFile(imgUploadData)}
-                          style={{
-                            padding: "0.2rem 1rem",
-                            minWidth: "unset",
-                            width: "165px",
-                            height: "40px",
-                            marginTop: '0.5rem'
-                          }}
-                          disabled={!independentVariable1File || isUploading || imgUploadData?.error}
-                        >
-                          Upload
-                        </Button>
+                    )}
                   </Box>
-            </Box>
-          }
 
-        {(dataProcessingLoader) && 
-            <Box sx={{ display: "flex", gap: '1rem', alignItems: 'center'}}>
-              <Typography variant="body2" color="textSecondary" sx={{marginRight: '1rem'}} >
-                Be patience, file processing is running
-            </Typography>
-            <div class="progress-loader"></div>
-            
-            </Box>
-          }
+                  <Box sx={{ marginTop: "1rem" }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => uploadIndepentVariableFile(imgUploadData)}
+                      style={{
+                        padding: "0.2rem 1rem",
+                        minWidth: "unset",
+                        width: "165px",
+                        height: "40px",
+                        marginTop: "0.5rem",
+                      }}
+                      disabled={
+                        !independentVariable1File ||
+                        isUploading ||
+                        imgUploadData?.error
+                      }
+                    >
+                      Upload
+                    </Button>
+                  </Box>
+                </Box>
+              )}
 
-          {
+              {dataProcessingLoader && (
+                <Box
+                  sx={{ display: "flex", gap: "1rem", alignItems: "center" }}
+                >
+                  <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ marginRight: "1rem" }}
+                  >
+                    Please be patient, file processing is in progress
+                  </Typography>
+                  <div class="progress-loader"></div>
+                </Box>
+              )}
 
-             viewEntryList?.length > 0  ? (
-              <Grid sx={{ width: "100%", marginTop: '2.5rem' }}>
-                <Grid sx={{ width: "100%" }}>
-                  <Grid container mb="2.5rem">
-                    <Grid item xs={12}>
-                      <iframe style={{width: '100%', minHeight: ' 100vh', border: '1px solid #ccc'}} src={`http://172.183.115.159:5005/graph?variable_id=${selectedIv?.id}`}></iframe>
+              {viewEntryList?.length > 0 ? (
+                <Grid sx={{ width: "100%", marginTop: "2.5rem" }}>
+                  <Grid sx={{ width: "100%" }}>
+                    <Grid container mb="2.5rem">
+                      <Grid item xs={12}>
+                        <iframe
+                          style={{
+                            width: "100%",
+                            minHeight: " 100vh",
+                            border: "1px solid #ccc",
+                          }}
+                          src={`http://172.183.115.159:5005/graph?variable_id=${selectedIv?.id}`}
+                        ></iframe>
+                      </Grid>
                     </Grid>
-                </Grid>
-                  {/* <Box id="bi-report" mt={4}>
+                    {/* <Box id="bi-report" mt={4}>
                     {!isErrorInPowerBi && !reportLoading ? (
                       <PowerBIEmbed
                         embedConfig={powerBiConfig}
@@ -1437,33 +1497,29 @@ const [refreshPageData, setRefreshPageData] = useState(0)
                       </Typography>
                     )}
                   </Box> */}
+                  </Grid>
                 </Grid>
-              </Grid>
-            ) : (
-              null
-              
-            ) 
-          }
-        </React.Fragment>
-        
-        // else part ended
-        
+              ) : null}
+            </React.Fragment>
+          )
+
+          // else part ended
         }
       </Box>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-      {viewEntriesModalConfig.modalVisible &&
+      {viewEntriesModalConfig.modalVisible && (
         <EvModal
           modalConfig={viewEntriesModalConfig}
           setModalConfig={setViewEntriesModalConfig}
         />
-      }
+      )}
 
-      {deleteEntriesModalConfig.modalVisible &&
+      {deleteEntriesModalConfig.modalVisible && (
         <EvModal
           modalConfig={deleteEntriesModalConfig}
           setModalConfig={setDeleteEntriesModalConfig}
         />
-      }
+      )}
       <Loader
         sectionLoader
         minHeight="100vh"

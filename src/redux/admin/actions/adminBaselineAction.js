@@ -361,8 +361,11 @@ export const fetchAdminDataExplorationSummaryList = (
 
 export const fetchAdminRawSummaryMeterList = (
   facilityId,
+  summaryType,
   meterType,
   detail,
+  meterId,
+  bound,
   pageNumber,
   pageSize
 ) => {
@@ -370,11 +373,18 @@ export const fetchAdminRawSummaryMeterList = (
     try {
       dispatch(fetchAdminRawSummaryMeterListRequest());
       let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      if (summaryType) {
+        endpointWithParams += `&summary_type=${summaryType}`;
+      }
       if (detail) {
         endpointWithParams += `&meter=${meterType}`;
       }
       if (detail) {
         endpointWithParams += `&detail=${detail}`;
+      }
+      endpointWithParams += `&meter_id=${meterId}`;
+      if (bound) {
+        endpointWithParams += `&bound=${bound}`;
       }
       if (pageNumber) {
         endpointWithParams += `&page_number=${pageNumber}`;
