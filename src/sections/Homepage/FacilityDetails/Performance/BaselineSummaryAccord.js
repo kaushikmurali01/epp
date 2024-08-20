@@ -35,8 +35,6 @@ const BaselineSummaryAccord = ({ meter_type }) => {
     }
   }, [dispatch, meter_type, facility_id]);
 
-  console.log(baselineSummaryData, incentiveSettings, "baselineSummaryData");
-
   const baselineSummary =
     baselineSummaryData?.baseline_summary_performance_page || {};
 

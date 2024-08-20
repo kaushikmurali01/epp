@@ -44,8 +44,6 @@ const PerformancePeriodInformationAccordion = ({
   );
 
   const {
-    loading,
-    incentiveSettings,
     nonRoutineEventList,
     nonRoutineEventDetails,
     performanceReportInDB,
@@ -342,9 +340,6 @@ const PerformancePeriodInformationAccordion = ({
     onSubmissionDateChange,
   ]);
 
-  console.log(performanceReportInDB, "performanceReportInDB is here");
-  
-
   useEffect(() => {
     const isSubmitted =
       submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) || false;
@@ -523,13 +518,6 @@ const PerformancePeriodInformationAccordion = ({
           </Grid>
         </Grid>
       </Grid>
-
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
-      />
 
       <EvModal
         modalConfig={addNonRoutineEventModalConfig}

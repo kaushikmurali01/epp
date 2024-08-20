@@ -15,7 +15,6 @@ import {
   scorePerformanceData,
 } from "../../../../redux/superAdmin/actions/performanceAction";
 import { format } from "date-fns";
-import Loader from "pages/Loader";
 import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
 
 const PerformancePeriodDataSummary = ({ meter_type }) => {
@@ -26,7 +25,7 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
     setActiveButton(btn_name);
   };
 
-  const { performanceDataMinMaxDate, loading } =
+  const { performanceDataMinMaxDate } =
     useSelector((state) => state?.performanceReducer);
 
   useEffect(() => {
@@ -383,12 +382,6 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
       <EvModal
         modalConfig={performanceDataMeterDetailsModalConfig}
         setModalConfig={setPerformanceDataMeterDetailsModalConfig}
-      />
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
       />
     </Grid>
   );

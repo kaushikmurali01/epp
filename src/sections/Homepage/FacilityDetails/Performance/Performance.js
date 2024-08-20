@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
+  Box,
   Button,
   ButtonGroup,
   Grid,
@@ -14,6 +15,8 @@ import PerformancePeriodDataSummary from "./PerformancePeriodDataSummary";
 import PerformancePeriodInformationAccordion from "./PerformancePeriodInformationAccordion";
 import PerformancePeriodDataVisualization from "./PerformancePeriodDataVisualization";
 import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -40,6 +43,10 @@ const Performance = () => {
   const handleTabTypeClick = (index) => {
     setActiveButton(index);
   };
+
+  const {loading, processing} = useSelector(
+    (state) => state?.performanceReducer
+  );
 
   const buttonStyle = {
     padding: "0.44rem 1.5rem",
@@ -72,7 +79,7 @@ const Performance = () => {
   const [isDateValid, setIsDateValid] = useState(false);
 
   const [submittedP4P, setSubmittedP4P] = useState(true);
-  const [submissionDate, setSubmissionDate] = useState();
+  const [submissionDate, setSubmissionDate] = useState(null);
 
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
@@ -153,7 +160,7 @@ const Performance = () => {
               }}
             >
               Savings Report has been submitted on{" "}
-              {format(submissionDate, "yyyy-MM-dd, HH:MM")}, pending
+              {format(submissionDate, "yyyy-MM-dd, HH:mm")}, pending
               verification
             </Typography>
           </Grid>
@@ -194,6 +201,14 @@ const Performance = () => {
           />
         </Grid>
       </Grid>
+      <Loader
+        sectionLoader
+        textLoader={processing}
+        minHeight="100vh"
+        loadingState={processing || loading}
+        loaderPosition="fixed"
+        loaderText={"Performance Scoring"}
+      />
     </>
   );
 };
