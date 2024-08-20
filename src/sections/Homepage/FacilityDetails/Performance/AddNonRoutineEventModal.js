@@ -37,7 +37,7 @@ const AddNonRoutineEventModal = ({
     event_description: "",
   });
 
-  const { nonRoutineEventDetails, loading } = useSelector(
+  const { nonRoutineEventDetails, performanceDataMinMaxDate } = useSelector(
     (state) => state?.performanceReducer
   );
 
@@ -120,6 +120,8 @@ const AddNonRoutineEventModal = ({
                   width: "100%",
                   input: { color: "#111" },
                 }}
+                minDate={new Date(performanceDataMinMaxDate?.min_date)}
+                maxDate={new Date(performanceDataMinMaxDate?.max_date)}
                 disableFuture
                 format="MM/dd/yyyy"
                 slotProps={{
@@ -152,7 +154,11 @@ const AddNonRoutineEventModal = ({
                   input: { color: "#111" },
                 }}
                 disableFuture
-                minDate={values.event_from_period}
+                minDate={
+                  values.event_from_period ||
+                  new Date(performanceDataMinMaxDate?.min_date)
+                }
+                maxDate={new Date(performanceDataMinMaxDate?.max_date)}
                 format="MM/dd/yyyy"
                 slotProps={{
                   textField: {

@@ -1,15 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import {
+  Box,
   Button,
   ButtonGroup,
   Grid,
-  Paper,
-  Table as MuiTable,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
   useMediaQuery,
 } from "@mui/material";
@@ -19,6 +14,9 @@ import BaselineSummaryAccord from "./BaselineSummaryAccord";
 import PerformancePeriodDataSummary from "./PerformancePeriodDataSummary";
 import PerformancePeriodInformationAccordion from "./PerformancePeriodInformationAccordion";
 import PerformancePeriodDataVisualization from "./PerformancePeriodDataVisualization";
+import { format } from "date-fns";
+import { useSelector } from "react-redux";
+import Loader from "pages/Loader";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -46,26 +44,9 @@ const Performance = () => {
     setActiveButton(index);
   };
 
-  const ELECTRICITY_DATA = [
-    {
-      id: 1,
-      start_date: "2023/01/01 0:18",
-      end_date: "2023/01/01 0:30",
-      usage: "148.69",
-    },
-    {
-      id: 2,
-      start_date: "2023/01/01 0:18",
-      end_date: "2023/01/01 0:30",
-      usage: "148.69",
-    },
-    {
-      id: 3,
-      start_date: "2023/01/01 0:18",
-      end_date: "2023/01/01 0:30",
-      usage: "150.22",
-    },
-  ];
+  const {loading, processing} = useSelector(
+    (state) => state?.performanceReducer
+  );
 
   const buttonStyle = {
     padding: "0.44rem 1.5rem",
@@ -93,83 +74,28 @@ const Performance = () => {
     color: "#696969",
   };
 
-  const [parameterModalConfig, setParameterModalConfig] = useState({
-    modalVisible: false,
-    modalUI: {
-      showHeader: true,
-      crossIcon: false,
-      modalClass: "",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
-      },
-      fotterActionStyle: "",
-      modalBodyContentStyle: "",
-    },
-    buttonsUI: {
-      saveButton: false,
-      cancelButton: false,
-      saveButtonName: "Sent Request",
-      cancelButtonName: "Cancel",
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    modalBodyContent: "",
-  });
+  const [submitTrigger, setSubmitTrigger] = useState(false);
 
+  const [isDateValid, setIsDateValid] = useState(false);
 
-  const openParameterModal = (parameterName) => {
-    setParameterModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      headerText: parameterName,
-      modalBodyContent: "",
-    }));
-    setTimeout(() => {
-      setParameterModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalBodyContent: <ParameterListing parameterName={parameterName} />,
-      }));
-    }, 10);
+  const [submittedP4P, setSubmittedP4P] = useState(true);
+  const [submissionDate, setSubmissionDate] = useState(null);
+
+  const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
+    setSubmittedP4P(newSubmittedP4P);
+  }, []);
+
+  const handleSubmissionDate = useCallback((newDate) => {
+    setSubmissionDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handleSubmitSavingsReport = useCallback(() => {
+    setSubmitTrigger(true);
+  }, []);
+
+  const handleDateValidation = (isValid) => {
+    setIsDateValid(isValid);
   };
-
-  const ParameterListing = ({ parameterName }) => {
-    return (
-      <>
-        <TableContainer
-          component={Paper}
-          sx={{
-            bgcolor: "#2E813E20",
-            boxShadow: "none",
-            border: "1px solid #2E813E",
-          }}
-        >
-          <MuiTable size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Start Date</TableCell>
-                <TableCell>End Date</TableCell>
-                <TableCell>Usage</TableCell>
-              </TableRow>
-            </TableHead>
-            {Array.isArray(ELECTRICITY_DATA) &&
-              ELECTRICITY_DATA?.map((row, rowIndex) => (
-                <TableRow key={rowIndex}>
-                  <TableCell key={rowIndex}>{row?.start_date}</TableCell>
-                  <TableCell key={rowIndex}>{row?.end_date}</TableCell>
-                  <TableCell key={rowIndex}>{row?.usage}</TableCell>
-                </TableRow>
-              ))}
-          </MuiTable>
-        </TableContainer>
-      </>
-    );
-  };
-
-
 
   return (
     <>
@@ -208,44 +134,37 @@ const Performance = () => {
               Natural gas
             </Button>
           </StyledButtonGroup>
-          <Button
-            type="button"
-            sx={{
-              border: "2px solid #2E813E",
-            }}
-          >
-            Refresh
-          </Button>
-          <Button
-            type="button"
-            sx={{
-              backgroundColor: "#54585A",
-              color: "#ffffff",
-              "&:hover": {
-                backgroundColor: "#54585A",
-              },
-            }}
-          >
-            Submit Savings Report
-          </Button>
+          {!submittedP4P && (
+            <Button
+              type="button"
+              variant="contained"
+              onClick={handleSubmitSavingsReport}
+              disabled={!isDateValid}
+            >
+              Submit Savings Report
+            </Button>
+          )}
         </Grid>
 
-        <Grid item display={"flex"} justifyContent={"end"}>
-          <Typography
-            sx={{
-              padding: "6px",
-              backgroundColor: "#CFEEFF",
-              color: "#1976AA",
-              borderRadius: "12rem",
-              fontStyle: "italic",
-              fontSize: "14px !important",
-              fontWeight: "400",
-            }}
-          >
-            Savings Report has been submitted on 2020/03/05 13:35:01, pending
-            verification
-          </Typography>
-        </Grid>
+        {submittedP4P && submissionDate && (
+          <Grid item display="flex" justifyContent="end" width="100%">
+            <Typography
+              sx={{
+                padding: "6px 8px 6px 8px",
+                backgroundColor: "#CFEEFF",
+                color: "#1976AA",
+                borderRadius: "12rem",
+                fontStyle: "italic",
+                fontSize: { xs: "12px", md: "14px !important" },
+                fontWeight: "400",
+              }}
+            >
+              Savings Report has been submitted on{" "}
+              {format(submissionDate, "yyyy-MM-dd, HH:mm")}, pending
+              verification
+            </Typography>
+          </Grid>
+        )}
 
         <Grid item>
           <CustomAccordion
@@ -256,7 +175,7 @@ const Performance = () => {
 
           <CustomAccordion
             summary="Performance period data summary"
-            details={<PerformancePeriodDataSummary />}
+            details={<PerformancePeriodDataSummary meter_type={activeButton} />}
             panelId="performancePeriodDataSummary"
           />
 
@@ -265,6 +184,11 @@ const Performance = () => {
             details={
               <PerformancePeriodInformationAccordion
                 meter_type={activeButton}
+                submitTrigger={submitTrigger}
+                setSubmitTrigger={setSubmitTrigger}
+                onDateValidation={handleDateValidation}
+                onSubmittedP4PsChange={handleSubmittedP4PsChange}
+                onSubmissionDateChange={handleSubmissionDate}
               />
             }
             panelId="performancePeriodReportingInformation"
@@ -277,9 +201,13 @@ const Performance = () => {
           />
         </Grid>
       </Grid>
-      <EvModal
-        modalConfig={parameterModalConfig}
-        setModalConfig={setParameterModalConfig}
+      <Loader
+        sectionLoader
+        textLoader={processing}
+        minHeight="100vh"
+        loadingState={processing || loading}
+        loaderPosition="fixed"
+        loaderText={"Performance Scoring"}
       />
     </>
   );

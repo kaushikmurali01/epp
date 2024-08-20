@@ -19,7 +19,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     setActiveButton(btn_name);
   };
 
-  const { adminPerformanceDataMinMaxDate, incentiveSettings, loading} = useSelector(
+  const { adminPerformanceDataMinMaxDate, loading} = useSelector(
     (state) => state?.adminPerformanceReducer
   );
 
@@ -49,8 +49,6 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
       adminPerformanceDataMinMaxDate.min_date &&
       adminPerformanceDataMinMaxDate.max_date
     ) {
-      console.log("abcdefg");
-      
       const payload = {
         facility_id: Number(id),
         meter_type: meter_type,
@@ -63,7 +61,11 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
           "yyyy-MM-dd"
         ),
       };
-      dispatch(scoreAdminPerformanceData(payload));
+      dispatch(scoreAdminPerformanceData(payload))
+        .then()
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }, [dispatch, id, meter_type, adminPerformanceDataMinMaxDate]);
 

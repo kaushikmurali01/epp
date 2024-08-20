@@ -1,7 +1,10 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import LinearProgress from "@mui/material/LinearProgress";
-import { CircularProgress } from "@mui/material";
+import React from "react";
+import {
+  Box,
+  LinearProgress,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 
 export default function Loader({
@@ -11,6 +14,8 @@ export default function Loader({
   loadingState,
   customStyles,
   loaderPosition = "absolute",
+  textLoader,
+  loaderText = "Loading",
 }) {
   // sectionLoader is for circular loader
   // the Loader Box's min height will be sent via prop "minHeight" so that For a particular section we can show this loader
@@ -22,7 +27,7 @@ export default function Loader({
 
   const show_loader = loadingState || reduxLoaderState;
 
-  const displayType = sectionLoader ? "flex" : "block";
+  const displayType = sectionLoader || textLoader ? "flex" : "block";
 
   return (
     <>
@@ -43,7 +48,7 @@ export default function Loader({
       ) : (
         <Box
           display={show_loader ? displayType : "none"}
-          minHeight={sectionLoader ? minHeight : "auto"}
+          minHeight={sectionLoader || textLoader ? minHeight : "auto"}
           position={loaderPosition}
           sx={{
             justifyContent: "center",
@@ -56,7 +61,26 @@ export default function Loader({
             ...customStyles,
           }}
         >
-          {sectionLoader ? (
+          {textLoader ? (
+            <Box
+              sx={{
+                display: "flex",
+                gap: "1rem",
+                alignItems: "center",
+                marginTop: "1rem",
+                justifyContent: "center",
+              }}
+            >
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ marginRight: "1rem", fontWeight: 700 }}
+              >
+                Be patient, {loaderText} is in process
+              </Typography>
+              <div className="progress-loader"></div>
+            </Box>
+          ) : sectionLoader ? (
             <CircularProgress color="success" />
           ) : (
             <LinearProgress color="success" />

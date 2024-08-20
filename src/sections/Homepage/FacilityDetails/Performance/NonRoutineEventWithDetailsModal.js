@@ -236,7 +236,7 @@ const getUploadedFiles = () => {
         >
           Edit
         </Button>
-        <Button
+        {/* <Button
           variant="contained"
           sx={{
             backgroundColor: "primary.main",
@@ -246,7 +246,7 @@ const getUploadedFiles = () => {
           }}
         >
           Download
-        </Button>
+        </Button> */}
         <Button
           variant="contained"
           sx={{
