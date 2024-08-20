@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Formik, Form, Field } from "formik";
-import { Select, MenuItem, Grid } from "@mui/material";
+import { Select, MenuItem, Grid, IconButton, Box, Tooltip } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { MiniTable } from "components/MiniTable";
 import { useDispatch, useSelector } from "react-redux";
-import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
-import { format, isEqual, parseISO } from "date-fns";
-import {
-  calculateAdminPerformanceReport,
-  getAdminPerformanceReportFromDB,
-  updateAdminPerformanceReportInDB,
-} from "../../../../redux/admin/actions/adminPerformanceActions";
+import { format, isEqual, isValid, parseISO } from "date-fns";
 import EvModal from "utils/modal/EvModal";
+import {
+  calculatePerformanceReport,
+  getPerformanceReportFromDB,
+  updatePerformanceReportInDB,
+} from "../../../../redux/superAdmin/actions/performanceAction";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
 const paymentStatusOptions = [
@@ -66,11 +66,15 @@ const SavingsReportForm = ({
   const [selectedEndDate, setSelectedEndDate] = useState(null);
 
   const facility_id = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
+    (state) => state?.facilityReducer?.facilityDetails?.data?.id
   );
 
-  const { incentiveSettings, adminCalculatedPerformanceReport } = useSelector(
+  const { incentiveSettings } = useSelector(
     (state) => state?.adminPerformanceReducer
+  );
+
+  const { calculatedPerformanceReport } = useSelector(
+    (state) => state?.performanceReducer
   );
 
   const [p4PStartEndDates, setP4PStartEndDates] = useState({
@@ -193,7 +197,7 @@ const SavingsReportForm = ({
   }, [submitTrigger]);
 
   useEffect(() => {
-    if (selectedEndDate && p4PStartEndDates?.endDate) {
+    if (isValid(selectedEndDate) && p4PStartEndDates?.endDate) {
       let endDate = p4PStartEndDates.endDate;
       const isDateValid = endDate
         ? isEqual(
@@ -207,6 +211,39 @@ const SavingsReportForm = ({
     }
   }, [selectedEndDate, p4PStartEndDates?.endDate, onDateValidation]);
 
+  const handleRefreshCalculation = useCallback(() => {
+    if (isSubmitted || !selectedEndDate) return;
+
+    if (selectedEndDate && p4PStartEndDates?.startDate) {
+      const startDate = parseISO(p4PStartEndDates.startDate);
+
+      if (!isValid(startDate)) {
+        console.error("Invalid start date");
+        return;
+      }
+
+      const payload = {
+        start_date: format(startDate, "yyyy-MM-dd"),
+        end_date: format(selectedEndDate, "yyyy-MM-dd"),
+        facility_id: facility_id,
+        meter_type: meter_type,
+      };
+
+      try {
+        dispatch(calculatePerformanceReport(payload));
+      } catch (error) {
+        console.error("Error calculating performance report:", error);
+      }
+    }
+  }, [
+    selectedEndDate,
+    p4PStartEndDates,
+    facility_id,
+    meter_type,
+    dispatch,
+    isSubmitted,
+  ]);
+
   const handleDateChange = (newValue) => {
     if (isSubmitted) return;
     setSelectedEndDate(newValue);
@@ -218,7 +255,7 @@ const SavingsReportForm = ({
         meter_type: meter_type,
       };
       try {
-        dispatch(calculateAdminPerformanceReport(payload));
+        dispatch(calculatePerformanceReport(payload));
       } catch (error) {
         console.error("Error calculating performance report:", error);
       }
@@ -226,10 +263,10 @@ const SavingsReportForm = ({
   };
 
   useEffect(() => {
-    if (adminCalculatedPerformanceReport) {
-      setFormData(adminCalculatedPerformanceReport);
+    if (calculatedPerformanceReport) {
+      setFormData(calculatedPerformanceReport);
     }
-  }, [adminCalculatedPerformanceReport]);
+  }, [calculatedPerformanceReport]);
 
   const handleSaveSavingsReport = useCallback(() => {
     const report = {
@@ -240,20 +277,15 @@ const SavingsReportForm = ({
       performance_type: performanceP4PCalcTab,
       meter_type: meter_type,
     };
-    dispatch(updateAdminPerformanceReportInDB(facility_id, report))
+    dispatch(updatePerformanceReportInDB(facility_id, report))
       .then(() => {
         openSubmitReportModal();
-        getAdminPerformanceReportFromDB(facility_id, meter_type)
+        dispatch(getPerformanceReportFromDB(facility_id, meter_type, performanceP4PCalcTab))
       })
       .catch((error) => {
         console.error(error);
       });
   }, [formData, performanceP4PCalcTab, meter_type]);
-
-  const handleChange = (name, value) => {
-    if (isSubmitted) return;
-    setStatuses((prev) => ({ ...prev, [name]: value }));
-  };
 
   const getFields = () => {
     if (meter_type === 1) {
@@ -330,9 +362,31 @@ const SavingsReportForm = ({
   const data = [
     {
       metric: "Pay-for-performance period",
-      value: p4PStartEndDates?.startDate
-        ? `From ${format(p4PStartEndDates.startDate, "yyyy-MM-dd, HH:MM")}, to`
-        : "N/A",
+      value: (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "1rem",
+          }}
+        >
+          <Tooltip title="Refresh calculation">
+            <IconButton
+              onClick={handleRefreshCalculation}
+              disabled={isSubmitted || selectedEndDate === null}
+            >
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+          {p4PStartEndDates?.startDate
+            ? `From ${format(
+                p4PStartEndDates.startDate,
+                "yyyy-MM-dd, HH:MM"
+              )}, to`
+            : "N/A"}
+        </Box>
+      ),
       unit: (
         <DatePicker
           sx={{
@@ -347,6 +401,12 @@ const SavingsReportForm = ({
             p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
           }
           disabled={isSubmitted}
+          slotProps={{
+            actionBar: {
+              actions: ["clear", "accept"],
+              className: "my-datepicker-actionbar",
+            },
+          }}
         />
       ),
     },
@@ -364,8 +424,8 @@ const SavingsReportForm = ({
               name: option,
             }))}
             value={statuses[field.name] || "Estimated"}
-            onChange={handleChange}
-            // disabled={isSubmitted}
+            onChange={() => {}}
+            disabled={true}
           />
         ),
       };
@@ -379,7 +439,6 @@ const SavingsReportForm = ({
           options={paymentStatusOptions}
           value={p4pIncentiveStatus || "Under-review"}
           onChange={() => {}}
-          disabled={true}
         />
       ),
     },

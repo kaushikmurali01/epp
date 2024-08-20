@@ -240,36 +240,36 @@ const PerformanceSettingComponent = () => {
         justifyContent={"space-between"}
         alignItems={"center"}
         gap={"1rem"}
+        width={"100%"}
       >
-        <Grid item>
-          <Tabs
-            className="theme-tabs-list"
-            value={tabValue}
-            onChange={handleTabChange}
-            sx={{ display: "inline-flex" }}
-          >
-            <Tab
-              value="setting"
-              label="Setting"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-            <Tab
-              value="compose_email"
-              label="Compose email"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-            <Tab
-              value="contacts"
-              label="Contacts"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-            <Tab
-              value="email_template"
-              label="Email template"
-              sx={{ minWidth: "10rem", textTransform: "initial" }}
-            />
-          </Tabs>
-        </Grid>
+        <Tabs
+          className="theme-tabs-list"
+          value={tabValue}
+          onChange={handleTabChange}
+          sx={{ display: "inline-flex" }}
+          variant="scrollable"
+        >
+          <Tab
+            value="setting"
+            label="Setting"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+          <Tab
+            value="compose_email"
+            label="Compose email"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+          <Tab
+            value="contacts"
+            label="Contacts"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+          <Tab
+            value="email_template"
+            label="Email template"
+            sx={{ minWidth: "10rem", textTransform: "initial" }}
+          />
+        </Tabs>
         {buttonConfig[tabValue] && (
           <Grid item>
             <Typography

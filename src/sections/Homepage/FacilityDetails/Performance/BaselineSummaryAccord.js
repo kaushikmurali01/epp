@@ -26,13 +26,14 @@ const BaselineSummaryAccord = ({ meter_type }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getBaselineDataSummary(facility_id, meter_type));
+    dispatch(getBaselineDataSummary(facility_id, meter_type))
+      .then()
+    .catch((err)=>console.error(err))
+    
     if (facility_id) {
       dispatch(getIncentiveSettings(facility_id));
     }
   }, [dispatch, meter_type, facility_id]);
-
-  console.log(baselineSummaryData, incentiveSettings, "baselineSummaryData");
 
   const baselineSummary =
     baselineSummaryData?.baseline_summary_performance_page || {};

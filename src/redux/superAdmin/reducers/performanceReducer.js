@@ -55,6 +55,7 @@ const initialState = {
   performanceDataMinMaxDate: {},
   performanceDataVisualization: {},
   loading: false,
+  processing: false,
   error: null,
 };
 
@@ -238,19 +239,22 @@ const performanceReducer = (state = initialState, action) => {
     case SCORE_PERFORMANCE_DATA_REQUEST:
       return {
         ...state,
-        loading: true,
+        // loading: true,
+        processing: true,
         error: null,
       };
     case SCORE_PERFORMANCE_DATA_SUCCESS:
       return {
         ...state,
-        loading: false,
+        // loading: false,
+        processing: false,
         error: null,
       };
     case SCORE_PERFORMANCE_DATA_FAILURE:
       return {
         ...state,
-        loading: false,
+        // loading: false,
+        processing: false,
         error: action.payload,
       };
 

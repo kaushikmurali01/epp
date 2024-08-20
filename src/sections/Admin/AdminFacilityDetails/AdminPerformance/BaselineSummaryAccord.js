@@ -23,7 +23,6 @@ const BaselineSummaryAccord = ({ meter_type }) => {
     (state) => state?.adminPerformanceReducer
   );
   const dispatch = useDispatch();
-console.log(incentiveSettings);
 
   useEffect(() => {
     dispatch(getAdminBaselineDataSummary(facility_id, meter_type))
