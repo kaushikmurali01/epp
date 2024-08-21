@@ -881,12 +881,12 @@ const EntriesListing = ({
             <Tab
               value="hourlyOrSub-hourlyEntries"
               label="Hourly or Sub-hourly entries"
-              sx={{ minWidth: "10rem" }}
+              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
             />
             <Tab
               value="monthlyEntries"
               label="Monthly entries"
-              sx={{ minWidth: "10rem" }}
+              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
             />
           </Tabs>
         </Grid>
