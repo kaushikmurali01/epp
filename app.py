@@ -256,7 +256,7 @@ def calculate_sufficiency(df, start_date, end_date):
     monthly_sufficiency_data = get_monthly_sufficiency(start_date, end_date, sufficiency_data)
     # Calculate monthly sufficiency percentage
     monthly_sufficiency = ((monthly_data['monthly_sufficiency_percentage'].sum() / (
-                total_days * meter_count)) * 100) if total_days >= 364 else 0
+            total_days * meter_count)) * 100) if total_days >= 364 else 0
 
     return hourly_sufficiency, daily_sufficiency, monthly_sufficiency, monthly_sufficiency_data
 
@@ -628,6 +628,9 @@ def upload_file():
     if 'file' not in request.files:
         return jsonify({"error": "No file part"})
     file = request.files['file']
+    file_name = request.files['file'].filename
+    if file_name.split('.')[-1] not in ['xlsx', '.xls']:
+        return jsonify({'error': "Please provide a valid Excel file"})
     iv = False if request.form.get('iv') in [None, 'false'] else True
     facility_id = request.form.get('facility_id')
     meter_id = request.form.get('meter_id')
