@@ -62,6 +62,7 @@ const initialState = {
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
+  calculateBaselineLoading: false,
   error: null,
 };
 
@@ -294,20 +295,20 @@ const adminBaselineReducer = (state = initialState, action) => {
     case SUBMIT_ADMIN_BASELINE_D_T_REQUEST:
       return {
         ...state,
-        loading: true,
+        calculateBaselineLoading: true,
         error: null,
       };
     case SUBMIT_ADMIN_BASELINE_D_T_SUCCESS:
       return {
         ...state,
-        loading: false,
+        calculateBaselineLoading: false,
         submittedBaseline_d_t: action.payload,
         error: null,
       };
     case SUBMIT_ADMIN_BASELINE_D_T_FAILURE:
       return {
         ...state,
-        loading: false,
+        calculateBaselineLoading: false,
         error: action.payload,
       };
     case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST:
