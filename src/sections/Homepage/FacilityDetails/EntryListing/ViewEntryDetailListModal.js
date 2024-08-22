@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import CustomPagination from "components/CustomPagination";
 import { MiniTable } from "components/MiniTable";
 import React, { useEffect, useState } from "react";
@@ -29,14 +29,14 @@ const ViewEntryDetailListModal = ({
   const formatDateToLocal = (dateString) => {
     const date = parseISO(dateString);
     const localDate = new Date(date.getTime() + (new Date().getTimezoneOffset() * 60000));
-    return format(localDate, 'yyyy-MM-dd HH:mm');
+    return format(localDate, 'yyyy/MM/dd HH:mm');
   };
 
   const observeDataColumn = [
     {
       Header: "Start Date",
       accessor: (item) => (
-        <Typography variant="small" sx={{fontWeight: '400', color:"#54585A"}}>
+        <Typography variant="small" sx={{ fontWeight: '400', color: "#54585A" }}>
           {item?.["start_date"] &&
             formatDateToLocal(item?.["start_date"])}
         </Typography>
@@ -55,7 +55,11 @@ const ViewEntryDetailListModal = ({
       Header: "Meter Reading",
       accessor: "reading",
     },
-  ];
+  ]
+  const miniTableStyles = { 
+    overflowY: "auto", 
+    maxHeight: '420px'
+  }
 
   const getHourlyEntriesData = (pageInfoData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -93,12 +97,12 @@ const ViewEntryDetailListModal = ({
   return (
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
-        <Typography variant="h5" sx={{ textTransform: 'capitalize'}}>
+        <Typography variant="h5" sx={{ textTransform: 'capitalize' }}>
           {meterType == 1
-                ? "Electricity"
-                : meterType == 3
-                ? "Natural Gas"
-                : meterType == 2
+            ? "Electricity"
+            : meterType == 3
+              ? "Natural Gas"
+              : meterType == 2
                 ? "Water"
                 : ivName || ""}
         </Typography>
@@ -107,13 +111,15 @@ const ViewEntryDetailListModal = ({
         </Typography>
       </Grid>
       <Grid container>
-        <MiniTable columns={observeDataColumn} data={viewEntryList} />
-        <CustomPagination
-          count={count}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-          incomingRowPerPageArr={[10, 20, 50, 75, 100]}
-        />
+        <Box className="view-entries-table" sx={{width: '100%'}}>
+          <MiniTable columns={observeDataColumn} data={viewEntryList} tableStyle={miniTableStyles} />
+          <CustomPagination
+            count={count}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+            incomingRowPerPageArr={[10, 20, 50, 75, 100]}
+          />
+        </Box>
       </Grid>
     </Grid>
   );
