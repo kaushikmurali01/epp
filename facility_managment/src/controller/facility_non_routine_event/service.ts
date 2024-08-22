@@ -217,37 +217,37 @@ export class FacilityNonRoutineEventSevice {
             {
               name: "3rd P4P",
               value:
-                Number(findData3p4p?.parameter_data?.on_peak_energy_savings) +
-                Number(findData3p4p?.parameter_data?.off_peak_energy_savings),
+               ( Number(findData3p4p?.parameter_data?.on_peak_energy_savings?.value) +
+                Number(findData3p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
               onPeak: Number(
-                findData3p4p?.parameter_data?.on_peak_energy_savings
+                findData3p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
               offPeak: Number(
-                findData3p4p?.parameter_data?.off_peak_energy_savings
+                findData3p4p?.parameter_data?.off_peak_energy_savings?.value
               ),
             },
             {
               name: "2nd P4P",
               value:
-                Number(findData2p4p?.parameter_data?.on_peak_energy_savings) +
-                Number(findData2p4p?.parameter_data?.off_peak_energy_savings),
+               ( Number(findData2p4p?.parameter_data?.on_peak_energy_savings?.value) +
+                Number(findData2p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
               onPeak: Number(
-                findData2p4p?.parameter_data?.on_peak_energy_savings
+                findData2p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
               offPeak: Number(
-                findData2p4p?.parameter_data?.off_peak_energy_savings
+                findData2p4p?.parameter_data?.off_peak_energy_savings?.value
               ),
             },
             {
               name: "1st P4P",
               value:
-                Number(findData1p4p?.parameter_data?.on_peak_energy_savings) +
-                Number(findData1p4p?.parameter_data?.off_peak_energy_savings),
+                (Number(findData1p4p?.parameter_data?.on_peak_energy_savings?.value) +
+                Number(findData1p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
               onPeak: Number(
-                findData1p4p?.parameter_data?.on_peak_energy_savings
+                findData1p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
               offPeak: Number(
-                findData1p4p?.parameter_data?.off_peak_energy_savings
+                findData1p4p?.parameter_data?.off_peak_energy_savings?.value
               ),
             },
           ];
@@ -266,52 +266,52 @@ export class FacilityNonRoutineEventSevice {
             {
               name: "3rd P4P",
               value:
-                Number(
-                  findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+                (Number(
+                  findData3p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
                 ) +
                 Number(
                   findData3p4p?.parameter_data
-                    ?.off_peak_energy_savings_incentive
-                ),
+                    ?.off_peak_energy_savings_incentive?.value
+                )).toFixed(2),
               onPeak: Number(
-                findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+                findData3p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
               ),
               offPeak: Number(
-                findData3p4p?.parameter_data?.off_peak_energy_savings_incentive
+                findData3p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
               ),
             },
             {
               name: "2nd P4P",
               value:
-                Number(
-                  findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+                (Number(
+                  findData2p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
                 ) +
                 Number(
                   findData2p4p?.parameter_data
-                    ?.off_peak_energy_savings_incentive
-                ),
+                    ?.off_peak_energy_savings_incentive?.value
+                )).toFixed(2),
               onPeak: Number(
-                findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+                findData2p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
               ),
               offPeak: Number(
-                findData2p4p?.parameter_data?.off_peak_energy_savings_incentive
+                findData2p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
               ),
             },
             {
               name: "1st P4P",
               value:
-                Number(
-                  findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+                (Number(
+                  findData1p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
                 ) +
                 Number(
                   findData1p4p?.parameter_data
-                    ?.off_peak_energy_savings_incentive
-                ),
+                    ?.off_peak_energy_savings_incentive?.value
+                )).toFixed(2),
               onPeak: Number(
-                findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+                findData1p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
               ),
               offPeak: Number(
-                findData1p4p?.parameter_data?.off_peak_energy_savings_incentive
+                findData1p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
               ),
             },
             {

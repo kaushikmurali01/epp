@@ -39,6 +39,7 @@ import { IParticipantAgreementAttributes } from "../../interfaces/participant_ag
 import { FacilitySavePerformance } from "../../models/facility_save_performance.model";
 import { SavingPlanRequest } from "../../models/saving_plan_request.model";
 import { FacilityMeasure } from "../../models/facility_measure.model";
+import { Workflow } from "../../models/workflow.model";
 
 export class FacilityService {
   static async getFacility(
@@ -528,6 +529,7 @@ LIMIT
         updated_by: userToken.id,
       };
       const result = await Facility.create(obj);
+      await Workflow.create({ facility_id: result.id });
       const findUser = await User.findOne({ where: { id: userToken.id } });
       await UserResourceFacilityPermission.create({
         email: findUser.email,

@@ -1217,7 +1217,6 @@ export async function getFacilityNaicCode(
     const decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
-
     const result = await FacilityController.getFacilityNaic(
       decodedToken,
       facilityCategory ? String(facilityCategory) : "",
@@ -1230,6 +1229,8 @@ export async function getFacilityNaicCode(
     // Return success response
     return { body: responseBody };
   } catch (error) {
+    context.log("error here", error);
+
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }

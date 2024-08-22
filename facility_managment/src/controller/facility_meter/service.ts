@@ -1,6 +1,7 @@
 import { IUserToken } from "../../interfaces/usertoken.interface";
 import { ResponseHandler } from "../../utils/response-handler";
 import {
+  BASE_LINE_STATUS,
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
@@ -19,6 +20,7 @@ import { rawQuery } from "../../services/database";
 import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
 import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
 import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
+import { Baseline } from "../../models/facility_baseline.model";
 
 export class FacilityMeterService {
   static async getFacilityMeterListing(
@@ -133,6 +135,19 @@ export class FacilityMeterService {
       let findFacilityId = await FacilityMeterDetail.findOne({
         where: { id: id },
       });
+      let findBaseline = await Baseline.findOne({
+        where: {
+          facility_id: findFacilityId.facility_id,
+          meter_type: findFacilityId.meter_type,
+        },
+      });
+      if (findBaseline.status != BASE_LINE_STATUS.draft) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.RECORD_NOT_FOUND,
+          RESPONSE_MESSAGES.cantDelete
+        );
+        return resp;
+      }
       const result = await FacilityMeterDetail.update(
         { is_active: STATUS.IS_DELETED },
         { where: { id: id } }

@@ -27,6 +27,7 @@ export const RESPONSE_MESSAGES = {
   accountDeactive: "Account Deactivated Successfully",
   accountNotFound: "Sorry not able to fetch the account",
   notFound404: "Sorry not able to fetch the details",
+  cantDelete: "Sorry, can not delete this meter.",
   wrongPassword: "Incorrect Password",
   pUpdated: "Password Updated Successfully",
   prUpdated: "Profile Updated Successfully",

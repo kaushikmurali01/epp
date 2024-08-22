@@ -30,6 +30,7 @@ import { Email } from "../../../helper/email-sender.helper";
 import { rawQuery } from "../../../services/database";
 import { UserResourceFacilityPermission } from "../../../models/user-resource-permission";
 import { Baseline } from "../../../models/facility_baseline.model";
+import { Workflow } from "../../../models/workflow.model";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -169,6 +170,7 @@ export class AdminFacilityService {
       };
 
       const result = await Facility.create(obj);
+      await Workflow.create({ facility_id: result.id });
       const meter_type1: any = {
         facility_id: result.id,
         parameter_data: [],
@@ -267,6 +269,8 @@ export class AdminFacilityService {
           { where: { id: facilityId } }
         );
         const result = await Facility.create(obj);
+        await Workflow.create({ facility_id: result.id });
+
         const meter_type1: any = {
           facility_id: result.id,
           parameter_data: [],
