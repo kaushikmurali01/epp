@@ -364,7 +364,7 @@ export const fetchDataExplorationSummaryList = (
       NotificationsToast({
         message: error?.response?.data?.error
           ? error?.response?.data?.error
-          : error.message ,
+          : error.message,
         type: "error",
       });
       throw error;
@@ -406,7 +406,10 @@ export const fetchRawSummaryMeterList = (
         endpointWithParams += `&page_size=${pageSize}`;
       }
       const response = await GET_REQUEST(endpointWithParams);
-      const data = response.data;
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
       dispatch(fetchRawSummaryMeterListSuccess(data));
       return data;
     } catch (error) {
