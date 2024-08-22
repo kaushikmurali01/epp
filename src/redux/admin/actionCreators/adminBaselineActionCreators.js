@@ -45,6 +45,9 @@ import {
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -255,7 +258,19 @@ export const fetchAdminRawSummaryMeterListFailure = (error) => ({
   type: FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE,
   payload: error,
 });
+export const fetchAdminOutliersSettingsRequest = () => ({
+  type: FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST,
+});
 
+export const fetchAdminOutliersSettingsSuccess = (data) => ({
+  type: FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminOutliersSettingsFailure = (error) => ({
+  type: FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
+  payload: error,
+});
 export const clearAdminBaselineState = () => ({
   type: CLEAR_ADMIN_BASELINE_STATE,
 });

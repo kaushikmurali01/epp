@@ -178,7 +178,7 @@ const AdminBaselineModel = () => {
         flexDirection: "column",
       }}
     >
-      <Stack spacing={2}>
+      {/* <Stack spacing={2}>
         <Breadcrumbs
           separator={<NavigateNextIcon fontSize="small" />}
           aria-label="breadcrumb"
@@ -190,7 +190,7 @@ const AdminBaselineModel = () => {
         >
           {breadcrumbs}
         </Breadcrumbs>
-      </Stack>
+      </Stack> */}
       <Grid
         container
         sx={{
