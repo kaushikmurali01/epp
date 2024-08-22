@@ -393,7 +393,10 @@ export const fetchAdminRawSummaryMeterList = (
         endpointWithParams += `&page_size=${pageSize}`;
       }
       const response = await GET_REQUEST(endpointWithParams);
-      const data = response.data;
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
       dispatch(fetchAdminRawSummaryMeterListSuccess(data));
       return data;
     } catch (error) {
