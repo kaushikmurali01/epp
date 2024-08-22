@@ -18,16 +18,16 @@ export const b2cPolicies = {
     },
     authorities: {
         signUpSignIn: {
-            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_SignUpSignIn`
+            authority: `${process.env.REACT_APP_AZURE_LOGIN}/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_SignUpSignIn`
         },
         forgotPassword: {
-            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_password_reset`,
+            authority: `${process.env.REACT_APP_AZURE_LOGIN}/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/B2C_1_password_reset`,
         },
         editProfile: {
-            authority: `https://${process.env.REACT_APP_AZURE_ENV}.b2clogin.com/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/b2c_1_edit_profile_v2`,
+            authority: `${process.env.REACT_APP_AZURE_LOGIN}/${process.env.REACT_APP_AZURE_ENV}.onmicrosoft.com/b2c_1_edit_profile_v2`,
         },
     },
-    authorityDomain: `${process.env.REACT_APP_AZURE_ENV}.b2clogin.com`
+    authorityDomain: `${process.env.REACT_APP_AZURE_LOGIN}`
 };
 
 

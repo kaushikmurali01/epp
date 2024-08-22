@@ -19,6 +19,7 @@
     "azure-maps-control": "^3.1.2",
     "azure-maps-rest": "^2.1.1",
     "date-fns": "^3.6.0",
+    "env-cmd": "^10.1.0",
     "formik": "^2.4.5",
     "formik-persist": "^1.1.0",
     "html-react-parser": "^5.1.12",
@@ -49,7 +50,13 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:dev": "env-cmd react-scripts start",
+    "start:stage": "env-cmd -f .env.stage react-scripts start",
+    "start:prod": "env-cmd -f .env.prod react-scripts start",
     "build": "react-scripts build",
+    "build:dev": "env-cmd react-scripts build",
+    "build:stage": "env-cmd -f .env.stage react-scripts build",
+    "build:prod": "env-cmd -f .env.prod react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "serve": "serve -s build"

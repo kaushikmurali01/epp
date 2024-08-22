@@ -61,11 +61,12 @@ const initialState = {
   observeData: [],
   submittedBaseline_d_t: [],
   dataExplorationSummaryList: [],
-  rawMeterSummaryList:[],
-  outliersSettingsData:[],
+  rawMeterSummaryList: [],
+  outliersSettingsData: [],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
+  calculateBaselineLoading: false,
   error: null,
 };
 
@@ -298,20 +299,20 @@ const baselineReducer = (state = initialState, action) => {
     case SUBMIT_BASELINE_D_T_REQUEST:
       return {
         ...state,
-        loading: true,
+        calculateBaselineLoading: true,
         error: null,
       };
     case SUBMIT_BASELINE_D_T_SUCCESS:
       return {
         ...state,
-        loading: false,
+        calculateBaselineLoading: false,
         submittedBaseline_d_t: action.payload,
         error: null,
       };
     case SUBMIT_BASELINE_D_T_FAILURE:
       return {
         ...state,
-        loading: false,
+        calculateBaselineLoading: false,
         error: action.payload,
       };
     case FETCH_DATA_EXPLORATION_SUMMARY_REQUEST:
@@ -352,26 +353,26 @@ const baselineReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-      case FETCH_OUTLIERS_SETTINGS_REQUEST:
-        return {
-          ...state,
-          loading: true,
-          error: null,
-        };
-      case FETCH_OUTLIERS_SETTINGS_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          outliersSettingsData: action.payload,
-          error: null,
-        };
-      case FETCH_OUTLIERS_SETTINGS_FAILURE:
-        return {
-          ...state,
-          loading: false,
-          error: action.payload,
-        };
-      
+    case FETCH_OUTLIERS_SETTINGS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_OUTLIERS_SETTINGS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        outliersSettingsData: action.payload,
+        error: null,
+      };
+    case FETCH_OUTLIERS_SETTINGS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
     case CLEAR_BASELINE_STATE:
       return initialState;
     default:

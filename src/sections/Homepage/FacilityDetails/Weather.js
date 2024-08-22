@@ -61,6 +61,7 @@ import MapComponent from "components/MapComponent/MapComponent";
 import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import { Description } from "@mui/icons-material";
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -96,10 +97,10 @@ const Weather = () => {
   const [weatherData, setWeatherData] = useState({});
   const [weatherParamsChecked, setWeatherParamChecked] = useState({
     temp: true,
-    rel_hum: true,
-    precip_amount: true,
-    wind_spd: true,
-    station_press: true,
+    rel_hum: false,
+    precip_amount: false,
+    wind_spd: false,
+    station_press: false,
   });
 
   const [imgUploadData, setImgUploadData] = useState("");
@@ -378,6 +379,11 @@ const Weather = () => {
   };
 
   const AddEditIndependentVariable = ({ isEdit, data }) => {
+    const initialValues = {
+      name: "",
+      description: "",
+    };
+
     const formSubmit = (data) => {
       setLoadingState(true);
       const apiURL =
@@ -435,7 +441,7 @@ const Weather = () => {
                 />
               </Stack>
 
-              <Grid display="flex" sx={{ marginTop: "1rem" }}>
+              <Grid display="flex" sx={{ marginTop: "2rem" }}>
                 <ButtonWrapper type="submit" variant="contained">
                   Add
                 </ButtonWrapper>
@@ -818,7 +824,11 @@ const Weather = () => {
               <Tab
                 value="weather"
                 label="Weather"
-                sx={{ minWidth: "10rem", maxWidth: "10rem" }}
+                sx={{
+                  minWidth: "10rem",
+                  maxWidth: "10rem",
+                  textTransform: "none",
+                }}
               />
               {independentVarsList?.length
                 ? independentVarsList.map((item, i) => {
@@ -827,7 +837,11 @@ const Weather = () => {
                         key={item?.id}
                         value={item?.id}
                         label={item?.name}
-                        sx={{ minWidth: "10rem", maxWidth: "10rem" }}
+                        sx={{
+                          minWidth: "10rem",
+                          maxWidth: "10rem",
+                          textTransform: "none",
+                        }}
                       />
                     );
                   })
@@ -883,10 +897,18 @@ const Weather = () => {
                       }}
                     >
                       <MuiTable size="small">
-                        <TableHead>
-                          <TableRow>
+                        <TableHead sx={{ background: "#CBFFD5" }}>
+                          <TableRow
+                            sx={{ borderBottom: "none!important" }}
+                            size="small"
+                          >
                             <TableCell
-                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                              size="small"
+                              padding="none"
+                              sx={{
+                                fontStyle: "italic",
+                                borderBottom: "none!important",
+                              }}
                             ></TableCell>
                             {Array.isArray(weatherStations) &&
                               weatherStations?.map((type, index) => (
@@ -908,21 +930,36 @@ const Weather = () => {
                                       fontWeight: "bold",
                                       textDecoration: "underline",
                                     }),
+                                    textAlign: "center!important",
                                   }}
                                   onClick={() => {
                                     setSelectedStation(type.station_id);
                                     getWeatherData(type.station_id);
                                   }}
                                 >
-                                  {type?.["station_name"].toLowerCase()}
+                                  {type?.["station_name"].toLowerCase()} Weather
+                                  station
                                 </TableCell>
                               ))}
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          <TableRow>
+                          <TableRow
+                            sx={{
+                              background: "#FFFFFF",
+                            }}
+                          >
                             <TableCell
-                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                              size="small"
+                              padding="none"
+                              sx={{
+                                "&:first-child": {
+                                  background: "#CBFFD5",
+                                },
+                                borderBottom: "none!important",
+                                padding: "4px 10px!important",
+                                textWrap: "nowrap",
+                              }}
                             >
                               Latitude
                             </TableCell>
@@ -930,47 +967,109 @@ const Weather = () => {
                               weatherStations?.map((type, index) => (
                                 <TableCell
                                   key={type.meterType}
-                                  sx={{ color: "#111", fontStyle: "italic" }}
+                                  sx={{
+                                    color: "#111",
+                                    borderBottom: "none!important",
+                                    padding: "4px 4px!important",
+                                    textAlign: "center!important",
+                                  }}
                                 >
                                   {type?.["latitude"]}
                                 </TableCell>
                               ))}
                           </TableRow>
-                          <TableRow>
+                          <TableRow
+                            sx={{
+                              background: "#EBFFEF",
+                            }}
+                          >
                             <TableCell
-                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                              sx={{
+                                "&:first-child": {
+                                  background: "#CBFFD5",
+                                },
+                                borderBottom: "none!important",
+                                padding: "4px 10px!important",
+                                textWrap: "nowrap",
+                              }}
                             >
                               Longitude
                             </TableCell>
                             {Array.isArray(weatherStations) &&
                               weatherStations?.map((count, index) => (
-                                <TableCell key={index} sx={{ color: "#111" }}>
+                                <TableCell
+                                  key={index}
+                                  sx={{
+                                    color: "#111",
+                                    borderBottom: "none!important",
+                                    padding: "4px 4px!important",
+                                    textAlign: "center!important",
+                                  }}
+                                >
                                   {count?.["longitude"]}
                                 </TableCell>
                               ))}
                           </TableRow>
-                          <TableRow>
+                          <TableRow
+                            sx={{
+                              background: "#FFFFFF",
+                            }}
+                          >
                             <TableCell
-                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                              sx={{
+                                "&:first-child": {
+                                  background: "#CBFFD5",
+                                },
+                                borderBottom: "none!important",
+                                padding: "4px 10px!important",
+                                textWrap: "nowrap",
+                              }}
                             >
                               Climate ID
                             </TableCell>
                             {Array.isArray(weatherStations) &&
                               weatherStations?.map((count, index) => (
-                                <TableCell key={index} sx={{ color: "#111" }}>
+                                <TableCell
+                                  key={index}
+                                  sx={{
+                                    color: "#111",
+                                    borderBottom: "none!important",
+                                    padding: "4px 4px!important",
+                                    textAlign: "center!important",
+                                  }}
+                                >
                                   {count?.["climate_id"]}
                                 </TableCell>
                               ))}
                           </TableRow>
-                          <TableRow>
+                          <TableRow
+                            sx={{
+                              background: "#EBFFEF",
+                            }}
+                          >
                             <TableCell
-                              sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}
+                              sx={{
+                                "&:first-child": {
+                                  background: "#CBFFD5",
+                                },
+                                borderBottom: "none!important",
+                                padding: "4px 10px!important",
+                                textWrap: "nowrap",
+                              }}
                             >
                               Station ID
                             </TableCell>
                             {Array.isArray(weatherStations) &&
                               weatherStations?.map((count, index) => (
-                                <TableCell key={index} sx={{ color: "#111" }}>
+                                <TableCell
+                                  key={index}
+                                  sx={{
+                                    color: "#111",
+                                    borderBottom: "none!important",
+                                    padding: "4px 4px!important",
+                                    textAlign: "center!important",
+                                  }}
+                                >
                                   {count?.["station_id"]}
                                 </TableCell>
                               ))}
