@@ -46,6 +46,9 @@ import {
   fetchAdminRawSummaryMeterListRequest,
   fetchAdminRawSummaryMeterListSuccess,
   fetchAdminRawSummaryMeterListFailure,
+  fetchAdminOutliersSettingsRequest,
+  fetchAdminOutliersSettingsSuccess,
+  fetchAdminOutliersSettingsFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -402,6 +405,27 @@ export const fetchAdminRawSummaryMeterList = (
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminRawSummaryMeterListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminOutliersSettingsData = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminOutliersSettingsRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      console.log(response);
+      dispatch(fetchAdminOutliersSettingsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminOutliersSettingsFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

@@ -103,7 +103,7 @@ const DataSummary = () => {
         saveButtonClass: "",
         cancelButtonClass: "",
       },
-      headerText: "Details & sitting",
+      headerText: "Details & settings",
       headerSubText: "",
       modalBodyContent: "",
       saveButtonAction: "",

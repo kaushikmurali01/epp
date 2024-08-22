@@ -112,7 +112,7 @@ const MeterDetailsModal = ({
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
+        <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
           Download as Excel
         </Typography>
       </Grid>
