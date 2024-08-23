@@ -12,7 +12,6 @@ import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useDispatch, useSelector } from "react-redux";
 import EvModal from "utils/modal/EvModal";
-import Loader from "pages/Loader";
 import NonRoutineEventWithDetailsModal from "./NonRoutineEventWithDetailsModal";
 import AddNonRoutineDataModal from "./AddNonRoutineDataModal";
 import AddNonRoutineEventModal from "./AddNonRoutineEventModal";
@@ -46,8 +45,6 @@ const PerformancePeriodInformationAccordion = ({
   );
 
   const {
-    loading,
-    incentiveSettings,
     adminNonRoutineEventList,
     adminNonRoutineEventDetails,
     adminPerformanceReportInDB,
@@ -522,13 +519,6 @@ const PerformancePeriodInformationAccordion = ({
           </Grid>
         </Grid>
       </Grid>
-
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
-      />
 
       <EvModal
         modalConfig={addNonRoutineEventModalConfig}

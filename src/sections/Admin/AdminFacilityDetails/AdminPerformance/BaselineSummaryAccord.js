@@ -1,7 +1,6 @@
 import { Grid, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Loader from "pages/Loader";
 import { getAdminBaselineDataSummary, getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const baselineStyleInAccordion = {
@@ -19,7 +18,7 @@ const BaselineSummaryAccord = ({ meter_type }) => {
   const incentiveSettings = useSelector(
     (state) => state?.adminPerformanceReducer?.incentiveSettings
   );
-  const { adminBaselineSummaryData, loading } = useSelector(
+  const { adminBaselineSummaryData } = useSelector(
     (state) => state?.adminPerformanceReducer
   );
   const dispatch = useDispatch();
@@ -102,12 +101,6 @@ const BaselineSummaryAccord = ({ meter_type }) => {
           </Grid>
         </Grid>
       </Grid>
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
-      />
     </>
   );
 };

@@ -18,12 +18,11 @@ import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
 import ReactQuill from "react-quill";
 import { deleteEmailTemplate, getEmailTemplate, updateEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
-import Loader from "pages/Loader";
 import { addEmailTemplateValidationSchema } from "utils/validations/formValidation";
 
 const EmailTemplateMicroComponent = () => {
   const dispatch = useDispatch();
-  const { emailTemplateList = [], loading, error } = useSelector(
+  const { emailTemplateList = [], error } = useSelector(
     (state) => state.adminPerformanceReducer
   );
 
@@ -382,12 +381,6 @@ const EmailTemplateMicroComponent = () => {
       <EvModal
         modalConfig={editTemplateModalConfig}
         setModalConfig={setEditTemplateModalConfig}
-      />
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
       />
     </Box>
   );

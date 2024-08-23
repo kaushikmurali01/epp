@@ -19,7 +19,7 @@ import IconButton from "@mui/material/IconButton";
 
 const ComposeEmailMicroComponent = () => {
   const dispatch = useDispatch();
-  const { emailTemplateList = [], loading, error } = useSelector(
+  const { emailTemplateList = [] } = useSelector(
     (state) => state?.adminPerformanceReducer
   );
   const facility_id = useSelector(
@@ -299,12 +299,6 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
       <EvModal
         modalConfig={previewModalConfig}
         setModalConfig={setPreviewModalConfig}
-      />
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
       />
     </>
   );

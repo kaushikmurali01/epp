@@ -7,7 +7,6 @@ import EvModal from "utils/modal/EvModal";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getContacts, getEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
-import Loader from "pages/Loader";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import { GET_REQUEST } from "utils/HTTPRequests";
 import ArchivedEmailListsModal from "./ArchivedEmailListsModal";
@@ -27,7 +26,7 @@ const PerformanceSettingComponent = () => {
 
   const facility_id = facilityDetails?.id;
 
-  const { contactList, archivedEmailList, loading } = useSelector(
+  const { contactList, loading } = useSelector(
     (state) => state.adminPerformanceReducer
   );
 
@@ -305,12 +304,6 @@ const PerformanceSettingComponent = () => {
       <EvModal
         modalConfig={addContactModalConfig}
         setModalConfig={setAddContactModalConfig}
-      />
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
       />
     </Grid>
   );

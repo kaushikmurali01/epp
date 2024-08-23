@@ -48,6 +48,10 @@ const Performance = () => {
     (state) => state?.performanceReducer
   );
 
+  const isLoading = useSelector(
+    (state) => state?.baselineReducer?.loading
+  );
+
   const buttonStyle = {
     padding: "0.44rem 1.5rem",
     lineHeight: "1",
@@ -205,7 +209,7 @@ const Performance = () => {
         sectionLoader
         textLoader={processing}
         minHeight="100vh"
-        loadingState={processing || loading}
+        loadingState={processing || loading || isLoading}
         loaderPosition="fixed"
         loaderText={"Performance Scoring"}
       />
