@@ -11,6 +11,7 @@ import {
   Grid,
   MenuItem,
   Select,
+  Typography,
 } from "@mui/material";
 import { MiniTable } from "components/MiniTable";
 import { useDispatch, useSelector } from "react-redux";
@@ -84,7 +85,18 @@ const DetailsAndSetting = () => {
     return [
       { Header: "Property", accessor: "property", headerVisibility: "hidden" },
       ...summaryData.info.map((item) => ({
-        Header: item.meter_name,
+        Header: (
+          <Typography
+            variant="small2"
+            sx={{
+              textTransform: "capitalize",
+              fontSize: "0.75rem",
+              fontWeight: 600,
+            }}
+          >
+            {item.meter_name.toLowerCase()}
+          </Typography>
+        ),
         accessor: item.meter_name,
       })),
     ];

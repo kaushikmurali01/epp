@@ -45,6 +45,9 @@ import {
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS,
+  FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -59,6 +62,7 @@ const initialState = {
   observeData: [],
   dataExplorationSummaryList: [],
   rawMeterSummaryList: [],
+  outliersSettingsData: [],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -344,6 +348,25 @@ const adminBaselineReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ADMIN_RAW_SUMMARY_METER_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        outliersSettingsData: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE:
       return {
         ...state,
         loading: false,
