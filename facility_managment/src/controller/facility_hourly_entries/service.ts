@@ -13,6 +13,7 @@ import {
 import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
+import { Workflow } from "../../models/workflow.model";
 
 export class FacilityMeterHourlyEntriesService {
   static async getFacilityMeterEntriesListing(
@@ -76,6 +77,10 @@ export class FacilityMeterHourlyEntriesService {
       };
 
       const result = await FacilityMeterHourlyEntries.create(obj);
+      // await Workflow.update(
+      //   { ew: true },
+      //   { where: { facility_id: body.facility_id } }
+      // );
       await Facility.update(
         {
           facility_id_submission_status:
@@ -133,10 +138,27 @@ export class FacilityMeterHourlyEntriesService {
     facilityId: number
   ): Promise<FacilityMeterHourlyEntries[]> {
     try {
+      const findFacility = await FacilityMeterHourlyEntries.findOne({
+        where: { id: facilityId },
+      });
       const result = await FacilityMeterHourlyEntries.update(
         { is_active: STATUS.IS_DELETED },
         { where: { id: facilityId } }
       );
+      if (findFacility.facility_id) {
+        let findAllFaciltyMeter = await FacilityMeterHourlyEntries.findAll({
+          where: {
+            facility_id: findFacility.facility_id,
+            is_active: STATUS.IS_ACTIVE,
+          },
+        });
+        if (findAllFaciltyMeter && !findAllFaciltyMeter.length) {
+          // await Workflow.update(
+          //   { ew: false },
+          //   { where: { facility_id: findFacility.facility_id } }
+          // );
+        }
+      }
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,

@@ -216,9 +216,14 @@ export class FacilityNonRoutineEventSevice {
           returnObj = [
             {
               name: "3rd P4P",
-              value:
-               ( Number(findData3p4p?.parameter_data?.on_peak_energy_savings?.value) +
-                Number(findData3p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
+              value: (
+                Number(
+                  findData3p4p?.parameter_data?.on_peak_energy_savings?.value
+                ) +
+                Number(
+                  findData3p4p?.parameter_data?.off_peak_energy_savings?.value
+                )
+              ).toFixed(2),
               onPeak: Number(
                 findData3p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
@@ -228,9 +233,14 @@ export class FacilityNonRoutineEventSevice {
             },
             {
               name: "2nd P4P",
-              value:
-               ( Number(findData2p4p?.parameter_data?.on_peak_energy_savings?.value) +
-                Number(findData2p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
+              value: (
+                Number(
+                  findData2p4p?.parameter_data?.on_peak_energy_savings?.value
+                ) +
+                Number(
+                  findData2p4p?.parameter_data?.off_peak_energy_savings?.value
+                )
+              ).toFixed(2),
               onPeak: Number(
                 findData2p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
@@ -240,9 +250,14 @@ export class FacilityNonRoutineEventSevice {
             },
             {
               name: "1st P4P",
-              value:
-                (Number(findData1p4p?.parameter_data?.on_peak_energy_savings?.value) +
-                Number(findData1p4p?.parameter_data?.off_peak_energy_savings?.value)).toFixed(2),
+              value: (
+                Number(
+                  findData1p4p?.parameter_data?.on_peak_energy_savings?.value
+                ) +
+                Number(
+                  findData1p4p?.parameter_data?.off_peak_energy_savings?.value
+                )
+              ).toFixed(2),
               onPeak: Number(
                 findData1p4p?.parameter_data?.on_peak_energy_savings?.value
               ),
@@ -265,53 +280,65 @@ export class FacilityNonRoutineEventSevice {
           returnObj = [
             {
               name: "3rd P4P",
-              value:
-                (Number(
-                  findData3p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+              value: (
+                Number(
+                  findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+                    ?.value
                 ) +
                 Number(
                   findData3p4p?.parameter_data
                     ?.off_peak_energy_savings_incentive?.value
-                )).toFixed(2),
+                )
+              ).toFixed(2),
               onPeak: Number(
-                findData3p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+                findData3p4p?.parameter_data?.on_peak_energy_savings_incentive
+                  ?.value
               ),
               offPeak: Number(
-                findData3p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
+                findData3p4p?.parameter_data?.off_peak_energy_savings_incentive
+                  ?.value
               ),
             },
             {
               name: "2nd P4P",
-              value:
-                (Number(
-                  findData2p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+              value: (
+                Number(
+                  findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+                    ?.value
                 ) +
                 Number(
                   findData2p4p?.parameter_data
                     ?.off_peak_energy_savings_incentive?.value
-                )).toFixed(2),
+                )
+              ).toFixed(2),
               onPeak: Number(
-                findData2p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+                findData2p4p?.parameter_data?.on_peak_energy_savings_incentive
+                  ?.value
               ),
               offPeak: Number(
-                findData2p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
+                findData2p4p?.parameter_data?.off_peak_energy_savings_incentive
+                  ?.value
               ),
             },
             {
               name: "1st P4P",
-              value:
-                (Number(
-                  findData1p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+              value: (
+                Number(
+                  findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+                    ?.value
                 ) +
                 Number(
                   findData1p4p?.parameter_data
                     ?.off_peak_energy_savings_incentive?.value
-                )).toFixed(2),
+                )
+              ).toFixed(2),
               onPeak: Number(
-                findData1p4p?.parameter_data?.on_peak_energy_savings_incentive?.value
+                findData1p4p?.parameter_data?.on_peak_energy_savings_incentive
+                  ?.value
               ),
               offPeak: Number(
-                findData1p4p?.parameter_data?.off_peak_energy_savings_incentive?.value
+                findData1p4p?.parameter_data?.off_peak_energy_savings_incentive
+                  ?.value
               ),
             },
             {
@@ -321,17 +348,17 @@ export class FacilityNonRoutineEventSevice {
               offPeak: 0,
             },
           ];
-          let totalValueobj: any = {};
+          let totalValueobj: any = { value: 0, onPeak: 0, offPeak: 0 };
           returnObj.map((ele) => {
-            totalValueobj.value += ele.value;
-            totalValueobj.onPeak += ele.onPeak;
-            totalValueobj.offPeak += ele.offPeak;
+            totalValueobj.value += Number(ele.value);
+            totalValueobj.onPeak += Number(ele.onPeak);
+            totalValueobj.offPeak += Number(ele.offPeak);
           }),
             returnObj.unshift({
               name: "Total",
-              value: totalValueobj.value,
-              onPeak: totalValueobj.onPeak,
-              offPeak: totalValueobj.offPeak,
+              value: Number(Number(totalValueobj.value).toFixed(2)),
+              onPeak: Number(Number(totalValueobj.onPeak).toFixed(2)),
+              offPeak: Number(Number(totalValueobj.offPeak).toFixed(2)),
             });
           finalResult = { data: returnObj };
         } else {

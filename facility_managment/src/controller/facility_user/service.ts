@@ -529,7 +529,7 @@ LIMIT
         updated_by: userToken.id,
       };
       const result = await Facility.create(obj);
-      await Workflow.create({ facility_id: result.id });
+      // await Workflow.create({ facility_id: result.id });
       const findUser = await User.findOne({ where: { id: userToken.id } });
       await UserResourceFacilityPermission.create({
         email: findUser.email,

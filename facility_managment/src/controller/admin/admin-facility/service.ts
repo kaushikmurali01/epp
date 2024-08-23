@@ -170,7 +170,7 @@ export class AdminFacilityService {
       };
 
       const result = await Facility.create(obj);
-      await Workflow.create({ facility_id: result.id });
+      // await Workflow.create({ facility_id: result.id });
       const meter_type1: any = {
         facility_id: result.id,
         parameter_data: [],
@@ -269,7 +269,7 @@ export class AdminFacilityService {
           { where: { id: facilityId } }
         );
         const result = await Facility.create(obj);
-        await Workflow.create({ facility_id: result.id });
+        // await Workflow.create({ facility_id: result.id });
 
         const meter_type1: any = {
           facility_id: result.id,
