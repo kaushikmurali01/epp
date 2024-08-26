@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 
@@ -47,8 +48,13 @@ def clean_raw_data(dataframe):
     new_df = df.pivot_table(values='reading',
                             index='start_date',
                             columns='meter_name',
-                            aggfunc='first')
-
+                            aggfunc='first',
+                            )
+    new_df_columns = new_df.columns
+    temp_columns = ['Temp1', 'Temp2', 'Temp3']
+    for col in temp_columns:
+        if col not in new_df_columns:
+            new_df[col] = np.nan
     # Reset the index to make start_date a column
     new_df.reset_index(inplace=True)
 
@@ -61,7 +67,7 @@ def clean_raw_data(dataframe):
 
     columns_order = ['Date', 'EnergyConsumption', 'Temperature']
     columns_order.extend(iv_columns)
-    columns_order.extend(['Temp1', 'Temp2', 'Temp3'])
+    columns_order.extend(temp_columns)
     new_df = new_df[columns_order]
 
     # Apply the function
@@ -81,4 +87,5 @@ def clean_raw_data(dataframe):
     output_df = new_df[output_col]
     output_df = output_df[output_df['EnergyConsumption'] != 0]
     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+    output_df = output_df.drop(output_df[output_df['EnergyConsumption'] <= 0].index)
     return output_df.to_dict()
