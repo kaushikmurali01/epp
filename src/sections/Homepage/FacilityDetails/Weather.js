@@ -61,7 +61,7 @@ import MapComponent from "components/MapComponent/MapComponent";
 import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
-import { Description } from "@mui/icons-material";
+
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -351,8 +351,11 @@ const Weather = () => {
   };
 
   useEffect(() => {
-    getIndependentVariales();
-    getWeatherStations();
+    if(facilityData?.id){
+      getIndependentVariales();
+      getWeatherStations();
+    }
+
   }, [facilityData?.id]);
 
   const getIndependentVariales = () => {
@@ -776,7 +779,7 @@ const Weather = () => {
 
   useEffect(() => {
     if (
-      Object.keys(facilityData).length > 0 &&
+      Object.keys(facilityData)?.length > 0 &&
       !dataProcessingLoader &&
       selectedIv
     ) {
@@ -785,7 +788,7 @@ const Weather = () => {
     }
 
     if (
-      Object.keys(facilityData).length > 0 &&
+      Object.keys(facilityData)?.length > 0 &&
       dataProcessingLoader &&
       selectedIv
     ) {
