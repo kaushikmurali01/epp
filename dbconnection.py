@@ -23,8 +23,6 @@ def get_db_connection():
             'host': config.db_creds[3],
             'port': server.local_bind_port
         }
-        conn = psycopg2.connect(**params)
-        return conn  # , server  # Return the server object for later stopping
     else:
         params = {
             'database': config.db_creds[0],
@@ -33,7 +31,8 @@ def get_db_connection():
             'host': config.db_creds[3],
             'port': config.port  # Assuming the database is directly accessible on this port
         }
-        return psycopg2.connect(**params)
+    conn = psycopg2.connect(**params)
+    return conn
 
 
 def dbtest(query):
@@ -177,9 +176,6 @@ def refresh_materialised_view(view='epp.combined_meter_weather_readings'):
     conn.close()
 
 
-
-
-
 def bulk_insert_df(df, table_name, record_id, file_table):
     cols = ','.join(list(df.columns))
     vals_placeholder = ','.join(['%s' for _ in df.columns])
@@ -208,7 +204,3 @@ def update_workflow(field, facility):
     conn.commit()
     curs.close()
     conn.close()
-
-
-
-

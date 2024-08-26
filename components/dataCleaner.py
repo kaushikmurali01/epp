@@ -77,8 +77,8 @@ def clean_raw_data(dataframe):
     new_df['Temperature'] = new_df.Temperature.interpolate()
     output_columns = ['Date', 'EnergyConsumption', 'Temperature']
     output_columns.extend([i for i in iv_columns ])
-    # new_df[output_columns]
     new_df = new_df.drop(new_df[new_df['EnergyConsumption'] <= 0].index)
+    new_df.reset_index()
     # Apply the function to the EnergyConsumption column
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
     new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]

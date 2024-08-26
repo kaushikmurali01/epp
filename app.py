@@ -832,7 +832,11 @@ def get_clean_data():
             order.pop(order.index(weather_station))
             order = [weather_station] + order
             temp1, temp2, temp3 = order
+        date_obj = datetime.strptime(end_date, '%Y-%m-%d %H:%M')
 
+        # Adjust to the end of the day
+        end_date = date_obj.replace(hour=23, minute=59)
+        end_date = end_date.strftime('%Y-%m-%d %H:%M')
         clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id)
 
         df = dbtest(clean_data_query)
