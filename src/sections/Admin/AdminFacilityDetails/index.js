@@ -30,6 +30,8 @@ const AdminFacilityDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  console.log(id, "AdminFacilityDetails id")
+
   useEffect(() => {
     dispatch(fetchAdminFacilityDetails(id));
   }, [dispatch, id]);
