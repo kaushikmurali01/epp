@@ -8,7 +8,7 @@ from sshtunnel import SSHTunnelForwarder
 
 
 def get_db_connection():
-    if config.LOCAL:
+    if not config.LOCAL:
         server = SSHTunnelForwarder(
             (config.ssh_ip, 22),
             ssh_username=config.ssh_user,
@@ -20,7 +20,7 @@ def get_db_connection():
             'database': config.db_creds[0],
             'user': config.db_creds[1],
             'password': config.db_creds[2],
-            'host': '127.0.0.1',  # Use localhost since we're using SSH tunneling
+            'host': config.db_creds[3],
             'port': server.local_bind_port
         }
         conn = psycopg2.connect(**params)
@@ -30,7 +30,7 @@ def get_db_connection():
             'database': config.db_creds[0],
             'user': config.db_creds[1],
             'password': config.db_creds[2],
-            'host': config.ssh_bind_address,
+            'host': config.db_creds[3],
             'port': config.port  # Assuming the database is directly accessible on this port
         }
         return psycopg2.connect(**params)
