@@ -22,28 +22,44 @@ import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
 import UserReviewBaselineModal from "./UserReviewBaselineModal";
 import ModelConstructorView from "./ModelConstructorView";
 import { getSummaryDataByMeterType } from ".";
+import { format } from "date-fns";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
-  const [renderFormComp, setRenderFormComp] = useState(false);
+  const [renderFormComp, setRenderFormComp] = useState(true);
+  const [baselineDetails, setBaselineDetails] = useState(null);
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
+  useEffect(() => {
+    dispatch(fetchAdminBaselineDetailsFromDb(id));
+  }, [dispatch, id]);
+
   const baselineListData = useSelector(
     (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data
   );
 
+  const handleBaselineDetails = () => {
+    const meter = getSummaryDataByMeterType(baselineListData, activeButton);
+    setBaselineDetails(meter);
+  };
+
   useEffect(() => {
+    handleBaselineDetails();
     const baselineDataStoredInDB = getSummaryDataByMeterType(
       baselineListData,
       activeButton
     );
-    if (baselineDataStoredInDB?.status !== "ACCEPTED") {
-      setRenderFormComp(true);
-    } else {
+    if (
+      baselineDataStoredInDB?.status === "SUBMITTED" ||
+      baselineDataStoredInDB?.status === "REVIEWED" ||
+      baselineDataStoredInDB?.status === "CALCULATED"
+    ) {
       setRenderFormComp(false);
+    } else {
+      setRenderFormComp(true);
     }
   }, [id, activeButton, baselineListData]);
 
@@ -156,6 +172,30 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             Natural gas
           </Button>
         </StyledButtonGroup>
+        {(baselineDetails?.status === "SUBMITTED" ||
+          baselineDetails?.status === "CALCULATED") && (
+          <Typography
+            variant="h6"
+            sx={{
+              padding: "0.375rem 1rem",
+              borderRadius: "1.8125rem",
+              background: "#CFEEFF",
+              color: "#1976AA",
+              fontSize: "0.875rem",
+              fontStyle: "italic",
+              fontWeight: 400,
+              mt: { xs: 2, lg: 0 },
+            }}
+          >
+            {baselineDetails?.meter_type === 1 && "Electricity"}
+            {baselineDetails?.meter_type === 3 && "Natural gas"}
+            {baselineDetails?.meter_type === 2 && "Water"} baseline has been
+            successfully{" "}
+            {baselineDetails?.status === "CALCULATED" && "calculated"}
+            {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
+            {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
+          </Typography>
+        )}
       </Grid>
 
       <Box>
@@ -163,18 +203,43 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
           summary="Model constructor"
           details={
             renderFormComp ? (
-              <ModelConstructorForm
-                handleSufficiencySettings={handleSufficiencySettings}
-                openSeeDetails={openSeeDetailsModal}
-                meterType={activeButton}
-                openUserReviewBaselineModal={openUserReviewBaselineModal}
-              />
+              <>
+                {baselineDetails?.status === "SUBMITTED" && (
+                  <Grid container justifyContent="flex-end">
+                    <Button
+                      variant="contained"
+                      onClick={() => setRenderFormComp(!renderFormComp)}
+                    >
+                      Stop Editing
+                    </Button>
+                  </Grid>
+                )}
+                <ModelConstructorForm
+                  handleSufficiencySettings={handleSufficiencySettings}
+                  openSeeDetails={openSeeDetailsModal}
+                  meterType={activeButton}
+                  openUserReviewBaselineModal={openUserReviewBaselineModal}
+                />
+              </>
             ) : (
-              <ModelConstructorView
-                handleSufficiencySettings={handleSufficiencySettings}
-                openSeeDetails={openSeeDetailsModal}
-                meterType={activeButton}
-              />
+              <>
+                {baselineDetails?.status !== "REVIEWED" &&
+                  baselineDetails?.status !== "CALCULATED" && (
+                    <Grid container justifyContent="flex-end">
+                      <Button
+                        variant="contained"
+                        onClick={() => setRenderFormComp(!renderFormComp)}
+                      >
+                        Edit baseline
+                      </Button>
+                    </Grid>
+                  )}
+                <ModelConstructorView
+                  handleSufficiencySettings={handleSufficiencySettings}
+                  openSeeDetails={openSeeDetailsModal}
+                  meterType={activeButton}
+                />
+              </>
             )
           }
           panelId="modelConstructor"

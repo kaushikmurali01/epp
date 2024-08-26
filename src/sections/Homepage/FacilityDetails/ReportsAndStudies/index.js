@@ -237,10 +237,12 @@ const ReportsAndStudies = () => {
   });
 
   const openAlertMessageModal = (message, type) => {
-    setAddMeasureModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: false,
-    }));
+    if (type === "onSiteGeneration") {
+      setAddMeasureModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: false,
+      }));
+    }
 
     setAlertMessageModalConfig((prevState) => ({
       ...prevState,
@@ -260,11 +262,13 @@ const ReportsAndStudies = () => {
     }
     function handleSendHelpButton() {
       const body = { measure_category: measureType };
-      dispatch(sendHelpRequestForMeasure(id, body));
-      setAlertMessageModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: false,
-      }));
+      if (measureType === "onSiteGeneration") {
+        dispatch(sendHelpRequestForMeasure(id, body));
+        setAlertMessageModalConfig((prevState) => ({
+          ...prevState,
+          modalVisible: false,
+        }));
+      }
     }
     return (
       <Box>
@@ -281,9 +285,11 @@ const ReportsAndStudies = () => {
           >
             Return back
           </Button>
-          <Button variant="contained" onClick={handleSendHelpButton}>
-            Send help request
-          </Button>
+          {measureType === "onSiteGeneration" && (
+            <Button variant="contained" onClick={handleSendHelpButton}>
+              Send help request
+            </Button>
+          )}
         </Grid>
       </Box>
     );

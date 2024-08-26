@@ -351,6 +351,7 @@ const ModelConstructorForm = ({
             }
           );
         }
+        setActivateCalculateBaseline(true);
       })
       .catch((err) => {});
   };
