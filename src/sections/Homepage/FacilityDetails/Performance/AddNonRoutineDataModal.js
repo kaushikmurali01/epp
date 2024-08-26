@@ -317,6 +317,11 @@ const AddNonRoutineDataModal = ({
                                   format="MM/dd/yyyy"
                                   minDate={parseISO(event_from_period)}
                                   maxDate={parseISO(event_to_period)}
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    },
+                                  }}
                                 />
                                 {touched.data_entries?.[index]?.start_date &&
                                   errors.data_entries?.[index]?.start_date && (
@@ -341,6 +346,11 @@ const AddNonRoutineDataModal = ({
                                   minDate={parseISO(event_from_period)}
                                   maxDate={parseISO(event_to_period)}
                                   format="MM/dd/yyyy"
+                                  slotProps={{
+                                    textField: {
+                                      readOnly: true,
+                                    },
+                                  }}
                                 />
                                 {touched.data_entries?.[index]?.end_date &&
                                   errors.data_entries?.[index]?.end_date && (
