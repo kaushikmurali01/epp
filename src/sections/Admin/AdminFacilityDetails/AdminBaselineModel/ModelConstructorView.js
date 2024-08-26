@@ -197,7 +197,11 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
             <Form>
               <Grid container display={"grid"} gap={"2rem"}>
                 <Grid item>
-                  <Typography variant="h6" sx={headingStyleInAccordion}>
+                  <Typography
+                    variant="h6"
+                    sx={headingStyleInAccordion}
+                    style={{ marginBottom: "90px" }}
+                  >
                     Baseline period
                   </Typography>
                   {baselinePeriod?.start_date && baselinePeriod?.end_date && (

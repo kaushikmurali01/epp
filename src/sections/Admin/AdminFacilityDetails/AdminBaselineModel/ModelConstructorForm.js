@@ -56,6 +56,15 @@ const ModelConstructorForm = ({
     heating_balance_unit: "",
     cooling_balance_unit: "",
   });
+  const [dummyVariables, setDummyVariables] = useState({
+    Hours: false,
+    Months: false,
+    Years: false,
+    Weeks: false,
+    Dates: false,
+    Weekdays: false,
+    Weekdays_hours: false,
+  });
   const [baselinePeriod, setBaselinePeriod] = useState(null);
   const [baselinePeriodLoading, setBaselinePeriodLoading] = useState(true);
   const [baselinePeriodFailed, setBaselinePeriodFailed] = useState(false);
@@ -138,8 +147,10 @@ const ModelConstructorForm = ({
       baselineListData,
       meterType
     );
-    if (baselineCalculated?.status === "SUBMITTED") {
-      console.log("submitted");
+    if (
+      baselineCalculated?.status === "SUBMITTED" ||
+      baselineCalculated?.status === "REQUESTED"
+    ) {
       setCheckSufficiencyAfter(true);
       setFormData({
         ...baselineCalculated?.parameter_data,
@@ -151,18 +162,18 @@ const ModelConstructorForm = ({
           new Date(baselineCalculated?.parameter_data?.end_date),
           "yyyy-MM-dd"
         ),
-        dummyVariables: !baselineCalculated?.parameter_data?.dummyVariables
-          ? {
-              Hours: false,
-              Months: false,
-              Years: false,
-              Weeks: false,
-              Dates: false,
-              Weekdays: false,
-              Weekdays_hours: false,
-            }
-          : !baselineCalculated?.parameter_data?.dummyVariables,
       });
+      const submittedDummyVariables = baselineCalculated?.parameter_data
+        ?.dummyVariables || {
+        Hours: false,
+        Months: false,
+        Years: false,
+        Weeks: false,
+        Dates: false,
+        Weekdays: false,
+        Weekdays_hours: false,
+      };
+      setDummyVariables(submittedDummyVariables);
       setSufficiencyCheckDataLocally({
         daily: { ...baselineCalculated?.parameter_data?.daily },
         hourly: { ...baselineCalculated?.parameter_data?.hourly },
@@ -185,26 +196,27 @@ const ModelConstructorForm = ({
         start_date: sliderStartDate,
         end_date: sliderEndDate,
         granularity: "hourly",
-        dummyVariables: {
-          Hours: false,
-          Months: false,
-          Years: false,
-          Weeks: false,
-          Dates: false,
-          Weekdays: false,
-          Weekdays_hours: false,
-        },
         weatherStation: formData?.weatherStation || "",
         independent_variables: [],
         meter_type: meterType,
       };
-      Object.keys(initialValues.dummyVariables).forEach((key) => {
+      const initialDummyVariables = {
+        Hours: false,
+        Months: false,
+        Years: false,
+        Weeks: false,
+        Dates: false,
+        Weekdays: false,
+        Weekdays_hours: false,
+      };
+      Object.keys(initialDummyVariables).forEach((key) => {
         if (sufficiencyCheckData.hasOwnProperty(key)) {
-          initialValues.dummyVariables[key] = sufficiencyCheckData[key];
+          initialDummyVariables[key] = sufficiencyCheckData[key];
         }
       });
 
       setFormData(initialValues);
+      setDummyVariables(initialDummyVariables);
     }
   }, [baselinePeriod, meterType, sliderStartDate, sliderEndDate]);
 
@@ -240,6 +252,10 @@ const ModelConstructorForm = ({
         setActivateCalculateBaseline(true);
         setDisableSeeDetails(true);
       });
+  };
+
+  const updateDummyVariables = (updatedDummyVariables) => {
+    setDummyVariables(updatedDummyVariables);
   };
 
   useEffect(() => {
@@ -417,7 +433,11 @@ const ModelConstructorForm = ({
   };
 
   const onCalculateBaselineButtonClick = () => {
-    const data = { ...dataForCalculateBaseline, ...modelApproachData };
+    const data = {
+      ...dataForCalculateBaseline,
+      ...modelApproachData,
+      dummyVariables: dummyVariables,
+    };
     dispatch(submitAdminBaselineDt(data))
       .then((res) => {
         const updatedBaselineData = {
@@ -433,6 +453,7 @@ const ModelConstructorForm = ({
         if (baseline_id) {
           openUserReviewBaselineModal(baseline_id, updatedBaselineData);
         }
+        setActivateCalculateBaseline(true);
       })
       .catch((err) => {});
   };
@@ -627,40 +648,30 @@ const ModelConstructorForm = ({
                     </Typography>
                   </Grid>
                   <Box display={"flex"} flexWrap={"wrap"} gap={"1rem"}>
-                    {values?.dummyVariables &&
-                      Object.keys(values?.dummyVariables)?.map((dummyVar) => (
-                        <FormGroup key={dummyVar}>
-                          <FormControlLabel
-                            control={
-                              <Field
-                                name={`dummyVariables.${dummyVar}`}
-                                type="checkbox"
-                                as={Checkbox}
-                                checked={values.dummyVariables[dummyVar]}
-                                onChange={(event) => {
-                                  setFieldValue(
-                                    `dummyVariables.${dummyVar}`,
-                                    event.target.checked
-                                  );
-                                  handleSubmit({
-                                    ...values,
-                                    dummyVariables: {
-                                      ...values.dummyVariables,
-                                      [dummyVar]: event.target.checked,
-                                    },
-                                  });
-                                }}
-                              />
-                            }
-                            sx={{ color: "text.secondary2" }}
-                            label={
-                              <Typography sx={{ fontSize: "14px!important" }}>
-                                {dummyVar}
-                              </Typography>
-                            }
-                          />
-                        </FormGroup>
-                      ))}
+                    {Object.keys(dummyVariables).map((dummyVar) => (
+                      <FormGroup key={dummyVar}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={dummyVariables[dummyVar]}
+                              onChange={(event) => {
+                                const updatedDummyVariables = {
+                                  ...dummyVariables,
+                                  [dummyVar]: event.target.checked,
+                                };
+                                updateDummyVariables(updatedDummyVariables);
+                              }}
+                            />
+                          }
+                          sx={{ color: "text.secondary2" }}
+                          label={
+                            <Typography sx={{ fontSize: "14px!important" }}>
+                              {dummyVar}
+                            </Typography>
+                          }
+                        />
+                      </FormGroup>
+                    ))}
                   </Box>
                 </Grid>
                 <Grid container spacing={4}>
@@ -727,6 +738,7 @@ const ModelConstructorForm = ({
               key={modelType.name}
               value={modelType.name}
               control={<Radio />}
+              disabled
               label={
                 <Grid
                   sx={{

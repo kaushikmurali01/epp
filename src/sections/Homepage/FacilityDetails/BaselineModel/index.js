@@ -246,7 +246,7 @@ const BaselineModel = () => {
           calculateBaselineLoading
         }
         loaderPosition="fixed"
-        loaderText={"Calculate baseline "}
+        loaderText={"Baseline calculation "}
       />
     </Grid>
   );

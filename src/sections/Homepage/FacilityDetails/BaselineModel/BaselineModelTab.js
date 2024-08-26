@@ -64,8 +64,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
       baselineDataStoredInDB?.user_type === 1 &&
       (baselineDataStoredInDB?.status === "SUBMITTED" ||
         baselineDataStoredInDB?.status === "REVIEWED" ||
-        baselineDataStoredInDB?.status === "REQUESTED" ||
-        baselineDataStoredInDB?.status === "ACCEPTED")
+        baselineDataStoredInDB?.status === "REQUESTED")
     ) {
       setRenderViewOnlyComp(true);
     } else {
@@ -311,7 +310,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             {baselineDetails?.meter_type === 1 && "Electricity"}
             {baselineDetails?.meter_type === 3 && "Natural gas"}
             {baselineDetails?.meter_type === 2 && "Water"} baseline has been
-            successfully {baselineDetails?.status === "CALCULATED" && "created"}
+            successfully{" "}
+            {baselineDetails?.status === "CALCULATED" && "calculated"}
             {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
             {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
           </Typography>
