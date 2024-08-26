@@ -8,7 +8,6 @@ import { useParams } from "react-router-dom";
 import { activeButtonStyle, inactiveButtonStyle, StyledButtonGroup } from "../AdminBaselineModel/styles";
 import { getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
 import { format, parseISO } from "date-fns";
-import Loader from "pages/Loader";
 import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
 
 const PerformancePeriodDataSummary = ({meter_type}) => {
@@ -19,7 +18,7 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     setActiveButton(btn_name);
   };
 
-  const { adminPerformanceDataMinMaxDate, loading} = useSelector(
+  const { adminPerformanceDataMinMaxDate} = useSelector(
     (state) => state?.adminPerformanceReducer
   );
 
@@ -378,12 +377,6 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
       <EvModal
         modalConfig={performanceDataMeterDetailsModalConfig}
         setModalConfig={setPerformanceDataMeterDetailsModalConfig}
-      />
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
       />
     </Grid>
   );

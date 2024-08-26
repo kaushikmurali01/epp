@@ -373,6 +373,12 @@ const SavingsReportForm = ({
         >
           <Tooltip title="Refresh calculation">
             <IconButton
+              sx={{
+                background: "#2e813e",
+                color: "#FFF",
+                ":hover": { color: "#FFF", background: "#1e6329" },
+                transition: "all 0.3s",
+              }}
               onClick={handleRefreshCalculation}
               disabled={isSubmitted || selectedEndDate === null}
             >
@@ -402,6 +408,9 @@ const SavingsReportForm = ({
           }
           disabled={isSubmitted}
           slotProps={{
+            textField: {
+              readOnly: true,
+            },
             actionBar: {
               actions: ["clear", "accept"],
               className: "my-datepicker-actionbar",

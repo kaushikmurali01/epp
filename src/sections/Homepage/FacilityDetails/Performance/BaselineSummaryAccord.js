@@ -3,7 +3,6 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getBaselineDataSummary } from "../../../../redux/superAdmin/actions/performanceAction";
 import { getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
-import Loader from "pages/Loader";
 
 const baselineStyleInAccordion = {
   color: "#242424",
@@ -20,7 +19,7 @@ const BaselineSummaryAccord = ({ meter_type }) => {
   const incentiveSettings = useSelector(
     (state) => state?.adminPerformanceReducer?.incentiveSettings
   );
-  const { baselineSummaryData, loading } = useSelector(
+  const { baselineSummaryData } = useSelector(
     (state) => state?.performanceReducer
   );
   const dispatch = useDispatch();
@@ -104,12 +103,6 @@ const BaselineSummaryAccord = ({ meter_type }) => {
           </Grid>
         </Grid>
       </Grid>
-      <Loader
-        sectionLoader
-        minHeight="100vh"
-        loadingState={loading}
-        loaderPosition="fixed"
-      />
     </>
   );
 };

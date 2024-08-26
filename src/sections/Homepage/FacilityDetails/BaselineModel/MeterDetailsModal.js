@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import CustomPagination from "components/CustomPagination";
 import { MiniTable } from "components/MiniTable";
 import React, { useEffect, useState } from "react";
@@ -108,22 +108,39 @@ const MeterDetailsModal = ({
       accessor: "reading",
     },
   ];
+
+  const miniTableStyles = {
+    overflowY: "auto",
+    maxHeight: "420px",
+  };
+
   return (
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
+        <Typography
+          disabled
+          variant="h6"
+          color="#2C77E9"
+          sx={{ cursor: "pointer" }}
+        >
           Download as Excel
         </Typography>
       </Grid>
       <Grid container>
-        <MiniTable columns={observeDataColumn} data={meterRawData} />
-        <CustomPagination
-          count={count}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-          incomingRowPerPageArr={[10, 20, 50, 75, 100]}
-        />
+        <Box className="view-entries-table" sx={{ width: "100%" }}>
+          <MiniTable
+            columns={observeDataColumn}
+            data={meterRawData}
+            tableStyle={miniTableStyles}
+          />
+          <CustomPagination
+            count={count}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+            incomingRowPerPageArr={[10, 20, 50, 75, 100]}
+          />
+        </Box>
       </Grid>
     </Grid>
   );

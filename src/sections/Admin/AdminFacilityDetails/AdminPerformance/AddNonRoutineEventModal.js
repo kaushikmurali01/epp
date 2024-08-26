@@ -37,7 +37,7 @@ const AddNonRoutineEventModal = ({
     event_description: "",
   });
 
-  const { adminNonRoutineEventDetails, loading } = useSelector(
+  const { adminNonRoutineEventDetails } = useSelector(
     (state) => state?.adminPerformanceReducer
   );
 
@@ -124,6 +124,7 @@ const AddNonRoutineEventModal = ({
                 format="MM/dd/yyyy"
                 slotProps={{
                   textField: {
+                    readOnly: true,
                     helperText:
                       touched.event_from_period && errors.event_from_period,
                     error:
@@ -156,6 +157,7 @@ const AddNonRoutineEventModal = ({
                 format="MM/dd/yyyy"
                 slotProps={{
                   textField: {
+                    readOnly: true,
                     helperText:
                       touched.event_to_period && errors.event_to_period,
                     error:

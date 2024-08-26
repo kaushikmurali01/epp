@@ -17,6 +17,8 @@ import PerformancePeriodDataVisualization from "./PerformancePeriodDataVisualiza
 import PerformanceSettingComponent from "./PerformanceSettingComponent";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { format } from "date-fns";
+import Loader from "pages/Loader";
+import { useSelector } from "react-redux";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -71,6 +73,12 @@ const Performance = () => {
     backgroundColor: "#EBEBEB",
     color: "#696969",
   };
+
+  const { loading, processing } = useSelector(
+    (state) => state?.adminPerformanceReducer
+  );
+
+  const isLoading = useSelector((state) => state?.baselineReducer?.loading);
 
   const [submitTrigger, setSubmitTrigger] = useState(false);
 
@@ -200,7 +208,8 @@ const Performance = () => {
                 fontWeight: "400",
               }}
             >
-              Savings Report has been submitted on {format(submissionDate, "yyyy-MM-dd, HH:MM")}, pending
+              Savings Report has been submitted on{" "}
+              {format(submissionDate, "yyyy-MM-dd, HH:MM")}, pending
               verification
             </Typography>
           </Grid>
@@ -247,7 +256,14 @@ const Performance = () => {
           </Grid>
         )}
       </Grid>
-      <div className="g"></div>
+      <Loader
+        sectionLoader
+        textLoader={processing}
+        minHeight="100vh"
+        loadingState={processing || loading || isLoading}
+        loaderPosition="fixed"
+        loaderText={"Performance Scoring"}
+      />
     </>
   );
 };

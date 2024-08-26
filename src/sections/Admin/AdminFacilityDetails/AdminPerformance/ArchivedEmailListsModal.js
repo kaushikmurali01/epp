@@ -44,7 +44,7 @@ const ArchivedEmailListsModal = ({facility_id}) => {
   const inputRef = useRef(null);
   const [searchString, setSearchString] = useState("");
 
-  const { archivedEmailList, loading } = useSelector(
+  const { archivedEmailList } = useSelector(
     (state) => state.adminPerformanceReducer
   );
   const [activeButtonEmailArchive, setActiveButtonEmailArchive] = useState(0);

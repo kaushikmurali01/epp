@@ -84,6 +84,7 @@ import {
 
 const initialState = {
   loading: false,
+  processing: false,
   emailTemplate: null,
   emailTemplateList: [],
   editedEmailTemplate: null,
@@ -425,19 +426,19 @@ const adminPerformanceReducer = (state = initialState, action) => {
     case SCORE_ADMIN_PERFORMANCE_DATA_REQUEST:
       return {
         ...state,
-        loading: true,
+        processing: true,
         error: null,
       };
     case SCORE_ADMIN_PERFORMANCE_DATA_SUCCESS:
       return {
         ...state,
-        loading: false,
+        processing: false,
         error: null,
       };
     case SCORE_ADMIN_PERFORMANCE_DATA_FAILURE:
       return {
         ...state,
-        loading: false,
+        processing: false,
         error: action.payload,
       };
 
