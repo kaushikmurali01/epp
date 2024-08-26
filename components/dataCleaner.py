@@ -87,4 +87,5 @@ def clean_raw_data(dataframe):
     output_df = new_df[output_col]
     output_df = output_df[output_df['EnergyConsumption'] != 0]
     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+    output_df = output_df.drop(output_df[output_df['EnergyConsumption'] <= 0].index)
     return output_df.to_dict()
