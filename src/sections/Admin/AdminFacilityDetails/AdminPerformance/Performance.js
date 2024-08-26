@@ -181,7 +181,7 @@ const Performance = () => {
               >
                 Setting
               </Typography>
-              {!submittedP4P && (
+              {/* {!submittedP4P && (
                 <Button
                   type="button"
                   variant="contained"
@@ -190,12 +190,12 @@ const Performance = () => {
                 >
                   Submit Savings Report
                 </Button>
-              )}
+              )} */}
             </>
           )}
         </Grid>
 
-        {submittedP4P && submissionDate && (
+        {/* {submittedP4P && submissionDate && (
           <Grid item display="flex" justifyContent="end" width="100%">
             <Typography
               sx={{
@@ -213,7 +213,7 @@ const Performance = () => {
               verification
             </Typography>
           </Grid>
-        )}
+        )} */}
 
         {isPerformanceSettingComponent ? (
           <PerformanceSettingComponent />

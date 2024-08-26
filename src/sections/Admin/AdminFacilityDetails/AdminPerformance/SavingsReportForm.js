@@ -113,7 +113,7 @@ const SavingsReportForm = ({
     modalBodyContent: "",
   });
 
-  const openSubmitReportModal = () => {
+  const openVerifiedReportModal = () => {
     setSubmitReportModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -124,9 +124,7 @@ const SavingsReportForm = ({
           </figure>
         </Grid>
       ),
-      headerSubText: "Thank you for submitting Savings Report!",
-      modalBodyContent:
-        "We have received your 1st Pay-for-Performance Period Savings Report and will review it shortly. Please note that this process may take some time. We appreciate your patience and understanding.  Once reviewed, you will receive an email.",
+      headerSubText: "Savings report has been verified successfully!",
     }));
   };
 
@@ -218,7 +216,15 @@ const SavingsReportForm = ({
         meter_type: meter_type,
       };
       try {
-        dispatch(calculateAdminPerformanceReport(payload));
+        dispatch(calculateAdminPerformanceReport(payload)).then(() => {
+          // Reset all statuses to "Submitted" after calculation
+          setStatuses((prevStatuses) =>
+            Object.keys(prevStatuses).reduce((acc, key) => {
+              acc[key] = "Submitted";
+              return acc;
+            }, {})
+          );
+        });
       } catch (error) {
         console.error("Error calculating performance report:", error);
       }
@@ -250,42 +256,106 @@ const SavingsReportForm = ({
       };
 
       try {
-        dispatch(calculateAdminPerformanceReport(payload));
+        dispatch(calculateAdminPerformanceReport(payload)).then(() => {
+          // Reset all statuses to "Submitted" after calculation
+          setStatuses((prevStatuses) =>
+            Object.keys(prevStatuses).reduce((acc, key) => {
+              acc[key] = "Submitted";
+              return acc;
+            }, {})
+          );
+        });
       } catch (error) {
         console.error("Error calculating performance report:", error);
       }
     }
-  }, [
-    selectedEndDate,
-    p4PStartEndDates,
-    facility_id,
-    meter_type,
-    dispatch,
-    isSubmitted,
-  ]);
+  }, [selectedEndDate, p4PStartEndDates, facility_id, meter_type, dispatch]);
 
-  const handleSaveSavingsReport = useCallback(() => {
-    const report = {
-      data: Object.entries(formData).reduce((acc, [key, value]) => {
-        acc[key] = { value, status: "Submitted" };
-        return acc;
-      }, {}),
-      performance_type: performanceP4PCalcTab,
-      meter_type: meter_type,
-    };
-    dispatch(updateAdminPerformanceReportInDB(facility_id, report))
-      .then(() => {
-        openSubmitReportModal();
-        getAdminPerformanceReportFromDB(facility_id, meter_type)
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, [formData, performanceP4PCalcTab, meter_type]);
+  // const handleRefreshCalculation = useCallback(() => {
+  //   if (!selectedEndDate) return;
+
+  //   if (selectedEndDate && p4PStartEndDates?.startDate) {
+  //     const startDate = parseISO(p4PStartEndDates.startDate);
+
+  //     if (!isValid(startDate)) {
+  //       console.error("Invalid start date");
+  //       return;
+  //     }
+
+  //     const payload = {
+  //       start_date: format(startDate, "yyyy-MM-dd"),
+  //       end_date: format(selectedEndDate, "yyyy-MM-dd"),
+  //       facility_id: facility_id,
+  //       meter_type: meter_type,
+  //     };
+
+  //     try {
+  //       dispatch(calculateAdminPerformanceReport(payload));
+  //     } catch (error) {
+  //       console.error("Error calculating performance report:", error);
+  //     }
+  //   }
+  // }, [
+  //   selectedEndDate,
+  //   p4PStartEndDates,
+  //   facility_id,
+  //   meter_type,
+  //   dispatch,
+  //   isSubmitted,
+  // ]);
+
+  const handleSaveSavingsReport = useCallback(
+    (currentStatuses = statuses) => {
+      const report = {
+        data: Object.entries(formData).reduce((acc, [key, value]) => {
+          acc[key] = { value, status: currentStatuses[key] || "Submitted" };
+          return acc;
+        }, {}),
+        performance_type: performanceP4PCalcTab,
+        meter_type: meter_type,
+      };
+      dispatch(updateAdminPerformanceReportInDB(facility_id, report))
+        .then(() => {
+          if (
+            Object.values(currentStatuses).every(
+              (status) => status === "Verified"
+            )
+          ) {
+            openVerifiedReportModal();
+          }
+          dispatch(
+            getAdminPerformanceReportFromDB(
+              facility_id,
+              meter_type,
+              performanceP4PCalcTab
+            )
+          );
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    },
+    [
+      formData,
+      performanceP4PCalcTab,
+      meter_type,
+      facility_id,
+      dispatch,
+      statuses,
+    ]
+  );
 
   const handleChange = (name, value) => {
-    if (isSubmitted) return;
-    setStatuses((prev) => ({ ...prev, [name]: value }));
+    setStatuses((prev) => {
+      const newStatuses = { ...prev, [name]: value };
+      if (
+        value === "Verified" ||
+        (prev[name] === "Verified" && value === "Submitted")
+      ) {
+        handleSaveSavingsReport(newStatuses);
+      }
+      return newStatuses;
+    });
   };
 
   const getFields = () => {
@@ -322,10 +392,10 @@ const SavingsReportForm = ({
           label:
             "Electricity savings as percentage of adjusted baseline electricity consumption and non-routine adjustment ",
         },
-        {
-          name: "incremental_yoy_savings ",
-          label: "Incremental year-over-year electricity savings (kWh) ",
-        },
+        // {
+        //   name: "incremental_yoy_savings ",
+        //   label: "Incremental year-over-year electricity savings (kWh) ",
+        // },
         {
           name: "off_peak_energy_savings_incentive",
           label: "Off-peak electricity savings incentive ($)",
@@ -373,18 +443,20 @@ const SavingsReportForm = ({
           }}
         >
           <Tooltip title="Refresh calculation">
-            <IconButton
-              sx={{
-                background: "#2e813e",
-                color: "#FFF",
-                ":hover": { color: "#FFF", background: "#1e6329" },
-                transition: "all 0.3s",
-              }}
-              onClick={handleRefreshCalculation}
-              disabled={selectedEndDate === null}
-            >
-              <RefreshIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                sx={{
+                  background: "#2e813e",
+                  color: "#FFF",
+                  ":hover": { color: "#FFF", background: "#1e6329" },
+                  transition: "all 0.3s",
+                }}
+                onClick={handleRefreshCalculation}
+                disabled={selectedEndDate === null}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </span>
           </Tooltip>
           {p4PStartEndDates?.startDate
             ? `From ${format(
@@ -430,6 +502,11 @@ const SavingsReportForm = ({
             }))}
             value={statuses[field.name] || "Estimated"}
             onChange={handleChange}
+            disabled={
+              p4PStartEndDates?.endDate
+                ? !isEqual(selectedEndDate, parseISO(p4PStartEndDates?.endDate))
+                : null
+            }
           />
         ),
       };
