@@ -24,7 +24,6 @@ class DataExplorationSummaryV2:
     def setup_query(self):
         get_station_id = get_nearest_stations(self.facility_id)
         station_id= tuple(get_station_id['station_id'].tolist())
-
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
             self.temperature_query = get_temp_missing_data_summary(station_id[0])
@@ -72,7 +71,6 @@ class DataExplorationSummaryV2:
                 self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
                 self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
-
         self.raw_df = dbtest(self.query)
         
 
