@@ -17,8 +17,6 @@ export const MiniTable = ({ columns, data, tableStyle, firstChildColored = false
       data,
     });
 
-    console.log(tableStyle, "miniTableStyles")
-
   return (
     <TableContainer
       component={Paper}
