@@ -8,7 +8,7 @@ from sshtunnel import SSHTunnelForwarder
 
 
 def get_db_connection():
-    if not config.LOCAL:
+    if config.LOCAL:
         server = SSHTunnelForwarder(
             (config.ssh_ip, 22),
             ssh_username=config.ssh_user,
