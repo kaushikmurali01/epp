@@ -77,8 +77,8 @@ def clean_raw_data(dataframe):
     new_df['Temperature'] = new_df.Temperature.interpolate()
     output_columns = ['Date', 'EnergyConsumption', 'Temperature']
     output_columns.extend([i for i in iv_columns ])
-    new_df[output_columns]
-
+    # new_df[output_columns]
+    new_df = new_df.drop(new_df[new_df['EnergyConsumption'] <= 0].index)
     # Apply the function to the EnergyConsumption column
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
     new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
@@ -87,5 +87,4 @@ def clean_raw_data(dataframe):
     output_df = new_df[output_col]
     output_df = output_df[output_df['EnergyConsumption'] != 0]
     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
-    output_df = output_df.drop(output_df[output_df['EnergyConsumption'] <= 0].index)
     return output_df.to_dict()
