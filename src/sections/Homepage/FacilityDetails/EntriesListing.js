@@ -206,7 +206,7 @@ const EntriesListing = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { showSnackbar } = useContext(SnackbarContext);
+
   const currentDate = new Date();
   const currentYear = getYear(currentDate);
   const columns = [
@@ -523,6 +523,7 @@ const EntriesListing = ({
       .catch((error) => {});
   };
 
+
   const handleFileChange = (event) => {
     setUploadProgress(0); // reset before upload progress
     setIsUploading(true);
@@ -650,10 +651,13 @@ const EntriesListing = ({
       });
   };
 
+  // set terms of service
+
   const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
+
 
   const handleViewEntries = () => {
     setViewEntriesModalConfig((prevState) => ({

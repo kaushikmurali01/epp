@@ -6,8 +6,10 @@ import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from 'utils/HTTPRequests';
 import { ENERVA_USER_MANAGEMENT, ROLES_PERMISSIONS_MANAGEMENT, USER_MANAGEMENT } from 'constants/apiEndPoints';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useDispatch } from 'react-redux';
 
 const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBack, selectTableRow, invitePageInfo, inviteAPIURL }) => {
+    const dispatch = useDispatch();
     const isEdited = Object.keys(selectTableRow).length > 0;
     const [roleName, setRoleName] = useState(selectTableRow?.rolename || '');
     const [selectRoleType, setSelectRoleType] = useState(isEdited ? selectTableRow?.user_type_id : '');
@@ -110,13 +112,15 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
     const getPermissionList = () => {
         //check if we have type or not in page info, if we have type then it is user management admin page
-
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         const apiURL = ROLES_PERMISSIONS_MANAGEMENT.GET_ALL_PERMISSIONS_LIST;
         GET_REQUEST(apiURL)
             .then((res) => {
                 setPermission(res.data)
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             }).catch((error) => {
                 console.log(error)
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             });
 
     }
@@ -124,6 +128,7 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
 
 
     const handelInviteSubmit = () => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         const apiURL = inviteAPIURL;
         // const permissionIds = selectedPermissions.map(permission => permission.id);
          // We can simply map over permissionStates to extract only the id and is_default for each permission.
@@ -148,10 +153,12 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                     NotificationsToast({ message: 'Roles and permissions updated successfully!', type: "success" });
                     setVisibleInvitePage(false);
                     handleAPISuccessCallBack();
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
                 })
                 .catch((error) => {
                     console.log(error, 'error')
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
                 });
         } else {
 
@@ -165,17 +172,19 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                     } else if (response.data.status === 500) {
                         NotificationsToast({ message: response.data.message, type: "error" });
                     }
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
                 })
                 .catch((error) => {
                     console.log(error, 'error')
                     NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
+                    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
                 })
         }
 
     }
 
     const getUserPermissionListAPI = (item) => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
         const apiURL = ROLES_PERMISSIONS_MANAGEMENT.GET_ROLE_PERMISSIONS_BY_ID + '/' + item?.role_id + '/' + selectRoleType;
         GET_REQUEST(apiURL)
             .then((res) => {
@@ -185,9 +194,11 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                 setPermissionStates(userPermissions);
                 
                 setSelectedPermissions(userPermissionObjects);
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             })
             .catch((error) => {
                 console.log(error);
+                dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             });
     };
 
@@ -380,23 +391,29 @@ const RolePermissionsUserInvite = ({ getUserRole, setVisibleInvitePage, handleAP
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
                                         </Grid>
-                                        <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }}>
-                                            <ToggleButtonGroup
-                                                value={isDefaultSelected ? 'yes' : 'no'}
-                                                exclusive
-                                                onChange={(event) => handleDefaultPermissions(event, index, permission)}
-                                                aria-label="default permission alignment"
-                                                key={permission?.id + "_default"}
-                                                disabled={!isPermissionSelected}  // Disable 
-                                            >
-                                                <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
-                                                    Yes
-                                                </ToggleButton>
-                                                <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
-                                                    No
-                                                </ToggleButton>
-                                            </ToggleButtonGroup>
-                                        </Grid>
+                                      
+                                      
+                                            <Grid item sx={{ width: { xs: '100%', sm: '20%' }, textAlign: 'right' }}>
+                                                {
+                                                     isPermissionSelected &&
+                                                    <ToggleButtonGroup
+                                                        value={isDefaultSelected ? 'yes' : 'no'}
+                                                        exclusive
+                                                        onChange={(event) => handleDefaultPermissions(event, index, permission)}
+                                                        aria-label="default permission alignment"
+                                                        key={permission?.id + "_default"}
+                                                        disabled={!isPermissionSelected}  // Disable 
+                                                    >
+                                                        <ToggleButton className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                            Yes
+                                                        </ToggleButton>
+                                                        <ToggleButton className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                            No
+                                                        </ToggleButton>
+                                                    </ToggleButtonGroup>
+                                                }
+                                            </Grid>
+                                       
                                     </Grid>
                                 )
                             })}

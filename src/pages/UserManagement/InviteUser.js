@@ -485,29 +485,36 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                 {permissions && permissions.map((permission, index) => {
                                     const isPermissionSelected = permissionStates?.includes(permission.permission_id);
                                     return (
-                                        <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
-                                            <Grid item xs={12} md={10}>
-                                                <Typography variant='body2'>{permission.desc} </Typography>
-                                            </Grid>
-                                            <Grid item>
-                                                <ToggleButtonGroup
-
-                                                    value={isPermissionSelected ? 'yes' : 'no'}
-                                                    exclusive
-                                                    onChange={(event) => handleAlignment(event, index, permission,isPermissionSelected)}
-                                                    aria-label="text alignment"
-                                                    key={permission.permission_id}
-                                                >
-                                                    <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
-                                                        Yes
-                                                    </ToggleButton>
-                                                    <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
-                                                        No
-                                                    </ToggleButton>
-                                                </ToggleButtonGroup>
-
-                                            </Grid>
-                                        </Grid>
+                                        <React.Fragment>
+                                            {
+                                             (permission.is_active !== 0) &&
+                                                <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                                    <Grid item xs={12} md={10}>
+                                                        <Typography variant='body2'>{permission.desc} </Typography>
+                                                    </Grid>
+                                                    <Grid item>
+                                                        <ToggleButtonGroup
+        
+                                                            value={isPermissionSelected ? 'yes' : 'no'}
+                                                            exclusive
+                                                            onChange={(event) => handleAlignment(event, index, permission,isPermissionSelected)}
+                                                            aria-label="text alignment"
+                                                            key={permission.permission_id}
+                                                        >
+                                                            <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-yes' value="yes" sx={{ fontSize: '0.875rem' }}>
+                                                                Yes
+                                                            </ToggleButton>
+                                                            <ToggleButton disabled={(permission.is_active === 0 || isPagePermissionDisabled)} className='theme-toggle-no' value="no" sx={{ fontSize: '0.875rem' }}>
+                                                                No
+                                                            </ToggleButton>
+                                                        </ToggleButtonGroup>
+        
+                                                    </Grid>
+                                                </Grid>
+                                            
+                                            }
+                                        </React.Fragment>
+                                        
                                     )
                                 })}
                             </Stack>
