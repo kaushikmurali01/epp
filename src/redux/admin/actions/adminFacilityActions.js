@@ -164,6 +164,7 @@ export const fetchAdminFacilityDetails = (facilityId) => {
       const endpointWithParams = `${adminFacilityEndpoints.GET_ADMIN_FACILITY_DETAILS}/${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
+      console.log(data, "check result");
       dispatch(fetchAdminFacilityDetailsSuccess(data));
     } catch (error) {
       console.error(error);

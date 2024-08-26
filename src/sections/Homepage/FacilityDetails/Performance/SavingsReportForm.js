@@ -372,18 +372,20 @@ const SavingsReportForm = ({
           }}
         >
           <Tooltip title="Refresh calculation">
-            <IconButton
-              sx={{
-                background: "#2e813e",
-                color: "#FFF",
-                ":hover": { color: "#FFF", background: "#1e6329" },
-                transition: "all 0.3s",
-              }}
-              onClick={handleRefreshCalculation}
-              disabled={isSubmitted || selectedEndDate === null}
-            >
-              <RefreshIcon />
-            </IconButton>
+            <span>
+              <IconButton
+                sx={{
+                  background: "#2e813e",
+                  color: "#FFF",
+                  ":hover": { color: "#FFF", background: "#1e6329" },
+                  transition: "all 0.3s",
+                }}
+                onClick={handleRefreshCalculation}
+                disabled={isSubmitted || selectedEndDate === null}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </span>
           </Tooltip>
           {p4PStartEndDates?.startDate
             ? `From ${format(
