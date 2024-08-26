@@ -39,10 +39,69 @@ def replace_consecutive_nulls(df, primary_col, replacement_cols, consecutive_cou
                 if not mask.any():
                     break
     return df
+#
+#
+# def clean_raw_data(dataframe):
+#     df = dataframe.copy()
+#
+#     # Identifying unique meter names based on conditions
+#     meter_columns = df[df['meter_type'].isin([1, 2, 3])]['meter_name'].unique()
+#     iv_columns = df[df['meter_type'].isna()]['meter_name'].unique()
+#
+#     # Creating a pivot table
+#     new_df = df.pivot_table(values='reading',
+#                             index='start_date',
+#                             columns='meter_name',
+#                             aggfunc='first')
+#     print(len(new_df), 'Initial')
+#
+#     # Handling missing temporary columns
+#     temp_columns = ['Temp1', 'Temp2', 'Temp3']
+#     for col in temp_columns:
+#         if col not in new_df.columns:
+#             new_df[col] = np.nan
+#
+#     # Rename 'start_date' to 'Date' before further processing
+#     new_df.reset_index(inplace=True)
+#     new_df.rename(columns={'start_date': 'Date'}, inplace=True)
+#
+#     # Sort by 'Date'
+#     new_df.sort_values('Date', inplace=True)
+#
+#     # Temperature assignment and handling
+#     new_df['Temperature'] = new_df['Temp1']
+#     new_df['Temperature'] = new_df['Temperature'].interpolate()
+#
+#     # Reordering columns
+#     columns_order = ['Date', 'EnergyConsumption', 'Temperature'] + list(iv_columns) + temp_columns
+#     new_df = new_df.rename(columns={meter_columns[0]: 'EnergyConsumption'})
+#     new_df = new_df[columns_order]
+#
+#     # Handling nulls in 'Temperature'
+#     df = replace_consecutive_nulls(new_df, 'Temperature', ['Temp2', 'Temp3'])
+#
+#     # Dropping records with zero or negative 'EnergyConsumption'
+#     missing = df[df['EnergyConsumption'] < 1]
+#     print(len(missing), 'Missing Length')
+#     print(len(df), 'Before Dropping Negative and 0')
+#     df = df[df['EnergyConsumption'] > 0]
+#     print(len(df), 'After Dropping Negative and 0')
+#
+#     # Outlier detection and removal
+#     outliers, lower_bound, upper_bound = detect_outliers_iqr(df, 'EnergyConsumption', factor=3)
+#     df = df[(df['EnergyConsumption'] < upper_bound) & (df['EnergyConsumption'] > lower_bound)]
+#     print(len(df), 'Dropping Outliers, Lower:{} Upper:{}'.format(lower_bound, upper_bound))
+#
+#     # Final column selection
+#     output_df = df[['Date', 'EnergyConsumption', 'Temperature'] + list(iv_columns)]
+#     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+#
+#     return output_df.to_dict()
 
 
 def clean_raw_data(dataframe):
     df = dataframe.copy()
+
     meter_columns = df[df['meter_type'].isin([1, 2, 3])]['meter_name'].unique()
     iv_columns = df[df['meter_type'].isna()]['meter_name'].unique()
     new_df = df.pivot_table(values='reading',
@@ -50,16 +109,17 @@ def clean_raw_data(dataframe):
                             columns='meter_name',
                             aggfunc='first',
                             )
+    print(len(new_df), 'Initial')
     new_df_columns = new_df.columns
     temp_columns = ['Temp1', 'Temp2', 'Temp3']
     for col in temp_columns:
         if col not in new_df_columns:
             new_df[col] = np.nan
-    # Reset the index to make start_date a column
     new_df.reset_index(inplace=True)
+    new_df.rename(columns={'start_date': 'Date'}, inplace=True)
 
     # Sort the dataframe by start_date
-    new_df.sort_values('start_date', inplace=True)
+    new_df.sort_values('Date', inplace=True)
 
     new_df['Temperature'] = new_df['Temp1']
 
@@ -76,15 +136,18 @@ def clean_raw_data(dataframe):
     new_df = df
     new_df['Temperature'] = new_df.Temperature.interpolate()
     output_columns = ['Date', 'EnergyConsumption', 'Temperature']
-    output_columns.extend([i for i in iv_columns ])
-    new_df = new_df.drop(new_df[new_df['EnergyConsumption'] <= 0].index)
-    new_df.reset_index()
+    output_columns.extend([i for i in iv_columns])
+    print(len(new_df), 'Before Dropping Negative and 0')
+    new_df = new_df.drop(new_df[new_df['EnergyConsumption'] < 1].index)
+    print(len(new_df), 'After Dropping Negative and 0')
     # Apply the function to the EnergyConsumption column
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
     new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
+    print(len(new_df), 'Dropping Outliers, Lower:{} Upper:{}'.format(lower_bound, upper_bound))
     output_col = ['Date', 'EnergyConsumption', 'Temperature']
     output_col.extend(iv_columns)
     output_df = new_df[output_col]
     output_df = output_df[output_df['EnergyConsumption'] != 0]
     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
+    # output_df.reset_index(inplace=True)
     return output_df.to_dict()
