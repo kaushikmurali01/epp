@@ -807,7 +807,7 @@ def getdates():
 @app.route('/refresh_view', methods=['POST'])
 def refresh_view():
     view = request.json.get('view')
-    refresh_materialised_view(view)
+    # refresh_materialised_view(view)
 
 
 @app.route('/get_clean_data', methods=['GET'])
