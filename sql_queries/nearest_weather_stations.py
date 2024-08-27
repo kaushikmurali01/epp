@@ -49,7 +49,7 @@ SELECT
     ROUND(AVG(station_press)::numeric, 2) AS average_station_pressure 
 FROM epp.weather_data_records 
 WHERE station_id = {} AND 
-date_time BETWEEN '{}' AND '{}'
+date_time BETWEEN '{}' AND '{}' and is_independent_variable=false
 GROUP BY year, month 
 ORDER BY year, month;
 """
