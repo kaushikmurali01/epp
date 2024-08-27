@@ -28,10 +28,8 @@ class DataExplorationSummaryV2:
         station_id= tuple(get_station_id['station_id'].tolist())
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
-            self.temperature_query = get_temp_missing_data_summary(station_id[0])
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False)
-            self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
         else:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
         self.raw_df = dbtest(self.query)
