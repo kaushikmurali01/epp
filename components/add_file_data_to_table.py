@@ -81,6 +81,8 @@ class AddMeterData:
 
             df['start_date'] = pd.to_datetime(df['start_date'])
             df['end_date'] = pd.to_datetime(df['end_date'])
+            df['start_date'] = df['start_date'].dt.floor('T')  # 'T' or 'min' for minute precision
+            df['end_date'] = df['end_date'].dt.floor('T')
 
             df['start_year'] = df['start_date'].dt.year
             df['start_month'] = df['start_date'].dt.month
