@@ -8,6 +8,11 @@ import {
 import { MiniTable } from "components/MiniTable";
 import { useSelector } from "react-redux";
 
+const miniTableStyles = {
+  overflowY: "auto",
+  maxHeight: "420px",
+};
+
 const SeeSufficiencyDetails = ({
   sufficiency_Data,
   baselineStartDate,
@@ -143,6 +148,7 @@ const SeeSufficiencyDetails = ({
               ? sufficiencyData?.data
               : [sufficiencyData]
           }
+          tableStyle={miniTableStyles}
         />
       </Grid>
     </Grid>

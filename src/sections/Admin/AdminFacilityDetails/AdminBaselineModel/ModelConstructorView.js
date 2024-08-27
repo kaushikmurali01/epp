@@ -148,7 +148,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
       ),
     },
     {
-      Header: "hourly",
+      Header: "Hourly",
       accessor: (item) =>
         sufficiencyVerificationStatusButton(item?.hourly?.status),
     },
