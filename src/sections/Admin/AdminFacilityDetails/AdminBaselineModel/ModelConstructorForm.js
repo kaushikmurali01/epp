@@ -192,6 +192,7 @@ const ModelConstructorForm = ({
         )
       );
     } else {
+      setCheckSufficiencyAfter(false);
       const initialValues = {
         start_date: sliderStartDate,
         end_date: sliderEndDate,
@@ -230,6 +231,7 @@ const ModelConstructorForm = ({
         values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
     setActivateCalculateBaseline(true);
+    setCheckSufficiencyAfter(false);
     setDisableSeeDetails(false);
     dispatch(adminSufficiencyCheck(myData))
       .then((res) => {
@@ -328,7 +330,7 @@ const ModelConstructorForm = ({
       ),
     },
     {
-      Header: "hourly",
+      Header: "Hourly",
       accessor: (item) =>
         sufficiencyVerificationStatusButton(item?.hourly?.status),
     },
@@ -556,7 +558,11 @@ const ModelConstructorForm = ({
                     <Box>
                       <MiniTable
                         columns={userColumn}
-                        data={[sufficiencyCheckData]}
+                        data={
+                          checkSufficiencyAfter && sufficiencyCheckDataLocally
+                            ? [sufficiencyCheckDataLocally]
+                            : [sufficiencyCheckData]
+                        }
                       />
                     </Box>
                   </Grid>

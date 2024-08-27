@@ -19,7 +19,7 @@ const DataExplorationTab = () => {
     <Grid item>
       <CustomAccordion
         summary="Visualization"
-        details={<DataVisualization />}
+        // details={<DataVisualization />}
         panelId="visualization"
       />
       <CustomAccordion
