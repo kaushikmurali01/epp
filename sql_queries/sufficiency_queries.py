@@ -30,7 +30,10 @@ sufficiency_query= """ WITH date_range AS (
 ),
 meter_data AS (
     SELECT DISTINCT ON (meter_id, date_trunc('hour', start_date))
-        meter_id,
+        CASE 
+			WHEN is_independent_variable = true THEN independent_variable_id
+			ELSE meter_id
+		END AS meter_id,
         meter_name,
         date_trunc('hour', start_date) AS hour,
         date_trunc('day', start_date) AS day,

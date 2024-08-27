@@ -199,12 +199,12 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {tuple(IVs)} ))" if len(IVs) > 0 else "AND  is_independent_variable = false"
+    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} ))" if len(IVs) > 0 else "AND  is_independent_variable = false"
+
     # Modify the query with the provided parameters
     formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one=end_date + timedelta(days=1),
                                                facility_id=facility_id, IVids=IVids)
     df = dbtest(formatted_query)
-
     # Calculate sufficiency percentages
     hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date)
     response = {
