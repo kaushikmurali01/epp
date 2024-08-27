@@ -37,7 +37,7 @@ meter_data AS (
         date_trunc('month', start_date) AS month
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
-    AND start_date >= '{start_date}' AND start_date < '{end_date_one}'
+    AND start_date >= '{start_date}' AND start_date < '{end_date_one}' {IVids} 
     ORDER BY meter_id, date_trunc('hour', start_date), start_date
 ),
 hourly_sufficiency AS (
