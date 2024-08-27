@@ -199,14 +199,14 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {tuple(IVs)} ))" if len(IVs) > 0 else "AND  is_independent_variable = false"
+    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} ))" if len(IVs) > 0 else "AND  is_independent_variable = false"
+
     # Modify the query with the provided parameters
     formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one=end_date + timedelta(days=1),
                                                facility_id=facility_id, IVids=IVids)
     df = dbtest(formatted_query)
-
     # Calculate sufficiency percentages
-    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date)
+    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date,IVs)
     response = {
         "daily": {"sufficiency": round(daily, 2) if round(daily, 2) <= 100 else 100, "status": get_status(daily)},
         "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2) <= 100 else 100, "status": get_status(hourly)},
@@ -220,7 +220,7 @@ def get_sufficiency():
     return jsonify(response)
 
 
-def calculate_sufficiency(df, start_date, end_date):
+def calculate_sufficiency(df, start_date, end_date,IVs=[]):
     # Calculate total hours, days, and months
     total_hours = int((end_date - start_date).total_seconds() / 3600) + 1
     total_days = (end_date - start_date).days + 1
@@ -234,6 +234,8 @@ def calculate_sufficiency(df, start_date, end_date):
 
     # Calculate unique hourly and daily sufficiency
     unique_meters = df.drop_duplicates(subset=['meter_id'])
+    if len(IVs) > 0 and not all(value in unique_meters['meter_id'].tolist() for value in IVs):
+        return 0, 0, 0, []
 
     hourly_sum = unique_meters['hourly_sufficiency_percentage'].sum()
     daily_sum = unique_meters['daily_sufficiency_percentage'].sum()
