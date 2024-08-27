@@ -44,6 +44,12 @@ import {
   GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
   GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
   GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  FETCH_PERFORMANCE_DATA_SUMMARY_REQUEST,
+  FETCH_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  FETCH_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
 } from "../actionTypes";
 
 export const getBaselineDataSummaryRequest = () => ({
@@ -253,5 +259,33 @@ export const getPerformanceDataVisualizationSuccess = (data) => ({
 
 export const getPerformanceDataVisualizationFailure = (error) => ({
   type: GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  payload: error,
+});
+
+export const fetchPerformanceDataSummaryListRequest = () => ({
+  type: FETCH_PERFORMANCE_DATA_SUMMARY_REQUEST,
+});
+
+export const fetchPerformanceDataSummaryListSuccess = (data) => ({
+  type: FETCH_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  payload: data,
+});
+
+export const fetchPerformanceDataSummaryListFailure = (error) => ({
+  type: FETCH_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  payload: error,
+});
+
+export const fetchPerformanceDataRawSummaryMeterListRequest = () => ({
+  type: FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+});
+
+export const fetchPerformanceDataRawSummaryMeterListSuccess = (data) => ({
+  type: FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchPerformanceDataRawSummaryMeterListFailure = (error) => ({
+  type: FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
   payload: error,
 });

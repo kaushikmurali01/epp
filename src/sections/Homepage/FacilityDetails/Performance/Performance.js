@@ -198,11 +198,11 @@ const Performance = () => {
             panelId="performancePeriodReportingInformation"
           />
 
-          <CustomAccordion
+          {/* <CustomAccordion
             summary="Performance period data visualization"
             details={<PerformancePeriodDataVisualization />}
             panelId="performancePeriodDataVisualization"
-          />
+          /> */}
         </Grid>
       </Grid>
       <Loader

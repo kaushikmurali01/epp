@@ -62,7 +62,6 @@ import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "sections/Homepage/FacilityDetails/EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "sections/Homepage/FacilityDetails/EntryListing/DeleteEntriesModal";
 
-
 const AdminWeather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
@@ -352,11 +351,10 @@ const AdminWeather = () => {
   };
 
   useEffect(() => {
-    if(facilityData?.id){
+    if (facilityData?.id) {
       getIndependentVariales();
       getWeatherStations();
     }
-
   }, [facilityData?.id]);
 
   const getIndependentVariales = () => {
@@ -1645,7 +1643,7 @@ const AdminWeather = () => {
       <Loader
         sectionLoader
         minHeight="100vh"
-        loadingState={loadingState}
+        loadingState={loadingState || weatherLoading}
         loaderPosition="fixed"
       />
     </>

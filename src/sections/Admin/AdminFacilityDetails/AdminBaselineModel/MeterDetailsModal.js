@@ -1,4 +1,4 @@
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Grid, Typography } from "@mui/material";
 import CustomPagination from "components/CustomPagination";
 import { MiniTable } from "components/MiniTable";
 import React, { useEffect, useState } from "react";
@@ -6,6 +6,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminRawSummaryMeterList } from "../../../../redux/admin/actions/adminBaselineAction";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+
+const miniTableStyles = {
+  overflowY: "auto",
+  maxHeight: "420px",
+};
 
 const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
@@ -115,13 +120,19 @@ const MeterDetailsModal = ({
         </Typography>
       </Grid>
       <Grid container>
-        <MiniTable columns={observeDataColumn} data={meterRawData} />
-        <CustomPagination
-          count={count}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-          incomingRowPerPageArr={[10, 20, 50, 75, 100]}
-        />
+      <Box className="view-entries-table" sx={{ width: "100%" }}>
+          <MiniTable
+            columns={observeDataColumn}
+            data={meterRawData}
+            tableStyle={miniTableStyles}
+          />
+          <CustomPagination
+            count={count}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+            incomingRowPerPageArr={[10, 20, 50, 75, 100]}
+          />
+        </Box>
       </Grid>
     </Grid>
   );

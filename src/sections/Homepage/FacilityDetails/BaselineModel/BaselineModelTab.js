@@ -352,7 +352,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
 
         <CustomAccordion
           summary="Visualization"
-          details={<BaselineVisualization />}
+          // details={<BaselineVisualization />}
           panelId="visualization"
         />
       </Box>

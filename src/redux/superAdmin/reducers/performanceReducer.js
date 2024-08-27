@@ -44,6 +44,12 @@ import {
   GET_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
   GET_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
   GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  FETCH_PERFORMANCE_DATA_SUMMARY_REQUEST,
+  FETCH_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  FETCH_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -54,6 +60,8 @@ const initialState = {
   performanceReportInDB: {},
   performanceDataMinMaxDate: {},
   performanceDataVisualization: {},
+  performanceDataSummaryList: [],
+  performanceDataRawMeterSummaryList: [],
   loading: false,
   processing: false,
   error: null,
@@ -351,6 +359,45 @@ const performanceReducer = (state = initialState, action) => {
         error: null,
       };
     case GET_PERFORMANCE_DATA_VISUALIZATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case FETCH_PERFORMANCE_DATA_SUMMARY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_DATA_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performanceDataSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_DATA_SUMMARY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performanceDataRawMeterSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE:
       return {
         ...state,
         loading: false,
