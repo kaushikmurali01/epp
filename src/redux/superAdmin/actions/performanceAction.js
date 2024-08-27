@@ -45,6 +45,12 @@ import {
   getPerformanceDataVisualizationRequest,
   getPerformanceDataVisualizationSuccess,
   getPerformanceDataVisualizationFailure,
+  fetchPerformanceDataSummaryListRequest,
+  fetchPerformanceDataSummaryListSuccess,
+  fetchPerformanceDataSummaryListFailure,
+  fetchPerformanceDataRawSummaryMeterListRequest,
+  fetchPerformanceDataRawSummaryMeterListSuccess,
+  fetchPerformanceDataRawSummaryMeterListFailure,
 } from "../actionCreators/performanceActionCreator";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -340,6 +346,81 @@ export const getPerformanceDataVisualization = (
     } catch (error) {
       console.error(error);
       dispatch(getPerformanceDataVisualizationFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchPerformanceDataSummaryList = (
+  facilityId,
+  summaryType
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchPerformanceDataSummaryListRequest());
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}`;
+      endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchPerformanceDataSummaryListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchPerformanceDataSummaryListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchPerformanceDataRawSummaryMeterList = (
+  facilityId,
+  summaryType,
+  meterType,
+  detail,
+  meterId,
+  bound,
+  pageNumber,
+  pageSize
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchPerformanceDataRawSummaryMeterListRequest());
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}`;
+      if (summaryType) {
+        endpointWithParams += `&summary_type=${summaryType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&meter=${meterType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&detail=${detail}`;
+      }
+      endpointWithParams += `&meter_id=${meterId}`;
+      if (bound) {
+        endpointWithParams += `&bound=${bound}`;
+      }
+      if (pageNumber) {
+        endpointWithParams += `&page_number=${pageNumber}`;
+      }
+      if (pageSize) {
+        endpointWithParams += `&page_size=${pageSize}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
+      dispatch(fetchPerformanceDataRawSummaryMeterListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchPerformanceDataRawSummaryMeterListFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

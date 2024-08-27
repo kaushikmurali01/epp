@@ -321,10 +321,10 @@ const SavingsReportForm = ({
           label:
             "Electricity savings as percentage of adjusted baseline electricity consumption and non-routine adjustment ",
         },
-        {
-          name: "incremental_yoy_savings ",
-          label: "Incremental year-over-year electricity savings (kWh) ",
-        },
+        // {
+        //   name: "incremental_yoy_savings ",
+        //   label: "Incremental year-over-year electricity savings (kWh) ",
+        // },
         {
           name: "off_peak_energy_savings_incentive",
           label: "Off-peak electricity savings incentive ($)",
@@ -388,10 +388,7 @@ const SavingsReportForm = ({
             </span>
           </Tooltip>
           {p4PStartEndDates?.startDate
-            ? `From ${format(
-                p4PStartEndDates.startDate,
-                "yyyy-MM-dd, HH:MM"
-              )}, to`
+            ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
             : "N/A"}
         </Box>
       ),

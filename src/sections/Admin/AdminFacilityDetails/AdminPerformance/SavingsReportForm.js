@@ -459,10 +459,7 @@ const SavingsReportForm = ({
             </span>
           </Tooltip>
           {p4PStartEndDates?.startDate
-            ? `From ${format(
-                p4PStartEndDates.startDate,
-                "yyyy-MM-dd, HH:MM"
-              )}, to`
+            ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
             : "N/A"}
         </Box>
       ),
