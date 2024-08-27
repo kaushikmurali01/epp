@@ -6,6 +6,8 @@ from get_sql_queries import get_observed_data_summary, get_missing_data_summary,
     get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
 from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list
 from utils import get_nearest_stations
+from datetime import datetime
+
 
 class DataExplorationSummaryV2:
     def __init__(self, facility_id, summary_type, meter_name=None, meter_id=None):
@@ -32,8 +34,17 @@ class DataExplorationSummaryV2:
             self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
         else:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
-            self.temperature_query = get_temp_observed_data_summary(station_id[0], METER_FACTOR)
         self.raw_df = dbtest(self.query)
+
+        if self.missing_data:
+            self.temperature_query = get_temp_missing_data_summary(station_id[0] )
+        elif self.outliers:
+            self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
+        else:
+            start_date = datetime.strptime(self.raw_df['time_stamp_start'].tolist()[0], "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
+            end_date = datetime.strptime(self.raw_df['time_stamp_end'].tolist()[0], "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
+            self.temperature_query = get_temp_observed_data_summary(station_id[0], METER_FACTOR,start_date,end_date )        
+
         self.temp_df = dbtest(self.temperature_query)
 
 

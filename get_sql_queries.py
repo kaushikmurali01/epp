@@ -15,8 +15,8 @@ def get_observed_data_summary(facility_id, factor, independent_variable):
     return observed_data_summary.format(facility_id, factor, factor, independent_variable)
 
 
-def get_temp_observed_data_summary(facility_id, factor):
-    return temp_observed_data_summary.format(facility_id, factor, factor, facility_id)
+def get_temp_observed_data_summary(facility_id, factor, start_date, end_date):
+    return temp_observed_data_summary.format(facility_id, factor, factor, facility_id, start_date, end_date)
 
 
 def get_missing_data_summary(facility_id, independent_variable):
