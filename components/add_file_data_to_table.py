@@ -103,4 +103,4 @@ class AddMeterData:
 
     def process(self):
         self.process_files()
-        refresh_materialised_view()
+        # refresh_materialised_view()

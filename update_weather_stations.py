@@ -183,7 +183,7 @@ def main():
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
-    refresh_materialised_view()
+    #refresh_materialised_view()
 
 
 if __name__ == "__main__":
