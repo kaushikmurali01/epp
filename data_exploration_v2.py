@@ -39,14 +39,12 @@ class DataExplorationSummaryV2:
         get_station_id = get_nearest_stations(self.facility_id)
         station_id= tuple(get_station_id['station_id'].tolist())
         query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
-        print(query_date_filter)
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False)
         else:
             self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False, query_date_filter)
-        print(self.query)
         self.raw_df = dbtest(self.query)
 
         if self.missing_data:
