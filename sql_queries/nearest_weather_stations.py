@@ -49,7 +49,7 @@ SELECT
     ROUND(AVG(station_press)::numeric, 2) AS average_station_pressure 
 FROM epp.weather_data_records 
 WHERE station_id = {} AND 
-date_time BETWEEN '{}' AND '{}' and is_independent_variable=false
+date_time BETWEEN '{}' AND '{}'
 GROUP BY year, month 
 ORDER BY year, month;
 """
@@ -57,7 +57,7 @@ ORDER BY year, month;
 min_max_date_query = """select min(start_date) as min_date, max(start_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_type={} and is_active=true"""
 min_max_meter_date_query = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_id={} and is_active=true"""
 min_max_date_query_iv = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and independent_variable_id={} and is_active=true"""
-min_max_general = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and is_active=true"""
+min_max_general = """select min(start_date) as min_date, max(end_date) as max_date from epp.meter_hourly_entries where facility_id={} and is_active=true and and is_independent_variable=false"""
 
 get_base_line_min_max = """
     SELECT 
