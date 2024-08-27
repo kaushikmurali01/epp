@@ -544,49 +544,52 @@ const AddNonRoutineDataModal = ({
               </Button>
               {uploadedFiles.length > 0 && (
                 <Box sx={{ marginTop: "1rem" }}>
-                  <Typography variant="h6">Uploaded Files:</Typography>
-                  {uploadedFiles.map((file, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginTop: "0.5rem",
-                      }}
-                    >
-                      <Typography
-                        variant="body1"
-                        sx={{ color: "blue.main", cursor: "pointer" }}
-                        onClick={() =>
-                          downloadFileFromUrl(
-                            file.file_url,
-                            file.name || `non_routine_file_${index + 1}`
-                          )
-                        }
-                      >
-                        {file.fullName}
-                      </Typography>
-                      <Link
-                        underline="hover"
+                  {uploadedFiles.filter((file) => file.id !== null).length >
+                    0 && <Typography variant="h6">Uploaded Files:</Typography>}
+                  {uploadedFiles
+                    .filter((file) => file.id !== null)
+                    .map((file, index) => (
+                      <Box
+                        key={index}
                         sx={{
-                          color: "#FF5858",
-                          marginLeft: "1rem",
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          if (file?.id) {
-                            dispatch(deleteAdminNonRoutineEventData(file.id))
-                              .then(() => {
-                                closeAddNonRoutineDataModal();
-                              })
-                              .catch(console.error());
-                          }
+                          display: "flex",
+                          alignItems: "center",
+                          marginTop: "0.5rem",
                         }}
                       >
-                        Delete
-                      </Link>
-                    </Box>
-                  ))}
+                        <Typography
+                          variant="body1"
+                          sx={{ color: "blue.main", cursor: "pointer" }}
+                          onClick={() =>
+                            downloadFileFromUrl(
+                              file.file_url,
+                              file.name || `non_routine_file_${index + 1}`
+                            )
+                          }
+                        >
+                          {file.fullName}
+                        </Typography>
+                        <Link
+                          underline="hover"
+                          sx={{
+                            color: "#FF5858",
+                            marginLeft: "1rem",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            if (file?.id) {
+                              dispatch(deleteAdminNonRoutineEventData(file.id))
+                                .then(() => {
+                                  closeAddNonRoutineDataModal();
+                                })
+                                .catch(console.error());
+                            }
+                          }}
+                        >
+                          Delete
+                        </Link>
+                      </Box>
+                    ))}
                 </Box>
               )}
             </Box>

@@ -89,7 +89,7 @@ import {
   fetchAdminPerformanceDataRawSummaryMeterListFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
-import { BASELINE_ENDPOINTS, PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
+import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
 
 export const createEmailTemplate = (templateData) => {
   return async (dispatch) => {
@@ -652,14 +652,20 @@ export const getAdminPerformanceDataVisualization = (facility_id, meter_type) =>
 };
 
 export const fetchAdminPerformanceDataSummaryList = (
-  facilityId,
+  payload,
   summaryType
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminPerformanceDataSummaryListRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${payload.facility_id}&performance=1`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
+      if (payload.start_date) {
+        endpointWithParams += `&min_date=${payload.start_date}`;
+      }
+      if (payload.end_date) {
+        endpointWithParams += `&max_date=${payload.end_date}`;
+      }
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminPerformanceDataSummaryListSuccess(data));
@@ -683,12 +689,14 @@ export const fetchAdminPerformanceDataRawSummaryMeterList = (
   meterId,
   bound,
   pageNumber,
-  pageSize
+  pageSize,
+  min_date,
+  max_date,
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminPerformanceDataRawSummaryMeterListRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}&performance=1`;
       if (summaryType) {
         endpointWithParams += `&summary_type=${summaryType}`;
       }
@@ -707,6 +715,12 @@ export const fetchAdminPerformanceDataRawSummaryMeterList = (
       }
       if (pageSize) {
         endpointWithParams += `&page_size=${pageSize}`;
+      }
+      if (min_date) {
+        endpointWithParams += `&min_date=${min_date}`;
+      }
+      if (max_date) {
+        endpointWithParams += `&max_date=${max_date}`;
       }
       const response = await GET_REQUEST(endpointWithParams);
       const data =

@@ -30,22 +30,6 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
     useSelector((state) => state?.performanceReducer);
 
   useEffect(() => {
-    if (
-      performanceDataMinMaxDate &&
-      performanceDataMinMaxDate.min_date &&
-      performanceDataMinMaxDate.max_date
-    ) {
-      if (activeButton === "missing_data" || activeButton === "outliers") {
-        dispatch(fetchPerformanceDataSummaryList(id, activeButton))
-          .then()
-          .catch((error) => console.error(error));
-      } else {
-        dispatch(fetchPerformanceDataSummaryList(id));
-      }
-    }
-  }, [dispatch, id, activeButton, meter_type]);
-
-  useEffect(() => {
     dispatch(getPerformanceDataMinMaxDate(id, meter_type))
       .then()
       .catch((error) => {
@@ -73,12 +57,42 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
       };
       dispatch(scorePerformanceData(payload))
         .then()
-        .catch((err) => console.error(err));
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }, [dispatch, id, meter_type, performanceDataMinMaxDate]);
 
+  useEffect(() => {
+    if (
+      performanceDataMinMaxDate &&
+      performanceDataMinMaxDate.min_date &&
+      performanceDataMinMaxDate.max_date
+    ) {
+      const payload = {
+        facility_id: Number(id),
+        meter_type: meter_type,
+        start_date: format(
+          new Date(performanceDataMinMaxDate.min_date),
+          "yyyy-MM-dd"
+        ),
+        end_date: format(
+          new Date(performanceDataMinMaxDate.max_date),
+          "yyyy-MM-dd"
+        ),
+      };
+      if (activeButton === "missing_data" || activeButton === "outliers") {
+        dispatch(fetchPerformanceDataSummaryList(payload, activeButton))
+          .then()
+          .catch((error) => console.error(error));
+      } else {
+        dispatch(fetchPerformanceDataSummaryList(payload));
+      }
+    }
+  }, [dispatch, activeButton, id, meter_type, performanceDataMinMaxDate]);
+
   const summaryData = useSelector(
-    (state) => state?.baselineReducer?.dataExplorationSummaryList
+    (state) => state?.performanceReducer?.performanceDataSummaryList
   );
 
   const [

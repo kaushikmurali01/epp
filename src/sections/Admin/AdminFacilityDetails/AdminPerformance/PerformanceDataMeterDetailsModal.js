@@ -3,9 +3,9 @@ import CustomPagination from "components/CustomPagination";
 import { MiniTable } from "components/MiniTable";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchRawSummaryMeterList } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { fetchAdminPerformanceDataRawSummaryMeterList } from "../../../../redux/admin/actions/adminPerformanceActions";
 
 const PerformanceDataMeterDetailsModal = ({
   setPerformanceDataMeterDetailsModalConfig,
@@ -21,40 +21,71 @@ const PerformanceDataMeterDetailsModal = ({
     pageSize: 10,
   });
 
+  const { adminPerformanceDataMinMaxDate } = useSelector(
+    (state) => state?.adminPerformanceReducer
+  );
+
   const dispatch = useDispatch();
   const { id } = useParams();
   useEffect(() => {
-    if (summary_type === "outliers") {
-      dispatch(
-        fetchRawSummaryMeterList(
-          id,
-          summary_type,
-          meterType,
-          1,
-          meterId,
-          bound,
-          pageInfo.page,
-          pageInfo.pageSize
-        )
+    if (
+      adminPerformanceDataMinMaxDate &&
+      adminPerformanceDataMinMaxDate.min_date &&
+      adminPerformanceDataMinMaxDate.max_date
+    ) {
+      let min_date = format(
+        new Date(adminPerformanceDataMinMaxDate.min_date),
+        "yyyy-MM-dd"
       );
-    } else {
-      dispatch(
-        fetchRawSummaryMeterList(
-          id,
-          summary_type,
-          meterType,
-          1,
-          meterId,
-          false,
-          pageInfo.page,
-          pageInfo.pageSize
-        )
+      let max_date = format(
+        new Date(adminPerformanceDataMinMaxDate.max_date),
+        "yyyy-MM-dd"
       );
+      if (summary_type === "outliers") {
+        dispatch(
+          fetchAdminPerformanceDataRawSummaryMeterList(
+            id,
+            summary_type,
+            meterType,
+            1,
+            meterId,
+            bound,
+            pageInfo.page,
+            pageInfo.pageSize,
+            min_date,
+            max_date
+          )
+        );
+      } else {
+        dispatch(
+          fetchAdminPerformanceDataRawSummaryMeterList(
+            id,
+            summary_type,
+            meterType,
+            1,
+            meterId,
+            false,
+            pageInfo.page,
+            pageInfo.pageSize,
+            min_date,
+            max_date
+          )
+        );
+      }
     }
-  }, [dispatch, id, meterType, pageInfo.page, pageInfo.pageSize]);
+  }, [
+    dispatch,
+    id,
+    meterType,
+    pageInfo.page,
+    pageInfo.pageSize,
+    adminPerformanceDataMinMaxDate,
+  ]);
 
   const meterRawData = useSelector(
-    (state) => state?.baselineReducer?.rawMeterSummaryList || []
+    (state) =>
+      state?.adminPerformanceReducer?.adminPerformanceDataRawMeterSummaryList ||
+      []
   );
 
   // const count = useSelector(
@@ -91,7 +122,7 @@ const PerformanceDataMeterDetailsModal = ({
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
+        <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} disabled>
           Download as Excel
         </Typography>
       </Grid>
