@@ -109,7 +109,6 @@ def clean_raw_data(dataframe):
                             columns='meter_name',
                             aggfunc='first',
                             )
-    print(len(new_df), 'Initial')
     new_df_columns = new_df.columns
     temp_columns = ['Temp1', 'Temp2', 'Temp3']
     for col in temp_columns:

@@ -46,7 +46,7 @@ ORDER BY
     bd.meter_name;"""
 
 
-def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id):
+def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type):
     return f"""
     WITH base_data AS (
         SELECT DATE_TRUNC('hour', start_date::timestamp) AS start_date,
@@ -74,7 +74,7 @@ def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_
             FROM epp.meter_hourly_entries
             WHERE is_active = true 
               AND start_date BETWEEN '{start_date}' AND '{end_date}'
-              AND (facility_id = {facility_id} OR meter_id IN ({temp1}, {temp2}, {temp3}))
+              AND facility_id = {facility_id} AND meter_type = {meter_type}
             
             UNION ALL
             
