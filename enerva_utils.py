@@ -349,13 +349,14 @@ def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_dat
         return None
     
 
-def fetch_data_from_api(facility_id, start_date, end_date):
+def fetch_data_from_api(facility_id, meter_type, start_date, end_date):
     # Define the API endpoint
     url = "https://ams-enerva-dev.azure-api.net/v1/get_clean_data"
 
     # Set up parameters for the GET request
     params = {
         'facility_id': facility_id,
+        'meter_type' : meter_type,
         'start_date': start_date,
         'end_date': end_date
     }

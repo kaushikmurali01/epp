@@ -21,7 +21,7 @@ def baseline_model_training():
         baseline_end_date = pd.to_datetime(input_settings.get('end_date'))
         dummy_variables = input_settings.get('dummyVariables', {})
         selected_independent_variables_ids = input_settings.get('independent_variables', [])
-        response = fetch_data_from_api(facility_id, baseline_start_date, baseline_end_date)
+        response = fetch_data_from_api(facility_id, meter_type,baseline_start_date, baseline_end_date)
         cleaned_data = pd.DataFrame(response['clean_data'])
         # print(cleaned_data.columns)
         # print(cleaned_data.head())
@@ -181,9 +181,9 @@ def score_data():
         dummy_variables = baseline_model_settings['dummy_variables']
         modelling_independent_variables = baseline_model_settings['modelling_independent_variables']
         #get clean performance data
-        response = fetch_data_from_api(facility_id, scoring_start_date, scoring_end_date)
+        response = fetch_data_from_api(facility_id, meter_type,scoring_start_date, scoring_end_date)
         cleansed_scoring_data = pd.DataFrame(response['clean_data'])
-        print(cleansed_scoring_data.head())
+        # print(cleansed_scoring_data.head())
         cleansed_scoring_data['Date'] = pd.to_datetime(cleansed_scoring_data['Date'])
         scoring_data = cleansed_scoring_data[(cleansed_scoring_data['Date'] >= scoring_start_date) & (cleansed_scoring_data['Date'] <= scoring_end_date)]
         scoring_data = scoring_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]

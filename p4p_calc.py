@@ -45,7 +45,12 @@ class P4P_metrics_calculation:
         if self.meter_type == 1:  # Electricity
             off_peak_energy_savings = total_energy_savings - on_peak_energy_savings
             off_peak_energy_savings_incentive = self.off_peak_incentive * off_peak_energy_savings
+            if off_peak_energy_savings_incentive < 0:
+                off_peak_energy_savings_incentive = 0
+
             on_peak_energy_savings_incentive = self.on_peak_incentive * on_peak_energy_savings
+            if on_peak_energy_savings_incentive < 0:
+                on_peak_energy_savings_incentive = 0
             energy_savings_percentage = 100 * total_energy_savings / adjusted_baseline_energy_consumption
             if energy_savings_percentage > self.minimum_savings:
                 performance_incentive = on_peak_energy_savings_incentive + off_peak_energy_savings_incentive
