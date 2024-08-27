@@ -269,6 +269,7 @@ export const PERFORMANCE_ENDPOINTS = {
   GET_PERFORMANCE_REPORT: "/company-facility/v1/performance",
   GET_PERFORMANCE_DATA_MIN_MAX_DATE: "/weather/v1/get-performance-min-max",
   GET_PERFORMANCE_DATA_VISUALIZATION: "/model/v1/get_performance_scoring_data",
+  FETCH_PERFORMANCE_DATA_SUMMARY: "v1/data-exploration-summary-v2",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {

@@ -27,7 +27,11 @@ const StyledHelperText = styled(Typography)(({ theme }) => ({
   fontSize: "0.75rem",
 }));
 
-const DatePickerField = ({ field, form: { setFieldValue, values } }) => {
+const DatePickerField = ({
+  field,
+  form: { setFieldValue, values },
+  minDate: propMinDate,
+}) => {
   const handleDateChange = (date) => {
     if (date) {
       // Adjust for timezone offset
@@ -98,6 +102,16 @@ const DatePickerField = ({ field, form: { setFieldValue, values } }) => {
   const getMinMaxDates = () => {
     const fieldNumber = parseInt(field.name.slice(-1));
     const isStartDate = field.name.includes("StartDate");
+
+    if (isStartDate && fieldNumber === 1) {
+      // propMinDate for the first P4P start date
+      return {
+        minDate: propMinDate ? new Date(propMinDate) : null,
+        maxDate: values[`p4pEndDate${fieldNumber}`]
+          ? new Date(values[`p4pEndDate${fieldNumber}`])
+          : null,
+      };
+    }
 
     if (isStartDate) {
       const prevEndDate =
@@ -209,9 +223,10 @@ const IncentiveSettingsMicroComponent = () => {
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
-  const { incentiveSettings, loading, error } = useSelector(
+  const { incentiveSettings, loading, adminPerformanceDataMinMaxDate } = useSelector(
     (state) => state.adminPerformanceReducer
   );
+  
   const [formValues, setFormValues] = useState(null);
 
   useEffect(() => {
@@ -318,7 +333,13 @@ const IncentiveSettingsMicroComponent = () => {
               {
                 id: "Pay-for-performance start",
                 first_column: null,
-                first_p4p: renderField("p4pStartDate1", "date"),
+                first_p4p: (
+                  <Field 
+                    name="p4pStartDate1" 
+                    component={DatePickerField} 
+                    minDate={adminPerformanceDataMinMaxDate?.min_date}
+                  />
+                ),
                 second_p4p: renderField("p4pStartDate2", "date"),
                 third_p4p: renderField("p4pStartDate3", "date"),
               },

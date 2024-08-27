@@ -11,6 +11,7 @@ import {
   StyledButtonGroup,
 } from "../BaselineModel/styles";
 import {
+  fetchPerformanceDataSummaryList,
   getPerformanceDataMinMaxDate,
   scorePerformanceData,
 } from "../../../../redux/superAdmin/actions/performanceAction";
@@ -29,12 +30,18 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
     useSelector((state) => state?.performanceReducer);
 
   useEffect(() => {
-    if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton))
-        .then()
-        .catch((error) => console.error(error));
-    } else {
-      dispatch(fetchDataExplorationSummaryList(id));
+    if (
+      performanceDataMinMaxDate &&
+      performanceDataMinMaxDate.min_date &&
+      performanceDataMinMaxDate.max_date
+    ) {
+      if (activeButton === "missing_data" || activeButton === "outliers") {
+        dispatch(fetchPerformanceDataSummaryList(id, activeButton))
+          .then()
+          .catch((error) => console.error(error));
+      } else {
+        dispatch(fetchPerformanceDataSummaryList(id));
+      }
     }
   }, [dispatch, id, activeButton, meter_type]);
 
