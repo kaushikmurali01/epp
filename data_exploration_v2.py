@@ -28,9 +28,9 @@ class DataExplorationSummaryV2:
     def date_filter(self):
         query_date_filter= ''
         if self.missing_data:
-            query_date_filter =  ''
+            query_date_filter =  f" AND start_date >= '{self.start_date}' AND end_date <= '{self.end_date}' "
         elif self.outliers:
-            query_date_filter =  ''
+            query_date_filter =  f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
         else:
             query_date_filter = f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
         return  query_date_filter
