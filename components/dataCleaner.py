@@ -137,13 +137,11 @@ def clean_raw_data(dataframe):
     new_df['Temperature'] = new_df.Temperature.interpolate()
     output_columns = ['Date', 'EnergyConsumption', 'Temperature']
     output_columns.extend([i for i in iv_columns])
-    print(len(new_df), 'Before Dropping Negative and 0')
     new_df = new_df.drop(new_df[new_df['EnergyConsumption'] < 1].index)
-    print(len(new_df), 'After Dropping Negative and 0')
     # Apply the function to the EnergyConsumption column
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
-    new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
-    print(len(new_df), 'Dropping Outliers, Lower:{} Upper:{}'.format(lower_bound, upper_bound))
+    new_df = new_df[~new_df['Date'].isin(list(outliers.Date.values))]
+    # new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
     output_col = ['Date', 'EnergyConsumption', 'Temperature']
     output_col.extend(iv_columns)
     output_df = new_df[output_col]
