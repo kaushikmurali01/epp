@@ -351,11 +351,10 @@ const Weather = () => {
   };
 
   useEffect(() => {
-    if(facilityData?.id){
+    if (facilityData?.id) {
       getIndependentVariales();
       getWeatherStations();
     }
-
   }, [facilityData?.id]);
 
   const getIndependentVariales = () => {
@@ -1644,7 +1643,7 @@ const Weather = () => {
       <Loader
         sectionLoader
         minHeight="100vh"
-        loadingState={loadingState}
+        loadingState={loadingState || weatherLoading}
         loaderPosition="fixed"
       />
     </>
