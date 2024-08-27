@@ -57,7 +57,7 @@ class P4P_metrics_calculation:
             else:
                 performance_incentive = 0
 
-        if self.meter_type == 1: #electricity
+        # if self.meter_type == 1: #electricity
             return {
                 'adjusted_baseline_energy_consumption': round(adjusted_baseline_energy_consumption, 2),
                 'reporting_period_energy_consumption': round(reporting_period_energy_consumption, 2),
