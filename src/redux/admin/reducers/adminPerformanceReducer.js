@@ -80,6 +80,12 @@ import {
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -101,6 +107,8 @@ const initialState = {
   adminPerformanceReportInDB: {},
   adminPerformanceDataMinMaxDate: {},
   adminPerformanceDataVisualization: {},
+  adminPerformanceDataSummaryList: [],
+  adminPerformanceDataRawMeterSummaryList: [],
   error: null,
 };
 
@@ -535,6 +543,45 @@ const adminPerformanceReducer = (state = initialState, action) => {
         error: null,
       };
     case GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+
+    case FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminPerformanceDataSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        adminPerformanceDataRawMeterSummaryList: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE:
       return {
         ...state,
         loading: false,

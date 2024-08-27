@@ -81,9 +81,15 @@ import {
   getAdminPerformanceDataVisualizationRequest,
   getAdminPerformanceDataVisualizationSuccess,
   getAdminPerformanceDataVisualizationFailure,
+  fetchAdminPerformanceDataSummaryListRequest,
+  fetchAdminPerformanceDataSummaryListSuccess,
+  fetchAdminPerformanceDataSummaryListFailure,
+  fetchAdminPerformanceDataRawSummaryMeterListRequest,
+  fetchAdminPerformanceDataRawSummaryMeterListSuccess,
+  fetchAdminPerformanceDataRawSummaryMeterListFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
-import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
+import { BASELINE_ENDPOINTS, PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
 
 export const createEmailTemplate = (templateData) => {
   return async (dispatch) => {
@@ -637,6 +643,81 @@ export const getAdminPerformanceDataVisualization = (facility_id, meter_type) =>
     } catch (error) {
       console.error(error);
       dispatch(getAdminPerformanceDataVisualizationFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminPerformanceDataSummaryList = (
+  facilityId,
+  summaryType
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminPerformanceDataSummaryListRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminPerformanceDataSummaryListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminPerformanceDataSummaryListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminPerformanceDataRawSummaryMeterList = (
+  facilityId,
+  summaryType,
+  meterType,
+  detail,
+  meterId,
+  bound,
+  pageNumber,
+  pageSize
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminPerformanceDataRawSummaryMeterListRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      if (summaryType) {
+        endpointWithParams += `&summary_type=${summaryType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&meter=${meterType}`;
+      }
+      if (detail) {
+        endpointWithParams += `&detail=${detail}`;
+      }
+      endpointWithParams += `&meter_id=${meterId}`;
+      if (bound) {
+        endpointWithParams += `&bound=${bound}`;
+      }
+      if (pageNumber) {
+        endpointWithParams += `&page_number=${pageNumber}`;
+      }
+      if (pageSize) {
+        endpointWithParams += `&page_size=${pageSize}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
+      dispatch(fetchAdminPerformanceDataRawSummaryMeterListSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminPerformanceDataRawSummaryMeterListFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

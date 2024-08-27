@@ -80,6 +80,12 @@ import {
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_REQUEST,
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_SUCCESS,
   GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -456,5 +462,33 @@ export const getAdminPerformanceDataVisualizationSuccess = (data) => ({
 
 export const getAdminPerformanceDataVisualizationFailure = (error) => ({
   type: GET_ADMIN_PERFORMANCE_DATA_VISUALIZATION_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminPerformanceDataSummaryListRequest = () => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_REQUEST,
+});
+
+export const fetchAdminPerformanceDataSummaryListSuccess = (data) => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminPerformanceDataSummaryListFailure = (error) => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_SUMMARY_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminPerformanceDataRawSummaryMeterListRequest = () => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
+});
+
+export const fetchAdminPerformanceDataRawSummaryMeterListSuccess = (data) => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminPerformanceDataRawSummaryMeterListFailure = (error) => ({
+  type: FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
   payload: error,
 });
