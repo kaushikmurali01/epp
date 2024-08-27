@@ -695,6 +695,8 @@ def get_data_exploration_summary_v2():
     meter_name = request.args.get('meter', None)
     meter_id = request.args.get('meter_id', None)
     bound = request.args.get('bound', 'Lower limit')
+    start_date = request.args.get('min_date', None)
+    end_date = request.args.get('max_date', None)
 
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
@@ -704,7 +706,7 @@ def get_data_exploration_summary_v2():
         if not all([meter_name, meter_id]):
             return {'status': 'failed', 'message': "Please provide meter_name and meter_id when listing data"}, 200
 
-    des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id)
+    des = DataExplorationSummaryV2(facility_id, summary_type, meter_name, meter_id, start_date, end_date)
     if list_data == '1':
         response = des.get_paginated_list(page_size, page_no, bound)
         return jsonify(response)

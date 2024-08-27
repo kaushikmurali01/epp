@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 class DataExplorationSummaryV2:
-    def __init__(self, facility_id, summary_type, meter_name=None, meter_id=None):
+    def __init__(self, facility_id, summary_type, meter_name, meter_id, min_date, max_date):
         self.facility_id = facility_id
         self.summary_type = summary_type
         self.meter_name = meter_name
@@ -22,16 +22,31 @@ class DataExplorationSummaryV2:
         self.observed_data = True if summary_type == "observe_data" else False
         self.missing_data = True if summary_type == "missing_data" else False
         self.outliers = True if summary_type == "outliers" else False
+        self.start_date = min_date if min_date == None else datetime.strptime(min_date, '%Y-%m-%d')
+        self.end_date = max_date if max_date == None else datetime.strptime(max_date, '%Y-%m-%d')
+
+    def date_filter(self):
+        query_date_filter= ''
+        if self.missing_data:
+            query_date_filter =  ''
+        elif self.outliers:
+            query_date_filter =  ''
+        else:
+            query_date_filter = f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
+        return  query_date_filter
 
     def setup_query(self):
         get_station_id = get_nearest_stations(self.facility_id)
         station_id= tuple(get_station_id['station_id'].tolist())
+        query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
+        print(query_date_filter)
         if self.missing_data:
             self.query = get_missing_data_summary(self.facility_id, False)
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False)
         else:
-            self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False)
+            self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False, query_date_filter)
+        print(self.query)
         self.raw_df = dbtest(self.query)
 
         if self.missing_data:
