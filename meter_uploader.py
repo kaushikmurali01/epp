@@ -153,14 +153,14 @@ class BaseDataUploader:
         except:
             raise ValueError("Invalid Records in Start Date (Required) or End Date (Required)")
 
-        start_date_missing = self.merged_df['Start Date (Required)'].isnull().sum()
-        end_date_missing = self.merged_df['End Date (Required)'].isnull().sum()
-        if start_date_missing and end_date_missing:
-            raise ValueError("Both Start Date (Required) and End Date (Required) has Missing values")
-        if start_date_missing:
-            raise ValueError("Start Date (Required) has Missing values")
-        if end_date_missing:
-            raise ValueError("End Date (Required) has Missing values")
+        # start_date_missing = self.merged_df['Start Date (Required)'].isnull().sum()
+        # end_date_missing = self.merged_df['End Date (Required)'].isnull().sum()
+        # if start_date_missing and end_date_missing:
+        #     raise ValueError("Both Start Date (Required) and End Date (Required) has Missing values")
+        # if start_date_missing:
+        #     raise ValueError("Start Date (Required) has Missing values")
+        # if end_date_missing:
+        #     raise ValueError("End Date (Required) has Missing values")
 
     def validate(self):
         try:
