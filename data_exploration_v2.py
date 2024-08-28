@@ -52,8 +52,15 @@ class DataExplorationSummaryV2:
         elif self.outliers:
             self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
         else:
-            start_date = datetime.strptime(self.raw_df['time_stamp_start'].tolist()[0], "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
-            end_date = datetime.strptime(self.raw_df['time_stamp_end'].tolist()[0], "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
+            if (self.start_date == None and self.end_date == None):
+                s_date = self.raw_df['time_stamp_start'].tolist()[0] if  self.raw_df['time_stamp_start'].tolist()[0] else (datetime.now() - timedelta(days=2*365.25)).strftime('%Y-%m-%d')
+                e_date = self.raw_df['time_stamp_end'].tolist()[0] if  self.raw_df['time_stamp_end'].tolist()[0] else  datetime.now().strftime('%Y-%m-%d')
+                start_date = datetime.strptime(s_date, "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
+                end_date = datetime.strptime(e_date, "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
+            else :
+                start_date = self.start_date
+                end_date =  self.end_date
+
             self.temperature_query = get_temp_observed_data_summary(station_id[0], METER_FACTOR,start_date,end_date )        
 
         self.temp_df = dbtest(self.temperature_query)
