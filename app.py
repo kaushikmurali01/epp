@@ -822,9 +822,9 @@ def get_clean_data():
         facility_id = request.args.get('facility_id')
         weather_station = request.args.get('station_id')
         meter_type = request.args.get('meter_type')
-        independent_variables = request.args.get('independent_variables')
-        if independent_variables:
-            independent_variables = tuple(json.loads(independent_variables))
+        # independent_variables = request.args.get('independent_variables')
+        # if independent_variables:
+        #     independent_variables = tuple(json.loads(independent_variables))
         if not all([start_date, end_date, facility_id, meter_type]):
             return jsonify({"error": "Missing required parameters"}), 400
 
@@ -854,8 +854,8 @@ def get_clean_data():
         end_date = date_obj.replace(hour=23, minute=59)
         end_date = end_date.strftime('%Y-%m-%d %H:%M')
 
-        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type,
-                                                   independent_variables)
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type
+                                                   )
         print(clean_data_query)
         df = dbtest(clean_data_query)
         # df.to_excel('/Users/varunpratap/Desktop/raw.xlsx')

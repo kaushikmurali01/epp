@@ -46,16 +46,15 @@ ORDER BY
     bd.meter_name;"""
 
 
-def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type,
-                            independent_variables=()):
-    where_condition = f"AND meter_type = {meter_type}"
-
+def get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type):
+    # where_condition = f"AND meter_type = {meter_type}"
+    where_condition = f"AND (meter_type = {meter_type} OR is_independent_variable = true)"
     # Convert tuple to SQL-friendly string format
-    if independent_variables:
-        # Ensuring the format is '(value1, value2,...)'
-        independent_vars_formatted = str(independent_variables) if len(
-            independent_variables) > 1 else f"({independent_variables[0]})"
-        where_condition = f"AND (meter_type = {meter_type} OR independent_variable_id IN {independent_vars_formatted})"
+    # if independent_variables:
+    #     # Ensuring the format is '(value1, value2,...)'
+    #     independent_vars_formatted = str(independent_variables) if len(
+    #         independent_variables) > 1 else f"({independent_variables[0]})"
+    #     where_condition = f"AND (meter_type = {meter_type} OR independent_variable_id IN {independent_vars_formatted})"
 
     return f"""
     WITH base_data AS (
