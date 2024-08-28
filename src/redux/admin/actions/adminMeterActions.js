@@ -131,6 +131,10 @@ export const deleteAdminMeter = (meterId) => {
         message: data?.message,
         type: data?.statusCode ===404 ? "error" : "success",
       });
+      if(data?.statusCode !==404) {
+        sessionStorage.removeItem('dataProcessingLoader');
+      }
+
     } catch (error) {
       console.error(error);
       dispatch(deleteAdminMeterFailure(error));
