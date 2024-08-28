@@ -337,11 +337,11 @@ def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_dat
 
         # Apply the filter and calculate the total adjustment
         if not non_routine_dfs.empty:
-            non_routine_dfs['Start Date'] = pd.to_datetime(non_routine_dfs['Start Date'])
-            non_routine_dfs['End Date'] = pd.to_datetime(non_routine_dfs['End Date'])
+            non_routine_dfs['Start Date (Required)'] = pd.to_datetime(non_routine_dfs['Start Date (Required)'])
+            non_routine_dfs['End Date (Required)'] = pd.to_datetime(non_routine_dfs['End Date (Required)'])
             # Applying the filter
-            non_routine_dfs_filtered = non_routine_dfs[(non_routine_dfs['Start Date'] >= pd.to_datetime(start_date)) & (non_routine_dfs['End Date'] <= pd.to_datetime(end_date))]
-            non_routine_adjustment_from_urls = non_routine_dfs_filtered['Non-Routine Adjustment Value'].sum()
+            non_routine_dfs_filtered = non_routine_dfs[(non_routine_dfs['Start Date (Required)'] >= pd.to_datetime(start_date)) & (non_routine_dfs['End Date (Required)'] <= pd.to_datetime(end_date))]
+            non_routine_adjustment_from_urls = non_routine_dfs_filtered['Meter Reading (Required)'].sum()
 
         total_non_routine_adjustment = non_routine_adjustment_from_urls + non_routine_from_direct_entry
         return  total_non_routine_adjustment
