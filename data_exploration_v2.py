@@ -34,6 +34,15 @@ class DataExplorationSummaryV2:
         else:
             query_date_filter = f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
         return  query_date_filter
+    def date_filter_temp(self):
+        query_date_filter= ''
+        if self.missing_data:
+            query_date_filter =  f" AND start_date >= '{self.start_date}' AND end_date <= '{self.end_date}' "
+        elif self.outliers:
+            query_date_filter =  f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
+        else:
+            query_date_filter = f" AND w.date_time >= '{self.start_date}' AND w.date_time <= '{self.end_date}' "
+        return  query_date_filter
 
     def setup_query(self):
         get_station_id = get_nearest_stations(self.facility_id)
@@ -79,6 +88,7 @@ class DataExplorationSummaryV2:
 
     def setup_listing_query(self, page_size, page_no, bound):
         if self.meter_name == '104':
+            query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter_temp()
             if self.missing_data:
                 self.query = temp_missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
             elif self.outliers:
@@ -88,8 +98,9 @@ class DataExplorationSummaryV2:
                     outliers_query = temp_outlier_summary_upper_bound_list
                 self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
-                self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         else:
+            query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
             if self.missing_data:
                 self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
             elif self.outliers:
@@ -99,7 +110,7 @@ class DataExplorationSummaryV2:
                     outliers_query = outlier_summary_upper_bound_list
                 self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
-                self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         self.raw_df = dbtest(self.query)
         
 
