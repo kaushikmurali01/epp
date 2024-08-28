@@ -59,7 +59,7 @@ class AddMeterData:
                 raise ValueError("No visible sheets found in the Excel file.")
 
             df = pd.concat(df_list, ignore_index=True)
-
+            df = df.dropna(how='all')
             required_columns = ['Meter Reading (Required)', 'Start Date (Required)', 'End Date (Required)']
             if not all(col in df.columns for col in required_columns):
                 raise ValueError(f"Missing required columns. Expected: {required_columns}")
@@ -79,8 +79,8 @@ class AddMeterData:
             })
             df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
 
-            # df['start_date'] = pd.to_datetime(df['start_date'])
-            # df['end_date'] = pd.to_datetime(df['end_date'])
+            df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
+            df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce')
             # df['start_date'] = df['start_date'].dt.floor('H')  # 'T' or 'min' for minute precision
             # df['end_date'] = df['end_date'].dt.floor('H')
 

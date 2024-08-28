@@ -166,7 +166,7 @@ class BaseDataUploader:
         try:
             self.validate_and_read_excel_sheets()
             # self.check_duplicates()
-            # self.check_invalid_dates()
+            self.check_invalid_dates()
             self.validate_date_range()
             self.check_overlaps()
             return True, "File Validated Successfully"
