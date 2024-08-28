@@ -289,8 +289,8 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                             name={variableItem?.name}
                             type="checkbox"
                             as={Checkbox}
-                            checked={values?.independent_variables?.includes(
-                              variableItem?.id
+                            checked={+values?.independent_variables?.includes(
+                              +variableItem?.id
                             )}
                             disabled
                           />

@@ -12,6 +12,7 @@ import MeterDetailsModal from "./MeterDetailsModal";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchAdminDataExplorationSummaryList } from "../../../../redux/admin/actions/adminBaselineAction";
+import { format } from "date-fns";
 
 const DataSummary = () => {
   const [activeButton, setActiveButton] = useState("observe_data");
@@ -61,7 +62,15 @@ const DataSummary = () => {
     saveButtonAction: "",
   });
 
-  const meterDetailsModal = (meterType, meterName, meterId, count, bound) => {
+  const meterDetailsModal = (
+    meterType,
+    meterName,
+    meterId,
+    count,
+    min_date,
+    max_date,
+    bound
+  ) => {
     setMeterDetailsModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -73,6 +82,8 @@ const DataSummary = () => {
           meterId={meterId}
           summary_type={activeButton}
           count={count}
+          min_date={min_date && format(new Date(min_date), "yyyy-MM-dd")}
+          max_date={max_date && format(new Date(max_date), "yyyy-MM-dd")}
           bound={bound}
         />
       ),
@@ -146,7 +157,9 @@ const DataSummary = () => {
               item?.meter_type,
               item?.meter_name,
               item?.meter_id,
-              item?.total_records
+              item?.total_records,
+              item?.time_stamp_start,
+              item?.time_stamp_end
             )
           }
           variant="span"
@@ -202,7 +215,9 @@ const DataSummary = () => {
               item?.meter_type,
               item?.meter_name,
               item?.meter_id,
-              item?.total_records
+              item?.total_records,
+              item?.time_stamp_start,
+              item?.time_stamp_end
             )
           }
           variant="span"
@@ -259,6 +274,8 @@ const DataSummary = () => {
               item?.meter_name,
               item?.meter_id,
               item?.total_records,
+              item?.time_stamp_start,
+              item?.time_stamp_end,
               item?.bound_type
             )
           }

@@ -467,8 +467,11 @@ const ModelConstructorForm = ({
                               name={`independent_variables.${variableItem?.name}`}
                               type="checkbox"
                               as={Checkbox}
-                              checked={values.independent_variables.includes(
-                                variableItem?.id
+                              // checked={values.independent_variables.includes(
+                              //   variableItem?.id
+                              // )}
+                              checked={+values?.independent_variables?.includes(
+                                +variableItem?.id
                               )}
                               onChange={(event) =>
                                 handleIndeVarCheckboxChange(variableItem, event)

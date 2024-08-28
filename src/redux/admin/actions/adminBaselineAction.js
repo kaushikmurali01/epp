@@ -368,6 +368,8 @@ export const fetchAdminRawSummaryMeterList = (
   meterType,
   detail,
   meterId,
+  min_date,
+  max_date,
   bound,
   pageNumber,
   pageSize
@@ -386,6 +388,12 @@ export const fetchAdminRawSummaryMeterList = (
         endpointWithParams += `&detail=${detail}`;
       }
       endpointWithParams += `&meter_id=${meterId}`;
+      if (min_date) {
+        endpointWithParams += `&min_date=${min_date}`;
+      }
+      if (max_date) {
+        endpointWithParams += `&max_date=${max_date}`;
+      }
       if (bound) {
         endpointWithParams += `&bound=${bound}`;
       }
