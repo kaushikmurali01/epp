@@ -1,3 +1,4 @@
+import json
 from threading import Thread
 import calendar
 from flask import Flask, jsonify, request, render_template_string
@@ -188,7 +189,7 @@ def get_sufficiency():
     facility_id = request.json.get('facility_id')
     s_d = start_date = request.json.get('start_date')
     e_d = end_date = request.json.get('end_date')
-    IVs= request.json.get('independent_variables',[])
+    IVs = request.json.get('independent_variables', [])
 
     # Check if all required parameters are present
     if not all([facility_id, start_date, end_date]):
@@ -199,14 +200,15 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} ))" if len(IVs) > 0 else "AND  is_independent_variable = false"
+    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} ))" if len(
+        IVs) > 0 else "AND  is_independent_variable = false"
 
     # Modify the query with the provided parameters
     formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one=end_date + timedelta(days=1),
                                                facility_id=facility_id, IVids=IVids)
     df = dbtest(formatted_query)
     # Calculate sufficiency percentages
-    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date,IVs)
+    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
     response = {
         "daily": {"sufficiency": round(daily, 2) if round(daily, 2) <= 100 else 100, "status": get_status(daily)},
         "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2) <= 100 else 100, "status": get_status(hourly)},
@@ -220,7 +222,7 @@ def get_sufficiency():
     return jsonify(response)
 
 
-def calculate_sufficiency(df, start_date, end_date,IVs=[]):
+def calculate_sufficiency(df, start_date, end_date, IVs=[]):
     # Calculate total hours, days, and months
     total_hours = int((end_date - start_date).total_seconds() / 3600) + 1
     total_days = (end_date - start_date).days + 1
@@ -820,7 +822,9 @@ def get_clean_data():
         facility_id = request.args.get('facility_id')
         weather_station = request.args.get('station_id')
         meter_type = request.args.get('meter_type')
-
+        independent_variables = request.args.get('independent_variables')
+        if independent_variables:
+            independent_variables = tuple(json.loads(independent_variables))
         if not all([start_date, end_date, facility_id, meter_type]):
             return jsonify({"error": "Missing required parameters"}), 400
 
@@ -850,7 +854,8 @@ def get_clean_data():
         end_date = date_obj.replace(hour=23, minute=59)
         end_date = end_date.strftime('%Y-%m-%d %H:%M')
 
-        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type)
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type,
+                                                   independent_variables)
         print(clean_data_query)
         df = dbtest(clean_data_query)
         # df.to_excel('/Users/varunpratap/Desktop/raw.xlsx')
