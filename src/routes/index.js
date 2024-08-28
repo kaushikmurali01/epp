@@ -84,7 +84,8 @@ const RoutesComp = () => {
             setIsNewuser(true)
           }
         }).catch((err)=> {
-          localStorage.clear()
+          localStorage.clear();
+          sessionStorage.clear();
           instance.logoutRedirect()
         })
     } else {

@@ -164,7 +164,8 @@ function Header(props) {
   const clickSetting =(setting) => {
     if(setting == 'Logout'){
       //logout from the application with msal instance
-      localStorage.clear()
+      localStorage.clear();
+      sessionStorage.clear();
       instance.logoutRedirect()
     }
     else if(setting == 'Profile'){

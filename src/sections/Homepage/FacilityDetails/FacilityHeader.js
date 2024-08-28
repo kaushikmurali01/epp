@@ -236,6 +236,10 @@ const FacilityHeader = () => {
 
   const CustomBar = (props) => {
     const { x, y, width, height, value, fill } = props;
+  
+    // Ensure width is not negative
+    const validatedWidth = Math.max(width, 0);
+  
     const displayIncentiveValue =
       typeof value === "number" && activeButton === "incentive"
         ? `$${value.toFixed(2)}`
@@ -243,10 +247,10 @@ const FacilityHeader = () => {
     const displaySavingValue = `${value}kWh`;
     return (
       <g>
-        <rect x={x} y={y} width={width} height={15} fill={fill} />
-        {width > 30 && (
+        <rect x={x} y={y} width={validatedWidth} height={15} fill={fill} />
+        {validatedWidth > 30 && (
           <text
-            x={x + width / 2}
+            x={x + validatedWidth / 2}
             y={y + 15 / 2}
             textAnchor="middle"
             dominantBaseline="central"
@@ -261,6 +265,7 @@ const FacilityHeader = () => {
       </g>
     );
   };
+  
 
   function IncentiveChart({ data }) {
     const processedData = React.useMemo(() => {
