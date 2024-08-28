@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
 import { Slider, Typography } from "@mui/material";
 import {
@@ -39,8 +39,8 @@ const DateRangeSlider = ({
 
   const [range, setRange] = useState([startDaysOffset, endDaysOffset]);
   const [isThumbActive, setIsThumbActive] = useState(false);
-  const oneYearBeforeEnd = subYears(endDateObj, 1);
-  const oneYearInDays = differenceInDays(endDateObj, oneYearBeforeEnd);
+  const [focusedThumb, setFocusedThumb] = useState(null);
+  const sliderRef = useRef(null);
 
   useEffect(() => {
     setRange([startDaysOffset, endDaysOffset]);
@@ -48,7 +48,7 @@ const DateRangeSlider = ({
 
   const formatDate = useCallback(
     (value) => {
-      const date = addDays(startDateObj, value); // Add 1 to compensate for the day difference
+      const date = addDays(startDateObj, value);
       return format(date, "yyyy-MM-dd");
     },
     [startDateObj]
@@ -73,11 +73,8 @@ const DateRangeSlider = ({
       }
 
       let updatedRange = [...newValue];
-
-      // Ensure both values are within the valid range
       updatedRange = updatedRange.map((value) => Math.min(value, maxEndDays));
 
-      // Ensure minimum 1 day between start and end
       const minDistance = 1;
       if (activeThumb === 0) {
         updatedRange[0] = Math.min(
@@ -98,7 +95,6 @@ const DateRangeSlider = ({
 
   const handleMouseDown = useCallback(
     (event) => {
-      // Check if the click is within the valid range
       const clickX = event.clientX - event.target.getBoundingClientRect().left;
       const sliderWidth = event.target.clientWidth;
       const clickPosition = (clickX / sliderWidth) * totalDays;
@@ -113,7 +109,6 @@ const DateRangeSlider = ({
   const handleMouseUp = useCallback(() => {
     setIsThumbActive(false);
     if (onChange) {
-      // Ensure the range is within the valid bounds before calling onChange
       const validRange = [
         Math.min(range[0], maxEndDays),
         Math.min(range[1], maxEndDays),
@@ -122,8 +117,45 @@ const DateRangeSlider = ({
     }
   }, [onChange, range, formatDate, maxEndDays]);
 
+  const handleKeyDown = useCallback(
+    (event) => {
+      if (disabled || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) {
+        return;
+      }
+
+      event.preventDefault();
+      const step = event.key === "ArrowLeft" ? -1 : 1;
+      const newRange = [...range];
+
+      if (focusedThumb === 0 || focusedThumb === 1) {
+        newRange[focusedThumb] = Math.max(0, Math.min(newRange[focusedThumb] + step, maxEndDays));
+        
+        // Ensure minimum distance between thumbs
+        if (focusedThumb === 0) {
+          newRange[0] = Math.min(newRange[0], newRange[1] - 1);
+        } else {
+          newRange[1] = Math.max(newRange[1], newRange[0] + 1);
+        }
+
+        setRange(newRange);
+        onChange(formatDate(newRange[0]), formatDate(newRange[1]));
+      }
+    },
+    [disabled, range, focusedThumb, maxEndDays, onChange, formatDate]
+  );
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (slider) {
+      slider.addEventListener("keydown", handleKeyDown);
+      return () => {
+        slider.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [handleKeyDown]);
+
   return (
-    <div style={{ width: "90%", margin: "auto" }}>
+    <div style={{ width: "90%", margin: "auto" }} ref={sliderRef} tabIndex="0">
       <Slider
         value={range}
         onChange={handleChange}
@@ -146,6 +178,11 @@ const DateRangeSlider = ({
             label: format(today, "yyyy-MM-dd"),
           },
         ]}
+        onFocus={(event) => {
+          const thumb = event.target.getAttribute("data-index");
+          setFocusedThumb(thumb !== null ? parseInt(thumb, 10) : null);
+        }}
+        onBlur={() => setFocusedThumb(null)}
         sx={{
           "& .MuiSlider-valueLabel": {
             background: "white",

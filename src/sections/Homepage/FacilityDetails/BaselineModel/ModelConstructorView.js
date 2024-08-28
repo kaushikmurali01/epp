@@ -73,7 +73,6 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
       if (initialValues) {
         setFormData(initialValues?.parameter_data);
         if (initialValues?.parameter_data?.length <= 0) {
-          console.log(initialValues.parameter_data);
           setDisableSeeDetails(true);
         } else {
           setDisableSeeDetails(false);

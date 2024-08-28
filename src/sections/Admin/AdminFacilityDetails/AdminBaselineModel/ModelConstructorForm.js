@@ -149,7 +149,8 @@ const ModelConstructorForm = ({
     );
     if (
       baselineCalculated?.status === "SUBMITTED" ||
-      baselineCalculated?.status === "REQUESTED"
+      (baselineCalculated?.status === "REQUESTED" &&
+        baselineCalculated?.parameter_data?.length > 0)
     ) {
       setCheckSufficiencyAfter(true);
       setFormData({
@@ -499,7 +500,6 @@ const ModelConstructorForm = ({
             setBaselineStartDate(startDate);
             setBaselineEndDate(endDate);
           };
-          console.log(values, "values");
           return (
             <Form>
               <Grid container rowGap={4}>
@@ -626,9 +626,11 @@ const ModelConstructorForm = ({
                               // checked={
                               //   values.independent_variables[variableItem?.name]
                               // }
-                              checked={+values?.independent_variables?.includes(
-                                +variableItem?.id
-                              )}
+                              checked={
+                                +values?.independent_variables?.includes(
+                                  +variableItem?.id
+                                )
+                              }
                               onChange={(event) =>
                                 handleIndeVarCheckboxChange(variableItem, event)
                               }
