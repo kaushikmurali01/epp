@@ -6,7 +6,7 @@ import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/ac
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { activeButtonStyle, inactiveButtonStyle, StyledButtonGroup } from "../AdminBaselineModel/styles";
-import { getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { fetchAdminPerformanceDataSummaryList, getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
 import { format, parseISO } from "date-fns";
 import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
 
@@ -21,18 +21,6 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
   const { adminPerformanceDataMinMaxDate} = useSelector(
     (state) => state?.adminPerformanceReducer
   );
-
-  useEffect(() => {
-    if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton))
-        .then()
-        .catch((error) => 
-          console.error(error)
-        );
-    } else {
-      dispatch(fetchDataExplorationSummaryList(id));
-    }
-  }, [dispatch, id, activeButton, meter_type]);
   
   useEffect(() => {
     dispatch(getAdminPerformanceDataMinMaxDate(id, meter_type))
@@ -68,8 +56,36 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     }
   }, [dispatch, id, meter_type, adminPerformanceDataMinMaxDate]);
 
+  useEffect(() => {
+    if (
+      adminPerformanceDataMinMaxDate &&
+      adminPerformanceDataMinMaxDate.min_date &&
+      adminPerformanceDataMinMaxDate.max_date
+    ) {
+      const payload = {
+        facility_id: Number(id),
+        meter_type: meter_type,
+        start_date: format(
+          new Date(adminPerformanceDataMinMaxDate.min_date),
+          "yyyy-MM-dd"
+        ),
+        end_date: format(
+          new Date(adminPerformanceDataMinMaxDate.max_date),
+          "yyyy-MM-dd"
+        ),
+      };
+      if (activeButton === "missing_data" || activeButton === "outliers") {
+        dispatch(fetchAdminPerformanceDataSummaryList(payload, activeButton))
+          .then()
+          .catch((error) => console.error(error));
+      } else {
+        dispatch(fetchAdminPerformanceDataSummaryList(payload));
+      }
+    }
+  }, [dispatch, activeButton, id, meter_type, adminPerformanceDataMinMaxDate]);
+
   const summaryData = useSelector(
-    (state) => state?.baselineReducer?.dataExplorationSummaryList
+    (state) => state?.adminPerformanceReducer?.adminPerformanceDataSummaryList
   );  
 
   const [performanceDataMeterDetailsModalConfig, setPerformanceDataMeterDetailsModalConfig] = useState({
