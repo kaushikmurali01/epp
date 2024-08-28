@@ -3,8 +3,8 @@ from sql_queries.data_exploration_queries import outlier_summary, observed_data_
 
 
 # Summary Function Start
-def get_outlier_summary(facility_id, factor, independent_variable):
-    return outlier_summary.format(factor, factor, facility_id, independent_variable)
+def get_outlier_summary(facility_id, factor, independent_variable, date_filter ='' ):
+    return outlier_summary.format(factor, factor, facility_id, independent_variable, date_filter)
 
 
 def get_temp_outlier_summary(facility_id, factor):
@@ -19,8 +19,8 @@ def get_temp_observed_data_summary(facility_id, factor, start_date, end_date):
     return temp_observed_data_summary.format(facility_id, factor, factor, facility_id, start_date, end_date)
 
 
-def get_missing_data_summary(facility_id, independent_variable):
-    return missing_data_summary.format(facility_id, independent_variable)
+def get_missing_data_summary(facility_id, independent_variable, date_filter=''):
+    return missing_data_summary.format(facility_id, independent_variable, date_filter)
 
 
 def get_temp_missing_data_summary(facility_id):
