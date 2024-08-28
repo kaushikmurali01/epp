@@ -37,9 +37,8 @@ const AddNonRoutineEventModal = ({
     event_description: "",
   });
 
-  const { adminNonRoutineEventDetails } = useSelector(
-    (state) => state?.adminPerformanceReducer
-  );
+  const { adminNonRoutineEventDetails, adminPerformanceDataMinMaxDate } =
+    useSelector((state) => state?.adminPerformanceReducer);
 
   useEffect(() => {
     if (editMode.isEditing && editMode.eventId) {
@@ -120,6 +119,8 @@ const AddNonRoutineEventModal = ({
                   width: "100%",
                   input: { color: "#111" },
                 }}
+                minDate={new Date(adminPerformanceDataMinMaxDate?.min_date)}
+                maxDate={new Date(adminPerformanceDataMinMaxDate?.max_date)}
                 disableFuture
                 format="MM/dd/yyyy"
                 slotProps={{
@@ -153,7 +154,11 @@ const AddNonRoutineEventModal = ({
                   input: { color: "#111" },
                 }}
                 disableFuture
-                minDate={values.event_from_period}
+                minDate={
+                  values.event_from_period ||
+                  new Date(adminPerformanceDataMinMaxDate?.min_date)
+                }
+                maxDate={new Date(adminPerformanceDataMinMaxDate?.max_date)}
                 format="MM/dd/yyyy"
                 slotProps={{
                   textField: {
