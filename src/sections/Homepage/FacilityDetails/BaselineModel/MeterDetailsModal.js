@@ -14,6 +14,8 @@ const MeterDetailsModal = ({
   meterId,
   summary_type,
   count,
+  min_date,
+  max_date,
   bound,
 }) => {
   const [pageInfo, setPageInfo] = useState({
@@ -32,6 +34,8 @@ const MeterDetailsModal = ({
           meterType,
           1,
           meterId,
+          min_date,
+          max_date,
           bound,
           pageInfo.page,
           pageInfo.pageSize
@@ -45,6 +49,8 @@ const MeterDetailsModal = ({
           meterType,
           1,
           meterId,
+          min_date,
+          max_date,
           false,
           pageInfo.page,
           pageInfo.pageSize

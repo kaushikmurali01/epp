@@ -19,6 +19,8 @@ const MeterDetailsModal = ({
   meterId,
   summary_type,
   count,
+  min_date,
+  max_date,
   bound,
 }) => {
   const [pageInfo, setPageInfo] = useState({
@@ -37,6 +39,8 @@ const MeterDetailsModal = ({
           meterType,
           1,
           meterId,
+          min_date,
+          max_date,
           bound,
           pageInfo.page,
           pageInfo.pageSize
@@ -50,6 +54,8 @@ const MeterDetailsModal = ({
           meterType,
           1,
           meterId,
+          min_date,
+          max_date,
           false,
           pageInfo.page,
           pageInfo.pageSize
@@ -115,12 +121,17 @@ const MeterDetailsModal = ({
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} >
+        <Typography
+          disabled
+          variant="h6"
+          color="#2C77E9"
+          sx={{ cursor: "pointer" }}
+        >
           Download as Excel
         </Typography>
       </Grid>
       <Grid container>
-      <Box className="view-entries-table" sx={{ width: "100%" }}>
+        <Box className="view-entries-table" sx={{ width: "100%" }}>
           <MiniTable
             columns={observeDataColumn}
             data={meterRawData}
