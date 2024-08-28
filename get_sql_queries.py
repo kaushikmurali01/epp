@@ -20,11 +20,11 @@ def get_temp_observed_data_summary(facility_id, factor, start_date, end_date):
 
 
 def get_missing_data_summary(facility_id, independent_variable, date_filter=''):
-    return missing_data_summary.format(facility_id, independent_variable, date_filter)
+    return missing_data_summary.format(facility_id=facility_id, independent_variable=independent_variable, date_filter=date_filter)
 
 
-def get_temp_missing_data_summary(facility_id):
-    return temp_missing_data_summary.format(facility_id)
+def get_temp_missing_data_summary(facility_id, station_id):
+    return temp_missing_data_summary.format(facility_id, station_id)
 
 # Summary Function End
 

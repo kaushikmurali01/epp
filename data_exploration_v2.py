@@ -57,7 +57,7 @@ class DataExplorationSummaryV2:
         self.raw_df = dbtest(self.query)
 
         if self.missing_data:
-            self.temperature_query = get_temp_missing_data_summary(station_id[0] )
+            self.temperature_query = get_temp_missing_data_summary(self.facility_id, station_id[0] )
         elif self.outliers:
             self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
         else:
