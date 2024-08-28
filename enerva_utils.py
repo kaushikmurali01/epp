@@ -334,7 +334,8 @@ def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_dat
             if df_url is not None:
                 # Concatenate directly to the main DataFrame
                 non_routine_dfs = pd.concat([non_routine_dfs, df_url], ignore_index=True)
-
+                print("non-routine data fetched from urls")
+                # print(non_routine_dfs)
         # Apply the filter and calculate the total adjustment
         if not non_routine_dfs.empty:
             non_routine_dfs['Start Date (Required)'] = pd.to_datetime(non_routine_dfs['Start Date (Required)'])
@@ -344,8 +345,10 @@ def get_non_routine_adjustment_data(facility_id, meter_type, start_date, end_dat
             non_routine_adjustment_from_urls = non_routine_dfs_filtered['Meter Reading (Required)'].sum()
 
         total_non_routine_adjustment = non_routine_adjustment_from_urls + non_routine_from_direct_entry
+        # print(total_non_routine_adjustment)
         return  total_non_routine_adjustment
     except:
+        # print("i got an error")
         return None
     
 

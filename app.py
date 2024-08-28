@@ -242,7 +242,9 @@ def p4p_calculation():
         scoring_data_master['Timestamp'] = pd.to_datetime(scoring_data_master['Timestamp'],unit= 'ms')
         # scoring_data_master['Timestamp'] = scoring_data_master['Timestamp'].apply(lambda x: est_offset.localize(x))
         performance_scored_data = scoring_data_master[(scoring_data_master['Timestamp'] >= performance_start_date) & (scoring_data_master['Timestamp'] <= performance_end_date)]
+        # print()
         non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, performance_start_date, performance_end_date)
+        # print('Non routine adj: ', non_routine_adjustment_value)
         granularity = baseline_model_settings['granularity']
         pre_project_incentive = result['incentive_settings']['pre_project_incentive']
         on_peak_incentive = result['incentive_settings']['on_peak_incentive_rate']
@@ -256,7 +258,15 @@ def p4p_calculation():
             
         performance_summary = performance.calculate_metrics()
         print("performance calculation done successfully")
-        return jsonify(performance_summary)
+        # print(performance_summary)
+        # Convert any numpy types to native Python types
+        for key, value in performance_summary.items():
+            if isinstance(value, np.generic):
+                performance_summary[key] = value.item()
+        # Now serialize the dictionary to JSON
+        json_data = json.dumps(performance_summary)
+        return json_data
+        # return json.dumps(performance_summary)
     except Exception as e:
         print(f"An error occurred: {e}")
         return str(e), 500  # HTTP 500 Internal Server Error
