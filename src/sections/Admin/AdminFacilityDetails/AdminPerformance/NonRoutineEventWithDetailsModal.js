@@ -188,78 +188,86 @@ const getUploadedFiles = () => {
         </Grid>
       )}
 
-      {getUploadedFiles().length > 0 && (
-        <Box sx={{ marginTop: "1rem" }}>
-          <Typography
-            sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
-          >
-            Uploaded files:
-          </Typography>
-          {getUploadedFiles().map((file, index) => (
-            <Box
-              key={index}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                marginTop: "0.5rem",
-              }}
+      <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+        {getUploadedFiles().length > 0 && (
+          <Box sx={{ marginTop: "1rem" }}>
+            <Typography
+              sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
             >
-              <Typography
-                variant="body1"
-                sx={{ color: "blue.main", cursor: "pointer" }}
-                onClick={() =>
-                  downloadFileFromUrl(
-                    file.file_url,
-                    file.name || `non_routine_file_${index + 1}`
-                  )
-                }
+              Uploaded files:
+            </Typography>
+            {getUploadedFiles().map((file, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginTop: "0.5rem",
+                }}
               >
-                {file.fullName}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      )}
-
-      <Grid sx={{ marginTop: "20px" }}>
-        <Button
-          variant="contained"
+                <Typography
+                  variant="body1"
+                  sx={{ color: "blue.main", cursor: "pointer" }}
+                  onClick={() =>
+                    downloadFileFromUrl(
+                      file.file_url,
+                      file.name || `non_routine_file_${index + 1}`
+                    )
+                  }
+                >
+                  {file.fullName}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
+        <Grid
           sx={{
-            backgroundColor: "blue.main",
-            color: "#ffffff",
-            ":hover": { backgroundColor: "#2360bc" },
-          }}
-          onClick={() => {
-            openAddNonRoutineEventModal(eventId);
-            closeNonEventRoutineDetailsModal();
+            marginTop: { xs: "10px", md: "20px" },
+            display: "flex",
+            gap: { xs: "10px", md: "15px" },
+            justifyContent: "flex-start",
+            flexWrap: "wrap"
           }}
         >
-          Edit
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "primary.main",
-            color: "#ffffff",
-            marginLeft: "15px",
-            ":hover": { backgroundColor: "primary.mainDarkShade" },
-          }}
-        >
-          Download
-        </Button>
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: "danger.main",
-            color: "#ffffff",
-            marginLeft: "15px",
-            ":hover": { backgroundColor: "danger.colorCrimson" },
-          }}
-          onClick={handleDeleteEvent}
-        >
-          Delete
-        </Button>
-      </Grid>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "blue.main",
+              color: "#ffffff",
+              ":hover": { backgroundColor: "#2360bc" },
+            }}
+            onClick={() => {
+              openAddNonRoutineEventModal(eventId);
+              closeNonEventRoutineDetailsModal();
+            }}
+          >
+            Edit
+          </Button>
+          {/* <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "primary.main",
+              color: "#ffffff",
+              marginLeft: "15px",
+              ":hover": { backgroundColor: "primary.mainDarkShade" },
+            }}
+          >
+            Download
+          </Button> */}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "danger.main",
+              color: "#ffffff",
+              ":hover": { backgroundColor: "danger.colorCrimson" },
+            }}
+            onClick={handleDeleteEvent}
+          >
+            Delete
+          </Button>
+        </Grid>
+      </Box>
     </Grid>
   );
 };

@@ -355,14 +355,20 @@ export const getPerformanceDataVisualization = (
 };
 
 export const fetchPerformanceDataSummaryList = (
-  facilityId,
+  payload,
   summaryType
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchPerformanceDataSummaryListRequest());
-      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${payload.facility_id}&performance=1`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
+      if (payload.start_date) {
+        endpointWithParams += `&min_date=${payload.start_date}`;
+      }
+      if (payload.end_date) {
+        endpointWithParams += `&max_date=${payload.end_date}`;
+      }
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchPerformanceDataSummaryListSuccess(data));
@@ -386,12 +392,14 @@ export const fetchPerformanceDataRawSummaryMeterList = (
   meterId,
   bound,
   pageNumber,
-  pageSize
+  pageSize,
+  min_date,
+  max_date,
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchPerformanceDataRawSummaryMeterListRequest());
-      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${facilityId}&performance=1`;
       if (summaryType) {
         endpointWithParams += `&summary_type=${summaryType}`;
       }
@@ -410,6 +418,12 @@ export const fetchPerformanceDataRawSummaryMeterList = (
       }
       if (pageSize) {
         endpointWithParams += `&page_size=${pageSize}`;
+      }
+      if (min_date) {
+        endpointWithParams += `&min_date=${min_date}`;
+      }
+      if (max_date) {
+        endpointWithParams += `&max_date=${max_date}`;
       }
       const response = await GET_REQUEST(endpointWithParams);
       const data =

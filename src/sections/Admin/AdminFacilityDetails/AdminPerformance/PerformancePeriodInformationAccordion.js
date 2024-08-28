@@ -127,10 +127,6 @@ const PerformancePeriodInformationAccordion = ({
     buttonsUI: {
       saveButton: false,
       cancelButton: false,
-      saveButtonName: "Edit",
-      cancelButtonName: "Download",
-      saveButtonClass: "",
-      cancelButtonClass: "",
     },
     modalBodyContent: "",
   });
