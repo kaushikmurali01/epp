@@ -12,7 +12,10 @@ import { Stack } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-const BootstrapDialog = styled(Dialog)(({ theme, evModalStyle }) => ({
+
+const BootstrapDialog = styled(({ evModalStyle, ...otherProps }) => (
+  <Dialog {...otherProps} />
+))(({ theme, evModalStyle }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
     ...evModalStyle?.dialogContent,

@@ -124,9 +124,10 @@ export const deleteMeter = (meterId) => {
       const data = response.data;
       dispatch(deleteMeterSuccess(data));
       NotificationsToast({
-        message: "Meter deleted successfully!",
-        type: "success",
+        message: data?.message,
+        type: data?.statusCode ===404 ? "error" : "success",
       });
+
     } catch (error) {
       console.error(error);
       dispatch(deleteMeterFailure(error));

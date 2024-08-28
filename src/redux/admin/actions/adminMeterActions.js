@@ -126,9 +126,10 @@ export const deleteAdminMeter = (meterId) => {
       const response = await DELETE_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(deleteAdminMeterSuccess(data));
+    
       NotificationsToast({
-        message: "Meter deleted successfully!",
-        type: "success",
+        message: data?.message,
+        type: data?.statusCode ===404 ? "error" : "success",
       });
     } catch (error) {
       console.error(error);
