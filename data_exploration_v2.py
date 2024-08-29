@@ -5,7 +5,7 @@ from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
 from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list, missing_data_summary
 from utils import get_nearest_stations
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class DataExplorationSummaryV2:
@@ -61,8 +61,8 @@ class DataExplorationSummaryV2:
             self.temperature_query = get_temp_outlier_summary(station_id[0], METER_FACTOR)
         else:
             if (self.start_date == None and self.end_date == None):
-                s_date = self.raw_df['time_stamp_start'].tolist()[0] if  self.raw_df['time_stamp_start'].tolist()[0] else (datetime.now() - timedelta(days=2*365.25)).strftime('%Y-%m-%d')
-                e_date = self.raw_df['time_stamp_end'].tolist()[0] if  self.raw_df['time_stamp_end'].tolist()[0] else  datetime.now().strftime('%Y-%m-%d')
+                s_date = self.raw_df['time_stamp_start'].tolist()[0] if  len(self.raw_df)>0 else (datetime.now() - timedelta(days=2*365.25)).strftime('%Y/%m/%d  %H:%M')
+                e_date = self.raw_df['time_stamp_end'].tolist()[0] if  len(self.raw_df)>0 else  datetime.now().strftime('%Y/%m/%d  %H:%M')
                 start_date = datetime.strptime(s_date, "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
                 end_date = datetime.strptime(e_date, "%Y/%m/%d %H:%M").strftime("%Y-%m-%d")
             else :
