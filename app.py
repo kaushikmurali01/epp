@@ -972,11 +972,13 @@ def get_uploader_result():
         True: lambda name, type_val="Meter": ("Data Uploaded Successfully for {}: {}".format(type_val, name), 201),
         False: lambda name, type_val="Meter": ("File Being Processed for {}: {}".format(type_val, name), 200),
         None: lambda name, type_val="Meter": (
-        "Something went wrong with {}: {} Data Upload.".format(type_val, name), 400)
+            "Something went wrong with {}: {} Data Upload.".format(type_val, name), 400)
     }
 
     record_id = request.args.get('record_id')
     iv = request.args.get('iv', type=bool)  # Default to False if not provided
+    if not record_id:
+        return jsonify({"message": 'Please Provide a Record ID', 'status_code': 400}), 400
 
     query = STATUS_UPLOADER_INTIMATION_IV if iv else STATUS_UPLOADER_INTIMATION_METER
     response = dbtest(query.format(record_id))  # Ensure dbtest is using safe query practices
