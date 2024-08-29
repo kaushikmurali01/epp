@@ -9,6 +9,10 @@ import adminMeterReducer from "./admin/reducers/adminMeterReducer";
 import loaderReducer from "./global/reducers/loaderReducer";
 import adminEntriesReducer from "./admin/reducers/adminEntriesReducer";
 import adminCompanyReducer from "./admin/reducers/adminCompanyReducer";
+import baselineReducer from "./superAdmin/reducers/baselineReducer";
+import adminBaselineReducer from "./admin/reducers/adminBaselineReducer";
+import adminPerformanceReducer from "./admin/reducers/adminPerformanceReducer";
+import performanceReducer from "./superAdmin/reducers/performanceReducer";
 export default combineReducers({
   simpleReducer,
   facilityReducer,
@@ -20,4 +24,8 @@ export default combineReducers({
   adminEntriesReducer,
   adminCompanyReducer,
   loaderReducer,
+  baselineReducer,
+  adminBaselineReducer,
+  adminPerformanceReducer,
+  performanceReducer,
 });

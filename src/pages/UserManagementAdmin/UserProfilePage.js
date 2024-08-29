@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Container,
   Typography,
@@ -10,6 +10,9 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  FormGroup,
+  Checkbox,
+  FormLabel,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MicroStyledListItemComponent from "components/ProfilePageComponents/MicroStyledComponent";
@@ -22,9 +25,11 @@ import { useDispatch } from "react-redux";
 import Loader from "../Loader";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import UserManagePermissions from "./UserManagePermissions";
+import EvModal from "utils/modal/EvModal";
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
+  const getUseLocation = useLocation();
   const { companyId, userId } = useParams();
   const dispatch = useDispatch();
   const [profilePicture, setProfilePicture] = useState("");
@@ -35,6 +40,34 @@ const [getCompanyList, setCompanyList] = useState([]);
   const [invitePageInfo, setInvitePageInfo] = useState({});
   const [selectTableRow, setSelectTableRow] = useState({});
   const [inviteAPIURL, setInviteAPIURL] = useState('');
+  const [isChecked, setIsChecked] = useState(false);
+
+  const [modalConfig, setModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: true,
+      modalClass: "",
+      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
+      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
+      fotterActionStyle: {justifyContent: "center", gap: '1rem'},
+      modalBodyContentStyle: ''
+    },
+    buttonsUI: {
+      saveButton: true,
+      cancelButton: true,
+      saveButtonClass: "",
+      cancelButtonClass: "",
+      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
+      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+      saveButtonName: "Delete",
+      cancelButtonName: "Cancel",  
+
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+  });
 
   const profileButtonStyle = {
     color: "primary.main",
@@ -88,34 +121,104 @@ const [getCompanyList, setCompanyList] = useState([]);
   const handelManagePermissions = () => {
     const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
     const profileData = {
-      companyId,
-      userId,
+      company_id:companyId,
+      id: userId,
+      user_type_id: userProfileData?.user.type,
       ...userProfileData?.user
     }
-    setInviteAPIURL(apiURL)
-    setVisibleInvitePage(true);
-    setSelectTableRow(profileData)
+    // setInviteAPIURL(apiURL)
+    // setVisibleInvitePage(true);
+    // setSelectTableRow(profileData)
+    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
     
 
+    // navigate('/user-management/manage-access')
+    // Set a value in session storage
+    const data = {
+      pageInfo: { title: 'Manage Customer User and permissions' },
+      isEdited: true,
+      selectTableRow: profileData,
+      returnPageURL: getUseLocation.pathname
+    }
+    // set state on session storage
+    // sessionStorage.setItem('enervaAdminManageAccess', data);
+    navigate('/user-management/manage-access',{state: data})
 
   }
 
+  const DeleteModelContent = () => {
+    return (
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
+            <Grid item sx={{textAlign:'center'}}>
+                <figure>
+                    <img src="/images/icons/deleteIcon.svg" alt="" />
+                </figure>
+            </Grid>
+            <Grid item>
+                <Typography variant="h4">
+                    Are you sure you would like to delete the user?
+                </Typography>
+            </Grid>
+            <Grid item>
+                <FormGroup sx={{display: 'block',}}>
+                 <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
+                </FormGroup>
+            </Grid>
+        </Grid>
+    )
+}
+
+const handelDeleteModalOpen = () => {
+    setModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        buttonsUI: {
+            ...prevState.buttonsUI,
+            saveButton: true,
+            cancelButton: true,
+        },
+        modalBodyContent: <DeleteModelContent />,
+        saveButtonAction: () =>  handelDelete(),
+    }));
+   
+}
 
 
   const backToUserManagement = () => {
     navigate('/user-management')
   };
-  const deleteUserProfile = () => {
-    const apiURL = USER_MANAGEMENT.DELETE_USER_REQUEST + '/' + userProfileData?.user.id + '/' + userProfileData?.user.entry_type;
+  const handelDelete = () => {
+    const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + userProfileData?.user.id + '/' + userProfileData?.user.entry_type + '/' + userProfileData?.companyDetail?.id;
+      // const apiURL = ENERVA_USER_MANAGEMENT.DELETE_ENERVA_USER_REQUEST + '/' + item.id + '/' + item.entry_type + '/' + item.company_id;
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+      // console.log(apiURL, "apiURL")
+      // return;
+      DELETE_REQUEST(apiURL)
+      .then((response) => {
+        if(response.data.status === 409) {
+          NotificationsToast({ message: response.data.body, type: "error" });
+          setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+          }));
+        } else {
+          NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
+          backToUserManagement();
 
-    DELETE_REQUEST(apiURL)
-      .then((_response) => {
-        NotificationsToast({ message: "The user has been deleted successfully.", type: "success" });
-        backToUserManagement();
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: false,
+          }));
+        }
+
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+       
       })
       .catch((error) => {
         console.log(error, 'error')
         NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
   }
 
@@ -274,7 +377,7 @@ const [getCompanyList, setCompanyList] = useState([]);
                         gap="1.25rem"
 
                       >
-                        <Button sx={{ ...profileButtonStyle, color: 'danger.main' }} onClick={() => deleteUserProfile()}>Delete</Button>
+                        <Button sx={{ ...profileButtonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen()}>Delete</Button>
                         <Button
                           sx={profileButtonStyle}
                           onClick={()=> handelManagePermissions()}
@@ -464,6 +567,7 @@ const [getCompanyList, setCompanyList] = useState([]);
                                   secondary={item?.role_name}
                                   primaryTypographyProps={otherInfoStyleContentStyle}
                                   secondaryTypographyProps={roleInfoStyleContentStyle}
+                                  key={item?.id}
                                 />
                               )
                             })
@@ -495,6 +599,7 @@ const [getCompanyList, setCompanyList] = useState([]);
       ) : (
         <Loader sectionLoader={true} minHeight={"50vh"} />
       )}
+      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
     </>
   );
 };

@@ -6,7 +6,7 @@ export const GET_REQUEST = (url, canObj) => {
     url: url,
   });
 };
-export const POST_REQUEST = (url, data, isImage = false, headers) => {
+export const POST_REQUEST = (url, data, isImage = false, headers,onUploadProgress) => {
   if (isImage) {
     if (!headers) {
       headers = {};
@@ -17,8 +17,10 @@ export const POST_REQUEST = (url, data, isImage = false, headers) => {
       url,
       data,
       headers,
+      onUploadProgress
     });
   }
+  
   return axiosInstance({
     method: "post",
     url,

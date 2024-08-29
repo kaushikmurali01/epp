@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { Provider } from "react-redux";
 import ActionComponent from "./pages/SimplePage";
 import "./App.css";
@@ -18,6 +18,7 @@ import ParticipantAgreement from "sections/Homepage/ParticipantAgreementSection"
 import TabsSection from "sections/Homepage/TabsSection";
 import DashboardSection from "sections/Homepage/DashboardSection";
 import Loader from "pages/Loader";
+import 'azure-maps-control/dist/atlas.min.css';
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -25,9 +26,16 @@ import {
 } from "@azure/msal-react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import EvLoader from "utils/loader/EvLoader";
+
 const store = configureStore();
 
+console.log("build updated on 5th June 7:30PM");
+
+
 const App = (props) => {
+
+
   return (
     <Provider store={store}>
       <ThemeProvider theme={theme}>
@@ -59,7 +67,8 @@ const App = (props) => {
           {/* <Footer /> */}
         </LocalizationProvider>
       </ThemeProvider>
-      {/* <Loader /> */}
+      <EvLoader />
+      
     </Provider>
   );
 };

@@ -6,38 +6,38 @@ export const NUMBER_OF_ARRAY_2 = [
 export const FLOOR_AREA_ARRAY = [
   {
     label: "Less than 10000",
-    value: "1",
+    value: 1,
   },
   {
     label: "10000 - 49999",
-    value: "2",
+    value: 2,
   },
   {
     label: "50000 - 99999",
-    value: "3",
+    value: 3,
   },
   {
     label: "100000 - 249999",
-    value: "4",
+    value: 4,
   },
   {
     label: "250000 - 499999",
-    value: "5",
+    value: 5,
   },
   {
     label: "500000 - 999999",
-    value: "6",
+    value: 6,
   },
   {
     label: "Greater that 1000000",
-    value: "7",
+    value: 7,
   },
 ];
 
 export const SOURCE_ARRAY = [
   {
-    label: "Electricty",
-    value: "electricty",
+    label: "Electricity",
+    value: "electricity",
   },
   {
     label: "Natural gas",
@@ -49,8 +49,8 @@ export const SOURCE_ARRAY = [
 export const SPACE_COOLING_ARRAY = [
   { value: "chiller", label: "Chiller" },
   {
-    value: "rooftoop_unit",
-    label: "Rooftoop unit",
+    value: "rooftop_unit",
+    label: "Rooftop unit",
   },
   {
     value: "window_air_conditioner",
@@ -69,10 +69,11 @@ export const SPACE_COOLING_ARRAY = [
 
 export const SPACE_HEATING_ARRAY = [
   { value: "boiler", label: "Boiler" },
-  { value: "furnance", label: "Furnance" },
+  { value: "furnace", label: "Furnace" },
+  { value: "radiator", label: "Radiator" },
   {
-    value: "baseboard_heating",
-    label: "Baseboard heating",
+    value: "baseboard",
+    label: "Baseboard",
   },
   {
     value: "ground_source_heat_pump",
@@ -80,11 +81,7 @@ export const SPACE_HEATING_ARRAY = [
   },
   {
     value: "air_source_heat_pump_VRF",
-    label: "air source heat pump/VRF",
-  },
-  {
-    value: "rooftoop_unit",
-    label: "Rooftoop unit",
+    label: "Air source heat pump/VRF",
   },
   { value: "other", label: "Other" },
 ];
@@ -112,6 +109,7 @@ export const SPACE_HEATING_UNIT_ARRAY = [
     value: "HSPF",
     label: "HSPF",
   },
+  { value: "COP", label: "COP" },
 ];
 export const WATER_HEATING_UNIT_ARRAY = [
   { value: "%", label: "%" },
@@ -129,4 +127,46 @@ export const FACILITY_CATEGORY_ARRAY = [
     value: "Multi-Family",
   },
   { id: "4", value: "Industrial" },
+];
+
+export const NATURAL_GAS_UNIT_ARRAY = [
+  { value: "cf", label: "cf (cubic feet)" },
+  { value: "cm", label: "cm (cubic meter)" },
+  { value: "GJ", label: "GJ" },
+  { value: "kBtu", label: "kBtu (thousand Btu)" },
+];
+
+export const ELECTRICITY_UNIT_ARRAY = [{ value: "kWh", label: "kWh" }];
+
+export const WATER_UNIT_ARRAY = [
+  { value: "cu f", label: "cu f" },
+  { value: "cu m", label: "cu m" },
+];
+
+export const MEASURE_REPORT_CATEGORY = [
+  { value: "behavioral", label: "Behavioral" },
+  { value: "capital", label: "Capital" },
+  { value: "fuelSwitching", label: "Fuel-switching" },
+  { value: "onSiteGeneration", label: "On-site Generation" },
+  { value: "operational", label: "Operational" },
+];
+
+export const DOCUMENT_CATEGORY = [
+  { label: "Study Report", value: "Study Report" },
+  { label: "Design Report", value: "Design Report" },
+  { label: "Drawing", value: "Drawing" },
+  { label: "Invoice", value: "Invoice" },
+  { label: "Quotation", value: "Quotation" },
+  { label: "Certification", value: "Certification" },
+  { label: "Photo", value: "Photo" },
+];
+
+export const HEATING_BALANCE_UNIT_ARRAY = [
+  { value: "C", label: "C" },
+  { value: "K", label: "K" },
+];
+
+export const COOLING_BALANCE_UNIT_ARRAY = [
+  { value: "C", label: "C" },
+  { value: "K", label: "K" },
 ];

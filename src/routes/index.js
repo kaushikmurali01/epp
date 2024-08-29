@@ -1,6 +1,7 @@
 import React, { lazy, useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { Box, Button, List, ListItem, Modal, Typography, styled } from "@mui/material";
+import { Box, Button, List, ListItem, ListItemIcon, ListItemText, Modal, Typography, styled } from "@mui/material";
+import { Visibility, Create, Description, People } from "@mui/icons-material";
 import DashboardRoutes from "./dashboard";
 import {
   AuthenticatedTemplate,
@@ -36,6 +37,7 @@ const RoutesComp = () => {
   );
 
   const userDetails = userData?.user || {};
+  const userCompany = userData?.company || {};
   const userPermissions = userData?.permissions || {};
 
   localStorage.setItem('userDetails', JSON.stringify(userDetails))
@@ -52,11 +54,11 @@ const RoutesComp = () => {
   const selectRouter = (userType) => {
     switch (userType) {
       case 2:
-        return <CustomerRoutes userDetails={userDetails} userPermissions={userPermissions}/>;
+        return <CustomerRoutes userDetails={userDetails} userPermissions={userPermissions} userCompany={userCompany}/>;
       case 1:
         return (<EnervaRoutes />);
       case 3:
-        return (<IndividualUserRoutes />);
+        return (<IndividualUserRoutes userDetails={userDetails} userPermissions={userPermissions}/>);
     //   default:
     //     return <UnprotectedRouter />;
     }
@@ -81,7 +83,13 @@ const RoutesComp = () => {
           if(response?.idTokenClaims?.newUser){
             setIsNewuser(true)
           }
-        });
+        }).catch((err)=> {
+          localStorage.clear();
+          sessionStorage.clear();
+          instance.logoutRedirect()
+        })
+    } else {
+      
     }
   }, [account]);
 
@@ -93,13 +101,41 @@ const RoutesComp = () => {
 
   console.log("user info", userDetails)
 
+  useEffect(() => {
+    instance.handleRedirectPromise()
+        .then((response) => {
+            if (response) {
+                // Handle successful login or password change
+                console.log('Password change successful:', response);
+            }
+        })
+        .catch((error) => {
+            console.error('Error during authentication:', error);
+        });
+  }, []);
+
+  const accessItems = [
+    {
+      text: "View all the facilities that have been created and/or submitted",
+    },
+    {
+      text: "Create facilities, enter/edit data for them and submit them for baseline energy modelling",
+    },
+    {
+      text: "Review, sign and/or download the Participant Agreement",
+    },
+    {
+      text: "View and update the user list for the company including managing individual user permissions",
+    },
+  ];
+
   return userDetails?.type ? (
     <>
       <CommonLayout>
         {/* <DashboardRoutes /> */}
         {selectRouter(userDetails?.type)}
       </CommonLayout>
-      
+
       <Modal
         open={showNewUserPopup}
         onClose={onClose}
@@ -113,7 +149,7 @@ const RoutesComp = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: { xs: "90%", sm: "500px", md: "45rem" },
+            width: { xs: "90%", sm: "500px", md: "48rem" },
             borderRadius: "2rem",
             bgcolor: "#fff",
             p: 4,
@@ -138,24 +174,25 @@ const RoutesComp = () => {
               width: "100%",
               mt: 2,
               mb: 4,
+              textAlign: { xs: "center", md: "start" },
             }}
           >
             <Typography variant="h4" sx={{ color: "text.secondary2" }}>
               Welcome to the EPP Program.
             </Typography>
             <Typography variant="small2" sx={{ color: "text.secondary2" }}>
-              You are all set to start saving energy and earn incentives.
+              You are all set to start saving energy and earning incentives.
             </Typography>
           </Box>
 
-          <List
+          {/* <List
             disablePadding
             className="welcomeModalList"
             sx={{
               display: "flex",
               flexDirection: { xs: "column", md: "row" },
               alignItems: "center",
-              gap: { xs: "1.5rem", md: "0" },
+              gap: { xs: "0.5rem", md: "0" },
               width: "100%",
               mt: 2,
               mb: 2,
@@ -177,6 +214,11 @@ const RoutesComp = () => {
             >
               Create your facility
             </ListItem>
+            <img
+              src="/images/dashboard-arrow.svg"
+              alt="arrow"
+              style={{ width: "15px" }}
+            />
             <ListItem
               disablePadding
               sx={{
@@ -192,10 +234,15 @@ const RoutesComp = () => {
             >
               Enter facility data and submit
             </ListItem>
+            <img
+              src="/images/dashboard-arrow.svg"
+              alt="arrow"
+              style={{ width: "15px" }}
+            />
             <ListItem
               disablePadding
               sx={{
-                width: { xs: "max-content", md: "auto" },
+                width: { xs: "auto", sm: "max-content", md: "auto" },
                 padding: "0.25rem 0.75rem",
                 borderRadius: "208.3125rem",
                 background: "#CAFFCF",
@@ -203,16 +250,32 @@ const RoutesComp = () => {
                 fontSize: "0.875rem",
                 fontWeight: 400,
                 lineHeight: "185.714%",
+                textAlign: "center",
               }}
             >
-              Review and accept Baseline Model
+              Review and accept Baseline Energy Model
             </ListItem>
-          </List>
+          </List> */}
 
+          <Typography variant="body2" gutterBottom>
+            Depending on the access you have been granted, you can do the
+            following:
+          </Typography>
+          <List sx={{padding: 0}}>
+            {accessItems.map((item, index) => (
+              <ListItem key={index}>
+                <ListItemText secondaryTypographyProps={{color: "#242424"}} secondary={`${index + 1}) ${item.text}`} />
+              </ListItem>
+            ))}
+          </List>
+          <Typography variant="body2" style={{ marginTop: "16px" }}>
+            If you have not been granted any access yet by the administrators for the company, you will not be able to view any of these four functions. Please contact your administrator to get your access.
+          </Typography>
           <Box
             sx={{
               width: "100%",
               mt: 4,
+              textAlign: { xs: "center", md: "start" },
             }}
           >
             <Button
@@ -229,11 +292,12 @@ const RoutesComp = () => {
         </Box>
       </Modal>
     </>
-  ) : <>
-    <CommonLayout>
-    </CommonLayout>
-    <Loader/>
-  </>;
+  ) : (
+    <>
+      <CommonLayout></CommonLayout>
+      <Loader />
+    </>
+  );
 };
 
 export default RoutesComp;

@@ -32,15 +32,64 @@ import {
   FETCH_ADMIN_STATISTICS_REQUEST,
   FETCH_ADMIN_STATISTICS_SUCCESS,
   FETCH_ADMIN_STATISTICS_FAILURE,
+  DOWNLOAD_FACILITIES_BULK_REQUEST,
+  DOWNLOAD_FACILITIES_BULK_SUCCESS,
+  DOWNLOAD_FACILITIES_BULK_FAILURE,
+  DOWNLOAD_FACILITY_ROW_REQUEST,
+  DOWNLOAD_FACILITY_ROW_SUCCESS,
+  DOWNLOAD_FACILITY_ROW_FAILURE,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_FAILURE,
+  ADMIN_ADD_FACILITY_MEASURE_REPORT_REQUEST,
+  ADMIN_ADD_FACILITY_MEASURE_REPORT_SUCCESS,
+  ADMIN_ADD_FACILITY_MEASURE_REPORT_FAILURE,
+  FETCH_ADMIN_FACILITY_DOCUMENT_LIST_REQUEST,
+  FETCH_ADMIN_FACILITY_DOCUMENT_LIST_SUCCESS,
+  FETCH_ADMIN_FACILITY_DOCUMENT_LIST_FAILURE,
+  ADMIN_ADD_FACILITY_DOCUMENT_REQUEST,
+  ADMIN_ADD_FACILITY_DOCUMENT_SUCCESS,
+  ADMIN_ADD_FACILITY_DOCUMENT_FAILURE,
+  FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_REQUEST,
+  FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_SUCCESS,
+  FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_FAILURE,
+  UPDATE_ADMIN_FACILITY_DOCUMENT_REQUEST,
+  UPDATE_ADMIN_FACILITY_DOCUMENT_SUCCESS,
+  UPDATE_ADMIN_FACILITY_DOCUMENT_FAILURE,
+  DELETE_ADMIN_FACILITY_DOCUMENT_REQUEST,
+  DELETE_ADMIN_FACILITY_DOCUMENT_SUCCESS,
+  DELETE_ADMIN_FACILITY_DOCUMENT_FAILURE,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_REQUEST,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS,
+  FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_FAILURE,
+  UPDATE_ADMIN_FACILITY_MEASURE_REPORT_REQUEST,
+  UPDATE_ADMIN_FACILITY_MEASURE_REPORT_SUCCESS,
+  UPDATE_ADMIN_FACILITY_MEASURE_REPORT_FAILURE,
+  DELETE_ADMIN_FACILITY_MEASURE_REPORT_REQUEST,
+  DELETE_ADMIN_FACILITY_MEASURE_REPORT_SUCCESS,
+  DELETE_ADMIN_FACILITY_MEASURE_REPORT_FAILURE,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS,
+  FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE,
+  FETCH_ADMIN_FACILITY_BY_ID_REQUEST,
+  FETCH_ADMIN_FACILITY_BY_ID_SUCCESS,
+  FETCH_ADMIN_FACILITY_BY_ID_FAILURE
 } from "../actionTypes";
 
 const initialState = {
   facilityList: [],
+  facilityActiveList: [],
+  facilityInProcessList: [],
   characteristics: [],
   facilityDetails: [],
   facilityStatus: [],
   facilitiesDropdown: [],
   facilityStatistics: [],
+  downloadFacilitiesBulkData: [],
+  downloadFacilityRowData: [],
   loading: false,
   error: null,
 };
@@ -251,8 +300,288 @@ const adminFacilityReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-
-    default:
+    case DOWNLOAD_FACILITIES_BULK_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DOWNLOAD_FACILITIES_BULK_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        downloadFacilitiesBulkData: action.payload,
+        error: null,
+      };
+    case DOWNLOAD_FACILITIES_BULK_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DOWNLOAD_FACILITY_ROW_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DOWNLOAD_FACILITY_ROW_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        downloadFacilityRowData: action.payload,
+        error: null,
+      };
+    case DOWNLOAD_FACILITY_ROW_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityMeasureReportList: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADMIN_ADD_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADMIN_ADD_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADMIN_ADD_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityMeasureReportDetails: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_MEASURE_REPORT_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_ADMIN_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_ADMIN_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_ADMIN_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_ADMIN_FACILITY_MEASURE_REPORT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_ADMIN_FACILITY_MEASURE_REPORT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_ADMIN_FACILITY_MEASURE_REPORT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_LIST_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityDocumentList: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case ADMIN_ADD_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case ADMIN_ADD_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case ADMIN_ADD_FACILITY_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityDocumentDetails: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_FACILITY_DOCUMENT_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_ADMIN_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_ADMIN_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_ADMIN_FACILITY_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case DELETE_ADMIN_FACILITY_DOCUMENT_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case DELETE_ADMIN_FACILITY_DOCUMENT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case DELETE_ADMIN_FACILITY_DOCUMENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+      case FETCH_ADMIN_FACILITY_LIST_ACTIVE_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_ACTIVE_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          facilityActiveList: action.payload,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_ACTIVE_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+        case FETCH_ADMIN_FACILITY_LIST_INPROCESS_REQUEST:
+        return {
+          ...state,
+          loading: true,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_INPROCESS_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          facilityInProcessList: action.payload,
+          error: null,
+        };
+      case FETCH_ADMIN_FACILITY_LIST_INPROCESS_FAILURE:
+        return {
+          ...state,
+          loading: false,
+          error: action.payload,
+        };
+        
+        case FETCH_ADMIN_FACILITY_BY_ID_REQUEST:
+          return {
+            ...state,
+            loading: true,
+            error: null,
+          };
+        case FETCH_ADMIN_FACILITY_BY_ID_SUCCESS:
+          return {
+            ...state,
+            loading: false,
+            facilityListByUsersId: action.payload,
+            error: null,
+          };
+        case FETCH_ADMIN_FACILITY_BY_ID_FAILURE:
+          return {
+            ...state,
+            loading: false,
+            error: action.payload,
+          };
+  //  END
+          default:
       return state;
   }
 };

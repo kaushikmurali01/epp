@@ -40,13 +40,61 @@ import {
   fetchAdminStatisticsRequest,
   fetchAdminStatisticsSuccess,
   fetchAdminStatisticsFailure,
+  downloadFacilitiesBulkRequest,
+  downloadFacilitiesBulkSuccess,
+  downloadFacilitiesBulkFailure,
+  downloadFacilityRowRequest,
+  downloadFacilityRowSuccess,
+  downloadFacilityRowFailure,
+  fetchAdminFacilityMeasureReportListRequest,
+  fetchAdminFacilityMeasureReportListSuccess,
+  fetchAdminFacilityMeasureReportListFailure,
+  fetchAdminFacilityMeasureReportDetailsRequest,
+  fetchAdminFacilityMeasureReportDetailsSuccess,
+  fetchAdminFacilityMeasureReportDetailsFailure,
+  adminAddFacilityMeasureReportRequest,
+  adminAddFacilityMeasureReportSuccess,
+  adminAddFacilityMeasureReportFailure,
+  updateAdminFacilityMeasureReportRequest,
+  updateAdminFacilityMeasureReportSuccess,
+  updateAdminFacilityMeasureReportFailure,
+  deleteAdminFacilityMeasureReportRequest,
+  deleteAdminFacilityMeasureReportSuccess,
+  deleteAdminFacilityMeasureReportFailure,
+  fetchAdminFacilityDocumentListRequest,
+  fetchAdminFacilityDocumentListSuccess,
+  fetchAdminFacilityDocumentListFailure,
+  fetchAdminFacilityDocumentDetailsRequest,
+  fetchAdminFacilityDocumentDetailsSuccess,
+  fetchAdminFacilityDocumentDetailsFailure,
+  adminAddFacilityDocumentRequest,
+  adminAddFacilityDocumentSuccess,
+  adminAddFacilityDocumentFailure,
+  updateAdminFacilityDocumentRequest,
+  updateAdminFacilityDocumentSuccess,
+  updateAdminFacilityDocumentFailure,
+  deleteAdminFacilityDocumentRequest,
+  deleteAdminFacilityDocumentSuccess,
+  deleteAdminFacilityDocumentFailure,
+  fetchAdminFacilityListActiveRequest,
+  fetchAdminFacilityListActiveSuccess,
+  fetchAdminFacilityListActiveFailure,
+  fetchAdminFacilityListInProcessRequest,
+  fetchAdminFacilityListInProcessSuccess,
+  fetchAdminFacilityListInProcessFailure,
+  fetchAdminFacilityListInByIdRequest,
+  fetchAdminFacilityListInByIdSuccess,
+  fetchAdminFacilityListInByIdFailure,
 } from "../actionCreators/adminFacilityActionCreators";
+import { FETCH_ADMIN_FACILITY_MEASURE_REPORT_LIST_REQUEST } from "../actionTypes";
 
 export const fetchAdminFacilityListing = (
   pageInfo,
   status,
   search = "",
-  compFilter = ""
+  compFilter = "",
+  sortByCol,
+  sortOrder
 ) => {
   return async (dispatch) => {
     try {
@@ -55,12 +103,52 @@ export const fetchAdminFacilityListing = (
         (pageInfo.page - 1) * pageInfo.pageSize
       }/${pageInfo.pageSize}?search=${search}&company_id=${compFilter}`;
       endpointWithParams += status ? `&status=${status}` : "";
+      endpointWithParams += sortByCol ? `&col_name=${sortByCol}` : "";
+      endpointWithParams += sortOrder ? `&order=${sortOrder}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchAdminFacilityListSuccess(data));
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminFacilityListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityActiveListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListActiveRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_ACTIVE;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListActiveSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListActiveFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityInProcessListing = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListInProcessRequest());
+      const endpoint = adminFacilityEndpoints.ADMIN_FACILITY_LIST_INPROCESS;
+      const response = await POST_REQUEST(endpoint, payload);
+      const data = response.data;
+      dispatch(fetchAdminFacilityListInProcessSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListInProcessFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
@@ -76,6 +164,7 @@ export const fetchAdminFacilityDetails = (facilityId) => {
       const endpointWithParams = `${adminFacilityEndpoints.GET_ADMIN_FACILITY_DETAILS}/${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
+      console.log(data, "check result");
       dispatch(fetchAdminFacilityDetailsSuccess(data));
     } catch (error) {
       console.error(error);
@@ -275,6 +364,333 @@ export const fetchAdminStatistic = (companyFilter, facilityFilter) => {
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminStatisticsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const downloadFacilitiesBulkData = (
+  pageInfo,
+  compFilter = "",
+  status
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(downloadFacilitiesBulkRequest());
+      let endpointWithParams = `${
+        adminFacilityEndpoints.DOWNLOAD_BULK_FACILITIES
+      }/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }?company_id=${compFilter}`;
+      endpointWithParams += status ? `&status=${status}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(downloadFacilitiesBulkSuccess(data));
+      NotificationsToast({
+        message: "Downloading started",
+        type: "info",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(downloadFacilitiesBulkFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const downloadFacilityRowData = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(downloadFacilityRowRequest());
+      let endpointWithParams = `${adminFacilityEndpoints.DOWNLOAD_FACILITY_BY_ID}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(downloadFacilityRowSuccess(data));
+      NotificationsToast({
+        message: "Downloading started",
+        type: "info",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(downloadFacilityRowFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityMeasureReportListing = (
+  pageInfo,
+  facilityId
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityMeasureReportListRequest());
+      let endpointWithParams = `${
+        adminFacilityEndpoints.GET_FACILITY_MEASURE_LIST
+      }/${facilityId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityMeasureReportListSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityMeasureReportListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityMeasureReportDetails = (measureId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityMeasureReportDetailsRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.GET_FACILITY_MEASURE_DETAILS}/${measureId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityMeasureReportDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityMeasureReportDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminAddFacilityMeasureReport = (measureReport) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAddFacilityMeasureReportRequest());
+      const endpoint = adminFacilityEndpoints.ADD_FACILITY_MEASURE;
+      const response = await POST_REQUEST(endpoint, measureReport);
+      const data = response.data;
+      dispatch(adminAddFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report added successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAddFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminFacilityMeasureReport = (
+  measureId,
+  updatedMeasureReport
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateAdminFacilityMeasureReportRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.UPDATE_FACILITY_MEASURE}/${measureId}`;
+      const response = await PATCH_REQUEST(
+        endpointWithParams,
+        updatedMeasureReport
+      );
+      const data = response.data;
+      dispatch(updateAdminFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateAdminFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteAdminFacilityMeasureReport = (measureId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteAdminFacilityMeasureReportRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.DELETE_FACILITY_MEASURE_REPORT}/${measureId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteAdminFacilityMeasureReportSuccess(data));
+      NotificationsToast({
+        message: "Measure report deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteAdminFacilityMeasureReportFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityDocumentListing = (
+  pageInfo,
+  facilityId,
+  docsFilter
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityDocumentListRequest());
+      let endpointWithParams = `${
+        adminFacilityEndpoints.GET_FACILITY_SAVING_DOCUMENT_LIST
+      }/${facilityId}/${(pageInfo.page - 1) * pageInfo.pageSize}/${
+        pageInfo.pageSize
+      }`;
+      endpointWithParams += docsFilter ? `?document_type=${docsFilter}` : "";
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityDocumentListSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityDocumentListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminFacilityDocumentDetails = (documentId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityDocumentDetailsRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.GET_FACILITY_SAVING_DOCUMENT_DETAILS}/${documentId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminFacilityDocumentDetailsSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityDocumentDetailsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const adminAddFacilityDocument = (measureReport) => {
+  return async (dispatch) => {
+    try {
+      dispatch(adminAddFacilityDocumentRequest());
+      const endpoint = adminFacilityEndpoints.ADD_FACILITY_SAVING_DOCUMENT;
+      const response = await POST_REQUEST(endpoint, measureReport);
+      const data = response.data;
+      dispatch(adminAddFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document added successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(adminAddFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateAdminFacilityDocument = (measureId, updatedDocument) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateAdminFacilityDocumentRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.UPDATE_FACILITY_SAVING_DOCUMENT}/${measureId}`;
+      const response = await PATCH_REQUEST(endpointWithParams, updatedDocument);
+      const data = response.data;
+      dispatch(updateAdminFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document updated successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(updateAdminFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const deleteAdminFacilityDocument = (documentId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(deleteAdminFacilityDocumentRequest());
+      const endpointWithParams = `${adminFacilityEndpoints.DELETE_FACILITY_SAVING_DOCUMENT}/${documentId}`;
+      const response = await DELETE_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(deleteAdminFacilityDocumentSuccess(data));
+      NotificationsToast({
+        message: "Document deleted successfully!",
+        type: "success",
+      });
+    } catch (error) {
+      console.error(error);
+      dispatch(deleteAdminFacilityDocumentFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+
+export const fetchFacilityListByUserId = (pageInfo, facilityId,search,sortByCol,sortOrder) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminFacilityListInByIdRequest());
+      let apiURL = `${adminFacilityEndpoints.ADMIN_FACILITY_LIST_BY_ID}`;
+      let payload = {
+        "data": [...search],      
+        "offset": (pageInfo.page - 1) * pageInfo.pageSize,
+        "limit": pageInfo.pageSize,
+        "facility_id":facilityId,
+        "col_name": sortByCol,
+        "order":sortOrder
+        
+      }
+      console.log(apiURL,payload, "fetchUsersByFacility Id data")
+      // return;
+      const response = await POST_REQUEST(apiURL,payload);
+      const data = response.data.data;
+      console.log(data, "fetchFacilityListByUserId data")
+      dispatch(fetchAdminFacilityListInByIdSuccess(data));
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminFacilityListInByIdFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

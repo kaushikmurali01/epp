@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import Table from 'components/Table';
 import { Box, Button, Container, FormControl, FormGroup, FormLabel, Grid, IconButton, MenuItem, Select, Stack, Tab, Tabs, TextField, Typography } from '@mui/material';
@@ -12,14 +11,15 @@ import { USER_MANAGEMENT } from 'constants/apiEndPoints';
 import { SnackbarContext } from '../../utils/notification/SnackbarProvider';
 import InviteUser from './InviteUser';
 import NotificationsToast from 'utils/notification/NotificationsToast';
-import UserManagementColumn from 'utils/tableColumn/useerManagement/userManagementColumn';
+import UserManagementColumn from 'utils/tableColumn/userManagement/userManagementColumn';
 import debounce from "lodash.debounce";
 import ClearIcon from '@mui/icons-material/Clear';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { requestToJoinCompanyFormValidationSchema } from 'utils/validations/formValidation';
+import AutoCompleteInputField from 'components/FormBuilder/AutoCompleteInputField';
 
 const UserManagement = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   // pull functions from user management..
   const { USER_MANAGEMENT_COLUMN_ACTION } = UserManagementColumn();
@@ -27,6 +27,7 @@ const UserManagement = () => {
   const [searchString, setSearchString] = useState("");
   const [getAllUser, setAllUser] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
+  const [getUserJoinFormRole, setUserJoinFormRole] = useState([]);
   const [isVisibleInvitePage, setVisibleInvitePage] = useState(false);
   const [getAllCompanyList, setAllCompanyList] = useState([]);
   const [getIndividualCompanyList, setIndividualCompanyList] = useState([]);
@@ -38,6 +39,8 @@ const UserManagement = () => {
   // for pagination
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
   const [pageCount, setPageCount] = useState('');
+  const [sortCustomerColumn, setSortCustomerColumn] = useState("");
+  const [sortCustomerOrder, setSortCustomerOrder] = useState("");
 
   // selector 
   const hasToken = localStorage.getItem("accessToken");
@@ -58,7 +61,7 @@ const UserManagement = () => {
     buttonsUI: {
       saveButton: false,
       cancelButton: false,
-      saveButtonName: "Sent Request",
+      saveButtonName: "Send Request",
       cancelButtonName: "Cancel",
       successButtonStyle: {},
       cancelButtonStyle: {},
@@ -79,7 +82,7 @@ const UserManagement = () => {
   const columns = useMemo(() => USER_MANAGEMENT_COLUMN_ACTION(userData,handleAPISuccessCallBack, setVisibleInvitePage, setSelectTableRow, setModalConfig, setInvitePageInfo, setInviteAPIURL), []);
 
   const initialValues = {
-    company: '',
+    company: { id: '',label: '', },
     role: '',
   };
 
@@ -89,6 +92,8 @@ const UserManagement = () => {
 
   const handleSelectChange = (event) => {
     setSelectFilterType(event.target.value);
+    setPageInfo({ page: 1, pageSize: 10 })
+    // setSearchString("");
   };
 
   const handleChange = (event, newValue) => {
@@ -97,23 +102,49 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
+      console.log(data,'formSubmit');
+      // return;
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
-        "company_id": data.company.toString(),
+        // "company_id": data.company.toString(),
+        "company_id": data.company.id.toString(),
         "role": data.role.toString(),
         "user_id": userData?.user?.id
       }
 
 
+
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
           handleAPISuccessCallBack();
-          NotificationsToast({ message: "You have successfully submitted!", type: "success" });
-          setModalConfig((prevState) => ({
-            ...prevState,
-            modalVisible: false,
-            modalBodyContent: ''
-          }));
+          // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
+          console.log(response, "check response");
+          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+
+            setModalConfig((prevState) => ({
+              ...prevState,
+              modalVisible: true,
+              modalUI: {
+                ...prevState.modalUI,
+                crossIcon: false,
+                modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem', textAlign: 'center'},
+                fotterActionStyle: { justifyContent: "center", gap: "1rem" },
+              },
+              buttonsUI: {
+                ...prevState.buttonsUI,
+                saveButton: false,
+                cancelButton: true,
+                cancelButtonStyle: {
+                  backgroundColor: "primary.main",
+                  "&:hover": { backgroundColor: "primary.main" },
+                  color: "#fff",
+                },
+                cancelButtonName: "Okay",
+            },
+            headerText: "",
+            headerSubText: '',
+            modalBodyContent: successMessage
+            }));
 
         })
         .catch((error) => {
@@ -133,20 +164,21 @@ const UserManagement = () => {
         onSubmit={formSubmit}
       >
         <Form >
+       
           <Stack sx={{ marginBottom: '1rem' }}>
-            {/* <SelectBox name="company" label="Company name" options={getUserRole} /> */}
-            <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" />
+            {/* <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" /> */}
+            {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
           </Stack>
           <Stack sx={{ marginBottom: '1rem' }}>
-            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+            <SelectBox name="role" label="Role" options={getUserJoinFormRole} valueKey="id" labelKey="rolename" />
           </Stack>
 
 
 
           {/* <SelectBox /> */}
-          <Grid display="flex" sx={{ marginTop: '1rem' }}>
+          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
             <ButtonWrapper type="submit" variant="contained"  >
-              Submit
+              Send Request
             </ButtonWrapper>
 
           </Grid>
@@ -154,6 +186,7 @@ const UserManagement = () => {
       </Formik>
     )
   }
+  console.log(getUserJoinFormRole, "getUserJoinFormRole")
 
   const openRequestModal = () => {
     setModalConfig((prevState) => ({
@@ -164,8 +197,8 @@ const UserManagement = () => {
         saveButton: false,
         cancelButton: false,
     },
-    headerText: "Request to join other company",
-    headerSubText: 'Please enter the following details to send request to join other company',
+    headerText: "Request to join company",
+    headerSubText: 'Please enter the following details to send request to join company',
       modalBodyContent: <RequestToJoinForm />
     }));
   }
@@ -196,15 +229,22 @@ const UserManagement = () => {
     setInviteAPIURL(apiURL)
   }
 
-  const getUserManagementData = (pageDataInfo, search) => {
-
+  const getUserManagementData = (pageDataInfo, search,sortByCol,sortOrder) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     // const allUserTypes = selectFilterType;
-    const filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+    let filterApiURL = `${USER_MANAGEMENT.GET_FILTER_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
+      filterApiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+      filterApiURL += sortOrder ? `&order=${sortOrder}` : "";
 
-    const apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
+    let apiURL = `${USER_MANAGEMENT.GET_USER_LIST}/${(pageDataInfo.page - 1) * pageDataInfo.pageSize
       }/${pageDataInfo.pageSize}/${selectFilterType}/${userCompanyId}?search=${search}`;
+      apiURL += sortByCol ? `&col_name=${sortByCol}` : "";
+      apiURL += sortOrder ? `&order=${sortOrder}` : "";
 
+      // console.log(apiURL, 'apiurl')
+      // console.log(filterApiURL, 'filterApiURL')
+      // return;
     const getAPI_Data = (url) => {
       GET_REQUEST(url)
         .then((res) => {
@@ -212,12 +252,15 @@ const UserManagement = () => {
           if (res.data?.body?.rows instanceof Array) {
             setAllUser(res.data?.body?.rows)
             setPageCount(res.data?.body?.count)
+
           } else {
             setAllUser([])
             setPageCount(0)
           }
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         }).catch((error) => {
           console.log(error)
+          dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
         });
     }
 
@@ -242,6 +285,18 @@ const UserManagement = () => {
       });
   }
 
+  const getUserRequestToJoinRoleData = () => {
+    const userType = "2" // for customers
+    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
+    GET_REQUEST(apiURL)
+      .then((res) => {
+        setUserJoinFormRole(res.data?.body)
+      }).catch((error) => {
+        console.log(error)
+      });
+  }
+
+  
   const getIndividualCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_LIST_OF_COMPANIES_BY_USER;
     GET_REQUEST(apiURL)
@@ -273,16 +328,16 @@ const UserManagement = () => {
     }
   }, [getIndividualCompanyList, getAllCompanyList]);
 
-  const debouncedSearch = debounce((pageInfo, searchString) => {
-    getUserManagementData(pageInfo, searchString);
+  const debouncedSearch = debounce((pageInfo, searchString, sortCustomerColumn,sortCustomerOrder) => {
+    getUserManagementData(pageInfo, searchString, sortCustomerColumn,sortCustomerOrder);
   }, 300);
 
   useEffect(() => {
-    debouncedSearch(pageInfo, searchString);
+    debouncedSearch(pageInfo, searchString,sortCustomerColumn,sortCustomerOrder);
     return () => {
       debouncedSearch.cancel();
     };
-  }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType]);
+  }, [pageInfo.page, pageInfo.pageSize, searchString, selectFilterType, sortCustomerColumn,sortCustomerOrder]);
 
 
   useEffect(() => {
@@ -293,6 +348,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     getUserRoleData()
+    getUserRequestToJoinRoleData();
     getAllCompanyListData()
   }, [])
 
@@ -318,10 +374,10 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               <Grid item xs={12} md={4} >
                 <Typography variant='h4'>User Management</Typography>
               </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', justifyContent: 'flex-end', gap: '2rem' }}>
+              <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}, gap: {xs: '0.5rem', md: '2rem'}, marginTop: {xs: '1rem' ,md: '0'} }}>
                 <FormGroup className="theme-form-group theme-select-form-group" >
 
-                  <FormControl sx={{ minWidth: '6rem' }}>
+                  <FormControl sx={{ minWidth: '6rem', maxWidth: '8rem', flexGrow: '1' }}>
                     <Select
                       value={selectFilterType}
                       onChange={(e) => handleSelectChange(e)}
@@ -345,7 +401,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                       value={searchString}
                       placeholder="Search"
                       inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2rem' } }}
-                      onChange={(e) => setSearchString(e.target.value)}
+                      onChange={(e) => {setSearchString(e.target.value); setPageInfo({ page: 1, pageSize: 10 })}}
                     />
                     {searchString?.length > 0 &&
                       <ClearIcon
@@ -367,7 +423,7 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
                 <Button
                   color="primary"
                   variant="contained"
-                  sx={{ alignSelf: 'center' }}
+                  sx={{ alignSelf: 'flex-start', marginTop: {xs: '1rem', md: '0'} }}
                   onClick={() => handelInviteUser()}
                 >
                   Invite User
@@ -377,14 +433,12 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
             </Grid>
 
             <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-              <Grid item xs={6}  >
+              <Grid item xs={4}  >
                 <Tabs
                   className='theme-tabs-list'
                   value={tabValue}
                   onChange={handleChange}
                   sx={{ display: 'inline-flex' }}
-
-
                 >
                   <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
                   {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
@@ -393,18 +447,31 @@ console.log(getAllCompanyList, 'getting getAllCompanyList');
               </Grid>
               <Grid item sx={{ justifySelf: 'flex-end' }}>
                 <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                  Request to join other company
+                Request to join company
                 </Typography>
               </Grid>
             </Grid>
 
             <Grid container>
               {getAllUser && <Table
+                customTableStyles={{
+                  "tbody td:nth-child(3n)": {
+                    maxWidth: '16rem',
+                    wordBreak: 'break-word',
+                  },
+                }}
                 columns={columns} data={getAllUser || []}
                 count={pageCount}
                 pageInfo={pageInfo}
                 setPageInfo={setPageInfo}
-                headbgColor="rgba(217, 217, 217, 0.2)" />}
+                headbgColor="rgba(217, 217, 217, 0.2)" 
+
+                setSortColumn={setSortCustomerColumn}
+                setSortOrder={setSortCustomerOrder}
+                sortColumn={sortCustomerColumn}
+                sortOrder={sortCustomerOrder}
+                />}
+                
             </Grid>
           </Container>
 

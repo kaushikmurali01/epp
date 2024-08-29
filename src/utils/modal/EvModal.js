@@ -9,18 +9,32 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import { Stack } from '@mui/material';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
-const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+
+const BootstrapDialog = styled(({ evModalStyle, ...otherProps }) => (
+  <Dialog {...otherProps} />
+))(({ theme, evModalStyle }) => ({
   '& .MuiDialogContent-root': {
     padding: theme.spacing(2),
+    ...evModalStyle?.dialogContent,
   },
   '& .MuiDialogActions-root': {
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
+    ...evModalStyle?.dialogActions,
+  },
+  '& .MuiDialog-paper': {
+    maxWidth: evModalStyle?.paperMaxWidth || 'sm', 
+    ...evModalStyle?.dialogPaper,
   },
 }));
 
-export default function EvModal(props) {
 
+
+export default function EvModal(props) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const {
     modalVisible,
     modalBodyContent,
@@ -29,17 +43,54 @@ export default function EvModal(props) {
     headerText,
     headerSubText,
     saveButtonAction,
-    cancelButtonAction
+    cancelButtonAction,
+    onCloseReload,
+    closeButtonRedirect
   } = props.modalConfig;
 
   const { setModalConfig, actionButtonData } = props;
 
+  const handelReloadPage = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    setTimeout(() => {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      window.location.reload()
+    }, 1000);
+   
+  }
   const handleClose = () => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: false,
     }));
+    if(onCloseReload){
+      handelReloadPage();
+      return;
+    }
+    if(closeButtonRedirect){
+      navigate(closeButtonRedirect)
+      return;
+    }
   };
+
+  // this is the example how we can pass the evModalStyle from props
+
+  // const evModalStyle = {
+  //   dialog: {
+  //     backgroundColor: 'lightblue',
+  //   },
+  //   dialogContent: {
+  //     backgroundColor: 'white',
+  //   },
+  //   dialogActions: {
+  //     backgroundColor: 'lightgray',
+  //   },
+  //   dialogPaper: {
+  //     backgroundColor: 'red',
+  //   },
+  //   paperMaxWidth: '720px',  // Set the desired max-width
+  // }
+ 
 
   return (
     <React.Fragment>
@@ -47,9 +98,10 @@ export default function EvModal(props) {
         onClose={handleClose}
         open={modalVisible}
         className={`theme-modal ${modalUI.modalClass}`}
+        evModalStyle={modalUI?.evModalStyle}
       >
         {modalUI?.showHeader && 
-          <Stack sx={{ p: 2 }}>
+          <Stack sx={{ p: headerText ? 2 : 0 }}>
             {headerText && 
               <DialogTitle variant='h4' sx={{...modalUI?.headerTextStyle, p: 0 }}>
                 {headerText}

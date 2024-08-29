@@ -56,7 +56,7 @@ const CompanyPage = () => {
       >
         Company List
       </Typography>
-      <Typography
+      {/* <Typography
         variant="h5"
         sx={{
           marginTop: "0.500rem",
@@ -68,7 +68,7 @@ const CompanyPage = () => {
       >
         Lorem Ipsum is simply dummy text of the printing and typesetting
         industry.
-      </Typography>
+      </Typography> */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
           <Typography

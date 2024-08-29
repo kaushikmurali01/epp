@@ -9,8 +9,14 @@ import debounce from "lodash.debounce";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 
-const FacilityApproved = ({ searchVal, companyFilter }) => {
-  const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
+const FacilityApproved = ({
+  searchVal,
+  companyFilter,
+  onDownloadBulkClick,
+  onDownloadRowClick,
+  pageInfo,
+  setPageInfo,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -45,15 +51,15 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
     },
     {
       Header: "Submitted by",
-      accessor: "submitted_by",
+      accessor: (item) => <>{item?.submitted_by?.first_name}</>,
     },
     {
       Header: "Company name",
-      accessor: "company_name",
+      accessor: (item) => <>{item?.company?.company_name}</>,
     },
     {
       Header: "Business mail",
-      accessor: "email",
+      accessor: (item) => <>{item?.submitted_by?.email}</>,
     },
     {
       Header: "Status",
@@ -74,24 +80,28 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
       accessor: (item) => (
         <Box display="flex" onClick={(e) => e.stopPropagation()}>
           <Button
+            disableRipple
             style={{
               color: "#007398",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
             Download
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2E813E",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() =>
               navigate(`/facility-list/facility-details/${item?.id}`)
@@ -100,24 +110,28 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
             View
           </Button>
           <Button
+            disableRipple
             style={{
               color: "#2C77E9",
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
           </Button>
           <Button
+            disableRipple
             color="error"
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               marginLeft: "1rem",
+              fontSize: "0.875rem",
             }}
             // onClick={() => openDeleteModal(item?.id)}
           >
@@ -168,6 +182,7 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
                       }}
                     />
                   }
+                  onClick={() => onDownloadBulkClick(pageInfo, 5)}
                 >
                   Download Bulk
                 </Button>
@@ -181,6 +196,7 @@ const FacilityApproved = ({ searchVal, companyFilter }) => {
             count={adminFacilityCount}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
+            cursorStyle="pointer"
           />
         </Grid>
       </Grid>

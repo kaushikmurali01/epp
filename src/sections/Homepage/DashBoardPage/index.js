@@ -40,7 +40,7 @@ const DashboardPage = (props) => {
               >
                 Dashboard
                 <br />{" "}
-                <Typography
+                {/* <Typography
                   variant="h6"
                   sx={{
                     fontWeight: "400",
@@ -49,7 +49,7 @@ const DashboardPage = (props) => {
                 >
                   Lorem Ipsum is simply dummy text of the printing and
                   typesetting industry.
-                </Typography>
+                </Typography> */}
               </Typography>
             </Grid>
             <Grid width="40%" display="flex">

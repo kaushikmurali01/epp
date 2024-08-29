@@ -3,7 +3,10 @@ import {
   emailRegExp,
   phoneUSFormatRegExp,
   postalCodeCanadaFormatRegExp,
+  onlyCharactersRegExp,
 } from "../../config/regex";
+
+const fourDigitNumberRegex = /^\d{4}$/;
 
 export const validationSchemaLogIn = Yup.object({
   email: Yup.string()
@@ -53,18 +56,29 @@ export const validationSchemaAddFacility = Yup.object().shape({
   ),
   facility_name: Yup.string().required("Facility Name is required"),
   // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
-  naic_code: Yup.string().required("NAIC's Code is required"),
-  facility_category: Yup.string().required("Facility Category is required"),
   facility_type: Yup.string().required("Facility Type is required"),
+  naic_code: Yup.string().when("facility_type", {
+    is: "Other", // condition
+    then: () =>
+      Yup.string()
+        .matches(fourDigitNumberRegex, "NAIC's Code must be exactly 4 digits")
+        .required("NAIC's Code is required"),
+    otherwise: () => Yup.string().notRequired(),
+  }),
+  facility_category: Yup.string().required("Facility Category is required"),
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
   ),
-  unit_number: Yup.string().required("Unit Number is required"),
+  // unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
-  street_name: Yup.string().required("Street Name is required"),
+  street_name: Yup.string()
+    .required("Street Name is required")
+    .max(100, "Street name should be maximum 100 characters"),
   // address: Yup.string().required("Address is required"),
-  city: Yup.string().required("City is required"),
-  province: Yup.string().required("Province/State is required"),
+  city: Yup.string()
+    .required("City is required")
+    .matches(onlyCharactersRegExp, "Numbers are not allowed"),
+  province: Yup.string().required("Province is required"),
   country: Yup.string().required("Country is required"),
   postal_code: Yup.string()
     .required("Postal Code is required")
@@ -111,12 +125,14 @@ export const validationSchemaFacilitySummary = Yup.object().shape({
 export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
+  unit: Yup.string().required("Unit is required"),
   meter_id: Yup.number()
-    .required("Meter Id is required")
+    .required("Meter Id is required and can be found on the electricity bill")
     .min(0, "Meter Id must be a positive number"),
   meter_active: Yup.date()
-    .max(new Date(), "Date meter became active cannot be in the future")
-    .required("Meter activation date is required"),
+    .nullable()
+    .max(new Date(), "Date meter became active cannot be in the future"),
+  // .required("Meter activation date is required"),
   meter_inactive: Yup.date().when("stil_in_use", {
     is: false,
     then: (schema) =>
@@ -131,14 +147,33 @@ export const validationSchemaAddMeter = Yup.object().shape({
         ),
     otherwise: (schema) => schema.notRequired().nullable(),
   }),
+  is_rg_meter: Yup.bool().required("Revenue-grade meter is required"),
+});
+
+export const validationSchemaDeleteMeterEntries = Yup.object({
+  startDate: Yup.date().required('Start date is required'),
+  endDate: Yup.date()
+      .required('End date is required')
+      .min(Yup.ref('startDate'), 'End date cannot be earlier than start date')
 });
 
 export const validationSchemaEntry = Yup.object().shape({
-  start_date: Yup.string().required("Start Date is required"),
-  end_date: Yup.string().required("End Date is required"),
-  usage: Yup.string().required("Usage is required"),
-  demand: Yup.string().required("Demand is required"),
-  total_cost: Yup.date().required("Total cost is required"),
+  start_date: Yup.date()
+    .max(new Date(), "Start Date cannot be in the future")
+    .required("Start Date is required"),
+  end_date: Yup.date()
+    .min(Yup.ref("start_date"), "End Date cannot be earlier than Start Date")
+    .max(new Date(), "End Date cannot be in the future")
+    .required("End Date is required"),
+  usage: Yup.string()
+    .required("Usage is required")
+    .min(0, "Usage must be a positive number"),
+  demand: Yup.string()
+    .required("Demand is required")
+    .min(0, "Demand must be a positive number"),
+  total_cost: Yup.string()
+    .required("Total cost is required")
+    .min(0, "Total cost must be a positive number"),
 });
 
 export default validationSchemaAddMeter;
@@ -159,41 +194,73 @@ export const validationSchemaPUserCompanyrofileDetails = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
 
   company_name: Yup.string().required("Company Name is required"),
-  website: Yup.string().required("Website URL is required"),
+  // website: Yup.string().required("Website URL is required"),
 
-  unit_number: Yup.string().required("Unit Number is required"),
+  // unit_number: Yup.string().required("Unit Number is required"),
   street_number: Yup.string().required("Street Number is required"),
   street_name: Yup.string().required("Street Name is required"),
 
   city: Yup.string().required("City is required"),
-  province: Yup.string().required("Province/State is required"),
-  postal_code: Yup.string().required("Postal Code/Zip Code is required"),
+  province: Yup.string().required("Province is required"),
+  postal_code: Yup.string().required("Postal Code is required"),
   country: Yup.string().required("Country is required"),
 });
 
 export const validationSchemaFacilityDetails = Yup.object().shape({
   operational_hours: Yup.number()
+    .required("Annual operational hours is required")
+    .min(0, "Operational hours must be a positive number between 0 and 8760")
+    .max(8760, "Operational hours cannot exceed 8760 hours per year"),
+  // gross_floor_area_size_category: Yup.number().required(
+  //   "Gross floor area size category is required"
+  // ),
+  gross_floor_area: Yup.number()
+    .required("Gross floor area is required")
+    .min(0, "Gross floor area must be a positive number")
+    .max(3000000, "Gross floor area cannot exceed 3000000 sqft"),
+  conditioned_gross_floor_area_including_common_area: Yup.number()
     .nullable()
-    .min(0, "Operational hours must be a positive number between 0 and 870")
-    .max(870, "Operational hours cannot exceed 870 hours per year"),
+    .min(
+      0,
+      "Conditioned gross floor area including common area must be a positive number"
+    )
+    .max(
+      Yup.ref("gross_floor_area"),
+      "Conditioned gross floor area including common area cannot be more than gross floor area"
+    ),
+  unonditioned_gross_floor_area: Yup.number()
+    .nullable()
+    .min(0, "Unconditioned gross floor area  must be a positive number")
+    .max(3000000, "Unconditioned gross floor area cannot exceed 3000000 sqft"),
+
   year_of_construction: Yup.date().required("Year of construction is required"),
   number_of_storeys: Yup.number()
-    .nullable()
-    .min(0, "Number of Storeys must be a positive number"),
+    .required("Number of storeys is required")
+    .min(0, "Number of Storeys must be a positive number")
+    .max(200, "Number of Storeys must between 0 to 200"),
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
+  facility_electricity_service_size: Yup.number()
+    .nullable()
+    .min(0, "Facility electricity service size must be a positive number"),
+  facility_service_entrance_voltage: Yup.number()
+    .nullable()
+    .min(0, "Facility service entrance voltage must be a positive number"),
   space_cooling_fuel_source: Yup.string().required(
-    "Space cooling fuel source is required"
+    "Space cooling energy source is required"
   ),
   space_cooling_technology: Yup.string().required(
     "Space cooling technology is required"
   ),
+  space_heating_technology: Yup.string().required(
+    "Space heating technology is required"
+  ),
   space_heating_fuel_source: Yup.string().required(
-    "Space heating fuel source is required"
+    "Space heating energy source is required"
   ),
   water_heating_fuel_source: Yup.string().required(
-    "Water heating fuel source is required"
+    "Water heating energy source is required"
   ),
   water_heating_technology: Yup.string().required(
     "Water heating technology is required"
@@ -203,7 +270,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space cooling fuel source"),
+        schema.required("Please mention the Space cooling energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -212,7 +279,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space Heating fuel source"),
+        schema.required("Please mention the space heating energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -221,7 +288,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Water Heating fuel source"),
+        schema.required("Please mention the water heating energy source"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -230,7 +297,16 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Space cooling technology"),
+        schema.required("Please mention the space cooling technology"),
+      otherwise: (schema) => schema.optional(),
+    }
+  ),
+  space_heating_technology_other: Yup.string().when(
+    "space_heating_technology",
+    {
+      is: "other",
+      then: (schema) =>
+        schema.required("Please mention the space heating technology"),
       otherwise: (schema) => schema.optional(),
     }
   ),
@@ -239,18 +315,18 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     {
       is: "other",
       then: (schema) =>
-        schema.required("Please mention the Water heating technology"),
+        schema.required("Please mention the water heating technology"),
       otherwise: (schema) => schema.optional(),
     }
   ),
   is_lighting_controlled_for_occupancy: Yup.boolean().required(
-    "Is Lighting Controlled for Occupancy is required"
+    "Is lighting controlled for occupancy is required"
   ),
   is_space_heating_controlled_for_occupancy: Yup.boolean().required(
-    "Is Space Heating Controlled for Occupancy is required"
+    "Is space Heating controlled for occupancy is required"
   ),
   is_space_cooling_controlled_for_occupancy: Yup.boolean().required(
-    "Is Space Cooling Controlled for Occupancy is required"
+    "Is space Cooling controlled for occupancy is required"
   ),
   space_cooling_technology_capacity: Yup.number()
     .nullable()
@@ -287,21 +363,26 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
     .min(0, "Water Heating efficiency must be a positive number"),
 });
 
-export const validationSchemaAssignFacility = Yup.object().shape({
-  email: Yup.string()
-    .required("Email is required")
-    .matches(
-      /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}(,[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
-      "Invalid email"
-    )
-    .test("At least one email is required", (value) => {
-      return value.split(",").some((email) => email.trim() !== "");
-    }),
-  facilityId: Yup.array()
-    .of(Yup.number())
-    .required("Facility is required")
-    .min(1, "At least one facility is required"),
-});
+export const validationSchemaAssignFacility = (emailToAvoid) =>
+  Yup.object().shape({
+    email: Yup.string()
+      .required("Email is required")
+      .matches(
+        /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}( *[,\s]+ *[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7})*$/,
+        "Invalid email"
+      )
+      .test("not-avoided-email", "You can not use your own email", (value) => {
+        return !value.split(/\s*,\s*/).includes(emailToAvoid);
+      })
+      .test("At least one email is required", (value) => {
+        return value.split(/\s*,\s*/).some((email) => email.trim() !== "");
+      }),
+    facilityId: Yup.array()
+      .of(Yup.number())
+      .required("Facility is required")
+      .min(1, "At least one facility is required"),
+    companyId: Yup.number().required("Please enter Company ID"),
+  });
 
 // Change Password Validation schema
 export const changePasswordValidationSchema = Yup.object().shape({
@@ -317,6 +398,141 @@ export const changePasswordValidationSchema = Yup.object().shape({
 });
 
 export const requestToJoinCompanyFormValidationSchema = Yup.object().shape({
-  company: Yup.string().required("Company is required"),
+  company: Yup.object({
+    id: Yup.string().required("Company is required"),
+  }).required("Company is required"),
+  // company: Yup.object({
+  //   label: Yup.string().required("Company is required"),
+  // }).required("Company is required"),
   role: Yup.string().required("Role is required"),
+});
+
+export const updateProfilePageRoleSchema = Yup.object().shape({
+  selectUser: Yup.string().required("Please select a user"),
+});
+
+export const validationSchemaIndependentVariable = Yup.object().shape({
+  name: Yup.string().required("Independent Variable Name is required"),
+  description: Yup.string().required(
+    "Independent Variable Description is required"
+  ),
+});
+
+export const validationSchemaFacilityPermissions = Yup.object().shape({
+  username: Yup.string().required("Username is required"),
+  bussiness_email: Yup.string()
+    .email("Invalid email")
+    .required("Business email is required"),
+  role_type: Yup.string().required("Role type is required"),
+});
+
+export const validationSchemaAddMeasureReport = Yup.object().shape({
+  measure_name: Yup.string().required("Measure name is required"),
+  measure_category: Yup.string().nullable(),
+  measure_install_cost: Yup.string().nullable(),
+  baseline_detail: Yup.string().nullable(),
+  measure_description: Yup.string().nullable(),
+  start_date: Yup.date()
+    .nullable()
+    .max(new Date(), "Measure installation start date cannot be in the future"),
+  end_date: Yup.date()
+    .nullable()
+    .when("start_date", {
+      is: (startDate) => startDate != null,
+      then: (schema) =>
+        schema.min(
+          Yup.ref("start_date"),
+          "Measure completion date cannot be earlier than date meter became active"
+        ),
+      otherwise: (schema) => schema.notRequired().nullable(),
+    }),
+  file_description: Yup.string().nullable(),
+});
+
+export const validationSchemaDocument = Yup.object().shape({
+  document_name: Yup.string().required("Document name is required"),
+  document_desc: Yup.string().nullable(),
+});
+
+export const addContactValidationSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+
+  company_name: Yup.string().required("Company name is required"),
+
+  email: Yup.string()
+    .required("Email is required")
+    .email("Invalid email format"),
+
+  role: Yup.string()
+    .required("Role is required")
+    .max(50, "Role must be at most 50 characters"),
+
+  phone: Yup.string()
+    .required("Phone is required")
+    .matches(/^[0-9+\-\s()]*$/, "Invalid phone number format")
+    .max(10, "Phone number must be at most 10 characters"),
+
+  unit_number: Yup.string().optional(),
+
+  street_number: Yup.string().required("Street number is required"),
+
+  street_name: Yup.string().required("Street name is required"),
+
+  city: Yup.string().required("City is required"),
+
+  province: Yup.string().required("Province is required"),
+
+  country: Yup.string().required("Country is required"),
+
+  postal_code: Yup.string()
+    .required("Postal code is required")
+    .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
+});
+
+export const nonRoutineEventValidationSchema = Yup.object().shape({
+  event_from_period: Yup.date().required("Start date is required"),
+  event_to_period: Yup.date()
+    .required("End date is required")
+    .min(Yup.ref("event_from_period"), "End date can't be before start date"),
+  event_name: Yup.string().required("Event name is required"),
+  event_description: Yup.string().optional(),
+});
+
+export const nonRoutineDataValidationSchema = Yup.object().shape({
+  data_entries: Yup.array().of(
+    Yup.object().shape({
+      start_date: Yup.date().required("Start date is required"),
+      end_date: Yup.date().required("End date is required"),
+      non_routine_adjustment: Yup.number().required("Data is required"),
+    })
+  ),
+});
+
+export const emailFormValidationSchema = Yup.object().shape({
+  to: Yup.string()
+    .email("Invalid email address")
+    .required("To (recipient) field is required"),
+  cc: Yup.array().of(Yup.string().email("Invalid email address")),
+  subject: Yup.string()
+    .required("Subject is required")
+    .max(255, "Subject must be at most 255 characters"),
+  body: Yup.string()
+    .required("Email body is required")
+    .min(10, "Email body must be at least 10 characters"),
+});
+
+export const addEmailTemplateValidationSchema = Yup.object().shape({
+  name: Yup.string().required('Name is required'),
+  subject: Yup.string().required('Subject is required'),
+  body: Yup.string().required('Email content is required'),
+});
+
+export const incentiveSettingValidationSchema = Yup.object().shape({
+  p4pStartDate1: Yup.date().required("Required"),
+  p4pEndDate1: Yup.date().required("Required"),
+  p4pStartDate2: Yup.date().required("Required"),
+  p4pEndDate2: Yup.date().required("Required"),
+  p4pStartDate3: Yup.date().required("Required"),
+  p4pEndDate3: Yup.date().required("Required"),
+  // Add other fields as needed
 });

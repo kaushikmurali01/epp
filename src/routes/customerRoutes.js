@@ -101,8 +101,13 @@ const Error404 = lazy(() => import("pages/Error/Error404"));
 //   }
 // ]
 
-export const CustomerRoutes = ({ userDetails, userPermissions }) => {
-  let routesToPermit = [
+export const CustomerRoutes = ({ userDetails, userPermissions, userCompany }) => {
+  let routesToPermit = [];
+  if(userDetails?.status == "Inactive" || userCompany?.is_active == 0 || !(userDetails?.status)){
+    routesToPermit.push(<Route path="*" element={<Error404 />} />, 
+    <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,)
+  }else{
+    routesToPermit.push(
     <Route
       path="/"
       element={<Navigate to={facilityEndPoints.facilityDashboard} replace />}
@@ -112,9 +117,8 @@ export const CustomerRoutes = ({ userDetails, userPermissions }) => {
       element={<DashboardSectionComponent />}
     />,
     <Route path="*" element={<Error404 />} />,
-    <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,
-    <Route path= {profilePageEndPoints.ChangePassword} element={ <ChangePassword /> }/>
-  ];
+    <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,)
+  }
 
   for (let i = 0; i < userPermissions.length; i++) {
     if (userPermissions[i].permission === "add-user" || userPermissions[i].permission =="grant-revoke-access") {

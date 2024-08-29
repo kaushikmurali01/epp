@@ -96,7 +96,87 @@ body {
 .MuiTypography-root {
     &[disabled]  {
     pointer-events: none;
-    opacity: 0.75;
+    opacity: 0.55;
     cursor: text;
    }
 }
+
+
+.ev-theme-table {
+    thead {
+        th {
+            &.MuiTableCell-root {
+                padding: 0;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+                &:first-of-type {
+                    min-width: 8rem;
+                }
+            }
+        }
+    }
+}
+
+.rc-quill-editor {
+    color: #242424;
+
+    .ql-toolbar {
+        border-radius: 8px 8px 0 0;
+    }
+
+    .ql-container {
+        border-radius: 0 0 8px 8px;
+        min-height: 200px;
+    }
+}
+
+
+// chart common css -
+
+.bi-embedded {
+    &.energy-use-by-hour-embedded {
+        height: 450px;
+      }
+}
+
+.incentive-settings-table{
+    .css-1wla4b3-MuiTable-root .MuiTableCell-root:first-of-type {
+            min-width: 13rem;
+        }
+    .css-1wla4b3-MuiTable-root .MuiTableCell-root:last-child {
+        text-align: left;
+    }
+}
+
+.savings-report-table{
+    .MuiTableRow-root th{
+        padding: 0;
+    }
+    .MuiTableBody-root{
+        tr{
+            td:nth-child(2){
+                text-align: end;
+            }
+
+            td:last-child {
+                text-align: start;
+            }
+        }
+    }
+}
+/* HTML: <div class="loader"></div> */
+.progress-loader {
+    width: 12px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    animation: l5 1s infinite linear alternate;
+  }
+
+  @keyframes l5 {
+      0%  {box-shadow: 20px 0 #2e813e, -20px 0 #2e813e20;background: #2e813e }
+      33% {box-shadow: 20px 0 #2e813e, -20px 0 #2e813e20;background: #2e813e20}
+      66% {box-shadow: 20px 0 #2e813e20,-20px 0 #2e813e; background: #2e813e20}
+      100%{box-shadow: 20px 0 #2e813e20,-20px 0 #2e813e; background: #2e813e }
+  }
+  

@@ -49,6 +49,7 @@ const theme = createTheme({
           ".MuiDialog-paper": {
             padding: "1.5rem",
           },
+         
         },
       },
     },
@@ -59,8 +60,15 @@ const theme = createTheme({
           ".MuiTableHead-root": {
             th: {
               color: '#54585A',
-              fontSize: '0.75rem'
-            }
+              fontSize: '0.75rem',
+             "&:last-child": {
+                "div": {
+                 justifyContent: 'flex-end',
+ 
+                }
+              },
+            },
+           
           },
           ".MuiTableBody-root": {
             color: '#54585A'
@@ -79,7 +87,7 @@ const theme = createTheme({
               minWidth: '5rem',
             },
             "&:last-child": {
-              textAlign: 'right'
+              textAlign: 'right',
             },
           },
         },
@@ -91,13 +99,23 @@ const theme = createTheme({
 
           ".MuiToggleButtonGroup-grouped": {
             backgroundColor: '#F7F7F5',
-            minWidth: '4rem'
+            minWidth: '3rem',
+            padding: '0.5rem',
+            [getTheme.breakpoints.up("md")]: {
+              minWidth: '4rem',
+              padding: '0.75rem'
+            },
 
           },
           ".Mui-selected": {
             "&.theme-toggle-yes" : {
               backgroundColor: '#2E813E',
               color: '#fff',
+              "&:disabled": {
+                pointerEvents: 'none',
+                opacity: '0.55',
+                cursor: 'text'
+              },
               "&:hover": {
                 backgroundColor: '#2E813E',
               },
@@ -105,6 +123,11 @@ const theme = createTheme({
             "&.theme-toggle-no" : {
                 backgroundColor: '#54585A',
                 color: '#fff',
+                "&:disabled": {
+                  pointerEvents: 'none',
+                  opacity: '0.55',
+                  cursor: 'text'
+                },
                 "&:hover": {
                   backgroundColor: '#54585A',
                 },
@@ -130,7 +153,10 @@ const theme = createTheme({
           },
           "&:disabled": {
             backgroundColor: "#9E9D9D",
-            color: '#fff'
+            color: '#fff',
+            pointerEvents: 'none',
+            opacity: '0.55',
+            cursor: 'text',
           },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
@@ -249,6 +275,7 @@ const theme = createTheme({
 
       [getTheme.breakpoints.up("md")]: {
         fontSize: "1rem",
+        lineHeight: '1.5rem'
       },
     },
 
@@ -257,7 +284,7 @@ const theme = createTheme({
       lineHeight: "1rem",
       color: "#808080",
       fontWeight: "400",
-      [getTheme.breakpoints.up("sm")]: {
+      [getTheme.breakpoints.up("md")]: {
         fontSize: "0.875rem",
         lineHeight: "1.25rem",
       },
@@ -276,6 +303,8 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#2e813e",
+      mainDarkShade: '#1e6329',
+      mainLightShade: '#3ea65c',
       light: "#F4FFF5",
       thinLight: "#F5F9F5",
       thinGrayLight: '#F7F7F5',

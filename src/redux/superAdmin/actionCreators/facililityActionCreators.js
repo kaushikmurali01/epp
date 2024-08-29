@@ -35,6 +35,42 @@ import {
   FETCH_FACILITIES_DROPDOWN_REQUEST,
   FETCH_FACILITIES_DROPDOWN_SUCCESS,
   FETCH_FACILITIES_DROPDOWN_FAILURE,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
+  FETCH_FACILITY_MEASURE_REPORT_LIST_FAILURE,
+  ADD_FACILITY_MEASURE_REPORT_REQUEST,
+  ADD_FACILITY_MEASURE_REPORT_SUCCESS,
+  ADD_FACILITY_MEASURE_REPORT_FAILURE,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_REQUEST,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS,
+  FETCH_FACILITY_MEASURE_REPORT_DETAILS_FAILURE,
+  UPDATE_FACILITY_MEASURE_REPORT_REQUEST,
+  UPDATE_FACILITY_MEASURE_REPORT_SUCCESS,
+  UPDATE_FACILITY_MEASURE_REPORT_FAILURE,
+  DELETE_FACILITY_MEASURE_REPORT_FAILURE,
+  DELETE_FACILITY_MEASURE_REPORT_SUCCESS,
+  DELETE_FACILITY_MEASURE_REPORT_REQUEST,
+  FETCH_FACILITY_DOCUMENT_LIST_REQUEST,
+  FETCH_FACILITY_DOCUMENT_LIST_SUCCESS,
+  FETCH_FACILITY_DOCUMENT_LIST_FAILURE,
+  ADD_FACILITY_DOCUMENT_REQUEST,
+  ADD_FACILITY_DOCUMENT_SUCCESS,
+  ADD_FACILITY_DOCUMENT_FAILURE,
+  FETCH_FACILITY_DOCUMENT_DETAILS_REQUEST,
+  FETCH_FACILITY_DOCUMENT_DETAILS_SUCCESS,
+  FETCH_FACILITY_DOCUMENT_DETAILS_FAILURE,
+  UPDATE_FACILITY_DOCUMENT_REQUEST,
+  UPDATE_FACILITY_DOCUMENT_SUCCESS,
+  UPDATE_FACILITY_DOCUMENT_FAILURE,
+  DELETE_FACILITY_DOCUMENT_REQUEST,
+  DELETE_FACILITY_DOCUMENT_SUCCESS,
+  DELETE_FACILITY_DOCUMENT_FAILURE,
+  SEND_HELP_REQ_FOR_MEASURE_REQUEST,
+  SEND_HELP_REQ_FOR_MEASURE_FAILURE,
+  SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
+  GET_WATERFALL_DATA_REQUEST,
+  GET_WATERFALL_DATA_SUCCESS,
+  GET_WATERFALL_DATA_FAILURE,
 } from "../actionTypes";
 
 export const fetchFacilityListRequest = () => ({
@@ -202,5 +238,173 @@ export const fetchFacilitiesDropdownSuccess = (data) => ({
 
 export const fetchFacilitiesDropdownFailure = (error) => ({
   type: FETCH_FACILITIES_DROPDOWN_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityMeasureReportListRequest = () => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_LIST_REQUEST,
+});
+
+export const fetchFacilityMeasureReportListSuccess = (data) => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityMeasureReportListFailure = (error) => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_LIST_FAILURE,
+  payload: error,
+});
+
+export const addFacilityMeasureReportRequest = () => ({
+  type: ADD_FACILITY_MEASURE_REPORT_REQUEST,
+});
+
+export const addFacilityMeasureReportSuccess = (data) => ({
+  type: ADD_FACILITY_MEASURE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const addFacilityMeasureReportFailure = (error) => ({
+  type: ADD_FACILITY_MEASURE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityMeasureReportDetailsRequest = () => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_DETAILS_REQUEST,
+});
+
+export const fetchFacilityMeasureReportDetailsSuccess = (data) => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_DETAILS_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityMeasureReportDetailsFailure = (error) => ({
+  type: FETCH_FACILITY_MEASURE_REPORT_DETAILS_FAILURE,
+  payload: error,
+});
+
+export const updateFacilityMeasureReportRequest = () => ({
+  type: UPDATE_FACILITY_MEASURE_REPORT_REQUEST,
+});
+
+export const updateFacilityMeasureReportSuccess = (data) => ({
+  type: UPDATE_FACILITY_MEASURE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const updateFacilityMeasureReportFailure = (error) => ({
+  type: UPDATE_FACILITY_MEASURE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const deleteFacilityMeasureReportRequest = () => ({
+  type: DELETE_FACILITY_MEASURE_REPORT_REQUEST,
+});
+
+export const deleteFacilityMeasureReportSuccess = (data) => ({
+  type: DELETE_FACILITY_MEASURE_REPORT_SUCCESS,
+  payload: data,
+});
+
+export const deleteFacilityMeasureReportFailure = (error) => ({
+  type: DELETE_FACILITY_MEASURE_REPORT_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityDocumentListRequest = () => ({
+  type: FETCH_FACILITY_DOCUMENT_LIST_REQUEST,
+});
+
+export const fetchFacilityDocumentListSuccess = (data) => ({
+  type: FETCH_FACILITY_DOCUMENT_LIST_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityDocumentListFailure = (error) => ({
+  type: FETCH_FACILITY_DOCUMENT_LIST_FAILURE,
+  payload: error,
+});
+
+export const addFacilityDocumentRequest = () => ({
+  type: ADD_FACILITY_DOCUMENT_REQUEST,
+});
+
+export const addFacilityDocumentSuccess = (data) => ({
+  type: ADD_FACILITY_DOCUMENT_SUCCESS,
+  payload: data,
+});
+
+export const addFacilityDocumentFailure = (error) => ({
+  type: ADD_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const fetchFacilityDocumentDetailsRequest = () => ({
+  type: FETCH_FACILITY_DOCUMENT_DETAILS_REQUEST,
+});
+
+export const fetchFacilityDocumentDetailsSuccess = (data) => ({
+  type: FETCH_FACILITY_DOCUMENT_DETAILS_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityDocumentDetailsFailure = (error) => ({
+  type: FETCH_FACILITY_DOCUMENT_DETAILS_FAILURE,
+  payload: error,
+});
+
+export const updateFacilityDocumentRequest = () => ({
+  type: UPDATE_FACILITY_DOCUMENT_REQUEST,
+});
+
+export const updateFacilityDocumentSuccess = (data) => ({
+  type: UPDATE_FACILITY_DOCUMENT_SUCCESS,
+  payload: data,
+});
+
+export const updateFacilityDocumentFailure = (error) => ({
+  type: UPDATE_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const deleteFacilityDocumentRequest = () => ({
+  type: DELETE_FACILITY_DOCUMENT_REQUEST,
+});
+
+export const deleteFacilityDocumentSuccess = (data) => ({
+  type: DELETE_FACILITY_DOCUMENT_SUCCESS,
+  payload: data,
+});
+
+export const deleteFacilityDocumentFailure = (error) => ({
+  type: DELETE_FACILITY_DOCUMENT_FAILURE,
+  payload: error,
+});
+
+export const sendHelpReqForMeasureCategoryRequest = () => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_REQUEST,
+});
+
+export const sendHelpReqForMeasureCategorySuccess = (data) => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_SUCCESS,
+  payload: data,
+});
+
+export const sendHelpReqForMeasureCategoryFailure = (error) => ({
+  type: SEND_HELP_REQ_FOR_MEASURE_FAILURE,
+  payload: error,
+});
+
+export const getWaterfallDataRequest = () => ({
+  type: GET_WATERFALL_DATA_REQUEST,
+});
+
+export const getWaterfallDataSuccess = (data) => ({
+  type: GET_WATERFALL_DATA_SUCCESS,
+  payload: data,
+});
+
+export const getWaterfallDataFailure = (error) => ({
+  type: GET_WATERFALL_DATA_FAILURE,
   payload: error,
 });

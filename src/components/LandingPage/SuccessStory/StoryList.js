@@ -31,34 +31,34 @@ const StoryList = () => {
             "title": "Henry Williams",
             "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
         },
-        {
-            "image": "/images/landingPage/testimonials/avtar.svg",
-            "id": 4,
-            'link': "#",
-            "title": "Henry Williams",
-            "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
-        },
-        {
-            "image": "/images/landingPage/testimonials/avtar.svg",
-            "id": 5,
-            'link': "#",
-            "title": "Henry Williams",
-            "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
-        },
-        {
-            "image": "/images/landingPage/testimonials/avtar.svg",
-            "id": 6,
-            'link': "#",
-            "title": "Henry Williams",
-            "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
-        },
-        {
-            "image": "/images/landingPage/testimonials/avtar.svg",
-            "id": 7,
-            'link': "#",
-            "title": "Henry Williams",
-            "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
-        },
+        // {
+        //     "image": "/images/landingPage/testimonials/avtar.svg",
+        //     "id": 4,
+        //     'link': "#",
+        //     "title": "Henry Williams",
+        //     "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
+        // },
+        // {
+        //     "image": "/images/landingPage/testimonials/avtar.svg",
+        //     "id": 5,
+        //     'link': "#",
+        //     "title": "Henry Williams",
+        //     "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
+        // },
+        // {
+        //     "image": "/images/landingPage/testimonials/avtar.svg",
+        //     "id": 6,
+        //     'link': "#",
+        //     "title": "Henry Williams",
+        //     "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
+        // },
+        // {
+        //     "image": "/images/landingPage/testimonials/avtar.svg",
+        //     "id": 7,
+        //     'link': "#",
+        //     "title": "Henry Williams",
+        //     "body": "Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without. Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without."
+        // },
     ]
     const settings = {
         draggable: true,

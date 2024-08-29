@@ -34,12 +34,13 @@ const CustomStepLabel = styled(StepLabel)(({ theme, active }) => {
     },
     "& .MuiStepIcon-text": {
       display: "none",
+      color: active ? "#2E813E!important" : "#D4D4D4!important",
     },
     "& .MuiStepLabel-label": {
       position: "relative",
       borderRadius: "12px 12px 12px 0",
       backgroundColor: active ? "#B8FFBF" : "#D4D4D4",
-      color: "#242424",
+      color: "#242424!important",
       padding: "8px 4px",
       width: "80%",
       [theme.breakpoints.down("sm")]: {
@@ -102,7 +103,7 @@ export default function FacilityTimeline() {
     },
     {
       step: 5,
-      label: "Program Start",
+      label: "Facility Enrolled",
     },
   ];
 

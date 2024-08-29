@@ -1,0 +1,30 @@
+.custom-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 4px;
+  padding: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.facility-marker img {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 4px;
+}
+
+.facility-marker span,
+.weather-station-marker span {
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.weather-station-marker {
+  background-color: #007bff;
+  color: white;
+}

@@ -97,7 +97,7 @@ const FacilityOverview = () => {
               >
                 Facilities Overview
               </Typography>
-              <Typography
+              {/* <Typography
                 variant="h5"
                 sx={{
                   marginTop: "0.500rem",
@@ -109,7 +109,7 @@ const FacilityOverview = () => {
               >
                 Lorem Ipsum is simply dummy text of the printing and typesetting
                 industry.
-              </Typography>
+              </Typography> */}
             </Grid>
             <Grid
               item
@@ -179,7 +179,7 @@ const FacilityOverview = () => {
               <TableBody>
                 <TableRow>
                   <TableCell>1</TableCell>
-                  <TableCell>Total Companies</TableCell>
+                  <TableCell>Total companies</TableCell>
                   <TableCell>{viewDataForFacility?.all_company}</TableCell>
                 </TableRow>
                 <TableRow>

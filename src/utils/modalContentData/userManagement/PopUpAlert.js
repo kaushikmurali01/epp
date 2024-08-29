@@ -39,7 +39,7 @@ const PopUpAlert = ({ modalContent, setModalConfig, apiData }) => {
     }
 
     return (
-        <Grid container alignItems='flexStart' flexDirection="column" textAlign='left' sx={{ gap: '2rem', padding: { md: '0 5%' } }} >
+        <Grid container alignItems='flexStart' flexDirection="column" textAlign='left' sx={{ minWidth: {xs: '100%', sm: '28rem'}, gap: '2rem', padding: { md: '0 5%' } }} >
 
             <Grid item>
                 <Typography variant="h4" sx={{ marginBottom: '0.5rem', color: 'text.secondary2' }}>

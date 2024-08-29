@@ -33,7 +33,7 @@ const buttonStyle = {
 
 const DeleteModelContent = () => {
     return (
-        <Grid container alignItems='center' flexDirection="column" textAlign='center' sx={{ padding: { md: '0 5%'}}} >
+        <Grid container alignItems='center' flexDirection="column" textAlign='center' >
             <Grid item sx={{textAlign:'center'}}>
                 <figure>
                     <img src="/images/icons/deleteIcon.svg" alt="" />
@@ -41,14 +41,14 @@ const DeleteModelContent = () => {
             </Grid>
             <Grid item>
                 <Typography variant="h4">
-                Are you sure you would like to Delete
-                the Role from the system.
+                Are you sure you would like to delete
+                the role from the system.
                 </Typography>
             </Grid>
             <Grid item>
-                <FormGroup sx={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+                <FormGroup sx={{display: 'block',}}>
                  <Checkbox id="receiveCopy" onChange={(e)=> setIsChecked(e.target.checked) } />
-                <FormLabel htmlFor="receiveCopy">if you want to receive a copy of delete email</FormLabel>
+                <FormLabel htmlFor="receiveCopy">Check if you want to receive a copy of the delete confirmation email</FormLabel>
                 </FormGroup>
             </Grid>
         </Grid>
@@ -63,7 +63,7 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (getUserRole,handleAPISuccessCallBac
         accessor: 'rolename',
     },
     {
-        Header: "Role Type",
+        Header: "User Type",
         accessor: "userType",
     },
     {
@@ -80,7 +80,7 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (getUserRole,handleAPISuccessCallBac
                 <Typography variant="span" sx={{ ...buttonStyle, color: 'blue.main' }} onClick={()=> handelManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
                     Edit
                 </Typography>
-                <Typography disabled={hasDefaultPermission(getUserRole,item.role_id)}  variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
+                <Typography disabled={hasDefaultPermission(item)}  variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelDeleteModalOpen(item,handleAPISuccessCallBack,setModalConfig)} >
                     Delete
                 </Typography>
 
@@ -89,8 +89,32 @@ const ROLES_PERMISSIONS_MANAGEMENT_COLUMN = (getUserRole,handleAPISuccessCallBac
     },
 ];
 
-const hasDefaultPermission = (permissions,roleId) => {
-    const isDefault = permissions.some((perm) => perm.id === roleId);
+const hasDefaultPermission = (item) => {
+
+    const defaultRole = [
+        {
+            role_id: 1,
+            rolename:"Super-Admin"
+        },
+        {
+            role_id: 2,
+            rolename:"Sub-Admin"
+        },
+        {
+            role_id: 3,
+            rolename:"Employee"
+        },
+        {
+            role_id: 4,
+            rolename:"Consultant"
+        },
+        {
+            role_id: 5,
+            rolename:"Account Manager"
+        }
+    ]
+
+    const isDefault = defaultRole.some((perm) => perm.rolename.toLocaleLowerCase() === item.rolename.toLocaleLowerCase());
     return isDefault;
   };
 
@@ -112,6 +136,11 @@ const handelManagePermission = (item, setVisibleInvitePage, setSelectTableRow,se
 
 
 const handelDeleteModalOpen = (item, handleAPISuccessCallBack, setModalConfig) => {
+    const isPermission = hasDefaultPermission(item)
+    if(isPermission){
+        NotificationsToast({ message: "You don't have permission for this!", type: "error" });
+        return;
+    }
     setModalConfig((prevState) => ({
         ...prevState,
         modalVisible: true,

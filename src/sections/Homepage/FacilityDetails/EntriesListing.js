@@ -14,6 +14,11 @@ import {
   Tab,
   Typography,
   Stack,
+  IconButton,
+  FormControlLabel,
+  Checkbox,
+  Link,
+  LinearProgress,
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import React, { useContext, useEffect, useRef, useState } from "react";
@@ -22,9 +27,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEntriesListing } from "../../../redux/superAdmin/actions/entriesAction";
 import { format, getYear } from "date-fns";
-import { entriesEndPoints } from "constants/apiEndPoints";
+import {
+  adminHourlyEndPoints,
+  entriesEndPoints,
+  hourlyEndPoints,
+} from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
+  GET_REQUEST,
   PATCH_REQUEST,
   POST_REQUEST,
 } from "utils/HTTPRequests";
@@ -39,6 +49,19 @@ import {
   fetchMeterDetails,
 } from "../../../redux/superAdmin/actions/metersActions";
 import NotificationsToast from "utils/notification/NotificationsToast";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import {
+  commonDocumentFileUploadAction,
+  documentFileUploadAction,
+} from "../../../redux/global/actions/fileUploadAction";
+import {
+  fetchFacilityDetails,
+  fetchFacilityStatus,
+} from "../../../redux/superAdmin/actions/facilityActions";
+import EnergyUseByHoursBasisGraph from "./EntryListing/EnergyUseByHoursBasisGraph";
+import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
+import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import Loader from "pages/Loader";
 
 const EntriesListing = ({
   OnEditMeterButton,
@@ -49,8 +72,23 @@ const EntriesListing = ({
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const fileInputRef = useRef(null);
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-  const [tabValue, setTabValue] = useState("monthlyEntries");
+  const [tabValue, setTabValue] = useState("hourlyOrSub-hourlyEntries");
+  const [hourlyEntryFile, setHourlyEntryFile] = useState(null);
   const [entryToDelete, setEntryToDelete] = useState("");
+  const [imgUploadData, setImgUploadData] = useState("");
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
+  const [fileName, setFileName] = useState("");
+
+  const [viewEntryList, setViewEntryList] = useState([]);
+  const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const getDataProcessingLoader =
+    sessionStorage?.getItem("dataProcessingLoader") === "true";
+  const [dataProcessingLoader, setDataProcessingLoader] = useState(
+    getDataProcessingLoader || false
+  );
+  const [refreshPageData, setRefreshPageData] = useState(0);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -79,6 +117,27 @@ const EntriesListing = ({
     headerSubText:
       "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
+  });
+
+  const [viewEntriesModalConfig, setViewEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px", // Set the desired max-width
+      },
+    },
+  });
+
+  const [deleteEntriesModalConfig, setDeleteEntriesModalConfig] = useState({
+    ...modalConfig,
+    modalUI: {
+      ...modalConfig.modalUI,
+      showHeader: false,
+      modalBodyContentStyle: "",
+    },
   });
 
   const handleDeleteEntry = (id) => {
@@ -119,6 +178,16 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {
+        backgroundColor: "danger.scarlet",
+        "&:hover": { backgroundColor: "danger.colorCrimson" },
+        color: "#fff",
+      },
+      cancelButtonStyle: {
+        backgroundColor: "primary.main",
+        "&:hover": { backgroundColor: "primary.mainDarkShade" },
+        color: "#fff",
+      },
     },
     headerText: "Delete entry",
     headerSubText: "Are you sure you want to delete this entry?",
@@ -137,7 +206,7 @@ const EntriesListing = ({
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { showSnackbar } = useContext(SnackbarContext);
+
   const currentDate = new Date();
   const currentYear = getYear(currentDate);
   const columns = [
@@ -199,6 +268,7 @@ const EntriesListing = ({
   const handleDeleteMeter = () => {
     dispatch(deleteMeter(facilityMeterDetailId))
       .then(() => {
+        dispatch(fetchFacilityDetails(id));
         setDeleteMeterModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -232,6 +302,16 @@ const EntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {
+        backgroundColor: "danger.scarlet",
+        "&:hover": { backgroundColor: "danger.colorCrimson" },
+        color: "#fff",
+      },
+      cancelButtonStyle: {
+        backgroundColor: "primary.main",
+        "&:hover": { backgroundColor: "primary.mainDarkShade" },
+        color: "#fff",
+      },
     },
     headerText: "Delete Meter",
     headerSubText: "Are you sure you want to delete this meter?",
@@ -239,6 +319,7 @@ const EntriesListing = ({
     saveButtonAction: handleDeleteMeter,
   });
 
+  const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
   const enteriesListingData = useSelector(
     (state) => state?.entriesReducer?.entriesList?.data?.rows || []
   );
@@ -249,13 +330,14 @@ const EntriesListing = ({
   const meterData = useSelector(
     (state) => state?.meterReducer?.meterDetails?.data || {}
   );
+
   useEffect(() => {
     dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
     dispatch(fetchMeterDetails(facilityMeterDetailId));
+    getHourlySubHourlyEntryData();
   }, [dispatch, pageInfo.pageId, pageInfo.pageSize]);
 
   const handleAddButtonClick = (id) => {
-    console.log(id);
     OnEditMeterButton(id);
   };
 
@@ -264,6 +346,15 @@ const EntriesListing = ({
   };
 
   const AddEditEntry = ({ isEdit, data }) => {
+    const initValues = {
+      ...data,
+      start_date: data?.start_date
+        ? format(new Date(data?.start_date), "yyyy-MM-dd")
+        : "",
+      end_date: data?.end_date
+        ? format(new Date(data?.end_date), "yyyy-MM-dd")
+        : "",
+    };
     const formSubmit = (data) => {
       const apiURL = entriesEndPoints.ADD_EDIT_ENTRY;
       const requestBody = {
@@ -284,8 +375,9 @@ const EntriesListing = ({
             NotificationsToast({
               message: "Entry added successfully!",
               type: "success",
-          });
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -304,8 +396,9 @@ const EntriesListing = ({
             NotificationsToast({
               message: "Entry updated successfully!",
               type: "success",
-          });
+            });
             dispatch(fetchEntriesListing(pageInfo, facilityMeterDetailId));
+            dispatch(fetchFacilityDetails(id));
             setModalConfig((prevState) => ({
               ...prevState,
               modalVisible: false,
@@ -323,37 +416,60 @@ const EntriesListing = ({
     return (
       <>
         <Formik
-          initialValues={{ ...initialValues }}
+          initialValues={{ ...initValues }}
           validationSchema={validationSchemaEntry}
           enableReinitialize={true}
           onSubmit={formSubmit}
         >
-          <Form>
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="start_date" type="date" label="Start Date*" />
-            </Stack>
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="end_date" type="date" label="End Date*" />
-            </Stack>
+          {({ values, setFieldValue }) => (
+            <Form>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="start_date"
+                  type="date"
+                  label="Start Date*"
+                  inputProps={{
+                    max: format(new Date(), "yyyy-MM-dd"),
+                  }}
+                />
+              </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="end_date"
+                  type="date"
+                  label="End Date*"
+                  inputProps={{
+                    max: format(new Date(), "yyyy-MM-dd"),
+                    min:
+                      values?.start_date &&
+                      format(values?.start_date, "yyyy-MM-dd"),
+                  }}
+                />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="usage" label="Usage (KWh)*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField name="usage" label="Usage (KWh)*" type="number" />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="demand" label="Demand (KW)*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField name="demand" label="Demand (KW)*" type="number" />
+              </Stack>
 
-            <Stack sx={{ marginBottom: "1rem" }}>
-              <InputField name="total_cost" label="Total cost*" type="text" />
-            </Stack>
+              <Stack sx={{ marginBottom: "1rem" }}>
+                <InputField
+                  name="total_cost"
+                  label="Total cost*"
+                  type="number"
+                />
+              </Stack>
 
-            <Grid display="flex" sx={{ marginTop: "1rem" }}>
-              <ButtonWrapper type="submit" variant="contained">
-                Submit
-              </ButtonWrapper>
-            </Grid>
-          </Form>
+              <Grid display="flex" sx={{ marginTop: "1rem" }}>
+                <ButtonWrapper type="submit" variant="contained">
+                  Submit
+                </ButtonWrapper>
+              </Grid>
+            </Form>
+          )}
         </Formik>
       </>
     );
@@ -374,33 +490,8 @@ const EntriesListing = ({
       headerSubText: !isEdit
         ? "Please enter the following details to add a new entry for this meter"
         : "Please edit the following details to update the entry for this meter",
-      modalBodyContent: "",
+      modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />,
     }));
-    if (isEdit) {
-      setInitialValues((prevValues) => {
-        return {
-          ...prevValues,
-          ...data,
-          start_date: data?.start_date
-            ? format(new Date(data.start_date), "yyyy-MM-dd")
-            : "",
-          end_date: data?.end_date
-            ? format(new Date(data.end_date), "yyyy-MM-dd")
-            : "",
-        };
-      });
-    }
-    setTimeout(() => {
-      setModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        headerText: !isEdit ? "Add Entry" : "Edit Entry",
-        headerSubText: !isEdit
-          ? "Please enter the following details to add a new entry for this meter"
-          : "Please edit the following details to update the entry for this meter",
-        modalBodyContent: <AddEditEntry isEdit={isEdit} data={data} />,
-      }));
-    }, 10);
   };
 
   const openDeleteModal = (entryId) => {
@@ -416,19 +507,264 @@ const EntriesListing = ({
     fileInputRef.current.click();
   };
 
-  const handleFileChange = (event) => {
-    // // Handle the file selection here
-    // const selectedFile = event.target.files[0];
-    // setSelectedFile(URL.createObjectURL(selectedFile));
-    // dispatch(fileUploadAction(selectedFile))
-    // .then(( data ) => setImgUrl(data?.sasTokenUrl))
-    // .catch((error) => {
-    //   console.error("Error uploading image:", error);
-    // });
+  const getHourlySubHourlyEntryData = () => {
+    GET_REQUEST(hourlyEndPoints.GET_HOURLY_DATA + facilityMeterDetailId)
+      .then((response) => {
+        if (response.data.statusCode == 200) {
+          if (response.data?.data?.rows?.length > 0) {
+            setFileName(response.data?.data?.rows[0]);
+            setIsFileUploaded(true);
+          } else {
+            // intentionally define true here we can change once the development done..
+            setIsFileUploaded(false);
+          }
+        }
+      })
+      .catch((error) => {});
   };
+
+
+  const handleFileChange = (event) => {
+    setUploadProgress(0); // reset before upload progress
+    setIsUploading(true);
+    const selectedFile = event.target.files[0];
+    setHourlyEntryFile(selectedFile);
+    const apiURL = hourlyEndPoints.ADD_BULK_HOURLY_DATA;
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("iv", false);
+    formData.append("facility_id", id);
+    formData.append("meter_id", facilityMeterDetailId);
+
+    //  dispatch(commonDocumentFileUploadAction(apiURL,formData))
+    dispatch(
+      commonDocumentFileUploadAction(apiURL, formData, (progressEvent) => {
+        const progress = Math.round(
+          (progressEvent.loaded * 100) / progressEvent.total
+        );
+
+        setUploadProgress(progress < 100 ? progress : 99); // wait until upload progress is confirmed
+      })
+    )
+      .then((data) => {
+        // setHourlyEntryFile
+        if (
+          data?.message === undefined ||
+          data === undefined ||
+          !data.success
+        ) {
+          setHourlyEntryFile(null);
+        }
+        setImgUploadData(data);
+        setIsUploading(false);
+        setUploadProgress(100); // when the upload is confirmed
+      })
+      .catch((error) => {
+        console.error("Error uploading document:", error);
+        setIsUploading(false);
+      });
+  };
+
+  const uploadHourlyEntryFile = (imgData) => {
+    uploadEntryFile(imgData);
+  };
+
+  const uploadEntryFile = (data) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const payload = {
+      facility_id: meterData?.facility_id,
+      record_id: data.record_id,
+    };
+
+    // return;
+    POST_REQUEST(apiURL, payload)
+      .then((response) => {
+        NotificationsToast({
+          message: response.data.status,
+          type: "success",
+        });
+
+        // reset
+        setHourlyEntryFile(null);
+        setImgUploadData("");
+        setAcceptTermsAndCondition(false);
+        setUploadDataFormVisible(false);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+
+        // Start polling for data
+        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+      })
+      .catch((error) => {
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+        NotificationsToast({
+          message: error?.message ? error.message : "Something went wrong!",
+          type: "error",
+        });
+      });
+  };
+
+  // Polling GET API to retrieve the data
+  const startPollingForData = (
+    setDataProcessingLoader,
+    getHourlyEntriesData
+  ) => {
+    // Start data processing loader
+    setDataProcessingLoader(true);
+    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+    const checkInterval = setInterval(async () => {
+      try {
+        const response = await getHourlyEntriesData("processingLoader");
+        if (response.data?.data?.rows?.length > 0) {
+          // Data is retrieved successfully, stop polling
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem("dataProcessingLoader");
+          clearInterval(checkInterval);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return checkInterval;
+  };
+
+  const deleteFile = (imgData) => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    const apiURL = hourlyEndPoints.DELETE_HOURLY_ENTRIES_FILE;
+    const payload = {
+      record_id: imgData?.record_id,
+      iv: false, // for hourly data independent variable will be false...
+    };
+
+    // return;
+    POST_REQUEST(apiURL, payload)
+      .then((response) => {
+        setImgUploadData("");
+        setHourlyEntryFile(null);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      })
+      .catch((error) => {
+        console.log(error);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      });
+  };
+
+  // set terms of service
+
+  const [acceptTermsAndCondition, setAcceptTermsAndCondition] = useState(false);
+  const handleTermsAndConditionChange = (event) => {
+    setAcceptTermsAndCondition(event.target.checked);
+  };
+
+
+  const handleViewEntries = () => {
+    setViewEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <ViewEntryDetailListModal
+          meterId={meterData?.id}
+          meterType={meterData?.meter_type}
+          facilityId={meterData?.facility_id}
+        />
+      ),
+    }));
+  };
+
+  const handleDeleteEntries = () => {
+    setDeleteEntriesModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      headerText: "",
+      headerSubText: "",
+      modalBodyContent: (
+        <DeleteEntriesModal
+          meterId={meterData?.id}
+          meterType={meterData?.meter_type}
+          facilityId={meterData?.facility_id}
+          setModalConfig={setDeleteEntriesModalConfig}
+          setRefreshPageData={setRefreshPageData}
+        />
+      ),
+    }));
+  };
+
+  const getHourlyEntriesData = async (loader) => {
+    if (loader === "processingLoader") {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    } else {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    }
+
+    let apiURL = `${adminHourlyEndPoints.GET_HOURLY_ENTRIES}`;
+    let payload = {
+      facility_id: meterData?.facility_id,
+      limit: 10,
+      offset: 0,
+      meter_id: meterData?.id,
+      meter_type: meterData?.meter_type,
+    };
+
+    try {
+      const res = await POST_REQUEST(apiURL, payload);
+      if (
+        res.data?.data?.rows instanceof Array &&
+        res.data?.data?.rows.length > 0
+      ) {
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(false);
+      }
+
+      if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+      }
+
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      return res; // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      throw error; // Throw the error to be caught in polling
+    }
+  };
+
+  useEffect(() => {
+    if (Object.keys(meterData).length > 0 && !dataProcessingLoader) {
+      getHourlyEntriesData();
+    }
+
+    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+    }
+  }, [meterData, refreshPageData]);
+
+  //  return html dom
 
   return (
     <>
+      <IconButton
+        sx={{
+          backgroundColor: "primary.main",
+          "&:hover": {
+            backgroundColor: "primary.main",
+          },
+          marginLeft: "1rem",
+          marginBottom: "1rem",
+        }}
+        onClick={onAddMeterSuccess}
+      >
+        <ArrowBackIcon
+          sx={{
+            color: "#fff",
+            fontSize: "1.25rem",
+          }}
+        />
+      </IconButton>
       <Box
         sx={{
           display: "flex",
@@ -470,10 +806,10 @@ const EntriesListing = ({
           <Typography variant="small2">Meter type</Typography>
           <Typography variant="h6" gutterBottom>
             {meterData?.meter_type == 1
-              ? "Electricty"
-              : meterData?.meter_type == 2
-              ? "Natural Gas"
+              ? "Electricity"
               : meterData?.meter_type == 3
+              ? "Natural Gas"
+              : meterData?.meter_type == 2
               ? "Water"
               : ""}
           </Typography>
@@ -502,7 +838,7 @@ const EntriesListing = ({
           }}
         >
           <Typography variant="h6" gutterBottom>
-            Revenue-grade meter
+            {meterData?.is_rg_meter ? "Revenue-grade meter" : "Sub meter"}
           </Typography>
         </Box>
 
@@ -511,20 +847,22 @@ const EntriesListing = ({
             padding: "5px 0 0 20px",
           }}
         >
-          <Typography
+          <Link
+            underline="hover"
             variant="small"
             sx={{ color: "blue.main", cursor: "pointer" }}
             onClick={() => handleAddButtonClick(facilityMeterDetailId)}
           >
             Edit
-          </Typography>
-          <Typography
+          </Link>
+          <Link
+            underline="hover"
             variant="small"
             sx={{ color: "danger.main", cursor: "pointer", marginLeft: "20px" }}
             onClick={() => openDeleteMeterModal()}
           >
             Delete
-          </Typography>
+          </Link>
         </Box>
       </Box>
 
@@ -545,14 +883,14 @@ const EntriesListing = ({
             sx={{ display: "inline-flex" }}
           >
             <Tab
-              value="monthlyEntries"
-              label="Monthly entries"
-              sx={{ minWidth: "10rem" }}
-            />
-            <Tab
               value="hourlyOrSub-hourlyEntries"
               label="Hourly or Sub-hourly entries"
-              sx={{ minWidth: "10rem" }}
+              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
+            />
+            <Tab
+              value="monthlyEntries"
+              label="Monthly entries"
+              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
             />
           </Tabs>
         </Grid>
@@ -563,13 +901,54 @@ const EntriesListing = ({
           <Typography variant='small' sx={{ color: 'danger.main', cursor: 'pointer', marginLeft: '20px' }}>
             Delete entry
           </Typography> */}
-          <Button
-            variant="contained"
-            sx={{ marginLeft: "2rem" }}
-            onClick={() => openRequestModal(false)}
-          >
-            Add Entry
-          </Button>
+          {tabValue == "monthlyEntries" ? (
+            <Button
+              variant="contained"
+              sx={{ marginLeft: "2rem" }}
+              onClick={() => openRequestModal(false)}
+            >
+              Add Entry
+            </Button>
+          ) : (
+            <React.Fragment>
+              {viewEntryList?.length > 0 && (
+                <Stack direction="row" alignItems="center" gap="0.75rem">
+                  <Link
+                    underline="hover"
+                    variant="body2"
+                    sx={{ color: "#56B2AE", cursor: "pointer" }}
+                    onClick={() => handleViewEntries()}
+                  >
+                    View entries
+                  </Link>
+                  <Link
+                    underline="hover"
+                    variant="body2"
+                    sx={{ color: "danger.main", cursor: "pointer" }}
+                    onClick={() => handleDeleteEntries()}
+                  >
+                    Delete entries
+                  </Link>
+                  <Link
+                    underline="hover"
+                    variant="body2"
+                    sx={{ color: "primary.main", cursor: "pointer" }}
+                    onClick={() => setUploadDataFormVisible(true)}
+                  >
+                    <IconButton>
+                      <AddCircleIcon
+                        sx={{
+                          color: "text.primary",
+                          fontSize: "1.875rem",
+                        }}
+                      />
+                    </IconButton>
+                    Add entries
+                  </Link>
+                </Stack>
+              )}
+            </React.Fragment>
+          )}
         </Grid>
       </Grid>
 
@@ -583,52 +962,208 @@ const EntriesListing = ({
             setPageInfo={setPageInfo}
           />
         </Box>
+      ) : uploadDataFormVisible && !dataProcessingLoader ? (
+        <Box>
+          <Box>
+            <Typography variant="h5">
+              Upload data in bulk for this meter
+            </Typography>
+            <Typography variant="small2" gutterBottom>
+              You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "}
+              <Link
+                href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
+                underline="hover"
+                color="#2C77E9"
+                sx={{ cursor: "pointer" }}
+              >
+                single meter spreadsheet
+              </Link>{" "}
+              to upload the Excel file.
+            </Typography>
+
+            {isUploading ? (
+              <>
+                <Box
+                  sx={{
+                    mt: 4,
+                    width: { xs: "100%", md: "50%" },
+                    maxWidth: "350px",
+                  }}
+                >
+                  <LinearProgress
+                    variant="determinate"
+                    value={uploadProgress}
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      mt: 1,
+                    }}
+                  >
+                    <Typography variant="body2" color="textSecondary">
+                      {hourlyEntryFile?.name} Uploading..
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary">
+                      {uploadProgress}%
+                    </Typography>
+                  </Box>
+                </Box>
+                {/* <Button
+                                variant="outlined"
+                                color="error"
+                                onClick={() => setIsUploading(false)}
+                                sx={{ mt: 2 }}
+                            >
+                                Cancel
+                            </Button> */}
+              </>
+            ) : (
+              <React.Fragment>
+                {imgUploadData?.record_id ? (
+                  <Box sx={{ marginTop: "1.5rem" }}>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "blue.main", display: "inline-block" }}
+                    >
+                      {hourlyEntryFile?.name}
+                    </Typography>
+
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "danger.main",
+                        display: "inline-block",
+                        marginLeft: "1rem",
+                        cursor: "pointer",
+                      }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        deleteFile(imgUploadData);
+                      }}
+                    >
+                      Delete
+                    </Typography>
+                    {imgUploadData?.error && (
+                      <Stack direction="row" sx={{ marginTop: "0.5rem" }}>
+                        <Typography
+                          variant="small"
+                          sx={{ color: "danger.main" }}
+                        >
+                          {imgUploadData?.error}
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Box>
+                ) : (
+                  <Box>
+                    <Typography
+                      my={1}
+                      sx={{
+                        color: "#2E813E",
+                        fontWeight: "500",
+                        fontSize: "18px",
+                        backgroundColor: "#D1FFDA",
+                        padding: "7px 33px",
+                        borderRadius: "8px",
+                        height: "40px",
+                        marginTop: "20px",
+                        cursor: "pointer",
+                        maxWidth: "fit-content",
+                      }}
+                      onClick={handleButtonClick}
+                    >
+                      {hourlyEntryFile ? hourlyEntryFile?.name : "Choose File"}
+                    </Typography>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={handleFileChange}
+                      accept=".xlsx,.csv,.xml,text/xml"
+                    />
+
+                    {!imgUploadData?.success && (
+                      <Stack direction="row" sx={{ marginTop: "0.5rem" }}>
+                        <Typography
+                          variant="small"
+                          sx={{ color: "danger.main" }}
+                        >
+                          {imgUploadData?.message}
+                        </Typography>
+                      </Stack>
+                    )}
+                  </Box>
+                )}
+              </React.Fragment>
+            )}
+          </Box>
+
+          <Box>
+            <Grid container mb={2} mt={2}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={acceptTermsAndCondition}
+                    sx={{ color: "text.secondary2" }}
+                    onChange={handleTermsAndConditionChange}
+                  />
+                }
+                label={
+                  <Typography sx={{ fontSize: "14px!important" }}>
+                    I hereby certify that this is the original file from the
+                    Utility.
+                  </Typography>
+                }
+              />
+            </Grid>
+            <Button
+              variant="contained"
+              onClick={() => uploadHourlyEntryFile(imgUploadData)}
+              style={{
+                padding: "0.2rem 1rem",
+                minWidth: "unset",
+                width: "165px",
+                height: "40px",
+              }}
+              disabled={
+                !hourlyEntryFile ||
+                !acceptTermsAndCondition ||
+                isUploading ||
+                imgUploadData?.error
+              }
+            >
+              Upload
+            </Button>
+          </Box>
+        </Box>
       ) : (
         <Box>
-          <Typography variant="h5">
-            Upload data in bulk for this meter
-          </Typography>
-          <Typography variant="small2" gutterBottom>
-            Upload the excel file, and refer to single meter spreadsheet for the
-            formatting details.
-          </Typography>
-          <Typography
-            my={1}
-            sx={{
-              color: "#2E813E",
-              fontWeight: "500",
-              fontSize: "18px",
-              backgroundColor: "#D1FFDA",
-              padding: "7px 33px",
-              borderRadius: "8px",
-              width: "170px",
-              height: "40px",
-              marginTop: "20px",
-            }}
-            onClick={handleButtonClick}
-          >
-            Choose File
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            accept=".xlsx"
-          />
-          <Button
-            type="button"
-            color="neutral"
-            sx={{
-              marginTop: "20px",
-              width: "165px",
-              height: "48px",
-              color: "#ffffff",
-              backgroundColor: "#2E813E",
-            }}
-          >
-            Upload
-          </Button>
+          {dataProcessingLoader && (
+            <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+              <Typography
+                variant="body2"
+                color="textSecondary"
+                sx={{ marginRight: "1rem" }}
+              >
+                Please be patient, file processing is in progress
+              </Typography>
+              <div class="progress-loader"></div>
+            </Box>
+          )}
+
+          {/* show here Energy use by hourly basis  graph */}
+          {viewEntryList?.length > 0 && (
+            <Box className="hourly-graph-row">
+              <Stack direction="row" sx={{ width: "100%" }}>
+                <Stack direction="row" sx={{ width: "100%" }}>
+                  <EnergyUseByHoursBasisGraph />
+                </Stack>
+              </Stack>
+            </Box>
+          )}
         </Box>
       )}
 
@@ -642,6 +1177,20 @@ const EntriesListing = ({
         modalConfig={deleteMeterModalConfig}
         setModalConfig={setDeleteMeterModalConfig}
       />
+
+      {viewEntriesModalConfig.modalVisible && (
+        <EvModal
+          modalConfig={viewEntriesModalConfig}
+          setModalConfig={setViewEntriesModalConfig}
+        />
+      )}
+
+      {deleteEntriesModalConfig.modalVisible && (
+        <EvModal
+          modalConfig={deleteEntriesModalConfig}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      )}
     </>
   );
 };

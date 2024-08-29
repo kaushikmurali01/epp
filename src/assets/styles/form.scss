@@ -91,14 +91,18 @@
     &.text-area-form-group {
         textarea {
             padding: 16px;
-            border-color: rgba(84, 88, 90, 0.20);    
+            border-color: #C4C4C4;    
             border-radius: 8px;
             background-color: transparent;
             outline-color: $color-primary;
             color: $theme-color-dark-light;
+            font-family: Asap, Arial, sans-serif;
             // &:focus {
                 
             // }
+            &:hover{
+              border-color: #2E813E;  
+            }
             &::-webkit-input-placeholder {
                 /* Chrome/Opera/Safari */
                 color: #808080;
@@ -147,3 +151,21 @@
     }
 }
 
+.asterisk {
+  color: red;
+}
+
+.add-edit-contact-modal{
+  .MuiPaper-root{
+    max-width: 776px;
+  }
+}
+
+
+.emailArchiveModal{
+  .MuiPaper-root {
+    @media screen and (min-width: 900px) {
+      min-width: 776px;
+    }
+  }
+}

@@ -71,6 +71,16 @@ const AdminFacilityHeader = () => {
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
+      successButtonStyle: {
+        backgroundColor: "danger.scarlet",
+        "&:hover": { backgroundColor: "danger.colorCrimson" },
+        color: "#fff",
+      },
+      cancelButtonStyle: {
+        backgroundColor: "primary.main",
+        "&:hover": { backgroundColor: "primary.mainDarkShade" },
+        color: "#fff",
+      },
     },
     headerText: "Delete facility",
     headerSubText: "Are you sure you want to delete this facility?",
@@ -87,7 +97,7 @@ const AdminFacilityHeader = () => {
 
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} justifyContent="space-between">
         <Grid item xs={12} md={4}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
             <Box
@@ -112,7 +122,7 @@ const AdminFacilityHeader = () => {
                 <MapsHomeWorkIcon
                   sx={{
                     fontSize: "7.5rem",
-                    color: "#757575",
+                    color: "#B9B9B9",
                   }}
                 />
               )}
@@ -128,14 +138,18 @@ const AdminFacilityHeader = () => {
                 {facilityDetails?.facility_name}
               </Typography>
               <Typography variant="small2" gutterBottom>
-                {facilityDetails?.address && `${facilityDetails?.address} ,`}{" "}
+                {facilityDetails?.address && `${facilityDetails?.address}, `}{" "}
+                {facilityDetails?.street_number &&
+                  `${facilityDetails?.street_number}, `}
+                {facilityDetails?.street_name &&
+                  `${facilityDetails?.street_name}`}
                 {facilityDetails?.sector && `${facilityDetails?.sector}`}
                 <br />
-                {facilityDetails?.city && `${facilityDetails?.city} ,`}{" "}
+                {facilityDetails?.city && `${facilityDetails?.city}, `}{" "}
                 {facilityDetails?.country && `${facilityDetails?.country}`}
                 <br />
                 {facilityDetails?.province &&
-                  `${facilityDetails?.province} ,`}{" "}
+                  `${facilityDetails?.province}, `}{" "}
                 {facilityDetails?.postal_code &&
                   `${facilityDetails?.postal_code} `}
               </Typography>
@@ -173,20 +187,29 @@ const AdminFacilityHeader = () => {
         </Grid>
 
         {/* Graph section */}
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Paper variant="outlined" sx={{ height: 150 }}>
             <Typography variant="body2">Graph Placeholder</Typography>
           </Paper>
-        </Grid>
+        </Grid> */}
 
-        <Grid container item xs={12} md={4} spacing={1}>
+        <Grid
+          container
+          item
+          xs={12}
+          md={4}
+          spacing={1}
+          justifyContent="flex-end"
+        >
           <Grid item xs={6}>
             <BoxCard>
-              <Typography variant="small2">Facility ID</Typography>
-              <Typography variant="h6">{facilityDetails?.id}</Typography>
+              <Typography variant="small2">Facility UBI</Typography>
+              <Typography variant="h6">
+                {facilityDetails?.facility_ubi}
+              </Typography>
             </BoxCard>
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <BoxCard>
               <Typography variant="small2">Total Incentive Paid</Typography>
               <Typography variant="h6">
@@ -196,7 +219,7 @@ const AdminFacilityHeader = () => {
           </Grid>
           <Grid item xs={6}>
             <BoxCard>
-              <Typography variant="small2">Electricity Consumptions</Typography>
+              <Typography variant="small2">Annual Baseline Electricity Consumption</Typography>
               <Typography variant="h6">
                 {facilityDetails?.total_electricty_consumptions}
               </Typography>
@@ -209,7 +232,7 @@ const AdminFacilityHeader = () => {
                 {facilityDetails?.benchmarking_eui}
               </Typography>
             </BoxCard>
-          </Grid>
+          </Grid> */}
         </Grid>
       </Grid>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
