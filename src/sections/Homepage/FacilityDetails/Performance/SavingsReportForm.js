@@ -154,39 +154,56 @@ const SavingsReportForm = ({
     }
   }, [initialData, performanceP4PCalcTab]);
 
-  useEffect(() => {
-    let startDate = null;
-    let endDate = null;
-    let p4pIncentiveStatus = "Under-review";
+  const getP4PData = (tab, settings) => {
+    const defaultData = {
+      startDate: null,
+      endDate: null,
+      status: "Under-review",
+    };
 
-    if (incentiveSettings) {
-      switch (performanceP4PCalcTab) {
-        case 1:
-          startDate = incentiveSettings.p4pStartDate1 || null;
-          endDate = incentiveSettings.p4pEndDate1 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus1 || "Under-review";
-          break;
-        case 2:
-          startDate = incentiveSettings.p4pStartDate2 || null;
-          endDate = incentiveSettings.p4pEndDate2 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus2 || "Under-review";
-          break;
-        case 3:
-          startDate = incentiveSettings.p4pStartDate3 || null;
-          endDate = incentiveSettings.p4pEndDate3 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus3 || "Under-review";
-          break;
-        default:
-          break;
-      }
-    }
+    const p4pDataMap = {
+      1: {
+        startDate: settings.p4pStartDate1,
+        endDate: settings.p4pEndDate1,
+        status: settings.p4pIncentiveStatus1,
+      },
+      2: {
+        startDate: settings.p4pStartDate2,
+        endDate: settings.p4pEndDate2,
+        status: settings.p4pIncentiveStatus2,
+      },
+      3: {
+        startDate: settings.p4pStartDate3,
+        endDate: settings.p4pEndDate3,
+        status: settings.p4pIncentiveStatus3,
+      },
+    };
+
+    return {
+      startDate: p4pDataMap[tab]?.startDate || defaultData.startDate,
+      endDate: p4pDataMap[tab]?.endDate || defaultData.endDate,
+      status: p4pDataMap[tab]?.status || defaultData.status,
+    };
+  };
+
+  useEffect(() => {
+    if (!incentiveSettings) return;
+
+    const { startDate, endDate, status } = getP4PData(
+      performanceP4PCalcTab,
+      incentiveSettings
+    );
 
     setP4PStartEndDates({ startDate, endDate });
-    setP4pIncentiveStatus(p4pIncentiveStatus);
-  }, [performanceP4PCalcTab, incentiveSettings]);
+    setP4pIncentiveStatus(status);
+
+    if (
+      endDate &&
+      (!selectedEndDate || !isEqual(selectedEndDate, parseISO(endDate)))
+    ) {
+      setSelectedEndDate(parseISO(endDate));
+    }
+  }, [performanceP4PCalcTab, incentiveSettings, selectedEndDate]);
 
   useEffect(() => {
     if (submitTrigger && formikRef.current) {
@@ -404,6 +421,11 @@ const SavingsReportForm = ({
           onChange={handleDateChange}
           maxDate={
             p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
+          }
+          minDate={
+            p4PStartEndDates.startDate
+              ? parseISO(p4PStartEndDates.startDate)
+              : null
           }
           disabled={isSubmitted}
           slotProps={{
