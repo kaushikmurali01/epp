@@ -84,15 +84,30 @@ const Performance = () => {
 
   const [isDateValid, setIsDateValid] = useState(false);
 
-  const [submittedP4P, setSubmittedP4P] = useState(true);
-  const [submissionDate, setSubmissionDate] = useState();
+  const [submittedP4P, setSubmittedP4P] = useState(false);
+  const [submissionDate, setSubmissionDate] = useState(null);
+  const [verifiedP4P, setVerifiedP4P] = useState(false);
+  const [verificationDate, setVerificationDate] = useState(null);
+  const [performanceType, setPerformanceType] = useState(null);
 
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
   }, []);
   
+  const handleVerifiedP4PsChange = useCallback((newVerifiedP4P) => {
+    setVerifiedP4P(newVerifiedP4P);
+  }, []);
+
   const handleSubmissionDate = useCallback((newDate) => {
     setSubmissionDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handleVerificationDate = useCallback((newDate) => {
+    setVerificationDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handlePerformanceTypeChange = useCallback((newPerformanceType) => {
+    setPerformanceType(newPerformanceType);
   }, []);
 
   const handleSubmitSavingsReport = useCallback(() => {
@@ -243,6 +258,9 @@ const Performance = () => {
                   onDateValidation={handleDateValidation}
                   onSubmittedP4PsChange={handleSubmittedP4PsChange}
                   onSubmissionDateChange={handleSubmissionDate}
+                  onVerifiedP4PsChange={handleVerifiedP4PsChange}
+                  onVerificationDateChange={handleVerificationDate}
+                  onPerformanceTypeChange={handlePerformanceTypeChange}
                 />
               }
               panelId="performancePeriodReportingInformation"
