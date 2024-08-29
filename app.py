@@ -1,4 +1,5 @@
 import json
+from _decimal import Decimal
 from threading import Thread
 import calendar
 from flask import Flask, jsonify, request, render_template_string
@@ -12,6 +13,7 @@ from components.add_file_data_to_table import AddMeterData
 from constants import SUFFICIENCY_DATA
 from meter_uploader import MeterDataUploader, MeterDataUploaderIV
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
+from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -609,15 +611,50 @@ def get_outlier_settings():
     facility_id = request.args.get('facility_id')
     if not facility_id:
         return {'status': 'failed', 'message': "Please provide Facility"}, 200
-    op = OutlierSettings(facility_id)
-    op.process()
+    get_station_id = get_nearest_stations(facility_id)
+    station_ids = tuple(get_station_id['station_id'].tolist())
+    hourly_entries = OUTLIER_SETTING.format(facility_id, facility_id, station_ids)
+    information = dbtest(hourly_entries)
+    if len(information):
+        info = []
+        meter_types = []
 
-    information = op.data_exploration_response
-    settings = [
-        {record.get('meter_name'): METER_FACTOR if record.get('meter_name') != "Independent Variable" else IV_FACTOR}
-        for record
-        in information]
-    response = {"settings": settings, 'info': information}
+        def format_value(value):
+            return "{:.2f}".format(value) if not isinstance(value, Decimal) else "{:.2f}".format(float(value))
+
+        METER_MAP = {
+            "Electricity": 1,
+            "Water": 2,
+            "NG": 3,
+            "Temperature": 104,
+            "Independent Variable": 999
+
+        }
+        for rec in information.values:
+            meter_name = rec[0]
+            meter_types.append(meter_name)
+            formatted = {'meter_type': METER_MAP.get(meter_name),
+                         'meter_name': meter_name,
+                         'inter_quartile': float(format_value(rec[1])),
+                         'first_quartile': float(format_value(rec[2])),
+                         'third_quartile': float(format_value(rec[3])),
+                         'lower_limit': float(format_value(rec[4])),
+                         'upper_limit': float(format_value(rec[5]))}
+            info.append(formatted)
+        info = sorted(info, key=lambda x: x["meter_type"])
+        sorted_meter_types = sorted(meter_types, key=lambda x: METER_MAP[x])
+
+        settings = [{meter: METER_FACTOR if meter.lower() != 'independent variable' else IV_FACTOR} for
+                    meter in sorted_meter_types]
+
+        output_json = {
+            "info": info,
+            "settings": settings
+        }
+
+        return output_json
+
+    response = {"settings": None, 'info': None}
     return response
 
 

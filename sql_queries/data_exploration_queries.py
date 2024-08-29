@@ -102,3 +102,117 @@ observed_data_detail = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN G
 # MissingData
 # missing_data_detail = "SELECT e.start_date, e.end_date, e.reading FROM meter_hourly_entries AS e WHERE e.reading IN (0, 'NaN') AND e.meter_type = 3 AND e.facility_id = 336 AND e.is_independent_variable = False;"
 missing_data_detail = "SELECT e.start_date, e.end_date, e.reading FROM epp.meter_hourly_entries AS e WHERE e.reading IN (0, 'NaN') AND e.meter_type = {} AND e.facility_id = {} AND e.is_independent_variable = {};"
+
+
+OUTLIER_SETTING = """-- Complete unified query combining all three parts
+WITH MeterReadings AS (
+    SELECT 
+        mhe.meter_id,
+        fmd.meter_name,
+        mhe.reading,
+        CASE 
+            WHEN mhe.meter_type = 1 THEN 'Electricity'
+            WHEN mhe.meter_type = 2 THEN 'Water'
+            WHEN mhe.meter_type = 3 THEN 'NG'
+            ELSE 'Other'
+        END AS meter_type
+    FROM 
+        epp.meter_hourly_entries mhe 
+    JOIN 
+        epp.facility_meter_detail fmd 
+    ON 
+        fmd.id = mhe.meter_id 
+    WHERE 
+        fmd.facility_id = {}
+        AND mhe.reading > 0
+),
+MeterQuartiles AS (
+    SELECT 
+        meter_type,
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY reading) AS Q1,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY reading) AS Q3,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY reading) - 
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY reading) AS IQR
+    FROM MeterReadings
+    GROUP BY meter_type
+),
+AverageReadings1 AS (
+    SELECT 
+        start_date, 
+        end_date, 
+        is_independent_variable AS "Independent Variable", 
+        ROUND(CAST(AVG(reading) AS numeric), 2) AS average_readings
+    FROM 
+        epp.meter_hourly_entries
+    WHERE 
+        facility_id = {} 
+        AND reading >= 0 
+        AND is_independent_variable = true
+    GROUP BY 
+        start_date, 
+        end_date, 
+        is_independent_variable
+),
+Quartiles1 AS (
+    SELECT 
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY average_readings) AS Q1,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY average_readings) AS Q3,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY average_readings) - 
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY average_readings) AS IQR
+    FROM AverageReadings1
+),
+AverageReadings2 AS (
+    SELECT 
+        date_time, 
+        ROUND(CAST(AVG(temp) AS numeric), 2) AS average_readings
+    FROM 
+        epp.weather_data_records
+    WHERE 
+        station_id IN {}
+    GROUP BY 
+        date_time 
+),
+Quartiles2 AS (
+    SELECT 
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY average_readings) AS Q1,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY average_readings) AS Q3,
+        PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY average_readings) - 
+        PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY average_readings) AS IQR
+    FROM AverageReadings2
+)
+
+SELECT 
+    meter_type AS meter_name,
+    ROUND(CAST(IQR AS numeric), 2) as inter_quartile,
+    Q1 as first_quartile,
+    Q3 as third_quartile,
+    ROUND(CAST((Q1 - 3 * IQR) AS numeric), 2) AS lower_limit,
+    ROUND(CAST((Q3 + 3 * IQR) AS numeric), 2) AS upper_limit
+FROM 
+    MeterQuartiles
+
+UNION ALL
+
+SELECT
+    'Independent Variable' AS meter_name,
+    ROUND(CAST(IQR AS numeric), 2) as inter_quartile,
+    Q1 as first_quartile,
+    Q3 as third_quartile,
+    ROUND(CAST((Q1 - 1.5 * IQR) AS numeric), 2) AS lower_limit,
+    ROUND(CAST((Q3 + 1.5 * IQR) AS numeric), 2) AS upper_limit
+FROM 
+    Quartiles1
+
+UNION ALL
+
+SELECT
+    'Temperature' AS meter_name,
+    ROUND(CAST(IQR AS numeric), 2) as inter_quartile,
+    Q1 as first_quartile,
+    Q3 as third_quartile,
+    ROUND(CAST((Q1 - 3 * IQR) AS numeric), 2) AS lower_limit,
+    ROUND(CAST((Q3 + 3 * IQR) AS numeric), 2) AS upper_limit
+FROM 
+    Quartiles2;
+"""
+
