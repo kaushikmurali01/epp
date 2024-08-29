@@ -83,10 +83,11 @@ const EntriesListing = ({
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const getDataProcessingLoader =
-    sessionStorage?.getItem("dataProcessingLoader") === "true";
+  // const getDataProcessingLoader =
+  //   sessionStorage?.getItem("dataProcessingLoader") === "true";
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
-    getDataProcessingLoader || false
+    getDataProcessingLoader?.loader || false
   );
   const [refreshPageData, setRefreshPageData] = useState(0);
 
@@ -118,6 +119,7 @@ const EntriesListing = ({
       "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
   });
+
 
   const [viewEntriesModalConfig, setViewEntriesModalConfig] = useState({
     ...modalConfig,
@@ -266,6 +268,7 @@ const EntriesListing = ({
   ];
 
   const handleDeleteMeter = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     dispatch(deleteMeter(facilityMeterDetailId))
       .then(() => {
         dispatch(fetchFacilityDetails(id));
@@ -274,9 +277,11 @@ const EntriesListing = ({
           modalVisible: false,
         }));
         onAddMeterSuccess();
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
       .catch((error) => {
         console.error("Error deleting facility:", error);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   };
 
@@ -605,16 +610,67 @@ const EntriesListing = ({
   };
 
   // Polling GET API to retrieve the data
-  const startPollingForData = (
-    setDataProcessingLoader,
-    getHourlyEntriesData
-  ) => {
+  // const startPollingForData = (
+  //   setDataProcessingLoader,
+  //   getHourlyEntriesData
+  // ) => {
+  //   // Start data processing loader
+  //   setDataProcessingLoader(true);
+  //   sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+  //   const checkInterval = setInterval(async () => {
+  //     try {
+  //       const response = await getHourlyEntriesData("processingLoader");
+  //       if (response.data?.data?.rows?.length > 0) {
+  //         // Data is retrieved successfully, stop polling
+  //         setDataProcessingLoader(false);
+  //         sessionStorage.removeItem("dataProcessingLoader");
+  //         clearInterval(checkInterval);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   }, 3000); // Poll every 3 seconds
+
+  //   return checkInterval;
+  // };
+
+
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
     // Start data processing loader
     setDataProcessingLoader(true);
-    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
-
-    const checkInterval = setInterval(async () => {
+    
+    // Set the current timestamp along with the loader status
+    const now = new Date();
+    const data = {
+      loader: true,
+      timestamp: now.toISOString(),
+      meterId: facilityMeterDetailId,
+    };
+    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(data));
+  
+    let checkInterval;
+  
+    const pollData = async () => {
       try {
+        // Check if 5 minutes have passed since setting the loader
+        const storedData = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
+        const storedTime = new Date(storedData.timestamp);
+        const currentTime = new Date();
+        const timeDifference = currentTime - storedTime;
+  
+        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+          console.log("1 minutes have passed, stopping polling.");
+          clearInterval(checkInterval);
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem("dataProcessingLoader");
+          NotificationsToast({
+            message: "Something went wrong!",
+            type: "error",
+          });
+          return;
+        }
+  
         const response = await getHourlyEntriesData("processingLoader");
         if (response.data?.data?.rows?.length > 0) {
           // Data is retrieved successfully, stop polling
@@ -625,10 +681,14 @@ const EntriesListing = ({
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, 3000); // Poll every 3 seconds
-
+    };
+  
+    // Start the interval
+    checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
+  
     return checkInterval;
   };
+  
 
   const deleteFile = (imgData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -742,6 +802,8 @@ const EntriesListing = ({
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
     }
   }, [meterData, refreshPageData]);
+
+  console.log(getDataProcessingLoader, dataProcessingLoader, "check data processing loader")
 
   //  return html dom
 
@@ -1155,7 +1217,7 @@ const EntriesListing = ({
           )}
 
           {/* show here Energy use by hourly basis  graph */}
-          {viewEntryList?.length > 0 && (
+          {/* {viewEntryList?.length > 0 && (
             <Box className="hourly-graph-row">
               <Stack direction="row" sx={{ width: "100%" }}>
                 <Stack direction="row" sx={{ width: "100%" }}>
@@ -1163,7 +1225,7 @@ const EntriesListing = ({
                 </Stack>
               </Stack>
             </Box>
-          )}
+          )} */}
         </Box>
       )}
 
