@@ -93,12 +93,12 @@ class BaseDataUploader:
                 invalid_sheets_join = ','.join(invalid_sheets)
             raise ValueError("Invalid Sheet(s):{}".format(invalid_sheets_join))
 
-        # Convert 'Start Date (Required)' to datetime, setting invalid values to NaN
-        self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'],
-                                                                 errors='coerce')
-
-        # Convert 'End Date (Required)' to datetime, setting invalid values to NaN
-        self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'], errors='coerce')
+        # # Convert 'Start Date (Required)' to datetime, setting invalid values to NaN
+        # self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'],
+        #                                                          errors='coerce')
+        #
+        # # Convert 'End Date (Required)' to datetime, setting invalid values to NaN
+        # self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'], errors='coerce')
 
     def check_duplicates(self):
         duplicates = self.merged_df[
@@ -147,26 +147,27 @@ class BaseDataUploader:
             raise ValueError("Excel file contains entries that overlap with existing database records")
 
     def check_invalid_dates(self):
+        self.merged_df.dropna(how='all', inplace=True)
         try:
             self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'])
             self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'])
         except:
             raise ValueError("Invalid Records in Start Date (Required) or End Date (Required)")
 
-        start_date_missing = self.merged_df['Start Date (Required)'].isnull().sum()
-        end_date_missing = self.merged_df['End Date (Required)'].isnull().sum()
-        if start_date_missing and end_date_missing:
-            raise ValueError("Both Start Date (Required) and End Date (Required) has Missing values")
-        if start_date_missing:
-            raise ValueError("Start Date (Required) has Missing values")
-        if end_date_missing:
-            raise ValueError("End Date (Required) has Missing values")
+        # start_date_missing = self.merged_df['Start Date (Required)'].isnull().sum()
+        # end_date_missing = self.merged_df['End Date (Required)'].isnull().sum()
+        # if start_date_missing and end_date_missing:
+        #     raise ValueError("Both Start Date (Required) and End Date (Required) has Missing values")
+        # if start_date_missing:
+        #     raise ValueError("Start Date (Required) has Missing values")
+        # if end_date_missing:
+        #     raise ValueError("End Date (Required) has Missing values")
 
     def validate(self):
         try:
             self.validate_and_read_excel_sheets()
             # self.check_duplicates()
-            # self.check_invalid_dates()
+            self.check_invalid_dates()
             self.validate_date_range()
             self.check_overlaps()
             return True, "File Validated Successfully"
