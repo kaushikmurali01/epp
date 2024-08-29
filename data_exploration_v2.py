@@ -2,9 +2,8 @@ import pandas as pd
 
 from constants import METER_FACTOR
 from dbconnection import dbtest
-from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, \
-    get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
-from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list
+from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
+from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list, missing_data_summary
 from utils import get_nearest_stations
 from datetime import datetime
 
@@ -49,7 +48,7 @@ class DataExplorationSummaryV2:
         station_id= tuple(get_station_id['station_id'].tolist())
         query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
         if self.missing_data:
-            self.query = get_missing_data_summary(self.facility_id, False, query_date_filter)
+            self.query = missing_data_summary.format(facility_id = self.facility_id, is_independent_variable = False, date_filter= query_date_filter)
         elif self.outliers:
             self.query = get_outlier_summary(self.facility_id, METER_FACTOR, False,query_date_filter)
         else:

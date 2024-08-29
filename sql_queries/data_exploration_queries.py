@@ -23,8 +23,59 @@ observed_data_summary_list= "WITH quartiles AS (SELECT meter_id, percentile_cont
 
 # Missing Data
 missing_data_summary_list= "SELECT start_date, end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} and meter_id={meter_id} AND ( reading = 'NaN' OR reading IS NULL) AND is_independent_variable = {is_independent_variable} LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size}"
-missing_data_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} GROUP BY  meter_id) SELECT meter_type,meter_name as m_id, CASE WHEN meter_type = 1 THEN 'ELECTRICITY' WHEN meter_type = 2 THEN 'WATER' WHEN meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name, COUNT(id) AS total_records, TO_CHAR(MIN(start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, meter_id FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} AND ( reading = 'NaN' OR reading IS NULL OR reading < 0) AND start_date >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND end_date <=  (SELECT MIN(end_date) from quartiles where meter_id > 0) AND is_independent_variable = {independent_variable}  {date_filter} GROUP BY meter_name, meter_type, meter_id ORDER BY meter_type;"
-temp_missing_data_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {} GROUP BY  meter_id) SELECT 'TEMPERATURE' AS meter_name, COUNT(id) AS total_records, TO_CHAR(MIN(date_time), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(date_time + interval '1 hour'), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, station_id as meter_id, 'weather' as m_id FROM weather_data_records WHERE station_id = {} AND (temp = 'NaN' OR temp IS NULL) AND date_time >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND date_time <= (SELECT MIN(end_date) from quartiles where meter_id > 0) GROUP BY station_id;"
+missing_data_summary = """WITH date_range AS (
+	SELECT  
+		meter_id, 
+		MAX(end_date) as end_date, 
+		MIN(start_date) as start_date 
+	FROM epp.meter_hourly_entries 
+	WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} 
+	GROUP BY  meter_id
+), cte AS (
+    SELECT 
+        *,
+        LAG(start_date) OVER (ORDER BY id) AS prev_start_date,
+	    LAG(end_date) OVER (ORDER BY id) AS prev_end_date
+    FROM meter_hourly_entries where facility_id={facility_id} 
+	AND start_date >= (SELECT MAX(start_date) from date_range where meter_id > 0) 
+	AND end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0)
+    {date_filter}
+	order by start_date
+), missing_date_range AS (
+	SELECT 
+		meter_id,
+        meter_type,
+        CASE WHEN meter_type = 1 THEN 'ELECTRICITY' WHEN meter_type = 2 THEN 'WATER' WHEN meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name,
+		meter_name as m_id, 
+		ROUND(CAST(EXTRACT(EPOCH FROM (end_date - start_date)) / 3600 AS NUMERIC), 0) AS interval_start_end_date,
+		CASE 
+			WHEN prev_end_date IS NULL THEN 0
+			ELSE ROUND(CAST(EXTRACT(EPOCH FROM (start_date - prev_end_date)) / 3600 AS NUMERIC), 0)
+		END AS total_records,
+		prev_end_date as time_stamp_start,
+		start_date as time_stamp_end
+	FROM cte 
+	ORDER BY total_records desc 
+), undefined_missing_data AS (
+	SELECT 
+		meter_type,
+		meter_name as m_id, 
+		CASE WHEN meter_type = 1 THEN 'ELECTRICITY' WHEN meter_type = 2 THEN 'WATER' WHEN meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name, 
+		COUNT(id) AS total_records, 
+		TO_CHAR(MIN(start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, 
+		meter_id 
+	FROM epp.meter_hourly_entries 
+	WHERE facility_id = {facility_id} AND ( reading = 'NaN' OR reading IS NULL OR reading < 0) 
+		AND start_date >= (SELECT MAX(start_date) from date_range where meter_id > 0) 
+		AND end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0) 
+		AND is_independent_variable = {is_independent_variable}
+        {date_filter}
+	GROUP BY meter_name, meter_type, meter_id ORDER BY meter_type
+)
+SELECT meter_type, meter_name, m_id, total_records, time_stamp_start::timestamp, time_stamp_end ::timestamp, meter_id, 0 as missing_type FROM undefined_missing_data
+UNION
+SELECT meter_type, meter_name, m_id, total_records, time_stamp_start::timestamp, time_stamp_end ::timestamp, meter_id, 1 as missing_type FROM missing_date_range WHERE total_records > 1"""
+temp_missing_data_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {} GROUP BY  meter_id) SELECT 'TEMPERATURE' AS meter_name, COUNT(id) AS total_records, TO_CHAR(MIN(date_time), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(date_time + interval '1 hour'), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, station_id as meter_id, 'weather' as m_id, 0 as missing_type FROM weather_data_records WHERE station_id = {} AND (temp = 'NaN' OR temp IS NULL) AND date_time >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND date_time <= (SELECT MIN(end_date) from quartiles where meter_id > 0) GROUP BY station_id;"
 temp_missing_data_summary_list = "SELECT TO_CHAR(w.date_time, 'YYYY/MM/DD HH24:MI') AS start_date, TO_CHAR(w.date_time + interval '1 hour', 'YYYY/MM/DD HH24:MI') AS end_date, w.station_id as meter_id, 104 as meter_type, temp as reading FROM  weather_data_records w WHERE w.station_id = {meter_id} AND (temp = 'NaN' OR temp IS NULL) order by start_date asc LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
 
 # Summary Queries Ends
