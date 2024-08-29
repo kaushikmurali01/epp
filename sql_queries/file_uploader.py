@@ -77,3 +77,8 @@ delete_file_query = """
 DELETE FROM {} where id = {} and processed=false
 """
 meter_start_date_end_data = """select meter_active, meter_inactive from epp.facility_meter_detail where id={}"""
+ERROR_UPLOADER_INTIMATION_METER = """UPDATE facility_meter_hourly_entries SET processed = null WHERE id={} """
+ERROR_UPLOADER_INTIMATION_IV = """UPDATE independent_variable_file SET processed = null WHERE id={} """
+
+STATUS_UPLOADER_INTIMATION_METER = """SELECT fmhe.processed,fmd.meter_name  FROM epp.facility_meter_hourly_entries as fmhe JOIN facility_meter_detail fmd ON fmd.id = fmhe.facility_meter_detail_id WHERE fmhe.id={}"""
+STATUS_UPLOADER_INTIMATION_IV = """SELECT ivf.processed,iv.name as meter_name FROM independent_variable_file AS ivf JOIN independent_variable AS iv ON iv.id=ivf.independent_variable_id WHERE ivf.id = {}"""

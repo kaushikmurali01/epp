@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow
+from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow, execute_query
 from openpyxl import load_workbook
 import io
 import requests
-from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query
+from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query, \
+    ERROR_UPLOADER_INTIMATION_IV, ERROR_UPLOADER_INTIMATION_METER
 
 
 def download_excel(url):
@@ -100,6 +101,12 @@ class AddMeterData:
             update_workflow(field, self.facility_id)
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
+            if self.iv:
+                error = ERROR_UPLOADER_INTIMATION_IV.format(self.record_id)
+            else:
+                error = ERROR_UPLOADER_INTIMATION_METER.format(self.record_id)
+            execute_query(error)
+
             return f"Failed to process record ID: {record_id}. Error: {str(e)}"
 
     def process_files(self):

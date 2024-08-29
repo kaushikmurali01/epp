@@ -22,7 +22,7 @@ from data_exploration_v2 import DataExplorationSummaryV2
 from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
-from sql_queries.file_uploader import delete_file_query
+from sql_queries.file_uploader import delete_file_query, STATUS_UPLOADER_INTIMATION_IV, STATUS_UPLOADER_INTIMATION_METER
 from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
     min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max
 from summarize_data import summarize_data
@@ -957,6 +957,38 @@ def get_performance_min_max():
         return jsonify({"error": "Insufficient Data"}), 404
 
     return jsonify({"error": "Insufficient Data"}), 404
+
+
+@app.route('/get-uploader-result', methods=['GET'])
+def get_uploader_result():
+    """
+    Retrieves the result of an upload process by record ID and type (iv).
+    Query parameters:
+    - record_id: ID of the record
+    - iv: Indicator if the upload is for an Independent Variable (optional, default is False)
+    """
+    # Function dictionary to handle responses based on upload status
+    status_handlers = {
+        True: lambda name, type_val="Meter": ("Data Uploaded Successfully for {}: {}".format(type_val, name), 201),
+        False: lambda name, type_val="Meter": ("File Being Processed for {}: {}".format(type_val, name), 200),
+        None: lambda name, type_val="Meter": (
+        "Something went wrong with {}: {} Data Upload.".format(type_val, name), 400)
+    }
+
+    record_id = request.args.get('record_id')
+    iv = request.args.get('iv', type=bool)  # Default to False if not provided
+
+    query = STATUS_UPLOADER_INTIMATION_IV if iv else STATUS_UPLOADER_INTIMATION_METER
+    response = dbtest(query.format(record_id))  # Ensure dbtest is using safe query practices
+
+    if not response.empty:
+        status, meter = response.iloc[0].values
+        handler = status_handlers.get(status, lambda name, type_val="Meter":
+        ("Something went wrong with {}: {} Data Upload.".format(type_val, name), 400))
+        message, status_code = handler(meter, 'Independent Variable' if iv else "Meter")
+        return jsonify({"message": message, 'status_code': status_code}), status_code
+
+    return jsonify({"message": 'Invalid Record', 'status_code': 400}), 400
 
 
 if __name__ == '__main__':
