@@ -10,7 +10,12 @@ import {
   useMediaQuery,
 } from "@mui/material";
 
-export const MiniTable = ({ columns, data, tableStyle, firstChildColored = false }) => {
+export const MiniTable = ({
+  columns,
+  data,
+  tableStyle,
+  firstChildColored = false,
+}) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable({
       columns,
@@ -20,7 +25,7 @@ export const MiniTable = ({ columns, data, tableStyle, firstChildColored = false
   return (
     <TableContainer
       component={Paper}
-      sx={{boxShadow: "none", border: "1px solid #2E813E", ...tableStyle  }}
+      sx={{ boxShadow: "none", border: "1px solid #2E813E", ...tableStyle }}
     >
       <MUITable {...getTableProps()} size="small">
         <TableHead sx={{ background: "#CBFFD5" }}>
@@ -40,6 +45,9 @@ export const MiniTable = ({ columns, data, tableStyle, firstChildColored = false
                     width: column.cWidth && column.cWidth,
                     contentVisibility:
                       column.headerVisibility && column.headerVisibility,
+                    "&:last-child": {
+                      textAlign: "center!important",
+                    },
                   }}
                 >
                   {column.render("Header")}
@@ -74,6 +82,9 @@ export const MiniTable = ({ columns, data, tableStyle, firstChildColored = false
                           },
                           borderBottom: "none",
                           padding: "6px 10px!important",
+                          "&:last-child": {
+                            textAlign: "center!important",
+                          },
                         }}
                       >
                         {cell.render("Cell")}

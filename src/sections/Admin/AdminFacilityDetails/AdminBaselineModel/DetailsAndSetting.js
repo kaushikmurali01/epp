@@ -48,9 +48,9 @@ const DetailsAndSetting = () => {
 
     const properties = [
       "first_quartile",
+      "third_quartile",
       "inter_quartile",
       "lower_limit",
-      "third_quartile",
       "upper_limit",
     ];
 

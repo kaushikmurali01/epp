@@ -203,43 +203,18 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
           summary="Model constructor"
           details={
             renderFormComp ? (
-              <>
-                {baselineDetails?.status === "SUBMITTED" && (
-                  <Grid container justifyContent="flex-end">
-                    <Button
-                      variant="contained"
-                      onClick={() => setRenderFormComp(!renderFormComp)}
-                    >
-                      Stop Editing
-                    </Button>
-                  </Grid>
-                )}
-                <ModelConstructorForm
-                  handleSufficiencySettings={handleSufficiencySettings}
-                  openSeeDetails={openSeeDetailsModal}
-                  meterType={activeButton}
-                  openUserReviewBaselineModal={openUserReviewBaselineModal}
-                />
-              </>
+              <ModelConstructorForm
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+                openUserReviewBaselineModal={openUserReviewBaselineModal}
+              />
             ) : (
-              <>
-                {baselineDetails?.status !== "REVIEWED" &&
-                  baselineDetails?.status !== "CALCULATED" && (
-                    <Grid container justifyContent="flex-end">
-                      <Button
-                        variant="contained"
-                        onClick={() => setRenderFormComp(!renderFormComp)}
-                      >
-                        Edit baseline
-                      </Button>
-                    </Grid>
-                  )}
-                <ModelConstructorView
-                  handleSufficiencySettings={handleSufficiencySettings}
-                  openSeeDetails={openSeeDetailsModal}
-                  meterType={activeButton}
-                />
-              </>
+              <ModelConstructorView
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+              />
             )
           }
           panelId="modelConstructor"
