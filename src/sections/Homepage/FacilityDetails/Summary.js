@@ -203,7 +203,7 @@ const Summary = () => {
       </Grid>
       <Grid>
         <Box id="bi-report" mt={4}>
-          {(facility_status?.timeline?.energy_and_water && (!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
+          {(facility_status?.timeline?.ew && (!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
             embedConfig={powerBiConfig}
             eventHandlers={
               new Map([

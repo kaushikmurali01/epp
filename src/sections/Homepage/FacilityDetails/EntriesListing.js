@@ -523,7 +523,6 @@ const EntriesListing = ({
       .catch((error) => {});
   };
 
-
   const handleFileChange = (event) => {
     setUploadProgress(0); // reset before upload progress
     setIsUploading(true);
@@ -657,7 +656,6 @@ const EntriesListing = ({
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
-
 
   const handleViewEntries = () => {
     setViewEntriesModalConfig((prevState) => ({
@@ -885,12 +883,12 @@ const EntriesListing = ({
             <Tab
               value="hourlyOrSub-hourlyEntries"
               label="Hourly or Sub-hourly entries"
-              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
+              sx={{ minWidth: "10rem", textTransform: "inherit" }}
             />
             <Tab
               value="monthlyEntries"
               label="Monthly entries"
-              sx={{ minWidth: "10rem", textTransform: 'inherit' }}
+              sx={{ minWidth: "10rem", textTransform: "inherit" }}
             />
           </Tabs>
         </Grid>
@@ -969,8 +967,9 @@ const EntriesListing = ({
               Upload data in bulk for this meter
             </Typography>
             <Typography variant="small2" gutterBottom>
-              You can upload a Green Button XML file or an Excel-compatible
-              file. Use this{" "}
+              {/* You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "} */}
+              You can upload an Excel-compatible file. Use this{" "}
               <Link
                 href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                 underline="hover"
@@ -1155,7 +1154,7 @@ const EntriesListing = ({
           )}
 
           {/* show here Energy use by hourly basis  graph */}
-          {viewEntryList?.length > 0 && (
+          {/* {viewEntryList?.length > 0 && (
             <Box className="hourly-graph-row">
               <Stack direction="row" sx={{ width: "100%" }}>
                 <Stack direction="row" sx={{ width: "100%" }}>
@@ -1163,7 +1162,7 @@ const EntriesListing = ({
                 </Stack>
               </Stack>
             </Box>
-          )}
+          )} */}
         </Box>
       )}
 

@@ -26,7 +26,11 @@ import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format, getYear } from "date-fns";
-import { adminEntriesEndPoints, adminHourlyEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
+import {
+  adminEntriesEndPoints,
+  adminHourlyEndPoints,
+  hourlyEndPoints,
+} from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
   GET_REQUEST,
@@ -45,7 +49,10 @@ import {
 } from "../../../redux/admin/actions/adminMeterActions";
 import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntriesAction";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { commonDocumentFileUploadAction, documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import {
+  commonDocumentFileUploadAction,
+  documentFileUploadAction,
+} from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
   fetchAdminFacilityDetails,
@@ -71,7 +78,6 @@ const AdminEntriesListing = ({
   const [imgUploadData, setImgUploadData] = useState("");
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
-
 
   const [viewEntryList, setViewEntryList] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
@@ -173,7 +179,7 @@ const AdminEntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
-       successButtonStyle: {
+      successButtonStyle: {
         backgroundColor: "danger.scarlet",
         "&:hover": { backgroundColor: "danger.colorCrimson" },
         color: "#fff",
@@ -522,7 +528,6 @@ const AdminEntriesListing = ({
       .catch((error) => {});
   };
 
-  
   const handleFileChange = (event) => {
     setUploadProgress(0); // reset before upload progress
     setIsUploading(true);
@@ -603,7 +608,6 @@ const AdminEntriesListing = ({
       });
   };
 
-  
   const downloadFileFromUrl = (fileUrl) => {
     fetch(imgUrl).then((response) => {
       response.blob().then((blob) => {
@@ -621,9 +625,8 @@ const AdminEntriesListing = ({
     });
   };
 
-  
-   // Polling GET API to retrieve the data
-   const startPollingForData = (
+  // Polling GET API to retrieve the data
+  const startPollingForData = (
     setDataProcessingLoader,
     getHourlyEntriesData
   ) => {
@@ -647,7 +650,6 @@ const AdminEntriesListing = ({
 
     return checkInterval;
   };
-
 
   const deleteFile = (imgData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -674,8 +676,6 @@ const AdminEntriesListing = ({
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
-
-
 
   const handleViewEntries = () => {
     setViewEntriesModalConfig((prevState) => ({
@@ -760,8 +760,6 @@ const AdminEntriesListing = ({
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
     }
   }, [meterData, refreshPageData]);
-
-
 
   return (
     <>
@@ -987,8 +985,9 @@ const AdminEntriesListing = ({
               Upload data in bulk for this meter
             </Typography>
             <Typography variant="small2" gutterBottom>
-              You can upload a Green Button XML file or an Excel-compatible
-              file. Use this{" "}
+              {/* You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "} */}
+              You can upload an Excel-compatible file. Use this{" "}
               <Link
                 href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                 underline="hover"
@@ -1165,7 +1164,7 @@ const AdminEntriesListing = ({
           )}
 
           {/* show here Energy use by hourly basis  graph */}
-          {viewEntryList?.length > 0 && (
+          {/* {viewEntryList?.length > 0 && (
             <Box className="hourly-graph-row">
               <Stack direction="row" sx={{ width: "100%" }}>
                 <Stack direction="row" sx={{ width: "100%" }}>
@@ -1173,7 +1172,7 @@ const AdminEntriesListing = ({
                 </Stack>
               </Stack>
             </Box>
-          )}
+          )} */}
         </Box>
       )}
 
@@ -1189,18 +1188,18 @@ const AdminEntriesListing = ({
       />
 
       {viewEntriesModalConfig.modalVisible && (
-          <EvModal
-            modalConfig={viewEntriesModalConfig}
-            setModalConfig={setViewEntriesModalConfig}
-          />
-        )}
+        <EvModal
+          modalConfig={viewEntriesModalConfig}
+          setModalConfig={setViewEntriesModalConfig}
+        />
+      )}
 
-        {deleteEntriesModalConfig.modalVisible && (
-          <EvModal
-            modalConfig={deleteEntriesModalConfig}
-            setModalConfig={setDeleteEntriesModalConfig}
-          />
-        )}
+      {deleteEntriesModalConfig.modalVisible && (
+        <EvModal
+          modalConfig={deleteEntriesModalConfig}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      )}
     </>
   );
 };

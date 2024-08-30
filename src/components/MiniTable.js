@@ -48,6 +48,9 @@ export const MiniTable = ({
                     "&:last-child": {
                       textAlign: "center!important",
                     },
+                    fontSize: ".85rem!important",
+                    fontWeight: "600 !important",
+                    textWrap: "nowrap",
                   }}
                 >
                   {column.render("Header")}

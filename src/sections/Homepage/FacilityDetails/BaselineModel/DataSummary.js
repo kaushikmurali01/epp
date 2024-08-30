@@ -231,7 +231,7 @@ const DataSummary = () => {
           }
           variant="span"
           sx={{
-            color: "primary.main",
+            color: item?.missing_type === 0 ? "primary.main" : "#2E813E90",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,

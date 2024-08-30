@@ -30,8 +30,6 @@ const AdminFacilityDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  console.log(id, "AdminFacilityDetails id")
-
   useEffect(() => {
     dispatch(fetchAdminFacilityDetails(id));
   }, [dispatch, id]);
@@ -94,7 +92,13 @@ const AdminFacilityDetails = () => {
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
         />
-        {renderComponent(selectedTab)}
+        <Box
+          sx={{
+            width: isSmallScreen ? "100%" : "calc(100% - 13rem)",
+          }}
+        >
+          {renderComponent(selectedTab)}
+        </Box>
       </Box>
     </Container>
   );
