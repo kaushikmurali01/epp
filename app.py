@@ -226,7 +226,8 @@ def get_sufficiency():
 
 def calculate_sufficiency(df, start_date, end_date, IVs=[]):
     # Calculate total hours, days, and months
-    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1 if int((end_date - start_date).total_seconds() / 3600) > 8736 else 8760
+    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1 if int(
+        (end_date - start_date).total_seconds() / 3600) > 8736 else 8760
     total_days = (end_date - start_date).days + 1 if int((end_date - start_date).days) > 364 else 365
     total_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
     # Remove the NULL row
@@ -615,11 +616,14 @@ def get_outlier_settings():
     station_ids = tuple(get_station_id['station_id'].tolist())
     hourly_entries = OUTLIER_SETTING.format(facility_id, facility_id, station_ids)
     information = dbtest(hourly_entries)
+    information = information.dropna(subset=['first_quartile'])
     if len(information):
         info = []
         meter_types = []
 
-        def format_value(value):
+        def format_value(value, col):
+            if not value:
+                return "-"
             return "{:.2f}".format(value) if not isinstance(value, Decimal) else "{:.2f}".format(float(value))
 
         METER_MAP = {
@@ -635,11 +639,11 @@ def get_outlier_settings():
             meter_types.append(meter_name)
             formatted = {'meter_type': METER_MAP.get(meter_name),
                          'meter_name': meter_name,
-                         'inter_quartile': float(format_value(rec[1])),
-                         'first_quartile': float(format_value(rec[2])),
-                         'third_quartile': float(format_value(rec[3])),
-                         'lower_limit': float(format_value(rec[4])),
-                         'upper_limit': float(format_value(rec[5]))}
+                         'inter_quartile': float(format_value(rec[1], 'inter_quartile')),
+                         'first_quartile': float(format_value(rec[2], 'first_quartile')),
+                         'third_quartile': float(format_value(rec[3], 'third_quartile')),
+                         'lower_limit': float(format_value(rec[4], 'lower_limit')),
+                         'upper_limit': float(format_value(rec[5], 'upper_limit'), )}
             info.append(formatted)
         info = sorted(info, key=lambda x: x["meter_type"])
         sorted_meter_types = sorted(meter_types, key=lambda x: METER_MAP[x])
