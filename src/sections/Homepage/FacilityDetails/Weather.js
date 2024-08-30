@@ -1554,7 +1554,7 @@ const Weather = () => {
                 </Box>
               )}
 
-              {viewEntryList?.length > 0 ? (
+              {/* {viewEntryList?.length > 0 ? (
                 <Grid sx={{ width: "100%", marginTop: "2.5rem" }}>
                   <Grid sx={{ width: "100%" }}>
                     <Grid container mb="2.5rem">
@@ -1569,57 +1569,9 @@ const Weather = () => {
                         ></iframe>
                       </Grid>
                     </Grid>
-                    {/* <Box id="bi-report" mt={4}>
-                    {!isErrorInPowerBi && !reportLoading ? (
-                      <PowerBIEmbed
-                        embedConfig={powerBiConfig}
-                        eventHandlers={
-                          new Map([
-                            [
-                              "loaded",
-                              function () {
-                                console.log("Report loaded");
-                              },
-                            ],
-                            [
-                              "rendered",
-                              function () {
-                                console.log("Report rendered");
-                              },
-                            ],
-                            [
-                              "error",
-                              function (event) {
-                                console.log("iiiiiiiiiii", event.detail);
-                                getPowerBiError(event.detail);
-                              },
-                            ],
-                            ["visualClicked", () => console.log("visual clicked")],
-                            ["pageChanged", (event) => console.log(event)],
-                          ])
-                        }
-                        cssClassName={"bi-embedded"}
-                        getEmbeddedComponent={(embeddedReport) => {
-                          window.report = embeddedReport;
-                        }}
-                      />
-                    ) : (
-                      <Typography
-                        variant="h3"
-                        sx={{
-                          fontWeight: "700",
-                          fontSize: "1.125rem !important",
-                          lineHeight: "106.815%",
-                          letterSpacing: "-0.01125rem",
-                        }}
-                      >
-                        Verifying data and creating visualization, please wait...
-                      </Typography>
-                    )}
-                  </Box> */}
                   </Grid>
                 </Grid>
-              ) : null}
+              ) : null} */}
             </React.Fragment>
           )
 

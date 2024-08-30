@@ -158,7 +158,7 @@ const AdminMeterListing = ({
       accessorKey: "updated_at",
     },
     {
-      Header: "In use(inactive date)",
+      Header: "In use (inactive date)",
       accessor: (item) => (
         <>
           {!item?.stil_in_use &&
@@ -349,6 +349,7 @@ const AdminMeterListing = ({
           sortOrder={sortOrder}
           setSortColumn={setSortColumn}
           setSortOrder={setSortOrder}
+          tableClass="meter-listing-table"
         />
       </Box>
       <EvModal

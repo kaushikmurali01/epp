@@ -106,9 +106,9 @@ const ViewEntryDetailListModal = ({
                 ? "Water"
                 : ivName || ""}
         </Typography>
-        <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
+        {/* <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
           Download as Excel
-        </Typography>
+        </Typography> */}
       </Grid>
       <Grid container>
         <Box className="view-entries-table" sx={{width: '100%'}}>

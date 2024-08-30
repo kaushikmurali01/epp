@@ -82,7 +82,13 @@ const FacilityDetails = () => {
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
         />
-        {renderComponent(selectedTab)}
+        <Box
+          sx={{
+            width: isSmallScreen ? "100%" : "calc(100% - 13rem)",
+          }}
+        >
+          {renderComponent(selectedTab)}
+        </Box>
       </Box>
     </Container>
   );

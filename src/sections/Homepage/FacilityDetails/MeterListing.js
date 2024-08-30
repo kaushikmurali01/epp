@@ -110,8 +110,16 @@ const MeterListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
-      successButtonStyle: {backgroundColor: 'danger.scarlet',"&:hover": {backgroundColor: 'danger.colorCrimson'}, color: '#fff'},
-      cancelButtonStyle: {backgroundColor: 'primary.main',"&:hover": {backgroundColor: 'primary.mainDarkShade'}, color: '#fff'},
+      successButtonStyle: {
+        backgroundColor: "danger.scarlet",
+        "&:hover": { backgroundColor: "danger.colorCrimson" },
+        color: "#fff",
+      },
+      cancelButtonStyle: {
+        backgroundColor: "primary.main",
+        "&:hover": { backgroundColor: "primary.mainDarkShade" },
+        color: "#fff",
+      },
     },
     headerText: "Delete Meter",
     headerSubText: "Are you sure you want to delete this meter?",
@@ -148,7 +156,7 @@ const MeterListing = ({
       accessorKey: "updated_at",
     },
     {
-      Header: "In use(inactive date)",
+      Header: "In use (inactive date)",
       accessor: (item) => (
         <>
           {!item?.stil_in_use &&
@@ -339,6 +347,7 @@ const MeterListing = ({
           sortOrder={sortOrder}
           setSortColumn={setSortColumn}
           setSortOrder={setSortOrder}
+          tableClass="meter-listing-table"
         />
       </Box>
       <EvModal
