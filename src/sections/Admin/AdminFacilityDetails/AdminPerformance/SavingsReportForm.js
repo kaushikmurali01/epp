@@ -12,53 +12,7 @@ import {
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import EvModal from "utils/modal/EvModal";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { Alert, AlertTitle, Typography } from "@mui/material";
-import WarningIcon from "@mui/icons-material/Warning";
-
-const AdminDataAvailabilityAlert = ({ p4pEndDate, onRequestData }) => {
-  const formattedDate = p4pEndDate
-    ? format(parseISO(p4pEndDate), "MMMM d, yyyy")
-    : "the P4P end date";
-
-  return (
-    <Alert
-      severity="warning"
-      icon={<WarningIcon />}
-      sx={{
-        marginBottom: 2,
-        "& .MuiAlert-message": { width: "100%" },
-      }}
-    >
-      <AlertTitle sx={{ fontWeight: "bold" }}>
-        Incomplete Data for P4P Calculation
-      </AlertTitle>
-      <Box>
-        <Typography variant="body2" paragraph>
-          The dataset for the Pay-for-Performance (P4P) calculation is
-          incomplete. Data is not available up to {formattedDate}, which is
-          required for the full P4P report submission.
-        </Typography>
-        <Typography variant="body2" paragraph sx={{marginBottom: "0.15rem", fontWeight: 600}}>
-          Current Actions:
-        </Typography>
-        <ul>
-          <li>
-            <Typography variant="body2">
-              Users can view and analyze the performance of available data
-              against the baseline model.
-            </Typography>
-          </li>
-          <li>
-            <Typography variant="body2">
-              P4P report submission is currently disabled to prevent incomplete
-              submissions.
-            </Typography>
-          </li>
-        </ul>
-      </Box>
-    </Alert>
-  );
-};
+import CommonDataAvailabilityAlert from "components/CommonDataAvailabilityAlert";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
 const paymentStatusOptions = [
@@ -634,7 +588,7 @@ const SavingsReportForm = ({
   return (
     <>
       {isDataNotAvailable && (
-        <AdminDataAvailabilityAlert p4pEndDate={p4PStartEndDates?.endDate} />
+        <CommonDataAvailabilityAlert p4pEndDate={p4PStartEndDates?.endDate} isAdmin />
       )}
       <Formik
         innerRef={formikRef}
