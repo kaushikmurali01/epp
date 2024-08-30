@@ -27,8 +27,7 @@ class AddMeterData:
     def is_float_or_int(val):
         return isinstance(val, (float, int))
 
-    @staticmethod
-    def prepare_data_for_insertion(df):
+    def prepare_data_for_insertion(self, df):
         # Display the updated DataFrame with the new columns
         df.rename(columns={'Start Date (Required)': 'start_date', 'End Date (Required)': 'end_date',
                            'Meter Reading (Required)': 'reading'}, inplace=True)
@@ -51,11 +50,17 @@ class AddMeterData:
             df[col] = df[col].fillna(-1).astype(int)
 
         # Mark missing or zero readings
-        df['missing'] = (
-                df[['start_date', 'end_date']].isna().any(axis=1) |
-                df['reading'].isna() |
-                (df['reading'] == 0)
-        )
+        if self.iv:
+            df['missing'] = (
+                    df[['start_date', 'end_date']].isna().any(axis=1) |
+                    df['reading'].isna()
+            )
+        else:
+            df['missing'] = (
+                    df[['start_date', 'end_date']].isna().any(axis=1) |
+                    df['reading'].isna() |
+                    (df['reading'] == 0)
+            )
 
         # Filter to get only clean data
         clean_data = df[~df['missing']].copy()
