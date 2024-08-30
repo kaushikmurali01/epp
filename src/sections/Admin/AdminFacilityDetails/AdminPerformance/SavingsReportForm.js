@@ -470,7 +470,7 @@ const SavingsReportForm = ({
 
   const fields = getFields();
 
-  // check if the data provided is available till that particular P4P end date [keep this for future reference if other one doesn't work]
+  // check if the data provided is available till that particular P4P end date [keep the below logic for future reference if other one doesn't work]
   // const getMaxDate = useMemo(() => {
   //   const endDate = p4PStartEndDates.endDate
   //     ? parseISO(p4PStartEndDates.endDate)
@@ -529,26 +529,6 @@ const SavingsReportForm = ({
       setIsDataNotAvailable(false);
     }
   }, [parsedP4pEndDate, parsedDataAvailableUntil]);
-
-  // New effect to check if P4P start date is in the future
-  // useEffect(() => {
-  //   const checkFutureP4P = () => {
-  //     if (p4PStartEndDates.startDate) {
-  //       const startDate = parseISO(p4PStartEndDates.startDate);
-  //       const today = new Date();
-  //       console.log(today, startDate);
-
-  //       if (isBefore(today, startDate)) {
-  //         onFutureP4PDetected(performanceP4PCalcTab, true);
-  //       } else {
-  //         onFutureP4PDetected(performanceP4PCalcTab, false);
-  //       }
-  //     }
-  //   };
-
-  //   checkFutureP4P();
-  // }, [p4PStartEndDates.startDate, performanceP4PCalcTab]);
-  
 
   const data = [
     {
