@@ -255,16 +255,19 @@ def p4p_calculation():
             performance = P4P_metrics_calculation(performance_scored_data, non_routine_adjustment_value, 'hourly', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
         else:
             performance = P4P_metrics_calculation(performance_scored_data, non_routine_adjustment_value, 'daily', off_peak_incentive, on_peak_incentive, minimum_savings,meter_type)
-            
+                    
         performance_summary = performance.calculate_metrics()
-        print("performance calculation done successfully")
-        # print(performance_summary)
-        # Convert any numpy types to native Python types
+        print("Performance calculation done successfully")
+
+        # Convert any numpy types to native Python types and handle NaN values
         for key, value in performance_summary.items():
             if isinstance(value, np.generic):
                 performance_summary[key] = value.item()
+            if isinstance(performance_summary[key], float) and np.isnan(performance_summary[key]):
+                performance_summary[key] = "N/A"
+
         # Now serialize the dictionary to JSON
-        json_data = json.dumps(performance_summary)
+        json_data = jsonify(performance_summary)
         return json_data
         # return json.dumps(performance_summary)
     except Exception as e:
