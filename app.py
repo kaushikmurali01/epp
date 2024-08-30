@@ -226,8 +226,8 @@ def get_sufficiency():
 
 def calculate_sufficiency(df, start_date, end_date, IVs=[]):
     # Calculate total hours, days, and months
-    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1
-    total_days = (end_date - start_date).days + 1
+    total_hours = int((end_date - start_date).total_seconds() / 3600) + 1 if int((end_date - start_date).total_seconds() / 3600) > 8736 else 8760
+    total_days = (end_date - start_date).days + 1 if int((end_date - start_date).days) > 364 else 365
     total_months = (end_date.year - start_date.year) * 12 + end_date.month - start_date.month + 1
     # Remove the NULL row
     df = df.dropna(subset=['meter_id'])
