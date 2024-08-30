@@ -119,7 +119,10 @@ const DateRangeSlider = ({
 
   const handleKeyDown = useCallback(
     (event) => {
-      if (disabled || (event.key !== "ArrowLeft" && event.key !== "ArrowRight")) {
+      if (
+        disabled ||
+        (event.key !== "ArrowLeft" && event.key !== "ArrowRight")
+      ) {
         return;
       }
 
@@ -128,8 +131,11 @@ const DateRangeSlider = ({
       const newRange = [...range];
 
       if (focusedThumb === 0 || focusedThumb === 1) {
-        newRange[focusedThumb] = Math.max(0, Math.min(newRange[focusedThumb] + step, maxEndDays));
-        
+        newRange[focusedThumb] = Math.max(
+          0,
+          Math.min(newRange[focusedThumb] + step, maxEndDays)
+        );
+
         // Ensure minimum distance between thumbs
         if (focusedThumb === 0) {
           newRange[0] = Math.min(newRange[0], newRange[1] - 1);
@@ -193,14 +199,18 @@ const DateRangeSlider = ({
             },
           },
           "& .MuiSlider-thumb": {
-            backgroundColor: isThumbActive ? "#4CAF50" : "#2E813E",
+            backgroundColor: disabled
+              ? "#E0E0E0"
+              : isThumbActive
+              ? "#4CAF50"
+              : "#2E813E",
             border: "2px solid white",
             "&:hover, &.Mui-focusVisible": {
               boxShadow: "0px 0px 0px 8px rgba(46, 129, 62, 0.16)",
             },
           },
           "& .MuiSlider-track": {
-            backgroundColor: "#2E813E",
+            backgroundColor: disabled ? "#2E813E80" : "#2E813E",
             border: "none",
           },
           "& .MuiSlider-rail": {

@@ -211,14 +211,16 @@ const DataSummary = () => {
       accessor: (item) => (
         <Typography
           onClick={() =>
-            meterDetailsModal(
-              item?.meter_type,
-              item?.meter_name,
-              item?.meter_id,
-              item?.total_records,
-              item?.time_stamp_start,
-              item?.time_stamp_end
-            )
+            item?.missing_type === 0
+              ? meterDetailsModal(
+                  item?.meter_type,
+                  item?.meter_name,
+                  item?.meter_id,
+                  item?.total_records,
+                  item?.time_stamp_start,
+                  item?.time_stamp_end
+                )
+              : null
           }
           variant="span"
           sx={{
@@ -226,7 +228,7 @@ const DataSummary = () => {
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
-            cursor: "pointer",
+            cursor: item?.missing_type === 0 && "pointer",
           }}
         >
           {item.meter_name}

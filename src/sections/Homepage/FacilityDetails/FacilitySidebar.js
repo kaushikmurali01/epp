@@ -6,29 +6,32 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
   const facility_status = useSelector(
     (state) => state?.facilityReducer?.facilityStatus?.data?.timeline
   );
+  const disabledTab = useSelector(
+    (state) => state?.facilityReducer?.facilityStatus?.data?.disabled
+  );
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const menuItems = [
     { label: "Summary", id: 0, type: "output", value: "summary" },
-    { label: "Details", id: 1, type: "input", value: "details" },
+    { label: "Details", id: 1, type: "input", value: "detail" },
     {
       label: "Energy and Water",
       id: 2,
       type: "input",
-      value: "energy_and_water",
+      value: "ew",
     },
     {
       label: "Weather & Independent Variables",
       id: 3,
       type: "input",
-      value: "weather",
+      value: "weather_iv",
     },
     {
       label: "Savings Plan and Document",
       id: 4,
       type: "input",
-      value: "reports_and_studies",
+      value: "savings",
     },
-    { label: "Baseline Model", id: 5, type: "input", value: "baseline_model" },
+    { label: "Baseline Model", id: 5, type: "input", value: "baseline" },
     { label: "Performance", id: 6, type: "input", value: "performance" },
   ];
 
@@ -101,6 +104,7 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
                 ></Box>
               )
             }
+            // disabled={!disabledTab?.[item?.value]}
           />
         ))}
       </Tabs>
@@ -120,7 +124,6 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
           <Box
             sx={{ height: "1rem", width: "1.2rem", background: "#80FF98" }}
           ></Box>
-
           <Typography variant="small">Completed</Typography>
         </Box>
       </Box>

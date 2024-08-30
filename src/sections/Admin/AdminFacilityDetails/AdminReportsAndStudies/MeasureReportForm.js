@@ -15,6 +15,7 @@ import {
   adminAddFacilityMeasureReport,
   fetchAdminFacilityMeasureReportDetails,
   fetchAdminFacilityMeasureReportListing,
+  fetchAdminFacilityStatus,
   updateAdminFacilityMeasureReport,
 } from "../../../../redux/admin/actions/adminFacilityActions";
 import { downloadFileFromUrl } from "utils/helper/helper";
@@ -132,6 +133,7 @@ const MeasureReportForm = ({
       dispatch(adminAddFacilityMeasureReport(newValues))
         .then(() => {
           dispatch(fetchAdminFacilityMeasureReportListing(pageInfo, id));
+          dispatch(fetchAdminFacilityStatus(id));
           setAddMeasureModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,

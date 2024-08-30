@@ -151,10 +151,10 @@ export const validationSchemaAddMeter = Yup.object().shape({
 });
 
 export const validationSchemaDeleteMeterEntries = Yup.object({
-  startDate: Yup.date().required('Start date is required'),
+  startDate: Yup.date().required("Start date is required"),
   endDate: Yup.date()
-      .required('End date is required')
-      .min(Yup.ref('startDate'), 'End date cannot be earlier than start date')
+    .required("End date is required")
+    .min(Yup.ref("startDate"), "End date cannot be earlier than start date"),
 });
 
 export const validationSchemaEntry = Yup.object().shape({
@@ -522,9 +522,9 @@ export const emailFormValidationSchema = Yup.object().shape({
 });
 
 export const addEmailTemplateValidationSchema = Yup.object().shape({
-  name: Yup.string().required('Name is required'),
-  subject: Yup.string().required('Subject is required'),
-  body: Yup.string().required('Email content is required'),
+  name: Yup.string().required("Name is required"),
+  subject: Yup.string().required("Subject is required"),
+  body: Yup.string().required("Email content is required"),
 });
 
 export const incentiveSettingValidationSchema = Yup.object().shape({

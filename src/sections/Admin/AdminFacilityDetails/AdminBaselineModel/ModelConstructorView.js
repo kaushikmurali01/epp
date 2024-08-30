@@ -263,7 +263,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                               }
                               disabled
                               label={
-                                <Typography sx={{ fontSize: "14px!important" }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "14px!important",
+                                    color: "#989898",
+                                  }}
+                                >
                                   {station?.station_name}
                                 </Typography>
                               }
@@ -289,15 +294,22 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                             name={variableItem?.name}
                             type="checkbox"
                             as={Checkbox}
-                            checked={+values?.independent_variables?.includes(
-                              +variableItem?.id
-                            )}
+                            checked={
+                              +values?.independent_variables?.includes(
+                                +variableItem?.id
+                              )
+                            }
                             disabled
                           />
                         }
                         sx={{ color: "text.secondary2" }}
                         label={
-                          <Typography sx={{ fontSize: "14px!important" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "14px!important",
+                              color: "#989898",
+                            }}
+                          >
                             {variableItem?.name}
                           </Typography>
                         }
@@ -332,7 +344,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                               }
                               sx={{ color: "text.secondary2" }}
                               label={
-                                <Typography sx={{ fontSize: "14px!important" }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "14px!important",
+                                    color: "#989898",
+                                  }}
+                                >
                                   {dummyVar}
                                 </Typography>
                               }
@@ -426,6 +443,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   <Typography
                     sx={{
                       fontSize: "14px!important",
+                      color: "#989898",
                     }}
                   >
                     {formData?.modeling_approach}
