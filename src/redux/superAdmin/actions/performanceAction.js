@@ -370,7 +370,10 @@ export const fetchPerformanceDataSummaryList = (
         endpointWithParams += `&max_date=${payload.end_date}`;
       }
       const response = await GET_REQUEST(endpointWithParams);
-      const data = response.data;
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
       dispatch(fetchPerformanceDataSummaryListSuccess(data));
       return data;
     } catch (error) {
