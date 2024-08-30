@@ -36,9 +36,9 @@ class DataExplorationSummaryV2:
     def date_filter_temp(self):
         query_date_filter= ''
         if self.missing_data:
-            query_date_filter =  f" AND start_date >= '{self.start_date}' AND end_date <= '{self.end_date}' "
+            query_date_filter =  f" AND w.date_time >= '{self.start_date}' AND w.date_time <= '{self.end_date}' "
         elif self.outliers:
-            query_date_filter =  f" AND e.start_date >= '{self.start_date}' AND e.end_date <= '{self.end_date}' "
+            query_date_filter =  f" AND w.date_time >= '{self.start_date}' AND w.date_time <= '{self.end_date}' "
         else:
             query_date_filter = f" AND w.date_time >= '{self.start_date}' AND w.date_time <= '{self.end_date}' "
         return  query_date_filter
@@ -56,7 +56,7 @@ class DataExplorationSummaryV2:
         self.raw_df = dbtest(self.query)
 
         if self.missing_data:
-            self.temperature_query = get_temp_missing_data_summary(self.facility_id, station_id[0] )
+            self.temperature_query = get_temp_missing_data_summary(self.facility_id, station_id[0], query_date_filter )
         elif self.outliers:
             self.temperature_query = temp_outlier_summary.format(facility_id = self.facility_id, station_id= station_id[0], meter_factor =METER_FACTOR)
         else:
