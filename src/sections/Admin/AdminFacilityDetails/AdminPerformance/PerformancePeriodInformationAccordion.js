@@ -22,6 +22,7 @@ import {
   getIncentiveSettings,
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import SavingsReportForm from "./SavingsReportForm";
+import { isBefore, parseISO } from "date-fns";
 
 const PerformancePeriodInformationAccordion = ({
   meter_type,
@@ -31,6 +32,9 @@ const PerformancePeriodInformationAccordion = ({
   onDateValidation,
   onSubmittedP4PsChange,
   onSubmissionDateChange,
+  onVerifiedP4PsChange,
+  onVerificationDateChange,
+  onPerformanceTypeChange,
 }) => {
   const [activeButton, setActiveButton] = useState(0);
   const dispatch = useDispatch();
@@ -293,7 +297,9 @@ const PerformancePeriodInformationAccordion = ({
     });
 
   const [submittedP4Ps, setSubmittedP4Ps] = useState({});
+  const [verifiedP4Ps, setVerifiedP4Ps] = useState({});
   const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
+  const [p4PStartDates, setP4PStartDates] = useState({});
 
   useEffect(() => {
     dispatch(
@@ -308,17 +314,18 @@ const PerformancePeriodInformationAccordion = ({
   useEffect(() => {
     if (adminPerformanceReportInDB) {
       const performanceType = adminPerformanceReportInDB.performance_type;
+      const status = adminPerformanceReportInDB.status;
 
-      if (
-        performanceType &&
-        adminPerformanceReportInDB.status === "SUBMITTED"
-      ) {
+      if (performanceType) {
         setSubmittedP4Ps((prevSubmittedP4Ps) => {
           const updatedP4Ps = { ...prevSubmittedP4Ps };
           if (!updatedP4Ps[meter_type]) {
             updatedP4Ps[meter_type] = [];
           }
-          if (!updatedP4Ps[meter_type].includes(performanceType)) {
+          if (
+            status === "SUBMITTED" &&
+            !updatedP4Ps[meter_type].includes(performanceType)
+          ) {
             updatedP4Ps[meter_type] = [
               ...updatedP4Ps[meter_type],
               performanceType,
@@ -326,31 +333,94 @@ const PerformancePeriodInformationAccordion = ({
           }
           return updatedP4Ps;
         });
+
+        setVerifiedP4Ps((prevVerifiedP4Ps) => {
+          const updatedVerifiedP4Ps = { ...prevVerifiedP4Ps };
+          if (!updatedVerifiedP4Ps[meter_type]) {
+            updatedVerifiedP4Ps[meter_type] = [];
+          }
+          if (
+            status === "VERIFIED" &&
+            !updatedVerifiedP4Ps[meter_type].includes(performanceType)
+          ) {
+            updatedVerifiedP4Ps[meter_type] = [
+              ...updatedVerifiedP4Ps[meter_type],
+              performanceType,
+            ];
+          }
+          return updatedVerifiedP4Ps;
+        });
       }
+
       if (performanceType === performanceP4PCalcTab) {
-        onSubmissionDateChange(adminPerformanceReportInDB.submit_date);
+        onPerformanceTypeChange(performanceType);
+        if (status === "SUBMITTED") {
+          onSubmissionDateChange(adminPerformanceReportInDB.submit_date);
+        } else if (status === "VERIFIED") {
+          onVerificationDateChange(adminPerformanceReportInDB.updated_at);
+        }
       }
     }
   }, [
     adminPerformanceReportInDB,
     performanceP4PCalcTab,
     onSubmissionDateChange,
+    meter_type,
   ]);
-
-  useEffect(() => {
-    const isSubmitted =
-      submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) || false;
-    onSubmittedP4PsChange(isSubmitted);
-  }, [submittedP4Ps, performanceP4PCalcTab, onSubmittedP4PsChange, meter_type]);
 
   const handleChangePerformance = (event, newValue) => {
     setPerformanceP4PCalcTab(newValue);
   };
 
+  useEffect(() => {
+    const isSubmitted =
+      submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) || false;
+    const isVerified =
+      verifiedP4Ps[meter_type]?.includes(performanceP4PCalcTab) || false;
+    onSubmittedP4PsChange(isSubmitted);
+    onVerifiedP4PsChange(isVerified);
+  }, [
+    submittedP4Ps,
+    verifiedP4Ps,
+    performanceP4PCalcTab,
+    onSubmittedP4PsChange,
+    meter_type,
+  ]);
+
+   const handleP4PStartDatesLoaded = (startDates) => {
+     setP4PStartDates(startDates);
+   };
+
+  // const isTabDisabled = (tabValue) => {
+  //   if (tabValue === 1) return false;
+  //   const submittedP4PsForMeterType = submittedP4Ps[meter_type] || [];
+  //   const verifiedP4PsForMeterType = verifiedP4Ps[meter_type] || [];
+  //   return (
+  //     (!submittedP4PsForMeterType.includes(tabValue - 1) &&
+  //       !verifiedP4PsForMeterType.includes(tabValue - 1))
+  //   );
+  // };
+
   const isTabDisabled = (tabValue) => {
-    if (tabValue === 1) return false;
+    const today = new Date();
+    const startDate = p4PStartDates[tabValue]
+      ? parseISO(p4PStartDates[tabValue])
+      : null;
+
+    if (!startDate) return true; // If no start date, disable the tab
+
+    if (isBefore(today, startDate)) return true; // If start date is in the future, disable the tab
+
+    if (tabValue === 1) return false; // First tab is enabled if it's not in the future
+
     const submittedP4PsForMeterType = submittedP4Ps[meter_type] || [];
-    return !submittedP4PsForMeterType.includes(tabValue - 1);
+    const verifiedP4PsForMeterType = verifiedP4Ps[meter_type] || [];
+
+    // Check if the previous P4P has been submitted or verified
+    return (
+      !submittedP4PsForMeterType.includes(tabValue - 1) &&
+      !verifiedP4PsForMeterType.includes(tabValue - 1)
+    );
   };
 
   return (
@@ -454,9 +524,11 @@ const PerformancePeriodInformationAccordion = ({
                 : adminPerformanceReportInDB?.parameter_data
             }
             isSubmitted={
+              verifiedP4Ps[meter_type]?.includes(performanceP4PCalcTab) ||
               submittedP4Ps[meter_type]?.includes(performanceP4PCalcTab) ||
               false
             }
+            onP4PStartDatesLoaded={handleP4PStartDatesLoaded}
           />
         </Grid>
 
