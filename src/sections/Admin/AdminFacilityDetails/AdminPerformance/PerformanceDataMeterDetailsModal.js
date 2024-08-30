@@ -122,9 +122,9 @@ const PerformanceDataMeterDetailsModal = ({
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} disabled>
+        {/* <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} disabled>
           Download as Excel
-        </Typography>
+        </Typography> */}
       </Grid>
       <Grid container>
         <MiniTable columns={observeDataColumn} data={meterRawData} />
