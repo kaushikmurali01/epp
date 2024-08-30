@@ -182,6 +182,19 @@ def bulk_insert_df(df, table_name, record_id, file_table):
     insert_query = f"INSERT INTO {table_name} ({cols}) VALUES ({vals_placeholder})"
     update_query = f"UPDATE {file_table} SET processed = true WHERE id = %s"
     tuples = list(df.itertuples(index=False, name=None))
+    # import pdb;pdb.set_trace()
+    # import numpy as np
+    #
+    # # Assuming 'tuples' is your list of tuples from the data processing step
+    # processed_tuples = []
+    # for row in tuples:
+    #     # Convert tuple to list to modify it
+    #     new_row = list(row)
+    #     # Replace 'nan' and '$' with None
+    #     new_row = [None if (isinstance(item, float) and np.isnan(item)) or item == '$' else item for item in new_row]
+    #     # Convert list back to tuple if necessary
+    #     processed_tuples.append(tuple(new_row))
+    # tuples = processed_tuples
 
     def db_execute(insert_query, update_query, insert_values, update_value):
         conn = get_db_connection()

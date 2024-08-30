@@ -149,8 +149,8 @@ class BaseDataUploader:
     def check_invalid_dates(self):
         self.merged_df.dropna(how='all', inplace=True)
         try:
-            self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'])
-            self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'])
+            self.merged_df['Start Date (Required)'] = pd.to_datetime(self.merged_df['Start Date (Required)'],errors='coerce')
+            self.merged_df['End Date (Required)'] = pd.to_datetime(self.merged_df['End Date (Required)'],errors='coerce')
         except:
             raise ValueError("Invalid Records in Start Date (Required) or End Date (Required)")
 
