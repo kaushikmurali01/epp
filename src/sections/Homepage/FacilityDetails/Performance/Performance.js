@@ -135,7 +135,7 @@ const Performance = () => {
         container
         sx={{
           width: "100%",
-          padding: "0 2rem",
+          padding: {xs: "0", md: "0 2rem" },
           marginTop: isSmallScreen && "2rem",
           display: "flex",
           gap: "2rem",
