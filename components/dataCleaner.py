@@ -121,9 +121,15 @@ def clean_raw_data(dataframe):
     new_df.sort_values('Date', inplace=True)
 
     new_df['Temperature'] = new_df['Temp1']
+    # new_df = new_df.rename(columns={meter_columns[0]: 'EnergyConsumption', 'start_date': 'Date'})
 
-    new_df = new_df.rename(columns={meter_columns[0]: 'EnergyConsumption', 'start_date': 'Date'})
+    def add_energy_columns(new_df, column_list, new_column_name):
+        new_df[new_column_name] = new_df[column_list].sum(axis=1, skipna=True)
 
+    # Specify the columns you want to sum
+
+    # Call the function to add the energy columns
+    add_energy_columns(new_df, meter_columns, 'EnergyConsumption')
     columns_order = ['Date', 'EnergyConsumption', 'Temperature']
     columns_order.extend(iv_columns)
     columns_order.extend(temp_columns)
