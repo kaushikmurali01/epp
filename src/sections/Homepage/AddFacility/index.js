@@ -240,6 +240,8 @@ const AddFacilityComponent = (props) => {
     const query =
       values?.unit_number +
       ", " +
+      values?.facility_name +
+      ", " +
       values?.street_number +
       " " +
       values?.street_name +
@@ -267,7 +269,8 @@ const AddFacilityComponent = (props) => {
       }
       const code = openLocationCode.encode(
         parseFloat(response?.data?.results[0]?.position?.lat),
-        parseFloat(response?.data?.results[0]?.position?.lon)
+        parseFloat(response?.data?.results[0]?.position?.lon),
+        15
       );
       const newValues = {
         ...values,
