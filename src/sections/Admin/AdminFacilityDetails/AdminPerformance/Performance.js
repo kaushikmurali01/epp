@@ -41,6 +41,10 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(1);
+  const [expanded, setExpanded] = useState("baselineSummary");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const [isPerformanceSettingComponent, setIsPerformanceSettingComponent] =
     useState(false);
 
@@ -238,6 +242,8 @@ const Performance = () => {
               summary="Baseline summary"
               details={<BaselineSummaryAccord meter_type={activeButton} />}
               panelId="baselineSummary"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
             <CustomAccordion
@@ -246,6 +252,8 @@ const Performance = () => {
                 <PerformancePeriodDataSummary meter_type={activeButton} />
               }
               panelId="performancePeriodDataSummary"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
             <CustomAccordion
@@ -264,12 +272,16 @@ const Performance = () => {
                 />
               }
               panelId="performancePeriodReportingInformation"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
             <CustomAccordion
               summary="Performance period data visualization"
               // details={<PerformancePeriodDataVisualization />}
               panelId="performancePeriodDataVisualization"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
           </Grid>
         )}
