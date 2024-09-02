@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 import CustomAccordion from "components/CustomAccordion";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DataSummary from "./DataSummary";
 import DataVisualization from "./DataVisualization";
 import { useDispatch } from "react-redux";
@@ -15,17 +15,27 @@ const DataExplorationTab = () => {
   //   dispatch(showAdminObserveData());
   // }, [id]);
 
+   const [expanded, setExpanded] = useState("visualization");
+
+   const handleAccordionChange = (panel, isExpanded) => {
+     setExpanded(isExpanded ? panel : false);
+   };
+
   return (
     <Grid item>
       <CustomAccordion
         summary="Visualization"
         // details={<DataVisualization />}
         panelId="visualization"
+        expanded={expanded}
+        onChange={handleAccordionChange}
       />
       <CustomAccordion
         summary="Summary"
         details={<DataSummary />}
         panelId="summary"
+        expanded={expanded}
+        onChange={handleAccordionChange}
       />
     </Grid>
   );

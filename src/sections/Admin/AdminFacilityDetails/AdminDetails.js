@@ -53,6 +53,10 @@ const AdminDetails = ({ setTab }) => {
   const [lightingAlignment, setLightingAlignment] = useState(false);
   const [heatingAlignment, setHeatingAlignment] = useState(false);
   const [coolingAlignment, setCoolingAlignment] = useState(false);
+  const [expanded, setExpanded] = useState("characteristics");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const facilityCharacterstics = useSelector(
     (state) => state?.adminFacilityReducer?.characteristics?.data
   );
@@ -700,6 +704,8 @@ const AdminDetails = ({ setTab }) => {
                     </Grid>
                   </Grid>
                 }
+                expanded={expanded}
+                onChange={handleAccordionChange}
               />
               <CustomAccordion
                 summary="Heating and cooling systems"
@@ -1344,6 +1350,8 @@ const AdminDetails = ({ setTab }) => {
                     </Grid>
                   </Grid>
                 }
+                expanded={expanded}
+                onChange={handleAccordionChange}
               />
               <CustomAccordion
                 summary="Operational details"
@@ -1551,6 +1559,8 @@ const AdminDetails = ({ setTab }) => {
                     </Grid>
                   </Grid>
                 }
+                expanded={expanded}
+                onChange={handleAccordionChange}
               />
               <Grid container>
                 <Grid item xs={12} sm={4}>
