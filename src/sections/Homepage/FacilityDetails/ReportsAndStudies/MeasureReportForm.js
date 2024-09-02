@@ -15,6 +15,7 @@ import {
   addFacilityMeasureReport,
   fetchFacilityMeasureReportDetails,
   fetchFacilityMeasureReportListing,
+  fetchFacilityStatus,
   updateFacilityMeasureReport,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import { MEASURE_REPORT_CATEGORY } from "utils/dropdownConstants/dropdownConstants";
@@ -134,6 +135,7 @@ const MeasureReportForm = ({
       dispatch(addFacilityMeasureReport(newValues))
         .then(() => {
           dispatch(fetchFacilityMeasureReportListing(pageInfo, id));
+          dispatch(fetchFacilityStatus(id));
           setAddMeasureModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,

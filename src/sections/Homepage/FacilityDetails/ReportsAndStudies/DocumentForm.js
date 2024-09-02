@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import {
   addFacilityDocument,
   fetchFacilityDocumentListing,
+  fetchFacilityStatus,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import TextAreaField from "components/FormBuilder/TextAreaField";
 import { downloadFileFromUrl } from "utils/helper/helper";
@@ -22,6 +23,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   const documentFileInputRef = useRef(null);
   const [documentImgUrl, setDocumentImgUrl] = useState("");
   const [documentSelectedFile, setDocumentSelectedFile] = useState(null);
+  const [urlError, setUrlError] = useState(false);
   const [initialValues, setInitialValues] = useState({
     document_name: "",
     document_desc: "",
@@ -49,6 +51,10 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
   };
 
   const handleFormSubmit = (values) => {
+    if (!documentImgUrl) {
+      setUrlError(true);
+      return;
+    }
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
       if (typeof value === "string" && value.trim() === "") {
         delete acc[key];
@@ -66,6 +72,7 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
     dispatch(addFacilityDocument(newValues))
       .then(() => {
         dispatch(fetchFacilityDocumentListing(pageInfo, id, docsFilter));
+        dispatch(fetchFacilityStatus(id));
         setAddDocumentModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -179,6 +186,14 @@ const DocumentForm = ({ pageInfo, setAddDocumentModalConfig, docsFilter }) => {
                         onChange={handleDocumentFileChange}
                       />
                     </>
+                  )}
+                  {!documentSelectedFile && (
+                    <Typography
+                      variant="small"
+                      sx={{ color: urlError ? "#FF5858" : "#2E813E" }}
+                    >
+                      Please upload a file before submitting this document.
+                    </Typography>
                   )}
                 </Grid>
               </Grid>

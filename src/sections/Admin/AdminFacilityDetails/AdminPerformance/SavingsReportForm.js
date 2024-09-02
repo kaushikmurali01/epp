@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Formik, Form, Field } from "formik";
 import { Select, MenuItem, Grid, Box, Tooltip, IconButton } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { MiniTable } from "components/MiniTable";
 import { useDispatch, useSelector } from "react-redux";
-import { format, isEqual, isValid, parseISO } from "date-fns";
+import { format, isBefore, isEqual, isValid, parse, parseISO } from "date-fns";
 import {
   calculateAdminPerformanceReport,
   getAdminPerformanceReportFromDB,
@@ -12,6 +12,7 @@ import {
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import EvModal from "utils/modal/EvModal";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import CommonDataAvailabilityAlert from "components/CommonDataAvailabilityAlert";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
 const paymentStatusOptions = [
@@ -58,6 +59,7 @@ const SavingsReportForm = ({
   performanceP4PCalcTab,
   onDateValidation,
   isSubmitted,
+  onP4PStartDatesLoaded,
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
@@ -69,9 +71,11 @@ const SavingsReportForm = ({
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
-  const { incentiveSettings, adminCalculatedPerformanceReport } = useSelector(
-    (state) => state?.adminPerformanceReducer
-  );
+  const {
+    incentiveSettings,
+    adminCalculatedPerformanceReport,
+    adminPerformanceDataMinMaxDate,
+  } = useSelector((state) => state?.adminPerformanceReducer);
 
   const [p4PStartEndDates, setP4PStartEndDates] = useState({
     startDate: null,
@@ -138,49 +142,72 @@ const SavingsReportForm = ({
       });
       setFormData(newFormData);
       setStatuses(newStatuses);
-      setSelectedEndDate(
-        p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
-      );
+      if (isSubmitted) {
+        setSelectedEndDate(
+          p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
+        );
+      }
     } else {
       setFormData({});
       setStatuses({});
       setSelectedEndDate(null);
     }
-  }, [initialData, performanceP4PCalcTab]);
+  }, [initialData, performanceP4PCalcTab, isSubmitted]);
+
+  const getP4PData = (tab, settings) => {
+    const defaultData = {
+      startDate: null,
+      endDate: null,
+      status: "Under-review",
+    };
+
+    const p4pDataMap = {
+      1: {
+        startDate: settings.p4pStartDate1,
+        endDate: settings.p4pEndDate1,
+        status: settings.p4pIncentiveStatus1,
+      },
+      2: {
+        startDate: settings.p4pStartDate2,
+        endDate: settings.p4pEndDate2,
+        status: settings.p4pIncentiveStatus2,
+      },
+      3: {
+        startDate: settings.p4pStartDate3,
+        endDate: settings.p4pEndDate3,
+        status: settings.p4pIncentiveStatus3,
+      },
+    };
+
+    return {
+      startDate: p4pDataMap[tab]?.startDate || defaultData.startDate,
+      endDate: p4pDataMap[tab]?.endDate || defaultData.endDate,
+      status: p4pDataMap[tab]?.status || defaultData.status,
+    };
+  };
 
   useEffect(() => {
-    let startDate = null;
-    let endDate = null;
-    let p4pIncentiveStatus = "Under-review";
+    if (!incentiveSettings) return;
 
-    if (incentiveSettings) {
-      switch (performanceP4PCalcTab) {
-        case 1:
-          startDate = incentiveSettings.p4pStartDate1 || null;
-          endDate = incentiveSettings.p4pEndDate1 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus1 || "Under-review";
-          break;
-        case 2:
-          startDate = incentiveSettings.p4pStartDate2 || null;
-          endDate = incentiveSettings.p4pEndDate2 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus2 || "Under-review";
-          break;
-        case 3:
-          startDate = incentiveSettings.p4pStartDate3 || null;
-          endDate = incentiveSettings.p4pEndDate3 || null;
-          p4pIncentiveStatus =
-            incentiveSettings.p4pIncentiveStatus3 || "Under-review";
-          break;
-        default:
-          break;
-      }
-    }
+    const { startDate, endDate, status } = getP4PData(
+      performanceP4PCalcTab,
+      incentiveSettings
+    );
 
     setP4PStartEndDates({ startDate, endDate });
-    setP4pIncentiveStatus(p4pIncentiveStatus);
-  }, [performanceP4PCalcTab, incentiveSettings]);
+    setP4pIncentiveStatus(status);
+  }, [performanceP4PCalcTab, incentiveSettings, selectedEndDate]);
+
+  useEffect(() => {
+    if (incentiveSettings) {
+      const allStartDates = {
+        1: incentiveSettings.p4pStartDate1,
+        2: incentiveSettings.p4pStartDate2,
+        3: incentiveSettings.p4pStartDate3,
+      };
+      onP4PStartDatesLoaded(allStartDates);
+    }
+  }, [incentiveSettings]);
 
   useEffect(() => {
     if (submitTrigger && formikRef.current) {
@@ -206,7 +233,6 @@ const SavingsReportForm = ({
   }, [selectedEndDate, p4PStartEndDates?.endDate, onDateValidation]);
 
   const handleDateChange = (newValue) => {
-    // if (isSubmitted) return;
     setSelectedEndDate(newValue);
     if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
@@ -271,41 +297,11 @@ const SavingsReportForm = ({
     }
   }, [selectedEndDate, p4PStartEndDates, facility_id, meter_type, dispatch]);
 
-  // const handleRefreshCalculation = useCallback(() => {
-  //   if (!selectedEndDate) return;
-
-  //   if (selectedEndDate && p4PStartEndDates?.startDate) {
-  //     const startDate = parseISO(p4PStartEndDates.startDate);
-
-  //     if (!isValid(startDate)) {
-  //       console.error("Invalid start date");
-  //       return;
-  //     }
-
-  //     const payload = {
-  //       start_date: format(startDate, "yyyy-MM-dd"),
-  //       end_date: format(selectedEndDate, "yyyy-MM-dd"),
-  //       facility_id: facility_id,
-  //       meter_type: meter_type,
-  //     };
-
-  //     try {
-  //       dispatch(calculateAdminPerformanceReport(payload));
-  //     } catch (error) {
-  //       console.error("Error calculating performance report:", error);
-  //     }
-  //   }
-  // }, [
-  //   selectedEndDate,
-  //   p4PStartEndDates,
-  //   facility_id,
-  //   meter_type,
-  //   dispatch,
-  //   isSubmitted,
-  // ]);
-
   const handleSaveSavingsReport = useCallback(
     (currentStatuses = statuses) => {
+      let allCalculationsVerified = Object.values(currentStatuses).every(
+        (status) => status === "Verified"
+      );
       const report = {
         data: Object.entries(formData).reduce((acc, [key, value]) => {
           acc[key] = { value, status: currentStatuses[key] || "Submitted" };
@@ -313,14 +309,11 @@ const SavingsReportForm = ({
         }, {}),
         performance_type: performanceP4PCalcTab,
         meter_type: meter_type,
+        status: allCalculationsVerified ? "VERIFIED" : "SUBMITTED",
       };
       dispatch(updateAdminPerformanceReportInDB(facility_id, report))
         .then(() => {
-          if (
-            Object.values(currentStatuses).every(
-              (status) => status === "Verified"
-            )
-          ) {
+          if (allCalculationsVerified) {
             openVerifiedReportModal();
           }
           dispatch(
@@ -348,6 +341,7 @@ const SavingsReportForm = ({
   const handleChange = (name, value) => {
     setStatuses((prev) => {
       const newStatuses = { ...prev, [name]: value };
+      if (value === "Estimated") return newStatuses;
       if (
         value === "Verified" ||
         (prev[name] === "Verified" && value === "Submitted")
@@ -430,6 +424,66 @@ const SavingsReportForm = ({
 
   const fields = getFields();
 
+  // check if the data provided is available till that particular P4P end date [keep the below logic for future reference if other one doesn't work]
+  // const getMaxDate = useMemo(() => {
+  //   const endDate = p4PStartEndDates.endDate
+  //     ? parseISO(p4PStartEndDates.endDate)
+  //     : null;
+  //   const maxDataDate = adminPerformanceDataMinMaxDate
+  //     ? (adminPerformanceDataMinMaxDate.max_date)
+  //     : null;
+
+  //   if (endDate && maxDataDate) {
+  //     return endDate > maxDataDate ? endDate : maxDataDate;
+  //   } else {
+  //     return endDate || maxDataDate || null;
+  //   }
+  // }, [p4PStartEndDates.endDate, adminPerformanceDataMinMaxDate?.max_date]);
+
+  const [isDataNotAvailable, setIsDataNotAvailable] = useState(false);
+  const [maxDate, setMaxDate] = useState(null);
+
+  // Parse dates
+  const parsedP4pEndDate = useMemo(
+    () =>
+      p4PStartEndDates?.endDate ? parseISO(p4PStartEndDates.endDate) : null,
+    [p4PStartEndDates?.endDate]
+  );
+
+  const parsedDataAvailableUntil = useMemo(
+    () =>
+      adminPerformanceDataMinMaxDate?.max_date
+        ? parse(
+            adminPerformanceDataMinMaxDate.max_date,
+            "EEE, dd MMM yyyy HH:mm:ss 'GMT'",
+            new Date()
+          )
+        : null,
+    [adminPerformanceDataMinMaxDate?.max_date]
+  );
+
+  // Effect for date comparison and state updates
+  useEffect(() => {
+    if (isValid(parsedP4pEndDate) && isValid(parsedDataAvailableUntil)) {
+      if (isBefore(parsedP4pEndDate, parsedDataAvailableUntil)) {
+        setMaxDate(parsedP4pEndDate);
+        setIsDataNotAvailable(false);
+      } else {
+        setMaxDate(parsedDataAvailableUntil);
+        setIsDataNotAvailable(true);
+      }
+    } else if (isValid(parsedP4pEndDate)) {
+      setMaxDate(parsedP4pEndDate);
+      setIsDataNotAvailable(false);
+    } else if (isValid(parsedDataAvailableUntil)) {
+      setMaxDate(parsedDataAvailableUntil);
+      setIsDataNotAvailable(true);
+    } else {
+      setMaxDate(null);
+      setIsDataNotAvailable(false);
+    }
+  }, [parsedP4pEndDate, parsedDataAvailableUntil]);
+
   const data = [
     {
       metric: "Pay-for-performance period",
@@ -473,8 +527,11 @@ const SavingsReportForm = ({
           }}
           value={selectedEndDate}
           onChange={handleDateChange}
-          maxDate={
-            p4PStartEndDates.endDate ? parseISO(p4PStartEndDates.endDate) : null
+          maxDate={new Date(maxDate)}
+          minDate={
+            p4PStartEndDates.startDate
+              ? parseISO(p4PStartEndDates.startDate)
+              : null
           }
           slotProps={{
             textField: {
@@ -530,6 +587,9 @@ const SavingsReportForm = ({
 
   return (
     <>
+      {isDataNotAvailable && (
+        <CommonDataAvailabilityAlert p4pEndDate={p4PStartEndDates?.endDate} isAdmin />
+      )}
       <Formik
         innerRef={formikRef}
         initialValues={formData}

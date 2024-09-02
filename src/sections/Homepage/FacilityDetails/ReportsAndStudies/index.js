@@ -38,6 +38,9 @@ const CustomToggleButton = styled(ToggleButton)(({ theme }) => ({
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
   },
+  ":hover": {
+    color: "#2E813E",
+  },
 }));
 
 const ReportsAndStudies = () => {

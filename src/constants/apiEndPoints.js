@@ -31,7 +31,7 @@ export const facilityEndPoints = {
     "company-facility/v1/facility-saving-document",
   SEND_HELP_REQ_FOR_MEASURE_CATEGORY: "company-facility/v1/savingPlan",
   GET_WATERFALL_DATA: "company-facility/v1/facility/getWaterFallData",
-  GET_WORKFLOW_STATUS: "weather/v1/get-workflow",
+  GET_WORKFLOW_STATUS: "company-facility/v1/workflow",
 };
 
 export const adminFacilityEndpoints = {

@@ -233,20 +233,22 @@ const PerformancePeriodDataSummary = ({ meter_type }) => {
       accessor: (item) => (
         <Typography
           onClick={() =>
-            openPerformanceDataMeterDetailsModal(
-              item?.meter_type,
-              item?.meter_name,
-              item?.meter_id,
-              item?.total_records
-            )
+            item?.missing_type === 0
+              ? openPerformanceDataMeterDetailsModal(
+                  item?.meter_type,
+                  item?.meter_name,
+                  item?.meter_id,
+                  item?.total_records
+                )
+              : null
           }
           variant="span"
           sx={{
-            color: "primary.main",
+            color: item?.missing_type === 0 ? "primary.main" : "#2E813E90",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
-            cursor: "pointer",
+            cursor: item?.missing_type === 0 && "pointer",
           }}
         >
           {item.meter_name}
