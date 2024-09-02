@@ -216,7 +216,7 @@ export const hourlyEndPoints = {
 export const adminHourlyEndPoints = {
   GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
   DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries",
-  // MIN_MAX_PERIOD: "/v1/get_min_max_dates",
+  GET_UPLOAD_RESULT: "/v1/get-uploader-result",
 };
 
 export const POWERBI_ENDPOINTS = {

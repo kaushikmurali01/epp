@@ -577,9 +577,10 @@ const EntriesListing = ({
   const uploadEntryFile = (data) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const recordId = data.record_id;
     const payload = {
       facility_id: meterData?.facility_id,
-      record_id: data.record_id,
+      record_id: recordId,
     };
 
     // return;
@@ -598,7 +599,7 @@ const EntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+        startPollingForData(setDataProcessingLoader, getHourlyEntriesData, recordId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -608,6 +609,31 @@ const EntriesListing = ({
         });
       });
   };
+
+  const getUploadResult = async (loader,payload)=> {
+    if (loader === "processingLoader") {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    } else {
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    }
+
+    // let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT + "?" + iv=false && record_id=payload.recordId}`;
+    let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
+   
+
+    try {
+      const res = await GET_REQUEST(apiURL);
+      console.log(res, "checkResponse");
+      // setUploadDataFormVisible(false);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      return res; // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      throw error; // Throw the error to be caught in polling
+    }
+  }
+  
 
   // Polling GET API to retrieve the data
   // const startPollingForData = (
@@ -636,7 +662,7 @@ const EntriesListing = ({
   // };
 
 
-  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData) => {
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     
@@ -646,7 +672,9 @@ const EntriesListing = ({
       loader: true,
       timestamp: now.toISOString(),
       meterId: facilityMeterDetailId,
+      recordId: recordId,
     };
+
     sessionStorage.setItem("dataProcessingLoader", JSON.stringify(data));
   
     let checkInterval;
@@ -670,6 +698,12 @@ const EntriesListing = ({
           });
           return;
         }
+
+        if(data?.recordId !== undefined) {
+          const getUploadResultData = await getUploadResult("processingLoader",data)
+        console.log(getUploadResultData, "getUploadResultData")
+        }
+        
   
         const response = await getHourlyEntriesData("processingLoader");
         if (response.data?.data?.rows?.length > 0) {
@@ -678,6 +712,7 @@ const EntriesListing = ({
           sessionStorage.removeItem("dataProcessingLoader");
           clearInterval(checkInterval);
         }
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -688,7 +723,8 @@ const EntriesListing = ({
   
     return checkInterval;
   };
-  
+
+ 
 
   const deleteFile = (imgData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -803,7 +839,7 @@ const EntriesListing = ({
     }
   }, [meterData, refreshPageData]);
 
-  console.log(getDataProcessingLoader, dataProcessingLoader, "check data processing loader")
+  // console.log(getDataProcessingLoader, dataProcessingLoader, "check data processing loader")
 
   //  return html dom
 
