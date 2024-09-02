@@ -432,7 +432,7 @@ const PerformancePeriodInformationAccordion = ({
           justifyContent: "space-between",
           gap: "1rem",
           marginTop: "1rem",
-          marginBottom: "3rem",
+          marginBottom: { xs: "1rem", md: "1.5rem" },
         }}
         width={"100%"}
       >

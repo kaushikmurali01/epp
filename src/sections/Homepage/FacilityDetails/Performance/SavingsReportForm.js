@@ -12,41 +12,7 @@ import {
   updatePerformanceReportInDB,
 } from "../../../../redux/superAdmin/actions/performanceAction";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { Alert, AlertTitle, Typography } from "@mui/material";
-import InfoIcon from "@mui/icons-material/Info";
-
-const DataAvailabilityNotice = ({ p4pEndDate }) => {
-  const formattedDate = p4pEndDate
-    ? format(parseISO(p4pEndDate), "MMMM d, yyyy")
-    : "the P4P end date";
-
-  return (
-    <Alert
-      severity="info"
-      icon={<InfoIcon />}
-      sx={{
-        marginBottom: 2,
-        "& .MuiAlert-message": { width: "100%" },
-      }}
-    >
-      <AlertTitle sx={{ fontWeight: "bold" }}>
-        Data Availability Notice
-      </AlertTitle>
-      <Box>
-        <Typography variant="body2" paragraph>
-          The complete dataset for the Pay-for-Performance (P4P) calculation is
-          not yet available up to {formattedDate}. As a result, the P4P report
-          cannot be submitted at this time.
-        </Typography>
-        <Typography variant="body2">
-          However, you can still review the performance of the available data
-          against the baseline model. This preliminary analysis can provide
-          valuable insights while we await the full dataset.
-        </Typography>
-      </Box>
-    </Alert>
-  );
-};
+import CommonDataAvailabilityAlert from "components/CommonDataAvailabilityAlert";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
 const paymentStatusOptions = [
@@ -572,7 +538,9 @@ const SavingsReportForm = ({
   return (
     <>
       {isDataNotAvailable && (
-        <DataAvailabilityNotice p4pEndDate={p4PStartEndDates?.endDate} />
+        <CommonDataAvailabilityAlert
+          p4pEndDate={p4PStartEndDates?.endDate}
+        />
       )}
       <Formik
         innerRef={formikRef}
