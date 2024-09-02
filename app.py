@@ -300,4 +300,4 @@ def scoring_data_for_visual():
         return str(e), 500  # HTTP 500 Internal Server Error
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",debug=True,port =5004)
+    app.run(host="0.0.0.0",debug=True,port =5001)
