@@ -975,7 +975,11 @@ def get_uploader_result():
     }
 
     record_id = request.args.get('record_id')
-    iv = request.args.get('iv', type=bool)  # Default to False if not provided
+    iv = request.args.get('iv')  # Default to False if not provided
+    if iv in [False, 'false']:
+        iv = False
+    else:
+        iv = True
     if not record_id:
         return jsonify({"message": 'Please Provide a Record ID', 'status_code': 400}), 400
 
