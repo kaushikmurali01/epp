@@ -43,6 +43,11 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   const { id } = useParams();
   const [renderViewOnlyComp, setRenderViewOnlyComp] = useState(false);
   const [baselineDetails, setBaselineDetails] = useState(null);
+  const [expanded, setExpanded] = useState("modelConstructor");
+
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
@@ -342,6 +347,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             )
           }
           panelId="modelConstructor"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
@@ -353,12 +360,16 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             />
           }
           panelId="summary"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
       </Box>
       <EvModal
