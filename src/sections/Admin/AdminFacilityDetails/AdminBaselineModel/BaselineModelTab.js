@@ -28,6 +28,11 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
   const [renderFormComp, setRenderFormComp] = useState(true);
   const [baselineDetails, setBaselineDetails] = useState(null);
+  const [expanded, setExpanded] = useState("modelConstructor");
+
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
@@ -218,6 +223,8 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             )
           }
           panelId="modelConstructor"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
@@ -229,12 +236,16 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             />
           }
           panelId="summary"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
       </Box>
 

@@ -98,7 +98,7 @@ const AdminFacilityHeader = () => {
   return (
     <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
       <Grid container spacing={2} justifyContent="space-between">
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={3.5}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
             <Box
               sx={{
@@ -197,42 +197,77 @@ const AdminFacilityHeader = () => {
           container
           item
           xs={12}
-          md={4}
+          md={3.5}
           spacing={1}
           justifyContent="flex-end"
         >
-          <Grid item xs={6}>
-            <BoxCard>
-              <Typography variant="small2">Facility UBI</Typography>
-              <Typography variant="h6">
-                {facilityDetails?.facility_ubi}
+          {facilityDetails?.facility_enrollment_status && (
+            <Box container xs={6}>
+              <Typography
+                variant="h6"
+                sx={{
+                  padding: "0.375rem 1rem",
+                  borderRadius: "1.8125rem",
+                  background: "#CFEEFF",
+                  color: "#1976AA",
+                  fontSize: "0.75rem",
+                  fontStyle: "italic",
+                  fontWeight: 400,
+                  mt: { xs: 2, lg: 0 },
+                }}
+              >
+                Enrollment in progress, approval pending
               </Typography>
-            </BoxCard>
-          </Grid>
-          {/* <Grid item xs={6}>
-            <BoxCard>
-              <Typography variant="small2">Total Incentive Paid</Typography>
-              <Typography variant="h6">
-                {facilityDetails?.total_incentive_earned}
-              </Typography>
-            </BoxCard>
-          </Grid>
-          <Grid item xs={6}>
-            <BoxCard>
-              <Typography variant="small2">Annual Baseline Electricity Consumption</Typography>
-              <Typography variant="h6">
-                {facilityDetails?.total_electricty_consumptions}
-              </Typography>
-            </BoxCard>
-          </Grid>
-          <Grid item xs={6}>
-            <BoxCard>
-              <Typography variant="small2">Benchmarking EUI</Typography>
-              <Typography variant="h6">
-                {facilityDetails?.benchmarking_eui}
-              </Typography>
-            </BoxCard>
-          </Grid> */}
+            </Box>
+          )}
+          {facilityDetails?.facility_ubi && (
+            <Grid item xs={6}>
+              <BoxCard>
+                <Typography variant="small2" sx={{ color: "#54585A" }}>
+                  Facility UBI
+                </Typography>
+                <Typography variant="h6" sx={{ fontSize: "0.875rem" }}>
+                  {facilityDetails?.facility_ubi}
+                </Typography>
+              </BoxCard>
+            </Grid>
+          )}
+          {facilityDetails?.total_incentive_earned && (
+            <Grid item xs={6}>
+              <BoxCard>
+                <Typography variant="small2" sx={{ color: "#54585A" }}>
+                  Total Incentive Paid
+                </Typography>
+                <Typography variant="h6" sx={{ fontSize: "0.875rem" }}>
+                  {facilityDetails?.total_incentive_earned}
+                </Typography>
+              </BoxCard>
+            </Grid>
+          )}
+          {facilityDetails?.total_electricty_consumptions && (
+            <Grid item xs={6}>
+              <BoxCard>
+                <Typography variant="small2" sx={{ color: "#54585A" }}>
+                  Baseline Energy Consumption
+                </Typography>
+                <Typography variant="h6" sx={{ fontSize: "0.875rem" }}>
+                  {facilityDetails?.total_electricty_consumptions}
+                </Typography>
+              </BoxCard>
+            </Grid>
+          )}
+          {facilityDetails?.benchmarking_eui && (
+            <Grid item xs={6}>
+              <BoxCard>
+                <Typography variant="small2" sx={{ color: "#54585A" }}>
+                  Benchmarking EUI
+                </Typography>
+                <Typography variant="h6" sx={{ fontSize: "0.875rem" }}>
+                  {facilityDetails?.benchmarking_eui}
+                </Typography>
+              </BoxCard>
+            </Grid>
+          )}
         </Grid>
       </Grid>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
