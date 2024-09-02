@@ -39,6 +39,10 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(1);
+  const [expanded, setExpanded] = useState("baselineSummary");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   const handleTabTypeClick = (index) => {
     setActiveButton(index);
@@ -135,7 +139,7 @@ const Performance = () => {
         container
         sx={{
           width: "100%",
-          padding: {xs: "0", md: "0 2rem" },
+          padding: { xs: "0", md: "0 2rem" },
           marginTop: isSmallScreen && "2rem",
           display: "flex",
           gap: "2rem",
@@ -212,12 +216,16 @@ const Performance = () => {
             summary="Baseline summary"
             details={<BaselineSummaryAccord meter_type={activeButton} />}
             panelId="baselineSummary"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
           <CustomAccordion
             summary="Performance period data summary"
             details={<PerformancePeriodDataSummary meter_type={activeButton} />}
             panelId="performancePeriodDataSummary"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
           <CustomAccordion
@@ -236,12 +244,16 @@ const Performance = () => {
               />
             }
             panelId="performancePeriodReportingInformation"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
           <CustomAccordion
             summary="Performance period data visualization"
             // details={<PerformancePeriodDataVisualization />}
             panelId="performancePeriodDataVisualization"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
         </Grid>
       </Grid>

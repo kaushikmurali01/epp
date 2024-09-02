@@ -48,31 +48,20 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: "0 0 2rem 0",
 }));
 
-const CustomAccordion = ({
-  summary,
-  details,
-  panelId,
-}) => {
+const CustomAccordion = ({ summary, details, panelId, expanded, onChange }) => {
 
-  const [expanded, setExpanded] = useState(false);
-
-  const handleAccordionChange = (panel) => (event, newExpanded) => {
-    setExpanded(newExpanded ? panel : false);
+  const handleAccordionChange = (event, isExpanded) => {
+    onChange(panelId, isExpanded);
   };
 
   return (
-    <Accordion
-      expanded={expanded === panelId}
-      onChange={handleAccordionChange(panelId)}
-    >
+    <Accordion expanded={expanded === panelId} onChange={handleAccordionChange}>
       <AccordionSummary
         aria-controls={`${panelId}-content`}
         id={`${panelId}-header`}
         expandIcon={
-          expanded ? (
-            <RemoveCircleRoundedIcon
-              sx={{ fontSize: "1.5rem" }}
-            />
+          expanded === panelId ? (
+            <RemoveCircleRoundedIcon sx={{ fontSize: "1.5rem" }} />
           ) : (
             <AddCircleRoundedIcon sx={{ fontSize: "1.5rem" }} />
           )

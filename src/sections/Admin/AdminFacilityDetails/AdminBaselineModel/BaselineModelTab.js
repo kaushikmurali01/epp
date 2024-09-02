@@ -174,7 +174,8 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
         </StyledButtonGroup>
         {(baselineDetails?.status === "SUBMITTED" ||
           baselineDetails?.status === "CALCULATED") && (
-          <Typography
+      
+            <Typography
             variant="h6"
             sx={{
               padding: "0.375rem 1rem",
@@ -229,12 +230,14 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             />
           }
           panelId="summary"
+          
         />
 
         <CustomAccordion
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          
         />
       </Box>
 
