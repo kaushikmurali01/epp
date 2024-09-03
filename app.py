@@ -636,13 +636,17 @@ def get_outlier_settings():
         }
         for rec in information.values:
             meter_name = rec[0]
+            lower_limit = float(format_value(rec[4], 'lower_limit'))
+            if meter_name != 'Temperature':
+                if lower_limit < 0:
+                    lower_limit = 0
             meter_types.append(meter_name)
             formatted = {'meter_type': METER_MAP.get(meter_name),
                          'meter_name': meter_name,
                          'inter_quartile': float(format_value(rec[1], 'inter_quartile')),
                          'first_quartile': float(format_value(rec[2], 'first_quartile')),
                          'third_quartile': float(format_value(rec[3], 'third_quartile')),
-                         'lower_limit': float(format_value(rec[4], 'lower_limit')),
+                         'lower_limit': lower_limit,
                          'upper_limit': float(format_value(rec[5], 'upper_limit'), )}
             info.append(formatted)
         info = sorted(info, key=lambda x: x["meter_type"])
