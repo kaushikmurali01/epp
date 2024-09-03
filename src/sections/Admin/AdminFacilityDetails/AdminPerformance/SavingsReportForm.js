@@ -13,6 +13,7 @@ import {
 import EvModal from "utils/modal/EvModal";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CommonDataAvailabilityAlert from "components/CommonDataAvailabilityAlert";
+import { formatNumber } from "utils/numberFormatter";
 
 const standardOptions = ["Estimated", "Submitted", "Verified"];
 const paymentStatusOptions = [
@@ -542,7 +543,7 @@ const SavingsReportForm = ({
       ),
     },
     ...fields.map((field) => {
-      const value = formData[field.name];
+      const value = formData[field.name] ? formatNumber(formData[field.name], {roundingType: "integer"}) : "";
       const displayValue = value === 0 ? 0 : value || "-";
       return {
         metric: field.label,
