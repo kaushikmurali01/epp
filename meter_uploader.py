@@ -146,6 +146,15 @@ class BaseDataUploader:
         if overlaps:
             raise ValueError("Excel file contains entries that overlap with existing database records")
 
+    def validate_time_intervals(self):
+        df = self.merged_df
+        df['Interval'] = df['End Date (Required)'] - df['Start Date (Required)']
+        # Convert the timedelta to total minutes
+        df['Interval in Minutes'] = df['Interval'].dt.total_seconds() / 60
+        invalid_intervals = df[(df['Interval in Minutes'] > 60) | (df['Interval in Minutes'] < 0)]
+        if len(invalid_intervals):
+            raise ValueError("Invalid Intervals Detected in Start Date (Required) and End Date (Required)")
+
     def check_invalid_dates(self):
         self.merged_df.dropna(how='all', inplace=True)
         try:
@@ -168,6 +177,7 @@ class BaseDataUploader:
             self.validate_and_read_excel_sheets()
             # self.check_duplicates()
             self.check_invalid_dates()
+            self.validate_time_intervals()
             self.validate_date_range()
             self.check_overlaps()
             return True, "File Validated Successfully"
