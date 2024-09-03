@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow
+from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow, execute_query
 from openpyxl import load_workbook
 import io
 import requests
@@ -22,6 +22,13 @@ class AddMeterData:
         self.raw_data_query = meter_file_processing_query.format(self.facility_id, self.record_id)
         self.iv_data_query = iv_file_processing_query.format(self.facility_id, self.record_id)
         self.raw_df = dbtest(self.raw_data_query) if not self.iv else dbtest(self.iv_data_query)
+
+    def add_update_workflow(self):
+        if self.iv:
+            query = "UPDATE epp.workflow SET weather_iv= true WHERE facility_id={}".format(self.facility_id)
+        else:
+            query = "UPDATE epp.workflow SET ew= true WHERE facility_id={}".format(self.facility_id)
+        execute_query(query)
 
     @staticmethod
     def is_float_or_int(val):
@@ -167,7 +174,7 @@ class AddMeterData:
 
     def process(self):
         self.process_files()
-        # refresh_materialised_view()
+        self.add_update_workflow()
 
 #
 # import numpy as np

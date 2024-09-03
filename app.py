@@ -715,7 +715,11 @@ def remove_file():
 @app.route('/add-meter-data', methods=['POST'])
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
-    iv = request.json.get('iv', False)
+    iv = request.json.get('iv')
+    if iv in ['false', False]:
+        iv = False
+    else:
+        iv = True
     record_id = request.json.get('record_id')
     if not record_id:
         return {
