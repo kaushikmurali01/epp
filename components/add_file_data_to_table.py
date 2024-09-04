@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, bulk_insert_df, refresh_materialised_view, update_workflow, execute_query
+from dbconnection import dbtest, execute_query, \
+    optimized_bulk_insert_df
 from openpyxl import load_workbook
 import io
 import requests
@@ -38,11 +39,12 @@ class AddMeterData:
         # Display the updated DataFrame with the new columns
         df.rename(columns={'Start Date (Required)': 'start_date', 'End Date (Required)': 'end_date',
                            'Meter Reading (Required)': 'reading'}, inplace=True)
-
         df['start_date_og'] = df['start_date']
         df['end_date_og'] = df['end_date']
         df['reading_og'] = df['reading']
+        df['reading'] = pd.to_numeric(df['reading'], errors='coerce')
 
+        # df['reading'] = df['reading'].astype(int, errors='coerce')
         # Convert dates and handle potential invalid datetime formats gracefully
         df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
         df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce')
@@ -71,7 +73,6 @@ class AddMeterData:
 
         # Filter to get only clean data
         clean_data = df[~df['missing']].copy()
-
         # Calculate Q1 and Q3 for 'Meter Reading (Required)' on clean data
         Q1 = clean_data['reading'].quantile(0.25)
         Q3 = clean_data['reading'].quantile(0.75)
@@ -103,6 +104,7 @@ class AddMeterData:
 
     def process_file(self, row):
         try:
+            print("File Process Started")
             record_id = row.get('file_record_id')
             meter_name = row.get('meter_name') if not self.iv else row.get('independent_variable_name')
             meter_detail_id = row.get('facility_meter_detail_id') if not self.iv else None
@@ -150,19 +152,19 @@ class AddMeterData:
                                 'independent_variable_id', 'start_year', 'start_month', 'end_year',
                                 'end_month']
             df = df[required_columns]
-            bulk_insert_df(df, 'epp.meter_hourly_entries', record_id,
-                           'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries')
+            print("File Process End")
+            print("DB Insert Started:{}".format(self.iv))
+            optimized_bulk_insert_df(
+                df,
+                'epp.meter_hourly_entries',
+                record_id,
+                'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries'
+            )
+            # bulk_insert_df(df, 'epp.meter_hourly_entries', record_id,
+            #                'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries')
+            print("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
-            int_columns = ['meter_id', 'meter_type', 'facility_id', 'start_year', 'start_month', 'end_year',
-                           'end_month']
-
-            for col in int_columns:
-                print(f"{col}:")
-                print(f"  Min: {df[col].min()}")
-                print(f"  Max: {df[col].max()}")
-                print(f"  Unique values: {df[col].unique()}")
-                print()
             return f"Failed to process record ID: {record_id}. Error: {str(e)}"
 
     def process_files(self):

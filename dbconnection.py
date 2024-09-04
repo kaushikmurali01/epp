@@ -1,3 +1,5 @@
+from io import StringIO
+
 import psycopg2.extras
 
 import config
@@ -176,25 +178,58 @@ def refresh_materialised_view(view='epp.combined_meter_weather_readings'):
     conn.close()
 
 
+import psycopg2
+import psycopg2.extras
+from psycopg2 import sql
+
+
+def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=100000):
+    def get_db_connection():
+        # Implement your database connection logic here
+        pass
+
+    # Prepare the INSERT query
+    columns = list(df.columns)
+    insert_stmt = sql.SQL("INSERT INTO {} ({}) VALUES {}").format(
+        sql.Identifier(table_name),
+        sql.SQL(', ').join(map(sql.Identifier, columns)),
+        sql.SQL(', ').join([sql.Placeholder()] * len(columns))
+    )
+
+    # Prepare the UPDATE query
+    update_stmt = sql.SQL("UPDATE {} SET processed = true WHERE id = %s").format(
+        sql.Identifier(file_table)
+    )
+
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cur:
+            # Process the dataframe in chunks
+            for chunk_start in range(0, len(df), chunk_size):
+                chunk = df.iloc[chunk_start:chunk_start + chunk_size]
+
+                # Use copy_from for faster inserts
+                buffer = StringIO()
+                chunk.to_csv(buffer, index=False, header=False, sep='\t')
+                buffer.seek(0)
+
+                cur.copy_from(buffer, table_name, null='', columns=columns)
+
+                conn.commit()
+
+            # Update the file table
+            cur.execute(update_stmt, (record_id,))
+            conn.commit()
+    finally:
+        conn.close()
+
+
 def bulk_insert_df(df, table_name, record_id, file_table):
     cols = ','.join(list(df.columns))
     vals_placeholder = ','.join(['%s' for _ in df.columns])
     insert_query = f"INSERT INTO {table_name} ({cols}) VALUES ({vals_placeholder})"
     update_query = f"UPDATE {file_table} SET processed = true WHERE id = %s"
     tuples = list(df.itertuples(index=False, name=None))
-    # import pdb;pdb.set_trace()
-    # import numpy as np
-    #
-    # # Assuming 'tuples' is your list of tuples from the data processing step
-    # processed_tuples = []
-    # for row in tuples:
-    #     # Convert tuple to list to modify it
-    #     new_row = list(row)
-    #     # Replace 'nan' and '$' with None
-    #     new_row = [None if (isinstance(item, float) and np.isnan(item)) or item == '$' else item for item in new_row]
-    #     # Convert list back to tuple if necessary
-    #     processed_tuples.append(tuple(new_row))
-    # tuples = processed_tuples
 
     def db_execute(insert_query, update_query, insert_values, update_value):
         conn = get_db_connection()

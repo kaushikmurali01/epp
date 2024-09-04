@@ -28,7 +28,7 @@ from sql_queries.nearest_weather_stations import min_max_date_query, min_max_met
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
-from dbconnection import dbtest, execute_query, refresh_materialised_view
+from dbconnection import dbtest, execute_query
 from utils import get_nearest_stations
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
