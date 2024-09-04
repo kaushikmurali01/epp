@@ -184,10 +184,6 @@ from psycopg2 import sql
 
 
 def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=100000):
-    def get_db_connection():
-        # Implement your database connection logic here
-        pass
-
     # Prepare the INSERT query
     columns = list(df.columns)
     insert_stmt = sql.SQL("INSERT INTO {} ({}) VALUES {}").format(
@@ -201,8 +197,9 @@ def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=1
         sql.Identifier(file_table)
     )
 
-    conn = get_db_connection()
+    conn = None
     try:
+        conn = get_db_connection()
         with conn.cursor() as cur:
             # Process the dataframe in chunks
             for chunk_start in range(0, len(df), chunk_size):
@@ -220,8 +217,55 @@ def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=1
             # Update the file table
             cur.execute(update_stmt, (record_id,))
             conn.commit()
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise e  # Re-raise the exception after rollback
     finally:
-        conn.close()
+        if conn:
+            conn.close()
+
+
+#
+# def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=100000):
+#     def get_db_connection():
+#         # Implement your database connection logic here
+#         pass
+#
+#     # Prepare the INSERT query
+#     columns = list(df.columns)
+#     insert_stmt = sql.SQL("INSERT INTO {} ({}) VALUES {}").format(
+#         sql.Identifier(table_name),
+#         sql.SQL(', ').join(map(sql.Identifier, columns)),
+#         sql.SQL(', ').join([sql.Placeholder()] * len(columns))
+#     )
+#
+#     # Prepare the UPDATE query
+#     update_stmt = sql.SQL("UPDATE {} SET processed = true WHERE id = %s").format(
+#         sql.Identifier(file_table)
+#     )
+#
+#     conn = get_db_connection()
+#     try:
+#         with conn.cursor() as cur:
+#             # Process the dataframe in chunks
+#             for chunk_start in range(0, len(df), chunk_size):
+#                 chunk = df.iloc[chunk_start:chunk_start + chunk_size]
+#
+#                 # Use copy_from for faster inserts
+#                 buffer = StringIO()
+#                 chunk.to_csv(buffer, index=False, header=False, sep='\t')
+#                 buffer.seek(0)
+#
+#                 cur.copy_from(buffer, table_name, null='', columns=columns)
+#
+#                 conn.commit()
+#
+#             # Update the file table
+#             cur.execute(update_stmt, (record_id,))
+#             conn.commit()
+#     finally:
+#         conn.close()
 
 
 def bulk_insert_df(df, table_name, record_id, file_table):

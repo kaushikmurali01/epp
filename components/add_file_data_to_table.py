@@ -156,9 +156,9 @@ class AddMeterData:
             print("DB Insert Started:{}".format(self.iv))
             optimized_bulk_insert_df(
                 df,
-                'epp.meter_hourly_entries',
+                'meter_hourly_entries',
                 record_id,
-                'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries'
+                'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
             # bulk_insert_df(df, 'epp.meter_hourly_entries', record_id,
             #                'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries')
