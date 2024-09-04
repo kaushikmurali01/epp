@@ -720,10 +720,10 @@ def remove_file():
 def add_meter_data():
     facility_id = request.json.get('facility_id', None)
     iv = request.json.get('iv')
-    if iv in ['false', False]:
-        iv = False
-    else:
+    if iv in ['true', True]:
         iv = True
+    else:
+        iv = False
     record_id = request.json.get('record_id')
     if not record_id:
         return {
