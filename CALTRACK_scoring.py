@@ -103,17 +103,25 @@ def scoring_daily_model(processed_reporting_data, eemeter_model, linear_model, i
     reporting_predictions = eemeter_model.predict(reporting_data_daily)
     
     # Convert temperature to Celsius and calculate residuals
-    reporting_predictions['tempC'] = (reporting_predictions['temperature'] - 32) * 5/9
+    reporting_predictions['temperature'] = (reporting_predictions['temperature'] - 32) * 5 / 9
     reporting_predictions['residual'] = reporting_predictions['predicted'] - reporting_predictions['observed']
     
-    # Use the linear regression model if independent variables are defined
-    if independent_variables:
-        # Prepare data for the linear model
-        X_scoring = daily_grouped_reporting[independent_variables]
-        # Predict adjustments using the linear model and calculate final predictions
-        reporting_predictions['predicted'] += linear_model.predict(X_scoring)
-        reporting_predictions['residual'] = reporting_predictions['predicted'] - reporting_predictions['observed']
+    # Use the linear regression model if it exists and independent variables are defined
+    if linear_model is not None and independent_variables:
+        # Ensure independent variables exist in the processed reporting data
+        missing_variables = [var for var in independent_variables if var not in daily_grouped_reporting.columns]
+        if missing_variables:
+            print(f"Missing independent variables: {missing_variables}. Skipping linear model predictions.")
+        else:
+            # Prepare data for the linear model
+            X_scoring = daily_grouped_reporting[independent_variables]
+            # Predict adjustments using the linear model and calculate final predictions
+            reporting_predictions['predicted'] += linear_model.predict(X_scoring)
+            reporting_predictions['residual'] = reporting_predictions['predicted'] - reporting_predictions['observed']
     else:
-        print("Some independent variables are missing from the DataFrame.")
+        if linear_model is None:
+            print("Linear model is not available. Skipping linear model predictions.")
+        elif not independent_variables:
+            print("No independent variables defined. Skipping linear model predictions.")
     
     return reporting_predictions

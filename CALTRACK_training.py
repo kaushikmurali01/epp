@@ -325,7 +325,7 @@ class EnergyModel:
         baseline_predictions = self.baseline_model_daily.predict(baseline_data_daily, ignore_disqualification=ignore_disqualification)
     
         # Adding temperature in Celsius and calculating residuals
-        baseline_predictions['tempC'] = (baseline_predictions['temperature'] - 32) * 5/9
+        baseline_predictions['temperature'] = (baseline_predictions['temperature'] - 32) * 5/9
         baseline_predictions['residual'] = baseline_predictions['predicted'] - baseline_predictions['observed']
         # self.result = result
         # Linear regression on the daily aggregated data
@@ -349,79 +349,94 @@ class EnergyModel:
     
         self.baseline_predictions = baseline_predictions.copy() #optional
         
-    def scoring_daily_model(self, processed_reporting_data,ignore_disqualification = False):
+    def scoring_daily_model(self, processed_reporting_data, ignore_disqualification=False):
         # Check if resampling is needed for reporting data
         if processed_reporting_data.index.freqstr != 'D':
             daily_grouped_reporting = processed_reporting_data.resample('D').agg({'temperature': 'mean', 'observed': 'sum'})
         else:
             daily_grouped_reporting = processed_reporting_data
-    
+
         # Using the model fitted on baseline data to predict on reporting data
         reporting_data_daily = DailyBaselineData(daily_grouped_reporting, is_electricity_data=True)
         reporting_predictions = self.baseline_model_daily.predict(reporting_data_daily, ignore_disqualification=ignore_disqualification)
-    
+
         # Adding temperature in Celsius and calculating residuals for reporting data
-        reporting_predictions['tempC'] = (reporting_predictions['temperature'] - 32) * 5/9
+        reporting_predictions['temperature'] = (reporting_predictions['temperature'] - 32) * 5 / 9
         reporting_predictions['Residual'] = reporting_predictions['observed'] - reporting_predictions['predicted']
-    
-        # Linear regression on the daily aggregated reporting data
-        if self.independent_variables:
-            if processed_reporting_data.index.freqstr != 'D':
-                X_scoring = processed_reporting_data[self.independent_variables].resample('D').agg('mean')
+
+        # Linear regression on the daily aggregated reporting data if the linear model and independent variables exist
+        if hasattr(self, 'linear_model') and self.independent_variables:
+            # Ensure independent variables exist in the processed reporting data
+            missing_variables = [var for var in self.independent_variables if var not in processed_reporting_data.columns]
+            if missing_variables:
+                print(f"Missing independent variables: {missing_variables}. Skipping linear model predictions.")
             else:
-                X_scoring = processed_reporting_data[self.independent_variables]
-            
-            # Predicting adjusted values using the linear model
-            reporting_predictions['predicted'] = self.linear_model.predict(X_scoring) + reporting_predictions['predicted']
-            reporting_predictions['Residual'] = reporting_predictions['observed'] - reporting_predictions['predicted']
+                # Check if resampling is needed for independent variables
+                if processed_reporting_data.index.freqstr != 'D':
+                    X_scoring = processed_reporting_data[self.independent_variables].resample('D').agg('mean')
+                else:
+                    X_scoring = processed_reporting_data[self.independent_variables]
+                
+                # Predicting adjusted values using the linear model
+                reporting_predictions['predicted'] = self.linear_model.predict(X_scoring) + reporting_predictions['predicted']
+                reporting_predictions['Residual'] = reporting_predictions['observed'] - reporting_predictions['predicted']
         else:
-            print("Some independent variables are missing from the reporting DataFrame.")
+            if not hasattr(self, 'linear_model'):
+                print("Linear model is not available. Skipping linear model predictions.")
+            if not self.independent_variables:
+                print("No independent variables defined. Skipping linear model predictions.")
+        
         print(reporting_predictions.head())
         # self.reporting_predictions = reporting_predictions.copy()
         return reporting_predictions
-  
-    def evaluate(self,scoring_data):
+    
+    def evaluate(self, scoring_data):
         # Evaluation metrics
         eval_data = scoring_data.copy().dropna()
         y_true = eval_data['observed']
         y_pred = eval_data['predicted']  # Assuming 'predicted' is a column in self.data
-        
+
         # Basic metrics
         mse = mean_squared_error(y_true, y_pred)
         rmse = np.sqrt(mse)
         r2 = r2_score(y_true, y_pred)
-        
+
         # Number of observations and features
         n = len(y_true)
         p = eval_data.drop(['observed', 'predicted'], axis=1, errors='ignore').shape[1]  # Number of features
-        
+
         # Adjusted R-squared
         adj_r2 = 1 - ((1 - r2) * (n - 1) / (n - p - 1))
-        
+
         # Mean Absolute Percentage Error (MAPE)
         mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-        
+
         # Coefficient of variation of RMSE
         cv_rmse = (rmse / np.mean(y_true)) * 100
-        
+
         # Autocorrelation function
         residuals = y_true - y_pred
         autocorr = np.corrcoef(np.array([residuals[:-1], residuals[1:]]))[0, 1]
-        
+
         # Durbin-Watson statistic
         dw_stat = durbin_watson(residuals)
-        
+
+        # Normalized Mean Bias Error (NMBE)
+        nmbe = (np.sum(y_true - y_pred) / (n * np.mean(y_true))) * 100
+
         # Prepare output
         results = {
             "Number of observations": n,
-            "Coefficient of Determination, R2": f"{round(100*r2,2):.2f}%",
-            "Adjusted R2": f"{round(100*adj_r2,2):.2f}%",
-            "Root-mean-square error, RMSE R2": round(rmse,2),
-            "Coefficient of variation of RMSE": f"{round(cv_rmse,2):.2f}%",
-            "Auto correlation function": round(autocorr,2),
-            "Durbin-Watson (P>0)": round(dw_stat,2)
+            "Coefficient of Determination, R2": f"{round(100 * r2, 2):.2f}%",
+            "Adjusted R2": f"{round(100 * adj_r2, 2):.2f}%",
+            "Root-mean-square error, RMSE R2": round(rmse, 2),
+            "Coefficient of variation of RMSE": f"{round(cv_rmse, 2):.2f}%",
+            "Mean Absolute Percentage Error (MAPE)": f"{round(mape, 2):.2f}%",
+            "Auto correlation function": round(autocorr, 2),
+            "Durbin-Watson (P>0)": round(dw_stat, 2),
+            "Normalized Mean Bias Error (NMBE)": f"{round(nmbe, 2):.2f}%"
         }
-        
+
         # Optionally return results
         return results
     def compute_baseline_peak_demand(self,baseline_data,model_type):
@@ -562,9 +577,12 @@ class EnergyModel:
         elif granularity == 'daily':
             # Combine both models into one dictionary
             combined_models = {
-                'eemeter_model': self.baseline_model_daily,
-                'linear_model': self.linear_model
+                'eemeter_model': self.baseline_model_daily
             }
+            
+            # Only add the linear model if it exists
+            if hasattr(self, 'linear_model'):
+                combined_models['linear_model'] = self.linear_model
             model_buffer = io.BytesIO()
             pickle.dump(combined_models, model_buffer)
             model_buffer.seek(0)  # Rewind to the beginning
@@ -572,7 +590,6 @@ class EnergyModel:
             # Configuration data for daily model
             config_data = {
                 "independent_variables": self.independent_variables,
-                "segment_type": self.segment_type
             }
         else:
             raise ValueError("Invalid granularity specified. Choose 'hourly' or 'daily'.")

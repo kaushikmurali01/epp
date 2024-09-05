@@ -455,3 +455,32 @@ def fetch_scoring_and_incentive_data(facility_id, meter_type):
     else:
         print("No data found for the given facility_id and meter_type.")
         return None
+    
+def process_results_with_thresholds(results, facility_id):
+    """
+    Takes in the results dictionary and a facility_id, 
+    fetches nmbe and rmse thresholds from the database, 
+    and compares them with the values in the results.
+    
+    Updates the 'baseline_model_check' key in the results dictionary.
+    """
+    # Extract NMBE and RMSE values from results
+    nmbe = float(results["Normalized Mean Bias Error (NMBE)"].replace('%', ''))
+    cv_rmse = float(results["Coefficient of variation of RMSE"].replace('%', ''))
+
+    # Fetch nmbe and rmse thresholds from database
+    query = "SELECT nmbe, rmse FROM epp.facility_threshold WHERE facility_id = %s"
+    db_result = db_execute(query, (facility_id,), fetch=True)
+    
+    if db_result:
+        nmbe_threshold, rmse_threshold = db_result
+    else:
+        raise ValueError(f"No thresholds found for facility_id {facility_id}")
+    
+    # Compare the fetched thresholds with model's results
+    if nmbe > nmbe_threshold or cv_rmse > rmse_threshold:
+        results['baseline_model_check'] = "failed"
+    else:
+        results['baseline_model_check'] = "success"
+
+    return results  # Return the updated results dictionary

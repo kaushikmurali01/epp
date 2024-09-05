@@ -66,7 +66,8 @@ def baseline_model_training():
             # Get buffers from the model save function
             model_buffer, config_buffer = model.save_model_to_buffer('daily')
         
-        model_metrics = model.evaluate(predicted_data)
+        model_metrics1 = model.evaluate(predicted_data)
+        model_metrics = process_results_with_thresholds(model_metrics1, facility_id)
         input_settings_dump = {
             "granularity" : granularity,
             "meter_type" : meter_type,
@@ -99,18 +100,19 @@ def baseline_model_training():
                 model_metrics_summary = EXCLUDED.model_metrics_summary,
                 model_input_settings = EXCLUDED.model_input_settings;
         """
-        # Execute the query
-        db_execute(query, values)
-        #push model to blob storage
-        # Blob names
-        sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
-        model_blob_name = f"{sub_folder_name}/model.pkl"
-        config_blob_name = f"{sub_folder_name}/config.pkl"
-        # Upload the model directly
-        upload_blob_from_buffer(model_blob_name, model_buffer)
-        # Upload the configuration directly
-        upload_blob_from_buffer(config_blob_name, config_buffer)
-        # returning baseline model metrics summary
+        if model_metrics['baseline_model_check'] == "success":
+            # Execute the query
+            db_execute(query, values)
+            #push model to blob storage
+            # Blob names
+            sub_folder_name = f"caltrack-{str(facility_id)}-{str(meter_type)}"
+            model_blob_name = f"{sub_folder_name}/model.pkl"
+            config_blob_name = f"{sub_folder_name}/config.pkl"
+            # Upload the model directly
+            upload_blob_from_buffer(model_blob_name, model_buffer)
+            # Upload the configuration directly
+            upload_blob_from_buffer(config_blob_name, config_buffer)
+            # returning baseline model metrics summary
         return jsonify(model_metrics)
     except Exception as e:
         print(f"An error occurred: {e}")
