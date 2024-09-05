@@ -189,7 +189,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
       meter_inactive: values?.stil_in_use
         ? null
         : new Date(values?.meter_inactive),
-      meter_active: new Date(values?.meter_active),
+      meter_active: values?.meter_active && new Date(values?.meter_active),
     };
     if (values.meter_type !== 1) {
       delete newValues.purchased_from_the_grid;
@@ -290,12 +290,8 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                         }}
                       >
                         <ToggleButton value={1}>Electricity</ToggleButton>
-                        <ToggleButton value={3} >
-                          Natural Gas
-                        </ToggleButton>
-                        <ToggleButton value={2} >
-                          Water
-                        </ToggleButton>
+                        <ToggleButton value={3}>Natural Gas</ToggleButton>
+                        <ToggleButton value={2}>Water</ToggleButton>
                       </ToggleButtonGroup>
                     )}
                   </Field>

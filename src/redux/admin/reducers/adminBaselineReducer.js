@@ -48,6 +48,12 @@ import {
   FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST,
   FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS,
   FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
+  FETCH_FACILITY_THRESHOLD_REQUEST,
+  FETCH_FACILITY_THRESHOLD_SUCCESS,
+  FETCH_FACILITY_THRESHOLD_FAILURE,
+  UPDATE_FACILITY_THRESHOLD_REQUEST,
+  UPDATE_FACILITY_THRESHOLD_SUCCESS,
+  UPDATE_FACILITY_THRESHOLD_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -63,6 +69,7 @@ const initialState = {
   dataExplorationSummaryList: [],
   rawMeterSummaryList: [],
   outliersSettingsData: [],
+  facilityThresholdData: [],
   loading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
@@ -367,6 +374,43 @@ const adminBaselineReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_FACILITY_THRESHOLD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_FACILITY_THRESHOLD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        facilityThresholdData: action.payload,
+        error: null,
+      };
+    case FETCH_FACILITY_THRESHOLD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case UPDATE_FACILITY_THRESHOLD_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case UPDATE_FACILITY_THRESHOLD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+      };
+    case UPDATE_FACILITY_THRESHOLD_FAILURE:
       return {
         ...state,
         loading: false,

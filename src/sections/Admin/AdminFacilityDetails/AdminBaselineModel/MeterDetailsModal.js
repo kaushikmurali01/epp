@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminRawSummaryMeterList } from "../../../../redux/admin/actions/adminBaselineAction";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { formatNumber } from "utils/numberFormatter";
 
 const miniTableStyles = {
   overflowY: "auto",
@@ -114,7 +115,7 @@ const MeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) => <>{item?.reading && formatNumber(item?.reading)}</>,
     },
   ];
   return (

@@ -30,6 +30,7 @@ import { useParams } from "react-router-dom";
 import { format, isAfter, isBefore, max, parseISO, subYears } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
+import Loader from "pages/Loader";
 
 const ModelConstructorForm = ({
   openSeeDetails,
@@ -54,6 +55,9 @@ const ModelConstructorForm = ({
   const [dataForCalculateBaseline, setDateForCalculateBaseline] = useState("");
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data || []
+  );
+  const calculateBaselineLoading = useSelector(
+    (state) => state?.baselineReducer?.calculateBaselineLoading
   );
   const [sliderStartDate, setSliderStartDate] = useState(null);
   const [sliderEndDate, setSliderEndDate] = useState(null);
@@ -470,9 +474,11 @@ const ModelConstructorForm = ({
                               // checked={values.independent_variables.includes(
                               //   variableItem?.id
                               // )}
-                              checked={+values?.independent_variables?.includes(
-                                +variableItem?.id
-                              )}
+                              checked={
+                                +values?.independent_variables?.includes(
+                                  +variableItem?.id
+                                )
+                              }
                               onChange={(event) =>
                                 handleIndeVarCheckboxChange(variableItem, event)
                               }
@@ -544,6 +550,16 @@ const ModelConstructorForm = ({
           Calculate baseline
         </Button>
       </Grid>
+      <Loader
+        textLoader={calculateBaselineLoading}
+        sectionLoader
+        minHeight="100vh"
+        loadingState={calculateBaselineLoading}
+        loaderPosition="fixed"
+        customLoaderText={
+          "The baseline modeling process has started with either hourly or daily regressions. Please wait while the calculation is underway. You’ll be notified once the best baseline model is established."
+        }
+      />
     </Grid>
   );
 };

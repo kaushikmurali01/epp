@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputField from "components/FormBuilder/InputField";
 import { Field, Form, Formik } from "formik";
 import {
@@ -10,36 +10,53 @@ import {
   Slider,
   Box,
 } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import {
+  fetchFacilityThresholdData,
+  updateFacilityThresholdData,
+} from "../../../../redux/admin/actions/adminBaselineAction";
 
-const SufficiencySettingsModalForm = ({
-  handleSufficiencySettingsFormSubmit,
-}) => {
+const SufficiencySettingsModalForm = ({ setModalConfig }) => {
   const [sufficiencySettingsTabValue, setSufficiencySettingsTabValue] =
     useState("data_sufficiency_setting");
+  const { id } = useParams();
+  const dispatch = useDispatch();
+  const [initialValues, setInitialValues] = useState({
+    daily_coverage_threshold: 0,
+    hourly_coverage_threshold: 0,
+    monthly_covergae_threshold: 0,
+    nmbe: "",
+    rmse: "",
+  });
+
+  useEffect(() => {
+    dispatch(fetchFacilityThresholdData(id))
+      .then((response) => {
+        const thresholdData = response.data;
+        if (thresholdData !== null) {
+          setInitialValues({
+            ...initialValues,
+            ...thresholdData,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching threshold data:", error);
+      });
+  }, [dispatch, id]);
 
   const handleSufficiencySettingsTabChange = (event, newValue) => {
     setSufficiencySettingsTabValue(newValue);
   };
 
-  const initialValues = {
-    dailyCoverageThreshold: 0,
-    hourlyCoverageThreshold: 0,
-    monthlyCoverageThreshold: 0,
-    nmbe_threshold: "",
-    rmse_threshold: "",
-  };
+  const handleSufficiencySettingsFormSubmit = (values) => {
+    dispatch(updateFacilityThresholdData(id, values));
 
-  const getInitialValues = () => {
-    return sufficiencySettingsTabValue === "data_sufficiency_setting"
-      ? {
-          dailyCoverageThreshold: initialValues.dailyCoverageThreshold,
-          hourlyCoverageThreshold: initialValues.hourlyCoverageThreshold,
-          monthlyCoverageThreshold: initialValues.monthlyCoverageThreshold,
-        }
-      : {
-          nmbe_threshold: initialValues.nmbe_threshold,
-          rmse_threshold: initialValues.rmse_threshold,
-        };
+    setModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: false,
+    }));
   };
 
   return (
@@ -64,7 +81,7 @@ const SufficiencySettingsModalForm = ({
         </Tabs>
       </Grid>
       <Formik
-        initialValues={getInitialValues()}
+        initialValues={initialValues}
         // validationSchema={validationSchema}
         onSubmit={handleSufficiencySettingsFormSubmit}
         enableReinitialize={true}
@@ -93,14 +110,15 @@ const SufficiencySettingsModalForm = ({
                       Daily Coverage Threshold
                     </Typography>
                     <Slider
-                      value={values.dailyCoverageThreshold}
+                      value={values.daily_coverage_threshold}
                       onChange={(e, val) =>
-                        setFieldValue("dailyCoverageThreshold", val)
+                        setFieldValue("daily_coverage_threshold", val)
                       }
                       aria-labelledby="Daily Coverage Threshold"
                       min={0}
                       max={100}
                       sx={{ marginBlockStart: "0.5rem" }}
+                      valueLabelDisplay="auto"
                     />
                   </Box>
                   <Box sx={{ margin: "0 auto", width: "90%" }}>
@@ -115,14 +133,15 @@ const SufficiencySettingsModalForm = ({
                       Hourly Coverage Threshold
                     </Typography>
                     <Slider
-                      value={values.hourlyCoverageThreshold}
+                      value={values.hourly_coverage_threshold}
                       onChange={(e, val) =>
-                        setFieldValue("hourlyCoverageThreshold", val)
+                        setFieldValue("hourly_coverage_threshold", val)
                       }
                       aria-labelledby="Hourly Coverage Threshold"
                       min={0}
                       max={100}
                       sx={{ marginBlockStart: "0.5rem" }}
+                      valueLabelDisplay="auto"
                     />
                   </Box>
                   <Box sx={{ margin: "0 auto", width: "90%" }}>
@@ -138,14 +157,15 @@ const SufficiencySettingsModalForm = ({
                       Monthly Coverage Threshold
                     </Typography>
                     <Slider
-                      value={values.monthlyCoverageThreshold}
+                      value={values.monthly_covergae_threshold}
                       onChange={(e, val) =>
-                        setFieldValue("monthlyCoverageThreshold", val)
+                        setFieldValue("monthly_covergae_threshold", val)
                       }
                       aria-labelledby="Monthly Coverage Threshold"
                       min={0}
                       max={100}
                       sx={{ marginBlockStart: "0.5rem" }}
+                      valueLabelDisplay="auto"
                     />
                   </Box>
                 </Grid>
@@ -154,7 +174,7 @@ const SufficiencySettingsModalForm = ({
                 <Grid container sx={{ flexDirection: "column", gap: "2rem" }}>
                   <Grid item>
                     <Field
-                      name="nmbe_threshold"
+                      name="nmbe"
                       type="number"
                       as={InputField}
                       label="NMBE threshold *"
@@ -169,7 +189,7 @@ const SufficiencySettingsModalForm = ({
                   </Grid>
                   <Grid item>
                     <Field
-                      name="rmse_threshold"
+                      name="rmse"
                       type="number"
                       as={InputField}
                       label="CV(RMSE) threshold *"

@@ -48,6 +48,12 @@ import {
   FETCH_ADMIN_OUTLIERS_SETTINGS_REQUEST,
   FETCH_ADMIN_OUTLIERS_SETTINGS_SUCCESS,
   FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
+  FETCH_FACILITY_THRESHOLD_REQUEST,
+  FETCH_FACILITY_THRESHOLD_SUCCESS,
+  FETCH_FACILITY_THRESHOLD_FAILURE,
+  UPDATE_FACILITY_THRESHOLD_REQUEST,
+  UPDATE_FACILITY_THRESHOLD_SUCCESS,
+  UPDATE_FACILITY_THRESHOLD_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -271,6 +277,35 @@ export const fetchAdminOutliersSettingsFailure = (error) => ({
   type: FETCH_ADMIN_OUTLIERS_SETTINGS_FAILURE,
   payload: error,
 });
+
+export const fetchFacilityThresholdRequest = (error) => ({
+  type: FETCH_FACILITY_THRESHOLD_REQUEST,
+});
+
+export const fetchFacilityThresholdSuccess = (data) => ({
+  type: FETCH_FACILITY_THRESHOLD_SUCCESS,
+  payload: data,
+});
+
+export const fetchFacilityThresholdFailure = (error) => ({
+  type: FETCH_FACILITY_THRESHOLD_FAILURE,
+  payload: error,
+});
+
+export const updateFacilityThresholdRequest = (error) => ({
+  type: UPDATE_FACILITY_THRESHOLD_REQUEST,
+});
+
+export const updateFacilityThresholdSuccess = (data) => ({
+  type: UPDATE_FACILITY_THRESHOLD_SUCCESS,
+  payload: data,
+});
+
+export const updateFacilityThresholdFailure = (error) => ({
+  type: UPDATE_FACILITY_THRESHOLD_FAILURE,
+  payload: error,
+});
+
 export const clearAdminBaselineState = () => ({
   type: CLEAR_ADMIN_BASELINE_STATE,
 });
