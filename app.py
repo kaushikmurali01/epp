@@ -675,30 +675,55 @@ def visualise_data_exploration_summary():
 
 @app.route('/upload-meter-file', methods=['POST'])
 def upload_file():
-    if 'file' not in request.files:
-        return jsonify({"error": "No file part"})
-    file = request.files['file']
-    file_name = request.files['file'].filename
-    if file_name.split('.')[-1] not in ['xlsx', '.xls']:
-        return jsonify({'error': "Please provide a valid Excel file"})
-    iv = False if request.form.get('iv') in [None, 'false'] else True
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    file_name = file.filename
+    if not file_name.endswith(('.xls', '.xlsx')):
+        return jsonify({"error": "Please provide a valid Excel file (.xls or .xlsx)"}), 400
+
     facility_id = request.form.get('facility_id')
     meter_id = request.form.get('meter_id')
+    iv = request.form.get('iv', 'false').lower() == 'true'
+
     if not facility_id:
-        return jsonify({'error': "Please Provide Facility ID"})
+        return jsonify({"error": "Please provide Facility ID"}), 400
     if not meter_id:
-        if iv:
-            return jsonify({'error': "Please Provide Independent Variable ID"})
-        return jsonify({'error': "Please Provide Meter ID"})
-    if file.filename == '':
-        return jsonify({"error": "No selected file"})
-    if file:
-        if iv:
-            uploader = MeterDataUploaderIV(file, facility_id, meter_id, iv)
-        else:
-            uploader = MeterDataUploader(file, facility_id, meter_id, iv)
-        result = uploader.process()
-        return jsonify(result)
+        error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
+        return jsonify({"error": error_msg}), 400
+
+    uploader = MeterDataUploaderIV(file, facility_id, meter_id, iv) if iv else MeterDataUploader(file, facility_id,
+                                                                                                 meter_id, iv)
+    result = uploader.process()
+    return jsonify(result)
+
+# @app.route('/upload-meter-file', methods=['POST'])
+# def upload_file():
+#     if 'file' not in request.files:
+#         return jsonify({"error": "No file part"})
+#     file = request.files['file']
+#     file_name = request.files['file'].filename
+#     if file_name.split('.')[-1] not in ['xlsx', '.xls']:
+#         return jsonify({'error': "Please provide a valid Excel file"})
+#     iv = False if request.form.get('iv') in [None, 'false'] else True
+#     facility_id = request.form.get('facility_id')
+#     meter_id = request.form.get('meter_id')
+#     if not facility_id:
+#         return jsonify({'error': "Please Provide Facility ID"})
+#     if not meter_id:
+#         if iv:
+#             return jsonify({'error': "Please Provide Independent Variable ID"})
+#         return jsonify({'error': "Please Provide Meter ID"})
+#     if file.filename == '':
+#         return jsonify({"error": "No selected file"})
+#     if file:
+#         if iv:
+#             uploader = MeterDataUploaderIV(file, facility_id, meter_id, iv)
+#         else:
+#             uploader = MeterDataUploader(file, facility_id, meter_id, iv)
+#         result = uploader.process()
+#         return jsonify(result)
 
 
 @app.route('/remove-meter-file', methods=['POST'])
