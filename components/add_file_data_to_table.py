@@ -165,6 +165,7 @@ class AddMeterData:
             print("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
+            raise
             return f"Failed to process record ID: {record_id}. Error: {str(e)}"
 
     def process_files(self):
