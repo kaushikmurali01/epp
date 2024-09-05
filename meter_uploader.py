@@ -58,14 +58,19 @@ class Validators:
             raise ValueError("The Excel file appears to be empty or unreadable.")
 
         valid_sheets = []
+        invalid_sheets = []
         merged_df = pd.DataFrame()
         for sheet_name, df in all_sheets.items():
+
             if isinstance(df, pd.DataFrame) and not df.empty and all(
                     column in df.columns for column in self.required_columns):
                 valid_sheets.append(sheet_name)
                 df_filtered = df[self.required_columns]
                 merged_df = pd.concat([merged_df, df_filtered], ignore_index=True)
-
+            else:
+                invalid_sheets.append(sheet_name)
+        if invalid_sheets:
+            raise ValueError("Invalid Sheet(s):{}".format(','.join(invalid_sheets)))
         if merged_df.empty:
             raise ValueError("No valid data found in the Excel file.")
 
