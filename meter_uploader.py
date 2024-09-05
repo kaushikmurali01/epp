@@ -111,8 +111,10 @@ class MeterDataUploader(BaseDataUploader):
             self.validate_and_read_excel_sheets()
             self.validate_data()
             # Additional logic before saving to database
-            file_path = self.upload_file_and_save_record()
-            return {"success": True, "message": "File uploaded and processed successfully", "path": file_path}
+            resp = self.upload_file_and_save_record()
+            return resp
+            # file_path = self.upload_file_and_save_record()
+            # return {"success": True, "message": "File uploaded and processed successfully", "path": file_path}
         except Exception as e:
             return {"success": False, "message": str(e)}
 
@@ -120,8 +122,13 @@ class MeterDataUploader(BaseDataUploader):
         # Simulating the process of saving the file and creating a record
         blob_name = generate_blob_name()
         file_path = save_file_to_blob(blob_name, io.BytesIO(self.excel_file.read()))
-        self.create_file_record_in_table(file_path)
-        return file_path
+        record_id = self.create_file_record_in_table(file_path)
+        return {
+            "success": True,
+            "message": "File Uploaded Successfully",
+            "path": file_path,
+            "record_id": record_id
+        }
 
 
 class MeterDataUploaderIV(BaseDataUploader):
@@ -135,8 +142,8 @@ class MeterDataUploaderIV(BaseDataUploader):
             self.validate_and_read_excel_sheets()
             self.validate_date_range()  # Use the overridden validation method
             # Additional logic before saving to database
-            file_path = self.upload_file_and_save_record()
-            return {"success": True, "message": "IV data file uploaded and processed successfully", "path": file_path}
+            resp = self.upload_file_and_save_record()
+            return resp
         except Exception as e:
             return {"success": False, "message": str(e)}
 
@@ -144,5 +151,12 @@ class MeterDataUploaderIV(BaseDataUploader):
         # Handles uploading the file to blob storage and creating a database record
         blob_name = generate_blob_name()
         file_path = save_file_to_blob(blob_name, io.BytesIO(self.excel_file.read()))
-        self.create_file_record_in_table(file_path)
-        return file_path
+        # self.create_file_record_in_table(file_path)
+        record_id = self.create_file_record_in_table(file_path)
+        return {
+            "success": True,
+            "message": "File Uploaded Successfully",
+            "path": file_path,
+            "record_id": record_id
+        }
+        # return file_path
