@@ -50,7 +50,20 @@ class Validators:
             visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
             excel_io.seek(0)
             with pd.ExcelFile(excel_io) as xls:
-                all_sheets = {sheet_name: pd.read_excel(xls, sheet_name) for sheet_name in visible_sheets}
+                all_sheets = {}
+                for sheet_name in visible_sheets:
+                    dataframe = pd.read_excel(xls, sheet_name)
+                    dataframe.dropna(how='all', inplace=True)
+                    # Convert 'Start Date (Required)' to datetime, setting invalid values to NaN
+                    dataframe['Start Date (Required)'] = pd.to_datetime(dataframe['Start Date (Required)'],
+                                                                        errors='coerce')
+
+                    # Convert 'End Date (Required)' to datetime, setting invalid values to NaN
+                    dataframe['End Date (Required)'] = pd.to_datetime(dataframe['End Date (Required)'], errors='coerce')
+
+                    all_sheets[sheet_name] = dataframe
+
+                # all_sheets = {sheet_name: pd.read_excel(xls, sheet_name) for sheet_name in visible_sheets}
         except Exception as e:
             raise ValueError(f"Error reading Excel file: {str(e)}")
 
@@ -74,13 +87,7 @@ class Validators:
         if merged_df.empty:
             raise ValueError("No valid data found in the Excel file.")
 
-        merged_df.dropna(how='all', inplace=True)
-        # Convert 'Start Date (Required)' to datetime, setting invalid values to NaN
-        merged_df['Start Date (Required)'] = pd.to_datetime(merged_df['Start Date (Required)'],
-                                                            errors='coerce')
 
-        # Convert 'End Date (Required)' to datetime, setting invalid values to NaN
-        merged_df['End Date (Required)'] = pd.to_datetime(merged_df['End Date (Required)'], errors='coerce')
 
         self.df = merged_df
 
