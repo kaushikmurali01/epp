@@ -48,7 +48,6 @@ meter_file_processing_query = """
         hme.facility_meter_detail_id = fmd.id
     WHERE
         hme.facility_id = {} AND
-        fmd.is_active = 1 AND
         hme.processed = false AND
         hme.id = {}
         
@@ -69,7 +68,6 @@ iv_file_processing_query = """
         iv.id = ivf.independent_variable_id
     WHERE 
         iv.facility_id = {} AND
-        ivf.is_active = true AND
         ivf.processed = false AND
         ivf.id = {};
 """

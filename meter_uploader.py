@@ -58,13 +58,13 @@ class BaseDataUploader:
                 data = data[1:]  # Skip headers
                 data.columns = headers
                 data = data[[col for col in self.required_columns if col in data.columns]]
-                data['Start Date (Required)'] = pd.to_datetime(data['Start Date (Required)'])
-                data['End Date (Required)'] = pd.to_datetime(data['End Date (Required)'])
+                data['Start Date (Required)'] = pd.to_datetime(data['Start Date (Required)'], errors='coerce')
+                data['End Date (Required)'] = pd.to_datetime(data['End Date (Required)'], errors='coerce')
                 data_frames.append(data)
             self.merged_df = pd.concat(data_frames, ignore_index=True)
+            self.merged_df.dropna(how='all', inplace=True)
         except Exception as e:
             raise ValueError(f"Error processing Excel sheets: {e}")
-
 
     def validate_data(self):
         self.get_meter_dates()
@@ -79,7 +79,9 @@ class BaseDataUploader:
             raise ValueError("Some entries are outside the allowed date range.")
 
         # Check for duplicates
-        if self.merged_df.duplicated(subset=['Start Date (Required)', 'End Date (Required)']).any():
+
+        if self.merged_df.duplicated(
+                subset=['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']).any():
             raise ValueError("Duplicate entries found.")
 
     def process(self):
