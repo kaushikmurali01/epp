@@ -84,10 +84,9 @@ const EntriesListing = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const meterIdKey = `dataProcessingLoader_${meterId}`;
+  const meterIdKey = `dataProcessingLoader_meter_${meterId}`;
   const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
-  // const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey))?.recordId
-  // const getDataProcessingLoader = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
+
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
     getDataProcessingLoader?.loader || false
   );
@@ -612,25 +611,15 @@ const EntriesListing = ({
   };
 
   const getUploadResult = async (loader,payload)=> {
-    // if (loader === "processingLoader") {
-    //   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-    // } else {
-    //   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
-    // }
 
-    // let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT + "?" + iv=false && record_id=payload.recordId}`;
     let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
    
 
     try {
       const res = await GET_REQUEST(apiURL);
-      console.log(res, "checkResponse");
-      // setUploadDataFormVisible(false);
-      // dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       return res; // Return the response for polling check
     } catch (error) {
       console.log(error);
-      // dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
@@ -640,43 +629,11 @@ const EntriesListing = ({
   }
   
 
-  // Polling GET API to retrieve the data
-  // const startPollingForData = (
-  //   setDataProcessingLoader,
-  //   getHourlyEntriesData
-  // ) => {
-  //   // Start data processing loader
-  //   setDataProcessingLoader(true);
-  //   sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
-
-  //   const checkInterval = setInterval(async () => {
-  //     try {
-  //       const response = await getHourlyEntriesData("processingLoader");
-  //       if (response.data?.data?.rows?.length > 0) {
-  //         // Data is retrieved successfully, stop polling
-  //         setDataProcessingLoader(false);
-  //         sessionStorage.removeItem("dataProcessingLoader");
-  //         clearInterval(checkInterval);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching data:", error);
-  //     }
-  //   }, 3000); // Poll every 3 seconds
-
-  //   return checkInterval;
-  // };
-
-
   const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId, meterId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
-    
     // Set the current timestamp along with the loader status
-
-    // const meterIdKey = `dataProcessingLoader_${meterId}`;
-   console.log("checking the recordId and meterId key", recordId, meterId);
     const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
-    console.log(storedData, "checking the storeData")
     let data = {};
     if(recordId !== undefined && storedData === null) {
       const now = new Date();
@@ -686,13 +643,10 @@ const EntriesListing = ({
         meterId: meterId,
         recordId: recordId || storedData?.recordId,
       };
-
       sessionStorage.setItem(meterIdKey, JSON.stringify(data));
   }
-  
-  console.log(data, 'check data')
+
     let checkInterval;
-  
     const pollData = async () => {
       try {
         // Check if 5 minutes have passed since setting the loader
@@ -702,12 +656,12 @@ const EntriesListing = ({
         const timeDifference = currentTime - storedTime;
   
         if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
-          console.log("2 minutes have passed, stopping polling.");
+          console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
           setDataProcessingLoader(false);
           sessionStorage.removeItem(meterIdKey);
           NotificationsToast({
-            message: "Something went wrong!",
+            message: "Maximum upload time exceeded. Please try again!",
             type: "error",
           });
           return;
@@ -715,7 +669,6 @@ const EntriesListing = ({
 
         if(checkStoredData?.recordId !== undefined ) {
           const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
-          console.log(getUploadResultData, "getUploadResultData")
 
           if(getUploadResultData.data?.status_code === 201){
               const response = await getHourlyEntriesData("processingLoader");
@@ -733,38 +686,21 @@ const EntriesListing = ({
             sessionStorage.removeItem(meterIdKey);
             clearInterval(checkInterval);
             dispatch(fetchFacilityStatus(id))
+            NotificationsToast({
+              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              type: "error",
+            });
             
           }
          
         } 
-      //   else {
-      //       const response = await getHourlyEntriesData("processingLoader");
-      //       if (response.data?.data?.rows?.length > 0) {
-      //         // Data is retrieved successfully, stop polling
-      //         setDataProcessingLoader(false);
-      //         sessionStorage.removeItem("dataProcessingLoader");
-      //         clearInterval(checkInterval);
-      //         dispatch(fetchFacilityStatus(id))
-      //     } 
-      // }
-        
-  
-        // const response = await getHourlyEntriesData("processingLoader");
-        // if (response.data?.data?.rows?.length > 0) {
-        //   // Data is retrieved successfully, stop polling
-        //   setDataProcessingLoader(false);
-        //   sessionStorage.removeItem("dataProcessingLoader");
-        //   clearInterval(checkInterval);
-        // }
         
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-  
     // Start the interval
     checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
-  
     return checkInterval;
   };
 
@@ -873,20 +809,15 @@ const EntriesListing = ({
   };
 
   useEffect(() => {
-    console.log(meterData, "check meter data");
     if (Object.keys(meterData).length > 0 && !dataProcessingLoader) {
       getHourlyEntriesData();
     }
 
-    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
-      // const meterIdKey = `dataProcessingLoader_${facilityMeterDetailId}`;
-      // const recordId = JSON.parse(sessionStorage.getItem(meterIdKey))?.recordId
-      
+    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {      
       startPollingForData(setDataProcessingLoader, getHourlyEntriesData, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
     }
   }, [meterData, refreshPageData]);
 
-  console.log(facilityMeterDetailId, meterData, getDataProcessingLoader, "check meter id");
 
   //  return html dom
 

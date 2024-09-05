@@ -62,6 +62,7 @@ import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
 import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
+import { useParams } from "react-router-dom";
 
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -72,6 +73,7 @@ const Weather = () => {
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
+
   const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
   const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID;
@@ -110,11 +112,13 @@ const Weather = () => {
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const getDataProcessingLoader =
-    sessionStorage?.getItem("dataProcessingLoader") === "true";
-  const [dataProcessingLoader, setDataProcessingLoader] = useState(
-    getDataProcessingLoader || false
-  );
+  const meterIdKey = selectedIv?.id ?  `dataProcessingLoader_iv_${selectedIv?.id}` : null;
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+  // const getDataProcessingLoader =
+  //   sessionStorage?.getItem("dataProcessingLoader") === "true";
+    const [dataProcessingLoader, setDataProcessingLoader] = useState(
+      getDataProcessingLoader?.loader || false
+    );
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   useEffect(() => {
@@ -512,13 +516,14 @@ const Weather = () => {
   const uploadIndepentVariableFile = (data) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const recordId = data.record_id;
+    const selectedIvId = selectedIv?.id;
     const payload = {
       facility_id: facilityData?.id,
-      record_id: data.record_id,
+      record_id: recordId,
       iv: true,
     };
 
-    console.log(apiURL, payload, "checking payload");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
@@ -537,7 +542,7 @@ const Weather = () => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+        startPollingForData(setDataProcessingLoader, getHourlyEntriesData,recordId, selectedIvId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -548,35 +553,102 @@ const Weather = () => {
       });
   };
 
+  const getUploadResult = async (loader,payload)=> {
+
+    let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=true&record_id=${payload.recordId}`;
+    try {
+      const res = await GET_REQUEST(apiURL);
+      return res; // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error; // Throw the error to be caught in polling
+    }
+  }
+  
+
   // Polling GET API to retrieve the data
-  const startPollingForData = (
-    setDataProcessingLoader,
-    getHourlyEntriesData
-  ) => {
+
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId, selectedIvId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
-    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
-
-    const checkInterval = setInterval(async () => {
+    // Set the current timestamp along with the loader status
+    const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
+    let data = {};
+    if(recordId !== undefined && storedData === null) {
+      const now = new Date();
+        data = {
+        loader: true,
+        timestamp: now.toISOString(),
+        selectedIvId: selectedIvId,
+        recordId: recordId || storedData?.recordId,
+      };
+      sessionStorage.setItem(meterIdKey, JSON.stringify(data));
+  }
+    let checkInterval;
+    const pollData = async () => {
       try {
-        const response = await getHourlyEntriesData("processingLoader");
-        if (response.data?.data?.rows?.length > 0) {
-          // Data is retrieved successfully, stop polling
-          setDataProcessingLoader(false);
-          sessionStorage.removeItem("dataProcessingLoader");
+        // Check if 5 minutes have passed since setting the loader
+        const checkStoredData = JSON.parse(sessionStorage.getItem(meterIdKey));
+        const storedTime = new Date(checkStoredData.timestamp);
+        const currentTime = new Date();
+        const timeDifference = currentTime - storedTime;
+  
+        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+          console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
-          dispatch(fetchFacilityStatus(facilityData?.id))
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem(meterIdKey);
+          NotificationsToast({
+            message: "Maximum upload time exceeded. Please try again!",
+            type: "error",
+          });
+          return;
         }
+
+        if(checkStoredData?.recordId !== undefined ) {
+          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+          if(getUploadResultData.data?.status_code === 201){
+              const response = await getHourlyEntriesData("processingLoader");
+              if (response.data?.data?.rows?.length > 0) {
+                // Data is retrieved successfully, stop polling
+                setDataProcessingLoader(false);
+                sessionStorage.removeItem(meterIdKey);
+                clearInterval(checkInterval);
+                dispatch(fetchFacilityStatus(facilityData?.id))
+                
+              }
+          }else if (getUploadResultData.data?.status_code === 400){
+            setDataProcessingLoader(false);
+            setUploadDataFormVisible(false);
+            sessionStorage.removeItem(meterIdKey);
+            clearInterval(checkInterval);
+            dispatch(fetchFacilityStatus(facilityData?.id))
+
+            NotificationsToast({
+              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              type: "error",
+            });
+            
+          }
+         
+        } 
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, 3000); // Poll every 3 seconds
-
+    };
+    // Start the interval
+    checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
     return checkInterval;
   };
 
+
   const getHourlyEntriesData = async (loader) => {
-    console.log(loader, "checking loaders...");
+   
     if (loader === "processingLoader") {
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
     } else {
@@ -593,7 +665,6 @@ const Weather = () => {
 
     try {
       const res = await POST_REQUEST(apiURL, payload);
-      console.log(res, "check view entry list");
       if (
         res.data?.data?.rows instanceof Array &&
         res.data?.data?.rows.length > 0
@@ -624,7 +695,6 @@ const Weather = () => {
       iv: false, // for hourly data independent variable will be false...
     };
 
-    console.log(imgData, apiURL, payload, "checking upload data");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
@@ -649,7 +719,7 @@ const Weather = () => {
     const activeTab = independentVarsList.find(
       (item) => item.id === selectedIv?.id
     );
-    console.log(activeTab, "activeTab");
+
     setViewEntriesModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -780,20 +850,15 @@ const Weather = () => {
 
   useEffect(() => {
     if (
-      Object.keys(facilityData)?.length > 0 &&
-      !dataProcessingLoader &&
-      selectedIv
+      Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
     ) {
-      console.log(facilityData, "facilityData check");
       getHourlyEntriesData();
     }
 
     if (
-      Object.keys(facilityData)?.length > 0 &&
-      dataProcessingLoader &&
-      selectedIv
+      Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
     ) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
     }
   }, [facilityData, selectedIv, refreshPageData]);
 
