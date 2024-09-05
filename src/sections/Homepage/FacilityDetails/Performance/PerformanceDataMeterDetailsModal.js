@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fetchPerformanceDataRawSummaryMeterList } from "../../../../redux/superAdmin/actions/performanceAction";
+import { formatNumber } from "utils/numberFormatter";
 
 const PerformanceDataMeterDetailsModal = ({
   setPerformanceDataMeterDetailsModalConfig,
@@ -136,7 +137,8 @@ const PerformanceDataMeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) =>
+        item?.reading && formatNumber(item.reading),
     },
   ];
 
