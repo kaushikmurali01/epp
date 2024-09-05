@@ -17,7 +17,7 @@ class BaseDataUploader:
         self.created_by = created_by
         self.meter_serial_no = meter_serial_no
         self.required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
-        self.chunk_size = 10000  # Adjust this value based on your system's memory capacity
+        self.chunk_size = 10000  # Number of rows to process at a time
 
     def get_meter_dates(self):
         query = f"""
@@ -96,49 +96,48 @@ class BaseDataUploader:
         # This method should be implemented in child classes
         raise NotImplementedError("This method should be implemented in child classes")
 
+    def process_sheet(self, sheet):
+        for start_row in range(1, sheet.max_row + 1, self.chunk_size):
+            end_row = min(start_row + self.chunk_size - 1, sheet.max_row)
+            chunk_data = []
+            for row in sheet.iter_rows(min_row=start_row, max_row=end_row, values_only=True):
+                chunk_data.append(row)
+
+            df_chunk = pd.DataFrame(chunk_data[1:], columns=chunk_data[0])  # Assuming first row is header
+
+            if all(column in df_chunk.columns for column in self.required_columns):
+                df_chunk = df_chunk[self.required_columns]
+                df_chunk['Start Date (Required)'] = pd.to_datetime(df_chunk['Start Date (Required)'], errors='coerce')
+                df_chunk['End Date (Required)'] = pd.to_datetime(df_chunk['End Date (Required)'], errors='coerce')
+
+                processed_chunk = self.process_excel_chunk(df_chunk)
+                overlaps = self.check_overlaps(processed_chunk)
+                if overlaps:
+                    raise ValueError("Excel file contains entries that overlap with existing database records")
+                self.save_to_database(processed_chunk)
+            else:
+                raise ValueError(f"Sheet is missing required columns")
+
     def validate_and_process_excel(self):
         try:
             excel_data = self.excel_file.read()
             excel_io = io.BytesIO(excel_data)
             wb = load_workbook(excel_io, read_only=True)
-            visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
+            visible_sheets = [sheet for sheet in wb.worksheets if sheet.sheet_state == 'visible']
 
             if not visible_sheets:
                 raise ValueError("The Excel file appears to be empty or unreadable.")
 
-            excel_io.seek(0)
+            with ThreadPoolExecutor(max_workers=5) as executor:
+                futures = [executor.submit(self.process_sheet, sheet) for sheet in visible_sheets]
 
-            with pd.ExcelFile(excel_io) as xls:
-                with ThreadPoolExecutor(max_workers=5) as executor:
-                    futures = []
-                    for sheet_name in visible_sheets:
-                        for chunk in pd.read_excel(xls, sheet_name, chunksize=self.chunk_size):
-                            if all(column in chunk.columns for column in self.required_columns):
-                                chunk = chunk[self.required_columns]
-                                chunk['Start Date (Required)'] = pd.to_datetime(chunk['Start Date (Required)'],
-                                                                                errors='coerce')
-                                chunk['End Date (Required)'] = pd.to_datetime(chunk['End Date (Required)'],
-                                                                              errors='coerce')
-
-                                future = executor.submit(self.process_and_save_chunk, chunk)
-                                futures.append(future)
-                            else:
-                                raise ValueError(f"Sheet '{sheet_name}' is missing required columns")
-
-                    # Wait for all futures to complete
-                    for future in as_completed(futures):
-                        future.result()  # This will raise an exception if there was an error
+                # Wait for all futures to complete
+                for future in as_completed(futures):
+                    future.result()  # This will raise an exception if there was an error
 
             return True, "File Processed Successfully"
         except Exception as e:
             return False, str(e)
-
-    def process_and_save_chunk(self, chunk):
-        processed_chunk = self.process_excel_chunk(chunk)
-        overlaps = self.check_overlaps(processed_chunk)
-        if overlaps:
-            raise ValueError("Excel file contains entries that overlap with existing database records")
-        self.save_to_database(processed_chunk)
 
     def create_file_record_in_table(self, file_path):
         raise NotImplementedError("This method should be implemented in child classes")
