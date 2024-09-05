@@ -49,6 +49,14 @@ export const summaryAccordionContentStyle = {
   fontWeight: 500,
 };
 
+export const summaryAccordionContentHeading = {
+  color: "#242424",
+  padding: "0.375rem 1rem",
+  fontSize: { xs: "13px", sm: "15px" },
+  fontStyle: "normal",
+  fontWeight: 600,
+};
+
 export const checkBoxButtonStyle = {
   display: "inline-flex",
   alignItems: "center",

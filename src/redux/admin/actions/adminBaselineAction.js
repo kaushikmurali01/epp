@@ -49,6 +49,12 @@ import {
   fetchAdminOutliersSettingsRequest,
   fetchAdminOutliersSettingsSuccess,
   fetchAdminOutliersSettingsFailure,
+  fetchFacilityThresholdSuccess,
+  fetchFacilityThresholdFailure,
+  fetchFacilityThresholdRequest,
+  updateFacilityThresholdRequest,
+  updateFacilityThresholdSuccess,
+  updateFacilityThresholdFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -441,6 +447,52 @@ export const fetchAdminOutliersSettingsData = (facilityId) => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+    }
+  };
+};
+
+export const fetchFacilityThresholdData = (facilityId) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchFacilityThresholdRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FACILITY_THRESHOLD}/${facilityId}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      console.log(response);
+      dispatch(fetchFacilityThresholdSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchFacilityThresholdFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const updateFacilityThresholdData = (facilityId, thresholdData) => {
+  return async (dispatch) => {
+    try {
+      dispatch(updateFacilityThresholdRequest());
+      const endpointWithParams = `${BASELINE_ENDPOINTS.FACILITY_THRESHOLD}/${facilityId}`;
+      const response = await POST_REQUEST(endpointWithParams, thresholdData);
+      const data = response.data;
+      dispatch(updateFacilityThresholdSuccess(data));
+      NotificationsToast({
+        message: "Threshold data updated successfully",
+        type: "success",
+      });
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(updateFacilityThresholdFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error;
     }
   };
 };

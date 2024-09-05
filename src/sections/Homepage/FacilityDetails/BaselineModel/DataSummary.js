@@ -13,6 +13,7 @@ import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/ac
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { formatNumber } from "utils/numberFormatter";
 
 const DataSummary = () => {
   const [activeButton, setActiveButton] = useState("observe_data");
@@ -193,7 +194,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
   ];
 
@@ -253,7 +256,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
   ];
 
@@ -312,7 +317,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
     {
       Header: "Threshold",

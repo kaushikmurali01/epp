@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getBaselineDataSummary } from "../../../../redux/superAdmin/actions/performanceAction";
 import { getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { formatNumber } from "utils/numberFormatter";
 
 const baselineStyleInAccordion = {
   color: "#242424",
@@ -105,7 +106,9 @@ const BaselineSummaryAccord = ({ meter_type }) => {
         </Grid>
         <Grid item xs={12} md={8}>
           <Typography variant="h6" sx={baselineStyleInAccordionHeading}>
-            {incentiveSettings?.preProjectIncentive || "N/A"}
+            {incentiveSettings?.preProjectIncentive
+              ? formatNumber(incentiveSettings?.preProjectIncentive)
+              : "N/A"}
           </Typography>
         </Grid>
       </Grid>

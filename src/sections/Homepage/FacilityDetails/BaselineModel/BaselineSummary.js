@@ -1,8 +1,12 @@
 import { Grid, Typography } from "@mui/material";
 import React from "react";
-import { summaryAccordionContentStyle } from "./styles";
+import {
+  summaryAccordionContentHeading,
+  summaryAccordionContentStyle,
+} from "./styles";
 import { useSelector } from "react-redux";
 import { getSummaryDataByMeterType } from ".";
+import { formatNumber } from "utils/numberFormatter";
 
 const BaselineSummary = ({ summaryData, meterType }) => {
   const summaryDataByMeterType = getSummaryDataByMeterType(
@@ -23,12 +27,13 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
-                {
-                  summaryDataByMeterType?.parameter_data?.[
-                    "Number of observations"
-                  ]
-                }
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
+                {summaryDataByMeterType?.parameter_data &&
+                  formatNumber(
+                    summaryDataByMeterType?.parameter_data?.[
+                      "Number of observations"
+                    ]
+                  )}
               </Typography>
             </Grid>
           </Grid>
@@ -39,7 +44,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
                     "Coefficient of Determination, R2"
@@ -55,7 +60,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {summaryDataByMeterType?.parameter_data?.["Adjusted R2"]}
               </Typography>
             </Grid>
@@ -67,7 +72,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
                     "Root-mean-square error, RMSE R2"
@@ -83,7 +88,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
                     "Coefficient of variation of RMSE"
@@ -99,7 +104,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
                     "Auto correlation function"
@@ -115,7 +120,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
             <Grid item xs={12} md={8}>
-              <Typography variant="h6" sx={summaryAccordionContentStyle}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
                 {
                   summaryDataByMeterType?.parameter_data?.[
                     "Durbin-Watson (P>0)"
