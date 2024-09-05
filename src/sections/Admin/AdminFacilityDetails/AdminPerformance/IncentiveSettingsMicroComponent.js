@@ -19,6 +19,7 @@ import {
 } from "../../../../redux/admin/actions/adminPerformanceActions";
 import Loader from "pages/Loader";
 import { incentiveSettingValidationSchema } from "utils/validations/formValidation";
+import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
 
 const StyledHelperText = styled(Typography)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -280,6 +281,7 @@ const IncentiveSettingsMicroComponent = () => {
     dispatch(updateIncentiveSettings(payload, facility_id))
       .then(() => {
         dispatch(getIncentiveSettings(facility_id));
+        dispatch(fetchAdminFacilityStatus(facility_id));
       })
       .catch((error) => {
         console.error("Error updating settings:", error);
