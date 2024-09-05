@@ -116,6 +116,7 @@ class MeterDataUploader(BaseDataUploader):
             # file_path = self.upload_file_and_save_record()
             # return {"success": True, "message": "File uploaded and processed successfully", "path": file_path}
         except Exception as e:
+            raise
             return {"success": False, "message": str(e)}
 
     def upload_file_and_save_record(self):
@@ -145,6 +146,7 @@ class MeterDataUploaderIV(BaseDataUploader):
             resp = self.upload_file_and_save_record()
             return resp
         except Exception as e:
+            raise
             return {"success": False, "message": str(e)}
 
     def upload_file_and_save_record(self):
