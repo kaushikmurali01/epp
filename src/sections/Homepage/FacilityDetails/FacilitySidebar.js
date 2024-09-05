@@ -104,7 +104,7 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
                 ></Box>
               )
             }
-            // disabled={!disabledTab?.[item?.value]}
+            disabled={!disabledTab?.[item?.value]}
           />
         ))}
       </Tabs>

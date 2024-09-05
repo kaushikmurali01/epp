@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchRawSummaryMeterList } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { formatNumber } from "utils/numberFormatter";
 
 const MeterDetailsModal = ({
   setMeterDetailsModalConfig,
@@ -111,7 +112,7 @@ const MeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) => <>{item?.reading && formatNumber(item?.reading)}</>,
     },
   ];
 

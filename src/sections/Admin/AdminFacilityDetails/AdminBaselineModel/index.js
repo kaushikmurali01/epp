@@ -111,20 +111,8 @@ const AdminBaselineModel = () => {
       headerText: null,
       headerSubText: null,
       modalBodyContent: (
-        <SufficiencySettingsModalForm
-          handleSufficiencySettingsFormSubmit={
-            handleSufficiencySettingsFormSubmit
-          }
-        />
+        <SufficiencySettingsModalForm setModalConfig={setModalConfig} />
       ),
-    }));
-  };
-
-  const handleSufficiencySettingsFormSubmit = (values) => {
-    console.log(values);
-    setModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: false,
     }));
   };
 

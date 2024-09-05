@@ -359,7 +359,6 @@ const ModelConstructorForm = ({
             fontWeight: 400,
           }}
           onClick={handleSufficiencySettings}
-          disabled
         >
           Sufficiency setting
         </Typography>

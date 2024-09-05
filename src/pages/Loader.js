@@ -16,6 +16,7 @@ export default function Loader({
   loaderPosition = "absolute",
   textLoader,
   loaderText = "Loading",
+  customLoaderText,
 }) {
   // sectionLoader is for circular loader
   // the Loader Box's min height will be sent via prop "minHeight" so that For a particular section we can show this loader
@@ -65,18 +66,30 @@ export default function Loader({
             <Box
               sx={{
                 display: "flex",
+                flexDirection: "column",
                 gap: "1rem",
                 alignItems: "center",
                 marginTop: "1rem",
+                marginInline: "1rem",
                 justifyContent: "center",
+                padding: "2rem",
+                background: "#FFFFFF",
+                borderRadius: "10px",
+                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+                maxWidth: "45rem",
               }}
             >
               <Typography
                 variant="body2"
                 color="textSecondary"
-                sx={{ marginRight: "1rem", fontWeight: 700 }}
+                sx={{
+                  marginRight: "1rem",
+                  fontWeight: 700,
+                }}
               >
-                Be patient, {loaderText} is in process
+                {customLoaderText
+                  ? customLoaderText
+                  : `Be patient, ${loaderText} is in process`}
               </Typography>
               <div className="progress-loader"></div>
             </Box>
