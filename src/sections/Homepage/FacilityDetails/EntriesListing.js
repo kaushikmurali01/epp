@@ -83,9 +83,11 @@ const EntriesListing = ({
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  // const getDataProcessingLoader =
-  //   sessionStorage?.getItem("dataProcessingLoader") === "true";
-  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
+
+  const meterIdKey = `dataProcessingLoader_${meterId}`;
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+  // const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey))?.recordId
+  // const getDataProcessingLoader = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
     getDataProcessingLoader?.loader || false
   );
@@ -598,7 +600,7 @@ const EntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData, recordId);
+        startPollingForData(setDataProcessingLoader, getHourlyEntriesData, recordId, facilityMeterDetailId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -610,11 +612,11 @@ const EntriesListing = ({
   };
 
   const getUploadResult = async (loader,payload)=> {
-    if (loader === "processingLoader") {
-      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-    } else {
-      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
-    }
+    // if (loader === "processingLoader") {
+    //   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+    // } else {
+    //   dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
+    // }
 
     // let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT + "?" + iv=false && record_id=payload.recordId}`;
     let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
@@ -624,11 +626,15 @@ const EntriesListing = ({
       const res = await GET_REQUEST(apiURL);
       console.log(res, "checkResponse");
       // setUploadDataFormVisible(false);
-      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      // dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       return res; // Return the response for polling check
     } catch (error) {
       console.log(error);
-      dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      // dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
       throw error; // Throw the error to be caught in polling
     }
   }
@@ -661,36 +667,45 @@ const EntriesListing = ({
   // };
 
 
-  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId) => {
+  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId, meterId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     
     // Set the current timestamp along with the loader status
-    const now = new Date();
-    const data = {
-      loader: true,
-      timestamp: now.toISOString(),
-      meterId: facilityMeterDetailId,
-      recordId: recordId,
-    };
 
-    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(data));
+    // const meterIdKey = `dataProcessingLoader_${meterId}`;
+   console.log("checking the recordId and meterId key", recordId, meterId);
+    const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
+    console.log(storedData, "checking the storeData")
+    let data = {};
+    if(recordId !== undefined && storedData === null) {
+      const now = new Date();
+        data = {
+        loader: true,
+        timestamp: now.toISOString(),
+        meterId: meterId,
+        recordId: recordId || storedData?.recordId,
+      };
+
+      sessionStorage.setItem(meterIdKey, JSON.stringify(data));
+  }
   
+  console.log(data, 'check data')
     let checkInterval;
   
     const pollData = async () => {
       try {
         // Check if 5 minutes have passed since setting the loader
-        const storedData = JSON.parse(sessionStorage.getItem("dataProcessingLoader"));
-        const storedTime = new Date(storedData.timestamp);
+        const checkStoredData = JSON.parse(sessionStorage.getItem(meterIdKey));
+        const storedTime = new Date(checkStoredData.timestamp);
         const currentTime = new Date();
         const timeDifference = currentTime - storedTime;
   
         if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
-          console.log("1 minutes have passed, stopping polling.");
+          console.log("2 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
           setDataProcessingLoader(false);
-          sessionStorage.removeItem("dataProcessingLoader");
+          sessionStorage.removeItem(meterIdKey);
           NotificationsToast({
             message: "Something went wrong!",
             type: "error",
@@ -698,19 +713,49 @@ const EntriesListing = ({
           return;
         }
 
-        if(data?.recordId !== undefined) {
-          const getUploadResultData = await getUploadResult("processingLoader",data)
-        console.log(getUploadResultData, "getUploadResultData")
-        }
+        if(checkStoredData?.recordId !== undefined ) {
+          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+          console.log(getUploadResultData, "getUploadResultData")
+
+          if(getUploadResultData.data?.status_code === 201){
+              const response = await getHourlyEntriesData("processingLoader");
+              if (response.data?.data?.rows?.length > 0) {
+                // Data is retrieved successfully, stop polling
+                setDataProcessingLoader(false);
+                sessionStorage.removeItem(meterIdKey);
+                clearInterval(checkInterval);
+                dispatch(fetchFacilityStatus(id))
+                
+              }
+          }else if (getUploadResultData.data?.status_code === 400){
+            setDataProcessingLoader(false);
+            setUploadDataFormVisible(false);
+            sessionStorage.removeItem(meterIdKey);
+            clearInterval(checkInterval);
+            dispatch(fetchFacilityStatus(id))
+            
+          }
+         
+        } 
+      //   else {
+      //       const response = await getHourlyEntriesData("processingLoader");
+      //       if (response.data?.data?.rows?.length > 0) {
+      //         // Data is retrieved successfully, stop polling
+      //         setDataProcessingLoader(false);
+      //         sessionStorage.removeItem("dataProcessingLoader");
+      //         clearInterval(checkInterval);
+      //         dispatch(fetchFacilityStatus(id))
+      //     } 
+      // }
         
   
-        const response = await getHourlyEntriesData("processingLoader");
-        if (response.data?.data?.rows?.length > 0) {
-          // Data is retrieved successfully, stop polling
-          setDataProcessingLoader(false);
-          sessionStorage.removeItem("dataProcessingLoader");
-          clearInterval(checkInterval);
-        }
+        // const response = await getHourlyEntriesData("processingLoader");
+        // if (response.data?.data?.rows?.length > 0) {
+        //   // Data is retrieved successfully, stop polling
+        //   setDataProcessingLoader(false);
+        //   sessionStorage.removeItem("dataProcessingLoader");
+        //   clearInterval(checkInterval);
+        // }
         
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -828,16 +873,20 @@ const EntriesListing = ({
   };
 
   useEffect(() => {
+    console.log(meterData, "check meter data");
     if (Object.keys(meterData).length > 0 && !dataProcessingLoader) {
       getHourlyEntriesData();
     }
 
     if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+      // const meterIdKey = `dataProcessingLoader_${facilityMeterDetailId}`;
+      // const recordId = JSON.parse(sessionStorage.getItem(meterIdKey))?.recordId
+      
+      startPollingForData(setDataProcessingLoader, getHourlyEntriesData, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
     }
   }, [meterData, refreshPageData]);
 
-  // console.log(getDataProcessingLoader, dataProcessingLoader, "check data processing loader")
+  console.log(facilityMeterDetailId, meterData, getDataProcessingLoader, "check meter id");
 
   //  return html dom
 
@@ -1247,7 +1296,7 @@ const EntriesListing = ({
               >
                 Please be patient, file processing is in progress
               </Typography>
-              <div class="progress-loader"></div>
+              <div className="progress-loader"></div>
             </Box>
           )}
 

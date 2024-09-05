@@ -61,6 +61,7 @@ import MapComponent from "components/MapComponent/MapComponent";
 import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
 
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -564,6 +565,7 @@ const Weather = () => {
           setDataProcessingLoader(false);
           sessionStorage.removeItem("dataProcessingLoader");
           clearInterval(checkInterval);
+          dispatch(fetchFacilityStatus(facilityData?.id))
         }
       } catch (error) {
         console.error("Error fetching data:", error);
