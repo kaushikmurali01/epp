@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fetchAdminPerformanceDataRawSummaryMeterList } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { formatNumber } from "utils/numberFormatter";
 
 const PerformanceDataMeterDetailsModal = ({
   setPerformanceDataMeterDetailsModalConfig,
@@ -88,15 +89,11 @@ const PerformanceDataMeterDetailsModal = ({
       []
   );
 
-  // const count = useSelector(
-  //   (state) => state?.baselineReducer?.rawMeterSummaryList?.count
-  // );x
-
   const observeDataColumn = [
     {
       Header: "Start Date",
       accessor: (item) => (
-        <Typography variant="small" sx={{fontWeight:400, color:"#54585A"}}>
+        <Typography variant="small" sx={{ fontWeight: 400, color: "#54585A" }}>
           {item?.start_date &&
             format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")}
         </Typography>
@@ -115,7 +112,8 @@ const PerformanceDataMeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) =>
+        item?.reading && formatNumber(item.reading),
     },
   ];
   return (

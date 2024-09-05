@@ -543,7 +543,7 @@ const SavingsReportForm = ({
       ),
     },
     ...fields.map((field) => {
-      const value = formData[field.name] ? formatNumber(formData[field.name], {roundingType: "integer"}) : "";
+      const value = formData[field.name] && formatNumber(formData[field.name]);
       const displayValue = value === 0 ? 0 : value || "-";
       return {
         metric: field.label,

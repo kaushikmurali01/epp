@@ -9,6 +9,7 @@ import { activeButtonStyle, inactiveButtonStyle, StyledButtonGroup } from "../Ad
 import { fetchAdminPerformanceDataSummaryList, getAdminPerformanceDataMinMaxDate, scoreAdminPerformanceData } from "../../../../redux/admin/actions/adminPerformanceActions";
 import { format, parseISO } from "date-fns";
 import PerformanceDataMeterDetailsModal from "./PerformanceDataMeterDetailsModal";
+import { formatNumber } from "utils/numberFormatter";
 
 const PerformancePeriodDataSummary = ({meter_type}) => {
   const [activeButton, setActiveButton] = useState("observe_data");
@@ -195,7 +196,8 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) =>
+        item?.total_records && formatNumber(item.total_records),
     },
   ];
 
@@ -253,7 +255,8 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) =>
+        item?.total_records && formatNumber(item.total_records),
     },
   ];
 
@@ -310,7 +313,8 @@ const PerformancePeriodDataSummary = ({meter_type}) => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) =>
+        item?.total_records && formatNumber(item.total_records),
     },
     {
       Header: "Threshold",
