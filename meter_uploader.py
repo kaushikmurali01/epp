@@ -46,7 +46,7 @@ class Validators:
             "active_range": self.validate_data_within_meter_active_range(data_chunk=chunk)
         }
 
-    def validate_and_read_excel_sheets(self, excel_file, chunk_size=1000):
+    def validate_and_read_excel_sheets(self, excel_file, chunk_size=10000):
         excel_io = io.BytesIO(excel_file.read())
         wb = openpyxl.load_workbook(excel_io, read_only=True)
         visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
