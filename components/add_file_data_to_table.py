@@ -1,19 +1,20 @@
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dbconnection import dbtest, execute_query, \
-    optimized_bulk_insert_df
+from dbconnection import dbtest, execute_query, optimized_bulk_insert_df
 from openpyxl import load_workbook
 import io
 import requests
 from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query
+import logging
 
+# Setup logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def download_excel(url):
     response = requests.get(url)
     response.raise_for_status()  # Raise an exception for bad status codes
     return response.content
-
 
 class AddMeterData:
     def __init__(self, facility_id, record_id, iv=False):
@@ -36,19 +37,14 @@ class AddMeterData:
         return isinstance(val, (float, int))
 
     def prepare_data_for_insertion(self, df):
-        # Display the updated DataFrame with the new columns
         df.rename(columns={'Start Date (Required)': 'start_date', 'End Date (Required)': 'end_date',
                            'Meter Reading (Required)': 'reading'}, inplace=True)
         df['start_date_og'] = df['start_date']
         df['end_date_og'] = df['end_date']
         df['reading_og'] = df['reading']
         df['reading'] = pd.to_numeric(df['reading'], errors='coerce')
-
-        # df['reading'] = df['reading'].astype(int, errors='coerce')
-        # Convert dates and handle potential invalid datetime formats gracefully
         df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
         df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce')
-
         df['start_year'] = df['start_date'].dt.year
         df['start_month'] = df['start_date'].dt.month
         df['end_year'] = df['end_date'].dt.year
@@ -58,53 +54,34 @@ class AddMeterData:
         for col in int_columns:
             df[col] = df[col].fillna(-1).astype(int)
 
-        # Mark missing or zero readings
         if self.iv:
-            df['missing'] = (
-                    df[['start_date', 'end_date']].isna().any(axis=1) |
-                    df['reading'].isna()
-            )
+            df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna()
         else:
-            df['missing'] = (
-                    df[['start_date', 'end_date']].isna().any(axis=1) |
-                    df['reading'].isna() |
-                    (df['reading'] == 0)
-            )
+            df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna() | (df['reading'] == 0)
 
-        # Filter to get only clean data
         clean_data = df[~df['missing']].copy()
-        # Calculate Q1 and Q3 for 'Meter Reading (Required)' on clean data
         Q1 = clean_data['reading'].quantile(0.25)
         Q3 = clean_data['reading'].quantile(0.75)
         IQR = Q3 - Q1
-
-        # Define outliers
         lower_bound = Q1 - 1.5 * IQR
         upper_bound = Q3 + 1.5 * IQR
 
-        # Add 'Outliers' column on clean data based on outlier definition
-        clean_data['outliers'] = (
-                (clean_data['reading'] < lower_bound) |
-                (clean_data['reading'] > upper_bound)
-        )
-        # # Convert year and month columns to integers
+        clean_data['outliers'] = (clean_data['reading'] < lower_bound) | (clean_data['reading'] > upper_bound)
         for col in ['start_year', 'start_month', 'end_year', 'end_month']:
             clean_data[col] = clean_data[col].astype(int)
-
         for col in ['start_date_og', 'end_date_og', 'reading_og']:
             clean_data[col] = clean_data[col].astype(str)
-        # Merge back the 'Outliers' flags to the original DataFrame
-        df = df.join(clean_data['outliers'], how='left')
-        df['outliers'].fillna(False, inplace=True)  # Assume non-clean data has no outliers
 
+        df = df.join(clean_data['outliers'], how='left')
+        df['outliers'].fillna(False, inplace=True)
         df['start_date'] = df['start_date'].astype(object).where(df['start_date'].notnull(), None)
         df['end_date'] = df['end_date'].astype(object).where(df['end_date'].notnull(), None)
 
         return df
 
     def process_file(self, row):
+        logging.debug("File Process Started")
         try:
-            print("File Process Started")
             record_id = row.get('file_record_id')
             meter_name = row.get('meter_name') if not self.iv else row.get('independent_variable_name')
             meter_detail_id = row.get('facility_meter_detail_id') if not self.iv else None
@@ -115,22 +92,16 @@ class AddMeterData:
 
             excel_data = download_excel(url)
             excel_io = io.BytesIO(excel_data)
-
-            # Load the workbook to check for visible sheets
             wb = load_workbook(excel_io, read_only=True)
             visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
-
-            # Reset the BytesIO object for pandas to read
             excel_io.seek(0)
 
-            # Read only visible sheets
             df_list = []
             with pd.ExcelFile(excel_io) as xls:
                 for sheet_name in visible_sheets:
                     df = pd.read_excel(xls, sheet_name)
                     df_list.append(df)
 
-            # Combine all dataframes
             if not df_list:
                 raise ValueError("No visible sheets found in the Excel file.")
 
@@ -152,28 +123,24 @@ class AddMeterData:
                                 'independent_variable_id', 'start_year', 'start_month', 'end_year',
                                 'end_month']
             df = df[required_columns]
-            print("File Process End")
-            print("DB Insert Started:{}".format(self.iv))
+            logging.debug("DB Insert Started:{}".format(self.iv))
             optimized_bulk_insert_df(
                 df,
                 'meter_hourly_entries',
                 record_id,
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
-            # bulk_insert_df(df, 'epp.meter_hourly_entries', record_id,
-            #                'epp.independent_variable_file' if self.iv else 'epp.facility_meter_hourly_entries')
-            print("DB Insert End")
+            logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
+            logging.error(f"Failed to process record ID: {record_id}. Error: {str(e)}")
             raise
-            return f"Failed to process record ID: {record_id}. Error: {str(e)}"
 
     def process_files(self):
-        with ThreadPoolExecutor(max_workers=500) as executor:  # Adjust max_workers as needed
+        with ThreadPoolExecutor(max_workers=500) as executor:
             futures = [executor.submit(self.process_file, row) for _, row in self.raw_df.iterrows()]
-
             for future in as_completed(futures):
-                print(future.result())
+                logging.debug(future.result())
 
     def process(self):
         self.process_files()
