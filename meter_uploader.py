@@ -173,7 +173,7 @@ class MeterDataUploader(BaseDataUploader):
             }
 
 
-class MeterDataUploaderIV:
+class MeterDataUploaderIV(BaseDataUploader):
 
     def create_file_record_in_table(self, file_path):
         values = [self.meter_id, file_path]
