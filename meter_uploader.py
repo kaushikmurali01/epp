@@ -148,7 +148,7 @@ class MeterDataUploader(BaseDataUploader):
             validator = Validators(self.excel_file, self.meter_active, self.meter_inactive)
             chunks = validator.validate_and_read_excel_sheets(self.excel_file)
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=500) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 future_to_chunk = {executor.submit(validator.validate_chunk, chunk, self.iv, self.meter_id): chunk for
                                    chunk
                                    in chunks}

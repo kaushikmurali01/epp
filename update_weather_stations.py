@@ -146,7 +146,6 @@ def process_station(station_id, year, month, day, time_frame):
         for chunk in chunk_reader:
             if check_sufficiency(chunk):
                 result = upload_chunk_with_retry(chunk, station_id)
-                print(result)
                 time.sleep(1)  # Add a small delay between chunk uploads
             else:
                 print(f"Data chunk for station {station_id} did not pass sufficiency check")
@@ -160,12 +159,10 @@ def process_station(station_id, year, month, day, time_frame):
 
 
 def main():
-    start_year = 2019  # You can adjust this as needed
+    start_year = 2018  # You can adjust this as needed
     stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
     current_year = datetime.now().year
     current_month = datetime.now().month
-
-
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
@@ -183,7 +180,6 @@ def main():
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
-    #refresh_materialised_view()
 
 
 if __name__ == "__main__":
