@@ -5,16 +5,19 @@ from dbconnection import dbtest, execute_query, optimized_bulk_insert_df
 from openpyxl import load_workbook
 import io
 import requests
-from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query
+from sql_queries.file_uploader import meter_file_processing_query, iv_file_processing_query, \
+    ERROR_UPLOADER_INTIMATION_IV, ERROR_UPLOADER_INTIMATION_METER
 import logging
 
 # Setup logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
+
 def download_excel(url):
     response = requests.get(url)
     response.raise_for_status()  # Raise an exception for bad status codes
     return response.content
+
 
 class AddMeterData:
     def __init__(self, facility_id, record_id, iv=False):
@@ -57,7 +60,8 @@ class AddMeterData:
         if self.iv:
             df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna()
         else:
-            df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna() | (df['reading'] == 0)
+            df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna() | (
+                        df['reading'] == 0)
 
         clean_data = df[~df['missing']].copy()
         Q1 = clean_data['reading'].quantile(0.25)
@@ -131,10 +135,15 @@ class AddMeterData:
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
             logging.debug("DB Insert End")
+            a = 3/0
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
+            if self.iv:
+                query = ERROR_UPLOADER_INTIMATION_IV.format(self.record_id)
+            else:
+                query = ERROR_UPLOADER_INTIMATION_METER.format(self.record_id)
+            execute_query(query)
             logging.error(f"Failed to process record ID: {record_id}. Error: {str(e)}")
-            raise
 
     def process_files(self):
         with ThreadPoolExecutor(max_workers=500) as executor:
