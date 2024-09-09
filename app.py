@@ -5,6 +5,7 @@ import calendar
 from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
 import plotly.graph_objs as go
+from flask_cors import CORS
 
 from components.dataCleaner import clean_raw_data
 from components.meter_iv_uploader import MeterIVFileUploader
@@ -35,7 +36,7 @@ from visualization.visualize_line_graph import DataVisualizer
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-
+CORS(app)
 
 @app.route('/handle', methods=['GET'])
 def return_summary():
