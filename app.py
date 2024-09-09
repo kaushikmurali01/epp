@@ -11,7 +11,7 @@ from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
-from meter_uploader import MeterDataUploader, MeterDataUploaderIV
+from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.sufficiency_queries import sufficiency_query
@@ -673,67 +673,6 @@ def visualise_data_exploration_summary():
     return visualisation.fetch_data()
 
 
-@app.route('/upload-meter-file', methods=['POST'])
-def upload_file():
-    file = request.files.get('file')
-    if not file:
-        return jsonify({"error": "No file provided"}), 400
-
-    file_name = file.filename
-    if not file_name.endswith(('.xls', '.xlsx')):
-        return jsonify({"error": "Please provide a valid Excel file (.xls or .xlsx)"}), 400
-
-    facility_id = request.form.get('facility_id')
-    meter_id = request.form.get('meter_id')
-    iv = request.form.get('iv', 'false').lower() == 'true'
-
-    if not facility_id:
-        return jsonify({"error": "Please provide Facility ID"}), 400
-    if not meter_id:
-        error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
-        return jsonify({"error": error_msg}), 400
-
-    uploader = MeterDataUploaderIV(file, facility_id, meter_id, iv) if iv else MeterDataUploader(file, facility_id,
-                                                                                                 meter_id, iv)
-    result = uploader.process()
-    return jsonify(result)
-
-
-@app.route('/remove-meter-file', methods=['POST'])
-def remove_file():
-    record_id = request.json.get('record_id')
-    iv = request.json.get('iv')
-    table_name = 'epp.facility_meter_hourly_entries'
-    if iv:
-        table_name = 'independent_variable_file'
-
-    if not record_id:
-        return jsonify({"error": "No selected file"})
-    query = delete_file_query.format(table_name, record_id)
-    status, response = execute_query(query)
-    return {'success': status, 'response': response}
-
-
-@app.route('/add-meter-data', methods=['POST'])
-def add_meter_data():
-    facility_id = request.json.get('facility_id', None)
-    iv = request.json.get('iv')
-    if iv in ['true', True]:
-        iv = True
-    else:
-        iv = False
-    record_id = request.json.get('record_id')
-    if not record_id:
-        return {
-            'status': 'failed',
-            'message': "Please provide Record ID"
-        }, 200
-    amd = AddMeterData(facility_id, record_id, iv=iv)
-    thread = Thread(target=amd.process)
-    thread.start()
-    return {'status': 'Processing started'}, 202
-
-
 @app.route("/data-exploration-summary-v2", methods=['GET'])
 def get_data_exploration_summary_v2():
     facility_id = request.args.get('facility_id', None)
@@ -1000,6 +939,66 @@ def get_uploader_result():
         return jsonify({"message": message, 'status_code': status_code}), status_code
 
     return jsonify({"message": 'Invalid Record', 'status_code': 400}), 400
+
+
+@app.route('/add-meter-data', methods=['POST'])
+def add_meter_data():
+    facility_id = request.json.get('facility_id', None)
+    iv = request.json.get('iv')
+    if iv in ['true', True]:
+        iv = True
+    else:
+        iv = False
+    record_id = request.json.get('record_id')
+    if not record_id:
+        return {
+            'status': 'failed',
+            'message': "Please provide Record ID"
+        }, 200
+    amd = AddMeterData(facility_id, record_id, iv=iv)
+    thread = Thread(target=amd.process)
+    thread.start()
+    return {'status': 'Processing started'}, 202
+
+
+@app.route('/upload-meter-file', methods=['POST'])
+def upload_file():
+    file = request.files.get('file')
+    if not file:
+        return jsonify({"error": "No file provided"}), 400
+
+    file_name = file.filename
+    if not file_name.endswith(('.xls', '.xlsx')):
+        return jsonify({"error": "Please provide a valid Excel file (.xls or .xlsx)"}), 400
+
+    facility_id = request.form.get('facility_id')
+    meter_id = request.form.get('meter_id')
+    iv = request.form.get('iv', 'false').lower() == 'true'
+
+    if not facility_id:
+        return jsonify({"error": "Please provide Facility ID"}), 400
+    if not meter_id:
+        error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
+        return jsonify({"error": error_msg}), 400
+
+    uploader = DataUploader(file, facility_id, meter_id, iv)
+    result = uploader.process()
+    return jsonify(result)
+
+
+@app.route('/remove-meter-file', methods=['POST'])
+def remove_file():
+    record_id = request.json.get('record_id')
+    iv = request.json.get('iv')
+    table_name = 'epp.facility_meter_hourly_entries'
+    if iv:
+        table_name = 'independent_variable_file'
+
+    if not record_id:
+        return jsonify({"error": "No selected file"})
+    query = delete_file_query.format(table_name, record_id)
+    status, response = execute_query(query)
+    return {'success': status, 'response': response}
 
 
 if __name__ == '__main__':

@@ -1,24 +1,14 @@
 import concurrent.futures
 import io
 from datetime import datetime
-
-import openpyxl
 import pandas as pd
-from openpyxl.reader.excel import load_workbook
-
+import openpyxl
 from dbconnection import dbtest, db_execute_single
 from sql_queries.file_uploader import insert_query_facility_meter_hourly_entries, insert_query_facility_iv_files_table
 from utils import generate_blob_name, save_file_to_blob
 
 
 class BaseDataUploader:
-    def get_meter_dates(self):
-        query = f"SELECT meter_active, meter_inactive FROM epp.facility_meter_detail WHERE id = {self.meter_id}"
-        df = dbtest(query)
-        if df.empty:
-            raise ValueError(f"No meter details found for meter_id {self.meter_id}")
-        return df.iloc[0]['meter_active'], df.iloc[0]['meter_inactive']
-
     def __init__(self, file, facility_id, meter_id, iv, created_by=None, meter_serial_no=None):
         self.facility_id = facility_id
         self.iv = iv
@@ -28,103 +18,64 @@ class BaseDataUploader:
         self.meter_serial_no = meter_serial_no
         self.meter_active, self.meter_inactive = self.get_meter_dates()
 
+    def get_meter_dates(self):
+        query = f"SELECT meter_active, meter_inactive FROM epp.facility_meter_detail WHERE id = {self.meter_id}"
+        df = dbtest(query)
+        if df.empty:
+            raise ValueError(f"No meter details found for meter_id {self.meter_id}")
+        return df.iloc[0]['meter_active'], df.iloc[0]['meter_inactive']
+
 
 class Validators:
-    def __init__(self, data_frame, meter_active, meter_inactive):
-        self.df = data_frame
+    def __init__(self, meter_active, meter_inactive,iv):
+        self.iv = iv
         self.meter_active = meter_active
         self.meter_inactive = meter_inactive
         self.required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
-        self.excel_io = None
 
     def validate_chunk(self, chunk, iv, meter_id):
-        return {
-            "time_diff": self.validate_time_difference(data_chunk=chunk),
-            "required_cols": self.validate_required_columns(data_chunk=chunk),
-            "start_end_dates": self.validate_start_end_dates(data_chunk=chunk),
-            "no_overlap": self.validate_no_overlapping_dates(iv, meter_id, data_chunk=chunk),
-            "active_range": self.validate_data_within_meter_active_range(data_chunk=chunk)
-        }
+        self.validate_required_columns(chunk)
+        self.validate_start_end_dates(chunk)
+        self.validate_no_overlapping_dates(iv, meter_id, chunk)
+        if not self.iv:
+            self.validate_data_within_meter_active_range(chunk)
+            minutes = 60
+        else:
+            minutes = 24*60
 
-    def validate_iv_chunk(self, chunk, iv, meter_id):
-        return {
-            # "time_diff": self.validate_time_difference(data_chunk=chunk),
-            "required_cols": self.validate_required_columns(data_chunk=chunk),
-            "start_end_dates": self.validate_start_end_dates(data_chunk=chunk),
-            "no_overlap": self.validate_no_overlapping_dates(iv, meter_id, data_chunk=chunk),
-            # "active_range": self.validate_data_within_meter_active_range(data_chunk=chunk)
-        }
+        self.validate_time_difference(chunk,minutes=minutes)
 
-    def validate_and_read_excel_sheets(self, excel_file, chunk_size=10000):
-        excel_io = io.BytesIO(excel_file.read())
-        wb = openpyxl.load_workbook(excel_io, read_only=True)
-        visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
-        invalid_sheets = []
-        for sheet_name in visible_sheets:
-            sheet = wb[sheet_name]
-            rows = sheet.iter_rows(values_only=True)
-            header = next(rows)
-            chunk = []
-            for row in rows:
-                chunk.append(row)
-                if len(chunk) == chunk_size:
-                    df = pd.DataFrame(chunk, columns=header)
-                    available_cols = [col for col in df.columns if col in self.required_columns]
-                    if len(available_cols) != len(self.required_columns):
-                        invalid_sheets.append(sheet_name)
-                        continue
-                    df = df[self.required_columns]
-
-                    df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
-                    df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
-                    yield df
-                    chunk = []
-            if chunk:
-                df = pd.DataFrame(chunk, columns=header)
-                available_cols = [col for col in df.columns if col in self.required_columns]
-                if len(available_cols) != len(self.required_columns):
-                    invalid_sheets.append(sheet_name)
-                    continue
-                df = df[self.required_columns]
-
-                df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
-                df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
-                yield df
-
-        wb.close()
-        if invalid_sheets:
-            raise ValueError("Invalid Sheet(s):{}".format(','.join(invalid_sheets)))
-        self.excel_io = excel_io
-
-    def validate_no_overlapping_dates(self, iv, meter_id, data_chunk=None):
+    def validate_no_overlapping_dates(self, iv, meter_id, data_chunk):
         min_start = data_chunk['Start Date (Required)'].min()
         max_end = data_chunk['End Date (Required)'].max()
         query = f"""
-            SELECT start_date, end_date 
-            FROM epp.meter_hourly_entries 
-            WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' AND {'independent_variable_id' if iv else 'meter_id'} = {meter_id}
+            SELECT 1 FROM epp.meter_hourly_entries 
+            WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' 
+            AND {'independent_variable_id' if iv else 'meter_id'} = {meter_id}
+            LIMIT 1
             """
         df = dbtest(query)
         if not df.empty:
             raise ValueError("Excel file contains entries that overlap with existing database records.")
 
-    def validate_required_columns(self, data_chunk=None):
-        missing_columns = [col for col in self.required_columns if col not in data_chunk.columns]
+    def validate_required_columns(self, data_chunk):
+        missing_columns = set(self.required_columns) - set(data_chunk.columns)
         if missing_columns:
             raise ValueError(f"Missing required columns: {', '.join(missing_columns)}")
 
-    def validate_start_end_dates(self, data_chunk=None):
+    def validate_start_end_dates(self, data_chunk):
         if (data_chunk['Start Date (Required)'] > data_chunk['End Date (Required)']).any():
             raise ValueError("There are rows where the Start Date is greater than the End Date.")
 
-    def validate_time_difference(self, data_chunk=None):
+    @staticmethod
+    def validate_time_difference(data_chunk, minutes=60):
         time_difference = (data_chunk['End Date (Required)'] - data_chunk[
-            'Start Date (Required)']).dt.total_seconds() / 60
+            'Start Date (Required)']).dt.total_seconds() / minutes
         if (time_difference > 60).any():
             raise ValueError(
                 "Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
 
-    def validate_data_within_meter_active_range(self, data_chunk=None):
+    def validate_data_within_meter_active_range(self, data_chunk):
         current_date = datetime.now().replace(minute=0, second=0, microsecond=0)
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
         invalid_dates = data_chunk[
@@ -133,30 +84,80 @@ class Validators:
             ]
         if not invalid_dates.empty:
             raise ValueError(
-                f"Excel contains {len(invalid_dates)} entries outside the allowed date range. Allowed range: {self.meter_active.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}."
+                f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
+                f"Allowed range: {self.meter_active.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}."
             )
 
 
-class MeterDataUploader(BaseDataUploader):
+def read_excel_sheets(file):
+    required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
+    excel_io = io.BytesIO(file.read())
+    wb = openpyxl.load_workbook(excel_io, read_only=True)
+    sheets_data = []
+    invalid_sheets = []
+    missing_columns = False  # Flag to indicate if any sheets are missing required columns
+
+    for sheet in wb.worksheets:
+        if sheet.sheet_state != 'visible':
+            continue
+
+        rows = list(sheet.iter_rows(values_only=True))
+        if not rows:
+            continue  # Skip empty sheets
+
+        header = rows[0]
+        if not all(col in header for col in required_columns):
+            # Log or handle missing required columns
+            print(f"Warning: Sheet '{sheet.title}' is missing required columns and will be skipped.")
+            missing_columns = True
+            invalid_sheets.append(sheet.title)
+            continue
+        if not invalid_sheets:
+            data = rows[1:]
+            sheets_data.append((header, data))
+
+    wb.close()
+    if missing_columns:
+        raise ValueError("Required Columns are missing in Sheet(s):{}".format(','.join(invalid_sheets)))
+        # print("Some sheets were skipped due to missing required columns.")
+
+    return sheets_data
+
+
+def process_chunk(chunk_data, header, validator, iv, meter_id):
+    df = pd.DataFrame(chunk_data, columns=header)
+    df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
+    df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
+    validator.validate_chunk(df, iv, meter_id)
+
+
+class DataUploader(BaseDataUploader):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.validator = Validators(self.meter_active, self.meter_inactive,self.iv)
 
     def create_file_record_in_table(self, file_path):
-        values = [self.facility_id, self.meter_id, self.meter_serial_no, self.created_by, file_path]
-        return db_execute_single(insert_query_facility_meter_hourly_entries, values)
+        insert_query = insert_query_facility_iv_files_table if self.iv else insert_query_facility_meter_hourly_entries
+        values = [self.meter_id, file_path] if self.iv else [self.facility_id, self.meter_id, self.meter_serial_no,
+                                                             self.created_by, file_path]
+        return db_execute_single(insert_query, values)
 
     def process(self):
         try:
-            validator = Validators(self.excel_file, self.meter_active, self.meter_inactive)
-            chunks = validator.validate_and_read_excel_sheets(self.excel_file)
-
+            sheets_data = read_excel_sheets(self.excel_file)
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                future_to_chunk = {executor.submit(validator.validate_chunk, chunk, self.iv, self.meter_id): chunk for
-                                   chunk
-                                   in chunks}
-                for future in concurrent.futures.as_completed(future_to_chunk):
-                    try:
-                        result = future.result()
-                    except Exception as exc:
-                        return {'success': False, 'error': str(exc)}
+                futures = []
+                chunk_set = 10000
+                for header, data in sheets_data:
+                    for i in range(0, len(data), chunk_set):
+                        chunk = data[i:i + chunk_set]
+                        futures.append(
+                            executor.submit(process_chunk, chunk, header, self.validator, self.iv, self.meter_id))
+
+                concurrent.futures.wait(futures)
+                for future in futures:
+                    future.result()  # This will raise any exceptions that occurred during processing
+
             blob_name = generate_blob_name()
             file_path = save_file_to_blob(blob_name, self.excel_file)
             record_id = self.create_file_record_in_table(file_path)
@@ -169,41 +170,5 @@ class MeterDataUploader(BaseDataUploader):
         except Exception as error:
             return {
                 "success": False,
-                "error": "{}".format(error)
-            }
-
-
-class MeterDataUploaderIV(BaseDataUploader):
-
-    def create_file_record_in_table(self, file_path):
-        values = [self.meter_id, file_path]
-        return db_execute_single(insert_query_facility_iv_files_table, values)
-
-    def process(self):
-        try:
-            validator = Validators(self.excel_file, self.meter_active, self.meter_inactive)
-            chunks = validator.validate_and_read_excel_sheets(self.excel_file)
-
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future_to_chunk = {executor.submit(validator.validate_iv_chunk, chunk, self.iv, self.meter_id): chunk for
-                                   chunk
-                                   in chunks}
-                for future in concurrent.futures.as_completed(future_to_chunk):
-                    try:
-                        result = future.result()
-                    except Exception as exc:
-                        return {'success': False, 'error': str(exc)}
-            blob_name = generate_blob_name()
-            file_path = save_file_to_blob(blob_name, self.excel_file)
-            record_id = self.create_file_record_in_table(file_path)
-            return {
-                "success": True,
-                "message": "File Uploaded Successfully",
-                "path": file_path,
-                "record_id": record_id
-            }
-        except Exception as error:
-            return {
-                "success": False,
-                "error": "{}".format(error)
+                "error": str(error)
             }
