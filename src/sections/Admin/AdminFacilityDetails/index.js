@@ -22,6 +22,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AdminBaselineModel from "./AdminBaselineModel/index";
 import AdminReportsAndStudies from "./AdminReportsAndStudies/index";
 import Performance from "./AdminPerformance/Performance";
+import QaQcChecklist from "./QaQcChecklist";
 
 const AdminFacilityDetails = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -50,6 +51,8 @@ const AdminFacilityDetails = () => {
         return <AdminBaselineModel />;
       case 6:
         return <Performance />;
+      case 7:
+        return <QaQcChecklist />;
       default:
         return null;
     }

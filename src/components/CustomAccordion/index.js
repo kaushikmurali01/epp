@@ -48,8 +48,14 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: "0 0 2rem 0",
 }));
 
-const CustomAccordion = ({ summary, details, panelId, expanded, onChange }) => {
-
+const CustomAccordion = ({
+  summary,
+  details,
+  panelId,
+  expanded,
+  onChange,
+  isDisabled,
+}) => {
   const handleAccordionChange = (event, isExpanded) => {
     onChange(panelId, isExpanded);
   };
@@ -57,6 +63,7 @@ const CustomAccordion = ({ summary, details, panelId, expanded, onChange }) => {
   return (
     <Accordion expanded={expanded === panelId} onChange={handleAccordionChange}>
       <AccordionSummary
+        disabled={isDisabled}
         aria-controls={`${panelId}-content`}
         id={`${panelId}-header`}
         expandIcon={
