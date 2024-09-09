@@ -135,7 +135,6 @@ class AddMeterData:
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
             logging.debug("DB Insert End")
-            a = 3/0
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
             if self.iv:
