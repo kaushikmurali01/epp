@@ -128,7 +128,7 @@ const UserManagementColumn = () => {
                 if (item.status === 'Initiated') {
                     return (
                         <Box  >
-                            <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAcceptManagePermission(item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)} >
+                            <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAcceptManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)} >
                                 <CheckCircleIcon /> Accept
                             </Typography>
                             <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelReject(item, handleAPISuccessCallBack)} >
@@ -161,7 +161,7 @@ const UserManagementColumn = () => {
     ];
 
 
-    const handelAcceptManagePermission = (item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
+    const handelAcceptManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)=> {
         // if((userData?.user?.id === item?.id) || (item.status === 'Initiated')){
         //     NotificationsToast({ message: "You don't have permission for this!", type: "error" });
         //     return;
