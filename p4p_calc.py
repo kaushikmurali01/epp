@@ -59,25 +59,25 @@ class P4P_metrics_calculation:
 
         # if self.meter_type == 1: #electricity
             return {
-                'adjusted_baseline_energy_consumption': round(adjusted_baseline_energy_consumption, 2),
-                'reporting_period_energy_consumption': round(reporting_period_energy_consumption, 2),
-                'non_routine_adjustment': round(non_routine_adjustment, 2),
-                'total_energy_savings': round(total_energy_savings, 2),
-                'off_peak_energy_savings': round(off_peak_energy_savings, 2),
-                'on_peak_energy_savings': round(on_peak_energy_savings, 2),
-                'off_peak_energy_savings_incentive': round(off_peak_energy_savings_incentive, 2),
-                'on_peak_energy_savings_incentive': round(on_peak_energy_savings_incentive, 2),
-                'performance_incentive': round(performance_incentive, 2),
-                'peak_demand_savings': round(peak_demand, 2),
-                'energy_savings_percentage': round(energy_savings_percentage, 2)
+                'adjusted_baseline_energy_consumption': round(adjusted_baseline_energy_consumption, 0),
+                'reporting_period_energy_consumption': round(reporting_period_energy_consumption, 0),
+                'non_routine_adjustment': round(non_routine_adjustment, 0),
+                'total_energy_savings': round(total_energy_savings, 0),
+                'off_peak_energy_savings': round(off_peak_energy_savings, 0),
+                'on_peak_energy_savings': round(on_peak_energy_savings, 0),
+                'off_peak_energy_savings_incentive': round(off_peak_energy_savings_incentive, 0),
+                'on_peak_energy_savings_incentive': round(on_peak_energy_savings_incentive, 0),
+                'performance_incentive': round(performance_incentive, 0),
+                'peak_demand_savings': round(peak_demand, 0),
+                'energy_savings_percentage': round(energy_savings_percentage, 0)
             }
         else:  # Natural gas or water
             return {
-                'adjusted_baseline_energy_consumption': round(adjusted_baseline_energy_consumption, 2),
-                'reporting_period_energy_consumption': round(reporting_period_energy_consumption, 2),
-                'non_routine_adjustment': round(non_routine_adjustment, 2),
-                'total_energy_savings': round(total_energy_savings, 2),
-                'energy_savings_percentage': round(100 * total_energy_savings / adjusted_baseline_energy_consumption, 2)
+                'adjusted_baseline_energy_consumption': round(adjusted_baseline_energy_consumption, 0),
+                'reporting_period_energy_consumption': round(reporting_period_energy_consumption, 0),
+                'non_routine_adjustment': round(non_routine_adjustment, 0),
+                'total_energy_savings': round(total_energy_savings, 0),
+                'energy_savings_percentage': round(100 * total_energy_savings / adjusted_baseline_energy_consumption, 0)
             }
 
     def calculate_metrics(self):
