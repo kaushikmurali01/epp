@@ -167,8 +167,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                 setSelectedPermissions(defaultPermissions);
 
                 setInitialPermissions(defaultPermissionIds); // Set initial permissions
-
-                console.log(resultData,defaultPermissionIds,defaultPermissions, "check on api call..")
               
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
             }).catch((error) => {
@@ -337,7 +335,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
         const permissionsChanged = isEdited ? havePermissionsChanged() : true;
 
-        console.log(invitePageInfo, "invitePageInfo")
         if (invitePageInfo?.type === "2") {
             setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged)
         } else {
@@ -356,8 +353,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
 
     }, [selectRoleType]);
 
-
-console.log(permissionStates, permissions, initialPermissions, " checking permissions")
 
     return (
         <Box component="section">
