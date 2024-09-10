@@ -112,10 +112,11 @@ const Weather = () => {
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
   const meterIdKey = selectedIv?.id ?  `dataProcessingLoader_iv_${selectedIv?.id}` : null;
   const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
-  // const getDataProcessingLoader =
-  //   sessionStorage?.getItem("dataProcessingLoader") === "true";
+
+
     const [dataProcessingLoader, setDataProcessingLoader] = useState(
       getDataProcessingLoader?.loader || false
     );
@@ -462,7 +463,8 @@ const Weather = () => {
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
-    setUploadDataFormVisible(false);
+    setImgUploadData("");
+    setViewEntryList([]);
   };
 
   const handleButtonClick = () => {
@@ -527,10 +529,6 @@ const Weather = () => {
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
-        // getHourlySubHourlyEntryData();
-        // dispatch(fetchFacilityStatus(id));
-        // dispatch(fetchFacilityDetails(id));
-
         NotificationsToast({
           message: response.data.status,
           type: "success",
@@ -542,7 +540,7 @@ const Weather = () => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData,recordId, selectedIvId);
+        startPollingForData(setDataProcessingLoader,recordId, selectedIvId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -553,7 +551,7 @@ const Weather = () => {
       });
   };
 
-  const getUploadResult = async (loader,payload)=> {
+  const getUploadResult = async (checkInterval,payload)=> {
 
     let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=true&record_id=${payload.recordId}`;
     try {
@@ -565,6 +563,7 @@ const Weather = () => {
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
       });
+      // clearInterval(checkInterval);
       throw error; // Throw the error to be caught in polling
     }
   }
@@ -572,10 +571,11 @@ const Weather = () => {
 
   // Polling GET API to retrieve the data
 
-  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId, selectedIvId) => {
+  const startPollingForData = (setDataProcessingLoader, recordId, selectedIvId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     // Set the current timestamp along with the loader status
+    const meterIdKey = `dataProcessingLoader_iv_${selectedIv?.id}`
     const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
     let data = {};
     if(recordId !== undefined && storedData === null) {
@@ -593,7 +593,7 @@ const Weather = () => {
       try {
         // Check if 5 minutes have passed since setting the loader
         const checkStoredData = JSON.parse(sessionStorage.getItem(meterIdKey));
-        const storedTime = new Date(checkStoredData.timestamp);
+        const storedTime = new Date(checkStoredData?.timestamp);
         const currentTime = new Date();
         const timeDifference = currentTime - storedTime;
   
@@ -610,7 +610,8 @@ const Weather = () => {
         }
 
         if(checkStoredData?.recordId !== undefined ) {
-          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+          const getUploadResultData = await getUploadResult(checkInterval,checkStoredData)
+          console.log(getUploadResultData, "checking upload result data")
           if(getUploadResultData.data?.status_code === 201){
               const response = await getHourlyEntriesData("processingLoader");
               if (response.data?.data?.rows?.length > 0) {
@@ -623,13 +624,13 @@ const Weather = () => {
               }
           }else if (getUploadResultData.data?.status_code === 400){
             setDataProcessingLoader(false);
-            setUploadDataFormVisible(false);
+            setUploadDataFormVisible(true);
             sessionStorage.removeItem(meterIdKey);
             clearInterval(checkInterval);
             dispatch(fetchFacilityStatus(facilityData?.id))
 
             NotificationsToast({
-              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              message: getUploadResultData?.data ? getUploadResultData.data : "Something went wrong!",
               type: "error",
             });
             
@@ -639,12 +640,18 @@ const Weather = () => {
         
       } catch (error) {
         console.error("Error fetching data:", error);
+        setDataProcessingLoader(false);
+        setUploadDataFormVisible(true);
+        sessionStorage.removeItem(meterIdKey);
+        clearInterval(checkInterval);
+        dispatch(fetchFacilityStatus(facilityData?.id))
       }
     };
     // Start the interval
     checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
     return checkInterval;
   };
+
 
 
   const getHourlyEntriesData = async (loader) => {
@@ -667,15 +674,17 @@ const Weather = () => {
       const res = await POST_REQUEST(apiURL, payload);
       if (
         res.data?.data?.rows instanceof Array &&
-        res.data?.data?.rows.length > 0
+        res.data?.data?.rows?.length > 0
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        setDataProcessingLoader(false)
       }
 
-      if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+      if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
+        setDataProcessingLoader(false);
       }
 
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -847,19 +856,49 @@ const Weather = () => {
       </div>
     );
   };
+  
 
   useEffect(() => {
-    if (
-      Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
-    ) {
-      getHourlyEntriesData();
+
+    const checkIvKey = `dataProcessingLoader_iv_${selectedIv?.id}`;
+    // Retrieve the item from sessionStorage
+    const getStorageItem = sessionStorage.getItem(checkIvKey);
+    let getStorageData = null;
+    // Parse only if the item is not null
+    if (getStorageItem !==null ** getStorageData !== undefined) {
+      getStorageData = JSON.parse(getStorageItem);
     }
 
-    if (
-      Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
-    ) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
-    }
+  if ( Object.keys(facilityData)?.length > 0 && getStorageData === null && selectedIv) {
+   
+    getHourlyEntriesData();
+  } else {
+      if(selectedIv !== undefined){
+          if (getStorageData?.loader && selectedIv?.id === getStorageData?.selectedIvId ) {
+            setDataProcessingLoader(true);
+            setUploadDataFormVisible(false);
+          }
+
+          if (getStorageData === null ) {
+            getHourlyEntriesData();
+            // setDataProcessingLoader(true);
+            // setUploadDataFormVisible(false);
+          }
+      
+      }
+}
+
+    // if (
+    //   Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
+    // ) {
+    //   getHourlyEntriesData();
+    // }
+
+    // if (
+    //   Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
+    // ) {
+    //   startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
+    // }
   }, [facilityData, selectedIv, refreshPageData]);
 
   return (
@@ -898,6 +937,7 @@ const Weather = () => {
                   maxWidth: "10rem",
                   textTransform: "none",
                 }}
+                disabled= {isUploading}
               />
               {independentVarsList?.length
                 ? independentVarsList.map((item, i) => {
@@ -911,6 +951,7 @@ const Weather = () => {
                           maxWidth: "10rem",
                           textTransform: "none",
                         }}
+                        disabled= {isUploading}
                       />
                     );
                   })
