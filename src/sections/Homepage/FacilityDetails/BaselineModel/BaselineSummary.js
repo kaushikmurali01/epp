@@ -16,10 +16,10 @@ const BaselineSummary = ({ summaryData, meterType }) => {
 
   return (
     <Grid container display={"grid"}>
-      {summaryDataByMeterType?.status === "DRAFT" ? (
+      {/* {summaryDataByMeterType?.status === "DRAFT" ? (
         <></>
       ) : (
-        <>
+        <> */}
           <Grid item container>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
@@ -100,6 +100,22 @@ const BaselineSummary = ({ summaryData, meterType }) => {
           <Grid item container>
             <Grid item xs={12} md={4}>
               <Typography variant="h6" sx={summaryAccordionContentStyle}>
+                Normalized Mean Bias Error (NMBE)
+              </Typography>
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <Typography variant="h6" sx={summaryAccordionContentHeading}>
+                {
+                  summaryDataByMeterType?.parameter_data?.[
+                    "Normalized Mean Bias Error (NMBE)"
+                  ]
+                }
+              </Typography>
+            </Grid>
+          </Grid>
+          <Grid item container>
+            <Grid item xs={12} md={4}>
+              <Typography variant="h6" sx={summaryAccordionContentStyle}>
                 Auto correlation function
               </Typography>
             </Grid>
@@ -129,8 +145,8 @@ const BaselineSummary = ({ summaryData, meterType }) => {
               </Typography>
             </Grid>
           </Grid>{" "}
-        </>
-      )}
+        {/* </>
+      )} */}
     </Grid>
   );
 };

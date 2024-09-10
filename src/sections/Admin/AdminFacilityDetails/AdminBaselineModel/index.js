@@ -47,9 +47,6 @@ const AdminBaselineModel = () => {
   const sufficiencyCheckLoading = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckLoading
   );
-  const calculateBaselineLoading = useSelector(
-    (state) => state?.adminBaselineReducer?.calculateBaselineLoading
-  );
   useEffect(() => {
     dispatch(fetchAdminIndependentVariableList(id));
     dispatch(fetchAdminStationsDetails(id));
@@ -218,17 +215,12 @@ const AdminBaselineModel = () => {
         <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
       </Grid>
       <Loader
-        textLoader={calculateBaselineLoading}
         sectionLoader
         minHeight="100vh"
         loadingState={
-          loadingState ||
-          baselinePeriodLoading ||
-          sufficiencyCheckLoading ||
-          calculateBaselineLoading
+          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
         }
         loaderPosition="fixed"
-        loaderText={"Baseline calculation "}
       />
     </Grid>
   );

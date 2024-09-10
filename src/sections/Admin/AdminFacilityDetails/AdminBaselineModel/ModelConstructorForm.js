@@ -38,6 +38,7 @@ import { format, isAfter, subYears } from "date-fns";
 import { useParams } from "react-router-dom";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
+import Loader from "pages/Loader";
 
 const ModelConstructorForm = ({
   handleSufficiencySettings,
@@ -77,12 +78,16 @@ const ModelConstructorForm = ({
   const baselineListData = useSelector(
     (state) => state?.adminBaselineReducer?.baselineDetailsDb?.data || []
   );
+  const calculateBaselineLoading = useSelector(
+    (state) => state?.adminBaselineReducer?.calculateBaselineLoading
+  );
   const [checkSufficiencyAfter, setCheckSufficiencyAfter] = useState(false);
   const [sufficiencyCheckDataLocally, setSufficiencyCheckDataLocally] =
     useState(null);
   const [sliderStartDate, setSliderStartDate] = useState(null);
   const [sliderEndDate, setSliderEndDate] = useState(null);
   const [errorStatusMessage, setErrorStatusMessage] = useState("");
+  const [modelText, setModelText] = useState("hourly");
 
   useEffect(() => {
     setBaselinePeriodLoading(true);
@@ -696,6 +701,7 @@ const ModelConstructorForm = ({
                     onChange={(e, value) => {
                       if (value !== null) {
                         setFieldValue("granularity", value);
+                        setModelText(value);
                         handleSubmit({ ...values, granularity: value });
                       }
                     }}
@@ -913,6 +919,14 @@ const ModelConstructorForm = ({
           Calculate baseline
         </Button>
       </Grid>
+      <Loader
+        textLoader={calculateBaselineLoading}
+        sectionLoader
+        minHeight="100vh"
+        loadingState={calculateBaselineLoading}
+        loaderPosition="fixed"
+        customLoaderText={`The baseline modeling process has started with ${modelText} regressions. Please wait while the calculation is underway. You’ll be notified once the best baseline model is established.`}
+      />
     </Box>
   );
 };
