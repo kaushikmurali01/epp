@@ -32,7 +32,11 @@ import InputField from "components/FormBuilder/InputField";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import DateRangeSlider from "components/DateRangeSlider";
 
-const ModelConstructorView = ({ openSeeDetails, meterType }) => {
+const ModelConstructorView = ({
+  openSeeDetails,
+  meterType,
+  handleSufficiencySettings,
+}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
@@ -161,6 +165,25 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
       Header: "Monthly",
       accessor: (item) =>
         sufficiencyVerificationStatusButton(item?.monthly?.status),
+    },
+    {
+      Header: "settings",
+      headerVisibility: "hidden",
+      accessor: (item) => (
+        <Typography
+          variant="span"
+          sx={{
+            cursor: "pointer",
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+          }}
+          onClick={handleSufficiencySettings}
+        >
+          Sufficiency setting
+        </Typography>
+      ),
     },
     {
       Header: "details",
