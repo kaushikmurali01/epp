@@ -90,6 +90,8 @@ const EntriesListing = ({
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
     getDataProcessingLoader?.loader || false
   );
+
+  console.log(getDataProcessingLoader, dataProcessingLoader, "check loader state..")
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   const [modalConfig, setModalConfig] = useState({
@@ -599,7 +601,7 @@ const EntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData, recordId, facilityMeterDetailId);
+        startPollingForData(setDataProcessingLoader, recordId, facilityMeterDetailId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -629,7 +631,7 @@ const EntriesListing = ({
   }
   
 
-  const startPollingForData = (setDataProcessingLoader, getHourlyEntriesData, recordId, meterId) => {
+  const startPollingForData = (setDataProcessingLoader, recordId, meterId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     // Set the current timestamp along with the loader status
@@ -682,7 +684,7 @@ const EntriesListing = ({
               }
           }else if (getUploadResultData.data?.status_code === 400){
             setDataProcessingLoader(false);
-            setUploadDataFormVisible(false);
+            setUploadDataFormVisible(true);
             sessionStorage.removeItem(meterIdKey);
             clearInterval(checkInterval);
             dispatch(fetchFacilityStatus(id))
@@ -788,13 +790,13 @@ const EntriesListing = ({
       const res = await POST_REQUEST(apiURL, payload);
       if (
         res.data?.data?.rows instanceof Array &&
-        res.data?.data?.rows.length > 0
+        res.data?.data?.rows?.length > 0
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
       }
 
-      if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+      if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
@@ -814,7 +816,7 @@ const EntriesListing = ({
     }
 
     if (Object.keys(meterData).length > 0 && dataProcessingLoader) {      
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
+      startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
     }
   }, [meterData, refreshPageData]);
 

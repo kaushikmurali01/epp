@@ -218,14 +218,6 @@ const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTa
         return;
     }
 
-    // const apiURL = ENERVA_USER_MANAGEMENT.EDIT_EV_INVITATION_BY_ADMIN;
-    // setVisibleInvitePage(true);
-    // setSelectTableRow(item)
-    // setInvitePageInfo({title:'Manage Customer User and permissions', type: "2" })
-    // setInviteAPIURL(apiURL)
-
-    // navigate('/user-management/manage-access')
-    // Set a value in session storage
     const data = {
       pageInfo: { title: 'Manage Customer User and permissions' },
       isEdited: true,

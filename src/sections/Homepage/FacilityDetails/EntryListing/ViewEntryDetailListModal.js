@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { adminHourlyEndPoints } from "constants/apiEndPoints";
+import { formatNumber } from "utils/numberFormatter";
 
 const ViewEntryDetailListModal = ({
   meterId,
@@ -53,7 +54,12 @@ const ViewEntryDetailListModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      // accessor: "reading",
+      accessor: (item) => (
+        <>
+          {item?.reading && formatNumber(item.reading)}
+        </>
+      ),
     },
   ]
   const miniTableStyles = { 
