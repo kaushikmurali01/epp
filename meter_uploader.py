@@ -88,10 +88,15 @@ class Validators:
                 (data_chunk['End Date (Required)'] > max_date)
                 ]
         if not invalid_dates.empty:
-            raise ValueError(
-                f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
-                f"Allowed range: {self.meter_active.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}."
-            )
+            if self.meter_active:
+                raise ValueError(
+                    f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
+                    f"Allowed range: {self.meter_active.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}."
+                )
+            else:
+                raise ValueError(
+                    f"Excel contains {len(invalid_dates)} future Entries."
+                )
 
 
 def read_excel_sheets(file):
