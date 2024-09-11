@@ -1,11 +1,14 @@
 import concurrent.futures
 import io
+import logging
 from datetime import datetime
 import pandas as pd
 import openpyxl
 from dbconnection import dbtest, db_execute_single
 from sql_queries.file_uploader import insert_query_facility_meter_hourly_entries, insert_query_facility_iv_files_table
 from utils import generate_blob_name, save_file_to_blob
+
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class BaseDataUploader:
@@ -78,6 +81,7 @@ class Validators:
     def validate_data_within_meter_active_range(self, data_chunk):
         current_date = datetime.now().replace(minute=0, second=0, microsecond=0)
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
+        logging.debug(f"\n\n\n\n\n\nMeter Start Date: {self.meter_active} | Meter End Date: {max_date}\n\n\n\n\n\n")
         invalid_dates = data_chunk[
             (data_chunk['Start Date (Required)'] < self.meter_active) |
             (data_chunk['End Date (Required)'] > max_date)
