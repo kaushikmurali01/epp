@@ -27,7 +27,7 @@ class BaseDataUploader:
 
 
 class Validators:
-    def __init__(self, meter_active, meter_inactive,iv):
+    def __init__(self, meter_active, meter_inactive, iv):
         self.iv = iv
         self.meter_active = meter_active
         self.meter_inactive = meter_inactive
@@ -41,9 +41,9 @@ class Validators:
             self.validate_data_within_meter_active_range(chunk)
             minutes = 60
         else:
-            minutes = 24*60
+            minutes = 24 * 60
 
-        self.validate_time_difference(chunk,minutes=minutes)
+        self.validate_time_difference(chunk, minutes=minutes)
 
     def validate_no_overlapping_dates(self, iv, meter_id, data_chunk):
         min_start = data_chunk['Start Date (Required)'].min()
@@ -76,14 +76,17 @@ class Validators:
                 "Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
 
     def validate_data_within_meter_active_range(self, data_chunk):
-        current_date = datetime.now().replace(minute=0, second=0, microsecond=0)
+        current_date = datetime.now()  # .replace(minute=0, second=0, microsecond=0)
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
         if not self.meter_active:
-            return
-        invalid_dates = data_chunk[
-            (data_chunk['Start Date (Required)'] < self.meter_active) |
-            (data_chunk['End Date (Required)'] > max_date)
+            invalid_dates = data_chunk[
+                (data_chunk['End Date (Required)'] > max_date)
             ]
+        else:
+            invalid_dates = data_chunk[
+                (data_chunk['Start Date (Required)'] < self.meter_active) |
+                (data_chunk['End Date (Required)'] > max_date)
+                ]
         if not invalid_dates.empty:
             raise ValueError(
                 f"Excel contains {len(invalid_dates)} entries outside the allowed date range. "
@@ -136,7 +139,7 @@ def process_chunk(chunk_data, header, validator, iv, meter_id):
 class DataUploader(BaseDataUploader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.validator = Validators(self.meter_active, self.meter_inactive,self.iv)
+        self.validator = Validators(self.meter_active, self.meter_inactive, self.iv)
 
     def create_file_record_in_table(self, file_path):
         insert_query = insert_query_facility_iv_files_table if self.iv else insert_query_facility_meter_hourly_entries
