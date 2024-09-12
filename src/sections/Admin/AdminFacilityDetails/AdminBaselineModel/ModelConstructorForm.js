@@ -39,6 +39,7 @@ import { useParams } from "react-router-dom";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
 import Loader from "pages/Loader";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const ModelConstructorForm = ({
   handleSufficiencySettings,
@@ -447,20 +448,29 @@ const ModelConstructorForm = ({
     };
     dispatch(submitAdminBaselineDt(data))
       .then((res) => {
-        const updatedBaselineData = {
-          status: "REVIEWED",
-          data: {
-            ...data,
-            ...res,
-            ...sufficiencyCheckData,
-          },
-        };
-
-        const baseline_id = getIdByMeterType(meterType);
-        if (baseline_id) {
-          openUserReviewBaselineModal(baseline_id, updatedBaselineData);
+        if (res?.baseline_model_check === "failed") {
+          setActivateCalculateBaseline(true);
+          NotificationsToast({
+            message:
+              "Baseline calculation failed, try changing the Baseline period or variables!",
+            type: "error",
+          });
+          return;
+        } else {
+          const updatedBaselineData = {
+            status: "REVIEWED",
+            data: {
+              ...data,
+              ...res,
+              ...sufficiencyCheckData,
+            },
+          };
+          const baseline_id = getIdByMeterType(meterType);
+          if (baseline_id) {
+            openUserReviewBaselineModal(baseline_id, updatedBaselineData);
+          }
+          setActivateCalculateBaseline(true);
         }
-        setActivateCalculateBaseline(true);
       })
       .catch((err) => {});
   };
