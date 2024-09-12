@@ -26,7 +26,7 @@ const BaselineSummary = ({ summaryData, meterType }) => {
             </Grid>
             <Grid item xs={12} md={8}>
               <Typography variant="h6" sx={summaryAccordionContentHeading}>
-                {summaryDataByMeterType?.parameter_data &&
+                {summaryDataByMeterType?.parameter_data?.length > 0 &&
                   formatNumber(
                     summaryDataByMeterType?.parameter_data?.[
                       "Number of observations"

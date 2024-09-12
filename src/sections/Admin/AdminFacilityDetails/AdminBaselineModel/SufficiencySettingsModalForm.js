@@ -109,17 +109,28 @@ const SufficiencySettingsModalForm = ({ setModalConfig }) => {
                     >
                       Daily Coverage Threshold
                     </Typography>
-                    <Slider
-                      value={values.daily_coverage_threshold}
-                      onChange={(e, val) =>
-                        setFieldValue("daily_coverage_threshold", val)
-                      }
-                      aria-labelledby="Daily Coverage Threshold"
-                      min={0}
-                      max={100}
-                      sx={{ marginBlockStart: "0.5rem" }}
-                      valueLabelDisplay="auto"
-                    />
+                    <Box display="flex" alignItems="center">
+                      <Slider
+                        value={values.daily_coverage_threshold}
+                        onChange={(e, val) =>
+                          setFieldValue("daily_coverage_threshold", val)
+                        }
+                        aria-labelledby="Daily Coverage Threshold"
+                        min={0}
+                        max={100}
+                        sx={{ marginBlockStart: "0.5rem" }}
+                        valueLabelDisplay="auto"
+                      />
+                      <Typography
+                        variant="small"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: "0.75rem !important",
+                        }}
+                      >
+                        100%
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ margin: "0 auto", width: "90%" }}>
                     <Typography
@@ -132,41 +143,62 @@ const SufficiencySettingsModalForm = ({ setModalConfig }) => {
                     >
                       Hourly Coverage Threshold
                     </Typography>
-                    <Slider
-                      value={values.hourly_coverage_threshold}
-                      onChange={(e, val) =>
-                        setFieldValue("hourly_coverage_threshold", val)
-                      }
-                      aria-labelledby="Hourly Coverage Threshold"
-                      min={0}
-                      max={100}
-                      sx={{ marginBlockStart: "0.5rem" }}
-                      valueLabelDisplay="auto"
-                    />
+                    <Box display="flex" alignItems="center">
+                      <Slider
+                        value={values.hourly_coverage_threshold}
+                        onChange={(e, val) =>
+                          setFieldValue("hourly_coverage_threshold", val)
+                        }
+                        aria-labelledby="Hourly Coverage Threshold"
+                        min={0}
+                        max={100}
+                        sx={{ marginBlockStart: "0.5rem" }}
+                        valueLabelDisplay="auto"
+                      />
+                      <Typography
+                        variant="small"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: "0.75rem !important",
+                        }}
+                      >
+                        100%
+                      </Typography>
+                    </Box>
                   </Box>
                   <Box sx={{ margin: "0 auto", width: "90%" }}>
                     <Typography
                       variant="span"
                       sx={{
-                        fontSize:
-                          "0.8handleSufficiencySettingsModel75rem !important",
+                        fontSize: "0.875rem !important",
                         lineHeight: "1 !important",
                         fontWeight: 400,
                       }}
                     >
                       Monthly Coverage Threshold
                     </Typography>
-                    <Slider
-                      value={values.monthly_covergae_threshold}
-                      onChange={(e, val) =>
-                        setFieldValue("monthly_covergae_threshold", val)
-                      }
-                      aria-labelledby="Monthly Coverage Threshold"
-                      min={0}
-                      max={100}
-                      sx={{ marginBlockStart: "0.5rem" }}
-                      valueLabelDisplay="auto"
-                    />
+                    <Box display="flex" alignItems="center">
+                      <Slider
+                        value={values.monthly_covergae_threshold}
+                        onChange={(e, val) =>
+                          setFieldValue("monthly_covergae_threshold", val)
+                        }
+                        aria-labelledby="Monthly Coverage Threshold"
+                        min={0}
+                        max={100}
+                        sx={{ marginBlockStart: "0.5rem" }}
+                        valueLabelDisplay="auto"
+                      />
+                      <Typography
+                        variant="small"
+                        sx={{
+                          fontWeight: 400,
+                          fontSize: "0.75rem !important",
+                        }}
+                      >
+                        100%
+                      </Typography>
+                    </Box>
                   </Box>
                 </Grid>
               )}
