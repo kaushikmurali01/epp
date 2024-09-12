@@ -89,13 +89,19 @@ const AdminEntriesListing = ({
   //   getDataProcessingLoader || false
   // );
   const meterIdKey = `dataProcessingLoader_meter_${meterId}`;
-  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+  const getDataProcessingLoader = JSON.parse(
+    sessionStorage.getItem(meterIdKey)
+  );
 
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
     getDataProcessingLoader?.loader || false
   );
 
-  console.log(getDataProcessingLoader, dataProcessingLoader, "check loader state..")
+  console.log(
+    getDataProcessingLoader,
+    dataProcessingLoader,
+    "check loader state.."
+  );
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   const [modalConfig, setModalConfig] = useState({
@@ -609,7 +615,11 @@ const AdminEntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader,recordId, facilityMeterDetailId);
+        startPollingForData(
+          setDataProcessingLoader,
+          recordId,
+          facilityMeterDetailId
+        );
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -637,10 +647,8 @@ const AdminEntriesListing = ({
     });
   };
 
-  const getUploadResult = async (loader,payload)=> {
-
+  const getUploadResult = async (loader, payload) => {
     let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
-   
 
     try {
       const res = await GET_REQUEST(apiURL);
@@ -653,7 +661,7 @@ const AdminEntriesListing = ({
       });
       throw error; // Throw the error to be caught in polling
     }
-  }
+  };
 
   // Polling GET API to retrieve the data
   // const startPollingForData = (
@@ -680,23 +688,23 @@ const AdminEntriesListing = ({
 
   //   return checkInterval;
   // };
-  
+
   const startPollingForData = (setDataProcessingLoader, recordId, meterId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
     // Set the current timestamp along with the loader status
     const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
     let data = {};
-    if(recordId !== undefined && storedData === null) {
+    if (recordId !== undefined && storedData === null) {
       const now = new Date();
-        data = {
+      data = {
         loader: true,
         timestamp: now.toISOString(),
         meterId: meterId,
         recordId: recordId || storedData?.recordId,
       };
       sessionStorage.setItem(meterIdKey, JSON.stringify(data));
-  }
+    }
 
     let checkInterval;
     const pollData = async () => {
@@ -706,8 +714,9 @@ const AdminEntriesListing = ({
         const storedTime = new Date(checkStoredData.timestamp);
         const currentTime = new Date();
         const timeDifference = currentTime - storedTime;
-  
-        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+
+        if (timeDifference >= 5 * 60 * 1000) {
+          // 5 minutes in milliseconds
           console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
           setDataProcessingLoader(false);
@@ -719,34 +728,35 @@ const AdminEntriesListing = ({
           return;
         }
 
-        if(checkStoredData?.recordId !== undefined ) {
-          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+        if (checkStoredData?.recordId !== undefined) {
+          const getUploadResultData = await getUploadResult(
+            "processingLoader",
+            checkStoredData
+          );
 
-          if(getUploadResultData.data?.status_code === 201){
-              const response = await getHourlyEntriesData("processingLoader");
-              if (response.data?.data?.rows?.length > 0) {
-                // Data is retrieved successfully, stop polling
-                setDataProcessingLoader(false);
-                sessionStorage.removeItem(meterIdKey);
-                clearInterval(checkInterval);
-                dispatch(fetchAdminFacilityStatus(id))
-                
-              }
-          }else if (getUploadResultData.data?.status_code === 400){
+          if (getUploadResultData.data?.status_code === 201) {
+            const response = await getHourlyEntriesData("processingLoader");
+            if (response.data?.data?.rows?.length > 0) {
+              // Data is retrieved successfully, stop polling
+              setDataProcessingLoader(false);
+              sessionStorage.removeItem(meterIdKey);
+              clearInterval(checkInterval);
+              dispatch(fetchAdminFacilityStatus(id));
+            }
+          } else if (getUploadResultData.data?.status_code === 400) {
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
             sessionStorage.removeItem(meterIdKey);
             clearInterval(checkInterval);
-            dispatch(fetchAdminFacilityStatus(id))
+            dispatch(fetchAdminFacilityStatus(id));
             NotificationsToast({
-              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              message: getUploadResultData.data
+                ? getUploadResultData.data
+                : "Something went wrong!",
               type: "error",
             });
-            
           }
-         
-        } 
-        
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -862,7 +872,11 @@ const AdminEntriesListing = ({
     }
 
     if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
-      startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
+      startPollingForData(
+        setDataProcessingLoader,
+        getDataProcessingLoader?.recordId,
+        getDataProcessingLoader?.meterId
+      );
     }
   }, [meterData, refreshPageData]);
 
@@ -944,12 +958,8 @@ const AdminEntriesListing = ({
         >
           <Typography variant="small2">Date meter became active</Typography>
           <Typography variant="h6" gutterBottom>
-            {format(
-              new Date(
-                meterData?.meter_active ? meterData?.meter_active : null
-              ),
-              "yyyy-MM-dd"
-            )}
+            {meterData?.meter_active &&
+              format(new Date(meterData?.meter_active), "yyyy-MM-dd")}
           </Typography>
         </Box>
 
