@@ -366,7 +366,6 @@ def fetch_data_from_api(facility_id, meter_type, start_date, end_date):
 
     # Make the GET request
     response = requests.get(url, params=params)
-
     # Check if the request was successful
     if response.status_code == 200:
         # Process the data (assuming JSON response)
@@ -478,7 +477,7 @@ def process_results_with_thresholds(results, facility_id):
         raise ValueError(f"No thresholds found for facility_id {facility_id}")
     
     # Compare the fetched thresholds with model's results
-    if nmbe > nmbe_threshold or cv_rmse > rmse_threshold:
+    if not (-nmbe_threshold <= nmbe <= nmbe_threshold) or cv_rmse > rmse_threshold:
         results['baseline_model_check'] = "failed"
     else:
         results['baseline_model_check'] = "success"
