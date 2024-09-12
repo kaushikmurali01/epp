@@ -467,29 +467,80 @@ class EnergyModel:
         readable_date = f"{day}{suffix} {timestamp.strftime('%B %Y')}"
         return readable_date
 
-    def get_baseline_summary(self, baseline_data, model_type,meter_type):
-        # model_type can be 'daily' or 'hourly'
+    def get_baseline_summary(self, baseline_data, model_type, meter_type):
+        if model_type.lower() == 'hourly':
+            # Hourly Data: Ensure the baseline data is compared against 8760 hours
+            total_expected_hours = 8760  # Expected hours for a full year
+            total_available_hours = baseline_data.shape[0]
+            
+            if total_available_hours < total_expected_hours:
+                baseline_data['Month'] = baseline_data.index.month
+                missing_hours = {month: 730 - baseline_data[baseline_data['Month'] == month].shape[0] 
+                                for month in range(1, 13)}
+                missing_hours = {month: hours for month, hours in missing_hours.items() if hours > 0}
+                avg_consumption_per_month = {
+                    month: baseline_data[baseline_data['Month'] == month]['observed'].mean()
+                    for month in missing_hours.keys()
+                }
+                extrapolated_energy = sum(
+                    missing_hours[month] * avg_consumption_per_month[month]
+                    for month in missing_hours.keys()
+                )
+            else:
+                extrapolated_energy = 0
+            
+            baseline_energy_consumption_value = baseline_data['observed'].sum() + extrapolated_energy
+
+        elif model_type.lower() == 'daily':
+            # Daily Data: Compare against 365 days
+            total_expected_days = 365  # Expected days for a full year
+            total_available_days = baseline_data.shape[0]
+
+            if total_available_days < total_expected_days:
+                # Get the missing days per month
+                baseline_data['Month'] = baseline_data.index.month
+                missing_days = {month: 30 - baseline_data[baseline_data['Month'] == month].shape[0] 
+                                for month in range(1, 13)}  # Rough estimate: 30 days per month
+                
+                # Only consider months with missing days
+                missing_days = {month: days for month, days in missing_days.items() if days > 0}
+                
+                # Calculate average consumption for missing months
+                avg_consumption_per_month = {
+                    month: baseline_data[baseline_data['Month'] == month]['observed'].mean()
+                    for month in missing_days.keys()
+                }
+                
+                # Extrapolate the energy consumption for missing days
+                extrapolated_energy = sum(
+                    missing_days[month] * avg_consumption_per_month[month]
+                    for month in missing_days.keys()
+                )
+            else:
+                extrapolated_energy = 0  # No missing days
+
+            # Calculate the total energy consumption including extrapolated energy
+            baseline_energy_consumption_value = baseline_data['observed'].sum() + extrapolated_energy
+
+        # Generate summary based on meter type
         baseline_energy_periods = f"{baseline_data.shape[0]} ({self.get_readable_date(baseline_data.index[0])} to {self.get_readable_date(baseline_data.index[-1])})"
-        baseline_energy_consumption = f"{round(baseline_data['observed'].sum(), 2)}" 
-        baseline_peak_demand = f"{round(self.compute_baseline_peak_demand(baseline_data, model_type), 2)}"
+        baseline_energy_consumption = f"{round(baseline_energy_consumption_value, 0)}"
+        baseline_peak_demand = f"{round(self.compute_baseline_peak_demand(baseline_data, model_type), 0)}"
         
-        if meter_type == 1: #electricity
+        if meter_type == 1:  # electricity
             summary = {
                 "Baseline Energy Periods": baseline_energy_periods,
                 "Baseline Energy Consumption": baseline_energy_consumption + " KWh",
                 "Baseline Peak Demand": baseline_peak_demand + " KW"
             }
-        else: # water = 2, natural gas =3
+        else:  # water = 2, natural gas = 3
             summary = {
                 "Baseline Energy Periods": baseline_energy_periods,
                 "Baseline Energy Consumption": baseline_energy_consumption + " MJ",
             }
-    
-        # If you need the result as a JSON string
-        # json_summary = json.dumps(summary, indent=4)  # The 'indent' parameter is optional, for pretty-printing
-        return summary  # or just 'return summary' if you prefer a Python dict
-
         
+        return summary
+            
     def training_hourly_model_sm(self):
         self.model_segment_name_mapping = {
             "three_month_weighted": {
@@ -555,12 +606,14 @@ class EnergyModel:
                 coefficients_df = self.model_coefficients[segment_name]
                 summary_df.to_excel(writer, sheet_name=f'summary_{segment_name}')
                 coefficients_df.to_excel(writer, sheet_name=f'coefficients_{segment_name}')
+
+
     def save_model_to_buffer(self, granularity):
         if granularity == 'hourly':
             model_buffer = io.BytesIO()
             pickle.dump(self.model, model_buffer)
             model_buffer.seek(0)  # Rewind the buffer to the beginning after writing
-        
+
             # Configuration data for hourly model
             config_data = {
                 'coefficients': self.feature_coefficients,
@@ -579,7 +632,7 @@ class EnergyModel:
             combined_models = {
                 'eemeter_model': self.baseline_model_daily
             }
-            
+
             # Only add the linear model if it exists
             if hasattr(self, 'linear_model'):
                 combined_models['linear_model'] = self.linear_model

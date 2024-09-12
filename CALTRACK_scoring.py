@@ -91,16 +91,29 @@ def scoring_hourly_model(scoring_data, model, config):
     return scoring_data
 
 
-def scoring_daily_model(processed_reporting_data, eemeter_model, linear_model, independent_variables):
+
+def scoring_daily_model(processed_reporting_data, loaded_model, config_data,ignore_disqualification=False):
+    # Rewind the buffers to the beginning before reading
+    # model_buffer.seek(0)
+    # config_buffer.seek(0)
+
+    # Load the models and configuration data from the buffers
+    # loaded_model = pickle.load(model_buffer)  # Load the entire dictionary from the buffer
+    eemeter_model = loaded_model.get('eemeter_model', None)
+    linear_model = loaded_model.get('linear_model', None)
+    
+    # config_data = pickle.load(config_buffer)
+    independent_variables = config_data.get("independent_variables", None)
+
     # Check if resampling is needed for reporting data
     if processed_reporting_data.index.freqstr != 'D':
         daily_grouped_reporting = processed_reporting_data.resample('D').agg({'temperature': 'mean', 'observed': 'sum'})
     else:
         daily_grouped_reporting = processed_reporting_data
-    
+
     # Use the loaded eemeter model to predict on reporting data
     reporting_data_daily = DailyBaselineData(daily_grouped_reporting, is_electricity_data=True)
-    reporting_predictions = eemeter_model.predict(reporting_data_daily)
+    reporting_predictions = eemeter_model.predict(reporting_data_daily,ignore_disqualification = ignore_disqualification)
     
     # Convert temperature to Celsius and calculate residuals
     reporting_predictions['temperature'] = (reporting_predictions['temperature'] - 32) * 5 / 9

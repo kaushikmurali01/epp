@@ -216,7 +216,7 @@ def score_data():
         if granularity == 'hourly':
             scoring_results = scoring_hourly_model(processed_scoring_data.copy(), loaded_model, loaded_config)
         else:
-            scoring_results = scoring_daily_model(processed_scoring_data.copy(), eemeter_model = loaded_model['eemeter_model'],linear_model = loaded_model['linear_model'], loaded_config = loaded_config)
+            scoring_results = scoring_daily_model(processed_scoring_data, loaded_model, loaded_config,ignore_disqualification=True)
         #make a new table in db to store these results
         print('Data scoring successfully done. Saving results to DB...')
         scoring_results = scoring_results.reset_index()
