@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminRawSummaryMeterList } from "../../../../redux/admin/actions/adminBaselineAction";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
+import { formatNumber } from "utils/numberFormatter";
 
 const miniTableStyles = {
   overflowY: "auto",
@@ -114,21 +115,21 @@ const MeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) => <>{item?.reading && formatNumber(item?.reading)}</>,
     },
   ];
   return (
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography
+        {/* <Typography
           disabled
           variant="h6"
           color="#2C77E9"
           sx={{ cursor: "pointer" }}
         >
           Download as Excel
-        </Typography>
+        </Typography> */}
       </Grid>
       <Grid container>
         <Box className="view-entries-table" sx={{ width: "100%" }}>

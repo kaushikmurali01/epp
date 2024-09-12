@@ -48,9 +48,9 @@ const DetailsAndSetting = () => {
 
     const properties = [
       "first_quartile",
+      "third_quartile",
       "inter_quartile",
       "lower_limit",
-      "third_quartile",
       "upper_limit",
     ];
 
@@ -83,7 +83,22 @@ const DetailsAndSetting = () => {
     }
 
     return [
-      { Header: "Property", accessor: "property", headerVisibility: "hidden" },
+      {
+        Header: "Property",
+        accessor: (item) => (
+          <Typography
+            variant="small2"
+            sx={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              textWrap: "nowrap",
+            }}
+          >
+            {item.property}
+          </Typography>
+        ),
+        headerVisibility: "hidden",
+      },
       ...summaryData.info.map((item) => ({
         Header: (
           <Typography
@@ -92,6 +107,7 @@ const DetailsAndSetting = () => {
               textTransform: "capitalize",
               fontSize: "0.75rem",
               fontWeight: 600,
+              textWrap: "nowrap",
             }}
           >
             {item.meter_name.toLowerCase()}

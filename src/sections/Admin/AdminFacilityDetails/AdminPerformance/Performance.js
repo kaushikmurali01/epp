@@ -41,6 +41,10 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(1);
+  const [expanded, setExpanded] = useState("baselineSummary");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const [isPerformanceSettingComponent, setIsPerformanceSettingComponent] =
     useState(false);
 
@@ -84,15 +88,30 @@ const Performance = () => {
 
   const [isDateValid, setIsDateValid] = useState(false);
 
-  const [submittedP4P, setSubmittedP4P] = useState(true);
-  const [submissionDate, setSubmissionDate] = useState();
+  const [submittedP4P, setSubmittedP4P] = useState(false);
+  const [submissionDate, setSubmissionDate] = useState(null);
+  const [verifiedP4P, setVerifiedP4P] = useState(false);
+  const [verificationDate, setVerificationDate] = useState(null);
+  const [performanceType, setPerformanceType] = useState(null);
 
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
   }, []);
   
+  const handleVerifiedP4PsChange = useCallback((newVerifiedP4P) => {
+    setVerifiedP4P(newVerifiedP4P);
+  }, []);
+
   const handleSubmissionDate = useCallback((newDate) => {
     setSubmissionDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handleVerificationDate = useCallback((newDate) => {
+    setVerificationDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handlePerformanceTypeChange = useCallback((newPerformanceType) => {
+    setPerformanceType(newPerformanceType);
   }, []);
 
   const handleSubmitSavingsReport = useCallback(() => {
@@ -223,6 +242,8 @@ const Performance = () => {
               summary="Baseline summary"
               details={<BaselineSummaryAccord meter_type={activeButton} />}
               panelId="baselineSummary"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
             <CustomAccordion
@@ -231,6 +252,8 @@ const Performance = () => {
                 <PerformancePeriodDataSummary meter_type={activeButton} />
               }
               panelId="performancePeriodDataSummary"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
             <CustomAccordion
@@ -243,16 +266,23 @@ const Performance = () => {
                   onDateValidation={handleDateValidation}
                   onSubmittedP4PsChange={handleSubmittedP4PsChange}
                   onSubmissionDateChange={handleSubmissionDate}
+                  onVerifiedP4PsChange={handleVerifiedP4PsChange}
+                  onVerificationDateChange={handleVerificationDate}
+                  onPerformanceTypeChange={handlePerformanceTypeChange}
                 />
               }
               panelId="performancePeriodReportingInformation"
+              expanded={expanded}
+              onChange={handleAccordionChange}
             />
 
-            {/* <CustomAccordion
+            <CustomAccordion
               summary="Performance period data visualization"
-              details={<PerformancePeriodDataVisualization />}
+              // details={<PerformancePeriodDataVisualization />}
               panelId="performancePeriodDataVisualization"
-            /> */}
+              expanded={expanded}
+              onChange={handleAccordionChange}
+            />
           </Grid>
         )}
       </Grid>

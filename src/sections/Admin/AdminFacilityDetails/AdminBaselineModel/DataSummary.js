@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchAdminDataExplorationSummaryList } from "../../../../redux/admin/actions/adminBaselineAction";
 import { format } from "date-fns";
+import { formatNumber } from "utils/numberFormatter";
 
 const DataSummary = () => {
   const [activeButton, setActiveButton] = useState("observe_data");
@@ -105,6 +106,9 @@ const DataSummary = () => {
         },
         fotterActionStyle: "",
         modalBodyContentStyle: "",
+        evModalStyle: {
+          paperMaxWidth: "720px", // Set the desired max-width
+        },
       },
       buttonsUI: {
         saveButton: false,
@@ -186,7 +190,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
   ];
 
@@ -211,22 +217,24 @@ const DataSummary = () => {
       accessor: (item) => (
         <Typography
           onClick={() =>
-            meterDetailsModal(
-              item?.meter_type,
-              item?.meter_name,
-              item?.meter_id,
-              item?.total_records,
-              item?.time_stamp_start,
-              item?.time_stamp_end
-            )
+            item?.missing_type === 0
+              ? meterDetailsModal(
+                  item?.meter_type,
+                  item?.meter_name,
+                  item?.meter_id,
+                  item?.total_records,
+                  item?.time_stamp_start,
+                  item?.time_stamp_end
+                )
+              : null
           }
           variant="span"
           sx={{
-            color: "primary.main",
+            color: item?.missing_type === 0 ? "primary.main" : "#2E813E90",
             fontSize: "0.875rem !important",
             fontStyle: "italic",
             fontWeight: 400,
-            cursor: "pointer",
+            cursor: item?.missing_type === 0 && "pointer",
           }}
         >
           {item.meter_name}
@@ -244,7 +252,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
   ];
 
@@ -303,7 +313,9 @@ const DataSummary = () => {
     },
     {
       Header: "Count",
-      accessor: "total_records",
+      accessor: (item) => (
+        <>{item?.total_records && formatNumber(item?.total_records)}</>
+      ),
     },
     {
       Header: "Threshold",

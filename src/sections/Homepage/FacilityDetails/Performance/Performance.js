@@ -39,6 +39,10 @@ const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
 const Performance = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
   const [activeButton, setActiveButton] = useState(1);
+  const [expanded, setExpanded] = useState("baselineSummary");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   const handleTabTypeClick = (index) => {
     setActiveButton(index);
@@ -82,15 +86,30 @@ const Performance = () => {
 
   const [isDateValid, setIsDateValid] = useState(false);
 
-  const [submittedP4P, setSubmittedP4P] = useState(true);
+  const [submittedP4P, setSubmittedP4P] = useState(false);
   const [submissionDate, setSubmissionDate] = useState(null);
+  const [verifiedP4P, setVerifiedP4P] = useState(false);
+  const [verificationDate, setVerificationDate] = useState(null);
+  const [performanceType, setPerformanceType] = useState(null);
 
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
   }, []);
 
+  const handleVerifiedP4PsChange = useCallback((newVerifiedP4P) => {
+    setVerifiedP4P(newVerifiedP4P);
+  }, []);
+
   const handleSubmissionDate = useCallback((newDate) => {
     setSubmissionDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handleVerificationDate = useCallback((newDate) => {
+    setVerificationDate(newDate ? new Date(newDate) : null);
+  }, []);
+
+  const handlePerformanceTypeChange = useCallback((newPerformanceType) => {
+    setPerformanceType(newPerformanceType);
   }, []);
 
   const handleSubmitSavingsReport = useCallback(() => {
@@ -101,13 +120,26 @@ const Performance = () => {
     setIsDateValid(isValid);
   };
 
+  const getPerformanceTypeText = (type) => {
+    switch (type) {
+      case 1:
+        return "1st P4P";
+      case 2:
+        return "2nd P4P";
+      case 3:
+        return "3rd P4P";
+      default:
+        return "";
+    }
+  };
+
   return (
     <>
       <Grid
         container
         sx={{
           width: "100%",
-          padding: "0 2rem",
+          padding: { xs: "0", md: "0 2rem" },
           marginTop: isSmallScreen && "2rem",
           display: "flex",
           gap: "2rem",
@@ -138,7 +170,7 @@ const Performance = () => {
               Natural gas
             </Button>
           </StyledButtonGroup>
-          {!submittedP4P && (
+          {!submittedP4P && !verifiedP4P && (
             <Button
               type="button"
               variant="contained"
@@ -150,37 +182,50 @@ const Performance = () => {
           )}
         </Grid>
 
-        {submittedP4P && submissionDate && (
-          <Grid item display="flex" justifyContent="end" width="100%">
-            <Typography
-              sx={{
-                padding: "6px 8px 6px 8px",
-                backgroundColor: "#CFEEFF",
-                color: "#1976AA",
-                borderRadius: "12rem",
-                fontStyle: "italic",
-                fontSize: { xs: "12px", md: "14px !important" },
-                fontWeight: "400",
-              }}
-            >
-              Savings Report has been submitted on{" "}
-              {format(submissionDate, "yyyy-MM-dd, HH:mm")}, pending
-              verification
-            </Typography>
-          </Grid>
-        )}
+        {(submittedP4P || verifiedP4P) &&
+          (submissionDate || verificationDate) && (
+            <Grid item display="flex" justifyContent="end" width="100%">
+              <Typography
+                sx={{
+                  padding: "6px 8px 6px 8px",
+                  backgroundColor: verifiedP4P ? "#3ea65c" : "#CFEEFF",
+                  color: verifiedP4P ? "#FFF" : "#1976AA",
+                  borderRadius: "12rem",
+                  fontStyle: "italic",
+                  fontSize: { xs: "12px", md: "14px !important" },
+                  fontWeight: "400",
+                }}
+              >
+                Savings Report for{" "}
+                <b>{getPerformanceTypeText(performanceType)}</b> has been
+                <b>{verifiedP4P ? " verified " : " submitted "}</b>
+                on{" "}
+                {verifiedP4P && verificationDate
+                  ? format(verificationDate, "yyyy-MM-dd, HH:mm")
+                  : null}
+                {submittedP4P && submissionDate
+                  ? format(submissionDate, "yyyy-MM-dd, HH:mm")
+                  : null}
+                {submittedP4P && ", pending verification"}
+              </Typography>
+            </Grid>
+          )}
 
         <Grid item>
           <CustomAccordion
             summary="Baseline summary"
             details={<BaselineSummaryAccord meter_type={activeButton} />}
             panelId="baselineSummary"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
           <CustomAccordion
             summary="Performance period data summary"
             details={<PerformancePeriodDataSummary meter_type={activeButton} />}
             panelId="performancePeriodDataSummary"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
           <CustomAccordion
@@ -193,16 +238,23 @@ const Performance = () => {
                 onDateValidation={handleDateValidation}
                 onSubmittedP4PsChange={handleSubmittedP4PsChange}
                 onSubmissionDateChange={handleSubmissionDate}
+                onVerifiedP4PsChange={handleVerifiedP4PsChange}
+                onVerificationDateChange={handleVerificationDate}
+                onPerformanceTypeChange={handlePerformanceTypeChange}
               />
             }
             panelId="performancePeriodReportingInformation"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
 
-          {/* <CustomAccordion
+          <CustomAccordion
             summary="Performance period data visualization"
-            details={<PerformancePeriodDataVisualization />}
+            // details={<PerformancePeriodDataVisualization />}
             panelId="performancePeriodDataVisualization"
-          /> */}
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
         </Grid>
       </Grid>
       <Loader

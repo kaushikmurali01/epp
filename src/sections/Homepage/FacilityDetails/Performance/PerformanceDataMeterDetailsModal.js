@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { fetchPerformanceDataRawSummaryMeterList } from "../../../../redux/superAdmin/actions/performanceAction";
+import { formatNumber } from "utils/numberFormatter";
 
 const PerformanceDataMeterDetailsModal = ({
   setPerformanceDataMeterDetailsModalConfig,
@@ -136,7 +137,8 @@ const PerformanceDataMeterDetailsModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      accessor: (item) =>
+        item?.reading && formatNumber(item.reading),
     },
   ];
 
@@ -149,9 +151,9 @@ const PerformanceDataMeterDetailsModal = ({
     <Grid container rowGap={4}>
       <Grid container justifyContent="space-between">
         <Typography variant="h5">{meterName}</Typography>
-        <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} disabled>
+        {/* <Typography variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }} disabled>
           Download as Excel
-        </Typography>
+        </Typography> */}
       </Grid>
       <Grid container>
         <Box className="view-entries-table" sx={{ width: "100%" }}>

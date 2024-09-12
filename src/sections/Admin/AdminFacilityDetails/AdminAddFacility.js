@@ -432,6 +432,8 @@ const AdminAddFacilityComponent = (props) => {
     const query =
       values?.unit_number +
       ", " +
+      values?.facility_name +
+      ", " +
       values?.street_number +
       " " +
       values?.street_name +
@@ -461,7 +463,8 @@ const AdminAddFacilityComponent = (props) => {
         }
         const code = openLocationCode.encode(
           parseFloat(response?.data?.results[0]?.position?.lat),
-          parseFloat(response?.data?.results[0]?.position?.lon)
+          parseFloat(response?.data?.results[0]?.position?.lon),
+          15
         );
         const newValues = {
           ...values,
@@ -482,19 +485,6 @@ const AdminAddFacilityComponent = (props) => {
             newValues
           )
             .then((response) => {
-              //   if (response?.data?.data) {
-              //     const myDataToSend = {
-              //       start_year: "2023",
-              //       end_year: "2024",
-              //       start_month: "1",
-              //       end_month: "12",
-              //       facility_id: response?.data && response?.data?.data?.id,
-              //     };
-              //     POST_REQUEST(
-              //       WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
-              //       myDataToSend
-              //     );
-              //   }
               setLoadingState(false);
               NotificationsToast({
                 message: "Facility added successfully!",
@@ -521,17 +511,6 @@ const AdminAddFacilityComponent = (props) => {
           )
             .then((response) => {
               if (response) {
-                // const myDataToSend = {
-                //   start_year: "2023",
-                //   end_year: "2024",
-                //   start_month: "1",
-                //   end_month: "12",
-                //   facility_id: id,
-                // };
-                // POST_REQUEST(
-                //   WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS.INSERT_WEATHER_DATA,
-                //   myDataToSend
-                // );
                 navigate(
                   `/facility-list/facility-details/${response?.data?.data?.id}`
                 );

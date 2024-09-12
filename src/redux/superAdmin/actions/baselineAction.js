@@ -355,7 +355,10 @@ export const fetchDataExplorationSummaryList = (
       let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
       const response = await GET_REQUEST(endpointWithParams);
-      const data = response.data;
+      const data =
+        typeof response.data == "object"
+          ? response.data
+          : JSON.parse(response.data.replaceAll(NaN, '"NaN"'));
       dispatch(fetchDataExplorationSummaryListSuccess(data));
       return data;
     } catch (error) {

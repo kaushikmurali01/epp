@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { POST_REQUEST } from "utils/HTTPRequests";
 import { adminHourlyEndPoints } from "constants/apiEndPoints";
+import { formatNumber } from "utils/numberFormatter";
 
 const ViewEntryDetailListModal = ({
   meterId,
@@ -53,7 +54,12 @@ const ViewEntryDetailListModal = ({
     },
     {
       Header: "Meter Reading",
-      accessor: "reading",
+      // accessor: "reading",
+      accessor: (item) => (
+        <>
+          {item?.reading && formatNumber(item.reading)}
+        </>
+      ),
     },
   ]
   const miniTableStyles = { 
@@ -106,9 +112,9 @@ const ViewEntryDetailListModal = ({
                 ? "Water"
                 : ivName || ""}
         </Typography>
-        <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
+        {/* <Typography disabled variant="h6" color="#2C77E9" sx={{ cursor: "pointer" }}>
           Download as Excel
-        </Typography>
+        </Typography> */}
       </Grid>
       <Grid container>
         <Box className="view-entries-table" sx={{width: '100%'}}>

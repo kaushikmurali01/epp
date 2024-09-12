@@ -158,7 +158,7 @@ const AdminMeterListing = ({
       accessorKey: "updated_at",
     },
     {
-      Header: "In use(inactive date)",
+      Header: "In use (inactive) date",
       accessor: (item) => (
         <>
           {!item?.stil_in_use &&
@@ -262,46 +262,109 @@ const AdminMeterListing = ({
               bgcolor: "#2E813E20",
               boxShadow: "none",
               border: "1px solid #2E813E",
-              overflowX: "scroll",
               maxWidth: isSmallScreen ? "100%" : "60%",
             }}
+            size="small"
           >
             <MuiTable size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+              <TableHead sx={{ background: "#CBFFD5" }}>
+                <TableRow sx={{ borderBottom: "none!important" }} size="small">
+                  <TableCell
+                    sx={{
+                      "&:first-child": {
+                        background: "#CBFFD5",
+                      },
+                      fontStyle: "italic",
+                      borderBottom: "none!important",
+                      padding: "4px 10px!important",
+                      textWrap: "nowrap",
+                      color: "#2E813E!important",
+                      fontSize: "0.75rem!important",
+                      fontWeight: 400,
+                    }}
+                  >
                     Meter type
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((type, index) => (
                       <TableCell
                         key={type.meterType}
-                        sx={{ color: "#111", fontStyle: "italic" }}
+                        sx={{
+                          color: "#111",
+                          background: "#EBFFEF",
+                          borderBottom: "none!important",
+                          padding: "4px 4px!important",
+                          textAlign: "center!important",
+                        }}
                       >
                         {type?.["Meter type"]}
                       </TableCell>
                     ))}
                 </TableRow>
               </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+              <TableBody sx={{ background: "#CBFFD5" }}>
+                <TableRow sx={{ borderBottom: "none!important" }} size="small">
+                  <TableCell
+                    sx={{
+                      "&:first-child": {
+                        background: "#CBFFD5",
+                      },
+                      fontStyle: "italic",
+                      borderBottom: "none!important",
+                      padding: "4px 10px!important",
+                      textWrap: "nowrap",
+                      color: "#2E813E!important",
+                      fontSize: "0.75rem!important",
+                      fontWeight: 400,
+                    }}
+                  >
                     Total meters
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((count, index) => (
-                      <TableCell key={index} sx={{ color: "#111" }}>
+                      <TableCell
+                        key={index}
+                        sx={{
+                          color: "#111",
+                          background: "#EBFFEF",
+                          borderBottom: "none!important",
+                          padding: "4px 4px!important",
+                          textAlign: "center!important",
+                        }}
+                      >
                         {count?.["Total meters"]}
                       </TableCell>
                     ))}
                 </TableRow>
-                <TableRow>
-                  <TableCell sx={{ bgcolor: "#2E813E60", fontStyle: "italic" }}>
+                <TableRow sx={{ borderBottom: "none!important" }} size="small">
+                  <TableCell
+                    sx={{
+                      "&:first-child": {
+                        background: "#CBFFD5",
+                      },
+                      fontStyle: "italic",
+                      borderBottom: "none!important",
+                      padding: "4px 10px!important",
+                      textWrap: "nowrap",
+                      color: "#2E813E!important",
+                      fontSize: "0.75rem!important",
+                      fontWeight: 400,
+                    }}
+                  >
                     Current date
                   </TableCell>
                   {Array.isArray(meterStatistics) &&
                     meterStatistics?.map((date, index) => (
-                      <TableCell key={index} sx={{ color: "#111" }}>
+                      <TableCell
+                        key={index}
+                        sx={{
+                          color: "#111",
+                          background: "#EBFFEF",
+                          borderBottom: "none!important",
+                          padding: "4px 4px!important",
+                          textAlign: "center!important",
+                        }}
+                      >
                         {date?.["Current energy date"] &&
                           format(
                             new Date(date?.["Current energy date"]),
@@ -349,6 +412,7 @@ const AdminMeterListing = ({
           sortOrder={sortOrder}
           setSortColumn={setSortColumn}
           setSortOrder={setSortOrder}
+          tableClass="meter-listing-table"
         />
       </Box>
       <EvModal

@@ -41,9 +41,7 @@ const BaselineModel = () => {
   const sufficiencyCheckLoading = useSelector(
     (state) => state?.baselineReducer?.sufficiencyCheckLoading
   );
-  const calculateBaselineLoading = useSelector(
-    (state) => state?.baselineReducer?.calculateBaselineLoading
-  );
+
   useEffect(() => {
     dispatch(fetchIndependentVariableList(id));
     return () => {
@@ -236,14 +234,10 @@ const BaselineModel = () => {
         />
       </Grid>
       <Loader
-        textLoader={calculateBaselineLoading}
         sectionLoader
         minHeight="100vh"
         loadingState={
-          loadingState ||
-          baselinePeriodLoading ||
-          sufficiencyCheckLoading ||
-          calculateBaselineLoading
+          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
         }
         loaderPosition="fixed"
         loaderText={"Baseline calculation "}

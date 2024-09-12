@@ -61,6 +61,8 @@ import MapComponent from "components/MapComponent/MapComponent";
 import Loader from "pages/Loader";
 import ViewEntryDetailListModal from "./EntryListing/ViewEntryDetailListModal";
 import DeleteEntriesModal from "./EntryListing/DeleteEntriesModal";
+import { fetchFacilityStatus } from "../../../redux/superAdmin/actions/facilityActions";
+import { useParams } from "react-router-dom";
 
 const Weather = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -71,6 +73,7 @@ const Weather = () => {
   const facilityData = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
+
   const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
   const [selectedStation, setSelectedStation] = useState(null);
   const weatherDataSetId = process.env.REACT_APP_POWERBI_WEATHER_DATASET_ID;
@@ -109,11 +112,14 @@ const Weather = () => {
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const getDataProcessingLoader =
-    sessionStorage?.getItem("dataProcessingLoader") === "true";
-  const [dataProcessingLoader, setDataProcessingLoader] = useState(
-    getDataProcessingLoader || false
-  );
+
+  const meterIdKey = selectedIv?.id ?  `dataProcessingLoader_iv_${selectedIv?.id}` : null;
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+
+
+    const [dataProcessingLoader, setDataProcessingLoader] = useState(
+      getDataProcessingLoader?.loader || false
+    );
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   useEffect(() => {
@@ -457,7 +463,8 @@ const Weather = () => {
 
   const handleChange = (event, newValue) => {
     setTabValue(newValue);
-    setUploadDataFormVisible(false);
+    setImgUploadData("");
+    setViewEntryList([]);
   };
 
   const handleButtonClick = () => {
@@ -511,20 +518,17 @@ const Weather = () => {
   const uploadIndepentVariableFile = (data) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const recordId = data.record_id;
+    const selectedIvId = selectedIv?.id;
     const payload = {
       facility_id: facilityData?.id,
-      record_id: data.record_id,
+      record_id: recordId,
       iv: true,
     };
 
-    console.log(apiURL, payload, "checking payload");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
-        // getHourlySubHourlyEntryData();
-        // dispatch(fetchFacilityStatus(id));
-        // dispatch(fetchFacilityDetails(id));
-
         NotificationsToast({
           message: response.data.status,
           type: "success",
@@ -536,7 +540,7 @@ const Weather = () => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+        startPollingForData(setDataProcessingLoader,recordId, selectedIvId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -547,34 +551,111 @@ const Weather = () => {
       });
   };
 
+  const getUploadResult = async (checkInterval,payload)=> {
+
+    let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=true&record_id=${payload.recordId}`;
+    try {
+      const res = await GET_REQUEST(apiURL);
+      return res; // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      // clearInterval(checkInterval);
+      throw error; // Throw the error to be caught in polling
+    }
+  }
+  
+
   // Polling GET API to retrieve the data
-  const startPollingForData = (
-    setDataProcessingLoader,
-    getHourlyEntriesData
-  ) => {
+
+  const startPollingForData = (setDataProcessingLoader, recordId, selectedIvId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
-    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
-
-    const checkInterval = setInterval(async () => {
+    // Set the current timestamp along with the loader status
+    const meterIdKey = `dataProcessingLoader_iv_${selectedIv?.id}`
+    const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
+    let data = {};
+    if(recordId !== undefined && storedData === null) {
+      const now = new Date();
+        data = {
+        loader: true,
+        timestamp: now.toISOString(),
+        selectedIvId: selectedIvId,
+        recordId: recordId || storedData?.recordId,
+      };
+      sessionStorage.setItem(meterIdKey, JSON.stringify(data));
+  }
+    let checkInterval;
+    const pollData = async () => {
       try {
-        const response = await getHourlyEntriesData("processingLoader");
-        if (response.data?.data?.rows?.length > 0) {
-          // Data is retrieved successfully, stop polling
-          setDataProcessingLoader(false);
-          sessionStorage.removeItem("dataProcessingLoader");
+        // Check if 5 minutes have passed since setting the loader
+        const checkStoredData = JSON.parse(sessionStorage.getItem(meterIdKey));
+        const storedTime = new Date(checkStoredData?.timestamp);
+        const currentTime = new Date();
+        const timeDifference = currentTime - storedTime;
+  
+        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+          console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem(meterIdKey);
+          NotificationsToast({
+            message: "Maximum upload time exceeded. Please try again!",
+            type: "error",
+          });
+          return;
         }
+
+        if(checkStoredData?.recordId !== undefined ) {
+          const getUploadResultData = await getUploadResult(checkInterval,checkStoredData)
+          console.log(getUploadResultData, "checking upload result data")
+          if(getUploadResultData.data?.status_code === 201){
+              const response = await getHourlyEntriesData("processingLoader");
+              if (response.data?.data?.rows?.length > 0) {
+                // Data is retrieved successfully, stop polling
+                setDataProcessingLoader(false);
+                sessionStorage.removeItem(meterIdKey);
+                clearInterval(checkInterval);
+                dispatch(fetchFacilityStatus(facilityData?.id))
+                
+              }
+          }else if (getUploadResultData.data?.status_code === 400){
+            setDataProcessingLoader(false);
+            setUploadDataFormVisible(true);
+            sessionStorage.removeItem(meterIdKey);
+            clearInterval(checkInterval);
+            dispatch(fetchFacilityStatus(facilityData?.id))
+
+            NotificationsToast({
+              message: getUploadResultData?.data ? getUploadResultData.data : "Something went wrong!",
+              type: "error",
+            });
+            
+          }
+         
+        } 
+        
       } catch (error) {
         console.error("Error fetching data:", error);
+        setDataProcessingLoader(false);
+        setUploadDataFormVisible(true);
+        sessionStorage.removeItem(meterIdKey);
+        clearInterval(checkInterval);
+        dispatch(fetchFacilityStatus(facilityData?.id))
       }
-    }, 3000); // Poll every 3 seconds
-
+    };
+    // Start the interval
+    checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
     return checkInterval;
   };
 
+
+
   const getHourlyEntriesData = async (loader) => {
-    console.log(loader, "checking loaders...");
+   
     if (loader === "processingLoader") {
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
     } else {
@@ -591,18 +672,19 @@ const Weather = () => {
 
     try {
       const res = await POST_REQUEST(apiURL, payload);
-      console.log(res, "check view entry list");
       if (
         res.data?.data?.rows instanceof Array &&
-        res.data?.data?.rows.length > 0
+        res.data?.data?.rows?.length > 0
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        setDataProcessingLoader(false)
       }
 
-      if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
+      if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
+        setDataProcessingLoader(false);
       }
 
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -622,7 +704,6 @@ const Weather = () => {
       iv: false, // for hourly data independent variable will be false...
     };
 
-    console.log(imgData, apiURL, payload, "checking upload data");
     // return;
     POST_REQUEST(apiURL, payload)
       .then((response) => {
@@ -647,7 +728,7 @@ const Weather = () => {
     const activeTab = independentVarsList.find(
       (item) => item.id === selectedIv?.id
     );
-    console.log(activeTab, "activeTab");
+
     setViewEntriesModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -775,24 +856,49 @@ const Weather = () => {
       </div>
     );
   };
+  
 
   useEffect(() => {
-    if (
-      Object.keys(facilityData)?.length > 0 &&
-      !dataProcessingLoader &&
-      selectedIv
-    ) {
-      console.log(facilityData, "facilityData check");
-      getHourlyEntriesData();
+
+    const checkIvKey = `dataProcessingLoader_iv_${selectedIv?.id}`;
+    // Retrieve the item from sessionStorage
+    const getStorageItem = sessionStorage.getItem(checkIvKey);
+    let getStorageData = null;
+    // Parse only if the item is not null
+    if (getStorageItem !==null ** getStorageData !== undefined) {
+      getStorageData = JSON.parse(getStorageItem);
     }
 
-    if (
-      Object.keys(facilityData)?.length > 0 &&
-      dataProcessingLoader &&
-      selectedIv
-    ) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
-    }
+  if ( Object.keys(facilityData)?.length > 0 && getStorageData === null && selectedIv) {
+   
+    getHourlyEntriesData();
+  } else {
+      if(selectedIv !== undefined){
+          if (getStorageData?.loader && selectedIv?.id === getStorageData?.selectedIvId ) {
+            setDataProcessingLoader(true);
+            setUploadDataFormVisible(false);
+          }
+
+          if (getStorageData === null ) {
+            getHourlyEntriesData();
+            // setDataProcessingLoader(true);
+            // setUploadDataFormVisible(false);
+          }
+      
+      }
+}
+
+    // if (
+    //   Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
+    // ) {
+    //   getHourlyEntriesData();
+    // }
+
+    // if (
+    //   Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
+    // ) {
+    //   startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
+    // }
   }, [facilityData, selectedIv, refreshPageData]);
 
   return (
@@ -831,6 +937,7 @@ const Weather = () => {
                   maxWidth: "10rem",
                   textTransform: "none",
                 }}
+                disabled= {isUploading}
               />
               {independentVarsList?.length
                 ? independentVarsList.map((item, i) => {
@@ -844,6 +951,7 @@ const Weather = () => {
                           maxWidth: "10rem",
                           textTransform: "none",
                         }}
+                        disabled= {isUploading}
                       />
                     );
                   })
@@ -1554,7 +1662,7 @@ const Weather = () => {
                 </Box>
               )}
 
-              {viewEntryList?.length > 0 ? (
+              {/* {viewEntryList?.length > 0 ? (
                 <Grid sx={{ width: "100%", marginTop: "2.5rem" }}>
                   <Grid sx={{ width: "100%" }}>
                     <Grid container mb="2.5rem">
@@ -1569,57 +1677,9 @@ const Weather = () => {
                         ></iframe>
                       </Grid>
                     </Grid>
-                    {/* <Box id="bi-report" mt={4}>
-                    {!isErrorInPowerBi && !reportLoading ? (
-                      <PowerBIEmbed
-                        embedConfig={powerBiConfig}
-                        eventHandlers={
-                          new Map([
-                            [
-                              "loaded",
-                              function () {
-                                console.log("Report loaded");
-                              },
-                            ],
-                            [
-                              "rendered",
-                              function () {
-                                console.log("Report rendered");
-                              },
-                            ],
-                            [
-                              "error",
-                              function (event) {
-                                console.log("iiiiiiiiiii", event.detail);
-                                getPowerBiError(event.detail);
-                              },
-                            ],
-                            ["visualClicked", () => console.log("visual clicked")],
-                            ["pageChanged", (event) => console.log(event)],
-                          ])
-                        }
-                        cssClassName={"bi-embedded"}
-                        getEmbeddedComponent={(embeddedReport) => {
-                          window.report = embeddedReport;
-                        }}
-                      />
-                    ) : (
-                      <Typography
-                        variant="h3"
-                        sx={{
-                          fontWeight: "700",
-                          fontSize: "1.125rem !important",
-                          lineHeight: "106.815%",
-                          letterSpacing: "-0.01125rem",
-                        }}
-                      >
-                        Verifying data and creating visualization, please wait...
-                      </Typography>
-                    )}
-                  </Box> */}
                   </Grid>
                 </Grid>
-              ) : null}
+              ) : null} */}
             </React.Fragment>
           )
 

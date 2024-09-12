@@ -102,7 +102,6 @@ const UserManagement = () => {
 
   const RequestToJoinForm = () => {
     const formSubmit = (data) => {
-      console.log(data,'formSubmit');
       // return;
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
@@ -118,7 +117,6 @@ const UserManagement = () => {
         .then((response) => {
           handleAPISuccessCallBack();
           // NotificationsToast({ message: "You have successfully submitted!", type: "success" });
-          console.log(response, "check response");
           const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
 
             setModalConfig((prevState) => ({
@@ -186,7 +184,6 @@ const UserManagement = () => {
       </Formik>
     )
   }
-  console.log(getUserJoinFormRole, "getUserJoinFormRole")
 
   const openRequestModal = () => {
     setModalConfig((prevState) => ({
@@ -353,7 +350,7 @@ const UserManagement = () => {
   }, [])
 
 
-console.log(getAllCompanyList, 'getting getAllCompanyList');  
+// console.log(getAllCompanyList, 'getting getAllCompanyList');  
 
   return (
     <React.Fragment>

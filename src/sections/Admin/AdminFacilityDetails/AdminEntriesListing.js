@@ -26,7 +26,11 @@ import Table from "components/Table";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { format, getYear } from "date-fns";
-import { adminEntriesEndPoints, adminHourlyEndPoints, hourlyEndPoints } from "constants/apiEndPoints";
+import {
+  adminEntriesEndPoints,
+  adminHourlyEndPoints,
+  hourlyEndPoints,
+} from "constants/apiEndPoints";
 import {
   DELETE_REQUEST,
   GET_REQUEST,
@@ -45,7 +49,10 @@ import {
 } from "../../../redux/admin/actions/adminMeterActions";
 import { fetchAdminEntriesListing } from "../../../redux/admin/actions/adminEntriesAction";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { commonDocumentFileUploadAction, documentFileUploadAction } from "../../../redux/global/actions/fileUploadAction";
+import {
+  commonDocumentFileUploadAction,
+  documentFileUploadAction,
+} from "../../../redux/global/actions/fileUploadAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import {
   fetchAdminFacilityDetails,
@@ -72,16 +79,23 @@ const AdminEntriesListing = ({
   const [isFileUploaded, setIsFileUploaded] = useState(false);
   const [fileName, setFileName] = useState("");
 
-
   const [viewEntryList, setViewEntryList] = useState([]);
   const [uploadDataFormVisible, setUploadDataFormVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const getDataProcessingLoader =
-    sessionStorage?.getItem("dataProcessingLoader") === "true";
+  // const getDataProcessingLoader =
+  //   sessionStorage?.getItem("dataProcessingLoader") === "true";
+  // const [dataProcessingLoader, setDataProcessingLoader] = useState(
+  //   getDataProcessingLoader || false
+  // );
+  const meterIdKey = `dataProcessingLoader_meter_${meterId}`;
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
-    getDataProcessingLoader || false
+    getDataProcessingLoader?.loader || false
   );
+
+  console.log(getDataProcessingLoader, dataProcessingLoader, "check loader state..")
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   const [modalConfig, setModalConfig] = useState({
@@ -173,7 +187,7 @@ const AdminEntriesListing = ({
       cancelButtonName: "Cancel",
       saveButtonClass: "",
       cancelButtonClass: "",
-       successButtonStyle: {
+      successButtonStyle: {
         backgroundColor: "danger.scarlet",
         "&:hover": { backgroundColor: "danger.colorCrimson" },
         color: "#fff",
@@ -265,6 +279,7 @@ const AdminEntriesListing = ({
   ];
 
   const handleDeleteMeter = () => {
+    dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     dispatch(deleteAdminMeter(facilityMeterDetailId))
       .then(() => {
         setDeleteMeterModalConfig((prevState) => ({
@@ -272,9 +287,11 @@ const AdminEntriesListing = ({
           modalVisible: false,
         }));
         onAddMeterSuccess();
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
       .catch((error) => {
         console.error("Error deleting facility:", error);
+        dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       });
   };
 
@@ -522,7 +539,6 @@ const AdminEntriesListing = ({
       .catch((error) => {});
   };
 
-  
   const handleFileChange = (event) => {
     setUploadProgress(0); // reset before upload progress
     setIsUploading(true);
@@ -571,9 +587,10 @@ const AdminEntriesListing = ({
   const uploadEntryFile = (data) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
     const apiURL = hourlyEndPoints.ADD_HOURLY_METER_DATA;
+    const recordId = data.record_id;
     const payload = {
       facility_id: meterData?.facility_id,
-      record_id: data.record_id,
+      record_id: recordId,
     };
 
     // return;
@@ -592,7 +609,7 @@ const AdminEntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+        startPollingForData(setDataProcessingLoader,recordId, facilityMeterDetailId);
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -603,7 +620,6 @@ const AdminEntriesListing = ({
       });
   };
 
-  
   const downloadFileFromUrl = (fileUrl) => {
     fetch(imgUrl).then((response) => {
       response.blob().then((blob) => {
@@ -621,33 +637,124 @@ const AdminEntriesListing = ({
     });
   };
 
+  const getUploadResult = async (loader,payload)=> {
+
+    let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
+   
+
+    try {
+      const res = await GET_REQUEST(apiURL);
+      return res; // Return the response for polling check
+    } catch (error) {
+      console.log(error);
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+      throw error; // Throw the error to be caught in polling
+    }
+  }
+
+  // Polling GET API to retrieve the data
+  // const startPollingForData = (
+  //   setDataProcessingLoader,
+  //   getHourlyEntriesData
+  // ) => {
+  //   // Start data processing loader
+  //   setDataProcessingLoader(true);
+  //   sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+
+  //   const checkInterval = setInterval(async () => {
+  //     try {
+  //       const response = await getHourlyEntriesData("processingLoader");
+  //       if (response.data?.data?.rows?.length > 0) {
+  //         // Data is retrieved successfully, stop polling
+  //         setDataProcessingLoader(false);
+  //         sessionStorage.removeItem("dataProcessingLoader");
+  //         clearInterval(checkInterval);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   }, 3000); // Poll every 3 seconds
+
+  //   return checkInterval;
+  // };
   
-   // Polling GET API to retrieve the data
-   const startPollingForData = (
-    setDataProcessingLoader,
-    getHourlyEntriesData
-  ) => {
+  const startPollingForData = (setDataProcessingLoader, recordId, meterId) => {
     // Start data processing loader
     setDataProcessingLoader(true);
-    sessionStorage.setItem("dataProcessingLoader", JSON.stringify(true));
+    // Set the current timestamp along with the loader status
+    const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
+    let data = {};
+    if(recordId !== undefined && storedData === null) {
+      const now = new Date();
+        data = {
+        loader: true,
+        timestamp: now.toISOString(),
+        meterId: meterId,
+        recordId: recordId || storedData?.recordId,
+      };
+      sessionStorage.setItem(meterIdKey, JSON.stringify(data));
+  }
 
-    const checkInterval = setInterval(async () => {
+    let checkInterval;
+    const pollData = async () => {
       try {
-        const response = await getHourlyEntriesData("processingLoader");
-        if (response.data?.data?.rows?.length > 0) {
-          // Data is retrieved successfully, stop polling
-          setDataProcessingLoader(false);
-          sessionStorage.removeItem("dataProcessingLoader");
+        // Check if 5 minutes have passed since setting the loader
+        const checkStoredData = JSON.parse(sessionStorage.getItem(meterIdKey));
+        const storedTime = new Date(checkStoredData.timestamp);
+        const currentTime = new Date();
+        const timeDifference = currentTime - storedTime;
+  
+        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+          console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem(meterIdKey);
+          NotificationsToast({
+            message: "Maximum upload time exceeded. Please try again!",
+            type: "error",
+          });
+          return;
         }
+
+        if(checkStoredData?.recordId !== undefined ) {
+          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+
+          if(getUploadResultData.data?.status_code === 201){
+              const response = await getHourlyEntriesData("processingLoader");
+              if (response.data?.data?.rows?.length > 0) {
+                // Data is retrieved successfully, stop polling
+                setDataProcessingLoader(false);
+                sessionStorage.removeItem(meterIdKey);
+                clearInterval(checkInterval);
+                dispatch(fetchAdminFacilityStatus(id))
+                
+              }
+          }else if (getUploadResultData.data?.status_code === 400){
+            setDataProcessingLoader(false);
+            setUploadDataFormVisible(true);
+            sessionStorage.removeItem(meterIdKey);
+            clearInterval(checkInterval);
+            dispatch(fetchAdminFacilityStatus(id))
+            NotificationsToast({
+              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              type: "error",
+            });
+            
+          }
+         
+        } 
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
-    }, 3000); // Poll every 3 seconds
-
+    };
+    // Start the interval
+    checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
     return checkInterval;
   };
-
 
   const deleteFile = (imgData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -674,8 +781,6 @@ const AdminEntriesListing = ({
   const handleTermsAndConditionChange = (event) => {
     setAcceptTermsAndCondition(event.target.checked);
   };
-
-
 
   const handleViewEntries = () => {
     setViewEntriesModalConfig((prevState) => ({
@@ -757,11 +862,9 @@ const AdminEntriesListing = ({
     }
 
     if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
-      startPollingForData(setDataProcessingLoader, getHourlyEntriesData);
+      startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
     }
   }, [meterData, refreshPageData]);
-
-
 
   return (
     <>
@@ -987,8 +1090,9 @@ const AdminEntriesListing = ({
               Upload data in bulk for this meter
             </Typography>
             <Typography variant="small2" gutterBottom>
-              You can upload a Green Button XML file or an Excel-compatible
-              file. Use this{" "}
+              {/* You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "} */}
+              You can upload an Excel-compatible file. Use this{" "}
               <Link
                 href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                 underline="hover"
@@ -1165,7 +1269,7 @@ const AdminEntriesListing = ({
           )}
 
           {/* show here Energy use by hourly basis  graph */}
-          {viewEntryList?.length > 0 && (
+          {/* {viewEntryList?.length > 0 && (
             <Box className="hourly-graph-row">
               <Stack direction="row" sx={{ width: "100%" }}>
                 <Stack direction="row" sx={{ width: "100%" }}>
@@ -1173,7 +1277,7 @@ const AdminEntriesListing = ({
                 </Stack>
               </Stack>
             </Box>
-          )}
+          )} */}
         </Box>
       )}
 
@@ -1189,18 +1293,18 @@ const AdminEntriesListing = ({
       />
 
       {viewEntriesModalConfig.modalVisible && (
-          <EvModal
-            modalConfig={viewEntriesModalConfig}
-            setModalConfig={setViewEntriesModalConfig}
-          />
-        )}
+        <EvModal
+          modalConfig={viewEntriesModalConfig}
+          setModalConfig={setViewEntriesModalConfig}
+        />
+      )}
 
-        {deleteEntriesModalConfig.modalVisible && (
-          <EvModal
-            modalConfig={deleteEntriesModalConfig}
-            setModalConfig={setDeleteEntriesModalConfig}
-          />
-        )}
+      {deleteEntriesModalConfig.modalVisible && (
+        <EvModal
+          modalConfig={deleteEntriesModalConfig}
+          setModalConfig={setDeleteEntriesModalConfig}
+        />
+      )}
     </>
   );
 };

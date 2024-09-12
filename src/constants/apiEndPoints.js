@@ -31,7 +31,7 @@ export const facilityEndPoints = {
     "company-facility/v1/facility-saving-document",
   SEND_HELP_REQ_FOR_MEASURE_CATEGORY: "company-facility/v1/savingPlan",
   GET_WATERFALL_DATA: "company-facility/v1/facility/getWaterFallData",
-  GET_WORKFLOW_STATUS: "weather/v1/get-workflow",
+  GET_WORKFLOW_STATUS: "company-facility/v1/workflow",
 };
 
 export const adminFacilityEndpoints = {
@@ -216,7 +216,7 @@ export const hourlyEndPoints = {
 export const adminHourlyEndPoints = {
   GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
   DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries",
-  // MIN_MAX_PERIOD: "/v1/get_min_max_dates",
+  GET_UPLOAD_RESULT: "/v1/get-uploader-result",
 };
 
 export const POWERBI_ENDPOINTS = {
@@ -251,6 +251,7 @@ export const BASELINE_ENDPOINTS = {
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
   FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary-v2",
   FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
+  FACILITY_THRESHOLD: "company-facility/v1/facility-threshold",
 };
 
 export const PERFORMANCE_ENDPOINTS = {

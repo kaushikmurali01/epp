@@ -30,6 +30,7 @@ import { useParams } from "react-router-dom";
 import { format, isAfter, isBefore, max, parseISO, subYears } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
+import Loader from "pages/Loader";
 
 const ModelConstructorForm = ({
   openSeeDetails,
@@ -54,6 +55,9 @@ const ModelConstructorForm = ({
   const [dataForCalculateBaseline, setDateForCalculateBaseline] = useState("");
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data || []
+  );
+  const calculateBaselineLoading = useSelector(
+    (state) => state?.baselineReducer?.calculateBaselineLoading
   );
   const [sliderStartDate, setSliderStartDate] = useState(null);
   const [sliderEndDate, setSliderEndDate] = useState(null);
@@ -330,30 +334,82 @@ const ModelConstructorForm = ({
     return meter ? meter?.id : null;
   };
 
+  // const onCalculateBaselineButtonClick = () => {
+  //   const data = { ...dataForCalculateBaseline };
+  //   dispatch(submitBaselineDt(data))
+  //     .then((res) => {
+  //       const updatedBaselineData = {
+  //         status: "CALCULATED",
+  //         data: {
+  //           ...data,
+  //           ...res,
+  //           ...sufficiencyCheckData,
+  //         },
+  //       };
+  //       const baseline_id = getIdByMeterType(meterType);
+  //       if (baseline_id) {
+  //         dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
+  //           (res) => {
+  //             openBaselineSuccessModal();
+  //             dispatch(fetchBaselineDetailsFromDb(id));
+  //           }
+  //         );
+  //       }
+  //       setActivateCalculateBaseline(true);
+  //     })
+  //     .catch((err) => {});
+  // };
+
   const onCalculateBaselineButtonClick = () => {
     const data = { ...dataForCalculateBaseline };
-    dispatch(submitBaselineDt(data))
-      .then((res) => {
-        const updatedBaselineData = {
-          status: "CALCULATED",
-          data: {
-            ...data,
-            ...res,
-            ...sufficiencyCheckData,
-          },
-        };
-        const baseline_id = getIdByMeterType(meterType);
-        if (baseline_id) {
-          dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
-            (res) => {
-              openBaselineSuccessModal();
-              dispatch(fetchBaselineDetailsFromDb(id));
+
+    const submitWithGranularity = (currentData) => {
+      dispatch(submitBaselineDt(currentData))
+        .then((res) => {
+          if (res?.baseline_model_check === "failed") {
+            if (currentData.granularity === "hourly") {
+              // Retry with updated granularity
+              const updatedData = { ...currentData, granularity: "daily" };
+              setFormData({ ...currentData, granularity: "daily" });
+              submitWithGranularity(updatedData);
+            } else {
+              // If already "daily", stop recursion
+              console.log(
+                "Baseline model check failed with daily granularity."
+              );
+              setActivateCalculateBaseline(true);
+              openSendHelpRequestModal();
             }
-          );
-        }
-        setActivateCalculateBaseline(true);
-      })
-      .catch((err) => {});
+          } else {
+            // If baseline_model_check is "success", handle this case
+            const updatedBaselineData = {
+              status: "CALCULATED",
+              data: {
+                ...currentData,
+                ...res,
+                ...sufficiencyCheckData,
+              },
+            };
+            const baseline_id = getIdByMeterType(meterType);
+            if (baseline_id) {
+              dispatch(
+                updateBaselineInDb(baseline_id, updatedBaselineData)
+              ).then((res) => {
+                openBaselineSuccessModal();
+                dispatch(fetchBaselineDetailsFromDb(id));
+              });
+            }
+            setActivateCalculateBaseline(true);
+          }
+        })
+        .catch((err) => {
+          // Handle error
+          console.error("Error submitting baseline data:", err);
+        });
+    };
+
+    // Start the process with the initial data
+    submitWithGranularity(data);
   };
 
   return (
@@ -365,6 +421,8 @@ const ModelConstructorForm = ({
       >
         {({ values, handleChange, setFieldValue, errors }) => {
           const handleIndeVarCheckboxChange = (variableItem, event) => {
+            values.granularity === "daily" &&
+              setFieldValue("granularity", "hourly");
             const isChecked = event.target.checked;
             const newIndependentVariables = isChecked
               ? [...values.independent_variables, variableItem.id]
@@ -379,6 +437,8 @@ const ModelConstructorForm = ({
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
+            values.granularity === "daily" &&
+              setFieldValue("granularity", "hourly");
             setFieldValue("start_date", startDate);
             setFieldValue("end_date", endDate);
             handleSubmit({
@@ -470,9 +530,11 @@ const ModelConstructorForm = ({
                               // checked={values.independent_variables.includes(
                               //   variableItem?.id
                               // )}
-                              checked={+values?.independent_variables?.includes(
-                                +variableItem?.id
-                              )}
+                              checked={
+                                +values?.independent_variables?.includes(
+                                  +variableItem?.id
+                                )
+                              }
                               onChange={(event) =>
                                 handleIndeVarCheckboxChange(variableItem, event)
                               }
@@ -544,6 +606,16 @@ const ModelConstructorForm = ({
           Calculate baseline
         </Button>
       </Grid>
+      <Loader
+        textLoader={calculateBaselineLoading}
+        sectionLoader
+        minHeight="100vh"
+        loadingState={calculateBaselineLoading}
+        loaderPosition="fixed"
+        customLoaderText={
+          "The baseline modeling process has started with either hourly or daily regressions. Please wait while the calculation is underway. You’ll be notified once the best baseline model is established."
+        }
+      />
     </Grid>
   );
 };

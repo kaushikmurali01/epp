@@ -32,7 +32,11 @@ import InputField from "components/FormBuilder/InputField";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import DateRangeSlider from "components/DateRangeSlider";
 
-const ModelConstructorView = ({ openSeeDetails, meterType }) => {
+const ModelConstructorView = ({
+  openSeeDetails,
+  meterType,
+  handleSufficiencySettings,
+}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [formData, setFormData] = useState(null);
@@ -163,6 +167,25 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         sufficiencyVerificationStatusButton(item?.monthly?.status),
     },
     {
+      Header: "settings",
+      headerVisibility: "hidden",
+      accessor: (item) => (
+        <Typography
+          variant="span"
+          sx={{
+            cursor: "pointer",
+            color: "primary.main",
+            fontSize: "0.875rem !important",
+            fontStyle: "italic",
+            fontWeight: 400,
+          }}
+          onClick={handleSufficiencySettings}
+        >
+          Sufficiency setting
+        </Typography>
+      ),
+    },
+    {
       Header: "details",
       headerVisibility: "hidden",
       accessor: (item) => (
@@ -263,7 +286,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                               }
                               disabled
                               label={
-                                <Typography sx={{ fontSize: "14px!important" }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "14px!important",
+                                    color: "#989898",
+                                  }}
+                                >
                                   {station?.station_name}
                                 </Typography>
                               }
@@ -289,15 +317,22 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                             name={variableItem?.name}
                             type="checkbox"
                             as={Checkbox}
-                            checked={+values?.independent_variables?.includes(
-                              +variableItem?.id
-                            )}
+                            checked={
+                              +values?.independent_variables?.includes(
+                                +variableItem?.id
+                              )
+                            }
                             disabled
                           />
                         }
                         sx={{ color: "text.secondary2" }}
                         label={
-                          <Typography sx={{ fontSize: "14px!important" }}>
+                          <Typography
+                            sx={{
+                              fontSize: "14px!important",
+                              color: "#989898",
+                            }}
+                          >
                             {variableItem?.name}
                           </Typography>
                         }
@@ -332,7 +367,12 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                               }
                               sx={{ color: "text.secondary2" }}
                               label={
-                                <Typography sx={{ fontSize: "14px!important" }}>
+                                <Typography
+                                  sx={{
+                                    fontSize: "14px!important",
+                                    color: "#989898",
+                                  }}
+                                >
                                   {dummyVar}
                                 </Typography>
                               }
@@ -426,6 +466,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
                   <Typography
                     sx={{
                       fontSize: "14px!important",
+                      color: "#989898",
                     }}
                   >
                     {formData?.modeling_approach}

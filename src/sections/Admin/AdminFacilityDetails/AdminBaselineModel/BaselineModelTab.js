@@ -28,6 +28,11 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
   const [renderFormComp, setRenderFormComp] = useState(true);
   const [baselineDetails, setBaselineDetails] = useState(null);
+  const [expanded, setExpanded] = useState("modelConstructor");
+
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
@@ -203,46 +208,23 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
           summary="Model constructor"
           details={
             renderFormComp ? (
-              <>
-                {baselineDetails?.status === "SUBMITTED" && (
-                  <Grid container justifyContent="flex-end">
-                    <Button
-                      variant="contained"
-                      onClick={() => setRenderFormComp(!renderFormComp)}
-                    >
-                      Stop Editing
-                    </Button>
-                  </Grid>
-                )}
-                <ModelConstructorForm
-                  handleSufficiencySettings={handleSufficiencySettings}
-                  openSeeDetails={openSeeDetailsModal}
-                  meterType={activeButton}
-                  openUserReviewBaselineModal={openUserReviewBaselineModal}
-                />
-              </>
+              <ModelConstructorForm
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+                openUserReviewBaselineModal={openUserReviewBaselineModal}
+              />
             ) : (
-              <>
-                {baselineDetails?.status !== "REVIEWED" &&
-                  baselineDetails?.status !== "CALCULATED" && (
-                    <Grid container justifyContent="flex-end">
-                      <Button
-                        variant="contained"
-                        onClick={() => setRenderFormComp(!renderFormComp)}
-                      >
-                        Edit baseline
-                      </Button>
-                    </Grid>
-                  )}
-                <ModelConstructorView
-                  handleSufficiencySettings={handleSufficiencySettings}
-                  openSeeDetails={openSeeDetailsModal}
-                  meterType={activeButton}
-                />
-              </>
+              <ModelConstructorView
+                handleSufficiencySettings={handleSufficiencySettings}
+                openSeeDetails={openSeeDetailsModal}
+                meterType={activeButton}
+              />
             )
           }
           panelId="modelConstructor"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
@@ -254,12 +236,16 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             />
           }
           panelId="summary"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
 
         <CustomAccordion
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
       </Box>
 

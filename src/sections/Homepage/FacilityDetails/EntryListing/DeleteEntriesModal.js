@@ -9,6 +9,7 @@ import { BASELINE_ENDPOINTS, adminHourlyEndPoints } from 'constants/apiEndPoints
 import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { useDispatch } from 'react-redux';
 import NotificationsToast from 'utils/notification/NotificationsToast';
+import { fetchFacilityStatus } from '../../../../redux/superAdmin/actions/facilityActions';
 
 const DeleteEntriesModal = ({
     meterId,
@@ -37,6 +38,7 @@ const DeleteEntriesModal = ({
                 setBaseLinePeriod(res.data);
                 console.log(res.data, "check min max range data")
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
+                dispatch(fetchFacilityStatus(facilityId))
 
             })
             .catch((error) => {
@@ -100,6 +102,7 @@ const DeleteEntriesModal = ({
             modalVisible: false,
           
           }));
+          dispatch(fetchFacilityStatus(facilityId))
         }).catch((error) => {
           console.log(error)
           dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });

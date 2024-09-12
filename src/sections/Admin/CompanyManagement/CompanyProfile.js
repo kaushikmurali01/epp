@@ -23,6 +23,10 @@ const CompanyProfile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [expanded, setExpanded] = useState("user");
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
   const userColumn = [
     // {
     //   Header: "",
@@ -133,9 +137,6 @@ const CompanyProfile = () => {
   const loadingState = useSelector(
     (state) => state?.adminCompanyReducer?.loading
   );
-
-  console.log(companyUserData, "companyUserData")
-  console.log(companyFacilityData, "companyFacilityData")
 
   return (
     <Container>
@@ -290,6 +291,8 @@ const CompanyProfile = () => {
               <MiniTable columns={userColumn} data={companyUserData} />
             </Grid>
           }
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
         <CustomAccordion
           summary="Facility"
@@ -299,6 +302,8 @@ const CompanyProfile = () => {
               <MiniTable columns={facilityColumn} data={companyFacilityData} />
             </Grid>
           }
+          expanded={expanded}
+          onChange={handleAccordionChange}
         />
       </Box>
       <Loader

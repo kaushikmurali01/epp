@@ -1,18 +1,23 @@
-// please write your custom css here 
+// please write your custom css here
 
 .view-entries-table {
-    table {
-        tr {
-           
-                th:last-child {
-                    min-width: auto;
-                    width: 140px;
-                }
-                td:last-child {
-                    min-width: auto;
-                    width: 140px;
-                }
-            
-        }
+  table {
+    tr {
+      th:last-child {
+        min-width: auto;
+        width: 140px;
+      }
+      td:last-child {
+        min-width: auto;
+        width: 140px;
+      }
     }
+  }
+}
+
+.meter-listing-table {
+  tr th,
+  th td {
+    white-space: nowrap;
+  }
 }
