@@ -178,7 +178,6 @@ class DataUploader(BaseDataUploader):
                 "record_id": record_id
             }
         except Exception as error:
-            raise
             return {
                 "success": False,
                 "error": str(error)
