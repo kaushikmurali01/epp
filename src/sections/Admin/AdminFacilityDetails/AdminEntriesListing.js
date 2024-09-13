@@ -292,6 +292,7 @@ const AdminEntriesListing = ({
           ...prevState,
           modalVisible: false,
         }));
+        dispatch(fetchAdminFacilityStatus(id));
         onAddMeterSuccess();
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       })
