@@ -15,8 +15,6 @@ const BaselineSummary = ({ summaryData, meterType }) => {
     meterType
   );
 
-  console.log(summaryDataByMeterType?.parameter_data);
-
   return (
     <Grid container display={"grid"}>
       {/* {summaryDataByMeterType?.status === "DRAFT" ? (

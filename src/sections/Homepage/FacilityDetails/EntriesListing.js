@@ -1166,7 +1166,7 @@ const EntriesListing = ({
                       ref={fileInputRef}
                       style={{ display: "none" }}
                       onChange={handleFileChange}
-                      accept=".xlsx,.csv,.xml,text/xml"
+                      accept=".xlsx,.xml,text/xml"
                     />
 
                     {!imgUploadData?.success && (
