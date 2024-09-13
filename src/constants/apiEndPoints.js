@@ -280,3 +280,7 @@ export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
   SEND_EMAIL: "/company-facility/v1/send-email",
   CRUD_CONTACTS: "/company-facility/v1/facility",
 };
+
+export const QA_QC_CHECKLIST_ENDPOINT = {
+  CHECKLIST: "/company-facility/v1/facility/checklist",
+};

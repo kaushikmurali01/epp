@@ -105,7 +105,7 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
                 ></Box>
               )
             }
-            disabled={!disabledTab?.[item?.value]}
+            // disabled={!disabledTab?.[item?.value]}
           />
         ))}
       </Tabs>
