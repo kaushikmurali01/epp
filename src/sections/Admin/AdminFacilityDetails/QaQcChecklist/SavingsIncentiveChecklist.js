@@ -1,21 +1,46 @@
-import CustomAccordion from "components/CustomAccordion";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Grid, Tab, Tabs } from "@mui/material";
+import CustomAccordion from "components/CustomAccordion";
+import CompanyChecklist from "./CompanyChecklist";
 
-
-const SavingsIncentiveChecklist = () => {
+const SavingsIncentiveChecklist = ({
+  savingsQuestions,
+  incentiveQuestions,
+}) => {
   const [expanded, setExpanded] = useState("savings");
+  const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
+
   const handleAccordionChange = (panel, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
   const handleChangePerformance = (event, newValue) => {
     setPerformanceP4PCalcTab(newValue);
   };
 
+  const filteredSavingsQuestions = useMemo(
+    () =>
+      savingsQuestions?.filter(
+        (q) => q.performance_type === performanceP4PCalcTab
+      ),
+    [savingsQuestions, performanceP4PCalcTab]
+  );
+
+  console.log(filteredSavingsQuestions);
+
+  const filteredIncentiveQuestions = useMemo(
+    () =>
+      incentiveQuestions?.filter(
+        (q) => q.performance_type === performanceP4PCalcTab
+      ),
+    [incentiveQuestions, performanceP4PCalcTab]
+  );
+
   const isTabDisabled = (tabValue) => {
-    console.log(tabValue, "will be disabled.");
+    // const hasQuestions =
+    //   savingsQuestions?.some((q) => q.performance_type === tabValue) ||
+    //   incentiveQuestions?.some((q) => q.performance_type === tabValue);
+    // return !hasQuestions;
   };
 
   return (
@@ -66,14 +91,22 @@ const SavingsIncentiveChecklist = () => {
 
       <CustomAccordion
         summary="Savings"
-        details={""}
+        details={
+          <CompanyChecklist
+            questions={filteredSavingsQuestions[0]?.questions_answers}
+          />
+        }
         panelId="savings"
         expanded={expanded}
         onChange={handleAccordionChange}
       />
       <CustomAccordion
         summary="Incentive"
-        details={""}
+        details={
+          <CompanyChecklist
+            questions={filteredIncentiveQuestions[0]?.questions_answers}
+          />
+        }
         panelId="incentive"
         expanded={expanded}
         onChange={handleAccordionChange}

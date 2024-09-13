@@ -10,7 +10,7 @@ import {
 const initialState = {
   loading: false,
   error: null,
-  checklistQuestions: [],
+  checklistQuestionsList: [],
 };
 
 const adminQaQcChecklistReducer = (state = initialState, action) => {
@@ -21,7 +21,7 @@ const adminQaQcChecklistReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        checklistQuestions: action.payload,
+        checklistQuestionsList: action.payload,
         error: null,
       };
     case GET_ADMIN_QA_QC_CHECKLIST_FAILURE:

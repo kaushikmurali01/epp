@@ -1,107 +1,45 @@
-import { Grid } from "@mui/material";
-import CustomAccordion from "components/CustomAccordion";
 import React, { useEffect, useState } from "react";
-import SavingsIncentiveChecklist from "./SavingsIncentiveChecklist";
+import { Grid } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { getQaQcChecklist } from "../../../../redux/admin/actions/adminQaQcChecklistActions";
 import { useParams } from "react-router-dom";
-import Loader from "pages/Loader";
+import CustomAccordion from "components/CustomAccordion";
+import SavingsIncentiveChecklist from "./SavingsIncentiveChecklist";
 import CompanyChecklist from "./CompanyChecklist";
+import Loader from "pages/Loader";
+import { getQaQcChecklist } from "../../../../redux/admin/actions/adminQaQcChecklistActions";
 
 const QaQcChecklist = () => {
-  const {id} = useParams();
+  const { id } = useParams();
   const dispatch = useDispatch();
   const [expanded, setExpanded] = useState("company");
+
+  useEffect(() => {
+    dispatch(getQaQcChecklist(id));
+  }, [dispatch, id]);
+
+  const { checklistQuestionsList, loading } = useSelector(
+    (state) => state.adminQaQcChecklistReducer
+  );
+
   const handleAccordionChange = (panel, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  useEffect(() => {
-    dispatch(getQaQcChecklist(id));
-  }, [dispatch, id])
+  const getQuestionsForSection = (sectionName) => {
+    const section = checklistQuestionsList.find(
+      (item) => item.name === sectionName
+    );
+    return section ? section.questions_answers : [];
+  };
 
-  const { checklistQuestions, loading} = useSelector(
-    (state) => state.adminQaQcChecklistReducer
-  );
+  const getAllSavingsQuestions = () => {
+    return checklistQuestionsList.filter((item) => item.name === "saving");
+  };
 
-  console.log(checklistQuestions);
-  
-  const questions = [
-    {
-      question_id: 1,
-      name: "company",
-      question: "Does the Company exist?",
-      question_type: "optional",
-      options: null,
-      sequence_order: 1,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 2,
-      name: "company",
-      question:
-        "Is the Company a duplicate that is not based on exact replication of name?",
-      question_type: "optional",
-      options: null,
-      sequence_order: 2,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 6,
-      name: "company",
-      question: "Are there any other comments for the Company eligibility?",
-      question_type: "text",
-      options: null,
-      sequence_order: 6,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 10,
-      name: "pa",
-      question: "What was the date for the signature?",
-      question_type: "date",
-      options: null,
-      sequence_order: 4,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 14,
-      name: "facility",
-      question:
-        "What is the relationship between the Company and the Facility?",
-      question_type: "dropdown",
-      options: ["Owned", "Tenant", "Managed", "Service Provider", "Other"],
-      sequence_order: 1,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 29,
-      name: "saving",
-      question:
-        "Is there any Funded Projects completed in P4P including Retrofit, ECBX, etc.?",
-      question_type: "optional_text",
-      options: null,
-      sequence_order: 7,
-      dependent_id: null,
-      answer: null,
-    },
-    {
-      question_id: 75,
-      name: "saving",
-      question: "Is the peak demand reduction value correct?",
-      question_type: "optional_na",
-      options: null,
-      sequence_order: 15,
-      dependent_id: null,
-      answer: null,
-    },
-  ];
-  
+  const getAllIncentiveQuestions = () => {
+    return checklistQuestionsList.filter((item) => item.name === "incentive");
+  };
+
   return (
     <Grid
       container
@@ -115,36 +53,43 @@ const QaQcChecklist = () => {
     >
       <CustomAccordion
         summary="Company"
-        details={<CompanyChecklist questions={questions} />}
+        details={
+          <CompanyChecklist questions={getQuestionsForSection("company")} />
+        }
         panelId="company"
         expanded={expanded}
         onChange={handleAccordionChange}
-        // isDisabled
       />
       <CustomAccordion
         summary="PA"
-        details={""}
+        details={<CompanyChecklist questions={getQuestionsForSection("pa")} />}
         panelId="pa"
         expanded={expanded}
         onChange={handleAccordionChange}
       />
       <CustomAccordion
         summary="Baseline model"
-        details={""}
+        details={
+          <CompanyChecklist questions={getQuestionsForSection("baseline")} />
+        }
         panelId="baselineModel"
         expanded={expanded}
         onChange={handleAccordionChange}
       />
       <CustomAccordion
         summary="Facility"
-        details={""}
+        details={
+          <CompanyChecklist questions={getQuestionsForSection("facility")} />
+        }
         panelId="facility"
         expanded={expanded}
         onChange={handleAccordionChange}
       />
       <CustomAccordion
         summary="Pre-project Incentive"
-        details={""}
+        details={
+          <CompanyChecklist questions={getQuestionsForSection("pre-project")} />
+        }
         panelId="preProjectIncentive"
         expanded={expanded}
         onChange={handleAccordionChange}
@@ -152,7 +97,12 @@ const QaQcChecklist = () => {
 
       <CustomAccordion
         summary="Pay for performance savings and incentives"
-        details={<SavingsIncentiveChecklist />}
+        details={
+          <SavingsIncentiveChecklist
+            savingsQuestions={getAllSavingsQuestions()}
+            incentiveQuestions={getAllIncentiveQuestions()}
+          />
+        }
         panelId="p4pIncentivesAndSavings"
         expanded={expanded}
         onChange={handleAccordionChange}

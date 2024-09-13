@@ -7,7 +7,7 @@ import {
   updateAdminQaQcChecklistRequest,
   updateAdminQaQcChecklistSuccess,
 } from "../actionCreators/adminQaQcChecklistActionCreator";
-import { GET_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
+import { GET_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
 import NotificationsToast from "utils/notification/NotificationsToast";
 
 export const getQaQcChecklist = (facility_id) => {
@@ -41,7 +41,7 @@ export const updateQaQcChecklist = (payloadWithAnswer) => {
     };
 
     try {
-      const response = await PUT_REQUEST(apiURL, payload);
+      const response = await POST_REQUEST(apiURL, payload);
       dispatch(updateAdminQaQcChecklistSuccess(response?.data));
       NotificationsToast({
         message: "Checklist updated successfully.",
