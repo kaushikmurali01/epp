@@ -119,6 +119,19 @@ const SavingsReportForm = ({
     modalBodyContent: "",
   });
 
+  function getP4PType(performanceP4PCalcTab) {
+    switch (performanceP4PCalcTab) {
+      case 1:
+        return "1st";
+      case 2:
+        return "2nd";
+      case 3:
+        return "3rd";
+      default:
+        return "";
+    }
+  }
+
   const openSubmitReportModal = () => {
     setSubmitReportModalConfig((prevState) => ({
       ...prevState,
@@ -131,8 +144,9 @@ const SavingsReportForm = ({
         </Grid>
       ),
       headerSubText: "Thank you for submitting Savings Report!",
-      modalBodyContent:
-        "We have received your 1st Pay-for-Performance Period Savings Report and will review it shortly. Please note that this process may take some time. We appreciate your patience and understanding.  Once reviewed, you will receive an email.",
+      modalBodyContent: (
+        <>{`We have received your ${getP4PType(performanceP4PCalcTab)} Pay-for-Performance Period Savings Report and will review it shortly. Please note that this process may take some time. We appreciate your patience and understanding.  Once reviewed, you will receive an email.`}</>
+      ),
     }));
   };
 
@@ -274,7 +288,7 @@ const SavingsReportForm = ({
     setSelectedEndDate(newValue);
     if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
-        start_date: p4PStartEndDates.startDate,
+        start_date: format(p4PStartEndDates.startDate, "yyyy-MM-dd"),
         end_date: format(newValue, "yyyy-MM-dd"),
         facility_id: facility_id,
         meter_type: meter_type,

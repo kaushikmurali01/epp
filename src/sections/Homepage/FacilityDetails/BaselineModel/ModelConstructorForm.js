@@ -334,30 +334,82 @@ const ModelConstructorForm = ({
     return meter ? meter?.id : null;
   };
 
+  // const onCalculateBaselineButtonClick = () => {
+  //   const data = { ...dataForCalculateBaseline };
+  //   dispatch(submitBaselineDt(data))
+  //     .then((res) => {
+  //       const updatedBaselineData = {
+  //         status: "CALCULATED",
+  //         data: {
+  //           ...data,
+  //           ...res,
+  //           ...sufficiencyCheckData,
+  //         },
+  //       };
+  //       const baseline_id = getIdByMeterType(meterType);
+  //       if (baseline_id) {
+  //         dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
+  //           (res) => {
+  //             openBaselineSuccessModal();
+  //             dispatch(fetchBaselineDetailsFromDb(id));
+  //           }
+  //         );
+  //       }
+  //       setActivateCalculateBaseline(true);
+  //     })
+  //     .catch((err) => {});
+  // };
+
   const onCalculateBaselineButtonClick = () => {
     const data = { ...dataForCalculateBaseline };
-    dispatch(submitBaselineDt(data))
-      .then((res) => {
-        const updatedBaselineData = {
-          status: "CALCULATED",
-          data: {
-            ...data,
-            ...res,
-            ...sufficiencyCheckData,
-          },
-        };
-        const baseline_id = getIdByMeterType(meterType);
-        if (baseline_id) {
-          dispatch(updateBaselineInDb(baseline_id, updatedBaselineData)).then(
-            (res) => {
-              openBaselineSuccessModal();
-              dispatch(fetchBaselineDetailsFromDb(id));
+
+    const submitWithGranularity = (currentData) => {
+      dispatch(submitBaselineDt(currentData))
+        .then((res) => {
+          if (res?.baseline_model_check === "failed") {
+            if (currentData.granularity === "hourly") {
+              // Retry with updated granularity
+              const updatedData = { ...currentData, granularity: "daily" };
+              setFormData({ ...currentData, granularity: "daily" });
+              submitWithGranularity(updatedData);
+            } else {
+              // If already "daily", stop recursion
+              console.log(
+                "Baseline model check failed with daily granularity."
+              );
+              setActivateCalculateBaseline(true);
+              openSendHelpRequestModal();
             }
-          );
-        }
-        setActivateCalculateBaseline(true);
-      })
-      .catch((err) => {});
+          } else {
+            // If baseline_model_check is "success", handle this case
+            const updatedBaselineData = {
+              status: "CALCULATED",
+              data: {
+                ...currentData,
+                ...res,
+                ...sufficiencyCheckData,
+              },
+            };
+            const baseline_id = getIdByMeterType(meterType);
+            if (baseline_id) {
+              dispatch(
+                updateBaselineInDb(baseline_id, updatedBaselineData)
+              ).then((res) => {
+                openBaselineSuccessModal();
+                dispatch(fetchBaselineDetailsFromDb(id));
+              });
+            }
+            setActivateCalculateBaseline(true);
+          }
+        })
+        .catch((err) => {
+          // Handle error
+          console.error("Error submitting baseline data:", err);
+        });
+    };
+
+    // Start the process with the initial data
+    submitWithGranularity(data);
   };
 
   return (
@@ -369,6 +421,8 @@ const ModelConstructorForm = ({
       >
         {({ values, handleChange, setFieldValue, errors }) => {
           const handleIndeVarCheckboxChange = (variableItem, event) => {
+            values.granularity === "daily" &&
+              setFieldValue("granularity", "hourly");
             const isChecked = event.target.checked;
             const newIndependentVariables = isChecked
               ? [...values.independent_variables, variableItem.id]
@@ -383,6 +437,8 @@ const ModelConstructorForm = ({
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
+            values.granularity === "daily" &&
+              setFieldValue("granularity", "hourly");
             setFieldValue("start_date", startDate);
             setFieldValue("end_date", endDate);
             handleSubmit({

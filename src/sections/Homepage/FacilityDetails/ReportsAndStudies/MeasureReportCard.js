@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   deleteFacilityMeasureReport,
   fetchFacilityMeasureReportListing,
+  fetchFacilityStatus,
 } from "../../../../redux/superAdmin/actions/facilityActions";
 import { format } from "date-fns";
 import { useParams } from "react-router-dom";
@@ -40,6 +41,7 @@ const MeasureReportCard = ({
             modalVisible: false,
           }));
           dispatch(fetchFacilityMeasureReportListing(pageInfo, id));
+          dispatch(fetchFacilityStatus(id));
         })
         .catch((error) => {
           setAddMeasureModalConfig((prevState) => ({

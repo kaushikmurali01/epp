@@ -325,13 +325,9 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
     };
 
     useEffect(() => {
-        if (Object.keys(selectTableRow).length !== 0) {
+        if (Object.keys(selectTableRow).length !== 0 && invitePageInfo?.handelAccept === undefined ) {
             getUserPermissionListAPI(selectTableRow);
         } 
-        // else {
-        //     setPermissionStates([]);
-        //     setSelectedPermissions([]);
-        // }
     }, [selectTableRow, permissions]);
 
     useEffect(() => {
@@ -342,7 +338,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         if (invitePageInfo?.type === "2") {
             setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged)
         } else {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && permissionsChanged)
+            setIsFormValid((isValidEmail && isRoleTypePermissonsSelected && permissionsChanged) || invitePageInfo?.handelAccept)
         }
 
     }, [userEmail, selectRoleType, selectCompanyType, selectedPermissions,initialPermissions])
@@ -356,7 +352,6 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         }
 
     }, [selectRoleType]);
-
 
 
     return (
@@ -385,7 +380,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                         </Typography>
                     </Grid>
                 </Grid>
-                <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', }}>
+                <Grid container sx={{ alignItems: 'center', justifyContent: 'space-between', gap: '2rem' }}>
                     <Grid item xs={12} md={6} sx={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                         <FormGroup className='theme-form-group'>
                             <FormLabel sx={{ marginBottom: '0.5rem', fontSize: '0.875rem', minWidth: '12rem' }}> Business Email* </FormLabel>
@@ -488,7 +483,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
                                         <React.Fragment>
                                             {
                                              (permission.is_active !== 0) &&
-                                                <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '2rem' }}>
+                                                <Grid key={permission.permission_id} container sx={{ justifyContent: 'space-between', marginTop: '1.5rem', marginBottom: '1.5rem', gap: '1rem' }}>
                                                     <Grid item xs={12} md={10}>
                                                         <Typography variant='body2'>{permission.desc} </Typography>
                                                     </Grid>
