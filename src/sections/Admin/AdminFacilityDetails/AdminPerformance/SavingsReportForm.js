@@ -237,7 +237,7 @@ const SavingsReportForm = ({
     setSelectedEndDate(newValue);
     if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
-        start_date: p4PStartEndDates.startDate,
+        start_date: format(p4PStartEndDates.startDate, "yyyy-MM-dd"),
         end_date: format(newValue, "yyyy-MM-dd"),
         facility_id: facility_id,
         meter_type: meter_type,
