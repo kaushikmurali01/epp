@@ -47,6 +47,9 @@ const AdminBaselineModel = () => {
   const sufficiencyCheckLoading = useSelector(
     (state) => state?.adminBaselineReducer?.sufficiencyCheckLoading
   );
+  const summaryLoading = useSelector(
+    (state) => state?.adminBaselineReducer?.summaryLoading
+  );
   useEffect(() => {
     dispatch(fetchAdminIndependentVariableList(id));
     dispatch(fetchAdminStationsDetails(id));
@@ -218,7 +221,10 @@ const AdminBaselineModel = () => {
         sectionLoader
         minHeight="100vh"
         loadingState={
-          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
+          loadingState ||
+          baselinePeriodLoading ||
+          sufficiencyCheckLoading ||
+          summaryLoading
         }
         loaderPosition="fixed"
       />
