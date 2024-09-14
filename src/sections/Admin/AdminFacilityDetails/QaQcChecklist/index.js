@@ -26,18 +26,18 @@ const QaQcChecklist = () => {
   };
 
   const getQuestionsForSection = (sectionName) => {
-    const section = checklistQuestionsList.find(
+    const section = checklistQuestionsList?.find(
       (item) => item.name === sectionName
     );
     return section ? section.questions_answers : [];
   };
 
   const getAllSavingsQuestions = () => {
-    return checklistQuestionsList.filter((item) => item.name === "saving");
+    return checklistQuestionsList?.filter((item) => item.name === "saving");
   };
 
   const getAllIncentiveQuestions = () => {
-    return checklistQuestionsList.filter((item) => item.name === "incentive");
+    return checklistQuestionsList?.filter((item) => item.name === "incentive");
   };
 
   return (
@@ -51,62 +51,73 @@ const QaQcChecklist = () => {
         flexDirection: "column",
       }}
     >
-      <CustomAccordion
-        summary="Company"
-        details={
-          <CompanyChecklist questions={getQuestionsForSection("company")} />
-        }
-        panelId="company"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
-      <CustomAccordion
-        summary="PA"
-        details={<CompanyChecklist questions={getQuestionsForSection("pa")} />}
-        panelId="pa"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
-      <CustomAccordion
-        summary="Baseline model"
-        details={
-          <CompanyChecklist questions={getQuestionsForSection("baseline")} />
-        }
-        panelId="baselineModel"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
-      <CustomAccordion
-        summary="Facility"
-        details={
-          <CompanyChecklist questions={getQuestionsForSection("facility")} />
-        }
-        panelId="facility"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
-      <CustomAccordion
-        summary="Pre-project Incentive"
-        details={
-          <CompanyChecklist questions={getQuestionsForSection("pre-project")} />
-        }
-        panelId="preProjectIncentive"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
-
-      <CustomAccordion
-        summary="Pay for performance savings and incentives"
-        details={
-          <SavingsIncentiveChecklist
-            savingsQuestions={getAllSavingsQuestions()}
-            incentiveQuestions={getAllIncentiveQuestions()}
+      {checklistQuestionsList && (
+        <>
+          <CustomAccordion
+            summary="Company"
+            details={
+              <CompanyChecklist questions={getQuestionsForSection("company")} />
+            }
+            panelId="company"
+            expanded={expanded}
+            onChange={handleAccordionChange}
           />
-        }
-        panelId="p4pIncentivesAndSavings"
-        expanded={expanded}
-        onChange={handleAccordionChange}
-      />
+          <CustomAccordion
+            summary="PA"
+            details={
+              <CompanyChecklist questions={getQuestionsForSection("pa")} />
+            }
+            panelId="pa"
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
+          <CustomAccordion
+            summary="Baseline model"
+            details={
+              <CompanyChecklist
+                questions={getQuestionsForSection("baseline")}
+              />
+            }
+            panelId="baselineModel"
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
+          <CustomAccordion
+            summary="Facility"
+            details={
+              <CompanyChecklist
+                questions={getQuestionsForSection("facility")}
+              />
+            }
+            panelId="facility"
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
+          <CustomAccordion
+            summary="Pre-project Incentive"
+            details={
+              <CompanyChecklist
+                questions={getQuestionsForSection("pre-project")}
+              />
+            }
+            panelId="preProjectIncentive"
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
+          <CustomAccordion
+            summary="Pay for performance savings and incentives"
+            details={
+              <SavingsIncentiveChecklist
+                savingsQuestions={getAllSavingsQuestions()}
+                incentiveQuestions={getAllIncentiveQuestions()}
+              />
+            }
+            panelId="p4pIncentivesAndSavings"
+            expanded={expanded}
+            onChange={handleAccordionChange}
+          />
+        </>
+      )}
 
       <Loader
         sectionLoader
