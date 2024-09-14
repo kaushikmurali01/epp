@@ -33,7 +33,7 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
     },
     { label: "Baseline Modeling", id: 5, type: "input", value: "baseline" },
     { label: "Performance", id: 6, type: "input", value: "performance" },
-    { label: "QA/QC checklist", id: 7, type: "input", value: "qaqcChecklist" },
+    { label: "QA/QC Checklist", id: 7, type: "input", value: "qaqcChecklist" },
   ];
 
   const handleTabChange = (event, newValue) => {
