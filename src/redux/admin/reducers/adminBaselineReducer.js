@@ -71,6 +71,7 @@ const initialState = {
   outliersSettingsData: [],
   facilityThresholdData: [],
   loading: false,
+  summaryLoading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
   calculateBaselineLoading: false,
@@ -325,20 +326,20 @@ const adminBaselineReducer = (state = initialState, action) => {
     case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_REQUEST:
       return {
         ...state,
-        loading: true,
+        summaryLoading: true,
         error: null,
       };
     case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_SUCCESS:
       return {
         ...state,
-        loading: false,
+        summaryLoading: false,
         dataExplorationSummaryList: action.payload,
         error: null,
       };
     case FETCH_ADMIN_DATA_EXPLORATION_SUMMARY_FAILURE:
       return {
         ...state,
-        loading: false,
+        summaryLoading: false,
         error: action.payload,
       };
     case FETCH_ADMIN_RAW_SUMMARY_METER_LIST_REQUEST:

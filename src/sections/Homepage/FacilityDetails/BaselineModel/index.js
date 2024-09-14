@@ -41,6 +41,9 @@ const BaselineModel = () => {
   const sufficiencyCheckLoading = useSelector(
     (state) => state?.baselineReducer?.sufficiencyCheckLoading
   );
+  const summaryLoading = useSelector(
+    (state) => state?.baselineReducer?.summaryLoading
+  );
 
   useEffect(() => {
     dispatch(fetchIndependentVariableList(id));
@@ -237,7 +240,10 @@ const BaselineModel = () => {
         sectionLoader
         minHeight="100vh"
         loadingState={
-          loadingState || baselinePeriodLoading || sufficiencyCheckLoading
+          loadingState ||
+          baselinePeriodLoading ||
+          sufficiencyCheckLoading ||
+          summaryLoading
         }
         loaderPosition="fixed"
         loaderText={"Baseline calculation "}

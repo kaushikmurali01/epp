@@ -280,6 +280,7 @@ const EntriesListing = ({
     dispatch(deleteMeter(facilityMeterDetailId))
       .then(() => {
         dispatch(fetchFacilityDetails(id));
+        dispatch(fetchFacilityStatus(id));
         setDeleteMeterModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,

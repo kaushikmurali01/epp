@@ -64,6 +64,7 @@ const initialState = {
   rawMeterSummaryList: [],
   outliersSettingsData: [],
   loading: false,
+  summaryLoading: false,
   sufficiencyCheckLoading: false,
   baselinePeriodLoading: false,
   calculateBaselineLoading: false,
@@ -318,20 +319,20 @@ const baselineReducer = (state = initialState, action) => {
     case FETCH_DATA_EXPLORATION_SUMMARY_REQUEST:
       return {
         ...state,
-        loading: true,
+        summaryLoading: true,
         error: null,
       };
     case FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS:
       return {
         ...state,
-        loading: false,
+        summaryLoading: false,
         dataExplorationSummaryList: action.payload,
         error: null,
       };
     case FETCH_DATA_EXPLORATION_SUMMARY_FAILURE:
       return {
         ...state,
-        loading: false,
+        summaryLoading: false,
         error: action.payload,
       };
     case FETCH_RAW_SUMMARY_METER_LIST_REQUEST:
