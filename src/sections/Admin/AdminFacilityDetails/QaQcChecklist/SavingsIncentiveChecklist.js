@@ -26,8 +26,6 @@ const SavingsIncentiveChecklist = ({
     [savingsQuestions, performanceP4PCalcTab]
   );
 
-  console.log(filteredSavingsQuestions);
-
   const filteredIncentiveQuestions = useMemo(
     () =>
       incentiveQuestions?.filter(

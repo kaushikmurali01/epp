@@ -11,7 +11,7 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getQaQcChecklist, updateQaQcChecklist } from "../../../../redux/admin/actions/adminQaQcChecklistActions";
 import { useParams } from "react-router-dom";
@@ -54,10 +54,11 @@ const Checklist = ({ question, index }) => {
   const [textAreaValue, setTextAreaValue] = useState("");
   const [dropdownValue, setDropdownValue] = useState("");
   const [otherValue, setOtherValue] = useState("");
-
   const [optionalTextValue, setOptionalTextValue] = useState(
     question?.answer || null
   );
+
+  const lastSubmittedValueRef = useRef(question?.answer || "");
 
   useEffect(() => {
     if (question?.answer) {
@@ -76,43 +77,65 @@ const Checklist = ({ question, index }) => {
           setTextAreaValue(question.answer);
           setShowTextArea(true);
         }
-      } else if (question.question_type === "text") {
+      } else if (
+        question.question_type === "text" ||
+        question.question_type === "textInput"
+      ) {
         setTextAreaValue(question.answer);
       }
+      // Update the lastSubmittedValueRef when the answer changes
+      lastSubmittedValueRef.current = question.answer;
     }
   }, [question, dispatch, id]);
 
   const submitAnswer = (answer) => {
-    let payload = {
-      facility_id: id,
-      ques_id: question?.question_id,
-      answer: answer,
-    };
+    // Only submit if the answer has changed
+    if (answer !== lastSubmittedValueRef.current) {
+      let payload = {
+        facility_id: id,
+        ques_id: question?.question_id,
+        answer: answer,
+      };
 
-    dispatch(updateQaQcChecklist(payload))
-      .then(() => {
-        dispatch(getQaQcChecklist(id));
-      })
-      .catch((err) => console.error(err));
+      dispatch(updateQaQcChecklist(payload))
+        .then(() => {
+          dispatch(getQaQcChecklist(id));
+          // Update the lastSubmittedValueRef after successful submission
+          lastSubmittedValueRef.current = answer;
+        })
+        .catch((err) => console.error(err));
+    }
   };
 
   const handleOptionalTextChange = (event, newValue) => {
-    if (newValue === null) return; // Prevent deselection
+    // Prevent deselection
+    if (newValue !== null) {
+      setOptionalTextValue(newValue);
 
-    setOptionalTextValue(newValue);
+      if (newValue === "YES") {
+        setShowTextArea(true);
+        // Don't submit anything yet, wait for text input
+      } else if (newValue === "NO") {
+        setShowTextArea(false);
+        setTextAreaValue("");
+        submitAnswer("NO");
+      }
+    }
+  };
 
-    if (newValue === "YES") {
-      setShowTextArea(true);
-      // Don't submit anything yet, wait for text input
-    } else if (newValue === "NO") {
-      setShowTextArea(false);
-      setTextAreaValue("");
-      submitAnswer("NO");
+  const handleToggleChange = (event, newValue) => {
+    // Prevent deselection (newValue will be null if trying to deselect)
+    if (newValue !== null) {
+      submitAnswer(newValue);
     }
   };
 
   const handleTextAreaBlur = () => {
-    if (optionalTextValue === "YES" && textAreaValue.trim() !== "") {
+    if (
+      optionalTextValue === "YES" &&
+      textAreaValue.trim() !== "" &&
+      textAreaValue !== lastSubmittedValueRef.current
+    ) {
       submitAnswer(textAreaValue);
     }
   };
@@ -160,7 +183,9 @@ const Checklist = ({ question, index }) => {
       return; // No need to update for other question types on blur
     }
 
-    submitAnswer(answer);
+    if (answer !== lastSubmittedValueRef.current) {
+      submitAnswer(answer);
+    }
   };
 
   return (
@@ -197,7 +222,7 @@ const Checklist = ({ question, index }) => {
                 id={`question-${question?.question_id}`}
                 exclusive
                 value={question?.answer || null}
-                onChange={handleChange}
+                onChange={handleToggleChange}
               >
                 <ToggleButton
                   className="theme-toggle-yes"
@@ -246,7 +271,7 @@ const Checklist = ({ question, index }) => {
                 id={`question-${question?.question_id}`}
                 exclusive
                 value={question?.answer || null}
-                onChange={handleChange}
+                onChange={handleToggleChange}
               >
                 <ToggleButton
                   className="theme-toggle-yes"
