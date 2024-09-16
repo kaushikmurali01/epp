@@ -3,11 +3,14 @@ import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
-const BaselineSuccessModal = ({ setBaselineSuccessModalConfig }) => {
+const BaselineSuccessModal = ({
+  setBaselineSuccessModalConfig,
+  contentStatus = false,
+}) => {
   const facilityDetails = useSelector(
     (state) => state?.facilityReducer?.facilityDetails?.data
   );
-  const [changeContent, setChangeContent] = useState(false);
+  const [changeContent, setChangeContent] = useState(contentStatus);
   const navigate = useNavigate();
   return (
     <Grid
