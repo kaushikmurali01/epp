@@ -59,6 +59,9 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   const baselineListData = useSelector(
     (state) => state?.baselineReducer?.baselineDetailsDb?.data
   );
+  const facilityDetails = useSelector(
+    (state) => state?.facilityReducer?.facilityDetails?.data
+  );
 
   useEffect(() => {
     handleBaselineDetails();
@@ -204,23 +207,27 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
 
   const [showSubmitButton, setShowSubmitButton] = useState(false);
 
-  const openBaselineSuccessModal = () => {
+  const openBaselineSuccessModal = (content_status) => {
     setBaselineSuccessModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
       modalBodyContent: (
         <BaselineSuccessModal
           setBaselineSuccessModalConfig={setBaselineSuccessModalConfig}
+          contentStatus={content_status}
         />
       ),
     }));
   };
-
   const handleCheckboxChange = (e) => {
     setShowSubmitButton(e);
   };
 
   const handleSubmitFacilityStatus = (baselineStatus) => {
+    if (!facilityDetails?.is_signed) {
+      openBaselineSuccessModal(true);
+      return;
+    }
     if (activeButton) {
       const data = getSummaryDataByMeterType(baselineListData, activeButton);
       const body = { status: baselineStatus };
