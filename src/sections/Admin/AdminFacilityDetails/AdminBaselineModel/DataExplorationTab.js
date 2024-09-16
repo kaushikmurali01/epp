@@ -11,21 +11,17 @@ const DataExplorationTab = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
 
-  // useEffect(() => {
-  //   dispatch(showAdminObserveData());
-  // }, [id]);
+  const [expanded, setExpanded] = useState("visualization");
 
-   const [expanded, setExpanded] = useState("visualization");
-
-   const handleAccordionChange = (panel, isExpanded) => {
-     setExpanded(isExpanded ? panel : false);
-   };
+  const handleAccordionChange = (panel, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
 
   return (
     <Grid item>
       <CustomAccordion
         summary="Visualization"
-        // details={<DataVisualization />}
+        details={<DataVisualization />}
         panelId="visualization"
         expanded={expanded}
         onChange={handleAccordionChange}
