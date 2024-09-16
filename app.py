@@ -893,9 +893,9 @@ def get_performance_min_max():
     df = dbtest(query)
     df.dropna(inplace=True)
     if len(df):
+        meter_type = int(meter_type)
         max_data = df.baseline_end_date.max()
-        min_max_df = dbtest(min_max_performance.format(facility_id, max_data))
-        print(min_max_performance.format(facility_id, max_data))
+        min_max_df = dbtest(min_max_performance.format(facility_id, meter_type, max_data))
         min_max_df.dropna(inplace=True)
         if len(min_max_df):
             return {'min_date': min_max_df.min_date.min(), 'max_date': min_max_df.max_date.max()}
