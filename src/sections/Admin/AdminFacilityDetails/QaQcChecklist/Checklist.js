@@ -1,8 +1,6 @@
 import {
   Grid,
-  Input,
   InputLabel,
-  TextareaAutosize as BaseTextareaAutosize,
   ToggleButton,
   ToggleButtonGroup,
   styled,
@@ -10,6 +8,7 @@ import {
   MenuItem,
   TextField,
 } from "@mui/material";
+import { TextareaAutosize as BaseTextareaAutosize } from "@mui/base/TextareaAutosize";
 import { DatePicker } from "@mui/x-date-pickers";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -27,8 +26,8 @@ const TextareaAutosize = styled(BaseTextareaAutosize)(
   line-height: 1.5;
   padding: 8px 12px;
   border-radius: 8px;
-  color: "text.primary2";
-  background: "#fff";
+  color: #242424;
+  background: #fff;
   border: 1px solid #2e813e;
 
   &:hover {
@@ -167,17 +166,18 @@ const Checklist = ({ question, index }) => {
   };
 
   const handleBlur = () => {
-    if (textAreaValue === "") return;
-
     let answer;
     if (
-      question?.question_type === "text"
+      question?.question_type === "text" ||
+      question?.question_type === "textInput"
     ) {
+      if (textAreaValue.trim() === "") return;
       answer = textAreaValue;
     } else if (
       question?.question_type === "dropdown" &&
       dropdownValue === "Other"
     ) {
+      if (otherValue.trim() === "") return;
       answer = otherValue;
     } else {
       return; // No need to update for other question types on blur
@@ -201,7 +201,7 @@ const Checklist = ({ question, index }) => {
         <InputLabel
           htmlFor={`question-${question?.question_id}`}
           style={{ whiteSpace: "initial" }}
-          sx={{fontSize: {xs: "14px"}}}
+          sx={{ fontSize: { xs: "14px" } }}
         >
           {index + 1}
           {") "}
@@ -327,7 +327,8 @@ const Checklist = ({ question, index }) => {
                 <Grid item>
                   <TextareaAutosize
                     minRows={3}
-                    style={{ width: "100%" }}
+                    maxRows={6}
+                    style={{ width: "100%", minWidth: "120px" }}
                     value={textAreaValue}
                     onChange={handleTextAreaChange}
                     onBlur={handleTextAreaBlur}
@@ -340,7 +341,8 @@ const Checklist = ({ question, index }) => {
             <Grid item>
               <TextareaAutosize
                 minRows={3}
-                style={{ width: "100%" }}
+                maxRows={6}
+                style={{ width: "100%", minWidth: "120px" }}
                 value={textAreaValue}
                 onChange={handleTextAreaChange}
                 onBlur={handleBlur}
@@ -348,11 +350,25 @@ const Checklist = ({ question, index }) => {
             </Grid>
           )}
           {question?.question_type === "textInput" && (
-            <Grid item>
+            <Grid
+              item
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                color: "#242424",
+                fontSize: "14px",
+                fontWeight: 400,
+              }}
+            >
               <TextField
                 value={textAreaValue}
                 onChange={handleTextAreaChange}
                 onBlur={handleBlur}
+                onKeyDown={(evt) =>
+                  ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()
+                }
+                type="number"
                 sx={{
                   "& .MuiInputBase-root": {
                     height: "2rem",
@@ -364,7 +380,7 @@ const Checklist = ({ question, index }) => {
                   },
                 }}
               />
-              {" years"}
+              {"years"}
             </Grid>
           )}
           {question?.question_type === "dropdown" && (

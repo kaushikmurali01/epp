@@ -17,7 +17,6 @@ export const getQaQcChecklist = (facility_id) => {
     try {
       const response = await GET_REQUEST(`${apiURL}/${facility_id}`);
       dispatch(getAdminQaQcChecklistSuccess(response?.data?.data));
-      console.log(response?.data?.data);
       return response?.data?.data;
     } catch (error) {
       dispatch(getAdminQaQcChecklistFailure(error));

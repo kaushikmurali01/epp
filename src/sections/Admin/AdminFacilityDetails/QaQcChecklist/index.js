@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Grid } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -12,6 +12,8 @@ const QaQcChecklist = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const [expanded, setExpanded] = useState("company");
+  const [companyReviewCompleted, setCompanyReviewCompleted] = useState(false);
+  const [paReviewCompleted, setPaReviewCompleted] = useState(false);
 
   useEffect(() => {
     dispatch(getQaQcChecklist(id));
@@ -25,20 +27,51 @@ const QaQcChecklist = () => {
     setExpanded(isExpanded ? panel : false);
   };
 
-  const getQuestionsForSection = (sectionName) => {
-    const section = checklistQuestionsList?.find(
-      (item) => item.name === sectionName
+  const getQuestionsForSection = useCallback(
+    (sectionName) => {
+      const section = checklistQuestionsList?.find(
+        (item) => item.name === sectionName
+      );
+      return section ? section.questions_answers : [];
+    },
+    [checklistQuestionsList]
+  );
+
+  useEffect(() => {
+    const checkSectionCompletion = (sectionName, setCompleted) => {
+      const sectionQAs = getQuestionsForSection(sectionName);
+      const isCompleted =
+        sectionQAs.length > 0 &&
+        sectionQAs.every((question) => question.answer !== null && question.answer !== "NO");
+      setCompleted(isCompleted);
+      return isCompleted;
+    };
+    checkSectionCompletion("company", setCompanyReviewCompleted);
+    checkSectionCompletion("pa", setPaReviewCompleted);
+  }, [checklistQuestionsList, getQuestionsForSection]);
+
+  useEffect(() => {
+    if (!companyReviewCompleted) {
+      setExpanded("company");
+    } else if (!paReviewCompleted) {
+      setExpanded("pa");
+    } else {
+      setExpanded("baselineModel");
+    }
+  }, [companyReviewCompleted, paReviewCompleted])
+  
+
+  const getAllSavingsQuestions = useCallback(() => {
+    return (
+      checklistQuestionsList?.filter((item) => item.name === "saving") || []
     );
-    return section ? section.questions_answers : [];
-  };
+  }, [checklistQuestionsList]);
 
-  const getAllSavingsQuestions = () => {
-    return checklistQuestionsList?.filter((item) => item.name === "saving");
-  };
-
-  const getAllIncentiveQuestions = () => {
-    return checklistQuestionsList?.filter((item) => item.name === "incentive");
-  };
+  const getAllIncentiveQuestions = useCallback(() => {
+    return (
+      checklistQuestionsList?.filter((item) => item.name === "incentive") || []
+    );
+  }, [checklistQuestionsList]);
 
   return (
     <Grid
@@ -53,24 +86,30 @@ const QaQcChecklist = () => {
     >
       {checklistQuestionsList && (
         <>
-          <CustomAccordion
-            summary="Company"
-            details={
-              <CompanyChecklist questions={getQuestionsForSection("company")} />
-            }
-            panelId="company"
-            expanded={expanded}
-            onChange={handleAccordionChange}
-          />
-          <CustomAccordion
-            summary="PA"
-            details={
-              <CompanyChecklist questions={getQuestionsForSection("pa")} />
-            }
-            panelId="pa"
-            expanded={expanded}
-            onChange={handleAccordionChange}
-          />
+          {!companyReviewCompleted && (
+            <CustomAccordion
+              summary="Company"
+              details={
+                <CompanyChecklist
+                  questions={getQuestionsForSection("company")}
+                />
+              }
+              panelId="company"
+              expanded={expanded}
+              onChange={handleAccordionChange}
+            />
+          )}
+          {!paReviewCompleted && (
+            <CustomAccordion
+              summary="PA"
+              details={
+                <CompanyChecklist questions={getQuestionsForSection("pa")} />
+              }
+              panelId="pa"
+              expanded={expanded}
+              onChange={handleAccordionChange}
+            />
+          )}
           <CustomAccordion
             summary="Baseline model"
             details={

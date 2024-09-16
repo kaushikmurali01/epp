@@ -113,12 +113,12 @@ const theme = createTheme({
           "&.checklist-btn-group": {
             ".MuiToggleButtonGroup-grouped": {
               backgroundColor: "#F7F7F5",
-              minWidth: "3rem",
-              padding: "0.25rem",
+              minWidth: "2.5rem",
+              padding: "0.375rem",
               lineHeight: 1,
               [getTheme.breakpoints.up("md")]: {
-                minWidth: "4rem",
-                padding: "0.125rem 0.25rem",
+                minWidth: "3rem",
+                padding: "0.35rem 0.25rem",
               },
               "&:hover": {
                 backgroundColor: "#E3F8D9",
