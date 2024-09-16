@@ -20,6 +20,8 @@ import { UserResourceFacilityPermission } from "../models/user-resource-permissi
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { CheckCompanyStatus } from "./company";
 import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
+import { CustomColumn } from '../models/custom-columns'; // Import Sequelize model
+
 
 /**
  * Registers a new user based on the provided request data.
@@ -830,6 +832,115 @@ export async function SearchUsers(
     return { status: 500, body: `Error: ${error.message}` };
   }
 }
+
+/**
+ * Add or update custom columns.
+ *
+ * @param request The HTTP request object containing fields and type.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the result of the operation.
+ */
+export async function SaveCustomColumns(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Extract data from request
+    const requestData: any = await request.json();
+    const { fields, type } = requestData;
+
+    for (let i = 0; i < fields.length; i++) {
+      const { field_slug, field_name, is_checked } = fields[i];
+
+      // Check if the record exists
+      let existingColumn = await CustomColumn.findOne({
+        where: {
+          field_slug,
+          module_type: type,
+        },
+      });
+
+      if (existingColumn) {
+        // If it exists, update the `is_checked` value
+        existingColumn.is_checked = is_checked;
+        await existingColumn.save();
+      } else {
+        // If it doesn't exist, create a new record
+        await CustomColumn.create({
+          field_slug,
+          field_name,
+          field_type: 'text',  // Assuming field_type is always 'text' as per your instructions
+          module_type: type,
+          createdat: new Date(),
+          updatedat: new Date(),
+          created_by: 1,
+          updated_by: 1,
+          is_checked,
+        });
+      }
+    }
+
+    // Prepare response
+    const response = { status: 200, body: 'Custom columns processed successfully' };
+    return { body: JSON.stringify(response), status: 200 };
+  } catch (error) {
+    // Return error response in case of failure
+    return { status: 500, body: `Error: ${error.message}` };
+  }
+}
+
+/**
+ * Get custom columns based on module type.
+ *
+ * @param request The HTTP request object containing the module type.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the columns data.
+ */
+export async function GetCustomColumns(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Extract module type from query parameters
+    //const moduleType = request.query.get('type');
+
+    const moduleType = request.params.type;
+
+
+    if (!moduleType) {
+      return { status: 400, body: 'Type is required' };
+    }
+
+    // Fetch custom columns based on the module type
+    const customColumns = await CustomColumn.findAll({
+      where: {
+        module_type: moduleType,
+      },
+      attributes: ['id', 'field_slug', 'field_name', 'module_type', 'is_checked']
+    });
+
+    // Prepare response
+    const response = { status: 200, body: JSON.stringify(customColumns) };
+    return { body: response.body, status: response.status };
+  } catch (error) {
+    // Return error response in case of failure
+    return { status: 500, body: `Error: ${error.message}` };
+  }
+}
+
+app.http("SaveCustomColumns", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "columns/save",
+  handler: SaveCustomColumns,
+});
+
+app.http("GetCustomColumns", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "columns/get/{type}",
+  handler: GetCustomColumns,
+});
 
 app.http("SearchUsers", {
   methods: ["POST"],
