@@ -136,7 +136,7 @@ def read_excel_sheets(file):
 
 
 def process_chunk(chunk_data, header, validator, iv, meter_id):
-    df = pd.DataFrame(chunk_data, columns=header)
+    df = pd.DataFrame(chunk_data, columns=header,dtype=str)
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
     validator.validate_chunk(df, iv, meter_id)
