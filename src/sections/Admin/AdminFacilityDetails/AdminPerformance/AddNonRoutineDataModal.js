@@ -525,7 +525,7 @@ const AddNonRoutineDataModal = ({
                   onChange={(event) =>
                     handleFileChange(event, setFieldValue, values)
                   }
-                  accept=".xlsx,.csv"
+                  accept=".xlsx"
                 />
               </Box>
               <Button

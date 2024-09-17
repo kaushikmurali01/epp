@@ -7,6 +7,7 @@ import {
   List,
   Pagination,
   ListItem,
+  Box,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -47,8 +48,12 @@ const PerformancePeriodInformationAccordion = ({
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
   );
 
-  const { nonRoutineEventList, nonRoutineEventDetails, performanceReportInDB } =
-    useSelector((state) => state?.performanceReducer);
+  const {
+    processing,
+    nonRoutineEventList,
+    nonRoutineEventDetails,
+    performanceReportInDB,
+  } = useSelector((state) => state?.performanceReducer);
 
   useEffect(() => {
     dispatch(getIncentiveSettings(facility_id));
@@ -309,7 +314,7 @@ const PerformancePeriodInformationAccordion = ({
         performanceP4PCalcTab
       )
     );
-  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab]);
+  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab, processing]);
 
   useEffect(() => {
     if (performanceReportInDB) {
@@ -422,6 +427,42 @@ const PerformancePeriodInformationAccordion = ({
       !verifiedP4PsForMeterType.includes(tabValue - 1)
     );
   };
+
+  if (processing) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "center",
+          marginTop: "1rem",
+          marginInline: "1rem",
+          justifyContent: "center",
+          padding: "2rem",
+          background: "#FFFFFF",
+          borderRadius: "10px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+          maxWidth: "65rem",
+        }}
+      >
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            marginRight: "1rem",
+            fontWeight: 700,
+          }}
+        >
+          Please note: Performance scoring is currently in progress. You will be
+          able to proceed with the P4P (Pay-for-Performance) calculation once
+          this process is complete. We appreciate your patience during this
+          time.
+        </Typography>
+        <div className="progress-loader"></div>
+      </Box>
+    );
+  }
 
   return (
     <>

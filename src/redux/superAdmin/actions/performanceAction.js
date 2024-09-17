@@ -364,11 +364,7 @@ export const fetchPerformanceDataSummaryList = (
       let endpointWithParams = `${PERFORMANCE_ENDPOINTS.FETCH_PERFORMANCE_DATA_SUMMARY}?facility_id=${payload.facility_id}&performance=1`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
       if (payload.start_date) {
-        // endpointWithParams += `&min_date=${payload.start_date}`;
-        const increasedMinDate = new Date(payload.start_date);
-        increasedMinDate.setDate(increasedMinDate.getDate() + 1);
-        const formattedMinDate = increasedMinDate.toISOString().split("T")[0];
-        endpointWithParams += `&min_date=${formattedMinDate}`;
+        endpointWithParams += `&min_date=${payload.start_date}`;
       }
       if (payload.end_date) {
         endpointWithParams += `&max_date=${payload.end_date}`;
@@ -427,11 +423,7 @@ export const fetchPerformanceDataRawSummaryMeterList = (
         endpointWithParams += `&page_size=${pageSize}`;
       }
       if (min_date) {
-        // endpointWithParams += `&min_date=${min_date}`;
-        const increasedMinDate = new Date(min_date);
-        increasedMinDate.setDate(increasedMinDate.getDate() + 1);
-        const formattedMinDate = increasedMinDate.toISOString().split("T")[0];
-        endpointWithParams += `&min_date=${formattedMinDate}`;
+        endpointWithParams += `&min_date=${min_date}`;
       }
       if (max_date) {
         endpointWithParams += `&max_date=${max_date}`;

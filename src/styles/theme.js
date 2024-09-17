@@ -23,7 +23,7 @@ const theme = createTheme({
           // color: "#2E813E",
           // fontSize: '0.875rem'
           [getTheme.breakpoints.up("sm")]: {
-            fontSize: '0.875rem'
+            fontSize: "0.875rem",
           },
           // '&.MuiFormLabel-root': {
           //   fontSize: '0.875rem'
@@ -35,9 +35,8 @@ const theme = createTheme({
     MuiFormControl: {
       styleOverrides: {
         root: {
-
-          '.MuiInputBase-root': {
-            fontSize: '1.125rem'
+          ".MuiInputBase-root": {
+            fontSize: "1.125rem",
           },
         },
       },
@@ -49,93 +48,111 @@ const theme = createTheme({
           ".MuiDialog-paper": {
             padding: "1.5rem",
           },
-         
         },
       },
     },
-    
+
     MuiTable: {
       styleOverrides: {
         root: {
           ".MuiTableHead-root": {
             th: {
-              color: '#54585A',
-              fontSize: '0.75rem',
-             "&:last-child": {
-                "div": {
-                 justifyContent: 'flex-end',
- 
-                }
+              color: "#54585A",
+              fontSize: "0.75rem",
+              "&:last-child": {
+                div: {
+                  justifyContent: "flex-end",
+                },
               },
             },
-           
           },
           ".MuiTableBody-root": {
-            color: '#54585A'
+            color: "#54585A",
           },
           // ".MuiTableRow-root": {
-           
+
           // },
           ".MuiTableCell-root": {
-            color: '#54585A',
-            fontSize: '0.875rem',
-            textAlign: 'left',
-            padding: '1rem',
-            minWidth: '8rem',
+            color: "#54585A",
+            fontSize: "0.875rem",
+            textAlign: "left",
+            padding: "1rem",
+            minWidth: "8rem",
             "&:first-of-type": {
               fontWeight: 600,
-              minWidth: '5rem',
+              minWidth: "5rem",
             },
             "&:last-child": {
-              textAlign: 'right',
+              textAlign: "right",
             },
           },
         },
       },
     },
-    MuiToggleButtonGroup:{
+    MuiToggleButtonGroup: {
       styleOverrides: {
         root: {
-
-          ".MuiToggleButtonGroup-grouped": {
-            backgroundColor: '#F7F7F5',
-            minWidth: '3rem',
-            padding: '0.5rem',
-            [getTheme.breakpoints.up("md")]: {
-              minWidth: '4rem',
-              padding: '0.75rem'
+          ".MuiToggleButton-root": {
+            "&:not(:last-of-type)": {
+              borderRight: "1.5px solid #E2E2E2",
             },
-
           },
-          ".Mui-selected": {
-            "&.theme-toggle-yes" : {
-              backgroundColor: '#2E813E',
-              color: '#fff',
-              "&:disabled": {
-                pointerEvents: 'none',
-                opacity: '0.55',
-                cursor: 'text'
+          ".MuiToggleButtonGroup-grouped": {
+            backgroundColor: "#F7F7F5",
+            minWidth: "3rem",
+            padding: "0.5rem",
+            transition: "0.3s all ease-in-out",
+            [getTheme.breakpoints.up("md")]: {
+              minWidth: "4rem",
+              padding: "0.75rem",
+            },
+            "&:hover": {
+              backgroundColor: "#E3F8D9",
+            },
+          },
+          "&.checklist-btn-group": {
+            ".MuiToggleButtonGroup-grouped": {
+              backgroundColor: "#F7F7F5",
+              minWidth: "2.5rem",
+              padding: "0.375rem",
+              lineHeight: 1,
+              [getTheme.breakpoints.up("md")]: {
+                minWidth: "3rem",
+                padding: "0.35rem 0.25rem",
               },
               "&:hover": {
-                backgroundColor: '#2E813E',
+                backgroundColor: "#E3F8D9",
               },
             },
-            "&.theme-toggle-no" : {
-                backgroundColor: '#54585A',
-                color: '#fff',
-                "&:disabled": {
-                  pointerEvents: 'none',
-                  opacity: '0.55',
-                  cursor: 'text'
-                },
-                "&:hover": {
-                  backgroundColor: '#54585A',
-                },
+          },
+          ".Mui-selected": {
+            "&.theme-toggle-yes": {
+              backgroundColor: "#2E813E",
+              color: "#fff",
+              "&:disabled": {
+                pointerEvents: "none",
+                opacity: "0.55",
+                cursor: "text",
+              },
+              "&:hover": {
+                backgroundColor: "#1e6329",
+              },
             },
-          } 
-         
-        }
-      }
+            "&.theme-toggle-no": {
+              backgroundColor: "#54585A",
+              color: "#fff",
+              "&:disabled": {
+                pointerEvents: "none",
+                opacity: "0.55",
+                cursor: "text",
+              },
+              "&:hover": {
+                backgroundColor: "#454647",
+              },
+            },
+          },
+        },
+      },
     },
 
     MuiButton: {
@@ -153,10 +170,10 @@ const theme = createTheme({
           },
           "&:disabled": {
             backgroundColor: "#9E9D9D",
-            color: '#fff',
-            pointerEvents: 'none',
-            opacity: '0.55',
-            cursor: 'text',
+            color: "#fff",
+            pointerEvents: "none",
+            opacity: "0.55",
+            cursor: "text",
           },
           [getTheme.breakpoints.up("sm")]: {
             fontSize: "1rem",
@@ -203,7 +220,7 @@ const theme = createTheme({
       fontWeight: 600,
       color: "#242424",
       [getTheme.breakpoints.up("sm")]: {
-        fontSize: "1.5rem",// ~ 24px
+        fontSize: "1.5rem", // ~ 24px
       },
     },
     h5: {
@@ -275,7 +292,7 @@ const theme = createTheme({
 
       [getTheme.breakpoints.up("md")]: {
         fontSize: "1rem",
-        lineHeight: '1.5rem'
+        lineHeight: "1.5rem",
       },
     },
 
@@ -303,13 +320,13 @@ const theme = createTheme({
   palette: {
     primary: {
       main: "#2e813e",
-      mainDarkShade: '#1e6329',
-      mainLightShade: '#3ea65c',
+      mainDarkShade: "#1e6329",
+      mainLightShade: "#3ea65c",
       light: "#F4FFF5",
       thinLight: "#F5F9F5",
-      thinGrayLight: '#F7F7F5',
+      thinGrayLight: "#F7F7F5",
       contrastText: "#fff",
-      pistachio: '#DCFF88'
+      pistachio: "#DCFF88",
     },
     primary_2: {
       main: "#54585a",
@@ -327,15 +344,15 @@ const theme = createTheme({
       light: "#242424",
       lightGray: "#D9D9D9",
       colorSmoke: "#9E9D9D",
-      colorSilver: '#a8a7a7',
+      colorSilver: "#a8a7a7",
     },
     danger: {
-      main: '#FF5858',
-      scarlet: '#FF5858',
-      colorCrimson: '#e54949'
+      main: "#FF5858",
+      scarlet: "#FF5858",
+      colorCrimson: "#e54949",
     },
     warning: {
-      main: '#F26D04',
+      main: "#F26D04",
     },
 
     text: {
