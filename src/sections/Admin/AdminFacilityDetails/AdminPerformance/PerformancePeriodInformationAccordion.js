@@ -311,7 +311,7 @@ const PerformancePeriodInformationAccordion = ({
         performanceP4PCalcTab
       )
     );
-  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab]);
+  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab, processing]);
 
   useEffect(() => {
     if (adminPerformanceReportInDB) {
