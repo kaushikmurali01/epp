@@ -72,10 +72,10 @@ class Validators:
     @staticmethod
     def validate_time_difference(data_chunk, minutes=60):
         time_difference = (data_chunk['End Date (Required)'] - data_chunk[
-            'Start Date (Required)']).dt.total_seconds() / minutes
+            'Start Date (Required)']).dt.total_seconds() / 60
         if (time_difference > minutes).any():
             raise ValueError(
-                "Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
+                f"Some rows have a time difference between Start Date and End Date greater than {minutes} minutes.")
 
     def validate_data_within_meter_active_range(self, data_chunk):
         current_date = datetime.now()

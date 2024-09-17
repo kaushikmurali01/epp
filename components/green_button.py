@@ -15,11 +15,20 @@ def Convert(input_file):
         'xsi:schemaLocation': "http://naesb.org/espi espiDerived.xsd",
         'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance"
     }
-
+    """
+        tree = parse(input_file)
+    root = tree.getroot()
+    tzOffset = get_child_node_text(root, ns, 'tzOffset')
+    powerOfTenMultiplier = get_child_node_text(root, ns, "powerOfTenMultiplier")
+    """
     # Parse the XML tree
     tree = parse(input_file)
     root = tree.getroot()
-
+    tzOffset = get_child_node_text(root, ns, 'tzOffset')
+    powerOfTenMultiplier = get_child_node_text(root, ns, "powerOfTenMultiplier")
+    power_of_10 = (int(powerOfTenMultiplier) * -1)
+    pow(10, power_of_10)
+    divisor = pow(10, power_of_10)
     data = []  # Initialize an empty list to store row data
 
     # Iterate through each entry in the XML
@@ -37,7 +46,7 @@ def Convert(input_file):
         data.append({
             'Start Date (Required)': start_datetime,
             'End Date (Required)': end_datetime,
-            'Meter Reading (Required)': float(value) if value else None,
+            'Meter Reading (Required)': float(value) / divisor if value else None,
         })
 
     return pd.DataFrame(data)
