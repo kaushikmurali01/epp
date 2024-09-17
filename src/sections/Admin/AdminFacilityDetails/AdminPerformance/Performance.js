@@ -82,8 +82,6 @@ const Performance = () => {
     (state) => state?.adminPerformanceReducer
   );
 
-  const isLoading = useSelector((state) => state?.baselineReducer?.loading);
-
   const [submitTrigger, setSubmitTrigger] = useState(false);
 
   const [isDateValid, setIsDateValid] = useState(false);
@@ -288,11 +286,9 @@ const Performance = () => {
       </Grid>
       <Loader
         sectionLoader
-        textLoader={processing}
         minHeight="100vh"
-        loadingState={processing || loading || isLoading}
+        loadingState={loading}
         loaderPosition="fixed"
-        loaderText={"Performance Scoring"}
       />
     </>
   );
