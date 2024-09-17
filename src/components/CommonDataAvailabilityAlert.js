@@ -17,8 +17,6 @@ const CommonDataAvailabilityAlert = ({
   isAdmin = false,
   onRequestData,
 }) => {
-  console.log(p4pEndDate);
-  
   const [expanded, setExpanded] = useState(false);
   const formattedDate = p4pEndDate
     ? format(parseISO(p4pEndDate), "MMMM d, yyyy")
