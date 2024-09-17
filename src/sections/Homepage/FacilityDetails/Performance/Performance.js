@@ -48,12 +48,8 @@ const Performance = () => {
     setActiveButton(index);
   };
 
-  const {loading, processing} = useSelector(
+  const {loading} = useSelector(
     (state) => state?.performanceReducer
-  );
-
-  const isLoading = useSelector(
-    (state) => state?.baselineReducer?.loading
   );
 
   const buttonStyle = {
@@ -261,7 +257,7 @@ const Performance = () => {
         sectionLoader
         textLoader={processing}
         minHeight="100vh"
-        loadingState={processing || loading || isLoading}
+        loadingState={loading}
         loaderPosition="fixed"
         loaderText={"Performance Scoring"}
       />
