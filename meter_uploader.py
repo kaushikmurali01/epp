@@ -40,10 +40,11 @@ class Validators:
         if not self.iv:
             self.validate_data_within_meter_active_range(chunk)
             minutes = 60
-        else:
-            minutes = 24 * 60
-
-        self.validate_time_difference(chunk, minutes=minutes)
+            self.validate_time_difference(chunk, minutes=minutes)
+        # else:
+        #     minutes = 24 * 60
+        #
+        # self.validate_time_difference(chunk, minutes=minutes)
 
     def validate_no_overlapping_dates(self, iv, meter_id, data_chunk):
         min_start = data_chunk['Start Date (Required)'].min()
