@@ -12,6 +12,7 @@ from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
 from constants import SUFFICIENCY_DATA
+from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
@@ -37,6 +38,7 @@ from datetime import datetime, timedelta
 
 app = Flask(__name__)
 CORS(app)
+
 
 @app.route('/handle', methods=['GET'])
 def return_summary():
@@ -969,8 +971,8 @@ def upload_file():
         return jsonify({"error": "No file provided"}), 400
 
     file_name = file.filename
-    if not file_name.endswith(('.xls', '.xlsx')):
-        return jsonify({"error": "Please provide a valid Excel file (.xls or .xlsx)"}), 400
+    if not file_name.endswith(('.xls', '.xlsx', '.xml')):
+        return jsonify({"error": "Please provide a valid file (.xls , .xlsx , xml)"}), 400
 
     facility_id = request.form.get('facility_id')
     meter_id = request.form.get('meter_id')
@@ -981,8 +983,10 @@ def upload_file():
     if not meter_id:
         error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
         return jsonify({"error": error_msg}), 400
-
-    uploader = DataUploader(file, facility_id, meter_id, iv)
+    if file_name.endswith(('.xml',)):
+        uploader = GreenDataUploader(file, facility_id, meter_id, iv)
+    else:
+        uploader = DataUploader(file, facility_id, meter_id, iv)
     result = uploader.process()
     return jsonify(result)
 
