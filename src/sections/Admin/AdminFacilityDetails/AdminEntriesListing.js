@@ -1101,9 +1101,8 @@ const AdminEntriesListing = ({
               Upload data in bulk for this meter
             </Typography>
             <Typography variant="small2" gutterBottom>
-              {/* You can upload a Green Button XML file or an Excel-compatible
-              file. Use this{" "} */}
-              You can upload an Excel-compatible file. Use this{" "}
+              You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "}
               <Link
                 href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                 underline="hover"
