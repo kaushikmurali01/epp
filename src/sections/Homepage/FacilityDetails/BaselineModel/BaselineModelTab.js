@@ -163,7 +163,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
     saveButtonAction: "",
   });
 
-  const openSendHelpRequestModal = () => {
+  const openSendHelpRequestModal = (help_sent) => {
     setSendHelpModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
@@ -171,6 +171,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
         <HelpRequestModal
           meterType={activeButton}
           setSendHelpModalConfig={setSendHelpModalConfig}
+          helpSent={help_sent}
         />
       ),
     }));
@@ -233,7 +234,11 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
       const body = { status: baselineStatus };
       dispatch(submitRejectedBaselineDB(data?.id, body))
         .then(() => {
-          openEnrollmentModal();
+          if (baselineStatus === "SUBMITTED") {
+            openEnrollmentModal();
+          } else {
+            openSendHelpRequestModal(true);
+          }
           dispatch(fetchBaselineDetailsFromDb(id));
         })
         .then(() => {
