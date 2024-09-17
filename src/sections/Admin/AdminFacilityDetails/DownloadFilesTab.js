@@ -175,7 +175,6 @@ const DownloadFilesTab = () => {
         <MiniTable
           columns={columns}
           data={dataFiles}
-          firstChildColored={true}
         />
         <CustomPagination
           count={5}
