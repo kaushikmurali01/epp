@@ -225,7 +225,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   };
 
   const handleSubmitFacilityStatus = (baselineStatus) => {
-    if (!facilityDetails?.is_signed) {
+    if (!facilityDetails?.is_signed && baselineStatus === "SUBMITTED") {
       openBaselineSuccessModal(true);
       return;
     }
