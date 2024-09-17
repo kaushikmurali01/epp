@@ -255,11 +255,9 @@ const Performance = () => {
       </Grid>
       <Loader
         sectionLoader
-        textLoader={processing}
         minHeight="100vh"
         loadingState={loading}
         loaderPosition="fixed"
-        loaderText={"Performance Scoring"}
       />
     </>
   );
