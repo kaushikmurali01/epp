@@ -67,7 +67,6 @@ export const MiniTable = ({
                 <TableRow
                   {...row.getRowProps()}
                   size="small"
-                  // sx={{ background: "#EBFFEF", borderBottom: "none" }}
                   sx={{
                     background: index % 2 === 0 ? "#FFFFFF" : "#EBFFEF",
                     borderBottom: "none",
@@ -84,7 +83,7 @@ export const MiniTable = ({
                             background: "#CBFFD5",
                           },
                           borderBottom: "none",
-                          padding: "6px 10px!important",
+                          padding: "6px 1rem!important",
                           "&:last-child": {
                             textAlign: "center!important",
                           },
