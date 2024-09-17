@@ -71,7 +71,7 @@ class Validators:
     def validate_time_difference(data_chunk, minutes=60):
         time_difference = (data_chunk['End Date (Required)'] - data_chunk[
             'Start Date (Required)']).dt.total_seconds() / minutes
-        if (time_difference > 60).any():
+        if (time_difference > minutes).any():
             raise ValueError(
                 "Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
 
