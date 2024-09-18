@@ -3,7 +3,7 @@ import pandas as pd
 from constants import METER_FACTOR
 from dbconnection import dbtest
 from get_sql_queries import get_observed_data_summary, get_missing_data_summary, get_outlier_summary, get_temp_missing_data_summary, get_temp_outlier_summary, get_temp_observed_data_summary
-from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list, missing_data_summary, outlier_summary, temp_outlier_summary
+from sql_queries.data_exploration_queries import observed_data_summary_list, missing_data_summary_list,outlier_summary_lower_bound_list, outlier_summary_upper_bound_list, temp_observed_data_summary_list, temp_missing_data_summary_list,temp_outlier_summary_lower_bound_list, temp_outlier_summary_upper_bound_list, missing_data_summary, outlier_summary, temp_outlier_summary, observed_data_summary
 from utils import get_nearest_stations
 from datetime import datetime, timedelta
 
@@ -52,7 +52,8 @@ class DataExplorationSummaryV2:
         elif self.outliers:
             self.query = outlier_summary.format(facility_id = self.facility_id, meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
         else:
-            self.query = get_observed_data_summary(self.facility_id, METER_FACTOR, False, query_date_filter)
+            self.query = observed_data_summary.format(facility_id = self.facility_id, meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
+        print(self.query)
         self.raw_df = dbtest(self.query)
         query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter_temp()
         if self.missing_data:
