@@ -3,14 +3,136 @@ weather_query = "select year, month, sum(temp),sum(rel_hum), sum(precip_amount),
 
 # Summary Queries Start
 # Outliers Query
-outlier_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} GROUP BY  meter_id) SELECT e.meter_type, e.meter_name as m_id, r.meter_id,  CASE WHEN e.meter_type = 1 THEN 'ELECTRICITY' WHEN e.meter_type = 2 THEN 'WATER' WHEN e.meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name, COUNT(e.id) AS total_records, TO_CHAR(MIN(e.start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(e.end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, CASE WHEN e.reading < r.lower_bound THEN 'Lower limit' WHEN e.reading > r.upper_bound THEN 'Upper limit' ELSE 'Within bounds' END AS bound_type FROM epp.meter_hourly_entries e JOIN (SELECT  meter_id, percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3, (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading)) AS IQR, (percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) - {meter_factor} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading))) AS lower_bound, (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) + {meter_factor} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading))) AS upper_bound FROM meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} GROUP BY  meter_id) r ON e.meter_id = r.meter_id WHERE e.reading NOT IN ( 'NaN') AND e.start_date >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND e.end_date <=  (SELECT MIN(end_date) from quartiles where meter_id > 0) AND (e.reading < r.lower_bound OR e.reading > r.upper_bound) AND e.is_independent_variable = {is_independent_variable} {date_filter} GROUP BY e.meter_type, meter_name, r.meter_id, bound_type ORDER BY bound_type DESC, e.meter_type;"
+outlier_summary = """
+WITH quartiles AS (
+    SELECT  
+        meter_id, 
+        MAX(end_date) AS end_date, 
+        MIN(start_date) AS start_date 
+    FROM epp.meter_hourly_entries 
+    WHERE reading NOT IN ('NaN') 
+        AND facility_id = {facility_id} 
+    GROUP BY meter_id
+), meter_details AS (
+	SELECT 
+		meter_name as md_meter_name, 
+		id
+	FROM epp.facility_meter_detail
+	where facility_id = {facility_id}  
+)
+SELECT 
+    e.meter_type, 
+    md.md_meter_name AS m_id, 
+    r.meter_id,  
+    CASE 
+        WHEN e.meter_type = 1 THEN 'ELECTRICITY' 
+        WHEN e.meter_type = 2 THEN 'WATER' 
+        WHEN e.meter_type = 3 THEN 'NG' 
+        ELSE 'Unknown' 
+    END AS meter_name, 
+    COUNT(e.id) AS total_records, 
+    TO_CHAR(MIN(e.start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, 
+    TO_CHAR(MAX(e.end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, 
+    CASE 
+        WHEN e.reading < r.lower_bound THEN 'Lower limit' 
+        WHEN e.reading > r.upper_bound THEN 'Upper limit' 
+        ELSE 'Within bounds' 
+    END AS bound_type 
+FROM epp.meter_hourly_entries e 
+JOIN (
+    SELECT  
+        meter_id, 
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, 
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3, 
+        (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading)) AS IQR, 
+        (percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) - {meter_factor} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading))) AS lower_bound, 
+        (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) + {meter_factor} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) - percentile_cont(0.25) WITHIN GROUP (ORDER BY reading))) AS upper_bound 
+    FROM meter_hourly_entries 
+    WHERE reading NOT IN ('NaN') 
+        AND facility_id = {facility_id} 
+    GROUP BY meter_id
+) r 
+ON e.meter_id = r.meter_id 
+JOIN meter_details AS md ON md.id= e.meter_id
+WHERE e.reading NOT IN ('NaN') 
+    AND e.start_date >= (SELECT MAX(start_date) FROM quartiles WHERE meter_id > 0) 
+    AND e.end_date <= (SELECT MIN(end_date) FROM quartiles WHERE meter_id > 0) 
+    AND (e.reading < r.lower_bound OR e.reading > r.upper_bound) 
+    AND e.is_independent_variable = {is_independent_variable} 
+    {date_filter}
+GROUP BY 
+    e.meter_type, 
+    meter_name, 
+    r.meter_id, 
+    bound_type,
+    md_meter_name 
+ORDER BY 
+    bound_type DESC, 
+    e.meter_type;
+"""
 temp_outlier_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} GROUP BY  meter_id) SELECT w.station_id as meter_id, 'weather' as m_id, 'TEMPERATURE' AS meter_name, COUNT(w.id) AS total_records, TO_CHAR(MIN(w.date_time), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(w.date_time + interval '1 hour'), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, CASE WHEN w.temp < r.lower_bound THEN 'Lower limit' WHEN w.temp > r.upper_bound THEN 'Upper limit' ELSE 'Within bounds' END AS bound_type FROM weather_data_records w JOIN (SELECT percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) AS Q3, (percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) - percentile_cont(0.25) WITHIN GROUP (ORDER BY temp)) AS IQR, (percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) - {station_id} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) - percentile_cont(0.25) WITHIN GROUP (ORDER BY temp))) AS lower_bound, (percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) + {meter_factor} * (percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) - percentile_cont(0.25) WITHIN GROUP (ORDER BY temp))) AS upper_bound FROM weather_data_records WHERE station_id = {station_id} GROUP BY station_id) r ON w.station_id =  {station_id} WHERE w.temp NOT IN ( 'NaN') AND (w.temp < r.lower_bound OR w.temp > r.upper_bound) GROUP BY w.station_id, bound_type ORDER BY bound_type DESC;"
 temp_outlier_summary_lower_bound_list = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) AS Q3 FROM weather_data_records WHERE temp NOT IN ( 'NaN') AND station_id = {meter_id} GROUP BY station_id), outlier_ranges AS (SELECT Q1, Q3, (Q3 - Q1) AS IQR, (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound FROM quartiles) SELECT TO_CHAR(w.date_time, 'YYYY/MM/DD HH24:MI') AS start_date, TO_CHAR(w.date_time + interval '1 hour', 'YYYY/MM/DD HH24:MI') AS end_date, w.station_id as meter_id, 104 as meter_type, temp as reading FROM  weather_data_records w WHERE w.station_id = {meter_id} AND w.temp NOT IN ('NaN') AND w.temp < (select lower_bound from outlier_ranges ) order by start_date asc LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
 temp_outlier_summary_upper_bound_list = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) AS Q3 FROM weather_data_records WHERE temp NOT IN ('NaN') AND station_id = {meter_id} GROUP BY station_id), outlier_ranges AS (SELECT Q1, Q3, (Q3 - Q1) AS IQR, (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound FROM quartiles) SELECT TO_CHAR(w.date_time, 'YYYY/MM/DD HH24:MI') AS start_date, TO_CHAR(w.date_time + interval '1 hour', 'YYYY/MM/DD HH24:MI') AS end_date, w.station_id as meter_id, 104 as meter_type, temp as reading FROM  weather_data_records w WHERE w.station_id = {meter_id} AND w.temp NOT IN ( 'NaN') AND  w.temp  > (select upper_bound from outlier_ranges ) order by start_date asc LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
 
 
 # Observed Data
-observed_data_summary = "WITH quartiles AS (SELECT  meter_id, percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {} GROUP BY  meter_id), outlier_ranges AS (SELECT  Q1, Q3, (Q3 - Q1) AS IQR, (Q1 - {} * (Q3 - Q1)) AS lower_bound, (Q3 + {} * (Q3 - Q1)) AS upper_bound, meter_id FROM quartiles) SELECT e.meter_type,e.meter_name as m_id, CASE WHEN e.meter_type = 1 THEN 'ELECTRICITY' WHEN e.meter_type = 2 THEN 'WATER' WHEN e.meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name, r.meter_id, COUNT(e.id) AS total_records, TO_CHAR(MIN(e.start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(e.end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end FROM meter_hourly_entries e JOIN outlier_ranges r ON e.meter_id = r.meter_id WHERE e.reading NOT IN ( 'NaN') AND e.reading >= r.lower_bound AND e.reading <= r.upper_bound AND e.start_date >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND e.end_date <=  (SELECT MIN(end_date) from quartiles where meter_id > 0) AND e.is_independent_variable = {} {} GROUP BY e.meter_type, meter_name, r.meter_id ORDER BY e.meter_type;"
+observed_data_summary = """
+WITH quartiles AS (
+    SELECT  
+        meter_id, 
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, 
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3, 
+        MAX(end_date) AS end_date, 
+        MIN(start_date) AS start_date 
+    FROM epp.meter_hourly_entries 
+    WHERE reading NOT IN ('NaN') 
+        AND facility_id = {facility_id} 
+    GROUP BY meter_id
+), 
+outlier_ranges AS (
+    SELECT  
+        Q1, 
+        Q3, 
+        (Q3 - Q1) AS IQR, 
+        (Q1 - {meter_factor} * (Q3 - Q1)) AS lower_bound, 
+        (Q3 + {meter_factor} * (Q3 - Q1)) AS upper_bound, 
+        meter_id 
+    FROM quartiles
+), meter_details AS (
+	SELECT 
+		meter_name as md_meter_name,
+		id
+	FROM epp.facility_meter_detail
+	where facility_id = {facility_id}  
+)
+SELECT 
+    e.meter_type, 
+    md.md_meter_name AS m_id,
+    CASE 
+        WHEN e.meter_type = 1 THEN 'ELECTRICITY' 
+        WHEN e.meter_type = 2 THEN 'WATER' 
+        WHEN e.meter_type = 3 THEN 'NG' 
+        ELSE 'Unknown' 
+    END AS meter_name, 
+    r.meter_id, 
+    COUNT(e.id) AS total_records, 
+    TO_CHAR(MIN(e.start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, 
+    TO_CHAR(MAX(e.end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end 
+FROM meter_hourly_entries e 
+JOIN outlier_ranges r 
+    ON e.meter_id = r.meter_id 
+JOIN meter_details AS md ON md.id= e.meter_id
+WHERE 
+    e.reading NOT IN ('NaN') 
+    AND e.reading >= r.lower_bound 
+    AND e.reading <= r.upper_bound 
+    AND e.start_date >= (SELECT MAX(start_date) FROM quartiles WHERE meter_id > 0) 
+    AND e.end_date <= (SELECT MIN(end_date) FROM quartiles WHERE meter_id > 0) 
+    AND e.is_independent_variable = {is_independent_variable} 
+    {date_filter} 
+GROUP BY e.meter_type, meter_name, r.meter_id, md.md_meter_name 
+ORDER BY e.meter_type;
+"""
 temp_observed_data_summary = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) AS Q3 FROM weather_data_records WHERE temp NOT IN ( 'NaN') AND station_id = {} GROUP BY station_id), outlier_ranges AS (SELECT Q1, Q3, (Q3 - Q1) AS IQR, (Q1 - {} * (Q3 - Q1)) AS lower_bound, (Q3 + {} * (Q3 - Q1)) AS upper_bound FROM quartiles) SELECT 'TEMPERATURE' AS meter_name, COUNT(w.id) AS total_records, TO_CHAR(MIN(w.date_time), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(w.date_time + interval '1 hour'), 'YYYY/MM/DD HH24:MI') AS time_stamp_end,w.station_id AS meter_id, 'weather' as m_id FROM weather_data_records w JOIN outlier_ranges r ON w.temp NOT IN ( 'NaN') AND w.temp >= r.lower_bound AND w.temp <= r.upper_bound AND w.station_id = {} WHERE w.date_time >= '{}' and w.date_time <= '{}'  GROUP BY w.station_id;"
 
 temp_observed_data_summary_list = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN GROUP (ORDER BY temp) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY temp) AS Q3 FROM weather_data_records WHERE temp NOT IN ( 'NaN') AND station_id = {meter_id} GROUP BY station_id), outlier_ranges AS (SELECT Q1, Q3, (Q3 - Q1) AS IQR, (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound FROM quartiles) SELECT TO_CHAR(w.date_time, 'YYYY/MM/DD HH24:MI') AS start_date, TO_CHAR(w.date_time + interval '1 hour', 'YYYY/MM/DD HH24:MI') AS end_date, w.station_id as meter_id, 104 as meter_type, temp as reading FROM  weather_data_records w WHERE w.station_id = {meter_id} AND w.temp NOT IN ( 'NaN') AND w.temp >= (select lower_bound from outlier_ranges ) AND w.temp <=  (select upper_bound from outlier_ranges ) {query_date_filter} order by start_date asc LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
@@ -43,12 +165,18 @@ missing_data_summary = """WITH date_range AS (
 	AND end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0)
     {date_filter}
 	order by start_date
-), missing_date_range AS (
+), meter_details AS (
+	SELECT 
+		meter_name,
+		id
+	FROM epp.facility_meter_detail
+	where facility_id = {facility_id}  
+),missing_date_range AS (
 	SELECT 
 		meter_id,
         meter_type,
         CASE WHEN meter_type = 1 THEN 'ELECTRICITY' WHEN meter_type = 2 THEN 'WATER' WHEN meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name,
-		meter_name as m_id, 
+		md.meter_name AS m_id,
 		ROUND(CAST(EXTRACT(EPOCH FROM (end_date - start_date)) / 3600 AS NUMERIC), 0) AS interval_start_end_date,
 		CASE 
 			WHEN prev_end_date IS NULL THEN 0
@@ -56,27 +184,30 @@ missing_data_summary = """WITH date_range AS (
 		END AS total_records,
 		prev_end_date as time_stamp_start,
 		start_date as time_stamp_end
-	FROM cte 
+	FROM cte AS e
+    JOIN meter_details AS md ON md.id= e.meter_id
 	ORDER BY total_records desc 
 ), undefined_missing_data AS (
 	SELECT 
 		meter_type,
-		meter_name as m_id, 
+		md.meter_name AS m_id, 
 		CASE WHEN meter_type = 1 THEN 'ELECTRICITY' WHEN meter_type = 2 THEN 'WATER' WHEN meter_type = 3 THEN 'NG' ELSE 'Unknown' END AS meter_name, 
-		COUNT(id) AS total_records, 
+		COUNT(e.id) AS total_records, 
 		TO_CHAR(MIN(start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, 
 		meter_id 
-	FROM epp.meter_hourly_entries 
+	FROM epp.meter_hourly_entries AS e
+    JOIN meter_details AS md ON md.id= e.meter_id
 	WHERE facility_id = {facility_id} AND ( reading = 'NaN' OR reading IS NULL OR reading < 0) 
 		AND start_date >= (SELECT MAX(start_date) from date_range where meter_id > 0) 
 		AND end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0) 
 		AND is_independent_variable = {is_independent_variable}
         {date_filter}
-	GROUP BY meter_name, meter_type, meter_id ORDER BY meter_type
+	GROUP BY md.meter_name, meter_type, meter_id ORDER BY meter_type
 )
 SELECT meter_type, meter_name, m_id, total_records, TO_CHAR(time_stamp_start::timestamp, 'YYYY/MM/DD HH24:MI') as time_stamp_start, TO_CHAR(time_stamp_end::timestamp, 'YYYY/MM/DD HH24:MI') as time_stamp_end, meter_id, 0 as missing_type FROM undefined_missing_data
 UNION
 SELECT meter_type, meter_name, m_id, total_records, TO_CHAR(time_stamp_start::timestamp, 'YYYY/MM/DD HH24:MI') as time_stamp_start, TO_CHAR(time_stamp_end::timestamp, 'YYYY/MM/DD HH24:MI') as time_stamp_end, meter_id, 1 as missing_type FROM missing_date_range WHERE total_records > 1"""
+
 temp_missing_data_summary = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {} GROUP BY  meter_id) SELECT 'TEMPERATURE' AS meter_name, COUNT(id) AS total_records, TO_CHAR(MIN(date_time), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, TO_CHAR(MAX(date_time + interval '1 hour'), 'YYYY/MM/DD HH24:MI') AS time_stamp_end, station_id as meter_id, 'weather' as m_id, 0 as missing_type FROM weather_data_records WHERE station_id = {} AND (temp = 'NaN' OR temp IS NULL) AND date_time >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND date_time <= (SELECT MIN(end_date) from quartiles where meter_id > 0)  {} GROUP BY station_id;"
 temp_missing_data_summary_list = "WITH quartiles AS (SELECT  meter_id, MAX(end_date) as end_date, MIN(start_date) as start_date FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} GROUP BY  meter_id) SELECT TO_CHAR(w.date_time, 'YYYY/MM/DD HH24:MI') AS start_date, TO_CHAR(w.date_time + interval '1 hour', 'YYYY/MM/DD HH24:MI') AS end_date, w.station_id as meter_id, 104 as meter_type, temp as reading FROM  weather_data_records w WHERE w.station_id = {meter_id} AND (temp = 'NaN' OR temp IS NULL) AND date_time >= (SELECT MAX(start_date) from quartiles where meter_id > 0) AND date_time <= (SELECT MIN(end_date) from quartiles where meter_id > 0) order by start_date asc LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
 
@@ -106,7 +237,7 @@ observed_data_detail = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN G
 missing_data_detail = "SELECT e.start_date, e.end_date, e.reading FROM epp.meter_hourly_entries AS e WHERE e.reading IN (0, 'NaN') AND e.meter_type = {} AND e.facility_id = {} AND e.is_independent_variable = {};"
 
 
-OUTLIER_SETTING = """-- Complete unified query combining all three parts
+OUTLIER_SETTING = """
 WITH MeterReadings AS (
     SELECT 
         mhe.meter_id,
