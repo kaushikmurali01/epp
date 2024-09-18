@@ -49,6 +49,58 @@ export class AdminFacilityController {
   }
 
   /**
+   * Set facility threshold by facility ID.
+   * @param {number} event.params.facilityId - Facility Id.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+  static async setThresholdValue(
+    decodedToken: IUserToken,
+    facilityId: number,
+    body: any
+  ): Promise<Facility[]> {
+    try {
+      const result = await AdminFacilityService.setThresholdValue(
+        Object(decodedToken),
+        facilityId,
+        body
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  /**
+   * Get facility threshold by ID.
+   * @param {number} event.params.facilityId - Facility Id.
+   * @returns {number} response_code - API Response Code
+   * @returns {string} response_message - API Response Message
+   * @returns {object[]} response_data - API Response Data
+   */
+  static async getThresholdValue(
+    decodedToken: IUserToken,
+    facilityId: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await AdminFacilityService.getThresholdValue(
+        Object(decodedToken),
+        facilityId
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  /**
    * Get facility by ID.
    * @param {number} event.params.facilityId - Facility Id.
    * @returns {number} response_code - API Response Code

@@ -5,7 +5,6 @@ import {
   RESPONSE_MESSAGES,
   STATUS,
 } from "../../utils/status";
-import { FACILITY_ID_GENERAL_STATUS } from "../../utils/facility-status";
 import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { FacilityMeasure } from "../../models/facility_measure.model";
@@ -85,10 +84,10 @@ export class FacilityMeasureService {
         };
 
         const result = await FacilityMeasure.create(obj);
-        // await Workflow.update(
-        //   { savings: true },
-        //   { where: { facility_id: body.facility_id } }
-        // );
+        await Workflow.update(
+          { savings: true },
+          { where: { facility_id: body.facility_id } }
+        );
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
@@ -142,13 +141,16 @@ export class FacilityMeasureService {
       const findone = await FacilityMeasure.findOne({ where: { id } });
       const result = await FacilityMeasure.destroy({ where: { id } });
       const findAll = await FacilityMeasure.findAll({
-        where: { facility_id: findone.facility_id },
+        where: {
+          facility_id: findone.facility_id,
+          is_active: STATUS.IS_ACTIVE,
+        },
       });
       if (findAll && !findAll.length) {
-        // await Workflow.update(
-        //   { savings: false },
-        //   { where: { facility_id: findone.facility_id } }
-        // );
+        await Workflow.update(
+          { savings: false },
+          { where: { facility_id: findone.facility_id } }
+        );
       }
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,

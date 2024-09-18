@@ -23,6 +23,9 @@ import { IIncentiveSettingsAttributes } from "../interfaces/incentiveSettings.in
 import { EmailController } from "../controller/sentEmail/controller";
 import { FacilityNonRoutineEventController } from "../controller/facility_non_routine_event/controller";
 import { ContactController } from "../controller/contact/controller";
+import { Facility } from "../models/facility.model";
+import { FACILITY_ID_GENERAL_STATUS } from "../utils/facility-status";
+import { object } from "yup";
 
 // Facility User CRUD
 
@@ -534,6 +537,33 @@ export async function getFacilityNonRoutineEventById(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function getWorkflowData(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    let { facility_id } = request.params;
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    // Get all result
+    const result = await FacilityController.getWorkflowData(
+      decodedToken,
+      Number(facility_id)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+
 export async function addFacilityNonRoutineDataEntry(
   request: HttpRequest,
   context: InvocationContext
@@ -2153,6 +2183,61 @@ export async function adminGetAllFacility(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function getThresholdValue(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facilityId } = request.params;
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+
+    const result = await AdminFacilityController.getThresholdValue(
+      decodedToken,
+      Number(facilityId)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
+export async function setThresholdValue(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const { facilityId } = request.params;
+    const requestData = await request.json();
+
+    // Fetch values from decoded token
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const result = await AdminFacilityController.setThresholdValue(
+      decodedToken,
+      Number(facilityId),
+      Object(requestData)
+    );
+
+    // Prepare response body
+    const responseBody = JSON.stringify(result);
+
+    // Return success response
+    return { body: responseBody };
+  } catch (error) {
+    // Return error response
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 
 export async function adminGetFacilityById(
   request: HttpRequest,
@@ -2642,7 +2727,13 @@ export async function upsertIncentiveSettings(
       created_by: decodedToken.id,
       updated_by: decodedToken.id,
     } as IIncentiveSettingsAttributes);
-
+    await Facility.update(
+      {
+        facility_id_general_status:
+          FACILITY_ID_GENERAL_STATUS.ACCEPT_FACILITY_ENROLLEMNT,
+      },
+      { where: { id: facilityId } }
+    );
     return { body: JSON.stringify(result) };
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -2732,6 +2823,54 @@ export async function addContact(
       body: JSON.stringify({
         error: "An unexpected error occurred while adding the contact.",
       }),
+    };
+  }
+}
+export async function addFacilityChecklist(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const facility_id = parseInt(request.params.facility_id);
+    const masterChecklistId = parseInt(request.params.master_checklist_id);
+    const answerData = Object(await request.json());
+    const result = await FacilityController.addFacilityChecklist(
+      decodedToken,
+      facility_id,
+      masterChecklistId,
+      answerData
+    );
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({
+        error: "An unexpected error occurred while adding the contact.",
+      }),
+    };
+  }
+}
+export async function getFacilityChecklist(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    const facilityId = parseInt(request.params.facility_id);
+    const result = await FacilityController.getFacilityChecklist(
+      decodedToken,
+      facilityId
+    );
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return {
+      status: HTTP_STATUS_CODES.INTERNAL_SERVER_ERROR,
+      body: JSON.stringify({ error: error.message }),
     };
   }
 }
@@ -2862,6 +3001,19 @@ app.http("add-contact", {
   authLevel: "anonymous",
   route: "facility/{facilityId}/contact",
   handler: addContact,
+});
+
+app.http("get-facility-checklist", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "facility/checklist/{facility_id}",
+  handler: getFacilityChecklist,
+});
+app.http("facility-checklist", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "facility/checklist/{facility_id}/{master_checklist_id}",
+  handler: addFacilityChecklist,
 });
 app.http("remove-hourly-entry", {
   methods: ["POST"],
@@ -3079,6 +3231,12 @@ app.http("detail-non-routine-event", {
   route: "nonRoutineEventDetail/{id}",
   authLevel: "anonymous",
   handler: getFacilityNonRoutineEventById,
+});
+app.http("workflow-api", {
+  methods: ["GET"],
+  route: "workflow/{facility_id}",
+  authLevel: "anonymous",
+  handler: getWorkflowData,
 });
 app.http("add-performance-data", {
   methods: ["POST"],
@@ -3398,6 +3556,18 @@ app.http("facility-characteristics", {
 
 // Admin
 
+app.http(`get-facility-threshold`, {
+  methods: ["GET"],
+  route: "facility-threshold/{facilityId}",
+  authLevel: "anonymous",
+  handler: getThresholdValue,
+});
+app.http(`set-facility-threshold`, {
+  methods: ["POST"],
+  route: "facility-threshold/{facilityId}",
+  authLevel: "anonymous",
+  handler: setThresholdValue,
+});
 app.http(`admin-facility-listing`, {
   methods: ["GET"],
   route: "program/facility-listing/{offset}/{limit}",

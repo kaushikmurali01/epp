@@ -9,12 +9,14 @@ import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { NonRoutineModel } from "../../models/facility_non_routine_event.model";
 import { NonRoutineDataEntryModel } from "../../models/non_routine_data_entry.model";
-import { Model, Op } from "sequelize";
+import { Model, Op, where } from "sequelize";
 import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
 import { errorMonitor } from "events";
 import { number } from "yup";
 import { FacilitySavePerformance } from "../../models/facility_save_performance.model";
 import { IncentiveSettings } from "../../models/incentiveSettings.model";
+import { Workflow } from "../../models/workflow.model";
+import { FACILITY_ID_SUBMISSION_STATUS } from "../../utils/facility-status";
 
 export class FacilityNonRoutineEventSevice {
   static async getFacilityNonRoutineEventById(
@@ -159,6 +161,22 @@ export class FacilityNonRoutineEventSevice {
           limit: body.limit || 10,
           order: [["start_date", "asc"]],
         });
+        if (data && data.rows && data.count) {
+          let findFacility = await Facility.findOne({
+            where: { id: facility_id },
+          });
+          if (
+            Number(findFacility.facility_id_submission_status) <
+            FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE
+          )
+            await Facility.update(
+              {
+                facility_id_submission_status:
+                  FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE,
+              },
+              { where: { id: facility_id } }
+            );
+        }
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
@@ -428,6 +446,24 @@ export class FacilityNonRoutineEventSevice {
             facility_id,
           },
         });
+        let findMeterEntries = await MeterHourlyEntries.findOne({
+          where: {
+            facility_id,
+            is_independent_variable: { [Op.notIn]: [true] },
+          },
+        });
+        let findMeterEntriesWithIv = await MeterHourlyEntries.findOne({
+          where: { facility_id, is_independent_variable: true },
+        });
+        if (!findMeterEntries) {
+          await Workflow.update({ ew: false }, { where: { facility_id } });
+        }
+        if (!findMeterEntriesWithIv) {
+          await Workflow.update(
+            { weather_iv: false },
+            { where: { facility_id } }
+          );
+        }
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success

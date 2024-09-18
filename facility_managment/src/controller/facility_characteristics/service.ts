@@ -124,10 +124,10 @@ export class FacilityCharacteristicsService {
           },
           { where: { id: body.facility_id } }
         );
-        // await Workflow.update(
-        //   { detail: true },
-        //   { where: { facility_id: body.facility_id } }
-        // );
+        await Workflow.update(
+          { detail: true },
+          { where: { facility_id: body.facility_id } }
+        );
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,

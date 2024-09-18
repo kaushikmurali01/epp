@@ -25,6 +25,7 @@ export const RESPONSE_MESSAGES = {
     "This email has not been registered. Please use a valid email id.",
   accountActive: "Account Activated Successfully",
   accountDeactive: "Account Deactivated Successfully",
+  meterDelete: "Meter deleted successfully!",
   accountNotFound: "Sorry not able to fetch the account",
   notFound404: "Sorry not able to fetch the details",
   cantDelete: "Sorry, can not delete this meter.",
@@ -56,8 +57,16 @@ export const BASE_LINE_STATUS = {
   draft: "DRAFT",
   created: "CREATED",
   submit: "SUBMITTED",
+  verify: "VERIFIED",
   rejected: "REJECTED",
   requested: "REQUESTED",
+};
+export const FACILITY_THRESHOLD = {
+  NMBE: 0.5,
+  RMSE: 25,
+  DAILY_COVERAGE_THRESHOLD: 90,
+  HOURLY_COVERAGE_THRESHOLD: 90,
+  MONTHLY_COVERGAE_THRESHOLD: 90,
 };
 export const PERFORMANCE_STATUS = {
   draft: "DRAFT",

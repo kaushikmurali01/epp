@@ -8,7 +8,6 @@ import {
 } from "../../utils/status";
 import {
   FACILITY_APPROVAL_STATUS,
-  FACILITY_ID_GENERAL_STATUS,
   FACILITY_ID_SUBMISSION_STATUS,
   FACILITY_METER_TYPE,
   FACILITY_METER_TYPE_TEXT,
@@ -21,6 +20,8 @@ import { MeterHourlyEntries } from "../../models/meter_hourly_entries.model";
 import { FacilityMeterHourlyEntries } from "../../models/facility_meter_hourly_entries.model";
 import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly_entries";
 import { Baseline } from "../../models/facility_baseline.model";
+import { Op } from "sequelize";
+import { Workflow } from "../../models/workflow.model";
 
 export class FacilityMeterService {
   static async getFacilityMeterListing(
@@ -139,9 +140,16 @@ export class FacilityMeterService {
         where: {
           facility_id: findFacilityId.facility_id,
           meter_type: findFacilityId.meter_type,
+          status: {
+            [Op.in]: [
+              BASE_LINE_STATUS.created,
+              BASE_LINE_STATUS.requested,
+              BASE_LINE_STATUS.submit,
+            ],
+          },
         },
       });
-      if (findBaseline.status != BASE_LINE_STATUS.draft) {
+      if (findBaseline && findBaseline.id) {
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.RECORD_NOT_FOUND,
           RESPONSE_MESSAGES.cantDelete
@@ -173,9 +181,18 @@ export class FacilityMeterService {
         { where: { meter_id: id } }
       );
       await MeterHourlyEntries.destroy({ where: { meter_id: id } });
+      let findMeterEntries = await MeterHourlyEntries.findOne({
+        where: { facility_id: findFacilityId.facility_id },
+      });
+      if (!findMeterEntries) {
+        await Workflow.update(
+          { ew: false },
+          { where: { facility_id: findFacilityId.facility_id } }
+        );
+      }
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
-        RESPONSE_MESSAGES.Success,
+        RESPONSE_MESSAGES.meterDelete,
         result
       );
       return resp;
@@ -229,11 +246,22 @@ export class FacilityMeterService {
           is_active: STATUS.IS_ACTIVE,
         },
       });
-      let data: any =
-        await rawQuery(`select * from (select meter_type ,id ,facility_id from 
-    "facility_meter_detail" where facility_id=${facilityId}
-          group by "meter_type",id,facility_id) t inner join facility_meter_hourly_entries fmh
-on fmh.facility_meter_detail_id =t.id order by fmh.updated_at desc`);
+      let data: any = await rawQuery(`SELECT DISTINCT
+    t.meter_type,
+    t.id,
+    t.facility_id,
+    COALESCE(fmh.created_at, fmd.created_at) AS created_at
+FROM 
+    (SELECT meter_type, id, facility_id
+     FROM "facility_meter_detail"
+     WHERE facility_id = ${facilityId}
+     GROUP BY meter_type, id, facility_id) t
+LEFT JOIN facility_meter_hourly_entries fmh
+    ON fmh.facility_meter_detail_id = t.id
+LEFT JOIN "facility_meter_detail" fmd
+    ON fmd.id = t.id
+ORDER BY created_at DESC;
+`);
       let result = [
         {
           "Meter type": FACILITY_METER_TYPE_TEXT.ELECTRICITY,

@@ -1,7 +1,6 @@
 import { IUserToken } from '../../interfaces/usertoken.interface';
 import { ResponseHandler } from '../../utils/response-handler';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS } from '../../utils/status';
-import { FACILITY_ID_GENERAL_STATUS } from '../../utils/facility-status';
 import { Facility } from '../../models/facility.model';
 import { IBaseInterface } from '../../interfaces/baseline.interface';
 import { FacilitySavingDocument } from '../../models/facility_saving_document.model';

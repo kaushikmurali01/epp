@@ -2,6 +2,7 @@ import {
   ADMIN_STATUS,
   BASELINE_USER_TYPE,
   BASE_LINE_STATUS,
+  FACILITY_THRESHOLD,
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
@@ -31,6 +32,7 @@ import { rawQuery } from "../../../services/database";
 import { UserResourceFacilityPermission } from "../../../models/user-resource-permission";
 import { Baseline } from "../../../models/facility_baseline.model";
 import { Workflow } from "../../../models/workflow.model";
+import { FacilityThreshold } from "../../../models/facility_threshold.model";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -102,6 +104,69 @@ export class AdminFacilityService {
     }
   }
 
+  static async setThresholdValue(
+    userToken: IUserToken,
+    facilityId: number,
+    body: any
+  ): Promise<Facility[]> {
+    try {
+      let result = await FacilityThreshold.findOne({
+        where: { facility_id: facilityId },
+      });
+      let updateObj = {
+        nmbe: body.nmbe || FACILITY_THRESHOLD.NMBE,
+        rmse: body.rmse || FACILITY_THRESHOLD.RMSE,
+        daily_coverage_threshold:
+          body.daily_coverage_threshold ||
+          FACILITY_THRESHOLD.DAILY_COVERAGE_THRESHOLD,
+        hourly_coverage_threshold:
+          body.hourly_coverage_threshold ||
+          FACILITY_THRESHOLD.HOURLY_COVERAGE_THRESHOLD,
+        monthly_covergae_threshold:
+          body.monthly_covergae_threshold ||
+          FACILITY_THRESHOLD.MONTHLY_COVERGAE_THRESHOLD,
+      };
+      if (result && result.id) {
+        await FacilityThreshold.update(updateObj, {
+          where: { id: result.id },
+        });
+        result = await FacilityThreshold.findOne({
+          where: { facility_id: facilityId },
+        });
+      } else {
+        result = await FacilityThreshold.create({
+          facility_id: facilityId,
+          ...updateObj,
+        });
+      }
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getThresholdValue(
+    userToken: IUserToken,
+    facilityId: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityThreshold.findOne({
+        where: { facility_id: facilityId },
+      });
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
   static async getFacilityById(
     userToken: IUserToken,
     facilityId: number
@@ -170,7 +235,16 @@ export class AdminFacilityService {
       };
 
       const result = await Facility.create(obj);
-      // await Workflow.create({ facility_id: result.id });
+      await FacilityThreshold.create({
+        facility_id: result.id,
+        nmbe: FACILITY_THRESHOLD.NMBE,
+        rmse: FACILITY_THRESHOLD.RMSE,
+        daily_coverage_threshold: FACILITY_THRESHOLD.DAILY_COVERAGE_THRESHOLD,
+        hourly_coverage_threshold: FACILITY_THRESHOLD.HOURLY_COVERAGE_THRESHOLD,
+        monthly_covergae_threshold:
+          FACILITY_THRESHOLD.MONTHLY_COVERGAE_THRESHOLD,
+      });
+      await Workflow.create({ facility_id: result.id });
       const meter_type1: any = {
         facility_id: result.id,
         parameter_data: [],
@@ -269,7 +343,17 @@ export class AdminFacilityService {
           { where: { id: facilityId } }
         );
         const result = await Facility.create(obj);
-        // await Workflow.create({ facility_id: result.id });
+        await FacilityThreshold.create({
+          facility_id: result.id,
+          nmbe: FACILITY_THRESHOLD.NMBE,
+          rmse: FACILITY_THRESHOLD.RMSE,
+          daily_coverage_threshold: FACILITY_THRESHOLD.DAILY_COVERAGE_THRESHOLD,
+          hourly_coverage_threshold:
+            FACILITY_THRESHOLD.HOURLY_COVERAGE_THRESHOLD,
+          monthly_covergae_threshold:
+            FACILITY_THRESHOLD.MONTHLY_COVERGAE_THRESHOLD,
+        });
+        await Workflow.create({ facility_id: result.id });
 
         const meter_type1: any = {
           facility_id: result.id,
@@ -993,56 +1077,61 @@ WHERE
             };
             const version = "V1";
 
-            if (userDetails.email) {
-              const template = await getEmailTemplate();
-              let userEmailContent = template
-                .replace("#heading#", EmailContent.paCreatedForCompany.title)
-                .replace("#content#", EmailContent.paCreatedForCompany.content)
-                .replace(
-                  "#userName#",
-                  userDetails ? userDetails?.first_name : "User"
-                )
-                .replace(
-                  "#bindingAuthority#",
-                  bindingAuthorityDetails
-                    ? bindingAuthorityDetails?.name
-                    : "Binding Authority"
-                )
-                .replace("#version#", version ? version : "version")
-                .replace(
-                  "#companyName#",
-                  companyDetails ? companyDetails?.company_name : "Company"
-                );
+            // if (userDetails.email) {
+            //   (async () => {
+            //     const template = await getEmailTemplate();
+            //     let userEmailContent = template
+            //       .replace("#heading#", EmailContent.paCreatedForCompany.title)
+            //       .replace(
+            //         "#content#",
+            //         EmailContent.paCreatedForCompany.content
+            //       )
+            //       .replace(
+            //         "#userName#",
+            //         userDetails ? userDetails?.first_name : "User"
+            //       )
+            //       .replace(
+            //         "#bindingAuthority#",
+            //         bindingAuthorityDetails
+            //           ? bindingAuthorityDetails?.name
+            //           : "Binding Authority"
+            //       )
+            //       .replace("#version#", version ? version : "version")
+            //       .replace(
+            //         "#companyName#",
+            //         companyDetails ? companyDetails?.company_name : "Company"
+            //       );
 
-              let adminEmailContent = template
-                .replace("#heading#", EmailContent.paCreatedForAdmin.title)
-                .replace("#content#", EmailContent.paCreatedForAdmin.content)
-                .replace(
-                  "#adminName#",
-                  adminDetails.adminName ? adminDetails.adminName : "Admin"
-                )
-                // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
-                .replace(
-                  "#bindingAuthority#",
-                  userDetails ? userDetails?.first_name : "Binding Authority"
-                )
-                .replace("#version#", version ? version : "version")
-                .replace(
-                  "#companyName#",
-                  companyDetails ? companyDetails?.company_name : "Company"
-                );
+            //     let adminEmailContent = template
+            //       .replace("#heading#", EmailContent.paCreatedForAdmin.title)
+            //       .replace("#content#", EmailContent.paCreatedForAdmin.content)
+            //       .replace(
+            //         "#adminName#",
+            //         adminDetails.adminName ? adminDetails.adminName : "Admin"
+            //       )
+            //       // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+            //       .replace(
+            //         "#bindingAuthority#",
+            //         userDetails ? userDetails?.first_name : "Binding Authority"
+            //       )
+            //       .replace("#version#", version ? version : "version")
+            //       .replace(
+            //         "#companyName#",
+            //         companyDetails ? companyDetails?.company_name : "Company"
+            //       );
 
-              Email.send(
-                userDetails.email,
-                EmailContent.paCreatedForCompany.title,
-                userEmailContent
-              );
-              Email.send(
-                adminDetails.adminEmail,
-                EmailContent.paCreatedForAdmin.title,
-                adminEmailContent
-              );
-            }
+            //     await Email.send(
+            //       userDetails.email,
+            //       EmailContent.paCreatedForCompany.title,
+            //       userEmailContent
+            //     );
+            //     await Email.send(
+            //       adminDetails.adminEmail,
+            //       EmailContent.paCreatedForAdmin.title,
+            //       adminEmailContent
+            //     );
+            //   })();
+            // }
           }
 
           const resp = ResponseHandler.getResponse(
@@ -1081,70 +1170,75 @@ WHERE
             where: { company_id: companyId },
           });
 
-          if (result) {
-            const userDetails = await User.findOne({
-              where: { id: userToken.id },
-            });
-            const companyDetails = await Company.findOne({
-              where: { id: companyId },
-            });
-            const bindingAuthorityDetails = {
-              //name: "Enerva Test Binding Authority",
-              name: userDetails?.first_name,
-            };
-            const version = "V1";
+          // if (result) {
+          //   const userDetails = await User.findOne({
+          //     where: { id: userToken.id },
+          //   });
+          //   const companyDetails = await Company.findOne({
+          //     where: { id: companyId },
+          //   });
+          //   const bindingAuthorityDetails = {
+          //     //name: "Enerva Test Binding Authority",
+          //     name: userDetails?.first_name,
+          //   };
+          //   const version = "V1";
 
-            if (userDetails.email) {
-              const template = await getEmailTemplate();
-              let userEmailContent = template
-                .replace("#heading#", EmailContent.paCreatedForCompany.title)
-                .replace("#content#", EmailContent.paCreatedForCompany.content)
-                .replace(
-                  "#userName#",
-                  userDetails ? userDetails?.first_name : "User"
-                )
-                .replace(
-                  "#bindingAuthority#",
-                  bindingAuthorityDetails
-                    ? bindingAuthorityDetails?.name
-                    : "Binding Authority"
-                )
-                .replace("#version#", version ? version : "version")
-                .replace(
-                  "#companyName#",
-                  companyDetails ? companyDetails?.company_name : "Company"
-                );
+          //   if (userDetails.email) {
+          //     (async () => {
+          //       const template = await getEmailTemplate();
+          //       let userEmailContent = template
+          //         .replace("#heading#", EmailContent.paCreatedForCompany.title)
+          //         .replace(
+          //           "#content#",
+          //           EmailContent.paCreatedForCompany.content
+          //         )
+          //         .replace(
+          //           "#userName#",
+          //           userDetails ? userDetails?.first_name : "User"
+          //         )
+          //         .replace(
+          //           "#bindingAuthority#",
+          //           bindingAuthorityDetails
+          //             ? bindingAuthorityDetails?.name
+          //             : "Binding Authority"
+          //         )
+          //         .replace("#version#", version ? version : "version")
+          //         .replace(
+          //           "#companyName#",
+          //           companyDetails ? companyDetails?.company_name : "Company"
+          //         );
 
-              let adminEmailContent = template
-                .replace("#heading#", EmailContent.paCreatedForAdmin.title)
-                .replace("#content#", EmailContent.paCreatedForAdmin.content)
-                .replace(
-                  "#adminName#",
-                  adminDetails.adminName ? adminDetails.adminName : "Admin"
-                )
-                // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
-                .replace(
-                  "#bindingAuthority#",
-                  userDetails ? userDetails?.first_name : "Binding Authority"
-                )
-                .replace("#version#", version ? version : "version")
-                .replace(
-                  "#companyName#",
-                  companyDetails ? companyDetails?.company_name : "Company"
-                );
+          //       let adminEmailContent = template
+          //         .replace("#heading#", EmailContent.paCreatedForAdmin.title)
+          //         .replace("#content#", EmailContent.paCreatedForAdmin.content)
+          //         .replace(
+          //           "#adminName#",
+          //           adminDetails.adminName ? adminDetails.adminName : "Admin"
+          //         )
+          //         // .replace('#userName#', userDetails ? userDetails?.first_name : 'User')
+          //         .replace(
+          //           "#bindingAuthority#",
+          //           userDetails ? userDetails?.first_name : "Binding Authority"
+          //         )
+          //         .replace("#version#", version ? version : "version")
+          //         .replace(
+          //           "#companyName#",
+          //           companyDetails ? companyDetails?.company_name : "Company"
+          //         );
 
-              Email.send(
-                userDetails.email,
-                EmailContent.paCreatedForCompany.title,
-                userEmailContent
-              );
-              Email.send(
-                adminDetails.adminEmail,
-                EmailContent.paCreatedForAdmin.title,
-                adminEmailContent
-              );
-            }
-          }
+          //       await Email.send(
+          //         userDetails.email,
+          //         EmailContent.paCreatedForCompany.title,
+          //         userEmailContent
+          //       );
+          //       await Email.send(
+          //         adminDetails.adminEmail,
+          //         EmailContent.paCreatedForAdmin.title,
+          //         adminEmailContent
+          //       );
+          //     })();
+          //   }
+          // }
 
           const resp = ResponseHandler.getResponse(
             HTTP_STATUS_CODES.SUCCESS,

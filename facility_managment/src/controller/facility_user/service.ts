@@ -4,6 +4,7 @@ import {
   ADMIN_STATUS,
   BASELINE_USER_TYPE,
   BASE_LINE_STATUS,
+  FACILITY_THRESHOLD,
   HTTP_STATUS_CODES,
   PERFORMANCE_STATUS,
   RESPONSE_MESSAGES,
@@ -40,6 +41,11 @@ import { FacilitySavePerformance } from "../../models/facility_save_performance.
 import { SavingPlanRequest } from "../../models/saving_plan_request.model";
 import { FacilityMeasure } from "../../models/facility_measure.model";
 import { Workflow } from "../../models/workflow.model";
+import { FacilityThreshold } from "../../models/facility_threshold.model";
+import { IncentiveSettings } from "../../models/incentiveSettings.model";
+import { Json } from "sequelize/types/utils";
+import { FacilityChecklist } from "../../models/facility_checklist.model";
+import { MasterChecklist } from "../../models/master_checklist.model";
 
 export class FacilityService {
   static async getFacility(
@@ -453,6 +459,102 @@ LIMIT
       throw error;
     }
   }
+  static async getFacilityChecklist(
+    userToken: IUserToken | any,
+    facilityId: number
+  ): Promise<Facility[]> {
+    try {
+      let findFacility = await Facility.findOne({ where: { id: facilityId } });
+      let query2 = `SELECT 
+    COALESCE(mc.name, '') AS name,
+    mc.performance_type,
+    json_agg(
+        json_build_object(
+            'question', mc.question,
+            'question_id', mc.id,
+            'question_type', mc.question_type,
+            'sequence_order', mc.sequence_order,
+            'options', mc.options,
+            'answer', fc.answer
+        ) ORDER BY mc.sequence_order
+    ) AS questions_answers
+FROM 
+    master_checklist mc
+LEFT JOIN 
+    facility_checklist fc ON mc.id = fc.master_checklist_id 
+    AND (
+        (fc.company_id IS NOT NULL AND fc.company_id = ${findFacility.company_id}) 
+        OR 
+        (fc.company_id IS NULL AND fc.facility_id = ${facilityId})
+    )
+WHERE 
+    mc.dependent_id IS NULL
+    OR (
+       (SELECT COALESCE(fc_dep.answer, 'NO') FROM facility_checklist fc_dep WHERE fc_dep.facility_id = ${facilityId} AND fc_dep.master_checklist_id in	(select mcc.id from master_checklist mcc where mcc.sequence_order=mc.dependent_id and mc.name = mcc.name	and mc.performance_type =mcc.performance_type)) = 'YES'
+    ) = 'YES'
+GROUP BY 
+    mc.name, mc.performance_type
+ORDER BY 
+    MIN(mc.id);
+`;
+      let result = await rawQuery(query2);
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async addFacilityChecklist(
+    userToken: IUserToken | any,
+    facilityId: number,
+    masterChecklistId: number,
+    answerData: any
+  ): Promise<Facility[]> {
+    try {
+      let findQuestion = await MasterChecklist.findOne({
+        where: { id: masterChecklistId },
+      });
+      let findFacility = await Facility.findOne({ where: { id: facilityId } });
+      let whereObj = {};
+      if (findQuestion.name == "company" || findQuestion.name == "pa") {
+        whereObj = { company_id: findFacility.company_id };
+      } else {
+        whereObj = { facility_id: facilityId };
+      }
+      let findChecklist = await FacilityChecklist.findOne({
+        where: {
+          master_checklist_id: masterChecklistId,
+          ...whereObj,
+        },
+      });
+      if (findChecklist) {
+        await FacilityChecklist.update(
+          {
+            answer: answerData.answer,
+          },
+          { where: { id: findChecklist.id } }
+        );
+      } else {
+        await FacilityChecklist.create({
+          ...whereObj,
+          master_checklist_id: masterChecklistId,
+          answer: answerData.answer,
+        });
+      }
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.noContent,
+        []
+      );
+      return resp;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   static async getFacilityById(
     userToken: IUserToken,
@@ -529,7 +631,16 @@ LIMIT
         updated_by: userToken.id,
       };
       const result = await Facility.create(obj);
-      // await Workflow.create({ facility_id: result.id });
+      await FacilityThreshold.create({
+        facility_id: result.id,
+        nmbe: FACILITY_THRESHOLD.NMBE,
+        rmse: FACILITY_THRESHOLD.RMSE,
+        daily_coverage_threshold: FACILITY_THRESHOLD.DAILY_COVERAGE_THRESHOLD,
+        hourly_coverage_threshold: FACILITY_THRESHOLD.HOURLY_COVERAGE_THRESHOLD,
+        monthly_covergae_threshold:
+          FACILITY_THRESHOLD.MONTHLY_COVERGAE_THRESHOLD,
+      });
+      await Workflow.create({ facility_id: result.id });
       const findUser = await User.findOne({ where: { id: userToken.id } });
       await UserResourceFacilityPermission.create({
         email: findUser.email,
@@ -632,6 +743,26 @@ LIMIT
       throw error;
     }
   }
+  static async getWorkflowData(
+    userToken: IUserToken,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      let findExist = await Workflow.findOne({
+        where: {
+          facility_id: facility_id,
+        },
+      });
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        findExist
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
   static async addPerformanceData(
     userToken: IUserToken,
     facility_id: number,
@@ -653,12 +784,31 @@ LIMIT
           user_type: BASELINE_USER_TYPE.USER,
           submit_date: new Date(),
           performance_type: Number(body.performance_type) || 1,
-          status: PERFORMANCE_STATUS.submit,
+          status: body.status || PERFORMANCE_STATUS.submit,
           created_by: userToken.id,
           updated_by: userToken.id,
         };
         findExist = await FacilitySavePerformance.create(obj);
+      } else {
+        const obj: any = {
+          facility_id: facility_id,
+          parameter_data: body.data,
+          meter_type: body.meter_type,
+          user_type: BASELINE_USER_TYPE.USER,
+          submit_date: new Date(),
+          performance_type: Number(body.performance_type) || 1,
+          status: body.status || PERFORMANCE_STATUS.submit,
+          created_by: userToken.id,
+          updated_by: userToken.id,
+        };
+        await FacilitySavePerformance.update(obj, {
+          where: { id: findExist.id },
+        });
       }
+      await Workflow.update(
+        { performance: true },
+        { where: { facility_id: facility_id } }
+      );
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -712,6 +862,22 @@ LIMIT
         meter_type: body.meter_type,
         status: body.status || findBaseline.status,
       };
+      if (
+        body.status == (BASE_LINE_STATUS.submit as any) ||
+        body.status == (BASE_LINE_STATUS.verify as any)
+      ) {
+        await Facility.update(
+          {
+            facility_id_general_status:
+              FACILITY_ID_GENERAL_STATUS.SUBMIT_FACILITY,
+          },
+          { where: { id: findBaseline.facility_id } }
+        );
+        await Workflow.update(
+          { baseline: true },
+          { where: { facility_id: findBaseline.facility_id } }
+        );
+      }
       const result = await Baseline.update(obj, { where: { id } });
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
@@ -734,6 +900,23 @@ LIMIT
         status: body.status,
         submit_date: new Date(),
       };
+      let findBaseline = await Baseline.findOne({ where: { id } });
+      if (
+        body.status == (BASE_LINE_STATUS.submit as any) ||
+        body.status == (BASE_LINE_STATUS.verify as any)
+      ) {
+        await Facility.update(
+          {
+            facility_id_general_status:
+              FACILITY_ID_GENERAL_STATUS.SUBMIT_FACILITY,
+          },
+          { where: { id: findBaseline.facility_id } }
+        );
+        await Workflow.update(
+          { baseline: true },
+          { where: { facility_id: findBaseline.facility_id } }
+        );
+      }
       const result = await Baseline.update(obj, { where: { id } });
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
@@ -891,6 +1074,25 @@ LIMIT
     facilityId: number
   ): Promise<Facility[]> {
     try {
+      let findBaseline = await Baseline.findOne({
+        where: {
+          facility_id: facilityId,
+          status: {
+            [Op.in]: [
+              BASE_LINE_STATUS.created,
+              BASE_LINE_STATUS.requested,
+              BASE_LINE_STATUS.submit,
+            ],
+          },
+        },
+      });
+      if (findBaseline && findBaseline.id) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.RECORD_NOT_FOUND,
+          RESPONSE_MESSAGES.cantDelete
+        );
+        return resp;
+      }
       const result = await Facility.update(
         { is_active: STATUS.IS_DELETED },
         { where: { id: facilityId } }
@@ -997,62 +1199,237 @@ LIMIT
     }
   }
 
+  // static async getCurrentStatusOfFacility(
+  //   userToken: IUserToken,
+  //   facilityId: number
+  // ): Promise<Facility[]> {
+  //   try {
+  //     const timeLineObj = {
+  //       summary: true,
+  //       details: true,
+  //       energy_and_water: false,
+  //       weather: false,
+  //       saving_plan: false,
+  //       baseline_modeling: false,
+  //       performance: false,
+  //     };
+
+  //     let result: any = await Facility.findOne({
+  //       where: { id: facilityId },
+  //       attributes: ["id", "naic_code", "facility_id_general_status"],
+  //     });
+  //     let findWorkflowData: any = await Workflow.findOne({
+  //       where: { facility_id: facilityId },
+  //       attributes: [
+  //         "detail",
+  //         "ew",
+  //         "weather_iv",
+  //         "savings",
+  //         "baseline",
+  //         "performance",
+  //       ],
+  //     });
+  //     let result2 = JSON.parse(JSON.stringify(result));
+  //     findWorkflowData = JSON.parse(JSON.stringify(findWorkflowData));
+  //     result2.timeline = findWorkflowData || timeLineObj;
+  //     const data1 = {
+  //       summary: { rank: 0 },
+  //       detail: { rank: 1 },
+  //       ew: { rank: 2 },
+  //       weather_iv: { rank: 3 },
+  //       savings: { rank: 3 },
+  //       baseline: { rank: 3 },
+  //       performance: { rank: 4 },
+  //     };
+  //     let data2: any = findWorkflowData;
+  //     data2.summary = true;
+  //     type DataEntry = {
+  //       value: boolean;
+  //       rank: number;
+  //     };
+
+  //     type ResultEntry = {
+  //       value: boolean;
+  //       rank: number;
+  //       status: true | false;
+  //     };
+
+  //     function combineData(data1: any, data2: any) {
+  //       const result = {};
+
+  //       for (const key in data1) {
+  //         if (data1.hasOwnProperty(key)) {
+  //           result[key] = {
+  //             value: data2[key],
+  //             rank: data1[key].rank,
+  //           };
+  //         }
+  //       }
+
+  //       return result;
+  //     }
+
+  //     function addStatusWithRank(
+  //       data: Record<string, DataEntry>
+  //     ): Record<string, ResultEntry> {
+  //       const result: any = {};
+  //       const rankStatus = new Map<number, true | false>();
+  //       let firstFalseEncountered = false;
+  //       for (const [key, { value, rank }] of Object.entries(data)) {
+  //         let status: true | false;
+  //         if (rankStatus.has(rank)) {
+  //           if (value === false) {
+  //             firstFalseEncountered = true;
+  //           } else {
+  //             firstFalseEncountered = false;
+  //           }
+  //           status = rankStatus.get(rank)!;
+  //         } else {
+  //           if (!firstFalseEncountered && value === false) {
+  //             status = true;
+  //             firstFalseEncountered = true;
+  //           } else {
+  //             status = value ? true : false;
+  //           }
+  //           rankStatus.set(rank, status);
+  //         }
+  //         result[key] = status;
+  //       }
+  //       return result;
+  //     }
+
+  //     const dataWithRank = combineData(data1, data2);
+  //     let findIncentives = await IncentiveSettings.findOne({
+  //       where: { facility_id: facilityId },
+  //     });
+
+  //     let updatedData = addStatusWithRank(dataWithRank);
+  //     result2.disabled = updatedData;
+  //     let finalValue = result2.disabled?.performance || false;
+  //     if (userToken.role_id != userType.ENERVA_ADMIN) {
+  //       if (findIncentives) {
+  //         finalValue = true;
+  //       }
+  //     }
+  //     result2.disabled.performance = finalValue;
+  //     const resp = ResponseHandler.getResponse(
+  //       HTTP_STATUS_CODES.SUCCESS,
+  //       RESPONSE_MESSAGES.Success,
+  //       result
+  //     );
+  //     return resp;
+  //   } catch (error) {
+  //     console.log(error, "errorerro");
+  //     throw error;
+  //   }
+  // }
+  static async addStatusWithRank(data: Record<string, any>): Promise<any> {
+    const result: any = {};
+    const rankStatus = new Map<number, true | false>();
+    let firstFalseEncountered = false;
+    for (const [key, { value, rank }] of Object.entries(data)) {
+      let status: true | false;
+      if (rankStatus.has(rank)) {
+        if (value === false) {
+          firstFalseEncountered = true;
+        } else {
+          firstFalseEncountered = false;
+        }
+        status = rankStatus.get(rank)!;
+      } else {
+        if (!firstFalseEncountered && value === false) {
+          status = true;
+          firstFalseEncountered = true;
+        } else {
+          status = value ? true : false;
+        }
+        rankStatus.set(rank, status);
+      }
+      result[key] = status;
+    }
+    return result;
+  }
   static async getCurrentStatusOfFacility(
     userToken: IUserToken,
     facilityId: number
   ): Promise<Facility[]> {
     try {
       const timeLineObj = {
-        summary: false,
-        details: false,
-        energy_and_water: false,
-        weather: false,
-        saving_plan: false,
-        baseline_modeling: false,
+        summary: true,
+        detail: true,
+        ew: false,
+        weather_iv: false,
+        savings: false,
+        baseline: false,
         performance: false,
       };
 
-      const result: objects = await Facility.findOne({
+      const facility = await Facility.findOne({
         where: { id: facilityId },
         attributes: ["id", "naic_code", "facility_id_general_status"],
       });
-      const details = await FacilityCharacteristics.findOne({
+
+      const workflowData = await Workflow.findOne({
+        where: { facility_id: facilityId },
+        attributes: [
+          "detail",
+          "ew",
+          "weather_iv",
+          "savings",
+          "baseline",
+          "performance",
+        ],
+      });
+
+      let facilityData: any = facility ? facility.toJSON() : {};
+      const workflowDataJson = workflowData ? workflowData.toJSON() : {};
+      facilityData.timeline = { ...timeLineObj, ...workflowDataJson };
+
+      const dataRanks = {
+        summary: { rank: 0 },
+        detail: { rank: 1 },
+        ew: { rank: 2 },
+        weather_iv: { rank: 3 },
+        savings: { rank: 3 },
+        baseline: { rank: 3 },
+        performance: { rank: 4 },
+      };
+      const combinedData = {};
+
+      for (const key in dataRanks) {
+        if (dataRanks.hasOwnProperty(key)) {
+          combinedData[key] = {
+            value: facilityData.timeline[key],
+            rank: dataRanks[key].rank,
+          };
+        }
+      }
+      const rankedStatuses: any = await this.addStatusWithRank(combinedData);
+      const incentives = await IncentiveSettings.findOne({
         where: { facility_id: facilityId },
       });
-      const energyAndWater = await FacilityMeterHourlyEntries.findOne({
-        where: { facility_id: facilityId, is_active: STATUS.IS_ACTIVE },
-      });
-      const meter = await FacilityMeterDetail.findAll({
-        where: { facility_id: facilityId, is_active: STATUS.IS_ACTIVE },
-      });
 
-      if (result) {
-        timeLineObj.summary = true;
-      }
-      if (details) {
-        timeLineObj.details = true;
-      }
-      if (energyAndWater && meter && meter.length) {
-        timeLineObj.energy_and_water = true;
-      }
+      const finalStatus = {
+        ...rankedStatuses,
+        performance:
+          userToken.role_id === userType.ENERVA_ADMIN
+            ? rankedStatuses?.performance
+            : incentives
+            ? true
+            : rankedStatuses?.performance,
+      };
 
-      result.dataValues.timeline = timeLineObj;
+      facilityData.disabled = finalStatus;
 
-      // console.log(result);
-
-      const resp = ResponseHandler.getResponse(
+      return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
-        result
+        facilityData
       );
-      // console.log(resp);
-
-      return resp;
     } catch (error) {
-      throw error;
+      throw new Error("Failed to get current status of facility.");
     }
   }
-
   static async editStatusOfFacility(
     userToken: IUserToken,
     body: IBaseInterface,

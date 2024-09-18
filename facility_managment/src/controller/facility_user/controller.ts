@@ -102,6 +102,46 @@ export class FacilityController {
       throw this.errorMessage;
     }
   }
+  static async getFacilityChecklist(
+    decodedToken: IUserToken,
+    facilityId: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getFacilityChecklist(
+        Object(decodedToken),
+        facilityId
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+  static async addFacilityChecklist(
+    decodedToken: IUserToken,
+    facilityId: number,
+    masterChecklistId: number,
+    answerData: any
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.addFacilityChecklist(
+        Object(decodedToken),
+        facilityId,
+        masterChecklistId,
+        answerData
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
 
   /**
    * Get facility by ID.
@@ -204,6 +244,25 @@ export class FacilityController {
         Object(decodedToken),
         facility_id,
         body
+      );
+      return result;
+    } catch (error) {
+      this.errorMessage = {
+        message: error,
+        statusCode: HTTP_STATUS_CODES.BAD_REQUEST,
+      };
+      throw this.errorMessage;
+    }
+  }
+
+  static async getWorkflowData(
+    decodedToken: IUserToken,
+    facility_id: number
+  ): Promise<Facility[]> {
+    try {
+      const result = await FacilityService.getWorkflowData(
+        Object(decodedToken),
+        facility_id
       );
       return result;
     } catch (error) {
