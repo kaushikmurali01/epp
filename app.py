@@ -30,8 +30,11 @@ def baseline_model_training():
         baseline_end_date = pd.to_datetime(input_settings.get('end_date'))
         
         selected_independent_variables = get_independent_vars_names(selected_independent_variables_ids, facility_id)
-
-        baseline_data = cleaned_data[(cleaned_data['Date'] >= baseline_start_date) & (cleaned_data['Date'] <= baseline_end_date)]
+        print("pre date filter: ", cleaned_data.shape)
+        print(baseline_start_date,baseline_end_date)
+        baseline_data = cleaned_data.copy()
+        # [(cleaned_data['Date'] >= baseline_start_date) & (cleaned_data['Date'] <= baseline_end_date)]
+        print("post date filter: ", baseline_data.shape)
         baseline_data = baseline_data[['Date', 'EnergyConsumption', 'Temperature'] + selected_independent_variables]
         baseline_data.rename(columns={'Date': 'Timestamp', 'EnergyConsumption': 'Energy Use', 'Temperature': 'OAT'}, inplace=True)
         # print(baseline_data)

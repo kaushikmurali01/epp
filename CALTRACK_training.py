@@ -93,9 +93,10 @@ class EnergyModel:
         
         # Set the DataFrame index
         filtered_df.set_index('Timestamp', inplace=True)
-        
+        print("pre dropna: ", filtered_df.shape)
         # Clean up the DataFrame
         filtered_df.dropna(inplace=True)
+        print("post dropna: ", filtered_df.shape)
         
         # Define columns to keep
         columns_to_keep = ['Timestamp', 'observed', 'temperature']
