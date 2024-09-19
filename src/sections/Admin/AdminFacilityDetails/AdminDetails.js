@@ -423,6 +423,9 @@ const AdminDetails = ({ setTab }) => {
   };
 
   const handleEnergyUsageTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setEnergyUsageAlignment(newAlignment);
     form.setFieldValue(
       "unique_features_that_impact_energy_usage",
@@ -431,10 +434,16 @@ const AdminDetails = ({ setTab }) => {
   };
 
   const handleLightingTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setLightingAlignment(newAlignment);
     form.setFieldValue("is_lighting_controlled_for_occupancy", newAlignment);
   };
   const handleHeatingTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setHeatingAlignment(newAlignment);
     form.setFieldValue(
       "is_space_heating_controlled_for_occupancy",
@@ -442,6 +451,9 @@ const AdminDetails = ({ setTab }) => {
     );
   };
   const handleCoolingTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setCoolingAlignment(newAlignment);
     form.setFieldValue(
       "is_space_cooling_controlled_for_occupancy",
@@ -523,7 +535,8 @@ const AdminDetails = ({ setTab }) => {
                           htmlFor="year_of_construction"
                           style={{ whiteSpace: "initial" }}
                         >
-                          Year of construction<span className="asterisk">*</span>
+                          Year of construction
+                          <span className="asterisk">*</span>
                         </InputLabel>
                         <DatePicker
                           id="year_of_construction"
