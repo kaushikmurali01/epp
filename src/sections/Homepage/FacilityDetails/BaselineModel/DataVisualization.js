@@ -89,16 +89,12 @@ const DataVisualization = () => {
           newValue: facilityData?.id,
         },
         {
-          name: "created_by",
-          newValue: facilityData?.created_by,
+          name: "min_date",
+          newValue: "24/04/2015",
         },
         {
-          name: "meter_id",
-          newValue: "2",
-        },
-        {
-          name: "granularity",
-          newValue: "daily",
+          name: "max_date",
+          newValue: "24/04/2024",
         },
       ],
     };
