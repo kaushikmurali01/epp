@@ -5,7 +5,7 @@ import pandas as pd
 import openpyxl
 from dbconnection import dbtest, db_execute_single
 from sql_queries.file_uploader import insert_query_facility_meter_hourly_entries, insert_query_facility_iv_files_table
-from utils import generate_blob_name, save_file_to_blob
+from utils import generate_blob_name, save_file_to_blob, custom_date_parser
 
 
 class BaseDataUploader:
@@ -28,27 +28,29 @@ class BaseDataUploader:
 
 class Validators:
     def __init__(self, meter_active, meter_inactive, iv):
+        self.clean_df = pd.DataFrame()
         self.iv = iv
         self.meter_active = meter_active
         self.meter_inactive = meter_inactive
         self.required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
 
     def validate_chunk(self, chunk, iv, meter_id):
-        self.validate_required_columns(chunk)
-        self.validate_start_end_dates(chunk)
-        self.validate_no_overlapping_dates(iv, meter_id, chunk)
         if not self.iv:
             self.validate_data_within_meter_active_range(chunk)
             minutes = 60
             self.validate_time_difference(chunk, minutes=minutes)
-        # else:
-        #     minutes = 24 * 60
-        #
-        # self.validate_time_difference(chunk, minutes=minutes)
+        self.validate_date_format(chunk)
+        self.validate_required_columns(chunk)
+        self.validate_start_end_dates(chunk)
+        self.validate_no_overlapping_dates(iv, meter_id, chunk)
+
+        self.clean_df = pd.concat([self.clean_df, chunk], ignore_index=True)
 
     def validate_no_overlapping_dates(self, iv, meter_id, data_chunk):
         min_start = data_chunk['Start Date (Required)'].min()
         max_end = data_chunk['End Date (Required)'].max()
+        if not min_start or max_end:
+            return
         query = f"""
             SELECT 1 FROM epp.meter_hourly_entries 
             WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' 
@@ -58,6 +60,15 @@ class Validators:
         df = dbtest(query)
         if not df.empty:
             raise ValueError("Excel file contains entries that overlap with existing database records.")
+
+    def validate_date_format(self, df):
+        try:
+            df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], format='%Y-%m-%d %H:%M',
+                                                         errors='raise')
+            df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], format='%Y-%m-%d %H:%M',
+                                                       errors='raise')
+        except:
+            raise ValueError('Invalid Date Format(s). The format Should be YYYY-MM-DD HH:MM')
 
     def validate_required_columns(self, data_chunk):
         missing_columns = set(self.required_columns) - set(data_chunk.columns)
@@ -70,9 +81,15 @@ class Validators:
 
     @staticmethod
     def validate_time_difference(data_chunk, minutes=60):
-        time_difference = (data_chunk['End Date (Required)'] - data_chunk[
-            'Start Date (Required)']).dt.total_seconds() / 60
-        if (time_difference > minutes).any():
+
+        data_chunk['max_date'] = data_chunk['Start Date (Required)'] + pd.Timedelta(minutes=60)
+        invalid_dates = data_chunk[data_chunk['End Date (Required)'] > data_chunk['max_date']]
+
+        # time_difference = (data_chunk['End Date (Required)'] - data_chunk[
+        #     'Start Date (Required)']).dt.total_seconds() / 60
+        #
+        # if (time_difference > minutes).any():
+        if len(invalid_dates):
             raise ValueError(
                 f"Some rows have a time difference between Start Date and End Date greater than {minutes} minutes.")
 
@@ -136,9 +153,13 @@ def read_excel_sheets(file):
 
 
 def process_chunk(chunk_data, header, validator, iv, meter_id):
-    df = pd.DataFrame(chunk_data, columns=header,dtype=str)
+    df = pd.DataFrame(chunk_data, columns=header, dtype=str)
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
+    # df['Start Date (Required)'] = df['Start Date (Required)'].apply(custom_date_parser)
+    # df['End Date (Required)'] = df['End Date (Required)'].apply(custom_date_parser)
+    df.dropna(how='all', inplace=True)
+    df.dropna(subset=['Start Date (Required)', 'End Date (Required)'], inplace=True)
     validator.validate_chunk(df, iv, meter_id)
 
 

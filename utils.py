@@ -2,6 +2,8 @@ import math
 import uuid
 from datetime import datetime
 
+import pandas as pd
+
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 
 from azure.storage.blob import BlobServiceClient
@@ -18,6 +20,7 @@ def generate_blob_name(extension="xlsx"):
     # Combine the unique identifier and timestamp
     blob_name = f"{timestamp}_{unique_id}.{extension}"
     return blob_name
+
 
 def save_file_to_blob(blob_name, file):
     try:
@@ -102,3 +105,12 @@ def get_nearest_stations(facility, n=3):
     query = nearest_weather_stations.format(facility, datetime.now().year, n)
     station_dataframe = dbtest(query)
     return station_dataframe
+
+
+def custom_date_parser(val):
+    if pd.isna(val):
+        return None
+    try:
+        return pd.to_datetime(val).strftime('%Y-%m-%d %H:%M')  # Adjust the format as per your requirement
+    except:
+        raise ValueError(f'You have Invalid Values of Dates e.g {val}')
