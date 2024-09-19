@@ -232,6 +232,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleRevenueTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setRevenueAlignment(newAlignment);
     form.setFieldValue("is_rg_meter", newAlignment);
   };
