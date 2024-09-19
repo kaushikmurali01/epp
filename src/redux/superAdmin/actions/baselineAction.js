@@ -405,12 +405,12 @@ export const fetchRawSummaryMeterList = (
         endpointWithParams += `&detail=${detail}`;
       }
       endpointWithParams += `&meter_id=${meterId}`;
-      if (min_date) {
-        endpointWithParams += `&min_date=${min_date}`;
-      }
-      if (max_date) {
-        endpointWithParams += `&max_date=${max_date}`;
-      }
+      // if (min_date) {
+      //   endpointWithParams += `&min_date=${min_date}`;
+      // }
+      // if (max_date) {
+      //   endpointWithParams += `&max_date=${max_date}`;
+      // }
       if (bound) {
         endpointWithParams += `&bound=${bound}`;
       }
