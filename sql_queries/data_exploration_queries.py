@@ -140,7 +140,45 @@ outlier_summary_lower_bound_list= "WITH quartiles AS (SELECT meter_id, percentil
 outlier_summary_upper_bound_list= "WITH quartiles AS (SELECT meter_id, percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3 FROM epp.meter_hourly_entries WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} AND meter_id = {meter_id} GROUP BY meter_id), outlier_ranges AS (SELECT (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound, meter_id FROM quartiles) SELECT start_date, end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries e WHERE e.reading NOT IN ( 'NaN') AND e.reading > (SELECT upper_bound FROM outlier_ranges) AND e.is_independent_variable = {is_independent_variable} AND facility_id = {facility_id} AND meter_id = {meter_id} LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
 
 #observed_data_summary_list with pagination
-observed_data_summary_list= "WITH quartiles AS (SELECT meter_id, percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3 FROM epp.meter_hourly_entries WHERE reading NOT IN ('NaN') AND facility_id = {facility_id} AND meter_id = {meter_id} GROUP BY meter_id), outlier_ranges AS (SELECT (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound, meter_id FROM quartiles) SELECT start_date, end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries e WHERE e.reading NOT IN ('NaN') AND e.reading >= (SELECT lower_bound FROM outlier_ranges) AND e.reading <= (SELECT upper_bound FROM outlier_ranges) AND e.is_independent_variable = {is_independent_variable} AND facility_id = {facility_id} AND meter_id = {meter_id} {query_date_filter} LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size};"
+observed_data_summary_list= """ 
+WITH quartiles AS (
+    SELECT 
+        meter_id, 
+        percentile_cont(0.25) WITHIN GROUP (ORDER BY reading) AS Q1, 
+        percentile_cont(0.75) WITHIN GROUP (ORDER BY reading) AS Q3 
+    FROM epp.meter_hourly_entries 
+    WHERE 
+        reading NOT IN ('NaN') 
+        AND facility_id = {facility_id} 
+        AND meter_id = {meter_id} 
+    GROUP BY meter_id
+), 
+outlier_ranges AS (
+    SELECT 
+        (Q1 - {METER_FACTOR} * (Q3 - Q1)) AS lower_bound, 
+        (Q3 + {METER_FACTOR} * (Q3 - Q1)) AS upper_bound, 
+        meter_id 
+    FROM quartiles
+)
+SELECT 
+    start_date, 
+    end_date, 
+    meter_id, 
+    meter_type, 
+    reading 
+FROM epp.meter_hourly_entries e 
+WHERE 
+    e.reading NOT IN ('NaN') 
+    AND e.reading >= (SELECT lower_bound FROM outlier_ranges) 
+    AND e.reading <= (SELECT upper_bound FROM outlier_ranges) 
+    AND e.is_independent_variable = {is_independent_variable} 
+    AND facility_id = {facility_id} 
+    AND meter_id = {meter_id} 
+    {query_date_filter} 
+Order by start_date
+LIMIT {page_size} 
+OFFSET ({page_number} - 1) * {page_size};
+"""
 
 
 # Missing Data
