@@ -148,6 +148,11 @@ const DatePickerField = ({
             color: "#242424",
           },
         }}
+        slotProps={{
+          textField: {
+            readOnly: true,
+          },
+        }}
       />
     </div>
   );
@@ -261,8 +266,17 @@ const IncentiveSettingsMicroComponent = () => {
   }, [incentiveSettings]);
 
   const handleSubmit = (values) => {
+    const numericFields = [
+      "preProjectIncentive",
+      "onPeakIncentiveRate",
+      "offPeakIncentiveRate",
+      "minimumSavings",
+    ];
+
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
-      if (typeof value === "string" && value.trim() === "") {
+      if (numericFields.includes(key)) {
+        acc[key] = value.trim() !== "" ? Number(value) : null;
+      } else if (typeof value === "string" && value.trim() === "") {
         delete acc[key];
       } else {
         acc[key] = value;
@@ -272,10 +286,6 @@ const IncentiveSettingsMicroComponent = () => {
 
     const payload = {
       ...updatedValues,
-      preProjectIncentive: values.preProjectIncentive,
-      onPeakIncentiveRate: values.onPeakIncentiveRate,
-      offPeakIncentiveRate: values.offPeakIncentiveRate,
-      minimumSavings: values.minimumSavings,
     };
 
     dispatch(updateIncentiveSettings(payload, facility_id))
