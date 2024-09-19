@@ -2,7 +2,6 @@ import {
   Box,
   Grid,
   IconButton,
-  Pagination,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -13,6 +12,7 @@ import React, { useState } from "react";
 import { MiniTable } from "components/MiniTable";
 import { format } from "date-fns";
 import { downloadFileFromUrl } from "utils/helper/helper";
+import CustomPagination from "components/CustomPagination";
 
 const DownloadFilesTab = () => {
   const [pageInfo, setPageInfo] = useState({
@@ -167,7 +167,6 @@ const DownloadFilesTab = () => {
         item
         width={"100%"}
         display="flex"
-        gap="1rem"
         direction="column"
         justifyContent="center"
         alignItems="center"
@@ -176,19 +175,11 @@ const DownloadFilesTab = () => {
         <MiniTable
           columns={columns}
           data={dataFiles}
-          firstChildColored={true}
         />
-        <Pagination
+        <CustomPagination
           count={5}
           pageInfo={pageInfo}
           setPageInfo={setPageInfo}
-          showFirstButton
-          showLastButton
-          sx={{
-            ".MuiPagination-ul": {
-              justifyContent: "center",
-            },
-          }}
         />
       </Grid>
     </Grid>

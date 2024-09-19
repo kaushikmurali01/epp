@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Grid } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import CustomAccordion from "components/CustomAccordion";
@@ -73,6 +73,16 @@ const QaQcChecklist = () => {
     );
   }, [checklistQuestionsList]);
 
+  const getHelperText = () => {
+    if (companyReviewCompleted && paReviewCompleted) {
+      return "The company and PA checklists have already been verified for this company. They are not displayed for other facilities within the same company to avoid redundant reviews.";
+    } else if (companyReviewCompleted) {
+      return "The company checklist has been thoroughly reviewed and approved. It is no longer displayed for further action.";
+    } else if (paReviewCompleted) {
+      return "The PA checklist has been successfully reviewed and validated. It has been removed from the active review list.";
+    }
+  };
+
   return (
     <Grid
       container
@@ -84,6 +94,7 @@ const QaQcChecklist = () => {
         flexDirection: "column",
       }}
     >
+      <Typography variant="h6" color="#242424" mb={2} sx={{fontSize: {xs: "14px", sm: "16px"}}}>{ getHelperText()}</Typography>
       {checklistQuestionsList && (
         <>
           {!companyReviewCompleted && (
