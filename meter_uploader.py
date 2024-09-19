@@ -16,7 +16,10 @@ class BaseDataUploader:
         self.meter_id = meter_id
         self.created_by = created_by
         self.meter_serial_no = meter_serial_no
-        self.meter_active, self.meter_inactive = self.get_meter_dates()
+        if not self.iv:
+            self.meter_active, self.meter_inactive = self.get_meter_dates()
+        else:
+            self.meter_active, self.meter_inactive = None, None
 
     def get_meter_dates(self):
         query = f"SELECT meter_active, meter_inactive FROM epp.facility_meter_detail WHERE id = {self.meter_id}"
@@ -156,8 +159,6 @@ def process_chunk(chunk_data, header, validator, iv, meter_id):
     df = pd.DataFrame(chunk_data, columns=header, dtype=str)
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
-    # df['Start Date (Required)'] = df['Start Date (Required)'].apply(custom_date_parser)
-    # df['End Date (Required)'] = df['End Date (Required)'].apply(custom_date_parser)
     df.dropna(how='all', inplace=True)
     df.dropna(subset=['Start Date (Required)', 'End Date (Required)'], inplace=True)
     validator.validate_chunk(df, iv, meter_id)
