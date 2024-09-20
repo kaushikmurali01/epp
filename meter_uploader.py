@@ -157,6 +157,7 @@ def read_excel_sheets(file):
 
 def process_chunk(chunk_data, header, validator, iv, meter_id):
     df = pd.DataFrame(chunk_data, columns=header, dtype=str)
+    df = df[['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']]
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
     df.dropna(how='all', inplace=True)
