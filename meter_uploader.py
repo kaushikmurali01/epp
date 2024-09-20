@@ -169,6 +169,8 @@ def process_chunk(chunk_data, header, validator, iv, meter_id):
     df = df[['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']]
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
+    df['Start Date (Required)'] = df['Start Date (Required)'].dt.round('min')
+    df['End Date (Required)'] = df['End Date (Required)'].dt.round('min')
     df.dropna(how='all', inplace=True)
     df.dropna(subset=['Start Date (Required)', 'End Date (Required)'], inplace=True)
     validator.validate_chunk(df, iv, meter_id)
