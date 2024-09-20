@@ -38,6 +38,7 @@ class Validators:
         self.required_columns = ['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']
 
     def validate_chunk(self, chunk, iv, meter_id):
+        self.validate_min_date(chunk)
         if not self.iv:
             self.validate_data_within_meter_active_range(chunk)
             minutes = 60
@@ -96,6 +97,14 @@ class Validators:
             raise ValueError(
                 f"Some rows have a time difference between Start Date and End Date greater than {minutes} minutes.")
 
+    @staticmethod
+    def validate_min_date(df):
+        if df['Start Date (Required)'].min() < pd.Timestamp('2018-01-01 00:00:00') or df['End Date (Required)'].min() < pd.Timestamp('2018-01-01 00:00:00'):
+            raise ValueError(
+                f"Entries before 2018-01-01 00:00:00 are not allowed."
+            )
+
+
     def validate_data_within_meter_active_range(self, data_chunk):
         current_date = datetime.now()  # .replace(minute=0, second=0, microsecond=0)
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
@@ -116,7 +125,7 @@ class Validators:
                 )
             else:
                 raise ValueError(
-                    f"Excel contains {len(invalid_dates)} future Entries."
+                    f"Excel contains future Entries."
                 )
 
 
@@ -157,6 +166,7 @@ def read_excel_sheets(file):
 
 def process_chunk(chunk_data, header, validator, iv, meter_id):
     df = pd.DataFrame(chunk_data, columns=header, dtype=str)
+    df = df[['Start Date (Required)', 'End Date (Required)', 'Meter Reading (Required)']]
     df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'], errors='coerce')
     df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'], errors='coerce')
     df.dropna(how='all', inplace=True)
