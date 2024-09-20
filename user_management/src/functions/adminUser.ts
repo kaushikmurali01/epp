@@ -713,11 +713,11 @@ export async function GetPermissionsByUserAdmin(
         ],
       });
 
-      // Aggregate permissions into an array
+      // Aggregate permissions into an array.
       const permissionsArray = userPermissions.map(
         (permission) => permission.permission_id
       );
-      context.log("permissionsArray", userPermissions);
+      //context.log("permissionsArray", userPermissions);
 
       // Return a single object
       let permissions = {
