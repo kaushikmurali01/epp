@@ -12,6 +12,9 @@ interface CustomColumnAttributes {
   created_by: number | null;
   updated_by: number | null;
   is_checked: number;
+  order_id: number;
+  is_search: number;
+  is_sort: number;
 }
 
 interface CustomColumnCreationAttributes extends Optional<CustomColumnAttributes, 'id'> {}
@@ -27,6 +30,9 @@ class CustomColumn extends Model<CustomColumnAttributes, CustomColumnCreationAtt
   public created_by!: number | null;
   public updated_by!: number | null;
   public is_checked!: number;
+  public order_id!: number;
+  public is_search!: number;
+  public is_sort!: number;
 }
 
 CustomColumn.init(
@@ -38,7 +44,7 @@ CustomColumn.init(
     },
     field_slug: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     field_name: {
         type: DataTypes.STRING,
@@ -50,7 +56,7 @@ CustomColumn.init(
     },
     module_type: {
       type: DataTypes.STRING,
-      allowNull: true,
+      allowNull: false,
     },
     createdat: {
       type: DataTypes.DATE,
@@ -73,6 +79,18 @@ CustomColumn.init(
       allowNull: false,
       defaultValue: 0,
     },
+    order_id: {
+        type: DataTypes.BIGINT,
+        allowNull: true,
+      },
+      is_search: {
+        type: DataTypes.SMALLINT,
+        allowNull: true,
+      },
+      is_sort: {
+        type: DataTypes.SMALLINT,
+        allowNull: true,
+      },
   },
   {
     sequelize,

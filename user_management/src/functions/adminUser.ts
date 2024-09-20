@@ -916,7 +916,7 @@ export async function GetCustomColumns(
       where: {
         module_type: moduleType,
       },
-      attributes: ['id', 'field_slug', 'field_name', 'module_type', 'is_checked']
+      attributes: ['id', 'field_slug', 'field_name', 'module_type', 'is_checked', 'order_id', 'is_sort', 'is_search']
     });
 
     // Prepare response
