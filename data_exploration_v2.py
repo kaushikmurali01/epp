@@ -23,7 +23,6 @@ class DataExplorationSummaryV2:
         self.outliers = True if summary_type == "outliers" else False
         self.start_date = min_date if min_date == None else datetime.strptime(min_date, '%Y-%m-%d')
         self.end_date = max_date if max_date == None else (datetime.strptime(max_date, '%Y-%m-%d') + timedelta(days=1))
-        print(self.end_date)
     def date_filter(self):
         query_date_filter= ''
         if self.missing_data:
