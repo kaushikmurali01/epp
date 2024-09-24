@@ -88,14 +88,14 @@ const DataVisualization = () => {
           name: "facility_id",
           newValue: facilityData?.id,
         },
-        {
-          name: "min_date",
-          newValue: "24/04/2015",
-        },
-        {
-          name: "max_date",
-          newValue: "24/04/2024",
-        },
+        // {
+        //   name: "min_date",
+        //   newValue: "24/04/2015",
+        // },
+        // {
+        //   name: "max_date",
+        //   newValue: "24/04/2024",
+        // },
       ],
     };
     POWERBI_POST_REQUEST(apiURL, body)
