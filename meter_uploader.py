@@ -181,13 +181,13 @@ class DataUploader(BaseDataUploader):
         df = df[self.required_columns]
         df.dropna(subset=[self.start, self.end], inplace=True)
         df.dropna(how='all', inplace=True)
-        df['Default'] = True
+        df['is_active'] = True
 
         new_row = pd.DataFrame([{
             self.start: pd.Timestamp('2024-09-21 22:22:22'),
             self.end: pd.Timestamp('2024-09-21 23:22:22'),
             self.reading: 7294581063259348,
-            'Default': False
+            'is_active': False
         }])
 
         df = pd.concat([df, new_row], ignore_index=True)

@@ -42,7 +42,7 @@ class AddMeterData:
 
     def prepare_data_for_insertion(self, df):
         df.rename(columns={'Start Date (Required)': 'start_date', 'End Date (Required)': 'end_date',
-                           'Meter Reading (Required)': 'reading', 'Default': 'is_active'}, inplace=True)
+                           'Meter Reading (Required)': 'reading'}, inplace=True)
         df['start_date_og'] = df['start_date']
         df['end_date_og'] = df['end_date']
         df['reading_og'] = df['reading']
