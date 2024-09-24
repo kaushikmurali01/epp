@@ -476,20 +476,25 @@ class EnergyModel:
             
             if total_available_hours < total_expected_hours:
                 baseline_data['Month'] = baseline_data.index.month
+                # print(baseline_data['Month'].max())
                 missing_hours = {month: 730 - baseline_data[baseline_data['Month'] == month].shape[0] 
-                                for month in range(1, 13)}
+                                for month in range(1, baseline_data['Month'].max()+1)}
                 missing_hours = {month: hours for month, hours in missing_hours.items() if hours > 0}
+                # print(missing_hours)
                 avg_consumption_per_month = {
                     month: baseline_data[baseline_data['Month'] == month]['observed'].mean()
                     for month in missing_hours.keys()
                 }
+                # print(avg_consumption_per_month)
                 extrapolated_energy = sum(
                     missing_hours[month] * avg_consumption_per_month[month]
                     for month in missing_hours.keys()
                 )
             else:
                 extrapolated_energy = 0
-            
+            # print('---------******************')
+            # print(baseline_data['observed'].sum())
+            # print(extrapolated_energy)
             baseline_energy_consumption_value = baseline_data['observed'].sum() + extrapolated_energy
 
         elif model_type.lower() == 'daily':
@@ -501,7 +506,7 @@ class EnergyModel:
                 # Get the missing days per month
                 baseline_data['Month'] = baseline_data.index.month
                 missing_days = {month: 30 - baseline_data[baseline_data['Month'] == month].shape[0] 
-                                for month in range(1, 13)}  # Rough estimate: 30 days per month
+                                for month in range(1, baseline_data['Month'].max()+1)}  # Rough estimate: 30 days per month
                 
                 # Only consider months with missing days
                 missing_days = {month: days for month, days in missing_days.items() if days > 0}
