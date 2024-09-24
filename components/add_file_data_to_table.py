@@ -112,7 +112,7 @@ class AddMeterData:
                                 'meter_id', 'meter_type', 'is_independent_variable',
                                 'purchased_from_grid', 'meter_name', 'facility_id',
                                 'independent_variable_id', 'start_year', 'start_month', 'end_year',
-                                'end_month']
+                                'end_month', 'is_active']
             df = df[required_columns]
             logging.debug("DB Insert Started:{}".format(self.iv))
             optimized_bulk_insert_df(
@@ -121,7 +121,7 @@ class AddMeterData:
                 record_id,
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
-            execute_query("DELETE FROM meter_hourly_entries where reading = 7294581063259348")
+            execute_query("DELETE FROM meter_hourly_entries where is_active = false")
             logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
