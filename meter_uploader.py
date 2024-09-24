@@ -46,15 +46,13 @@ class Validators(CommonBase):
         self.meter_id = meter_id
         self.meter_active = meter_active
         self.meter_inactive = meter_inactive
-        self.required_columns = ['self.start', 'self.end', 'self.reading']
+        self.required_columns = [self.start, self.end, self.reading]
 
     def validate_date_format(self, df):
-        date_format = "%Y/%m/%d %H:%M"
-        try:
-            pd.to_datetime(df[self.start], format=date_format, errors='raise')
-            pd.to_datetime(df[self.end], format=date_format, errors='raise')
-        except:
-            raise ValueError("Invalid Date format. Accepted Formats are like 2024/09/25 09:09, 2024/09/07 09:09")
+        nat_values = df[[self.start, self.end]].isnull()
+        if nat_values.any().any():
+            raise ValueError(
+                f"Check Date Format in Columns {self.start} {self.end}. Preferred  Formats is like 2024/09/25 09:09, 2024/09/07 09:09")
 
     def valid_start_end_date(self, df):
         filtered_df = df[df[self.start] > df[self.end]]
@@ -72,7 +70,6 @@ class Validators(CommonBase):
     def check_for_valid_hourly_entries(self, df):
         df['Expected End Date'] = df[self.start] + pd.Timedelta(minutes=60)
         invalid_dates = df[df[self.end] > df['Expected End Date']]
-
         if len(invalid_dates):
             raise ValueError(
                 f"Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
@@ -132,7 +129,7 @@ class Validators(CommonBase):
         7: There Should be No Overlapping Entries Present in the Database
 
         """
-        # self.validate_date_format(data_chunk)
+        self.validate_date_format(data_chunk)
         self.valid_start_end_date(data_chunk)
         self.dates_beyond_2018(data_chunk)
         if not self.iv:
@@ -140,6 +137,7 @@ class Validators(CommonBase):
             self.check_for_date_ranges_between_meter_dates(data_chunk)
         self.validate_future_records(data_chunk)
         self.validate_no_overlapping_dates(data_chunk)
+
         self.clean_df = pd.concat([self.clean_df, data_chunk], ignore_index=True)
 
 
@@ -187,7 +185,7 @@ class DataUploader(BaseDataUploader):
 
         new_row = pd.DataFrame([{
             self.start: pd.Timestamp('2024-09-21 22:22:22'),
-            self.end: pd.Timestamp('2024-09-21 23:23:23'),
+            self.end: pd.Timestamp('2024-09-21 23:22:22'),
             self.reading: 7294581063259348,
             'Default': True
         }])
@@ -199,7 +197,7 @@ class DataUploader(BaseDataUploader):
         return df
 
     def process_chunk(self, chunk_data, header, validator, iv, meter_id):
-        df = pd.DataFrame(chunk_data, columns=header, dtype=str)
+        df = pd.DataFrame(chunk_data, columns=header)
         df = df[[self.start, self.end, self.reading]]
         df = self.data_cleaning(df)
         validator.validate_chunk(df)
@@ -224,9 +222,11 @@ class DataUploader(BaseDataUploader):
                 concurrent.futures.wait(futures)
                 for future in futures:
                     future.result()  # This will raise any exceptions that occurred during processing
-
+            excel_buffer = io.BytesIO()
+            self.validator.clean_df.to_excel(excel_buffer, index=False)
+            excel_buffer.seek(0)
             blob_name = generate_blob_name()
-            file_path = save_file_to_blob(blob_name, self.excel_file)
+            file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
             return {
                 "success": True,
