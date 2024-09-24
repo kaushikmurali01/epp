@@ -181,13 +181,13 @@ class DataUploader(BaseDataUploader):
         df = df[self.required_columns]
         df.dropna(subset=[self.start, self.end], inplace=True)
         df.dropna(how='all', inplace=True)
-        df['Default'] = False
+        df['Default'] = True
 
         new_row = pd.DataFrame([{
             self.start: pd.Timestamp('2024-09-21 22:22:22'),
             self.end: pd.Timestamp('2024-09-21 23:22:22'),
             self.reading: 7294581063259348,
-            'Default': True
+            'Default': False
         }])
 
         df = pd.concat([df, new_row], ignore_index=True)
@@ -223,9 +223,9 @@ class DataUploader(BaseDataUploader):
                 for future in futures:
                     future.result()  # This will raise any exceptions that occurred during processing
             excel_buffer = io.BytesIO()
-            self.validator.clean_df.to_excel(excel_buffer, index=False)
+            self.validator.clean_df.to_csv(excel_buffer, index=False)
             excel_buffer.seek(0)
-            blob_name = generate_blob_name()
+            blob_name = generate_blob_name(extension='csv')
             file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
             return {
