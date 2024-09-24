@@ -121,7 +121,7 @@ class AddMeterData:
                 record_id,
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
-            execute_query("DELETE FROM epp.meter_hourly_entries where reading = 7294581063259348")
+            execute_query("DELETE FROM meter_hourly_entries where reading = 7294581063259348")
             logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
