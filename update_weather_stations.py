@@ -105,7 +105,7 @@ def upload_chunk(conn, chunk, station_id):
 
     try:
         cur.copy_expert(sql.SQL("""
-            COPY epp.weather_data_records (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
+            COPY epp.weather_data_records_new (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
                                temp, temp_flag, dew_point_temp, dew_point_temp_flag, rel_hum, rel_hum_flag, 
                                precip_amount, precip_amount_flag, wind_dir, wind_dir_flag, wind_spd, wind_spd_flag, 
                                visibility_km, visibility_flag, station_press, station_press_flag, hmdx, hmdx_flag, 
