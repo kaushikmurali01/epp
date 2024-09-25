@@ -113,8 +113,9 @@ class Validators(CommonBase):
             AND {'independent_variable_id' if iv else 'meter_id'} = {meter_id}
             LIMIT 1
             """
-        df = dbtest(query)
-        if not df.empty:
+        db = dbtest(query)
+        merged = db.merge(data_chunk, on=[self.start, self.end, self.reading], how='left', indicator=True)
+        if not merged.empty:
             raise ValueError("Excel file contains entries that overlap with existing database records.")
 
     def validate_chunk(self, data_chunk):
