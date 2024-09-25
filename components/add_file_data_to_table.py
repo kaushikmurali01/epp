@@ -9,11 +9,12 @@ from sql_queries.file_uploader import meter_file_processing_query, iv_file_proce
     ERROR_UPLOADER_INTIMATION_IV, ERROR_UPLOADER_INTIMATION_METER
 import logging
 
+
 # Setup logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def download_excel(url):
+def download_file(url):
     response = requests.get(url)
     response.raise_for_status()  # Raise an exception for bad status codes
     return response.content
@@ -61,7 +62,7 @@ class AddMeterData:
             df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna()
         else:
             df['missing'] = df[['start_date', 'end_date']].isna().any(axis=1) | df['reading'].isna() | (
-                        df['reading'] == 0)
+                    df['reading'] == 0)
 
         clean_data = df[~df['missing']].copy()
         Q1 = clean_data['reading'].quantile(0.25)
@@ -94,23 +95,9 @@ class AddMeterData:
             meter_type = row.get('meter_type') if not self.iv else None
             iv_id = row.get('independent_variable_id') if self.iv else None
 
-            excel_data = download_excel(url)
-            excel_io = io.BytesIO(excel_data)
-            wb = load_workbook(excel_io, read_only=True)
-            visible_sheets = [sheet.title for sheet in wb.worksheets if sheet.sheet_state == 'visible']
-            excel_io.seek(0)
-
-            df_list = []
-            with pd.ExcelFile(excel_io) as xls:
-                for sheet_name in visible_sheets:
-                    df = pd.read_excel(xls, sheet_name)
-                    df_list.append(df)
-
-            if not df_list:
-                raise ValueError("No visible sheets found in the Excel file.")
-
-            df = pd.concat(df_list, ignore_index=True)
-            df = df.dropna(how='all')
+            csv_data = download_file(url)
+            csv_io = io.BytesIO(csv_data)
+            df = pd.read_csv(csv_io)
             df = self.prepare_data_for_insertion(df)
             df['meter_id'] = meter_detail_id
             df['meter_type'] = meter_type
@@ -125,7 +112,7 @@ class AddMeterData:
                                 'meter_id', 'meter_type', 'is_independent_variable',
                                 'purchased_from_grid', 'meter_name', 'facility_id',
                                 'independent_variable_id', 'start_year', 'start_month', 'end_year',
-                                'end_month']
+                                'end_month', 'is_active']
             df = df[required_columns]
             logging.debug("DB Insert Started:{}".format(self.iv))
             optimized_bulk_insert_df(
@@ -134,6 +121,7 @@ class AddMeterData:
                 record_id,
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
+            execute_query("DELETE FROM meter_hourly_entries where is_active = false")
             logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:

@@ -751,6 +751,15 @@ def process():
     return {"message": "Data inserted Succefully"}, 200
 
 
+@app.route('/pull-station-data', methods=['POST'])
+def pull_station_data():
+    facility_id = request.json.get('facility_id')
+    if not facility_id:
+        return {"message": "Please Provide Facility ID"}, 400
+
+    nearest_station_ids = get_nearest_stations(facility_id)
+    return {"message": "Data Being Inserted"}, 200
+
 @app.route('/get_station_details', methods=['GET'])
 def getdata():
     facility = request.args.get('facility_id')
