@@ -126,9 +126,24 @@ export const validationSchemaAddMeter = Yup.object().shape({
   meter_name: Yup.string().required("Meter name is required"),
   meter_type: Yup.string().required("Meter Type is required"),
   unit: Yup.string().required("Unit is required"),
-  meter_id: Yup.number()
-    .required("Meter Id is required and can be found on the electricity bill")
-    .min(0, "Meter Id must be a positive number"),
+  // meter_id: Yup.number()
+  //   .required("Meter Id is required and can be found on the electricity bill")
+  //   .min(0, "Meter Id must be a positive number")
+  //   .max(10, "Please enter 10 digits"),
+  // meter_id: Yup.number()
+  //   .typeError("Meter Id must be a number")
+  //   .required("Meter Id is required and can be found on the electricity bill")
+  //   .positive("Meter Id must be a positive number")
+  //   .integer("Meter Id must be an integer")
+  //   .test(
+  //     "len",
+  //     "Please enter exactly 10 digits",
+  //     (val) => val && val.toString().length === 2
+  //   ),
+  meter_id: Yup.string()
+    .matches(/^[a-zA-Z0-9]*$/, "Meter Id must be alphanumeric")
+    .max(20, "Meter Id must be at most 20 characters")
+    .required("Meter Id is required and can be found on the electricity bill"),
   meter_active: Yup.date()
     .nullable()
     .max(new Date(), "Date meter became active cannot be in the future"),
