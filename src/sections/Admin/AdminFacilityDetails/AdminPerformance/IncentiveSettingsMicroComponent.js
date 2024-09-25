@@ -20,6 +20,15 @@ import {
 import Loader from "pages/Loader";
 import { incentiveSettingValidationSchema } from "utils/validations/formValidation";
 import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
+import {
+  parseISO,
+  format,
+  addYears,
+  subDays,
+  addDays,
+  startOfDay,
+  isValid,
+} from "date-fns";
 
 const StyledHelperText = styled(Typography)(({ theme }) => ({
   color: theme.palette.error.main,
@@ -34,12 +43,10 @@ const DatePickerField = ({
   minDate: propMinDate,
 }) => {
   const handleDateChange = (date) => {
-    if (date) {
-      // Adjust for timezone offset
-      const adjustedDate = new Date(
-        date.getTime() - date.getTimezoneOffset() * 60000
-      );
-      const formattedDate = adjustedDate.toISOString().split("T")[0];
+    if (date && isValid(date)) {
+      // Convert the selected date to UTC
+      const utcDate = startOfDay(date);
+      const formattedDate = format(utcDate, "yyyy-MM-dd");
       setFieldValue(field.name, formattedDate);
 
       const fieldNumber = parseInt(field.name.slice(-1));
@@ -47,52 +54,40 @@ const DatePickerField = ({
 
       if (isStartDate) {
         // Set end date to one year later (minus one day) for the current period
-        const endDate = new Date(adjustedDate);
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        endDate.setDate(endDate.getDate() - 1);
+        const endDate = subDays(addYears(utcDate, 1), 1);
         setFieldValue(
           `p4pEndDate${fieldNumber}`,
-          endDate.toISOString().split("T")[0]
+          format(endDate, "yyyy-MM-dd")
         );
 
         // Set start and end dates for subsequent periods
+        let currentEndDate = endDate;
         for (let i = fieldNumber + 1; i <= 3; i++) {
-          const nextStartDate = new Date(endDate);
-          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          const nextStartDate = addDays(currentEndDate, 1);
           setFieldValue(
             `p4pStartDate${i}`,
-            nextStartDate.toISOString().split("T")[0]
+            format(nextStartDate, "yyyy-MM-dd")
           );
 
-          const nextEndDate = new Date(nextStartDate);
-          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
-          nextEndDate.setDate(nextEndDate.getDate() - 1);
-          setFieldValue(
-            `p4pEndDate${i}`,
-            nextEndDate.toISOString().split("T")[0]
-          );
+          const nextEndDate = subDays(addYears(nextStartDate, 1), 1);
+          setFieldValue(`p4pEndDate${i}`, format(nextEndDate, "yyyy-MM-dd"));
 
-          endDate.setTime(nextEndDate.getTime());
+          currentEndDate = nextEndDate;
         }
       } else {
         // If it's an end date, update subsequent periods
+        let currentEndDate = utcDate;
         for (let i = fieldNumber + 1; i <= 3; i++) {
-          const nextStartDate = new Date(adjustedDate);
-          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          const nextStartDate = addDays(currentEndDate, 1);
           setFieldValue(
             `p4pStartDate${i}`,
-            nextStartDate.toISOString().split("T")[0]
+            format(nextStartDate, "yyyy-MM-dd")
           );
 
-          const nextEndDate = new Date(nextStartDate);
-          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
-          nextEndDate.setDate(nextEndDate.getDate() - 1);
-          setFieldValue(
-            `p4pEndDate${i}`,
-            nextEndDate.toISOString().split("T")[0]
-          );
+          const nextEndDate = subDays(addYears(nextStartDate, 1), 1);
+          setFieldValue(`p4pEndDate${i}`, format(nextEndDate, "yyyy-MM-dd"));
 
-          adjustedDate.setTime(nextEndDate.getTime());
+          currentEndDate = nextEndDate;
         }
       }
     } else {
@@ -137,7 +132,7 @@ const DatePickerField = ({
     <div>
       <StyledHelperText>*</StyledHelperText>
       <DatePicker
-        value={field.value ? new Date(field.value) : null}
+        value={field.value ? parseISO(field.value) : null}
         onChange={handleDateChange}
         slots={{ openPickerIcon: ExpandMoreIcon }}
         minDate={minDate}

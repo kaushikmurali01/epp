@@ -34,7 +34,7 @@ import {
 } from "utils/dropdownConstants/dropdownConstants";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
-import { format, isAfter, subYears } from "date-fns";
+import { format, isAfter, parseISO, startOfDay, subYears } from "date-fns";
 import { useParams } from "react-router-dom";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
@@ -154,7 +154,7 @@ const ModelConstructorForm = ({
       meterType
     );
     if (
-      baselineCalculated?.status === "SUBMITTED" ||
+      baselineCalculated?.status === "USER_SUBMITTED" ||
       (baselineCalculated?.status === "REQUESTED" &&
         baselineCalculated?.parameter_data?.length > 0)
     ) {
@@ -504,15 +504,22 @@ const ModelConstructorForm = ({
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
-            setFieldValue("start_date", startDate);
-            setFieldValue("end_date", endDate);
+            // Convert dates to start of day in UTC
+            const utcStartDate = startOfDay(startDate);
+            const utcEndDate = startOfDay(endDate);
+
+            // Format dates as ISO strings (YYYY-MM-DD)
+            const formattedStartDate = format(utcStartDate, "yyyy-MM-dd");
+            const formattedEndDate = format(utcEndDate, "yyyy-MM-dd");
+            setFieldValue("start_date", formattedStartDate);
+            setFieldValue("end_date", formattedEndDate);
             handleSubmit({
               ...values,
-              start_date: startDate,
-              end_date: endDate,
+              start_date: formattedStartDate,
+              end_date: formattedEndDate,
             });
-            setBaselineStartDate(startDate);
-            setBaselineEndDate(endDate);
+            setBaselineStartDate(formattedStartDate);
+            setBaselineEndDate(formattedEndDate);
           };
           return (
             <Form>

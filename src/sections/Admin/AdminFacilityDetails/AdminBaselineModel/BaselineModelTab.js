@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Box, Button, Grid, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Typography } from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -16,6 +16,7 @@ import {
   fetchAdminBaselineDetailsFromDb,
   fetchAdminIndependentVariableList,
   fetchAdminStationsDetails,
+  submitAdminRejectedBaselineDB,
 } from "../../../../redux/admin/actions/adminBaselineAction";
 import EvModal from "utils/modal/EvModal";
 import SeeSufficiencyDetails from "./SeeSufficiencyDetails";
@@ -23,6 +24,8 @@ import UserReviewBaselineModal from "./UserReviewBaselineModal";
 import ModelConstructorView from "./ModelConstructorView";
 import { getSummaryDataByMeterType } from ".";
 import { format } from "date-fns";
+import BaselineSuccessModal from "sections/Homepage/FacilityDetails/BaselineModel/BaselineSuccessModal";
+import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
@@ -50,6 +53,10 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
     const meter = getSummaryDataByMeterType(baselineListData, activeButton);
     setBaselineDetails(meter);
   };
+
+  const facilityDetails = useSelector(
+    (state) => state?.adminFacilityReducer?.facilityDetails?.data
+  );
 
   useEffect(() => {
     handleBaselineDetails();
@@ -160,6 +167,75 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
     }));
   };
 
+    const [baselineSuccessModalConfig, setBaselineSuccessModalConfig] =
+      useState({
+        modalVisible: false,
+        modalUI: {
+          showHeader: true,
+          crossIcon: false,
+          modalClass: "",
+          headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+          headerSubTextStyle: {
+            marginTop: "1rem",
+            color: "rgba(36, 36, 36, 1)",
+            fontSize: { md: "0.875rem" },
+          },
+          fotterActionStyle: "",
+          modalBodyContentStyle: "",
+        },
+        buttonsUI: {
+          saveButton: false,
+          cancelButton: false,
+          saveButtonName: "Yes",
+          cancelButtonName: "No",
+          saveButtonClass: "",
+          cancelButtonClass: "",
+        },
+        headerText: "",
+        headerSubText: "",
+        modalBodyContent: "",
+        saveButtonAction: "",
+      });
+
+    const [showSubmitButton, setShowSubmitButton] = useState(false);
+
+    const openBaselineSuccessModal = (content_status) => {
+      setBaselineSuccessModalConfig((prevState) => ({
+        ...prevState,
+        modalVisible: true,
+        modalBodyContent: (
+          <BaselineSuccessModal
+            setBaselineSuccessModalConfig={setBaselineSuccessModalConfig}
+            contentStatus={content_status}
+          />
+        ),
+      }));
+    };
+
+  const handleCheckboxChange = (e) => {
+    setShowSubmitButton(e);
+  };
+
+  const handleSubmitFacilityStatus = (baselineStatus) => {
+    if (!facilityDetails?.is_signed && baselineStatus === "SUBMITTED") {
+      openBaselineSuccessModal(true);
+      return;
+    }
+    if (activeButton) {
+      const data = getSummaryDataByMeterType(baselineListData, activeButton);
+      const body = { status: baselineStatus };
+      console.log(data.id, body);
+      
+      dispatch(submitAdminRejectedBaselineDB(data?.id, body))
+        .then(() => {
+          dispatch(fetchAdminBaselineDetailsFromDb(id));
+        })
+        .then(() => {
+          dispatch(fetchAdminFacilityStatus(id));
+        });
+    }
+  };
+
   return (
     <>
       <Grid container justifyContent="space-between">
@@ -177,6 +253,46 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             Natural gas
           </Button>
         </StyledButtonGroup>
+
+        {baselineDetails?.status === "USER_SUBMITTED" ? (
+          <Grid container xs={12} md={6} justifyContent="flex-end" gap={4}>
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox />}
+                sx={{ color: "text.secondary2" }}
+                label={
+                  <Typography sx={{ fontSize: "14px!important" }}>
+                    Accept baseline model
+                  </Typography>
+                }
+                onChange={(e) => handleCheckboxChange(e.target.checked)}
+              />
+            </FormGroup>
+
+            {showSubmitButton ? (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Accept baseline
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleSubmitFacilityStatus("REVIEWED")}
+                sx={{ alignItems: "flex-end" }}
+              >
+                Reject baseline
+              </Button>
+            )}
+          </Grid>
+        ) : (
+          <></>
+        )}
+
         {(baselineDetails?.status === "SUBMITTED" ||
           baselineDetails?.status === "CALCULATED") && (
           <Typography
@@ -197,7 +313,7 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
             {baselineDetails?.meter_type === 2 && "Water"} baseline has been
             successfully{" "}
             {baselineDetails?.status === "CALCULATED" && "calculated"}
-            {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
+            {baselineDetails?.status === "SUBMITTED" && "verified"} on :
             {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
           </Typography>
         )}
@@ -256,6 +372,10 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       <EvModal
         modalConfig={userReviewBaselineModalConfig}
         setModalConfig={setUserReviewBaselineModalConfig}
+      />
+      <EvModal
+        modalConfig={baselineSuccessModalConfig}
+        setModalConfig={setBaselineSuccessModalConfig}
       />
     </>
   );

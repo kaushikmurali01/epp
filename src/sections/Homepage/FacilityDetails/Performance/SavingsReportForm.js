@@ -61,6 +61,7 @@ const SavingsReportForm = ({
   onDateValidation,
   isSubmitted,
   onP4PStartDatesLoaded,
+  reviewRequested
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
@@ -76,8 +77,11 @@ const SavingsReportForm = ({
     (state) => state?.adminPerformanceReducer
   );
 
-  const { calculatedPerformanceReport, performanceDataMinMaxDate } =
-    useSelector((state) => state?.performanceReducer);
+  const {
+    calculatedPerformanceReport,
+    performanceDataMinMaxDate,
+    nonRoutineEventList,
+  } = useSelector((state) => state?.performanceReducer);
 
   const [p4PStartEndDates, setP4PStartEndDates] = useState({
     startDate: null,
@@ -95,9 +99,10 @@ const SavingsReportForm = ({
       headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
       headerSubTextStyle: {
         marginTop: "1rem",
-        fontSize: { xs: "14px", md: "18px" },
+        fontSize: { xs: "14px", sm: "18px" },
         fontWeight: 600,
         color: "rgba(36, 36, 36, 1)",
+        textAlign: "center",
       },
       fotterActionStyle: "",
       modalBodyContentStyle: {
@@ -283,6 +288,10 @@ const SavingsReportForm = ({
     isSubmitted,
   ]);
 
+  useEffect(() => {
+    handleRefreshCalculation();
+  }, [nonRoutineEventList]);
+
   const handleDateChange = (newValue) => {
     if (isSubmitted) return;
     setSelectedEndDate(newValue);
@@ -451,36 +460,37 @@ const SavingsReportForm = ({
   const data = [
     {
       metric: "Pay-for-performance period",
-      value: (
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "1rem",
-          }}
-        >
-          <Tooltip title="Refresh calculation">
-            <span>
-              <IconButton
-                sx={{
-                  background: "#2e813e",
-                  color: "#FFF",
-                  ":hover": { color: "#FFF", background: "#1e6329" },
-                  transition: "all 0.3s",
-                }}
-                onClick={handleRefreshCalculation}
-                disabled={isSubmitted || selectedEndDate === null}
-              >
-                <RefreshIcon />
-              </IconButton>
-            </span>
-          </Tooltip>
-          {p4PStartEndDates?.startDate
-            ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
-            : "N/A"}
-        </Box>
-      ),
+      value: p4PStartEndDates?.startDate
+        ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
+        : "N/A",
+      // <Box
+      //   sx={{
+      //     display: "flex",
+      //     alignItems: "center",
+      //     justifyContent: "space-between",
+      //     gap: "1rem",
+      //   }}
+      // >
+      //   <Tooltip title="Refresh calculation">
+      //     <span>
+      //       <IconButton
+      //         sx={{
+      //           background: "#2e813e",
+      //           color: "#FFF",
+      //           ":hover": { color: "#FFF", background: "#1e6329" },
+      //           transition: "all 0.3s",
+      //         }}
+      //         onClick={handleRefreshCalculation}
+      //         disabled={isSubmitted || selectedEndDate === null}
+      //       >
+      //         <RefreshIcon />
+      //       </IconButton>
+      //     </span>
+      //   </Tooltip>
+      //   {p4PStartEndDates?.startDate
+      //     ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
+      //     : "N/A"}
+      // </Box>
       unit: (
         <DatePicker
           sx={{
@@ -497,7 +507,7 @@ const SavingsReportForm = ({
               ? parseISO(p4PStartEndDates.startDate)
               : null
           }
-          disabled={isSubmitted}
+          disabled={isSubmitted && !reviewRequested}
           slotProps={{
             textField: {
               readOnly: true,

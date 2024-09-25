@@ -71,8 +71,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
     );
     if (
       baselineDataStoredInDB?.user_type === 1 &&
-      (baselineDataStoredInDB?.status === "SUBMITTED" ||
-        baselineDataStoredInDB?.status === "REVIEWED" ||
+      (baselineDataStoredInDB?.status === "USER_SUBMITTED" ||
+        baselineDataStoredInDB?.status === "SUBMITTED" ||
         baselineDataStoredInDB?.status === "REQUESTED")
     ) {
       setRenderViewOnlyComp(true);
@@ -225,16 +225,18 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   };
 
   const handleSubmitFacilityStatus = (baselineStatus) => {
-    if (!facilityDetails?.is_signed && baselineStatus === "SUBMITTED") {
+    if (!facilityDetails?.is_signed && baselineStatus === "USER_SUBMITTED") {
       openBaselineSuccessModal(true);
       return;
     }
     if (activeButton) {
       const data = getSummaryDataByMeterType(baselineListData, activeButton);
       const body = { status: baselineStatus };
+      console.log(data.id, body);
+      
       dispatch(submitRejectedBaselineDB(data?.id, body))
         .then(() => {
-          if (baselineStatus === "SUBMITTED") {
+          if (baselineStatus === "USER_SUBMITTED") {
             openEnrollmentModal();
           } else {
             openSendHelpRequestModal(true);
@@ -283,7 +285,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+                onClick={() => handleSubmitFacilityStatus("USER_SUBMITTED")}
                 sx={{ alignItems: "flex-end" }}
               >
                 Submit facility
@@ -304,7 +306,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => handleSubmitFacilityStatus("SUBMITTED")}
+              onClick={() => handleSubmitFacilityStatus("USER_SUBMITTED")}
               sx={{ alignItems: "flex-end" }}
             >
               Submit facility
@@ -314,7 +316,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
           <></>
         )}
 
-        {(baselineDetails?.status === "SUBMITTED" ||
+        {(baselineDetails?.status === "USER_SUBMITTED" ||
+          baselineDetails?.status === "SUBMITTED" ||
           baselineDetails?.status === "CALCULATED") && (
           <Typography
             variant="h6"
@@ -334,8 +337,10 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
             {baselineDetails?.meter_type === 2 && "Water"} baseline has been
             successfully{" "}
             {baselineDetails?.status === "CALCULATED" && "calculated"}
-            {baselineDetails?.status === "SUBMITTED" && "submitted"} on :
-            {format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
+            {baselineDetails?.status === "USER_SUBMITTED" && "submitted"}
+            {baselineDetails?.status === "SUBMITTED" &&
+              "submitted and verified"}{" "}
+            on :{format(baselineDetails?.updated_at, "yyyy-MM-dd HH:mm:ss")}
           </Typography>
         )}
       </Grid>

@@ -108,7 +108,8 @@ const ModelConstructorForm = ({
     );
     if (
       baselineCalculated?.status === "CALCULATED" ||
-      baselineCalculated?.status === "SUBMITTED"
+      baselineCalculated?.status === "USER_SUBMITTED" ||
+      baselineCalculated?.status === "REVIEWED"
     ) {
       setCheckSufficiencyAfter(true);
       setFormData({

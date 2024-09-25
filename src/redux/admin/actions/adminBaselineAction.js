@@ -276,16 +276,19 @@ export const adminAddAssigneeToBaselineDb = (facilityId) => {
   };
 };
 
-export const submitAdminRejectedBaselineDB = (facilityId) => {
+export const submitAdminRejectedBaselineDB = (facilityId, body) => {
   return async (dispatch) => {
     try {
       dispatch(submitAdminRejectBaselineDbRequest());
       const endpointWithParams = `${BASELINE_ENDPOINTS.SUBMIT_REJECTED_BASELINE_DB}/${facilityId}`;
-      const response = await PATCH_REQUEST(endpointWithParams);
+      const response = await PATCH_REQUEST(endpointWithParams, body);
       const data = response.data;
       dispatch(submitAdminRejectBaselineDbSuccess(data));
       NotificationsToast({
-        message: "Baseline submitted successfully",
+        message:
+          body?.status === "SUBMITTED"
+            ? "Baseline approved successfully"
+            : "Baseline rejected successfully",
         type: "success",
       });
       return data;
