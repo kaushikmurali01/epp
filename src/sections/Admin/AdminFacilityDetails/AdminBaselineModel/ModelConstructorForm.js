@@ -161,14 +161,8 @@ const ModelConstructorForm = ({
       setCheckSufficiencyAfter(true);
       setFormData({
         ...baselineCalculated?.parameter_data,
-        start_date: format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        ),
-        end_date: format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        ),
+        start_date: baselineCalculated?.parameter_data?.start_date,
+        end_date: baselineCalculated?.parameter_data?.end_date,
       });
       const submittedDummyVariables = baselineCalculated?.parameter_data
         ?.dummyVariables || {
@@ -186,18 +180,8 @@ const ModelConstructorForm = ({
         hourly: { ...baselineCalculated?.parameter_data?.hourly },
         monthly: { ...baselineCalculated?.parameter_data?.monthly },
       });
-      setBaselineStartDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
-      );
-      setBaselineEndDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        )
-      );
+      setBaselineStartDate(baselineCalculated?.parameter_data?.start_date);
+      setBaselineEndDate(baselineCalculated?.parameter_data?.end_date);
     } else {
       setCheckSufficiencyAfter(false);
       const initialValues = {
@@ -232,10 +216,10 @@ const ModelConstructorForm = ({
     const myData = {
       ...values,
       facility_id: id,
-      start_date:
-        values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
-      end_date:
-        values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
+      // start_date:
+      //   values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
+      // end_date:
+      //   values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
     setActivateCalculateBaseline(true);
     setCheckSufficiencyAfter(false);

@@ -86,18 +86,14 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
         monthly: { ...initialValues?.parameter_data?.monthly },
       });
       setBaselineStartDate(
-        initialValues?.parameter_data?.start_date &&
-          format(
-            new Date(initialValues?.parameter_data?.start_date),
-            "yyyy-MM-dd"
-          )
+        initialValues?.parameter_data?.start_date
+          ? initialValues?.parameter_data?.start_date
+          : null
       );
       setBaselineEndDate(
-        initialValues?.parameter_data?.end_date &&
-          format(
-            new Date(initialValues?.parameter_data?.end_date),
-            "yyyy-MM-dd"
-          )
+        initialValues?.parameter_data?.end_date
+          ? initialValues?.parameter_data?.end_date
+          : null
       );
     }
   }, [id, meterType]);
