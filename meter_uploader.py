@@ -105,16 +105,16 @@ class Validators(CommonBase):
         meter_id = self.meter_id
         min_start = data_chunk['Start Date (Required)'].min()
         max_end = data_chunk['End Date (Required)'].max()
-        if not min_start or max_end:
+
+        if not min_start and max_end:
             return
         query = f"""
             SELECT start_date, end_date, reading FROM epp.meter_hourly_entries 
             WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' 
             AND {'independent_variable_id' if iv else 'meter_id'} = {meter_id}
-            LIMIT 1
             """
         db = dbtest(query)
-        db.rename(columns={'start_date':self.start, 'end_date':self.end, 'reading':self.reading})
+        db.rename(columns={'start_date': self.start, 'end_date': self.end, 'reading': self.reading}, inplace=True)
         merged = db.merge(data_chunk, on=[self.start, self.end, self.reading], how='left', indicator=True)
         if not merged.empty:
             raise ValueError("Excel file contains entries that overlap with existing database records.")
