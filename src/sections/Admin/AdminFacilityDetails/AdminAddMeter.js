@@ -356,7 +356,7 @@ const AdminAddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <InputField name="meter_id" label="Meter ID*" type="number" />
+                  <InputField name="meter_id" label="Meter ID*" type="text" />
                   {!touched.meter_id && (
                     <Typography variant="small" color="primary">
                       Meter number can be found on the electricity bill
