@@ -16,6 +16,7 @@ from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
+from sql_queries.graph import get_graph_query
 from sql_queries.sufficiency_queries import sufficiency_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -1013,6 +1014,25 @@ def remove_file():
     query = delete_file_query.format(table_name, record_id)
     status, response = execute_query(query)
     return {'success': status, 'response': response}
+
+
+@app.route('/get-raw-data', methods=['get'])
+def get_raw_data():
+    facility_id = request.args.get('facility_id')
+    meter_type = request.args.get('meter_type')
+    facility_id, meter_type = int(facility_id), int(meter_type)
+    from_date = request.args.get('from_date')
+    to_date = request.args.get('to_date')
+    stations = get_nearest_stations(facility_id)
+    station_ids = tuple(stations['station_id'].values)  # Ensure it's a tuple for SQL IN clause formatting
+    query = get_graph_query(facility_id, meter_type, from_date, to_date, station_ids)
+    raw_data = dbtest(query)
+    raw_data.rename(columns={'hourly_start_date': 'start_date', 'total_hourly_reading': 'readings', 'avg_temp': 'temp'},
+                    inplace=True)
+    raw_data['start_date'] = raw_data['start_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+    response = raw_data.to_dict('records')
+
+    return jsonify(response)
 
 
 if __name__ == '__main__':
