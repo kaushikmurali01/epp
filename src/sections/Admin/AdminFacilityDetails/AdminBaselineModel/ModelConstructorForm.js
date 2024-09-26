@@ -488,22 +488,17 @@ const ModelConstructorForm = ({
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
-            // Convert dates to start of day in UTC
-            const utcStartDate = startOfDay(startDate);
-            const utcEndDate = startOfDay(endDate);
-
-            // Format dates as ISO strings (YYYY-MM-DD)
-            const formattedStartDate = format(utcStartDate, "yyyy-MM-dd");
-            const formattedEndDate = format(utcEndDate, "yyyy-MM-dd");
-            setFieldValue("start_date", formattedStartDate);
-            setFieldValue("end_date", formattedEndDate);
+            console.log(startDate, endDate);
+            
+            setFieldValue("start_date", startDate);
+            setFieldValue("end_date", endDate);
             handleSubmit({
               ...values,
-              start_date: formattedStartDate,
-              end_date: formattedEndDate,
+              start_date: startDate,
+              end_date: endDate,
             });
-            setBaselineStartDate(formattedStartDate);
-            setBaselineEndDate(formattedEndDate);
+            setBaselineStartDate(startDate);
+            setBaselineEndDate(endDate);
           };
           return (
             <Form>
