@@ -115,7 +115,7 @@ SELECT
         ELSE 'Unknown' 
     END AS meter_name, 
     r.meter_id, 
-    COUNT(e.id) AS total_records, 
+    COUNT(distinct(e.start_date)) AS total_records, 
     TO_CHAR(MIN(e.start_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_start, 
     TO_CHAR(MAX(e.end_date), 'YYYY/MM/DD HH24:MI') AS time_stamp_end 
 FROM meter_hourly_entries e 
@@ -124,6 +124,7 @@ JOIN outlier_ranges r
 JOIN meter_details AS md ON md.id= e.meter_id
 WHERE 
     e.reading NOT IN ('NaN') 
+    AND e.reading > 0
     AND e.reading >= r.lower_bound 
     AND e.reading <= r.upper_bound 
     AND e.start_date >= (SELECT MAX(start_date) FROM quartiles WHERE meter_id > 0) 
@@ -170,7 +171,7 @@ WITH quartiles AS (
     FROM quartiles
 )
 SELECT 
-    start_date, 
+    distinct(start_date) as start_date, 
     end_date, 
     meter_id, 
     meter_type, 
@@ -182,6 +183,7 @@ WHERE
     AND e.reading <= (SELECT upper_bound FROM outlier_ranges) 
     AND e.is_independent_variable = {is_independent_variable} 
     AND facility_id = {facility_id} 
+    AND reading > 0 
     AND meter_id = {meter_id} 
     AND e.start_date >= (SELECT MAX(start_date) from date_range where meter_id > 0) 
 	AND e. end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0) 

@@ -910,7 +910,11 @@ def get_performance_min_max():
         min_max_df = dbtest(min_max_performance.format(facility_id, meter_type, max_data))
         min_max_df.dropna(inplace=True)
         if len(min_max_df):
-            return {'min_date': min_max_df.min_date.min(), 'max_date': min_max_df.max_date.max()}
+            return {
+                'min_date': min_max_df.min_date.min().strftime('%Y-%m-%d %H:%M:%S'),
+                'max_date': min_max_df.max_date.max().strftime('%Y-%m-%d %H:%M:%S')
+            }
+
         return jsonify({"error": "Insufficient Data"}), 404
 
     return jsonify({"error": "Insufficient Data"}), 404
