@@ -20,20 +20,20 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
       value: "ew",
     },
     {
-      label: "Weather & Independent Variables",
+      label: "Weather and Independent Variables",
       id: 3,
       type: "input",
       value: "weather_iv",
     },
     {
-      label: "Savings Plan and Document",
+      label: "Savings Plan and Documents",
       id: 4,
       type: "input",
       value: "savings",
     },
     { label: "Baseline Modeling", id: 5, type: "input", value: "baseline" },
     { label: "Performance", id: 6, type: "input", value: "performance" },
-    { label: "QA/QC Checklist", id: 7, type: "input", value: "qaqcChecklist" },
+    // { label: "QA/QC Checklist", id: 7, type: "input", value: "qaqcChecklist" },
     // { label: "Downloads", id: 8, type: "output", value: "downloads" },
   ];
 

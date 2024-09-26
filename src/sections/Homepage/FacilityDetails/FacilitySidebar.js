@@ -20,13 +20,13 @@ export default function FacilitySidebar({ selectedTab, setSelectedTab }) {
       value: "ew",
     },
     {
-      label: "Weather & Independent Variables",
+      label: "Weather and Independent Variables",
       id: 3,
       type: "input",
       value: "weather_iv",
     },
     {
-      label: "Savings Plan and Document",
+      label: "Savings Plan and Documents",
       id: 4,
       type: "input",
       value: "savings",
