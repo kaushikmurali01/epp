@@ -193,7 +193,7 @@ OFFSET ({page_number} - 1) * {page_size};
 
 
 # Missing Data
-missing_data_summary_list= "SELECT start_date, end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} and meter_id={meter_id} AND ( reading = 'NaN' OR reading IS NULL) AND is_independent_variable = {is_independent_variable} order by start_date LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size}"
+missing_data_summary_list= "SELECT start_date, end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} and meter_id={meter_id} AND ( reading = 'NaN' OR reading = 0 or reading < 0 OR reading IS NULL) AND is_independent_variable = {is_independent_variable} order by start_date LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size}"
 missing_data_summary = """WITH date_range AS (
 	SELECT  
 		meter_id, 
@@ -246,7 +246,7 @@ missing_data_summary = """WITH date_range AS (
 		meter_id 
 	FROM epp.meter_hourly_entries AS e
     JOIN meter_details AS md ON md.id= e.meter_id
-	WHERE facility_id = {facility_id} AND ( reading = 'NaN' OR reading IS NULL OR reading < 0) 
+	WHERE facility_id = {facility_id} AND ( reading = 'NaN' OR reading = 0 or reading IS NULL OR reading < 0) 
 		AND start_date >= (SELECT MAX(start_date) from date_range where meter_id > 0) 
 		AND end_date <=  (SELECT MIN(end_date) from date_range where meter_id > 0) 
 		AND is_independent_variable = {is_independent_variable}
