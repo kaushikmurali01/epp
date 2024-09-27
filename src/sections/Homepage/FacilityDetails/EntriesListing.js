@@ -820,7 +820,7 @@ const EntriesListing = ({
         dispatch(fetchFacilityStatus(id));
         setDataProcessingLoader(false);
         NotificationsToast({
-          message: "Something went wrong!",
+          message: "Uploaded data is incorrect!",
           type: "error",
         });
         setViewEntryList(res.data?.data?.rows);
