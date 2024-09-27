@@ -699,7 +699,7 @@ const Weather = () => {
           dispatch(fetchFacilityStatus(facilityData?.id))
 
           NotificationsToast({
-            message: "Something went wrong!",
+            message: "Uploaded data is incorrect!",
             type: "error",
           });
             setViewEntryList(res.data?.data?.rows);
