@@ -177,7 +177,7 @@ with RECURSIVE DateList AS (
 	from monthly_data
 ), monthsdata as (
 	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
-	FROM DateList
+	FROM DateList where month_start between '{start_date}' and '{end_date}'
 ), percentage_query as (
 select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
 from monthly_per group by month_year, month order by mm asc
