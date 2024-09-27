@@ -3,7 +3,7 @@ export interface IFacilityMeterDetailAttributes {
     facility_id: number;
     meter_name?: string | null;
     meter_type?: number | null; // 1 => electricity, 2 => natural gas, 3 => water
-    meter_id?: number | null;
+    meter_id?: string | null;
     meter_active?: Date | null;
     meter_inactive?: Date | null;
     stil_in_use?: boolean | null;

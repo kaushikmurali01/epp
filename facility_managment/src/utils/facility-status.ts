@@ -41,6 +41,11 @@ export const FACILITY_TYPE = {
   CUSTOMER: 1,
   AGGREGATOR: 2,
 };
+export const PERFORMANCE_TYPE = {
+  P4P1: 1,
+  P4P2: 2,
+  P4P3: 2,
+};
 
 export const FACILITY_CONSTRUCTION_STATUS = {
   EXISTING: 1,

@@ -141,11 +141,7 @@ export class FacilityMeterService {
           facility_id: findFacilityId.facility_id,
           meter_type: findFacilityId.meter_type,
           status: {
-            [Op.in]: [
-              BASE_LINE_STATUS.created,
-              BASE_LINE_STATUS.requested,
-              BASE_LINE_STATUS.submit,
-            ],
+            [Op.in]: [BASE_LINE_STATUS.created, BASE_LINE_STATUS.submit],
           },
         },
       });
@@ -182,7 +178,10 @@ export class FacilityMeterService {
       );
       await MeterHourlyEntries.destroy({ where: { meter_id: id } });
       let findMeterEntries = await MeterHourlyEntries.findOne({
-        where: { facility_id: findFacilityId.facility_id },
+        where: {
+          facility_id: findFacilityId.facility_id,
+          is_independent_variable: { [Op.notIn]: [true] },
+        },
       });
       if (!findMeterEntries) {
         await Workflow.update(

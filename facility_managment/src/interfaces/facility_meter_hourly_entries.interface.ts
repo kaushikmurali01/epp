@@ -2,7 +2,7 @@ export interface IFacilityMeterHourlyEntriesAttributes {
     id: number;
     facility_id: number;
     facility_meter_detail_id?: number | null;
-    meter_id?: number | null;
+    meter_id?: string | null;
     year?: number | null;
     month?: number | null;
     usage?: number | null;

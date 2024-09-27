@@ -10,7 +10,7 @@ class FacilityMeterDetail extends Model<IFacilityMeterDetailAttributes, Facility
     public facility_id!: number;
     public meter_name?: string | null;
     public meter_type?: number | null;
-    public meter_id?: number | null;
+    public meter_id?: string | null;
     public meter_active?: Date | null;
     public meter_inactive?: Date | null;
     public stil_in_use?: boolean | null;
@@ -47,7 +47,7 @@ FacilityMeterDetail.init(
             allowNull: true,
         },
         meter_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: true,
         },
         meter_active: {

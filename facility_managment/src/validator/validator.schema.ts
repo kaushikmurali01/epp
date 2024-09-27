@@ -37,7 +37,7 @@ export const addMeterSchema = Yup.object({
   facility_id: Yup.number().required(),
   meter_name: Yup.string().nullable(),
   meter_type: Yup.number().nullable(),
-  meter_id: Yup.number().nullable(),
+  meter_id: Yup.string().nullable(),
   meter_active: Yup.date().nullable(),
   meter_inactive: Yup.date().nullable(),
   stil_in_use: Yup.boolean().nullable(),
@@ -49,7 +49,7 @@ export const addMeterSchema = Yup.object({
 export const editMeterSchema = Yup.object({
   meter_name: Yup.string().nullable(),
   meter_type: Yup.number().nullable(),
-  meter_id: Yup.number().nullable(),
+  meter_id: Yup.string().nullable(),
   meter_active: Yup.date().nullable(),
   meter_inactive: Yup.date().nullable(),
   stil_in_use: Yup.boolean().nullable(),

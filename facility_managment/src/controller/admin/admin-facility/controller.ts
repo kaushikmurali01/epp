@@ -140,7 +140,8 @@ export class AdminFacilityController {
     try {
       const result = await AdminFacilityService.createFacility(
         Object(decodedToken),
-        body
+        decodedToken,
+        body,
       );
       return result;
     } catch (error) {
@@ -168,7 +169,8 @@ export class AdminFacilityController {
       const result = await AdminFacilityService.editFacility(
         Object(decodedToken),
         Object(requestData),
-        Number(event.params.id)
+        Number(event.params.id),
+        decodedToken
       );
       return result;
     } catch (error) {

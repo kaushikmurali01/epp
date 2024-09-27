@@ -183,7 +183,8 @@ export class FacilityController {
     try {
       const result = await FacilityService.createFacility(
         Object(decodedToken),
-        body
+        body,
+        decodeToken
       );
       return result;
     } catch (error) {

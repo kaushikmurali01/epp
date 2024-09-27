@@ -2,7 +2,7 @@ export interface IFacilityMeterMonthlyEntriesAttributes {
     id: number;
     facility_id: number;
     facility_meter_detail_id?: number | null;
-    meter_id?: number | null;
+    meter_id?: string | null;
     year?: number | null;
     start_date?: Date | null;
     end_date?: Date | null;

@@ -20,6 +20,7 @@ interface IMeterHourlyEntriesAttributes {
   facility_id?: number;
   is_active?: boolean;
   reading?: number;
+  reading_og?: number;
 }
 
 interface MeterHourlyEntriesCreationAttributes
@@ -35,6 +36,7 @@ class MeterHourlyEntries
   public id!: number;
   public start_date!: Date;
   public end_date!: Date;
+  public reading_og?: number;
   public meter_id!: number;
   public independent_variable_id?: number;
   public meter_type!: number;
@@ -103,6 +105,9 @@ MeterHourlyEntries.init(
       defaultValue: true,
     },
     reading: {
+      type: DataTypes.FLOAT,
+    },
+    reading_og: {
       type: DataTypes.FLOAT,
     },
   },

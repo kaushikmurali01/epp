@@ -9,7 +9,7 @@ class FacilityMeterMonthlyEntries extends Model<IFacilityMeterMonthlyEntriesAttr
     public id!: number;
     public facility_id!: number;
     public facility_meter_detail_id?: number | null;
-    public meter_id?: number | null;
+    public meter_id?: string | null;
     public year?: number | null;
     public start_date?: Date | null;
     public end_date?: Date | null;
@@ -40,7 +40,7 @@ FacilityMeterMonthlyEntries.init(
             allowNull: true,
         },
         meter_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: true,
         },
         year: {

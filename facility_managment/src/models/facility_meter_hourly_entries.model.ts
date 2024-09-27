@@ -12,7 +12,7 @@ class FacilityMeterHourlyEntries
   public id!: number;
   public facility_id!: number;
   public facility_meter_detail_id!: number | null;
-  public meter_id!: number | null;
+  public meter_id!: string | null;
   public year!: number | null;
   public month!: number | null;
   public usage!: number | null;
@@ -43,7 +43,7 @@ FacilityMeterHourlyEntries.init(
       allowNull: true,
     },
     meter_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     year: {

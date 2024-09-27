@@ -60,7 +60,7 @@ export class FacilityMeterHourlyEntriesService {
       const obj = {
         facility_id: body.facility_id,
         facility_meter_detail_id: body.facility_meter_detail_id,
-        meter_id: body.meter_id,
+        meter_id: body.meter_id as any,
         year: body.year,
         month: body.month,
         media_url: body.media_url,
@@ -105,7 +105,7 @@ export class FacilityMeterHourlyEntriesService {
       const obj = {
         facility_id: body.facility_id,
         facility_meter_detail_id: body.facility_meter_detail_id,
-        meter_id: body.meter_id,
+        meter_id: body.meter_id as any,
         year: body.year,
         month: body.month,
         media_url: body.media_url,

@@ -36,7 +36,7 @@ export class FacilityMeterHourlyEntriesController {
    * @returns {string} response_message - API Response Message
    * @returns {object[]} response_data - API Response Data
    */
- static async addNewHourlyEntry (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<FacilityMeterMonthlyEntries[]> {
+ static async addNewHourlyEntry (decodedToken:IUserToken, event:HttpRequest, body:IBaseInterface): Promise<object> {
   try {
     const result = await FacilityMeterHourlyEntriesService.createNewMeterEntry(Object(decodedToken), body);
     return result

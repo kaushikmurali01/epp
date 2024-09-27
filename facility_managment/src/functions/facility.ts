@@ -24,7 +24,10 @@ import { EmailController } from "../controller/sentEmail/controller";
 import { FacilityNonRoutineEventController } from "../controller/facility_non_routine_event/controller";
 import { ContactController } from "../controller/contact/controller";
 import { Facility } from "../models/facility.model";
-import { FACILITY_ID_GENERAL_STATUS } from "../utils/facility-status";
+import {
+  FACILITY_ID_GENERAL_STATUS,
+  FACILITY_ID_SUBMISSION_STATUS,
+} from "../utils/facility-status";
 import { object } from "yup";
 
 // Facility User CRUD
@@ -2731,6 +2734,8 @@ export async function upsertIncentiveSettings(
       {
         facility_id_general_status:
           FACILITY_ID_GENERAL_STATUS.ACCEPT_FACILITY_ENROLLEMNT,
+        facility_id_submission_status:
+          FACILITY_ID_SUBMISSION_STATUS.APPLICATION_APPROVED,
       },
       { where: { id: facilityId } }
     );

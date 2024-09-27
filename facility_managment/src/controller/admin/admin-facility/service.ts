@@ -33,6 +33,7 @@ import { UserResourceFacilityPermission } from "../../../models/user-resource-pe
 import { Baseline } from "../../../models/facility_baseline.model";
 import { Workflow } from "../../../models/workflow.model";
 import { FacilityThreshold } from "../../../models/facility_threshold.model";
+import axios from "axios";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -188,6 +189,7 @@ export class AdminFacilityService {
 
   static async createFacility(
     userToken: IUserToken,
+    decodedToken: any,
     body: IBaseInterface
   ): Promise<Facility[]> {
     try {
@@ -278,6 +280,17 @@ export class AdminFacilityService {
       await Baseline.create(meter_type1);
       await Baseline.create(meter_type2);
       await Baseline.create(meter_type3);
+
+      axios.post(
+        `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
+        { facility_id: result.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: decodedToken,
+          },
+        }
+      );
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -291,7 +304,8 @@ export class AdminFacilityService {
   static async editFacility(
     userToken: IUserToken,
     body: IBaseInterface,
-    facilityId: number
+    facilityId: number,
+    decodedToken: any
   ): Promise<Facility[]> {
     try {
       let checkFacility = await Facility.findOne({ where: { id: facilityId } });
@@ -388,6 +402,16 @@ export class AdminFacilityService {
         await Baseline.create(meter_type1);
         await Baseline.create(meter_type2);
         await Baseline.create(meter_type3);
+        axios.post(
+          `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
+          { facility_id: result.id },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: decodedToken,
+            },
+          }
+        );
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
@@ -693,7 +717,7 @@ export class AdminFacilityService {
             c.id AS company_id,
             bm.id AS baseline_id,
             c.company_name
-               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               from facility f inner join baseline_model bm on bm.facility_id=f.id and bm.status not in ('DRAFT')
                left join users u on u.id = bm.created_by 
                left join company c ON f.company_id = c.id
                left join users usp ON bm.assign_to = usp.id
@@ -710,7 +734,7 @@ export class AdminFacilityService {
             c.id AS company_id,
             bm.id AS baseline_id,
             c.company_name
-               from facility f inner join baseline_model bm on bm.facility_id=f.id 
+               from facility f inner join baseline_model bm on bm.facility_id=f.id and bm.status not in ('DRAFT')
                left join users u on u.id = bm.created_by 
                left join company c ON f.company_id = c.id
                left join users usp ON bm.assign_to = usp.id 

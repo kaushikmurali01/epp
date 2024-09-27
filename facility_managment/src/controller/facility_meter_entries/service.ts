@@ -31,7 +31,7 @@ export class FacilityMeterEntriesService {
         const obj = {
             facility_id: body.facility_id,
             facility_meter_detail_id: body.facility_meter_detail_id,
-            meter_id: body.meter_id,
+            meter_id: body.meter_id as any,
             year: body.year,
             start_date: body.start_date,
             end_date: body.end_date,
@@ -57,7 +57,7 @@ export class FacilityMeterEntriesService {
     try {
       const obj = {
         facility_meter_detail_id: body.facility_meter_detail_id,
-        meter_id: body.meter_id,
+        meter_id: body.meter_id as any,
         year: body.year,
         start_date: body.start_date,
         end_date: body.end_date,

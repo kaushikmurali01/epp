@@ -7,6 +7,7 @@ import {
   FACILITY_THRESHOLD,
   HTTP_STATUS_CODES,
   PERFORMANCE_STATUS,
+  PERFORMANCE_TYPE,
   RESPONSE_MESSAGES,
   STATUS,
   userType,
@@ -46,6 +47,7 @@ import { IncentiveSettings } from "../../models/incentiveSettings.model";
 import { Json } from "sequelize/types/utils";
 import { FacilityChecklist } from "../../models/facility_checklist.model";
 import { MasterChecklist } from "../../models/master_checklist.model";
+import axios from "axios";
 
 export class FacilityService {
   static async getFacility(
@@ -585,7 +587,8 @@ ORDER BY
 
   static async createFacility(
     userToken: IUserToken,
-    body: IBaseInterface
+    body: IBaseInterface,
+    decodedToken: any
   ): Promise<Facility[]> {
     try {
       const obj = {
@@ -682,6 +685,16 @@ ORDER BY
       await Baseline.create(meter_type1);
       await Baseline.create(meter_type2);
       await Baseline.create(meter_type3);
+      axios.post(
+        `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
+        { facility_id: result.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: decodedToken,
+          },
+        }
+      );
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -805,6 +818,20 @@ ORDER BY
           where: { id: findExist.id },
         });
       }
+      let status = FACILITY_ID_SUBMISSION_STATUS.P4P_1ST_PENDING;
+      if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
+        status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_1ST;
+      } else if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
+        status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_2ND;
+      } else {
+        status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_3RD;
+      }
+      await Facility.update(
+        {
+          facility_id_submission_status: status,
+        },
+        { where: { id: facility_id } }
+      );
       await Workflow.update(
         { performance: true },
         { where: { facility_id: facility_id } }
@@ -909,12 +936,22 @@ ORDER BY
           {
             facility_id_general_status:
               FACILITY_ID_GENERAL_STATUS.SUBMIT_FACILITY,
+            facility_id_submission_status:
+              FACILITY_ID_SUBMISSION_STATUS.SUBMITTED,
           },
           { where: { id: findBaseline.facility_id } }
         );
         await Workflow.update(
           { baseline: true },
           { where: { facility_id: findBaseline.facility_id } }
+        );
+      } else {
+        await Facility.update(
+          {
+            facility_id_submission_status:
+              FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW,
+          },
+          { where: { id: findBaseline.facility_id } }
         );
       }
       const result = await Baseline.update(obj, { where: { id } });
@@ -1078,35 +1115,32 @@ ORDER BY
         where: {
           facility_id: facilityId,
           status: {
-            [Op.in]: [
-              BASE_LINE_STATUS.created,
-              BASE_LINE_STATUS.requested,
-              BASE_LINE_STATUS.submit,
-            ],
+            [Op.in]: [BASE_LINE_STATUS.created, BASE_LINE_STATUS.submit],
           },
         },
       });
       if (findBaseline && findBaseline.id) {
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.RECORD_NOT_FOUND,
-          RESPONSE_MESSAGES.cantDelete
+          RESPONSE_MESSAGES.cantDeleteFacility
+        );
+        return resp;
+      } else {
+        const result = await Facility.update(
+          { is_active: STATUS.IS_DELETED },
+          { where: { id: facilityId } }
+        );
+        // when facility is deleted then its also remove from assign facility from user
+        await UserResourceFacilityPermission.destroy({
+          where: { facility_id: facilityId },
+        });
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
         );
         return resp;
       }
-      const result = await Facility.update(
-        { is_active: STATUS.IS_DELETED },
-        { where: { id: facilityId } }
-      );
-      // when facility is deleted then its also remove from assign facility from user
-      await UserResourceFacilityPermission.destroy({
-        where: { facility_id: facilityId },
-      });
-      const resp = ResponseHandler.getResponse(
-        HTTP_STATUS_CODES.SUCCESS,
-        RESPONSE_MESSAGES.Success,
-        result
-      );
-      return resp;
     } catch (error) {
       throw error;
     }

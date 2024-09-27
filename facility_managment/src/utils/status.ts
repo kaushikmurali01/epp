@@ -1,4 +1,3 @@
-import { verify } from "crypto";
 
 export const HTTP_STATUS_CODES = {
   SUCCESS: 200,
@@ -29,6 +28,7 @@ export const RESPONSE_MESSAGES = {
   accountNotFound: "Sorry not able to fetch the account",
   notFound404: "Sorry not able to fetch the details",
   cantDelete: "Sorry, can not delete this meter.",
+  cantDeleteFacility: "Sorry, can not delete this Facility.",
   wrongPassword: "Incorrect Password",
   pUpdated: "Password Updated Successfully",
   prUpdated: "Profile Updated Successfully",
