@@ -214,7 +214,6 @@ def get_sufficiency():
     sufficiencies_hourly_query = sufficiencies_hourly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
     sufficiency_daily_query = sufficiency_daily.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
     sufficiencies_monthly_query = sufficiencies_monthly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-
     sufficiencies_hourly_df = dbtest(sufficiencies_hourly_query)
     sufficiency_daily_df = dbtest(sufficiency_daily_query)
     sufficiencies_monthly_df = dbtest(sufficiencies_monthly_query)

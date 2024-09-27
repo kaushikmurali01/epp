@@ -137,7 +137,13 @@ with daily_data AS (
 select cast(avg(daily_percentage) as decimal(10,2))  as percentage   from daily_sufficiency_percentage
 """
 sufficiencies_monthly = """
-with monthly_data AS (
+with RECURSIVE DateList AS (
+    SELECT '{start_date}'::DATE AS month_start
+    UNION ALL
+    SELECT (month_start + INTERVAL '1 month')::DATE
+    FROM DateList
+    WHERE month_start < '{end_date}'::DATE
+), monthly_data AS (
     SELECT
         meter_id,
         meter_name,
@@ -158,9 +164,24 @@ with monthly_data AS (
 		month, 
 		days_in_month, 
 		TRIM(TO_CHAR(month, 'Month')) || ' ' || TO_CHAR(month, 'YYYY') AS month_year,
-		DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) AS totoal_days,
-		days_in_month*100/DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) as perecnt
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::integer 
+            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+        END AS totoal_days,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/TO_CHAR('{end_date}'::date, 'dd')::integer 
+            ELSE days_in_month*100/DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+        END AS perecnt
 	from monthly_data
+), monthsdata as (
+	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
+	FROM DateList
+), percentage_query as (
+select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
+from monthly_per group by month_year, month order by mm asc
 )
-select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm from monthly_per group by month_year, month order by month asc
+select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
+
 """
