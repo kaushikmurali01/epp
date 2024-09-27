@@ -88,7 +88,6 @@ class DataExplorationSummaryV2:
         if self.meter_name == '104':
             if  (self.start_date == None and self.end_date == None) :
                 query = daterangequery.format(facility_id = self.facility_id)
-                print(query)
                 dateRangeData = dbtest(query)
                 self.start_date  = dateRangeData['start_date'].tolist()[0] 
                 self.end_date = dateRangeData['end_date'].tolist()[0]
