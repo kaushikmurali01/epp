@@ -329,7 +329,7 @@ def get_monthly_sufficiency(start_date, end_date, sufficiency_data):
 
 
 def get_status(sufficiency):
-    return "passed" if sufficiency >= 90 else "failed"
+    return "passed" if sufficiency > 90 else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
