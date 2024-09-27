@@ -614,9 +614,9 @@ const Weather = () => {
          
           if(getUploadResultData.data?.status_code === 201){
               await getHourlyEntriesData("processingLoader");
+              clearInterval(checkInterval);
               setDataProcessingLoader(false);
               sessionStorage.removeItem(meterIdKey);
-              clearInterval(checkInterval);
               dispatch(fetchFacilityStatus(facilityData?.id))
               // if (response.data?.data?.rows?.length > 0) {
               //   // Data is retrieved successfully, stop polling
@@ -699,7 +699,7 @@ const Weather = () => {
           dispatch(fetchFacilityStatus(facilityData?.id))
 
           NotificationsToast({
-            message: "Something went wrong!",
+            message: "Uploaded data is incorrect!",
             type: "error",
           });
             setViewEntryList(res.data?.data?.rows);
