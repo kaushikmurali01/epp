@@ -684,14 +684,19 @@ const EntriesListing = ({
           );
 
           if (getUploadResultData.data?.status_code === 201) {
-            const response = await getHourlyEntriesData("processingLoader");
-            if (response.data?.data?.rows?.length > 0) {
-              // Data is retrieved successfully, stop polling
-              setDataProcessingLoader(false);
-              sessionStorage.removeItem(meterIdKey);
-              clearInterval(checkInterval);
-              dispatch(fetchFacilityStatus(id));
-            }
+            clearInterval(checkInterval);
+            await getHourlyEntriesData("processingLoader");
+            setDataProcessingLoader(false);
+            sessionStorage.removeItem(meterIdKey);
+            dispatch(fetchFacilityStatus(id));
+            // console.log(response, "response data check....")
+            // if (response.data?.data?.rows?.length > 0) {
+            //   // Data is retrieved successfully, stop polling
+            //   setDataProcessingLoader(false);
+            //   sessionStorage.removeItem(meterIdKey);
+             
+            //   dispatch(fetchFacilityStatus(id));
+            // }
           } else if (getUploadResultData.data?.status_code === 400) {
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
@@ -795,6 +800,7 @@ const EntriesListing = ({
 
     try {
       const res = await POST_REQUEST(apiURL, payload);
+      setDataProcessingLoader(false);
       if (
         res.data?.data?.rows instanceof Array &&
         res.data?.data?.rows?.length > 0
@@ -807,10 +813,29 @@ const EntriesListing = ({
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
+      // remove dataProcessingLoader if it is active
+      if (loader === "processingLoader" && res.data?.data?.rows?.length === 0) {
+       
+        sessionStorage.removeItem(meterIdKey);
+        dispatch(fetchFacilityStatus(id));
+        setDataProcessingLoader(false);
+        NotificationsToast({
+          message: "Something went wrong!",
+          type: "error",
+        });
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+      }
 
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       return res; // Return the response for polling check
     } catch (error) {
+      
+      // remove dataProcessingLoader if it is active
+      setDataProcessingLoader(false);
+      sessionStorage.removeItem(meterIdKey);
+      dispatch(fetchFacilityStatus(id));
+
       console.log(error);
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       throw error; // Throw the error to be caught in polling
