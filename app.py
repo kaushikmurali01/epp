@@ -220,12 +220,17 @@ def get_sufficiency():
     sufficiencies_monthly_df_sorted = sufficiencies_monthly_df.sort_values(by='mm')
     # Calculate sufficiency percentages
     #hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
+    monthley_sufficiency =sufficiencies_monthly_df['value'].tolist()
+    monthley_sufficiency_pass= round(sufficiencies_monthly_df['value'].mean(), 2)
+    for a in monthley_sufficiency:
+        if(a < 90):
+            monthley_sufficiency_pass = 10
     response = {
         "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0])},
         "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0])},
         "monthly": {
-            "sufficiency":round(sufficiencies_monthly_df['value'].mean(), 2) ,
-            "status": get_status(round(sufficiencies_monthly_df['value'].mean(), 2)),
+            "sufficiency": monthley_sufficiency_pass,
+            "status": get_status(monthley_sufficiency_pass),
             "data": sufficiencies_monthly_df_sorted[['value', 'month']].to_dict(orient='records')
         }
     }
