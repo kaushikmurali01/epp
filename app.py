@@ -17,7 +17,7 @@ from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
-from sql_queries.sufficiency_queries import sufficiency_query
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -210,21 +210,25 @@ def get_sufficiency():
         IVs) > 0 else "AND  is_independent_variable = false"
 
     # Modify the query with the provided parameters
-    formatted_query = sufficiency_query.format(start_date=s_d, end_date=e_d, end_date_one=end_date + timedelta(days=1),
-                                               facility_id=facility_id, IVids=IVids)
-    df = dbtest(formatted_query)
+
+    sufficiencies_hourly_query = sufficiencies_hourly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiency_daily_query = sufficiency_daily.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_monthly_query = sufficiencies_monthly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_hourly_df = dbtest(sufficiencies_hourly_query)
+    sufficiency_daily_df = dbtest(sufficiency_daily_query)
+    sufficiencies_monthly_df = dbtest(sufficiencies_monthly_query)
+    sufficiencies_monthly_df_sorted = sufficiencies_monthly_df.sort_values(by='mm')
     # Calculate sufficiency percentages
-    hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
+    #hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
     response = {
-        "daily": {"sufficiency": round(daily, 2) if round(daily, 2) <= 100 else 100, "status": get_status(daily)},
-        "hourly": {"sufficiency": round(hourly, 2) if round(hourly, 2) <= 100 else 100, "status": get_status(hourly)},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0])},
+        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0])},
         "monthly": {
-            "sufficiency": round(monthly, 2) if round(monthly, 2) <= 100 else 100,
-            "status": get_status(monthly),
-            "data": monthly_data
+            "sufficiency":round(sufficiencies_monthly_df['value'].mean(), 2) ,
+            "status": get_status(round(sufficiencies_monthly_df['value'].mean(), 2)),
+            "data": sufficiencies_monthly_df_sorted[['value', 'month']].to_dict(orient='records')
         }
     }
-
     return jsonify(response)
 
 

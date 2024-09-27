@@ -81,3 +81,107 @@ FROM hourly_sufficiency h
 FULL OUTER JOIN daily_sufficiency d USING (meter_id, meter_name)
 FULL OUTER JOIN monthly_sufficiency m USING (meter_id, meter_name)
 ORDER BY meter_id"""
+
+sufficiencies_hourly = """ 
+WITH hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('hour', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
+	AND reading > 0 {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
+	order by  hour
+), hourly_sufficiency_percentage AS (
+	SELECT 
+		h.meter_id,
+		h.meter_name,
+		count(h.hourly_count),
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 3600)) * 100 AS hourly_percentage
+	FROM hourly_data h
+	where hourly_count > 0
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+)
+select cast(avg(hourly_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
+"""
+sufficiency_daily = """ 
+with daily_data AS (
+	SELECT
+		meter_id,
+		meter_name,
+		facility_id,
+		date_trunc('day', start_date) AS day,
+		COUNT(id) AS daily_count
+	FROM epp.meter_hourly_entries
+	WHERE facility_id = {facility_id} and reading > 0 
+		AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
+         {IVids}
+	GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
+	order by day 
+), daily_sufficiency_percentage AS (
+	SELECT 
+		d.meter_id,
+		d.meter_name,
+		count(d.daily_count),
+		(count(d.daily_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 86400)) * 100 AS daily_percentage
+	FROM daily_data d
+	where daily_count > 0
+	GROUP BY d.meter_id, d.meter_name
+	ORDER BY d.meter_id
+)
+select cast(avg(daily_percentage) as decimal(10,2))  as percentage   from daily_sufficiency_percentage
+"""
+sufficiencies_monthly = """
+with RECURSIVE DateList AS (
+    SELECT '{start_date}'::DATE AS month_start
+    UNION ALL
+    SELECT (month_start + INTERVAL '1 month')::DATE
+    FROM DateList
+    WHERE month_start < '{end_date}'::DATE
+), monthly_data AS (
+    SELECT
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('month', start_date) AS month,
+        COUNT(DISTINCT date_trunc('day', start_date)) AS days_in_month,
+        COUNT(reading) AS monthly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
+     AND reading > 0
+     {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('month', start_date)
+), monthly_per as(
+	select 
+		meter_id, 
+		meter_name, 
+		month, 
+		days_in_month, 
+		TRIM(TO_CHAR(month, 'Month')) || ' ' || TO_CHAR(month, 'YYYY') AS month_year,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::integer 
+            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+        END AS totoal_days,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/TO_CHAR('{end_date}'::date, 'dd')::integer 
+            ELSE days_in_month*100/DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+        END AS perecnt
+	from monthly_data
+), monthsdata as (
+	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
+	FROM DateList
+), percentage_query as (
+select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
+from monthly_per group by month_year, month order by mm asc
+)
+select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
+
+"""
