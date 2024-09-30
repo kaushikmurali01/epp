@@ -110,6 +110,33 @@ WITH hourly_data AS (
 select cast(avg(hourly_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
 """
 sufficiency_daily = """ 
+WITH hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('day', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
+	AND reading > 0 {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
+	order by  hour
+), hourly_sufficiency_percentage AS (
+	SELECT 
+		h.meter_id,
+		h.meter_name,
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 86400)) * 100 AS daily_percentage
+	FROM hourly_data h
+	where hourly_count >=24
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+)
+select cast(avg(daily_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
+"""
+
+sufficiency_daily_old = """ 
 with daily_data AS (
 	SELECT
 		meter_id,
