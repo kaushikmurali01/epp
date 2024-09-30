@@ -201,7 +201,7 @@ with RECURSIVE DateList AS (
             WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/TO_CHAR('{end_date}'::date, 'dd')::integer 
             ELSE days_in_month*100/DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
         END AS perecnt
-	from monthly_data
+	from monthly_data where monthly_count>=24
 ), monthsdata as (
 	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
 	FROM DateList where month_start between '{start_date}' and '{end_date}'
