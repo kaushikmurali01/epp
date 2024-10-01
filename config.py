@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import os
-dotenv_path = '/Users/rohangarg/Documents/Enerva/CALTRACK_dev/.env'
+dotenv_path = '/datadrive/environment_variable/.env'
 load_dotenv(dotenv_path)
 # load_dotenv()
 
@@ -12,7 +12,7 @@ SSH_IP = os.getenv('SSH_IP')
 SSH_USER = os.getenv('SSH_USER')
 DB_HOST = os.getenv('DB_HOST')
 LOCAL_HOST = os.getenv('LOCAL_HOST')
-LOCAL = os.getenv('IS_LOCAL')
+LOCAL = False
 PORT = os.getenv('PORT')
 ACCOUNT_NAME = os.getenv('ACCOUNT_NAME')
 STORAGE_ACCOUNT_KEY = os.getenv('STORAGE_ACCOUNT_KEY')

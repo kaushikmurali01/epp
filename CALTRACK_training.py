@@ -72,10 +72,10 @@ class EnergyModel:
         df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='mixed')
         
         # Localize the Timestamp to EST
-        # try:
-        #     df['Timestamp'] = df['Timestamp'].apply(lambda x: est_offset.localize(x))
-        # except:
-        #     pass
+        try:
+            df['Timestamp'] = df['Timestamp'].apply(lambda x: est_offset.localize(x))
+        except:
+            pass
 
         # OAT column identification and data preparation
         filtered_df = df
