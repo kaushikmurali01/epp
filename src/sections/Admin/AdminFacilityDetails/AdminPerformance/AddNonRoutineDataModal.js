@@ -59,6 +59,7 @@ const AddNonRoutineDataModal = ({
   );
 
   const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
     const date = parseISO(dateString);
     const localDate = new Date(
       date.getTime() + new Date().getTimezoneOffset() * 60000

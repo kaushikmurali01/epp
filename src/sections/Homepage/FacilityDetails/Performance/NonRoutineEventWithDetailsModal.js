@@ -27,6 +27,7 @@ useEffect(() => {
 }, [dispatch, eventId, facility_id, meter_type]);
 
 const formatDateToLocal = (dateString) => {
+  if (!dateString) return;
   const date = parseISO(dateString);
   const localDate = new Date(
     date.getTime() + new Date().getTimezoneOffset() * 60000
@@ -100,8 +101,8 @@ const getUploadedFiles = () => {
               Event period
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {formatDate(nonRoutineEventDetails.event_from_period)} to{" "}
-              {formatDate(nonRoutineEventDetails.event_to_period)}
+              {formatDateToLocal(nonRoutineEventDetails.event_from_period)} to{" "}
+              {formatDateToLocal(nonRoutineEventDetails.event_to_period)}
             </Typography>
           </Grid>
           <Grid item>

@@ -31,6 +31,7 @@ const NonRoutineEventWithDetailsModal = ({
   }, [dispatch, eventId, facility_id, meter_type]);
 
   const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
     const date = parseISO(dateString);
     const localDate = new Date(
       date.getTime() + new Date().getTimezoneOffset() * 60000
@@ -40,12 +41,12 @@ const NonRoutineEventWithDetailsModal = ({
  
   const getUploadedFiles = () => {
     if (
-      adminNonRoutineEventDetails.dataEntries &&
-      adminNonRoutineEventDetails.dataEntries.length > 0
+      adminNonRoutineEventDetails?.dataEntries &&
+      adminNonRoutineEventDetails?.dataEntries.length > 0
     ) {
-      const firstEntry = adminNonRoutineEventDetails.dataEntries[0];
+      const firstEntry = adminNonRoutineEventDetails?.dataEntries[0];
       if (firstEntry.type === 2) {
-        return adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
+        return adminNonRoutineEventDetails?.dataEntries.map((entry, index) => {
           const extension = entry.file_url
             .split("/")
             .pop()
@@ -110,7 +111,6 @@ const NonRoutineEventWithDetailsModal = ({
             >
               Event period
             </Typography>
-            {adminNonRoutineEventDetails && (
               <Typography
                 sx={{ fontSize: "14px !important", color: "#242424" }}
               >
@@ -122,7 +122,6 @@ const NonRoutineEventWithDetailsModal = ({
                   adminNonRoutineEventDetails?.event_to_period
                 )}
               </Typography>
-            )}
           </Grid>
           <Grid item>
             <Typography
