@@ -685,7 +685,7 @@ ORDER BY
       await Baseline.create(meter_type1);
       await Baseline.create(meter_type2);
       await Baseline.create(meter_type3);
-      axios.post(
+      let python_response = await axios.post(
         `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
         { facility_id: result.id },
         {
@@ -695,6 +695,7 @@ ORDER BY
           },
         }
       );
+      console.log(python_response.data);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,

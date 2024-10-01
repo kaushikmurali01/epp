@@ -473,7 +473,7 @@ export async function createNewFacility(
     // Get all result
     const result = await FacilityController.createNewFacility(
       decodedToken,
-      request,
+      request.headers.get("Authorization"),
       Object(requestData)
     );
 
@@ -2282,7 +2282,8 @@ export async function adminEditFacilityDetailsById(
     // Get all result
     const facility = await AdminFacilityController.editFacilityDetailsById(
       decodedToken,
-      request
+      request,
+      request.headers.get("Authorization"),
     );
 
     // Prepare response body
@@ -2334,11 +2335,10 @@ export async function adminCreateNewFacility(
     );
 
     const requestData = await request.json();
-
     // Get all result
     const result = await AdminFacilityController.createNewFacility(
       decodedToken,
-      request,
+      request.headers.get("Authorization"),
       Object(requestData)
     );
 

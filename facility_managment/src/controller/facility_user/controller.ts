@@ -177,14 +177,14 @@ export class FacilityController {
    */
   static async createNewFacility(
     decodedToken: IUserToken,
-    event: HttpRequest,
+    token: any,
     body: IBaseInterface
   ): Promise<Facility[]> {
     try {
       const result = await FacilityService.createFacility(
         Object(decodedToken),
         body,
-        decodeToken
+        token
       );
       return result;
     } catch (error) {

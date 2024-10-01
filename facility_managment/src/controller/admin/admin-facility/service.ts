@@ -281,7 +281,18 @@ export class AdminFacilityService {
       await Baseline.create(meter_type2);
       await Baseline.create(meter_type3);
 
-      axios.post(
+      console.log(
+        `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
+        { facility_id: result.id },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: decodedToken,
+          },
+        },"check request")
+
+
+      let python_response = await axios.post(
         `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
         { facility_id: result.id },
         {
@@ -291,6 +302,7 @@ export class AdminFacilityService {
           },
         }
       );
+      console.log(python_response.data);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -402,7 +414,7 @@ export class AdminFacilityService {
         await Baseline.create(meter_type1);
         await Baseline.create(meter_type2);
         await Baseline.create(meter_type3);
-        axios.post(
+        let python_response = await axios.post(
           `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
           { facility_id: result.id },
           {
@@ -412,6 +424,7 @@ export class AdminFacilityService {
             },
           }
         );
+        console.log(python_response.data);
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
@@ -473,6 +486,7 @@ export class AdminFacilityService {
         return resp;
       }
     } catch (error) {
+      console.log(error, "error");
       throw error;
     }
   }

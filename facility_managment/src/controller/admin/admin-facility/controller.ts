@@ -134,14 +134,14 @@ export class AdminFacilityController {
    */
   static async createNewFacility(
     decodedToken: IUserToken,
-    event: HttpRequest,
+    token: any,
     body: IBaseInterface
   ): Promise<Facility[]> {
     try {
       const result = await AdminFacilityService.createFacility(
         Object(decodedToken),
-        decodedToken,
-        body,
+        token,
+        body
       );
       return result;
     } catch (error) {
@@ -162,7 +162,8 @@ export class AdminFacilityController {
    */
   static async editFacilityDetailsById(
     decodedToken: IUserToken,
-    event: HttpRequest
+    event: HttpRequest,
+    token: any
   ): Promise<Facility[]> {
     try {
       const requestData = await event.json();
@@ -170,7 +171,7 @@ export class AdminFacilityController {
         Object(decodedToken),
         Object(requestData),
         Number(event.params.id),
-        decodedToken
+        token
       );
       return result;
     } catch (error) {
