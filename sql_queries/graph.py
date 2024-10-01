@@ -1,3 +1,6 @@
+from utils import get_nearest_stations
+
+
 def get_graph_query(facility_id, meter_type, from_date, to_date, stations):
     GRAPH_QUERY = f"""WITH TempData AS (
         SELECT 
