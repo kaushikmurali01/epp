@@ -252,7 +252,7 @@ export const validationSchemaFacilityDetails = Yup.object().shape({
   number_of_storeys: Yup.number()
     .required("Number of storeys is required")
     .min(1, "Number of Storeys must be a positive number more than 0")
-    .max(200, "Number of Storeys must between 1 to 200"),
+    .max(200, "Number of Storeys must be between 1 and 200"),
   unique_features_that_impact_energy_usage: Yup.boolean().required(
     "Unique features that impact energy usage is required"
   ),
