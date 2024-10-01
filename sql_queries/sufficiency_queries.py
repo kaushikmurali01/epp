@@ -192,14 +192,14 @@ with RECURSIVE DateList AS (
 		days_in_month, 
 		TRIM(TO_CHAR(month, 'Month')) || ' ' || TO_CHAR(month, 'YYYY') AS month_year,
         CASE
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::integer 
-            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::FLOAT 
+            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::FLOAT
         END AS totoal_days,
         CASE
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/(24*((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1))::integer  
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/(TO_CHAR('{end_date}'::date, 'dd')::integer *24)
-            ELSE days_in_month*100/(24*DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date )) ::integer
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/(24*((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT ) 
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/(TO_CHAR('{end_date}'::date, 'dd')::FLOAT *24)
+            ELSE days_in_month*100/(24*DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date )::FLOAT) 
         END AS perecnt
 	from monthly_data
 ), monthsdata as (
