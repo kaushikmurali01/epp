@@ -94,11 +94,11 @@ const DataVisualization = () => {
         },
         {
           name: "from_date",
-          newValue: "30/07/2020",
+          newValue: "2020-07-20",
         },
         {
           name: "to_date",
-          newValue: "31/08/2024",
+          newValue: "2024-08-31",
         },
       ],
     };
