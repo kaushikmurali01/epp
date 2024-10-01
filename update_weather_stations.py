@@ -11,7 +11,8 @@ import time
 from functools import partial
 from contextlib import contextmanager
 
-from dbconnection import get_db_connection, dbtest, refresh_materialised_view
+from dbconnection import get_db_connection, dbtest, refresh_materialised_view, execute_query
+from sql_queries.weather_station_queries import UPDATE_IN_USE
 
 # Adjust these parameters based on your system capabilities
 MAX_WORKERS = 100  # Reduced from 10 to 5
@@ -105,7 +106,7 @@ def upload_chunk(conn, chunk, station_id):
 
     try:
         cur.copy_expert(sql.SQL("""
-            COPY epp.weather_data_records_new (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
+            COPY epp.weather_data_records (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
                                temp, temp_flag, dew_point_temp, dew_point_temp_flag, rel_hum, rel_hum_flag, 
                                precip_amount, precip_amount_flag, wind_dir, wind_dir_flag, wind_spd, wind_spd_flag, 
                                visibility_km, visibility_flag, station_press, station_press_flag, hmdx, hmdx_flag, 
@@ -158,9 +159,11 @@ def process_station(station_id, year, month, day, time_frame):
         print(f"Unexpected error processing station {station_id}: {str(e)}")
 
 
-def main():
+def main(stations=None, in_use=False):
+
     start_year = 2018  # You can adjust this as needed
-    stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
+    if stations.empty:
+        stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
     current_year = datetime.now().year
     current_month = datetime.now().month
 
@@ -176,10 +179,16 @@ def main():
                     print(f"Submitting task for station {station_id}, year {year}, month {month}")
                     futures.append(
                         executor.submit(process_station, station_id, year, month, day, time_frame))
-                    time.sleep(0.1)  # Add a small delay between task submissions
+                    time.sleep(0.1)
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
+    if in_use:
+        station_ids = tuple([station for station in stations['station_id'].values])
+        update_query = UPDATE_IN_USE.format(station_ids)
+        execute_query(update_query)
+
+    print("\n\n\n\n\n\n\n!!!!!!!!!!!!!!!!!!! Successfully Executed !!!!!!!!!!!!!!!!!!!")
 
 
 if __name__ == "__main__":

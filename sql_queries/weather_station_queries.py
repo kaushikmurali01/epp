@@ -5,6 +5,7 @@ WITH facility_location AS (
     WHERE id = {}
 )
 SELECT 
+    s.in_use,
     s.name as station_name, 
     s.station_id, 
     s.latitude_decimal as latitude, 
@@ -19,23 +20,6 @@ FROM epp.weather_stations s, facility_location f where s.hly_last_year = {}
 ORDER BY distance_km ASC 
 LIMIT {};
 """
-
-# weather_data_query = """
-# SELECT
-#     year,
-#     TO_CHAR(TO_DATE(month::text, 'MM'), 'Month') AS month_name,
-#     month::integer,
-#     ROUND(AVG(temp)::numeric, 2) AS temperature,
-#     ROUND(AVG(rel_hum)::numeric, 2) AS average_humidity,
-#     ROUND(AVG(precip_amount)::numeric, 2) AS average_precipitation,
-#     ROUND(AVG(wind_spd)::numeric, 2) AS average_wind_speed,
-#     ROUND(AVG(station_press)::numeric, 2) AS average_station_pressure
-# FROM epp.weather_data_agg
-# WHERE station_id in ({}) AND
-# date_time BETWEEN '{}' AND '{}'
-# GROUP BY year, month
-# ORDER BY year, month;
-# """
 
 weather_data_query = """
 SELECT 
@@ -75,3 +59,10 @@ get_base_line_min_max = """
 min_max_performance = """
 select min(start_date) as min_date, max(start_date) as max_date from epp.meter_hourly_entries where facility_id={} and meter_type={} and start_date::date > '{}'
 """
+
+FRESH_STATIONS = """SELECT station_id 
+FROM epp.weather_stations 
+WHERE station_id IN {} 
+  AND in_use = false;
+"""
+UPDATE_IN_USE = """UPDATE epp.weather_stations set in_use=true where station_id in {}"""

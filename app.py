@@ -26,8 +26,8 @@ from download_weather_data import download_and_load_data
 from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query, STATUS_UPLOADER_INTIMATION_IV, STATUS_UPLOADER_INTIMATION_METER
-from sql_queries.nearest_weather_stations import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max
+from sql_queries.weather_station_queries import min_max_date_query, min_max_meter_date_query, weather_data_query, \
+    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max, FRESH_STATIONS
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
@@ -671,15 +671,6 @@ def process():
     return {"message": "Data inserted Succefully"}, 200
 
 
-@app.route('/pull-station-data', methods=['POST'])
-def pull_station_data():
-    facility_id = request.json.get('facility_id')
-    if not facility_id:
-        return {"message": "Please Provide Facility ID"}, 400
-
-    nearest_station_ids = get_nearest_stations(facility_id)
-    return {"message": "Data Being Inserted"}, 200
-
 @app.route('/get_station_details', methods=['GET'])
 def getdata():
     facility = request.args.get('facility_id')
@@ -956,6 +947,22 @@ def get_raw_data():
     response = raw_data.to_dict('records')
 
     return jsonify(response)
+
+
+@app.route('/pull-station-data', methods=['POST'])
+def pull_station_data():
+    facility_id = request.json.get('facility_id')
+    if not facility_id:
+        return {"message": "Please Provide Facility ID"}, 400
+
+    nearest_station_ids = get_nearest_stations(facility_id)
+    nearest_station_ids = nearest_station_ids[nearest_station_ids['in_use'] == False]
+    if not nearest_station_ids.empty:
+        from update_weather_stations import main
+        thread = Thread(target=main, args=(nearest_station_ids, True))
+        thread.start()
+
+    return {"message": "Data Being Inserted"}, 200
 
 
 if __name__ == '__main__':

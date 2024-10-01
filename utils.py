@@ -9,7 +9,7 @@ from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 from azure.storage.blob import BlobServiceClient
 
 from dbconnection import dbtest
-from sql_queries.nearest_weather_stations import nearest_weather_stations
+from sql_queries.weather_station_queries import nearest_weather_stations
 
 
 def generate_blob_name(extension="xlsx"):
