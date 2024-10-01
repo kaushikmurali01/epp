@@ -16,6 +16,7 @@ import {
   updateNonRoutineEvent,
 } from "../../../../redux/superAdmin/actions/performanceAction";
 import { nonRoutineEventValidationSchema } from "utils/validations/formValidation";
+import { format, parseISO } from "date-fns";
 
 const AddNonRoutineEventModal = ({
   meter_type,
@@ -41,14 +42,23 @@ const AddNonRoutineEventModal = ({
     (state) => state?.performanceReducer
   );
 
+  const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
+    const date = parseISO(dateString);
+    const localDate = new Date(
+      date.getTime() + new Date().getTimezoneOffset() * 60000
+    );
+    return format(localDate, "MM-dd-yyyy");
+  };
+
   useEffect(() => {
     if (editMode.isEditing && editMode.eventId) {
       dispatch(getNonRoutineEventDetails(editMode.eventId))
         .then(() => {
           setInitialValues({
-            event_to_period: new Date(nonRoutineEventDetails.event_to_period),
+            event_to_period: new Date(formatDateToLocal(nonRoutineEventDetails.event_to_period)),
             event_from_period: new Date(
-              nonRoutineEventDetails.event_from_period
+              formatDateToLocal(nonRoutineEventDetails.event_from_period)
             ),
             event_name: nonRoutineEventDetails.event_name,
             event_description: nonRoutineEventDetails.event_description,
