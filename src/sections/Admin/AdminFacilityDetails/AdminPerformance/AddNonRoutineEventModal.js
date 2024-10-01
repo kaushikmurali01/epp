@@ -39,6 +39,7 @@ const AddNonRoutineEventModal = ({
   });
 
   const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
     const date = parseISO(dateString);
     const localDate = new Date(
       date.getTime() + new Date().getTimezoneOffset() * 60000
@@ -76,23 +77,23 @@ const AddNonRoutineEventModal = ({
 
     console.log(payload, action);
     
-    // dispatch(action)
-    //   .then((response) => {
-    //     const event_id = response?.data?.id || editMode.eventId;
-    //     const event_to_period = response?.data?.event_to_period;
-    //     const event_from_period = response?.data?.event_from_period;
-    //     closeAddNonRoutineEventModal();
-    //     dispatch(getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
-    //     if (!editMode.isEditing) {
-    //       openAddNonRoutineDataModal(
-    //         event_id,
-    //         event_to_period,
-    //         event_from_period,
-    //         false // isEditing is false when adding new data
-    //       );
-    //     }
-    //   })
-    //   .catch(console.error);
+    dispatch(action)
+      .then((response) => {
+        const event_id = response?.data?.id || editMode.eventId;
+        const event_to_period = response?.data?.event_to_period;
+        const event_from_period = response?.data?.event_from_period;
+        closeAddNonRoutineEventModal();
+        dispatch(getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
+        if (!editMode.isEditing) {
+          openAddNonRoutineDataModal(
+            event_id,
+            event_to_period,
+            event_from_period,
+            false // isEditing is false when adding new data
+          );
+        }
+      })
+      .catch(console.error);
   };
 
   return (
