@@ -959,7 +959,9 @@ def pull_station_data():
     nearest_station_ids = nearest_station_ids[nearest_station_ids['in_use'] == False]
     if not nearest_station_ids.empty:
         from update_weather_stations import main
-        main(stations=nearest_station_ids, in_use=True)
+        thread = Thread(target=main, args=(nearest_station_ids, True))
+        thread.start()
+
     return {"message": "Data Being Inserted"}, 200
 
 
