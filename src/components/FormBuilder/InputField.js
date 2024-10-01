@@ -25,9 +25,9 @@ const InputField = ({ name, label, isDisabled, ...otherProps }) => {
     const handleWheel = (e) => e.preventDefault();
     textFieldRef.current.addEventListener("wheel", handleWheel);
 
-    return () => {
-      textFieldRef.current.removeEventListener("wheel", handleWheel);
-    };
+    // return () => {
+    //   textFieldRef.current.removeEventListener("wheel", handleWheel);
+    // };
   }, [labelText]);
 
   if (meta && meta.touched && meta.error) {
