@@ -142,7 +142,7 @@ export const validationSchemaAddMeter = Yup.object().shape({
   //   ),
   meter_id: Yup.string()
     .matches(/^[a-zA-Z0-9]*$/, "Meter Id must be alphanumeric")
-    .max(20, "Meter Id must be at most 20 characters")
+    .max(25, "Meter Id must be at most 25 characters")
     .required("Meter Id is required and can be found on the electricity bill"),
   meter_active: Yup.date()
     .nullable()

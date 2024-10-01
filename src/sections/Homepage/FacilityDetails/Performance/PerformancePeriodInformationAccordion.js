@@ -327,14 +327,14 @@ const PerformancePeriodInformationAccordion = ({
           if (!updatedP4Ps[meter_type]) {
             updatedP4Ps[meter_type] = [];
           }
-          if (
-            status === "SUBMITTED" &&
-            !updatedP4Ps[meter_type].includes(performanceType)
-          ) {
-            updatedP4Ps[meter_type] = [
-              ...updatedP4Ps[meter_type],
-              performanceType,
-            ];
+          if (status === "SUBMITTED") {
+            // Add the performance type if it's submitted and not already in the array
+            if (!updatedP4Ps[meter_type].includes(performanceType)) {
+              updatedP4Ps[meter_type] = [...updatedP4Ps[meter_type], performanceType];
+            }
+          } else if (status === "VERIFIED") {
+            // Remove the performance type from submitted if it's verified
+            updatedP4Ps[meter_type] = updatedP4Ps[meter_type].filter(type => type !== performanceType);
           }
           return updatedP4Ps;
         });
@@ -344,14 +344,14 @@ const PerformancePeriodInformationAccordion = ({
           if (!updatedVerifiedP4Ps[meter_type]) {
             updatedVerifiedP4Ps[meter_type] = [];
           }
-          if (
-            status === "VERIFIED" &&
-            !updatedVerifiedP4Ps[meter_type].includes(performanceType)
-          ) {
-            updatedVerifiedP4Ps[meter_type] = [
-              ...updatedVerifiedP4Ps[meter_type],
-              performanceType,
-            ];
+          if (status === "VERIFIED") {
+            // Add the performance type if it's verified and not already in the array
+            if (!updatedVerifiedP4Ps[meter_type].includes(performanceType)) {
+              updatedVerifiedP4Ps[meter_type] = [...updatedVerifiedP4Ps[meter_type], performanceType];
+            }
+          } else if (status === "SUBMITTED") {
+            // Remove the performance type from verified if it's submitted
+            updatedVerifiedP4Ps[meter_type] = updatedVerifiedP4Ps[meter_type].filter(type => type !== performanceType);
           }
           return updatedVerifiedP4Ps;
         });
@@ -367,10 +367,14 @@ const PerformancePeriodInformationAccordion = ({
       }
     }
   }, [
+    meter_type,
     performanceReportInDB,
     performanceP4PCalcTab,
+    onPerformanceTypeChange,
     onSubmissionDateChange,
-    meter_type,
+    onVerificationDateChange,
+    onSubmittedP4PsChange,
+    onVerifiedP4PsChange,
   ]);
 
   const handleChangePerformance = (event, newValue) => {
@@ -472,7 +476,6 @@ const PerformancePeriodInformationAccordion = ({
           alignItems: "center",
           justifyContent: "space-between",
           gap: "1rem",
-          marginTop: "1rem",
           marginBottom: { xs: "1rem", md: "1.5rem" },
         }}
         width={"100%"}
@@ -570,6 +573,7 @@ const PerformancePeriodInformationAccordion = ({
               false
             }
             onP4PStartDatesLoaded={handleP4PStartDatesLoaded}
+            reviewRequested={performanceReportInDB?.status === "REQUESTED"}
           />
         </Grid>
 

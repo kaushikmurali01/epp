@@ -1,7 +1,8 @@
 export const BASELINE_STATUS = {
   DRAFT: "DRAFT",
   CALCULATED: "CALCULATED",
-  SUBMITTED: "SUBMITTED",
+  SUBMITTED: "SUBMITTED", //when baseline is finally submitted after Admin Review completion
+  USER_SUBMITTED: "USER_SUBMITTED", //when user submits for review to Admin
   REQUESTED: "REQUESTED",
   REVIEWED: "REVIEWED",
   ACCEPTED: "ACCEPTED",

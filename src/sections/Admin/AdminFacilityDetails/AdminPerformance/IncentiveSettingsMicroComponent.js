@@ -21,6 +21,8 @@ import Loader from "pages/Loader";
 import { incentiveSettingValidationSchema } from "utils/validations/formValidation";
 import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
 
+import { parseISO, format, parse, addDays } from "date-fns";
+
 const StyledHelperText = styled(Typography)(({ theme }) => ({
   color: theme.palette.error.main,
   marginBottom: theme.spacing(-1.5),
@@ -35,11 +37,8 @@ const DatePickerField = ({
 }) => {
   const handleDateChange = (date) => {
     if (date) {
-      // Adjust for timezone offset
-      const adjustedDate = new Date(
-        date.getTime() - date.getTimezoneOffset() * 60000
-      );
-      const formattedDate = adjustedDate.toISOString().split("T")[0];
+      // Convert the selected date to UTC and format it as YYYY-MM-DD
+      const formattedDate = format(date, "yyyy-MM-dd");
       setFieldValue(field.name, formattedDate);
 
       const fieldNumber = parseInt(field.name.slice(-1));
@@ -47,52 +46,46 @@ const DatePickerField = ({
 
       if (isStartDate) {
         // Set end date to one year later (minus one day) for the current period
-        const endDate = new Date(adjustedDate);
-        endDate.setFullYear(endDate.getFullYear() + 1);
-        endDate.setDate(endDate.getDate() - 1);
+        const endDate = new Date(date);
+        endDate.setUTCFullYear(endDate.getUTCFullYear() + 1);
+        endDate.setUTCDate(endDate.getUTCDate() - 1);
         setFieldValue(
           `p4pEndDate${fieldNumber}`,
-          endDate.toISOString().split("T")[0]
+          format(endDate, "yyyy-MM-dd")
         );
 
         // Set start and end dates for subsequent periods
         for (let i = fieldNumber + 1; i <= 3; i++) {
           const nextStartDate = new Date(endDate);
-          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
           setFieldValue(
             `p4pStartDate${i}`,
-            nextStartDate.toISOString().split("T")[0]
+            format(nextStartDate, "yyyy-MM-dd")
           );
 
           const nextEndDate = new Date(nextStartDate);
-          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
-          nextEndDate.setDate(nextEndDate.getDate() - 1);
-          setFieldValue(
-            `p4pEndDate${i}`,
-            nextEndDate.toISOString().split("T")[0]
-          );
+          nextEndDate.setUTCFullYear(nextEndDate.getUTCFullYear() + 1);
+          nextEndDate.setUTCDate(nextEndDate.getUTCDate() - 1);
+          setFieldValue(`p4pEndDate${i}`, format(nextEndDate, "yyyy-MM-dd"));
 
           endDate.setTime(nextEndDate.getTime());
         }
       } else {
         // If it's an end date, update subsequent periods
         for (let i = fieldNumber + 1; i <= 3; i++) {
-          const nextStartDate = new Date(adjustedDate);
-          nextStartDate.setDate(nextStartDate.getDate() + 1);
+          const nextStartDate = new Date(date);
+          nextStartDate.setUTCDate(nextStartDate.getUTCDate() + 1);
           setFieldValue(
             `p4pStartDate${i}`,
-            nextStartDate.toISOString().split("T")[0]
+            format(nextStartDate, "yyyy-MM-dd")
           );
 
           const nextEndDate = new Date(nextStartDate);
-          nextEndDate.setFullYear(nextEndDate.getFullYear() + 1);
-          nextEndDate.setDate(nextEndDate.getDate() - 1);
-          setFieldValue(
-            `p4pEndDate${i}`,
-            nextEndDate.toISOString().split("T")[0]
-          );
+          nextEndDate.setUTCFullYear(nextEndDate.getUTCFullYear() + 1);
+          nextEndDate.setUTCDate(nextEndDate.getUTCDate() - 1);
+          setFieldValue(`p4pEndDate${i}`, format(nextEndDate, "yyyy-MM-dd"));
 
-          adjustedDate.setTime(nextEndDate.getTime());
+          date.setTime(nextEndDate.getTime());
         }
       }
     } else {
@@ -104,12 +97,23 @@ const DatePickerField = ({
     const fieldNumber = parseInt(field.name.slice(-1));
     const isStartDate = field.name.includes("StartDate");
 
+    const parseDateString = (dateString) => {
+      if (!dateString) return null;
+      // Check if the dateString includes time
+      if (dateString.includes(" ")) {
+        // Parse the full datetime string
+        return parse(dateString, "yyyy-MM-dd HH:mm:ss", new Date());
+      } else {
+        // Parse just the date string
+        return parseISO(dateString);
+      }
+    };
+
     if (isStartDate && fieldNumber === 1) {
-      // propMinDate for the first P4P start date
       return {
-        minDate: propMinDate ? new Date(propMinDate) : null,
+        minDate: propMinDate ? parseDateString(propMinDate) : null,
         maxDate: values[`p4pEndDate${fieldNumber}`]
-          ? new Date(values[`p4pEndDate${fieldNumber}`])
+          ? parseDateString(values[`p4pEndDate${fieldNumber}`])
           : null,
       };
     }
@@ -119,13 +123,13 @@ const DatePickerField = ({
         fieldNumber > 1 ? values[`p4pEndDate${fieldNumber - 1}`] : null;
       const currentEndDate = values[`p4pEndDate${fieldNumber}`];
       return {
-        minDate: prevEndDate ? new Date(prevEndDate) : null,
-        maxDate: currentEndDate ? new Date(currentEndDate) : null,
+        minDate: prevEndDate ? addDays(parseDateString(prevEndDate), 1) : null,
+        maxDate: currentEndDate ? parseDateString(currentEndDate) : null,
       };
     } else {
       const currentStartDate = values[`p4pStartDate${fieldNumber}`];
       return {
-        minDate: currentStartDate ? new Date(currentStartDate) : null,
+        minDate: currentStartDate ? parseDateString(currentStartDate) : null,
         maxDate: null,
       };
     }
@@ -137,7 +141,7 @@ const DatePickerField = ({
     <div>
       <StyledHelperText>*</StyledHelperText>
       <DatePicker
-        value={field.value ? new Date(field.value) : null}
+        value={field.value ? parseISO(field.value) : null}
         onChange={handleDateChange}
         slots={{ openPickerIcon: ExpandMoreIcon }}
         minDate={minDate}
@@ -229,10 +233,9 @@ const IncentiveSettingsMicroComponent = () => {
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
-  const { incentiveSettings, loading, adminPerformanceDataMinMaxDate } = useSelector(
-    (state) => state.adminPerformanceReducer
-  );
-  
+  const { incentiveSettings, loading, adminPerformanceDataMinMaxDate } =
+    useSelector((state) => state.adminPerformanceReducer);
+
   const [formValues, setFormValues] = useState(null);
 
   useEffect(() => {
@@ -338,7 +341,7 @@ const IncentiveSettingsMicroComponent = () => {
       enableReinitialize
     >
       {({ values, isValid, dirty }) => (
-        <Form className="incentive-settings-table" style={{width: "100%"}}>
+        <Form className="incentive-settings-table" style={{ width: "100%" }}>
           <MiniTable
             columns={userColumn}
             data={[
@@ -346,9 +349,9 @@ const IncentiveSettingsMicroComponent = () => {
                 id: "Pay-for-performance start",
                 first_column: null,
                 first_p4p: (
-                  <Field 
-                    name="p4pStartDate1" 
-                    component={DatePickerField} 
+                  <Field
+                    name="p4pStartDate1"
+                    component={DatePickerField}
                     minDate={adminPerformanceDataMinMaxDate?.min_date}
                   />
                 ),
