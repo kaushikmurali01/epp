@@ -176,7 +176,7 @@ with RECURSIVE DateList AS (
         meter_name,
         facility_id,
         date_trunc('month', start_date) AS month,
-        COUNT(DISTINCT date_trunc('day', start_date)) AS days_in_month,
+        COUNT(DISTINCT date_trunc('hour', start_date)) AS days_in_month,
         COUNT(reading) AS monthly_count
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
@@ -197,11 +197,11 @@ with RECURSIVE DateList AS (
             ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
         END AS totoal_days,
         CASE
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::integer  
-            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/TO_CHAR('{end_date}'::date, 'dd')::integer 
-            ELSE days_in_month*100/DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::integer
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/(24*((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1))::integer  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/(TO_CHAR('{end_date}'::date, 'dd')::integer *24)
+            ELSE days_in_month*100/(24*DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date )) ::integer
         END AS perecnt
-	from monthly_data where monthly_count>=24
+	from monthly_data
 ), monthsdata as (
 	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
 	FROM DateList where month_start between '{start_date}' and '{end_date}'
