@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Grid, Typography, Button, Link, Box } from "@mui/material";
+import { Grid, Typography, Button, Box } from "@mui/material";
 import { downloadFileFromUrl } from "utils/helper/helper";
-import { deleteAdminNonRoutineEvent, getAdminNonRoutineEventDetails, getAdminNonRoutineEventList } from "../../../../redux/admin/actions/adminPerformanceActions";
+import {
+  deleteAdminNonRoutineEvent,
+  getAdminNonRoutineEventDetails,
+  getAdminNonRoutineEventList,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
+import { format, parseISO } from "date-fns";
 
 const NonRoutineEventWithDetailsModal = ({
   eventId,
   closeNonEventRoutineDetailsModal,
   openAddNonRoutineEventModal,
-  meter_type
+  meter_type,
 }) => {
   const [page, setPage] = useState(0);
   const itemsPerPage = 10;
@@ -21,51 +26,66 @@ const NonRoutineEventWithDetailsModal = ({
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
-useEffect(() => {
-  dispatch(getAdminNonRoutineEventDetails(eventId));
-}, [dispatch, eventId, facility_id, meter_type]);
+  useEffect(() => {
+    dispatch(getAdminNonRoutineEventDetails(eventId));
+  }, [dispatch, eventId, facility_id, meter_type]);
 
-const getUploadedFiles = () => {
-  if (
-    adminNonRoutineEventDetails.dataEntries &&
-    adminNonRoutineEventDetails.dataEntries.length > 0
-  ) {
-    const firstEntry = adminNonRoutineEventDetails.dataEntries[0];
-    if (firstEntry.type === 2) {
-      return adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
-        const extension = entry.file_url
-          .split("/")
-          .pop()
-          .split(".")
-          .pop()
-          .split("?")[0];
-        return {
-          id: entry.id,
-          file_url: entry.file_url,
-          name: `non-routine-data-file-${index + 1}`,
-          fullName: `non-routine-data-file-${index + 1}.${extension}`,
-        };
-      });
+  const formatDateToLocal = (dateString) => {
+    const date = parseISO(dateString);
+    const localDate = new Date(
+      date.getTime() + new Date().getTimezoneOffset() * 60000
+    );
+    return format(localDate, "MM-dd-yyyy");
+  };
+ 
+  const getUploadedFiles = () => {
+    if (
+      adminNonRoutineEventDetails.dataEntries &&
+      adminNonRoutineEventDetails.dataEntries.length > 0
+    ) {
+      const firstEntry = adminNonRoutineEventDetails.dataEntries[0];
+      if (firstEntry.type === 2) {
+        return adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
+          const extension = entry.file_url
+            .split("/")
+            .pop()
+            .split(".")
+            .pop()
+            .split("?")[0];
+          return {
+            id: entry.id,
+            file_url: entry.file_url,
+            name: `non-routine-data-file-${index + 1}`,
+            fullName: `non-routine-data-file-${index + 1}.${extension}`,
+          };
+        });
+      }
     }
-  }
-  return [];
-};
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
+    return [];
   };
 
   const handleDeleteEvent = () => {
     dispatch(deleteAdminNonRoutineEvent(eventId))
       .then(() => {
         closeNonEventRoutineDetailsModal();
-        dispatch(getAdminNonRoutineEventList(facility_id, meter_type, page, itemsPerPage));
+        dispatch(
+          getAdminNonRoutineEventList(
+            facility_id,
+            meter_type,
+            page,
+            itemsPerPage
+          )
+        );
       })
-      .catch(console.error());
+      .catch(console.error);
   };
 
   if (loading) {
-    return <Typography variant="h5" color={"inherit"}>Please wait while we're fetching the details.</Typography>
+    return (
+      <Typography variant="h5" color="inherit">
+        Please wait while we're fetching the details.
+      </Typography>
+    );
   }
 
   return (
@@ -74,45 +94,63 @@ const getUploadedFiles = () => {
         container
         sx={{ paddingBottom: "10px", borderBottom: "1px solid #54585A" }}
       >
-        <Grid item xs={12} md={9}>
+        <Grid
+          item
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+            flexWrap: "wrap",
+          }}
+        >
           <Grid>
             <Typography
               sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
             >
               Event period
             </Typography>
-            <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {formatDate(adminNonRoutineEventDetails.event_from_period)} to{" "}
-              {formatDate(adminNonRoutineEventDetails.event_to_period)}
-            </Typography>
+            {adminNonRoutineEventDetails && (
+              <Typography
+                sx={{ fontSize: "14px !important", color: "#242424" }}
+              >
+                {formatDateToLocal(
+                  adminNonRoutineEventDetails?.event_from_period
+                )}{" "}
+                to{" "}
+                {formatDateToLocal(
+                  adminNonRoutineEventDetails?.event_to_period
+                )}
+              </Typography>
+            )}
           </Grid>
-          <Grid sx={{ marginTop: "20px" }}>
+          <Grid item>
             <Typography
               sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
             >
-              Comment
+              Event name
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {adminNonRoutineEventDetails.event_description}
+              {adminNonRoutineEventDetails.event_name}
             </Typography>
           </Grid>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+        {adminNonRoutineEventDetails.event_description && <Grid sx={{ marginTop: "20px" }}>
           <Typography
             sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
           >
-            Event name
+            Comment
           </Typography>
           <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-            {adminNonRoutineEventDetails.event_name}
+            {adminNonRoutineEventDetails.event_description}
           </Typography>
-        </Grid>
+        </Grid>}
       </Grid>
 
       {adminNonRoutineEventDetails.dataEntries &&
       adminNonRoutineEventDetails.dataEntries.length > 0 ? (
-        adminNonRoutineEventDetails.dataEntries.map((entry, index) => {
-          return (
+        adminNonRoutineEventDetails.dataEntries.map(
+          (entry, index) =>
             entry.start_date &&
             entry.end_date && (
               <Grid
@@ -122,9 +160,19 @@ const getUploadedFiles = () => {
                   marginTop: "10px",
                   paddingBottom: "10px",
                   borderBottom: "1px solid #54585A",
+                  flexWrap: "wrap",
                 }}
               >
-                <Grid item xs={12} md={9}>
+                <Grid
+                  item
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "1rem ",
+                    flexWrap: "wrap",
+                  }}
+                >
                   <Grid>
                     <Typography
                       sx={{
@@ -138,10 +186,10 @@ const getUploadedFiles = () => {
                     <Typography
                       sx={{ fontSize: "14px !important", color: "#242424" }}
                     >
-                      {formatDate(entry.start_date)}
+                      {formatDateToLocal(entry.start_date)}
                     </Typography>
                   </Grid>
-                  <Grid sx={{ marginTop: "20px" }}>
+                  <Grid item sx={{ justifySelf: "flex-end" }}>
                     <Typography
                       sx={{
                         fontSize: "14px",
@@ -149,16 +197,16 @@ const getUploadedFiles = () => {
                         color: "#54585A",
                       }}
                     >
-                      Non-routine adjustment
+                      End date
                     </Typography>
                     <Typography
                       sx={{ fontSize: "14px !important", color: "#242424" }}
                     >
-                      {entry.non_routine_adjustment}
+                      {formatDateToLocal(entry.end_date)}
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+                <Grid sx={{ marginTop: "20px" }}>
                   <Typography
                     sx={{
                       fontSize: "14px",
@@ -166,18 +214,17 @@ const getUploadedFiles = () => {
                       color: "#54585A",
                     }}
                   >
-                    End date
+                    Non-routine adjustment
                   </Typography>
                   <Typography
                     sx={{ fontSize: "14px !important", color: "#242424" }}
                   >
-                    {formatDate(entry.end_date)}
+                    {entry.non_routine_adjustment}
                   </Typography>
                 </Grid>
               </Grid>
             )
-          );
-        })
+        )
       ) : (
         <Grid container sx={{ marginTop: "10px" }}>
           <Grid item xs={12}>
@@ -227,7 +274,7 @@ const getUploadedFiles = () => {
             display: "flex",
             gap: { xs: "10px", md: "15px" },
             justifyContent: "flex-start",
-            flexWrap: "wrap"
+            flexWrap: "wrap",
           }}
         >
           <Button
