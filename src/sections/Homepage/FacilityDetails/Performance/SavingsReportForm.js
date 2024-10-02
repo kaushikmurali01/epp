@@ -242,7 +242,7 @@ const SavingsReportForm = ({
 
   useEffect(() => {
     if (isValid(selectedEndDate) && p4PStartEndDates?.endDate) {
-      let endDate = p4PStartEndDates.endDate;
+      let endDate = parseISO(p4PStartEndDates.endDate);
       const isDateValid = endDate
         ? isEqual(
             format(selectedEndDate, "yyyy-MM-dd"),
