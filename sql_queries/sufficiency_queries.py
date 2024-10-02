@@ -93,7 +93,7 @@ WITH hourly_data AS (
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
-	AND reading > 0 {IVids}
+	  {IVids}
     GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
 	order by  hour
 ), hourly_sufficiency_percentage AS (
@@ -120,7 +120,7 @@ WITH hourly_data AS (
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
-	AND reading > 0 {IVids}
+	  {IVids}
     GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
 	order by  hour
 ), hourly_sufficiency_percentage AS (
@@ -145,7 +145,7 @@ with daily_data AS (
 		date_trunc('day', start_date) AS day,
 		COUNT(id) AS daily_count
 	FROM epp.meter_hourly_entries
-	WHERE facility_id = {facility_id} and reading > 0 
+	WHERE facility_id = {facility_id}   
 		AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
          {IVids}
 	GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
@@ -181,7 +181,7 @@ with RECURSIVE DateList AS (
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
-     AND reading > 0
+      
      {IVids}
     GROUP BY meter_id, meter_name, facility_id, date_trunc('month', start_date)
 ), monthly_per as(
