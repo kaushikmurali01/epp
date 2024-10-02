@@ -58,6 +58,9 @@ class Validators(CommonBase):
         filtered_df = df[df[self.start] > df[self.end]]
         if not filtered_df.empty:
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
+        filtered_df = df[df[self.start] == df[self.end]]
+        if not filtered_df.empty:
+            raise ValueError('Data Contains value where Start Date is equal to End Date')
 
     def dates_beyond_2018(self, df):
         past_records = df[
@@ -69,10 +72,8 @@ class Validators(CommonBase):
 
     def check_for_valid_hourly_entries(self, df):
         df['Expected End Date'] = df[self.start] + pd.Timedelta(minutes=60)
-        invalid_dates = df[df[self.end] > df['Expected End Date']]
-        if len(invalid_dates):
-            raise ValueError(
-                f"Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
+        df = df[df[self.end] <= df['Expected End Date']]
+        return df
 
     def check_for_date_ranges_between_meter_dates(self, df):
         current_date = datetime.now()
@@ -135,7 +136,7 @@ class Validators(CommonBase):
         self.valid_start_end_date(data_chunk)
         self.dates_beyond_2018(data_chunk)
         if not self.iv:
-            self.check_for_valid_hourly_entries(data_chunk)
+            data_chunk = self.check_for_valid_hourly_entries(data_chunk)
             self.check_for_date_ranges_between_meter_dates(data_chunk)
         self.validate_future_records(data_chunk)
         self.validate_no_overlapping_dates(data_chunk)
