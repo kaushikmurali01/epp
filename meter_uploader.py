@@ -41,7 +41,6 @@ class BaseDataUploader(CommonBase):
 class Validators(CommonBase):
     def __init__(self, meter_active, meter_inactive, iv, meter_id):
         super().__init__()
-        self.skipping = False
         self.clean_df = pd.DataFrame()
         self.iv = iv
         self.meter_id = meter_id
@@ -76,7 +75,6 @@ class Validators(CommonBase):
         invalid_dates = df[df[self.end] > df['Expected End Date']]
         if len(invalid_dates):
             df = df[df[self.end] <= df['Expected End Date']]
-            self.skipping = True
         return df
 
     def check_for_date_ranges_between_meter_dates(self, df):
@@ -152,6 +150,7 @@ class DataUploader(BaseDataUploader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.validator = Validators(self.meter_active, self.meter_inactive, self.iv, self.meter_id)
+        self.data_len = 0
 
     def read_excel_sheets(self, file):
         required_columns = [self.start, self.end, self.reading]
@@ -227,6 +226,7 @@ class DataUploader(BaseDataUploader):
                 futures = []
                 chunk_set = 10000
                 for header, data in sheets_data:
+                    self.data_len += len(data)
                     for i in range(0, len(data), chunk_set):
                         chunk = data[i:i + chunk_set]
                         futures.append(
@@ -241,8 +241,8 @@ class DataUploader(BaseDataUploader):
             file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
             response_message = "File Uploaded Successfully"
-            if self.validator.skipping:
-                response_message = "A few Records were removed while Uploading the data as they had invalid records."
+            if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active']==True]):
+                response_message = f"A few Records were removed while Uploading the data as they had invalid records. {self.data_len} {len(self.validator.clean_df)}"
             return {
                 "success": True,
                 "message": response_message,
