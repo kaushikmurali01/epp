@@ -206,8 +206,8 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    IVids = f"AND  (is_independent_variable = false OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} ))" if len(
-        IVs) > 0 else "AND  is_independent_variable = false"
+    IVids = f"AND  ((is_independent_variable = false AND reading > 0 ) OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} AND reading>= 0))" if len(
+        IVs) > 0 else "AND  is_independent_variable = false AND reading > 0 "
 
     # Modify the query with the provided parameters
 
