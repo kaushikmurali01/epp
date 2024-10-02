@@ -297,7 +297,7 @@ const SavingsReportForm = ({
     setSelectedEndDate(newValue);
     if (newValue && p4PStartEndDates?.startDate) {
       const payload = {
-        start_date: format(p4PStartEndDates.startDate, "yyyy-MM-dd"),
+        start_date: format(parseISO(p4PStartEndDates.startDate), "yyyy-MM-dd"),
         end_date: format(newValue, "yyyy-MM-dd"),
         facility_id: facility_id,
         meter_type: meter_type,
@@ -461,7 +461,7 @@ const SavingsReportForm = ({
     {
       metric: "Pay-for-performance period",
       value: p4PStartEndDates?.startDate
-        ? `From ${format(p4PStartEndDates.startDate, "MM-dd-yyyy")}, to`
+        ? `From ${format(parseISO(p4PStartEndDates.startDate), "MM-dd-yyyy")}, to`
         : "N/A",
       // <Box
       //   sx={{
