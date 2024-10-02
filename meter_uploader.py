@@ -41,6 +41,7 @@ class BaseDataUploader(CommonBase):
 class Validators(CommonBase):
     def __init__(self, meter_active, meter_inactive, iv, meter_id):
         super().__init__()
+        self.skipping = False
         self.clean_df = pd.DataFrame()
         self.iv = iv
         self.meter_id = meter_id
@@ -72,7 +73,10 @@ class Validators(CommonBase):
 
     def check_for_valid_hourly_entries(self, df):
         df['Expected End Date'] = df[self.start] + pd.Timedelta(minutes=60)
-        df = df[df[self.end] <= df['Expected End Date']]
+        invalid_dates = df[df[self.end] > df['Expected End Date']]
+        if len(invalid_dates):
+            df = df[df[self.end] <= df['Expected End Date']]
+            self.skipping = True
         return df
 
     def check_for_date_ranges_between_meter_dates(self, df):
@@ -182,8 +186,13 @@ class DataUploader(BaseDataUploader):
 
     def data_cleaning(self, df):
         df = df[self.required_columns]
+        self.validator.skipping = True
+        initial_row_count = len(df)
         df.dropna(subset=[self.start, self.end], inplace=True)
         df.dropna(how='all', inplace=True)
+        new_row_count = len(df)
+        if initial_row_count != new_row_count:
+            self.validator.skipping = True
         df['is_active'] = True
 
         new_row = pd.DataFrame([{
@@ -231,9 +240,12 @@ class DataUploader(BaseDataUploader):
             blob_name = generate_blob_name(extension='csv')
             file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
+            response_message = "File Uploaded Successfully"
+            if self.validator.skipping:
+                response_message = "A few Records were removed while Uploading the data as they had invalid records."
             return {
                 "success": True,
-                "message": "File Uploaded Successfully",
+                "message": response_message,
                 "path": file_path,
                 "record_id": record_id
             }
