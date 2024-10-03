@@ -246,8 +246,12 @@ def p4p_calculation():
         # est_offset = pytz.FixedOffset(-300)  # UTC-5:00
         scoring_data_master['Timestamp'] = pd.to_datetime(scoring_data_master['Timestamp'],unit= 'ms')
         # scoring_data_master['Timestamp'] = scoring_data_master['Timestamp'].apply(lambda x: est_offset.localize(x))
-        performance_scored_data = scoring_data_master[(scoring_data_master['Timestamp'] >= performance_start_date) & (scoring_data_master['Timestamp'] <= performance_end_date)]
+        #performance_scored_data = scoring_data_master[(scoring_data_master['Timestamp'] >= performance_start_date) & (scoring_data_master['Timestamp'] <= performance_end_date)]
         # print()
+        performance_scored_data = scoring_data_master[
+    (scoring_data_master['Timestamp'].dt.date >= performance_start_date.date()) &
+    (scoring_data_master['Timestamp'].dt.date <= performance_end_date.date())
+]
         non_routine_adjustment_value = get_non_routine_adjustment_data(facility_id, meter_type, performance_start_date, performance_end_date)
         # print('Non routine adj: ', non_routine_adjustment_value)
         granularity = baseline_model_settings['granularity']

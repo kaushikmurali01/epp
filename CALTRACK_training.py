@@ -67,7 +67,7 @@ class EnergyModel:
         # Define the EST and UTC time zones
         est_timezone = pytz.timezone('US/Eastern')
         utc_timezone = pytz.utc
-        est_offset = pytz.FixedOffset(-300)  # UTC-5:00
+        est_offset = pytz.FixedOffset(0)  # UTC-5:00
         # Convert 'Timestamp' column to datetime objects
         df['Timestamp'] = pd.to_datetime(df['Timestamp'], format='mixed')
         
