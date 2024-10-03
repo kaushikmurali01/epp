@@ -227,7 +227,7 @@ def get_sufficiency():
         if(a < 90):
             monthley_sufficiency_pass = 10
     response = {
-        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days)},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days)},
         "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days)},
         "monthly": {
             "sufficiency": monthley_sufficiency_pass,
@@ -239,7 +239,7 @@ def get_sufficiency():
 
 
 def get_status(sufficiency, total_days):
-    return "passed" if sufficiency > 90 and total_days >=364 else "failed"
+    return "passed" if ( sufficiency != None and sufficiency > 90 and total_days >=364) else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
