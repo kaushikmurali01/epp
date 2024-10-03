@@ -69,23 +69,22 @@ export const commonDocumentFileUploadAction = (endPoint,payload,onUploadProgress
       const response = await POST_REQUEST(endPoint, payload, true, "",onUploadProgress);
       const data = response.data;
       dispatch(fileUploadSuccess(data));
-      // if(data?.status === false){
-      //    NotificationsToast({
-      //   message: data?.message || data?.error,
-      //   type: data?.error ? "error" : "success",
-      // });
-      // }
+    
+      const statusType = data?.status_code === 202 ? "warning": data?.status_code === 200 ? "success" : "error";
+    
      
       NotificationsToast({
         message: data?.message || data?.error,
-        type: data?.success ? "success" : "error",
+        type: statusType,
       });
       return data;
     } catch (error) {
       console.error(error);
+
+      const errorMsg = error?.response?.data?.error || error?.response?.data?.message;
       dispatch(fileUploadFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: errorMsg ? errorMsg : error?.message,
         type: "error",
       });
     }

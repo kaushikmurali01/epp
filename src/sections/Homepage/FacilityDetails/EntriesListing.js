@@ -561,6 +561,7 @@ const EntriesListing = ({
     )
       .then((data) => {
         // setHourlyEntryFile
+
         if (
           data?.message === undefined ||
           data === undefined ||
@@ -807,6 +808,7 @@ const EntriesListing = ({
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        dispatch(fetchFacilityStatus(id));
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {

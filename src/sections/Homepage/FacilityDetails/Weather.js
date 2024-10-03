@@ -683,6 +683,7 @@ const Weather = () => {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
         setDataProcessingLoader(false)
+        dispatch(fetchFacilityStatus(facilityData?.id))
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
