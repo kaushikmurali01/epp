@@ -241,9 +241,13 @@ class DataUploader(BaseDataUploader):
             file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
             response_message = "File Uploaded Successfully"
-            if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active']==True]):
-                response_message = f"A few Records were removed while Uploading the data as they had invalid records. {self.data_len} {len(self.validator.clean_df)}"
+            status_code = 200
+            if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]):
+                removed_records = self.data_len - len(self.validator.clean_df[self.validator.clean_df['is_active'] == True])
+                status_code = 202
+                response_message = f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
             return {
+                "status_code": status_code,
                 "success": True,
                 "message": response_message,
                 "path": file_path,
@@ -251,6 +255,7 @@ class DataUploader(BaseDataUploader):
             }
         except Exception as error:
             return {
+                "status_code": 500,
                 "success": False,
                 "error": str(error)
             }
