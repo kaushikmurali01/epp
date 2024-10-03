@@ -58,6 +58,9 @@ class Validators(CommonBase):
         filtered_df = df[df[self.start] > df[self.end]]
         if not filtered_df.empty:
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
+        filtered_df = df[df[self.start] == df[self.end]]
+        if not filtered_df.empty:
+            raise ValueError('Data Contains value where Start Date is equal to End Date')
 
     def dates_beyond_2018(self, df):
         past_records = df[
@@ -71,8 +74,8 @@ class Validators(CommonBase):
         df['Expected End Date'] = df[self.start] + pd.Timedelta(minutes=60)
         invalid_dates = df[df[self.end] > df['Expected End Date']]
         if len(invalid_dates):
-            raise ValueError(
-                f"Some rows have a time difference between Start Date and End Date greater than 60 minutes.")
+            df = df[df[self.end] <= df['Expected End Date']]
+        return df
 
     def check_for_date_ranges_between_meter_dates(self, df):
         current_date = datetime.now()
@@ -135,7 +138,7 @@ class Validators(CommonBase):
         self.valid_start_end_date(data_chunk)
         self.dates_beyond_2018(data_chunk)
         if not self.iv:
-            self.check_for_valid_hourly_entries(data_chunk)
+            data_chunk = self.check_for_valid_hourly_entries(data_chunk)
             self.check_for_date_ranges_between_meter_dates(data_chunk)
         self.validate_future_records(data_chunk)
         self.validate_no_overlapping_dates(data_chunk)
@@ -147,6 +150,7 @@ class DataUploader(BaseDataUploader):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.validator = Validators(self.meter_active, self.meter_inactive, self.iv, self.meter_id)
+        self.data_len = 0
 
     def read_excel_sheets(self, file):
         required_columns = [self.start, self.end, self.reading]
@@ -181,8 +185,13 @@ class DataUploader(BaseDataUploader):
 
     def data_cleaning(self, df):
         df = df[self.required_columns]
+        self.validator.skipping = True
+        initial_row_count = len(df)
         df.dropna(subset=[self.start, self.end], inplace=True)
         df.dropna(how='all', inplace=True)
+        new_row_count = len(df)
+        if initial_row_count != new_row_count:
+            self.validator.skipping = True
         df['is_active'] = True
 
         new_row = pd.DataFrame([{
@@ -217,6 +226,7 @@ class DataUploader(BaseDataUploader):
                 futures = []
                 chunk_set = 10000
                 for header, data in sheets_data:
+                    self.data_len += len(data)
                     for i in range(0, len(data), chunk_set):
                         chunk = data[i:i + chunk_set]
                         futures.append(
@@ -230,14 +240,22 @@ class DataUploader(BaseDataUploader):
             blob_name = generate_blob_name(extension='csv')
             file_path = save_file_to_blob(blob_name, excel_buffer)
             record_id = self.create_file_record_in_table(file_path)
+            response_message = "File Uploaded Successfully"
+            status_code = 200
+            if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]):
+                removed_records = self.data_len - len(self.validator.clean_df[self.validator.clean_df['is_active'] == True])
+                status_code = 202
+                response_message = f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
             return {
+                "status_code": status_code,
                 "success": True,
-                "message": "File Uploaded Successfully",
+                "message": response_message,
                 "path": file_path,
                 "record_id": record_id
             }
         except Exception as error:
             return {
+                "status_code": 500,
                 "success": False,
                 "error": str(error)
             }

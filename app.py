@@ -912,7 +912,7 @@ def upload_file():
     else:
         uploader = DataUploader(file, facility_id, meter_id, iv)
     result = uploader.process()
-    return jsonify(result)
+    return jsonify(result), result.get('status_code')
 
 
 @app.route('/remove-meter-file', methods=['POST'])
