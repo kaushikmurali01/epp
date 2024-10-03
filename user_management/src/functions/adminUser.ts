@@ -869,7 +869,7 @@ export async function SaveCustomColumns(
         await CustomColumn.create({
           field_slug,
           field_name,
-          field_type: 'text',  // Assuming field_type is always 'text' as per your instructions
+          field_type: 'text', 
           module_type: type,
           createdat: new Date(),
           updatedat: new Date(),
