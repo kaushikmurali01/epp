@@ -58,7 +58,7 @@ class Validators(CommonBase):
         filtered_df = df[df[self.start] > df[self.end]]
         if not filtered_df.empty:
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
-        filtered_df = df[df[self.start] == df[self.end]]
+        filtered_df = df[df[self.start] != df[self.end]]
         return filtered_df
         # if not filtered_df.empty:
         #     raise ValueError('Data Contains value where Start Date is equal to End Date')
