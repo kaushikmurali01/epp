@@ -59,6 +59,7 @@ class Validators(CommonBase):
         if not filtered_df.empty:
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
         filtered_df = df[df[self.start] == df[self.end]]
+        return filtered_df
         # if not filtered_df.empty:
         #     raise ValueError('Data Contains value where Start Date is equal to End Date')
 
@@ -135,7 +136,7 @@ class Validators(CommonBase):
 
         """
         self.validate_date_format(data_chunk)
-        self.valid_start_end_date(data_chunk)
+        data_chunk = self.valid_start_end_date(data_chunk)
         self.dates_beyond_2018(data_chunk)
         if not self.iv:
             data_chunk = self.check_for_valid_hourly_entries(data_chunk)
