@@ -765,8 +765,7 @@ def get_clean_data():
         df = dbtest(clean_data_query)
         if df.empty:
             return jsonify({"error": "No data found for the given parameters"}), 404
-
-        cleaned_data = clean_raw_data(df)
+        cleaned_data = clean_raw_data(df, facility_id, meter_type)
         if isinstance(cleaned_data, pd.DataFrame):
             cleaned_data['Date'] = pd.to_datetime(cleaned_data['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
             return jsonify({"clean_data": cleaned_data.to_dict('records')})
