@@ -239,7 +239,7 @@ def get_sufficiency():
 
 
 def get_status(sufficiency, total_days):
-    return "passed" if sufficiency > 90 and total_days >=364 else "failed"
+    return "passed" if ( sufficiency != None and sufficiency > 90 and total_days >=364) else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
