@@ -245,7 +245,10 @@ class DataUploader(BaseDataUploader):
             if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]):
                 removed_records = self.data_len - len(self.validator.clean_df[self.validator.clean_df['is_active'] == True])
                 status_code = 202
-                response_message = f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
+                if len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]) == 0:
+                    response_message = f"All the rows had invalid data. So nothing to process."
+                else:
+                    response_message = f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
             return {
                 "status_code": status_code,
                 "success": True,
