@@ -59,8 +59,8 @@ class Validators(CommonBase):
         if not filtered_df.empty:
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
         filtered_df = df[df[self.start] == df[self.end]]
-        if not filtered_df.empty:
-            raise ValueError('Data Contains value where Start Date is equal to End Date')
+        # if not filtered_df.empty:
+        #     raise ValueError('Data Contains value where Start Date is equal to End Date')
 
     def dates_beyond_2018(self, df):
         past_records = df[
