@@ -785,6 +785,7 @@ const Weather = () => {
           independentVariableId={selectedIv?.id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="superAdmin"
         />
       ),
     }));
@@ -912,17 +913,6 @@ const Weather = () => {
       }
 }
 
-    // if (
-    //   Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
-    // ) {
-    //   getHourlyEntriesData();
-    // }
-
-    // if (
-    //   Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
-    // ) {
-    //   startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
-    // }
   }, [facilityData, selectedIv, refreshPageData]);
 
   return (

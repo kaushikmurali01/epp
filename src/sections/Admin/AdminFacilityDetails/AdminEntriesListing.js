@@ -736,14 +736,19 @@ const AdminEntriesListing = ({
           );
 
           if (getUploadResultData.data?.status_code === 201) {
-            const response = await getHourlyEntriesData("processingLoader");
-            if (response.data?.data?.rows?.length > 0) {
-              // Data is retrieved successfully, stop polling
-              setDataProcessingLoader(false);
-              sessionStorage.removeItem(meterIdKey);
-              clearInterval(checkInterval);
-              dispatch(fetchAdminFacilityStatus(id));
-            }
+            clearInterval(checkInterval);
+            await getHourlyEntriesData("processingLoader");
+            setDataProcessingLoader(false);
+            sessionStorage.removeItem(meterIdKey);
+            dispatch(fetchAdminFacilityStatus(id));
+
+            // if (response.data?.data?.rows?.length > 0) {
+            //   // Data is retrieved successfully, stop polling
+            //   setDataProcessingLoader(false);
+            //   sessionStorage.removeItem(meterIdKey);
+              
+            //   dispatch(fetchAdminFacilityStatus(id));
+            // }
           } else if (getUploadResultData.data?.status_code === 400) {
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
@@ -822,6 +827,7 @@ const AdminEntriesListing = ({
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="enervaAdmin"
         />
       ),
     }));
@@ -851,11 +857,24 @@ const AdminEntriesListing = ({
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        dispatch(fetchAdminFacilityStatus(id));
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows.length === 0) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
+      }
+
+      if (loader === "processingLoader" && res.data?.data?.rows.length === 0) {
+        NotificationsToast({
+          message: "Uploaded data is incorrect!",
+          type: "error",
+        });
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+        dispatch(fetchAdminFacilityStatus(id));
+        setDataProcessingLoader(false);
+        sessionStorage.removeItem(meterIdKey);
       }
 
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });

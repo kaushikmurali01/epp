@@ -778,6 +778,7 @@ const EntriesListing = ({
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="superAdmin"
         />
       ),
     }));

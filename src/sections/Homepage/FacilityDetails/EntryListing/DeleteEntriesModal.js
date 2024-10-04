@@ -10,6 +10,7 @@ import { GET_REQUEST, POST_REQUEST } from 'utils/HTTPRequests';
 import { useDispatch } from 'react-redux';
 import NotificationsToast from 'utils/notification/NotificationsToast';
 import { fetchFacilityStatus } from '../../../../redux/superAdmin/actions/facilityActions';
+import { fetchAdminFacilityStatus } from '../../../../redux/admin/actions/adminFacilityActions';
 
 const DeleteEntriesModal = ({
     meterId,
@@ -17,7 +18,8 @@ const DeleteEntriesModal = ({
     facilityId,
     independentVariableId,
     setModalConfig,
-    setRefreshPageData
+    setRefreshPageData,
+    deleteType
 }) => {
     const dispatch = useDispatch();
     const [startDate, setStartDate] = useState(null);
@@ -38,7 +40,14 @@ const DeleteEntriesModal = ({
                 setBaseLinePeriod(res.data);
                 console.log(res.data, "check min max range data")
                 dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
-                dispatch(fetchFacilityStatus(facilityId))
+                if(deleteType === "superAdmin"){
+                    dispatch(fetchFacilityStatus(facilityId))
+                }
+                if(deleteType === "enervaAdmin"){
+                    dispatch(fetchAdminFacilityStatus(facilityId));
+                }
+
+
 
             })
             .catch((error) => {
@@ -102,7 +111,15 @@ const DeleteEntriesModal = ({
             modalVisible: false,
           
           }));
-          dispatch(fetchFacilityStatus(facilityId))
+        //   dispatch(fetchFacilityStatus(facilityId))
+        //   dispatch(fetchAdminFacilityStatus(facilityId));
+        if(deleteType === "superAdmin"){
+            dispatch(fetchFacilityStatus(facilityId))
+        }
+        if(deleteType === "enervaAdmin"){
+            dispatch(fetchAdminFacilityStatus(facilityId));
+        }
+        
         }).catch((error) => {
           console.log(error)
           dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
