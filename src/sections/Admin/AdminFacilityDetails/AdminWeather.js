@@ -113,7 +113,13 @@ const AdminWeather = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   // for independent variables we have tabs in single page so we need to setup sesssion storage values while changing tabs
-  const [dataProcessingLoader, setDataProcessingLoader] = useState(false );
+  const meterIdKey = selectedIv?.id ?  `dataProcessingLoader_iv_${selectedIv?.id}` : null;
+  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+    const [dataProcessingLoader, setDataProcessingLoader] = useState(
+      getDataProcessingLoader?.loader || false
+    );
+  
+  // const [dataProcessingLoader, setDataProcessingLoader] = useState(false );
     
   const [refreshPageData, setRefreshPageData] = useState(0);
 
@@ -605,15 +611,20 @@ const AdminWeather = () => {
         if(checkStoredData?.recordId !== undefined ) {
           const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
           if(getUploadResultData.data?.status_code === 201){
-              const response = await getHourlyEntriesData("processingLoader");
-              if (response.data?.data?.rows?.length > 0) {
-                // Data is retrieved successfully, stop polling
-                setDataProcessingLoader(false);
-                sessionStorage.removeItem(meterIdKey);
-                clearInterval(checkInterval);
-                dispatch(fetchAdminFacilityStatus(facilityData?.id))
+            clearInterval(checkInterval);
+              await getHourlyEntriesData("processingLoader");
+              setDataProcessingLoader(false);
+              sessionStorage.removeItem(meterIdKey);
+              dispatch(fetchAdminFacilityStatus(facilityData?.id))
+
+              // if (response.data?.data?.rows?.length > 0) {
+              //   // Data is retrieved successfully, stop polling
+              //   setDataProcessingLoader(false);
+              //   sessionStorage.removeItem(meterIdKey);
+              //   dispatch(fetchAdminFacilityStatus(facilityData?.id))
                 
-              }
+              // }
+
           }else if (getUploadResultData.data?.status_code === 400){
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
@@ -670,6 +681,7 @@ const AdminWeather = () => {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
         setDataProcessingLoader(false)
+        dispatch(fetchAdminFacilityStatus(facilityData?.id))
       }
 
       console.log(loader !== "processingLoader" && res.data?.data?.rows?.length === 0, "check loader default state")
@@ -678,6 +690,18 @@ const AdminWeather = () => {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
         setDataProcessingLoader(false);
+      }
+
+      if (loader === "processingLoader" && res.data?.data?.rows?.length === 0) {
+        NotificationsToast({
+          message: "Uploaded data is incorrect!",
+          type: "error",
+        });
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+        setDataProcessingLoader(false);
+        dispatch(fetchAdminFacilityStatus(facilityData?.id))
+        sessionStorage.removeItem(meterIdKey);
       }
 
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -755,6 +779,7 @@ const AdminWeather = () => {
           independentVariableId={selectedIv?.id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="enervaAdmin"
         />
       ),
     }));
@@ -885,14 +910,6 @@ const AdminWeather = () => {
         }
   }
 
-
-    // if (
-    //   Object.keys(facilityData)?.length > 0 &&
-    //   dataProcessingLoader &&
-    //   getDataProcessingLoader?.selectedIvId === selectedIv?.id
-    // ) {
-    //   startPollingForData(setDataProcessingLoader,getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
-    // }
   }, [facilityData,selectedIv, refreshPageData]);
 
   return (

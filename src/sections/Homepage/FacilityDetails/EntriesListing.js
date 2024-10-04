@@ -561,6 +561,7 @@ const EntriesListing = ({
     )
       .then((data) => {
         // setHourlyEntryFile
+
         if (
           data?.message === undefined ||
           data === undefined ||
@@ -777,6 +778,7 @@ const EntriesListing = ({
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="superAdmin"
         />
       ),
     }));
@@ -807,6 +809,7 @@ const EntriesListing = ({
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        dispatch(fetchFacilityStatus(id));
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
