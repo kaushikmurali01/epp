@@ -227,7 +227,7 @@ def get_sufficiency():
         if(a < 90):
             monthley_sufficiency_pass = 10
     response = {
-        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0], "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days)},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days)},
         "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days)},
         "monthly": {
             "sufficiency": monthley_sufficiency_pass,
@@ -239,7 +239,7 @@ def get_sufficiency():
 
 
 def get_status(sufficiency, total_days):
-    return "passed" if sufficiency > 90 and total_days >=364 else "failed"
+    return "passed" if ( sufficiency != None and sufficiency > 90 and total_days >=364) else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
@@ -765,8 +765,7 @@ def get_clean_data():
         df = dbtest(clean_data_query)
         if df.empty:
             return jsonify({"error": "No data found for the given parameters"}), 404
-
-        cleaned_data = clean_raw_data(df)
+        cleaned_data = clean_raw_data(df, facility_id, meter_type)
         if isinstance(cleaned_data, pd.DataFrame):
             cleaned_data['Date'] = pd.to_datetime(cleaned_data['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
             return jsonify({"clean_data": cleaned_data.to_dict('records')})
@@ -912,7 +911,7 @@ def upload_file():
     else:
         uploader = DataUploader(file, facility_id, meter_id, iv)
     result = uploader.process()
-    return jsonify(result)
+    return jsonify(result), result.get('status_code')
 
 
 @app.route('/remove-meter-file', methods=['POST'])
