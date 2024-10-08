@@ -212,3 +212,15 @@ from monthly_per group by month_year, month order by mm asc
 select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
 
 """
+sufficiencie_thershold="""
+SELECT 
+	hourly_coverage_threshold as hourly,
+	daily_coverage_threshold as daily, 
+	monthly_covergae_threshold as monthly
+FROM 
+	epp.facility_threshold 
+where 
+	facility_id = {facility_id} 
+order by 
+	created_at desc
+"""
