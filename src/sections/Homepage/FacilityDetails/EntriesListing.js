@@ -85,13 +85,19 @@ const EntriesListing = ({
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const meterIdKey = `dataProcessingLoader_meter_${meterId}`;
-  const getDataProcessingLoader = JSON.parse(sessionStorage.getItem(meterIdKey));
+  const getDataProcessingLoader = JSON.parse(
+    sessionStorage.getItem(meterIdKey)
+  );
 
   const [dataProcessingLoader, setDataProcessingLoader] = useState(
     getDataProcessingLoader?.loader || false
   );
 
-  console.log(getDataProcessingLoader, dataProcessingLoader, "check loader state..")
+  console.log(
+    getDataProcessingLoader,
+    dataProcessingLoader,
+    "check loader state.."
+  );
   const [refreshPageData, setRefreshPageData] = useState(0);
 
   const [modalConfig, setModalConfig] = useState({
@@ -122,7 +128,6 @@ const EntriesListing = ({
       "Please enter the following details to add a new entry for this meter",
     modalBodyContent: "",
   });
-
 
   const [viewEntriesModalConfig, setViewEntriesModalConfig] = useState({
     ...modalConfig,
@@ -275,6 +280,7 @@ const EntriesListing = ({
     dispatch(deleteMeter(facilityMeterDetailId))
       .then(() => {
         dispatch(fetchFacilityDetails(id));
+        dispatch(fetchFacilityStatus(id));
         setDeleteMeterModalConfig((prevState) => ({
           ...prevState,
           modalVisible: false,
@@ -555,6 +561,7 @@ const EntriesListing = ({
     )
       .then((data) => {
         // setHourlyEntryFile
+
         if (
           data?.message === undefined ||
           data === undefined ||
@@ -601,7 +608,11 @@ const EntriesListing = ({
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
 
         // Start polling for data
-        startPollingForData(setDataProcessingLoader, recordId, facilityMeterDetailId);
+        startPollingForData(
+          setDataProcessingLoader,
+          recordId,
+          facilityMeterDetailId
+        );
       })
       .catch((error) => {
         dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
@@ -612,10 +623,8 @@ const EntriesListing = ({
       });
   };
 
-  const getUploadResult = async (loader,payload)=> {
-
+  const getUploadResult = async (loader, payload) => {
     let apiURL = `${adminHourlyEndPoints.GET_UPLOAD_RESULT}?iv=false&record_id=${payload.recordId}`;
-   
 
     try {
       const res = await GET_REQUEST(apiURL);
@@ -628,8 +637,7 @@ const EntriesListing = ({
       });
       throw error; // Throw the error to be caught in polling
     }
-  }
-  
+  };
 
   const startPollingForData = (setDataProcessingLoader, recordId, meterId) => {
     // Start data processing loader
@@ -637,16 +645,16 @@ const EntriesListing = ({
     // Set the current timestamp along with the loader status
     const storedData = JSON.parse(sessionStorage.getItem(meterIdKey));
     let data = {};
-    if(recordId !== undefined && storedData === null) {
+    if (recordId !== undefined && storedData === null) {
       const now = new Date();
-        data = {
+      data = {
         loader: true,
         timestamp: now.toISOString(),
         meterId: meterId,
         recordId: recordId || storedData?.recordId,
       };
       sessionStorage.setItem(meterIdKey, JSON.stringify(data));
-  }
+    }
 
     let checkInterval;
     const pollData = async () => {
@@ -656,8 +664,9 @@ const EntriesListing = ({
         const storedTime = new Date(checkStoredData.timestamp);
         const currentTime = new Date();
         const timeDifference = currentTime - storedTime;
-  
-        if (timeDifference >= 5 * 60 * 1000) { // 5 minutes in milliseconds
+
+        if (timeDifference >= 5 * 60 * 1000) {
+          // 5 minutes in milliseconds
           console.log("5 minutes have passed, stopping polling.");
           clearInterval(checkInterval);
           setDataProcessingLoader(false);
@@ -669,34 +678,40 @@ const EntriesListing = ({
           return;
         }
 
-        if(checkStoredData?.recordId !== undefined ) {
-          const getUploadResultData = await getUploadResult("processingLoader",checkStoredData)
+        if (checkStoredData?.recordId !== undefined) {
+          const getUploadResultData = await getUploadResult(
+            "processingLoader",
+            checkStoredData
+          );
 
-          if(getUploadResultData.data?.status_code === 201){
-              const response = await getHourlyEntriesData("processingLoader");
-              if (response.data?.data?.rows?.length > 0) {
-                // Data is retrieved successfully, stop polling
-                setDataProcessingLoader(false);
-                sessionStorage.removeItem(meterIdKey);
-                clearInterval(checkInterval);
-                dispatch(fetchFacilityStatus(id))
-                
-              }
-          }else if (getUploadResultData.data?.status_code === 400){
+          if (getUploadResultData.data?.status_code === 201) {
+            clearInterval(checkInterval);
+            await getHourlyEntriesData("processingLoader");
+            setDataProcessingLoader(false);
+            sessionStorage.removeItem(meterIdKey);
+            dispatch(fetchFacilityStatus(id));
+            // console.log(response, "response data check....")
+            // if (response.data?.data?.rows?.length > 0) {
+            //   // Data is retrieved successfully, stop polling
+            //   setDataProcessingLoader(false);
+            //   sessionStorage.removeItem(meterIdKey);
+             
+            //   dispatch(fetchFacilityStatus(id));
+            // }
+          } else if (getUploadResultData.data?.status_code === 400) {
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
             sessionStorage.removeItem(meterIdKey);
             clearInterval(checkInterval);
-            dispatch(fetchFacilityStatus(id))
+            dispatch(fetchFacilityStatus(id));
             NotificationsToast({
-              message: getUploadResultData.data ? getUploadResultData.data : "Something went wrong!",
+              message: getUploadResultData.data
+                ? getUploadResultData.data
+                : "Something went wrong!",
               type: "error",
             });
-            
           }
-         
-        } 
-        
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -705,8 +720,6 @@ const EntriesListing = ({
     checkInterval = setInterval(pollData, 3000); // Poll every 3 seconds
     return checkInterval;
   };
-
- 
 
   const deleteFile = (imgData) => {
     dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: true });
@@ -765,6 +778,7 @@ const EntriesListing = ({
           facilityId={meterData?.facility_id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="superAdmin"
         />
       ),
     }));
@@ -788,15 +802,30 @@ const EntriesListing = ({
 
     try {
       const res = await POST_REQUEST(apiURL, payload);
+      setDataProcessingLoader(false);
       if (
         res.data?.data?.rows instanceof Array &&
         res.data?.data?.rows?.length > 0
       ) {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
+        dispatch(fetchFacilityStatus(id));
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
+        setViewEntryList(res.data?.data?.rows);
+        setUploadDataFormVisible(true);
+      }
+      // remove dataProcessingLoader if it is active
+      if (loader === "processingLoader" && res.data?.data?.rows?.length === 0) {
+       
+        sessionStorage.removeItem(meterIdKey);
+        dispatch(fetchFacilityStatus(id));
+        setDataProcessingLoader(false);
+        NotificationsToast({
+          message: "Uploaded data is incorrect!",
+          type: "error",
+        });
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(true);
       }
@@ -804,6 +833,12 @@ const EntriesListing = ({
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       return res; // Return the response for polling check
     } catch (error) {
+      
+      // remove dataProcessingLoader if it is active
+      setDataProcessingLoader(false);
+      sessionStorage.removeItem(meterIdKey);
+      dispatch(fetchFacilityStatus(id));
+
       console.log(error);
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       throw error; // Throw the error to be caught in polling
@@ -815,11 +850,14 @@ const EntriesListing = ({
       getHourlyEntriesData();
     }
 
-    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {      
-      startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.meterId);
+    if (Object.keys(meterData).length > 0 && dataProcessingLoader) {
+      startPollingForData(
+        setDataProcessingLoader,
+        getDataProcessingLoader?.recordId,
+        getDataProcessingLoader?.meterId
+      );
     }
   }, [meterData, refreshPageData]);
-
 
   //  return html dom
 
@@ -901,12 +939,8 @@ const EntriesListing = ({
         >
           <Typography variant="small2">Date meter became active</Typography>
           <Typography variant="h6" gutterBottom>
-            {format(
-              new Date(
-                meterData?.meter_active ? meterData?.meter_active : null
-              ),
-              "yyyy-MM-dd"
-            )}
+            {meterData?.meter_active &&
+              format(new Date(meterData?.meter_active), "yyyy-MM-dd")}
           </Typography>
         </Box>
 
@@ -1047,9 +1081,8 @@ const EntriesListing = ({
               Upload data in bulk for this meter
             </Typography>
             <Typography variant="small2" gutterBottom>
-              {/* You can upload a Green Button XML file or an Excel-compatible
-              file. Use this{" "} */}
-              You can upload an Excel-compatible file. Use this{" "}
+              You can upload a Green Button XML file or an Excel-compatible
+              file. Use this{" "}
               <Link
                 href="https://eppdevstorage.blob.core.windows.net/agreement-docs/meter_spreadsheet.xlsx"
                 underline="hover"
@@ -1161,7 +1194,7 @@ const EntriesListing = ({
                       ref={fileInputRef}
                       style={{ display: "none" }}
                       onChange={handleFileChange}
-                      accept=".xlsx,.csv,.xml,text/xml"
+                      accept=".xlsx,.xml,text/xml"
                     />
 
                     {!imgUploadData?.success && (

@@ -7,8 +7,9 @@ import {
   List,
   Pagination,
   ListItem,
+  Box,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useDispatch, useSelector } from "react-redux";
 import EvModal from "utils/modal/EvModal";
@@ -49,9 +50,11 @@ const PerformancePeriodInformationAccordion = ({
   );
 
   const {
+    processing,
     adminNonRoutineEventList,
     adminNonRoutineEventDetails,
     adminPerformanceReportInDB,
+    adminPerformanceDataMinMaxDate,
   } = useSelector((state) => state?.adminPerformanceReducer);
 
   useEffect(() => {
@@ -309,7 +312,7 @@ const PerformancePeriodInformationAccordion = ({
         performanceP4PCalcTab
       )
     );
-  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab]);
+  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab, processing]);
 
   useEffect(() => {
     if (adminPerformanceReportInDB) {
@@ -423,16 +426,49 @@ const PerformancePeriodInformationAccordion = ({
     );
   };
 
-  return (
+  const savingsReportFormRef = useRef();
+
+  return adminPerformanceDataMinMaxDate && processing ? (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+        alignItems: "center",
+        marginTop: "1rem",
+        marginInline: "1rem",
+        justifyContent: "center",
+        padding: "2rem",
+        background: "#FFFFFF",
+        borderRadius: "10px",
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+        maxWidth: "65rem",
+      }}
+    >
+      <Typography
+        variant="body2"
+        color="textSecondary"
+        sx={{
+          marginRight: "1rem",
+          fontWeight: 700,
+        }}
+      >
+        Please note: Performance scoring is currently in progress. You will be
+        able to proceed with the P4P (Pay-for-Performance) calculation once this
+        process is complete. We appreciate your patience during this time.
+      </Typography>
+      <div className="progress-loader"></div>
+    </Box>
+  ) : (
     <>
       <Grid
         container
         sx={{
-          alignItems: "center",
+          flexDirection: "column",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           gap: "1rem",
-          marginTop: "1rem",
-          marginBottom: {xs: "1rem", md: "1.5rem"},
+          marginBottom: { xs: "1rem", md: "1.5rem" },
         }}
         width={"100%"}
       >
@@ -472,20 +508,38 @@ const PerformancePeriodInformationAccordion = ({
           item
           sx={{
             display: "flex",
-            width: { xs: "100%", md: "auto" },
-            justifyContent: "flex-end",
-            marginLeft: "auto",
+            width: "100%",
+            justifyContent: "space-between",
           }}
         >
+          {adminPerformanceReportInDB?.status === "SUBMITTED" && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="small"
+              onClick={() => savingsReportFormRef.current.handleSendRequest()}
+            >
+              Send request
+            </Button>
+          )}
+          {adminPerformanceReportInDB?.status === "REQUESTED" && (
+            <Button
+              variant="contained"
+              disabled
+            >
+              Review request sent
+            </Button>
+          )}
           <Button
             style={{
               backgroundColor: "transparent",
               padding: 0,
               minWidth: "unset",
               fontSize: "0.875rem",
+              marginLeft: "auto",
             }}
             disableRipple
-            endIcon={
+            startIcon={
               <AddCircleIcon
                 style={{
                   color: "text.primary",
@@ -512,6 +566,7 @@ const PerformancePeriodInformationAccordion = ({
       >
         <Grid item xs={12} md={9.3}>
           <SavingsReportForm
+            ref={savingsReportFormRef}
             meter_type={meter_type}
             performanceP4PCalcTab={performanceP4PCalcTab}
             submitTrigger={submitTrigger}

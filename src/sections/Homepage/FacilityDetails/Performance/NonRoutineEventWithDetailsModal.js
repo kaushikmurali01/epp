@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Grid, Typography, Button, Link, Box } from "@mui/material";
 import { deleteNonRoutineEvent, getNonRoutineEventDetails, getNonRoutineEventList } from "../../../../redux/superAdmin/actions/performanceAction";
 import { downloadFileFromUrl } from "utils/helper/helper";
+import { format, parseISO } from "date-fns";
 
 const NonRoutineEventWithDetailsModal = ({
   eventId,
@@ -24,6 +25,15 @@ const NonRoutineEventWithDetailsModal = ({
 useEffect(() => {
   dispatch(getNonRoutineEventDetails(eventId));
 }, [dispatch, eventId, facility_id, meter_type]);
+
+const formatDateToLocal = (dateString) => {
+  if (!dateString) return;
+  const date = parseISO(dateString);
+  const localDate = new Date(
+    date.getTime() + new Date().getTimezoneOffset() * 60000
+  );
+  return format(localDate, "MM-dd-yyyy");
+};
 
 const getUploadedFiles = () => {
   if (
@@ -74,7 +84,16 @@ const getUploadedFiles = () => {
         container
         sx={{ paddingBottom: "10px", borderBottom: "1px solid #54585A" }}
       >
-        <Grid item xs={12} md={9}>
+        <Grid
+          item
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "1rem",
+            flexWrap: "wrap"
+          }}
+        >
           <Grid>
             <Typography
               sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
@@ -82,31 +101,31 @@ const getUploadedFiles = () => {
               Event period
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {formatDate(nonRoutineEventDetails.event_from_period)} to{" "}
-              {formatDate(nonRoutineEventDetails.event_to_period)}
+              {formatDateToLocal(nonRoutineEventDetails.event_from_period)} to{" "}
+              {formatDateToLocal(nonRoutineEventDetails.event_to_period)}
             </Typography>
           </Grid>
-          <Grid sx={{ marginTop: "20px" }}>
+          <Grid item>
             <Typography
               sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
             >
-              Comment
+              Event name
             </Typography>
             <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-              {nonRoutineEventDetails.event_description}
+              {nonRoutineEventDetails.event_name}
             </Typography>
           </Grid>
         </Grid>
-        <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+        {nonRoutineEventDetails.event_description && <Grid sx={{ marginTop: "20px" }}>
           <Typography
             sx={{ fontSize: "14px", fontWeight: "400", color: "#54585A" }}
           >
-            Event name
+            Comment
           </Typography>
           <Typography sx={{ fontSize: "14px !important", color: "#242424" }}>
-            {nonRoutineEventDetails.event_name}
+            {nonRoutineEventDetails.event_description}
           </Typography>
-        </Grid>
+        </Grid>}
       </Grid>
 
       {nonRoutineEventDetails.dataEntries &&
@@ -122,9 +141,19 @@ const getUploadedFiles = () => {
                   marginTop: "10px",
                   paddingBottom: "10px",
                   borderBottom: "1px solid #54585A",
+                  flexWrap: "wrap",
                 }}
               >
-                <Grid item xs={12} md={9}>
+                <Grid
+                  item
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "1rem",
+                    flexWrap: "wrap",
+                  }}
+                >
                   <Grid>
                     <Typography
                       sx={{
@@ -138,10 +167,10 @@ const getUploadedFiles = () => {
                     <Typography
                       sx={{ fontSize: "14px !important", color: "#242424" }}
                     >
-                      {formatDate(entry.start_date)}
+                      {formatDateToLocal(entry.start_date)}
                     </Typography>
                   </Grid>
-                  <Grid sx={{ marginTop: "20px" }}>
+                  <Grid item sx={{ justifySelf: "flex-end" }}>
                     <Typography
                       sx={{
                         fontSize: "14px",
@@ -149,16 +178,16 @@ const getUploadedFiles = () => {
                         color: "#54585A",
                       }}
                     >
-                      Non-routine adjustment
+                      End date
                     </Typography>
                     <Typography
                       sx={{ fontSize: "14px !important", color: "#242424" }}
                     >
-                      {entry.non_routine_adjustment}
+                      {formatDateToLocal(entry.end_date)}
                     </Typography>
                   </Grid>
                 </Grid>
-                <Grid item xs={12} md={3} sx={{ justifySelf: "flex-end" }}>
+                <Grid sx={{ marginTop: "20px" }}>
                   <Typography
                     sx={{
                       fontSize: "14px",
@@ -166,12 +195,12 @@ const getUploadedFiles = () => {
                       color: "#54585A",
                     }}
                   >
-                    End date
+                    Non-routine adjustment
                   </Typography>
                   <Typography
                     sx={{ fontSize: "14px !important", color: "#242424" }}
                   >
-                    {formatDate(entry.end_date)}
+                    {entry.non_routine_adjustment}
                   </Typography>
                 </Grid>
               </Grid>

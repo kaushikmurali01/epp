@@ -611,17 +611,21 @@ const Weather = () => {
 
         if(checkStoredData?.recordId !== undefined ) {
           const getUploadResultData = await getUploadResult(checkInterval,checkStoredData)
-          console.log(getUploadResultData, "checking upload result data")
+         
           if(getUploadResultData.data?.status_code === 201){
-              const response = await getHourlyEntriesData("processingLoader");
-              if (response.data?.data?.rows?.length > 0) {
-                // Data is retrieved successfully, stop polling
-                setDataProcessingLoader(false);
-                sessionStorage.removeItem(meterIdKey);
-                clearInterval(checkInterval);
-                dispatch(fetchFacilityStatus(facilityData?.id))
+              await getHourlyEntriesData("processingLoader");
+              clearInterval(checkInterval);
+              setDataProcessingLoader(false);
+              sessionStorage.removeItem(meterIdKey);
+              dispatch(fetchFacilityStatus(facilityData?.id))
+              // if (response.data?.data?.rows?.length > 0) {
+              //   // Data is retrieved successfully, stop polling
+              //   setDataProcessingLoader(false);
+              //   sessionStorage.removeItem(meterIdKey);
+              //   clearInterval(checkInterval);
+              //   dispatch(fetchFacilityStatus(facilityData?.id))
                 
-              }
+              // }
           }else if (getUploadResultData.data?.status_code === 400){
             setDataProcessingLoader(false);
             setUploadDataFormVisible(true);
@@ -679,6 +683,7 @@ const Weather = () => {
         setViewEntryList(res.data?.data?.rows);
         setUploadDataFormVisible(false);
         setDataProcessingLoader(false)
+        dispatch(fetchFacilityStatus(facilityData?.id))
       }
 
       if (loader !== "processingLoader" && res.data?.data?.rows?.length === 0) {
@@ -687,10 +692,29 @@ const Weather = () => {
         setDataProcessingLoader(false);
       }
 
+        // remove dataProcessingLoader if it is active
+        if (loader === "processingLoader" && res.data?.data?.rows?.length === 0) {
+       
+          setDataProcessingLoader(false);
+          sessionStorage.removeItem(meterIdKey);
+          dispatch(fetchFacilityStatus(facilityData?.id))
+
+          NotificationsToast({
+            message: "Uploaded data is incorrect!",
+            type: "error",
+          });
+            setViewEntryList(res.data?.data?.rows);
+            setUploadDataFormVisible(true);
+            setDataProcessingLoader(false);
+        }
+
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       return res; // Return the response for polling check
     } catch (error) {
       console.log(error);
+      setDataProcessingLoader(false);
+      sessionStorage.removeItem(meterIdKey);
+      dispatch(fetchFacilityStatus(facilityData?.id))
       dispatch({ type: "SHOW_EV_PAGE_LOADER", payload: false });
       throw error; // Throw the error to be caught in polling
     }
@@ -761,6 +785,7 @@ const Weather = () => {
           independentVariableId={selectedIv?.id}
           setModalConfig={setDeleteEntriesModalConfig}
           setRefreshPageData={setRefreshPageData}
+          deleteType="superAdmin"
         />
       ),
     }));
@@ -888,17 +913,6 @@ const Weather = () => {
       }
 }
 
-    // if (
-    //   Object.keys(facilityData)?.length > 0 && !dataProcessingLoader && selectedIv
-    // ) {
-    //   getHourlyEntriesData();
-    // }
-
-    // if (
-    //   Object.keys(facilityData)?.length > 0 && dataProcessingLoader && selectedIv
-    // ) {
-    //   startPollingForData(setDataProcessingLoader, getDataProcessingLoader?.recordId, getDataProcessingLoader?.selectedIvId);
-    // }
   }, [facilityData, selectedIv, refreshPageData]);
 
   return (

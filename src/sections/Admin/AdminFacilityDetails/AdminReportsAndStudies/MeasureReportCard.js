@@ -8,6 +8,7 @@ import { useParams } from "react-router-dom";
 import {
   deleteAdminFacilityMeasureReport,
   fetchAdminFacilityMeasureReportListing,
+  fetchAdminFacilityStatus,
 } from "../../../../redux/admin/actions/adminFacilityActions";
 import { downloadFileFromUrl } from "utils/helper/helper";
 
@@ -29,6 +30,7 @@ const MeasureReportCard = ({
             modalVisible: false,
           }));
           dispatch(fetchAdminFacilityMeasureReportListing(pageInfo, id));
+          dispatch(fetchAdminFacilityStatus(id));
         })
         .catch((error) => {
           setAddMeasureModalConfig((prevState) => ({

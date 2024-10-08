@@ -57,7 +57,10 @@ const ViewEntryDetailListModal = ({
       // accessor: "reading",
       accessor: (item) => (
         <>
-          {item?.reading && formatNumber(item.reading)}
+          {/* {item?.reading && formatNumber(item.reading)} */}
+          {item?.reading_og
+            ? formatNumber(item.reading_og)
+            : item?.reading && formatNumber(item.reading)}
         </>
       ),
     },

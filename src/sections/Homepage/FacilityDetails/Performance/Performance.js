@@ -48,12 +48,8 @@ const Performance = () => {
     setActiveButton(index);
   };
 
-  const {loading, processing} = useSelector(
+  const { loading, performanceReportInDB } = useSelector(
     (state) => state?.performanceReducer
-  );
-
-  const isLoading = useSelector(
-    (state) => state?.baselineReducer?.loading
   );
 
   const buttonStyle = {
@@ -91,30 +87,47 @@ const Performance = () => {
   const [verifiedP4P, setVerifiedP4P] = useState(false);
   const [verificationDate, setVerificationDate] = useState(null);
   const [performanceType, setPerformanceType] = useState(null);
+  const [reviewRequest, setReviewRequest] = useState(false);
+
+  useEffect(() => {
+    setReviewRequest(performanceReportInDB?.status === "REQUESTED");
+  }, [performanceReportInDB, performanceType]);
 
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
-  }, []);
+  }, [setSubmittedP4P, performanceType]);
 
-  const handleVerifiedP4PsChange = useCallback((newVerifiedP4P) => {
-    setVerifiedP4P(newVerifiedP4P);
-  }, []);
+  const handleVerifiedP4PsChange = useCallback(
+    (newVerifiedP4P) => {
+      setVerifiedP4P(newVerifiedP4P);
+    },
+    [setVerifiedP4P, performanceType]
+  );
 
-  const handleSubmissionDate = useCallback((newDate) => {
-    setSubmissionDate(newDate ? new Date(newDate) : null);
-  }, []);
+  const handleSubmissionDate = useCallback(
+    (newDate) => {
+      setSubmissionDate(newDate ? new Date(newDate) : null);
+    },
+    [setSubmissionDate, performanceType]
+  );
 
-  const handleVerificationDate = useCallback((newDate) => {
-    setVerificationDate(newDate ? new Date(newDate) : null);
-  }, []);
+  const handleVerificationDate = useCallback(
+    (newDate) => {
+      setVerificationDate(newDate ? new Date(newDate) : null);
+    },
+    [setVerificationDate, performanceType]
+  );
 
-  const handlePerformanceTypeChange = useCallback((newPerformanceType) => {
-    setPerformanceType(newPerformanceType);
-  }, []);
+  const handlePerformanceTypeChange = useCallback(
+    (newPerformanceType) => {
+      setPerformanceType(newPerformanceType);
+    },
+    [setPerformanceType]
+  );
 
   const handleSubmitSavingsReport = useCallback(() => {
     setSubmitTrigger(true);
-  }, []);
+  }, [setSubmitTrigger, performanceType]);
 
   const handleDateValidation = (isValid) => {
     setIsDateValid(isValid);
@@ -170,7 +183,8 @@ const Performance = () => {
               Natural gas
             </Button>
           </StyledButtonGroup>
-          {!submittedP4P && !verifiedP4P && (
+
+          {reviewRequest ? (
             <Button
               type="button"
               variant="contained"
@@ -179,10 +193,22 @@ const Performance = () => {
             >
               Submit Savings Report
             </Button>
+          ) : (
+            !submittedP4P &&
+            !verifiedP4P && (
+              <Button
+                type="button"
+                variant="contained"
+                onClick={handleSubmitSavingsReport}
+                disabled={!isDateValid}
+              >
+                Submit Savings Report
+              </Button>
+            )
           )}
         </Grid>
 
-        {(submittedP4P || verifiedP4P) &&
+        {/* {(submittedP4P || verifiedP4P) &&
           (submissionDate || verificationDate) && (
             <Grid item display="flex" justifyContent="end" width="100%">
               <Typography
@@ -209,7 +235,56 @@ const Performance = () => {
                 {submittedP4P && ", pending verification"}
               </Typography>
             </Grid>
-          )}
+          )} */}
+
+        {reviewRequest ? (
+          <Grid item display="flex" justifyContent="end" width="100%">
+            <Typography
+              sx={{
+                padding: "6px 8px 6px 8px",
+                backgroundColor: "#CFEEFF",
+                color: "#1976AA",
+                borderRadius: "12rem",
+                fontStyle: "italic",
+                fontSize: { xs: "12px", md: "14px !important" },
+                fontWeight: "400",
+              }}
+            >
+              Review request of Savings Report for{" "}
+              <b>{getPerformanceTypeText(performanceType)}</b> has been
+              received, please check and submit the report again.
+            </Typography>
+          </Grid>
+        ) : (
+          (submittedP4P || verifiedP4P) &&
+          (submissionDate || verificationDate) && (
+            <Grid item display="flex" justifyContent="end" width="100%">
+              <Typography
+                sx={{
+                  padding: "6px 8px 6px 8px",
+                  backgroundColor: verifiedP4P ? "#3ea65c" : "#CFEEFF",
+                  color: verifiedP4P ? "#FFF" : "#1976AA",
+                  borderRadius: "12rem",
+                  fontStyle: "italic",
+                  fontSize: { xs: "12px", md: "14px !important" },
+                  fontWeight: "400",
+                }}
+              >
+                Savings Report for{" "}
+                <b>{getPerformanceTypeText(performanceType)}</b> has been
+                <b>{verifiedP4P ? " verified " : " submitted "}</b>
+                on{" "}
+                {verifiedP4P && verificationDate
+                  ? format(verificationDate, "yyyy-MM-dd, HH:mm")
+                  : null}
+                {submittedP4P && submissionDate
+                  ? format(submissionDate, "yyyy-MM-dd, HH:mm")
+                  : null}
+                {submittedP4P && ", pending verification"}
+              </Typography>
+            </Grid>
+          )
+        )}
 
         <Grid item>
           <CustomAccordion
@@ -259,11 +334,9 @@ const Performance = () => {
       </Grid>
       <Loader
         sectionLoader
-        textLoader={processing}
         minHeight="100vh"
-        loadingState={processing || loading || isLoading}
+        loadingState={loading}
         loaderPosition="fixed"
-        loaderText={"Performance Scoring"}
       />
     </>
   );

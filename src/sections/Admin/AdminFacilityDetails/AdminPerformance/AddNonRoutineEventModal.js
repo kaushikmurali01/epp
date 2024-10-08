@@ -16,6 +16,7 @@ import {
   getAdminNonRoutineEventList,
   updateAdminNonRoutineEvent,
 } from "../../../../redux/admin/actions/adminPerformanceActions";
+import { format, parseISO } from "date-fns";
 
 const AddNonRoutineEventModal = ({
   meter_type,
@@ -37,6 +38,15 @@ const AddNonRoutineEventModal = ({
     event_description: "",
   });
 
+  const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
+    const date = parseISO(dateString);
+    const localDate = new Date(
+      date.getTime() + new Date().getTimezoneOffset() * 60000
+    );
+    return format(localDate, "MM-dd-yyyy");
+  };
+
   const { adminNonRoutineEventDetails, adminPerformanceDataMinMaxDate } =
     useSelector((state) => state?.adminPerformanceReducer);
 
@@ -45,10 +55,10 @@ const AddNonRoutineEventModal = ({
       dispatch(getAdminNonRoutineEventDetails(editMode.eventId))
         .then(() => {
           setInitialValues({
-            event_to_period: new Date(adminNonRoutineEventDetails.event_to_period),
-            event_from_period: new Date(
+            event_to_period: new Date(formatDateToLocal(adminNonRoutineEventDetails.event_to_period)),
+            event_from_period: new Date(formatDateToLocal(
               adminNonRoutineEventDetails.event_from_period
-            ),
+            )),
             event_name: adminNonRoutineEventDetails.event_name,
             event_description: adminNonRoutineEventDetails.event_description,
           });
@@ -65,6 +75,8 @@ const AddNonRoutineEventModal = ({
       ? updateAdminNonRoutineEvent(editMode.eventId, payload)
       : addAdminNonRoutineEvent(payload);
 
+    console.log(payload, action);
+    
     dispatch(action)
       .then((response) => {
         const event_id = response?.data?.id || editMode.eventId;

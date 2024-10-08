@@ -34,11 +34,12 @@ import {
 } from "utils/dropdownConstants/dropdownConstants";
 import InputFieldNF from "components/FieldsNotForForms/InputFieldNF";
 import SelectBoxNF from "components/FieldsNotForForms/SelectNF";
-import { format, isAfter, subYears } from "date-fns";
+import { format, isAfter, parseISO, startOfDay, subYears } from "date-fns";
 import { useParams } from "react-router-dom";
 import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
 import Loader from "pages/Loader";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const ModelConstructorForm = ({
   handleSufficiencySettings,
@@ -153,21 +154,15 @@ const ModelConstructorForm = ({
       meterType
     );
     if (
-      baselineCalculated?.status === "SUBMITTED" ||
+      baselineCalculated?.status === "USER_SUBMITTED" ||
       (baselineCalculated?.status === "REQUESTED" &&
         baselineCalculated?.parameter_data?.length > 0)
     ) {
       setCheckSufficiencyAfter(true);
       setFormData({
         ...baselineCalculated?.parameter_data,
-        start_date: format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        ),
-        end_date: format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        ),
+        start_date: baselineCalculated?.parameter_data?.start_date,
+        end_date: baselineCalculated?.parameter_data?.end_date,
       });
       const submittedDummyVariables = baselineCalculated?.parameter_data
         ?.dummyVariables || {
@@ -185,18 +180,8 @@ const ModelConstructorForm = ({
         hourly: { ...baselineCalculated?.parameter_data?.hourly },
         monthly: { ...baselineCalculated?.parameter_data?.monthly },
       });
-      setBaselineStartDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.start_date),
-          "yyyy-MM-dd"
-        )
-      );
-      setBaselineEndDate(
-        format(
-          new Date(baselineCalculated?.parameter_data?.end_date),
-          "yyyy-MM-dd"
-        )
-      );
+      setBaselineStartDate(baselineCalculated?.parameter_data?.start_date);
+      setBaselineEndDate(baselineCalculated?.parameter_data?.end_date);
     } else {
       setCheckSufficiencyAfter(false);
       const initialValues = {
@@ -231,10 +216,10 @@ const ModelConstructorForm = ({
     const myData = {
       ...values,
       facility_id: id,
-      start_date:
-        values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
-      end_date:
-        values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
+      // start_date:
+      //   values.start_date && format(new Date(values.start_date), "yyyy-MM-dd"),
+      // end_date:
+      //   values.start_date && format(new Date(values.end_date), "yyyy-MM-dd"),
     };
     setActivateCalculateBaseline(true);
     setCheckSufficiencyAfter(false);
@@ -447,20 +432,29 @@ const ModelConstructorForm = ({
     };
     dispatch(submitAdminBaselineDt(data))
       .then((res) => {
-        const updatedBaselineData = {
-          status: "REVIEWED",
-          data: {
-            ...data,
-            ...res,
-            ...sufficiencyCheckData,
-          },
-        };
-
-        const baseline_id = getIdByMeterType(meterType);
-        if (baseline_id) {
-          openUserReviewBaselineModal(baseline_id, updatedBaselineData);
+        if (res?.baseline_model_check === "failed") {
+          setActivateCalculateBaseline(true);
+          NotificationsToast({
+            message:
+              "Baseline calculation failed, try changing the Baseline period or variables!",
+            type: "error",
+          });
+          return;
+        } else {
+          const updatedBaselineData = {
+            status: "REVIEWED",
+            data: {
+              ...data,
+              ...res,
+              ...sufficiencyCheckData,
+            },
+          };
+          const baseline_id = getIdByMeterType(meterType);
+          if (baseline_id) {
+            openUserReviewBaselineModal(baseline_id, updatedBaselineData);
+          }
+          setActivateCalculateBaseline(true);
         }
-        setActivateCalculateBaseline(true);
       })
       .catch((err) => {});
   };
@@ -494,6 +488,8 @@ const ModelConstructorForm = ({
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
+            console.log(startDate, endDate);
+            
             setFieldValue("start_date", startDate);
             setFieldValue("end_date", endDate);
             handleSubmit({

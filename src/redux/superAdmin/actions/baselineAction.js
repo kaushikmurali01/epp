@@ -275,6 +275,7 @@ export const addAssigneeToBaselineDb = (facilityId) => {
 };
 
 export const submitRejectedBaselineDB = (facilityId, dataBody) => {
+  console.log(dataBody, "data body");
   return async (dispatch) => {
     try {
       dispatch(submitRejectBaselineDbRequest());
@@ -283,7 +284,10 @@ export const submitRejectedBaselineDB = (facilityId, dataBody) => {
       const data = response.data;
       dispatch(submitRejectBaselineDbSuccess(data));
       NotificationsToast({
-        message: "Help request sent successfully",
+        message:
+          dataBody?.status === "REQUESTED"
+            ? "Help request sent successfully"
+            : "Baseline submitted successfully",
         type: "success",
       });
       return data;
@@ -401,12 +405,12 @@ export const fetchRawSummaryMeterList = (
         endpointWithParams += `&detail=${detail}`;
       }
       endpointWithParams += `&meter_id=${meterId}`;
-      if (min_date) {
-        endpointWithParams += `&min_date=${min_date}`;
-      }
-      if (max_date) {
-        endpointWithParams += `&max_date=${max_date}`;
-      }
+      // if (min_date) {
+      //   endpointWithParams += `&min_date=${min_date}`;
+      // }
+      // if (max_date) {
+      //   endpointWithParams += `&max_date=${max_date}`;
+      // }
       if (bound) {
         endpointWithParams += `&bound=${bound}`;
       }

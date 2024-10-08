@@ -39,12 +39,25 @@ const CommonDataAvailabilityAlert = ({
   };
 
   const getAlertTitle = () => {
+    if (p4pEndDate === null) {
+      return "Performance Settings Update Required";
+    }
+
     return isAdmin
       ? "Notice: Incomplete Data for P4P Calculation"
       : "Data Availability Notice";
   };
 
   const getAlertContent = () => {
+    if (p4pEndDate === null) {
+      return (
+        <Typography variant="body2" paragraph>
+          Please update the settings to set the P4P end date. Once the settings
+          are updated, you will be able to calculate the P4P calculations.
+        </Typography>
+      );
+    }
+
     if (isAdmin) {
       return (
         <>

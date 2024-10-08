@@ -58,6 +58,15 @@ const AddNonRoutineDataModal = ({
     (state) => state?.adminPerformanceReducer
   );
 
+  const formatDateToLocal = (dateString) => {
+    if (!dateString) return;
+    const date = parseISO(dateString);
+    const localDate = new Date(
+      date.getTime() + new Date().getTimezoneOffset() * 60000
+    );
+    return format(localDate, "MM-dd-yyyy");
+  };
+
   useEffect(() => {
     if (editMode.isEditing && editMode.eventId) {
       dispatch(getAdminNonRoutineEventDetails(editMode.eventId))
@@ -76,9 +85,9 @@ const AddNonRoutineDataModal = ({
                 adminNonRoutineEventDetails.dataEntries.map((entry) => ({
                   id: entry.id,
                   start_date: entry.start_date
-                    ? parseISO(entry.start_date)
+                    ? new Date(formatDateToLocal(entry.start_date))
                     : null,
-                  end_date: entry.end_date ? parseISO(entry.end_date) : null,
+                  end_date: entry.end_date ? new Date(formatDateToLocal(entry.end_date)) : null,
                   non_routine_adjustment: entry.non_routine_adjustment || "",
                 }))
               );
@@ -315,8 +324,8 @@ const AddNonRoutineDataModal = ({
                                   }}
                                   disableFuture
                                   format="MM/dd/yyyy"
-                                  minDate={parseISO(event_from_period)}
-                                  maxDate={parseISO(event_to_period)}
+                                  minDate={new Date(formatDateToLocal(event_from_period))}
+                                  maxDate={new Date(formatDateToLocal(event_to_period))}
                                   slotProps={{
                                     textField: {
                                       readOnly: true,
@@ -343,8 +352,8 @@ const AddNonRoutineDataModal = ({
                                     width: "100%",
                                     input: { color: "#111" },
                                   }}
-                                  minDate={parseISO(event_from_period)}
-                                  maxDate={parseISO(event_to_period)}
+                                  minDate={new Date(formatDateToLocal(event_from_period))}
+                                  maxDate={new Date(formatDateToLocal(event_to_period))}
                                   format="MM/dd/yyyy"
                                   slotProps={{
                                     textField: {
@@ -525,7 +534,7 @@ const AddNonRoutineDataModal = ({
                   onChange={(event) =>
                     handleFileChange(event, setFieldValue, values)
                   }
-                  accept=".xlsx,.csv"
+                  accept=".xlsx"
                 />
               </Box>
               <Button

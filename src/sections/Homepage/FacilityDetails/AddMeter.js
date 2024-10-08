@@ -232,6 +232,9 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
   };
 
   const handleRevenueTypeChange = (event, newAlignment, form) => {
+    if (newAlignment === null) {
+      return;
+    }
     setRevenueAlignment(newAlignment);
     form.setFieldValue("is_rg_meter", newAlignment);
   };
@@ -346,7 +349,7 @@ const AddMeter = ({ onAddMeterSuccess, meterId2 }) => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
-                  <InputField name="meter_id" label="Meter ID*" type="number" />
+                  <InputField name="meter_id" label="Meter ID*" type="text"  />
                   {!touched.meter_id && (
                     <Typography variant="small" color="primary">
                       Meter number can be found on the electricity bill

@@ -7,6 +7,7 @@ import {
   List,
   Pagination,
   ListItem,
+  Box,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
@@ -47,8 +48,12 @@ const PerformancePeriodInformationAccordion = ({
     (state) => state?.facilityReducer?.facilityDetails?.data?.id
   );
 
-  const { nonRoutineEventList, nonRoutineEventDetails, performanceReportInDB } =
-    useSelector((state) => state?.performanceReducer);
+  const {
+    processing,
+    nonRoutineEventList,
+    nonRoutineEventDetails,
+    performanceReportInDB,
+  } = useSelector((state) => state?.performanceReducer);
 
   useEffect(() => {
     dispatch(getIncentiveSettings(facility_id));
@@ -309,7 +314,7 @@ const PerformancePeriodInformationAccordion = ({
         performanceP4PCalcTab
       )
     );
-  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab]);
+  }, [dispatch, facility_id, meter_type, performanceP4PCalcTab, processing]);
 
   useEffect(() => {
     if (performanceReportInDB) {
@@ -322,14 +327,14 @@ const PerformancePeriodInformationAccordion = ({
           if (!updatedP4Ps[meter_type]) {
             updatedP4Ps[meter_type] = [];
           }
-          if (
-            status === "SUBMITTED" &&
-            !updatedP4Ps[meter_type].includes(performanceType)
-          ) {
-            updatedP4Ps[meter_type] = [
-              ...updatedP4Ps[meter_type],
-              performanceType,
-            ];
+          if (status === "SUBMITTED") {
+            // Add the performance type if it's submitted and not already in the array
+            if (!updatedP4Ps[meter_type].includes(performanceType)) {
+              updatedP4Ps[meter_type] = [...updatedP4Ps[meter_type], performanceType];
+            }
+          } else if (status === "VERIFIED") {
+            // Remove the performance type from submitted if it's verified
+            updatedP4Ps[meter_type] = updatedP4Ps[meter_type].filter(type => type !== performanceType);
           }
           return updatedP4Ps;
         });
@@ -339,14 +344,14 @@ const PerformancePeriodInformationAccordion = ({
           if (!updatedVerifiedP4Ps[meter_type]) {
             updatedVerifiedP4Ps[meter_type] = [];
           }
-          if (
-            status === "VERIFIED" &&
-            !updatedVerifiedP4Ps[meter_type].includes(performanceType)
-          ) {
-            updatedVerifiedP4Ps[meter_type] = [
-              ...updatedVerifiedP4Ps[meter_type],
-              performanceType,
-            ];
+          if (status === "VERIFIED") {
+            // Add the performance type if it's verified and not already in the array
+            if (!updatedVerifiedP4Ps[meter_type].includes(performanceType)) {
+              updatedVerifiedP4Ps[meter_type] = [...updatedVerifiedP4Ps[meter_type], performanceType];
+            }
+          } else if (status === "SUBMITTED") {
+            // Remove the performance type from verified if it's submitted
+            updatedVerifiedP4Ps[meter_type] = updatedVerifiedP4Ps[meter_type].filter(type => type !== performanceType);
           }
           return updatedVerifiedP4Ps;
         });
@@ -362,10 +367,14 @@ const PerformancePeriodInformationAccordion = ({
       }
     }
   }, [
+    meter_type,
     performanceReportInDB,
     performanceP4PCalcTab,
+    onPerformanceTypeChange,
     onSubmissionDateChange,
-    meter_type,
+    onVerificationDateChange,
+    onSubmittedP4PsChange,
+    onVerifiedP4PsChange,
   ]);
 
   const handleChangePerformance = (event, newValue) => {
@@ -423,6 +432,42 @@ const PerformancePeriodInformationAccordion = ({
     );
   };
 
+  if (processing) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          alignItems: "center",
+          marginTop: "1rem",
+          marginInline: "1rem",
+          justifyContent: "center",
+          padding: "2rem",
+          background: "#FFFFFF",
+          borderRadius: "10px",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
+          maxWidth: "65rem",
+        }}
+      >
+        <Typography
+          variant="body2"
+          color="textSecondary"
+          sx={{
+            marginRight: "1rem",
+            fontWeight: 700,
+          }}
+        >
+          Please note: Performance scoring is currently in progress. You will be
+          able to proceed with the P4P (Pay-for-Performance) calculation once
+          this process is complete. We appreciate your patience during this
+          time.
+        </Typography>
+        <div className="progress-loader"></div>
+      </Box>
+    );
+  }
+
   return (
     <>
       <Grid
@@ -431,7 +476,6 @@ const PerformancePeriodInformationAccordion = ({
           alignItems: "center",
           justifyContent: "space-between",
           gap: "1rem",
-          marginTop: "1rem",
           marginBottom: { xs: "1rem", md: "1.5rem" },
         }}
         width={"100%"}
@@ -529,6 +573,7 @@ const PerformancePeriodInformationAccordion = ({
               false
             }
             onP4PStartDatesLoaded={handleP4PStartDatesLoaded}
+            reviewRequested={performanceReportInDB?.status === "REQUESTED"}
           />
         </Grid>
 

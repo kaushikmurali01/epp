@@ -2,7 +2,6 @@ import { Box, Button, Grid, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { MiniTable } from "components/MiniTable";
 import EvModal from "utils/modal/EvModal";
-import { fetchDataExplorationSummaryList } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {

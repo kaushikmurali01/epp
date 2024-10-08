@@ -7,6 +7,7 @@ import {
 import { useSelector } from "react-redux";
 import { getSummaryDataByMeterType } from ".";
 import { formatNumber } from "utils/numberFormatter";
+import { object } from "yup";
 
 const BaselineSummary = ({ summaryData, meterType }) => {
   const summaryDataByMeterType = getSummaryDataByMeterType(
@@ -28,7 +29,10 @@ const BaselineSummary = ({ summaryData, meterType }) => {
         </Grid>
         <Grid item xs={12} md={8}>
           <Typography variant="h6" sx={summaryAccordionContentHeading}>
-            {summaryDataByMeterType?.parameter_data?.length > 0 &&
+            {(summaryDataByMeterType?.parameter_data?.length > 0 ||
+              summaryDataByMeterType?.parameter_data?.hasOwnProperty(
+                "Number of observations"
+              )) &&
               formatNumber(
                 summaryDataByMeterType?.parameter_data?.[
                   "Number of observations"

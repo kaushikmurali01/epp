@@ -1,27 +1,28 @@
 import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
-import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { GET_REQUEST } from "utils/HTTPRequests";
-import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
-import { models } from "powerbi-client";
 import { PowerBIEmbed } from "powerbi-client-react";
+import { models } from "powerbi-client";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
+import { GET_REQUEST } from "utils/HTTPRequests";
+import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
 
 const DataVisualization = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
-  const [reportLoading, setReportLoading] = useState(true);
   const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
-
   const facilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
-  const dataSetId = process.env.REACT_APP_POWERBI_RADIAL_CHART_DATASET_ID;
-  const reportId = process.env.REACT_APP_POWERBI_RADIAL_CHART_REPORT_ID;
-  const embedUrl = process.env.REACT_APP_POWERBI_RADIAL_CHART_EMBED_URL;
+  const dataSetId = process.env.REACT_APP_DATA_EXPLORATION_DATASET_ID;
+  const reportId = process.env.REACT_APP_DATA_EXPLORATION_REPORT_ID;
+  const embedUrl = process.env.REACT_APP_DATA_EXPLORATION_EMBED_URL;
+
+  const [reportLoading, setReportLoading] = useState(true);
 
   const facility_status = useSelector(
     (state) => state?.adminFacilityReducer?.facilityStatus?.data
   );
+
   useEffect(() => {
     if (!facilityData) return;
     getPowerBiToken();
@@ -93,7 +94,7 @@ const DataVisualization = () => {
         },
         {
           name: "meter_id",
-          newValue: "3",
+          newValue: "2",
         },
         {
           name: "granularity",
@@ -152,6 +153,7 @@ const DataVisualization = () => {
   const getPowerBiError = (errorDetail) => {
     console.log("Error in setIsErrorInPowerBi", errorDetail);
   };
+
   return (
     <Box
       sx={{
@@ -162,7 +164,7 @@ const DataVisualization = () => {
     >
       <Grid>
         <Box id="bi-report" mt={4}>
-          {facility_status?.timeline?.energy_and_water &&
+          {facility_status?.timeline?.ew &&
           !isErrorInPowerBi &&
           !reportLoading ? (
             <PowerBIEmbed
