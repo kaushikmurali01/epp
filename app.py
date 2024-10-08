@@ -17,7 +17,7 @@ from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -222,24 +222,30 @@ def get_sufficiency():
     #hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
     monthley_sufficiency =sufficiencies_monthly_df['value'].tolist()
     monthley_sufficiency_pass= round(sufficiencies_monthly_df['value'].mean(), 2)
-    total_days = (end_date - start_date).days    
+    total_days = (end_date - start_date).days  
+    query_thershold = sufficiencie_thershold.format( facility_id=facility_id)
+    query_thershold_output = dbtest(query_thershold)  
+    hourly_thershold =  query_thershold_output['hourly'].tolist()[0] if query_thershold_output['hourly'].tolist()[0] else 90
+    daily_thershold =  query_thershold_output['daily'].tolist()[0] if query_thershold_output['daily'].tolist()[0] else 90
+    monthly_thershold =  query_thershold_output['monthly'].tolist()[0] if query_thershold_output['monthly'].tolist()[0] else 90
     for a in monthley_sufficiency:
-        if(a < 90):
+        if(a < monthly_thershold):
             monthley_sufficiency_pass = 10
     response = {
-        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days)},
-        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days)},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days, daily_thershold)},
+        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days, hourly_thershold)},
         "monthly": {
             "sufficiency": monthley_sufficiency_pass,
-            "status": get_status(monthley_sufficiency_pass, total_days),
+            "status": get_status(monthley_sufficiency_pass, total_days, monthly_thershold),
             "data": sufficiencies_monthly_df_sorted[['value', 'month']].to_dict(orient='records')
         }
     }
     return jsonify(response)
 
 
-def get_status(sufficiency, total_days):
-    return "passed" if ( sufficiency != None and sufficiency > 90 and total_days >=364) else "failed"
+def get_status(sufficiency, total_days, limit):
+    
+    return "passed" if ( sufficiency != None and sufficiency > limit and total_days >=364) else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
