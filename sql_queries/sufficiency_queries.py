@@ -92,7 +92,7 @@ WITH hourly_data AS (
         COUNT(id) AS hourly_count
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
-      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
 	  {IVids}
     GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
 	order by  hour
@@ -119,7 +119,7 @@ WITH hourly_data AS (
         COUNT(id) AS hourly_count
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
-      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59'
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
 	  {IVids}
     GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
 	order by  hour
@@ -146,7 +146,7 @@ with daily_data AS (
 		COUNT(id) AS daily_count
 	FROM epp.meter_hourly_entries
 	WHERE facility_id = {facility_id}   
-		AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
+		AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
          {IVids}
 	GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
 	order by day 
