@@ -413,5 +413,277 @@ return `<!DOCTYPE html>
      
      }
 
+     static async getApplicationAcknowledgementEmailTemplate() {
+
+      return `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Performance Program</title>
+
+  <style>
+    p {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body style="
+            font-family: Asap, sans-serif;
+            font-style: normal;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 14px;
+          ">
+  <table style="max-width: 600px;
+              border-collapse: collapse;
+              border: 0;
+              border-spacing: 0;
+              margin: 0 auto;">
+    <tr>
+      <td>
+        <table style="margin: 0 auto 20px;" width="80%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="background-color: #2E813E; height: 2.5px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; text-align: center;">
+              <p style="color: #2E813E; margin: 0; font-size: 14px; line-height: 1.5; text-transform: uppercase;">
+                <strong style="font-size: 20px;">E</strong>nergy
+                <strong style="font-size: 20px;">P</strong>erformance
+                <strong style="font-size: 20px;">P</strong>rogram - <strong style="font-size: 20px;">A</strong>pplication
+                <strong style="font-size: 20px;">A</strong>cknowledgment
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #2E813E; height: 2.5px;"></td>
+          </tr>
+        </table>
+        <table width="100%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td>
+              <p style="padding: 10px 0 0;"><strong>Facility Address: </strong> #facility_address#</p>
+              <p style="padding: 10px 0 0;"><strong>Unique Facility Identifier: </strong> #facility_identifier#</p>
+
+              <p style="padding: 10px 0 0;">This email confirms receipt of your complete Application. We will review the Application with the Program's requirements
+              and verify the Eligibility Criteria. If more information is required, we will contact you; otherwise, the Notice of
+              Approval will be sent to you within five business days.</p>
+              
+              <p style="padding: 10px 0 0;">If you have any questions or concerns, please
+                contact us at <a href="mailto:info@energyperformanceprogram.ca"
+                  style="color: #1E88E5;">info@energyperformanceprogram.ca</a>
+                or 1-888-852-2440.</p>
+              <p style="padding: 10px 0 0;">If you are not the designated contact for this Application or have received
+                this e-mail in error, please advise.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p style="padding: 10px 0 0;"><b>Best Regards,</b><br>
+                <strong style="color: #666;">ENERVA ENERGY SOLUTIONS, INC. (service provider for EPP)</strong><br>
+                <a href="mailto:info@energyperformanceprogram.ca"
+                  style="color: #1E88E5;">info@energyperformanceprogram.ca</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p style="color: #2E813E;"><strong>Save on Energy – Power What's Next</strong></p>
+              <p style="color: #666;"><a href="https://SaveOnEnergy.ca" style="color: #666;">SaveOnEnergy.ca</a> |
+                Energy Performance
+                Program
+                Support Line</p>
+              <p style="color: #666;">Get the inside track on energy-efficiency by registering for our business <a
+                  href="https://saveonenergy.ca/#businessnewsletter" style="color: #666;">
+                  newsletter</a>.</p>
+              <img src="https://eppstgstorage.blob.core.windows.net/agreement-docs/save-energy-delivery-partner.png"
+                alt="mailer-bg" style="display: block; max-width:100%" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 0px; font-size: 12px; color: #666;">
+              <p>This e-mail message and any files transmitted with it are intended only for the named recipient(s)
+                above and may contain
+                information that is privileged, confidential and/or exempt from disclosure under applicable law. If you
+                are not the
+                intended recipient(s), any dissemination, distribution or copying of this e-mail message or any files
+                transmitted with
+                it is strictly prohibited. If you have received this message in error, or are not the named
+                recipient(s), please notify
+                the sender immediately and delete this e-mail message.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>`;
+           
+           }
+
+
+           static async getFirstSavingsReportCompleteEmailTemplate() {
+
+            return `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Performance Program</title>
+
+  <style>
+    p {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+
+<body style="
+            font-family: Asap, sans-serif;
+            font-style: normal;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 14px;
+          ">
+  <table style="max-width: 600px;
+              border-collapse: collapse;
+              border: 0;
+              border-spacing: 0;
+              margin: 0 auto;">
+    <tr>
+      <td>
+        <table style="margin: 0 auto 20px;" width="80%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td style="background-color: #2E813E; height: 2.5px;"></td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; text-align: center;">
+              <p style="color: #2E813E; margin: 0; font-size: 14px; line-height: 1.5; text-transform: uppercase;">
+                <strong style="font-size: 20px;">E</strong>nergy
+                <strong style="font-size: 20px;">P</strong>erformance
+                <strong style="font-size: 20px;">P</strong>rogram - <strong style="font-size: 20px;">F</strong>irst
+                <strong style="font-size: 20px;">S</strong>avings
+                <strong style="font-size: 20px;">R</strong>eport
+                <strong style="font-size: 20px;">C</strong>omplete
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background-color: #2E813E; height: 2.5px;"></td>
+          </tr>
+        </table>
+        <table width="100%" cellspacing="0" cellpadding="0">
+          <tr>
+            <td>
+              <p style="padding: 10px 0 0;"><strong>Facility Address: </strong> #facility_address#</p>
+              <p style="padding: 10px 0 0;"><strong>Unique Facility Identifier: </strong> #facility_identifier#</p>
+
+              <p style="padding: 10px 0 0;">The 1st Savings Report for the above Application is now complete.</p>
+              <p style="padding: 10px 0 0;">Based on our technical review, we have verified the following savings and
+                the associated Performance Incentives.</p>
+              <p style="padding: 10px 0 0;">Please allow 8-12 weeks to receive payment.</p>
+              <p style="padding: 10px 0 0;">According to the assessment, the Facility achieved the Minimum Savings
+                target or is on track to achieve
+                it.</p>
+
+              <ul>
+                <li>Electricity Savings
+                  <ul>
+                    <li>Submitted Values
+                      <ul>
+                        <li>On-Peak Electricity Savings: #onpeak_electricity_saving_submitted# (kWh) </li>
+                        <li>Off-Peak Electricity Savings: #offpeak_electricity_saving_submitted# (kWh)</li>
+                      </ul>
+                    </li>
+                    <li>Approved Values
+                      <ul>
+                        <li>On-Peak Electricity Savings: #onpeak_electricity_saving_approved# (kWh)</li>
+                        <li>Off-Peak Electricity Savings: #offpeak_electricity_saving_approved# (kWh)</li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li>Reason for Discrepancy (if any)
+                  <ul>
+                    <li>1. The missing data from the period of #missing_data_removed_from# to #missing_data_removed_to# has been removed from the
+                      Pay-for-Performance Period.</li>
+                  </ul>
+                </li>
+                <li>Performance Incentives as per Approved Values
+                  <ul>
+                    <li>Paid Pre-Project Incentive: #paid_pre_project_incentive#</li>
+                    <li>On-Peak Electricity Savings Incentive: #on_peak_electricity_savings_incentive#</li>
+                    <li>Off-Peak Electricity Savings Incentive: #off_peak_electricity_savings_incentive#</li>
+                    <li>Total Performance Incentive, less Pre-Project Incentive: #total_performance_incentive#</li>
+                  </ul>
+                </li>
+              </ul>
+
+              <p style="padding: 10px 0 0;">Should you have any questions or concerns, please
+                contact us at <a href="mailto:info@energyperformanceprogram.ca"
+                  style="color: #1E88E5;">info@energyperformanceprogram.ca</a>
+                or 1-888-852-2440.</p>
+              <p style="padding: 10px 0 0;">If you are not the designated contact for this Application or have received
+                this e-mail in error, please advise.</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p style="padding: 10px 0 0;"><b>Best Regards,</b><br>
+                <strong style="color: #666;">ENERVA ENERGY SOLUTIONS, INC. (service provider for EPP)</strong><br>
+                <a href="mailto:info@energyperformanceprogram.ca"
+                  style="color: #1E88E5;">info@energyperformanceprogram.ca</a>
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 20px;">
+              <p style="color: #2E813E;"><strong>Save on Energy – Power What's Next</strong></p>
+              <p style="color: #666;"><a href="https://SaveOnEnergy.ca" style="color: #666;">SaveOnEnergy.ca</a> |
+                Energy Performance
+                Program
+                Support Line</p>
+              <p style="color: #666;">Get the inside track on energy-efficiency by registering for our business <a
+                  href="https://saveonenergy.ca/#businessnewsletter" style="color: #666;">
+                  newsletter</a>.</p>
+              <img src="https://eppstgstorage.blob.core.windows.net/agreement-docs/save-energy-delivery-partner.png"
+                alt="mailer-bg" style="display: block; max-width:100%" />
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 0px; font-size: 12px; color: #666;">
+              <p>This e-mail message and any files transmitted with it are intended only for the named recipient(s)
+                above and may contain
+                information that is privileged, confidential and/or exempt from disclosure under applicable law. If you
+                are not the
+                intended recipient(s), any dissemination, distribution or copying of this e-mail message or any files
+                transmitted with
+                it is strictly prohibited. If you have received this message in error, or are not the named
+                recipient(s), please notify
+                the sender immediately and delete this e-mail message.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>`;
+                 
+                 }
+
     
 }

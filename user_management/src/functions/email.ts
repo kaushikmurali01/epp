@@ -100,7 +100,7 @@ export async function SendSignedParticipantEmail(request: HttpRequest, context: 
         context.log('Sending email to:', requestData.toEmail);
 
         // Use the email service to send the email
-        await Email.send(requestData.toEmail, 'Energy Performance Program - Signed Participant Agreement Acknowledgment', emailContent);
+        await Email.send(requestData.toEmail, 'Energy Performance Program - Signed Participant Agreement Acknowledgment', emailContent, requestData.cc);
 
         // Return success response
         return { status: 200, body: 'Email sent successfully!' };
@@ -111,7 +111,83 @@ export async function SendSignedParticipantEmail(request: HttpRequest, context: 
     }
 }
 
+export async function SendApplicationAcknowledgement(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData: any = await request.json(); 
+
+        // Fetch the email template and replace placeholders
+        let emailTemplate = await EnergyEmailTemplate.getApplicationAcknowledgementEmailTemplate();
+        let emailContent = emailTemplate
+            .replace('#facility_address#', requestData.facility_address)
+            .replace('#facility_identifier#', requestData.facility_identifier);
+
+        // Log email content for debugging purposes
+        context.log('Sending email to:', requestData.toEmail);
+
+        // Use the email service to send the email
+        await Email.send(requestData.toEmail, 'Energy Performance Program', emailContent, requestData.cc);
+
+        // Return success response
+        return { status: 200, body: 'Email sent successfully!' };
+    } catch (error) {
+        // Log and return error response
+        context.log(`Error sending email: ${error.message}`);
+        return { status: 500, body: `Error sending email: ${error.message}` };
+    }
+}
+
+export async function SendFirstSavingsReportCompleteEmail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+        // Parse request data
+        const requestData: any = await request.json();
+
+        // Fetch the email template and replace placeholders
+        let emailTemplate = await EnergyEmailTemplate.getFirstSavingsReportCompleteEmailTemplate();
+        let emailContent = emailTemplate
+            .replace('#facility_address#', requestData.facility_address)
+            .replace('#facility_identifier#', requestData.facility_identifier)
+            .replace('#onpeak_electricity_saving_submitted#', requestData.onpeak_electricity_saving_submitted)
+            .replace('#offpeak_electricity_saving_submitted#', requestData.offpeak_electricity_saving_submitted)
+            .replace('#onpeak_electricity_saving_approved#', requestData.onpeak_electricity_saving_approved)
+            .replace('#offpeak_electricity_saving_approved#', requestData.offpeak_electricity_saving_approved)
+            .replace('#missing_data_removed_from#', requestData.missing_data_removed_from)
+            .replace('#missing_data_removed_to#', requestData.missing_data_removed_to)
+            .replace('#paid_pre_project_incentive#', requestData.paid_pre_project_incentive)
+            .replace('#on_peak_electricity_savings_incentive#', requestData.on_peak_electricity_savings_incentive)
+            .replace('#off_peak_electricity_savings_incentive#', requestData.off_peak_electricity_savings_incentive)
+            .replace('#total_performance_incentive#', requestData.total_performance_incentive);
+
+        // Log email content for debugging purposes
+        context.log('Sending email to:', requestData.toEmail);
+
+        // Use the email service to send the email
+        await Email.send(requestData.toEmail, 'Energy Performance Program - First Savings Report Complete', emailContent, requestData.cc);
+
+        // Return success response
+        return { status: 200, body: 'Email sent successfully!' };
+    } catch (error) {
+        // Log and return error response
+        context.log(`Error sending email: ${error.message}`);
+        return { status: 500, body: `Error sending email: ${error.message}` };
+    }
+}
+
+app.http('SendFirstSavingsReportCompleteEmail', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'email/sendFirstSavingsReportComplete',
+    handler: SendFirstSavingsReportCompleteEmail
+});
+
 // HTTP trigger for the Azure Function
+app.http('SendApplicationAcknowledgement', {
+    methods: ['POST'],
+    authLevel: 'anonymous',
+    route: 'email/sendAcknowledgement',
+    handler: SendApplicationAcknowledgement
+});
+
 app.http('ModelApprovalEmail', {
     methods: ['POST'],
     authLevel: 'anonymous',
