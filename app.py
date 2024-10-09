@@ -232,13 +232,13 @@ def get_sufficiency():
         if(a < monthly_thershold):
             monthley_sufficiency_pass = 10
     response = {
-        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days, daily_thershold), "thershold":daily_thershold},
-        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days, hourly_thershold),  "thershold":hourly_thershold},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days, daily_thershold), "threshold":daily_thershold},
+        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days, hourly_thershold),  "threshold":hourly_thershold},
         "monthly": {
             "sufficiency": monthley_sufficiency_pass,
             "status": get_status(monthley_sufficiency_pass, total_days, monthly_thershold),
             "data": sufficiencies_monthly_df_sorted[['value', 'month']].to_dict(orient='records'),
-            "thershold":monthly_thershold
+            "threshold":monthly_thershold
         }
     }
     return jsonify(response)
