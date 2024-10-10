@@ -183,11 +183,14 @@ export const deleteFacility = (facilityId) => {
       const endpointWithParams = `${facilityEndPoints.DELETE_FACILITY}/${facilityId}`;
       const response = await DELETE_REQUEST(endpointWithParams);
       const data = response.data;
-      dispatch(deleteFacilitySuccess(data));
       NotificationsToast({
-        message: "Facility deleted successfully!",
-        type: "success",
+        message:
+          data.statusCode === 404
+            ? data.message
+            : "Facility deleted successfully!",
+        type: data.statusCode === 404 ? "error" : "success",
       });
+      return data
     } catch (error) {
       console.error(error);
       dispatch(deleteFacilityFailure(error));

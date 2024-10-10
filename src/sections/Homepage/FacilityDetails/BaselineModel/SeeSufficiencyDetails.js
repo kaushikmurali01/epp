@@ -45,7 +45,7 @@ const SeeSufficiencyDetails = ({
       ),
     },
     {
-      Header: "90",
+      Header: sufficiencyCheckData?.[activeButton]?.threshold || "Threshold %",
       accessor: (item) => (
         <Typography
           variant="span"

@@ -9,7 +9,7 @@ import {
   styled,
   ButtonGroup,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -122,15 +122,19 @@ const FacilityHeader = () => {
     dispatch(getWaterfallData(graphData));
   }, [dispatch, id, activeButton]);
 
-  const handleDeleteFacility = () => {
-    if (id) {
-      dispatch(deleteFacility(id))
-        .then(() => {
+  const handleDeleteFacility = (fId) => {
+    if (fId) {
+      dispatch(deleteFacility(fId))
+        .then((res) => {
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
-          navigate("/facility-list");
+          if (res.statusCode === 404) {
+            return;
+          } else {
+            navigate("/facility-list");
+          }
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -184,13 +188,13 @@ const FacilityHeader = () => {
     headerText: "Delete facility",
     headerSubText: "Are you sure you want to delete this facility?",
     modalBodyContent: "",
-    saveButtonAction: handleDeleteFacility,
   });
 
-  const openDeleteFacilityModal = () => {
+  const openDeleteFacilityModal = (fId) => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
+      saveButtonAction: () => handleDeleteFacility(fId),
     }));
   };
 
@@ -553,7 +557,7 @@ const FacilityHeader = () => {
                       minWidth: "unset",
                       marginLeft: "1rem",
                     }}
-                    onClick={openDeleteFacilityModal}
+                    onClick={() => openDeleteFacilityModal(id)}
                   >
                     Delete
                   </Button>
@@ -654,7 +658,11 @@ const FacilityHeader = () => {
           </Grid>
         </Grid>
       </Grid>
-      <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal
+        modalConfig={modalConfig}
+        setModalConfig={setModalConfig}
+        key={id}
+      />
     </Container>
   );
 };
