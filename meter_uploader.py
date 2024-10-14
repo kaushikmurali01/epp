@@ -22,6 +22,7 @@ class BaseDataUploader(CommonBase):
         self.facility_id = facility_id
         self.iv = iv
         self.excel_file = file
+        self.xml_file = file
         self.meter_id = meter_id
         self.created_by = created_by
         self.meter_serial_no = meter_serial_no
