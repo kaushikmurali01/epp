@@ -985,7 +985,7 @@ def get_independent_variable():
                'name': iv_data_dict['name'][i],
                'id': iv_data_dict['id'][i]}
               for i in range(len(iv_data_dict['id']))]
-    return {"data": result}, 200
+    return jsonify(result), 200
 
 
 if __name__ == '__main__':
