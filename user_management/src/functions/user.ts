@@ -24,6 +24,7 @@ import axios from 'axios';
 import { ParticipantAgreement } from "../models/participantAgreement";
 import { Facility } from "../models/facility";
 import { Op } from 'sequelize';
+import { CompanyLogsService } from "../services/companyLogsService";
 
 /**
  * Registers a new user based on the provided request data.
@@ -753,6 +754,17 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         // Validation ends
 
         const data = await UserInvitationService.sendInvitation(requestData, resp);
+        
+        // Log start
+        const input = {
+            "event": `Sent invitation to user with email ${email}`,
+            "company_id": company,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
 
         // Prepare response body
         const responseBody = JSON.stringify(data);

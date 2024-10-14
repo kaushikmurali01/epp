@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
+import { User } from './user';
 
 interface CompanyLogAttributes {
   id: number;
@@ -7,8 +8,7 @@ interface CompanyLogAttributes {
   company_id: number;
   user_id: number;
   facility_id: number;
-  created_at?: Date;
-  updated_at?: Date;
+  
   created_by?: number;
   updated_by?: number;
 }
@@ -21,8 +21,7 @@ class CompanyLog extends Model<CompanyLogAttributes, CompanyLogCreationAttribute
   public company_id!: number;
   public user_id!: number;
   public facility_id!: number;
-  public created_at?: Date;
-  public updated_at?: Date;
+  
   public created_by?: number;
   public updated_by?: number;
 }
@@ -53,14 +52,7 @@ CompanyLog.init(
       allowNull: false,
       defaultValue: 0,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+    
     created_by: {
       type: DataTypes.INTEGER,
       allowNull: true,
@@ -73,8 +65,10 @@ CompanyLog.init(
   {
     sequelize,
     tableName: 'company_logs',
-    timestamps: false, 
+    timestamps: true, 
   }
 );
+// CompanyLog model
+CompanyLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 export { CompanyLog };
