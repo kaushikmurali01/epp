@@ -1,20 +1,16 @@
 import numpy as np
 import pandas as pd
 
+from dbconnection import dbtest
+from sql_queries.data_cleaning import get_outliers
 
-def detect_outliers_iqr(df, column, factor=3):
-    # Calculate Q1, Q3, and IQR
-    Q1 = df[column].quantile(0.25)
-    Q3 = df[column].quantile(0.75)
-    IQR = Q3 - Q1
 
-    # Calculate the outlier range
-    lower_bound = Q1 - factor * IQR
-    upper_bound = Q3 + factor * IQR
-
+def detect_outliers_iqr(df, column, facility_id, meter_type):
+    query = get_outliers(facility_id, meter_type, factor=3)
+    outlier_df = dbtest(query)
+    upper_bound, lower_bound = round(outlier_df['upper_bound'][0], 2), round(outlier_df['lower_bound'][0], 2)
     # Identify outliers
     outliers = df[(df[column] < lower_bound) | (df[column] > upper_bound)]
-
     return outliers, lower_bound, upper_bound
 
 
@@ -39,6 +35,8 @@ def replace_consecutive_nulls(df, primary_col, replacement_cols, consecutive_cou
                 if not mask.any():
                     break
     return df
+
+
 #
 #
 # def clean_raw_data(dataframe):
@@ -99,7 +97,7 @@ def replace_consecutive_nulls(df, primary_col, replacement_cols, consecutive_cou
 #     return output_df.to_dict()
 
 
-def clean_raw_data(dataframe):
+def clean_raw_data(dataframe, facility_id, meter_type):
     df = dataframe.copy()
 
     meter_columns = df[df['meter_type'].isin([1, 2, 3])]['meter_name'].unique()
@@ -121,6 +119,7 @@ def clean_raw_data(dataframe):
     new_df.sort_values('Date', inplace=True)
 
     new_df['Temperature'] = new_df['Temp1']
+
     # new_df = new_df.rename(columns={meter_columns[0]: 'EnergyConsumption', 'start_date': 'Date'})
 
     def add_energy_columns(new_df, column_list, new_column_name):
@@ -144,7 +143,9 @@ def clean_raw_data(dataframe):
     output_columns.extend([i for i in iv_columns])
     new_df = new_df.drop(new_df[new_df['EnergyConsumption'] < 1].index)
     # Apply the function to the EnergyConsumption column
-    outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', factor=3)
+
+    outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', facility_id, meter_type)
+
     new_df = new_df[~new_df['Date'].isin(list(outliers.Date.values))]
     # new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
     output_col = ['Date', 'EnergyConsumption', 'Temperature']
