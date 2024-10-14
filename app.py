@@ -17,6 +17,7 @@ from meter_uploader import DataUploader
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
+from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
 from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
@@ -969,6 +970,22 @@ def pull_station_data():
         thread.start()
 
     return {"message": "Data Being Inserted"}, 200
+
+
+@app.route('/get-independent-variable', methods=['GET'])
+def get_independent_variable():
+    facility_id = request.args.get('facility_id')
+    if not facility_id:
+        return {"message": "Please Provide Facility ID"}, 400
+
+    iv_query = INDEPENDENT_VARIABLE_QUERY.format(facility_id)
+    iv_data = dbtest(iv_query)
+    iv_data_dict = iv_data.to_dict()
+    result = [{'max_duration': iv_data_dict['max_duration'][i],
+               'name': iv_data_dict['name'][i],
+               'id': iv_data_dict['id'][i]}
+              for i in range(len(iv_data_dict['id']))]
+    return {"data": result}, 200
 
 
 if __name__ == '__main__':
