@@ -28,6 +28,7 @@ import { CompanyService } from "./companyService";
 import { EmailContent } from "../utils/emailContent";
 import { Email } from "./email";
 import { stat } from "fs";
+import { CompanyLogsService } from "./companyLogsService";
 User.hasOne(UserCompanyRole, { foreignKey: "user_id" });
 
 class UserService {
@@ -141,7 +142,19 @@ class UserService {
           adminContent
         );
         // Send Email to Admins
+         // Log start
+       const input = {
+        "event": `Invitation accepted for User ${userDet.first_name + " " + userDet.last_name}`,
+        "company_id": data.company_id,
+        "user_id": data.user_id,
+        "facility_id": 0,
+        "created_by":data.user_id
+        };
+       await CompanyLogsService.createCompanyLog(input);
+    //Log end
       })();
+
+      
 
       return {
         status: HTTP_STATUS_CODES.SUCCESS,
@@ -165,6 +178,22 @@ class UserService {
     try {
       // const result = UserRequest.update({ status: "Rejected" }, { where: { id: data.user_id } });
       const result = UserRequest.destroy({ where: { id: data.user_id } });
+      const userDet: any = await this.getUserDataById(
+        data.user_id
+      );
+      // Log start
+      (async () => {
+        const input = {
+          "event": `Invitation rejected for User ${userDet.first_name + " " + userDet.last_name}`,
+          "company_id": data?.company_id,
+          "user_id": data.user_id,
+          "facility_id": 0,
+          "created_by":data.user_id
+          };
+         await CompanyLogsService.createCompanyLog(input);
+      })();
+      
+    //Log end
       return {
         status: HTTP_STATUS_CODES.SUCCESS,
         message: RESPONSE_MESSAGES.Success,

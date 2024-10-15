@@ -3,6 +3,7 @@ import { Response } from 'enerva-utils/interfaces/response';
 import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status';
 import { User } from '../models/user';
 import { sequelize } from './database';
+import { Company } from '../models/company';
 
 class CompanyLogsService {
 
@@ -50,7 +51,7 @@ class CompanyLogsService {
    * @returns Promise<CompanyLog | null> - A promise resolving to the company log if found, otherwise null.
    * @description Fetches a company log record from the database by its ID.
    */
-  static async getCompanyLogById(company_id: number): Promise<CompanyLog[] | null> {
+  static async getCompanyLogByIdOld(company_id: number): Promise<CompanyLog[] | null> {
     try {
      // return await CompanyLog.findByPk(id);
     //  return await CompanyLog.findAll({
@@ -78,6 +79,85 @@ class CompanyLogsService {
       throw new Error(`Failed to fetch company log by ID: ${error.message}`);
     }
   }
+
+  static async getCompanyLogById(
+    company_id: number,
+    offset: number,
+    limit: number
+  ): Promise<{ rows: CompanyLog[], count: number } | null> {
+    try {
+      const result = await CompanyLog.findAndCountAll({
+        where: { company_id },
+        include: [
+          {
+            model: User,
+            as: 'user', // Match the alias you defined in the association
+            attributes: []
+          },
+          {
+            model: Company,
+            as: 'company', // Match the alias you defined in the association
+            attributes: []
+          },
+        ],
+        attributes: [
+          "company_id", "event", "user_id", "createdAt",
+          [sequelize.col('user.first_name'), 'event_by_first_name'], // Flatten first_name
+          [sequelize.col('user.last_name'), 'event_by_last_name'],
+          [sequelize.col('company.company_name'), 'company_name'],   // Flatten last_name
+        ],
+        offset,  // Pagination offset
+        limit,   // Pagination limit
+      });
+  
+      return {
+        rows: result.rows,   // The result set of rows
+        count: result.count, // The total number of rows matching the query
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch company log by ID: ${error.message}`);
+    }
+  }
+
+  static async getCompanyLogByUserId(
+    user_id: number,
+    offset: number,
+    limit: number
+  ): Promise<{ rows: CompanyLog[], count: number } | null> {
+    try {
+      const result = await CompanyLog.findAndCountAll({
+        where: { user_id },
+        include: [
+          {
+            model: User,
+            as: 'user', // Match the alias you defined in the association
+            attributes: []
+          },
+          {
+            model: Company,
+            as: 'company', // Match the alias you defined in the association
+            attributes: []
+          },
+        ],
+        attributes: [
+          "company_id", "event", "user_id", "createdAt",
+          [sequelize.col('user.first_name'), 'event_by_first_name'], // Flatten first_name
+          [sequelize.col('user.last_name'), 'event_by_last_name'],
+          [sequelize.col('company.company_name'), 'company_name'],   // Flatten last_name
+        ],
+        offset,  // Pagination offset
+        limit,   // Pagination limit
+      });
+  
+      return {
+        rows: result.rows,   // The result set of rows
+        count: result.count, // The total number of rows matching the query
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch company log by ID: ${error.message}`);
+    }
+  }
+  
 
   /**
    * Updates an existing company log.

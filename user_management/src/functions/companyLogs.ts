@@ -29,8 +29,22 @@ export async function CreateCompanyLog(request: HttpRequest, context: Invocation
  */
 export async function GetCompanyLogById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
-        const logId = parseInt(request.params.id);
-        const logEntry = await CompanyLogController.getCompanyLogById(logId);
+       // const logId = parseInt(request.params.id);
+        const { offset, limit, id } = request.params;
+        const logEntry = await CompanyLogController.getCompanyLogById(id, offset, limit);
+        const responseBody = JSON.stringify(logEntry);
+
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
+export async function GetUserLogById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+       // const logId = parseInt(request.params.id);
+        const { offset, limit, id } = request.params;
+        const logEntry = await CompanyLogController.getCompanyLogByUserId(id, offset, limit);
         const responseBody = JSON.stringify(logEntry);
 
         return { body: responseBody, status: 200 };
@@ -70,11 +84,19 @@ app.http('CreateCompanyLog', {
 });
 
 app.http('GetCompanyLogById', {
-    route: 'companyLog/{id}',
+    route: 'companyLog/{id}/{offset}/{limit}',
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetCompanyLogById
 });
+app.http('GetUserLogById', {
+    route: 'userLog/{id}/{offset}/{limit}',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetUserLogById
+});
+
+
 
 app.http('ListCompanyLogs', {
     methods: ['GET'],

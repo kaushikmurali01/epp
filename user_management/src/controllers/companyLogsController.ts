@@ -45,9 +45,22 @@ class CompanyLogController {
      * @returns Promise<Object>
      * @description Fetches a specific company log by its ID.
      */
-    static async getCompanyLogById(company_id): Promise<Object> {
+    static async getCompanyLogById(company_id, offset, limit): Promise<Object> {
         try {
-            const log = await CompanyLogsService.getCompanyLogById(company_id);
+            const log = await CompanyLogsService.getCompanyLogById(company_id, offset, limit);
+            if (log) {
+                return { status: 200, body: log };
+            } else {
+                return { status: 500, body: { message: RESPONSE_MESSAGES.userNotFound } };
+            }
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+
+    static async getCompanyLogByUserId(user_id, offset, limit): Promise<Object> {
+        try {
+            const log = await CompanyLogsService.getCompanyLogByUserId(user_id, offset, limit);
             if (log) {
                 return { status: 200, body: log };
             } else {

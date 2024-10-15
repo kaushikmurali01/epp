@@ -11,6 +11,7 @@ import { CompanyService } from './companyService';
 import { UserCompanyRole } from '../models/user-company-role';
 import { UserCompanyRolePermission } from '../models/userCompanyRolePermission';
 import { UserRequest } from '../models/user-request';
+import { CompanyLogsService } from './companyLogsService';
 
 class UserInvitationService {
   /**
@@ -314,6 +315,18 @@ static async acceptUserInvitation(detail, resp, context): Promise<Object> {
     if(detail.type == 'reject') {
      // await UserInvitation.update({ is_active: 0 }, { where: { email: detail.email, company:detail.company_id } });
       await UserInvitation.destroy({ where: { email: detail.email, company:detail.company_id } });
+      // Log start
+   let logRole = await Role.findOne({where: {id:detail.role_id}});
+const input = {
+  "event": `Reject invitation for role ${logRole.rolename} `,
+  "company_id": detail.company_id,
+  "user_id": detail.user_id,
+  "facility_id": 0,
+  "created_by":detail.user_id
+  };
+  
+await CompanyLogsService.createCompanyLog(input);
+// Log end
     } else {
 
     const invitationList:any = await UserInvitation.findOne({
@@ -372,6 +385,18 @@ await UserRequest.destroy({ where: { company_id: detail.company_id, user_id: det
 // else {
 //   await User.update({ type: 1 }, { where: { id: detail.user_id} });
 // }
+// Log start
+let logRole = await Role.findOne({where: {id:detail.role_id}});
+const input = {
+  "event": `Accept invitation for role ${logRole.rolename} `,
+  "company_id": detail.company_id,
+  "user_id": detail.user_id,
+  "facility_id": 0,
+  "created_by":detail.user_id
+  };
+
+await CompanyLogsService.createCompanyLog(input);
+// Log end
 (async () => {
 // Send Email Starts
  let template =  await EmailTemplate.getEmailTemplate();

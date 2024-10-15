@@ -6,6 +6,8 @@ import { EmailTemplate } from '../utils/emailTemplate';
 import { CompanyService } from './companyService';
 import { EmailContent } from '../utils/emailContent';
 import { Email } from './email';
+import { CompanyLogsService } from './companyLogsService';
+import { Role } from '../models/role';
 
 class UserRequestService {
 
@@ -48,6 +50,18 @@ class UserRequestService {
             await CompanyService.GetAdminsAndSendEmails(userRequestDetails.company_id, EmailContent.joinCompanyRequestForAdmins.title, adminContent);
             // Send Email to Admins
             })();
+
+            // Log start
+            let logRole = await Role.findOne({where: {id:userRequestDetails.role}});
+        const input = {
+            "event": `Requested for the role ${logRole.rolename} in company  ${company.company_name}`,
+            "company_id": userRequestDetails.company_id,
+            "user_id": userRequestDetails.user_id,
+            "facility_id": 0,
+            "created_by":userRequestDetails.user_id
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
 
             return { status: HTTP_STATUS_CODES.SUCCESS, company: company, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
