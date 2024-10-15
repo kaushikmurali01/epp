@@ -32,6 +32,8 @@ import { getSummaryDataByMeterType } from ".";
 import DateRangeSlider from "components/DateRangeSlider";
 import Loader from "pages/Loader";
 
+const max_allowed = 3601;
+
 const ModelConstructorForm = ({
   openSeeDetails,
   meterType,
@@ -115,7 +117,7 @@ const ModelConstructorForm = ({
       setFormData({
         ...baselineCalculated?.parameter_data,
         start_date: baselineCalculated?.parameter_data?.start_date,
-        end_date: baselineCalculated?.parameter_data?.end_date
+        end_date: baselineCalculated?.parameter_data?.end_date,
       });
       setSufficiencyCheckDataLocally({
         daily: { ...baselineCalculated?.parameter_data?.daily },
@@ -414,10 +416,27 @@ const ModelConstructorForm = ({
               : values.independent_variables.filter(
                   (id) => id !== variableItem.id
                 );
+            // Check if any selected independent variable has `max_duration` >= `max_allowed`
+            const hasExceededMaxDuration = newIndependentVariables.some(
+              (id) => {
+                const selectedVariable = independentVariables.find(
+                  (variable) => variable.id === id
+                );
+                return selectedVariable?.max_duration >= max_allowed;
+              }
+            );
+
+            // If any variable exceeds max_duration, set granularity to "daily"
+            if (hasExceededMaxDuration) {
+              setFieldValue("granularity", "daily");
+            }
             setFieldValue("independent_variables", newIndependentVariables);
             handleSubmit({
               ...values,
               independent_variables: newIndependentVariables,
+              granularity: hasExceededMaxDuration
+                ? "daily"
+                : values.granularity,
             });
           };
 
