@@ -226,9 +226,9 @@ def get_sufficiency():
     total_days = (end_date - start_date).days  
     query_thershold = sufficiencie_thershold.format( facility_id=facility_id)
     query_thershold_output = dbtest(query_thershold)  
-    hourly_thershold =  query_thershold_output['hourly'].tolist()[0] if query_thershold_output['hourly'] else 90
-    daily_thershold =  query_thershold_output['daily'].tolist()[0] if query_thershold_output['daily'] else 90
-    monthly_thershold =  query_thershold_output['monthly'].tolist()[0] if query_thershold_output['monthly'] else 90
+    hourly_thershold =  query_thershold_output['hourly'].tolist()[0] if not query_thershold_output['hourly'].empty else 90
+    daily_thershold =  query_thershold_output['daily'].tolist()[0] if not query_thershold_output['daily'].empty else 90
+    monthly_thershold =  query_thershold_output['monthly'].tolist()[0] if not query_thershold_output['monthly'].empty else 90
     for a in monthley_sufficiency:
         if(a < monthly_thershold):
             monthley_sufficiency_pass = 10
