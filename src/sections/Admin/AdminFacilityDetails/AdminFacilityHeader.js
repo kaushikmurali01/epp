@@ -34,15 +34,20 @@ const AdminFacilityHeader = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const handleDeleteFacility = () => {
-    if (id) {
-      dispatch(deleteAdminFacility(id))
-        .then(() => {
+  const handleDeleteFacility = (fId) => {
+    if (fId) {
+      dispatch(deleteAdminFacility(fId))
+        .then((res) => {
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: false,
           }));
           navigate("/facility-list");
+          if (res.statusCode === 404) {
+            return;
+          } else {
+            navigate("/facility-list");
+          }
         })
         .catch((error) => {
           console.error("Error deleting facility:", error);
@@ -86,13 +91,13 @@ const AdminFacilityHeader = () => {
     headerText: "Delete facility",
     headerSubText: "Are you sure you want to delete this facility?",
     modalBodyContent: "",
-    saveButtonAction: handleDeleteFacility,
   });
 
-  const openDeleteFacilityModal = () => {
+  const openDeleteFacilityModal = (fId) => {
     setModalConfig((prevState) => ({
       ...prevState,
       modalVisible: true,
+      saveButtonAction: () => handleDeleteFacility(fId),
     }));
   };
 
@@ -178,7 +183,7 @@ const AdminFacilityHeader = () => {
                     minWidth: "unset",
                     marginLeft: "1rem",
                   }}
-                  onClick={openDeleteFacilityModal}
+                  onClick={() => openDeleteFacilityModal(id)}
                 >
                   Delete
                 </Button>

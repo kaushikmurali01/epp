@@ -185,9 +185,13 @@ export const deleteAdminFacility = (facilityId) => {
       const data = response.data;
       dispatch(deleteAdminFacilitySuccess(data));
       NotificationsToast({
-        message: "Facility deleted successfully!",
-        type: "success",
+        message:
+          data.statusCode === 404
+            ? data.message
+            : "Facility deleted successfully!",
+        type: data.statusCode === 404 ? "error" : "success",
       });
+      return data
     } catch (error) {
       console.error(error);
       dispatch(deleteAdminFacilityFailure(error));

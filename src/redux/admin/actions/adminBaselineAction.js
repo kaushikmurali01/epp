@@ -89,7 +89,7 @@ export const fetchAdminIndependentVariableList = (facilityId) => {
   return async (dispatch) => {
     try {
       dispatch(adminIndependentVariableListRequest());
-      const endpointWithParams = `${BASELINE_ENDPOINTS.INDEPENDENT_VARIABLE}/${facilityId}`;
+      const endpointWithParams = `${BASELINE_ENDPOINTS.INDEPENDENT_VARIABLE}?facility_id=${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(adminIndependentVariableListSuccess(data));

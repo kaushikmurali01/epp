@@ -41,6 +41,8 @@ import DateRangeSlider from "components/DateRangeSlider";
 import Loader from "pages/Loader";
 import NotificationsToast from "utils/notification/NotificationsToast";
 
+const max_allowed = 3601;
+
 const ModelConstructorForm = ({
   handleSufficiencySettings,
   openSeeDetails,
@@ -473,23 +475,41 @@ const ModelConstructorForm = ({
       >
         {({ values, handleChange, setFieldValue, errors }) => {
           const handleIndeVarCheckboxChange = (variableItem, event) => {
+            values.granularity === "daily" &&
+              setFieldValue("granularity", "hourly");
             const isChecked = event.target.checked;
             const newIndependentVariables = isChecked
               ? [...values.independent_variables, variableItem.id]
               : values.independent_variables.filter(
                   (id) => id !== variableItem.id
                 );
+            // Check if any selected independent variable has `max_duration` >= `max_allowed`
+            const hasExceededMaxDuration = newIndependentVariables.some(
+              (id) => {
+                const selectedVariable = independentVariables.find(
+                  (variable) => variable.id === id
+                );
+                return selectedVariable?.max_duration >= max_allowed;
+              }
+            );
 
+            // If any variable exceeds max_duration, set granularity to "daily"
+            if (hasExceededMaxDuration) {
+              setFieldValue("granularity", "daily");
+            }
             setFieldValue("independent_variables", newIndependentVariables);
             handleSubmit({
               ...values,
               independent_variables: newIndependentVariables,
+              granularity: hasExceededMaxDuration
+                ? "daily"
+                : values.granularity,
             });
           };
 
           const handleDateRangeChange = (startDate, endDate) => {
             console.log(startDate, endDate);
-            
+
             setFieldValue("start_date", startDate);
             setFieldValue("end_date", endDate);
             handleSubmit({
