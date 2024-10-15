@@ -237,7 +237,8 @@ export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
 
 export const BASELINE_ENDPOINTS = {
   CHECK_SUFFICIENCY: "v1/check_sufficiency",
-  INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  // INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
+  INDEPENDENT_VARIABLE: "v1/get-independent-variable",
   STATION_DETAILS: "weather/v1/get_station_details",
   BASELINE_PERIOD: "weather/v1/get_min_max_dates",
   CHECK_ISSUES_DETAILS: "v1/check_issues",
