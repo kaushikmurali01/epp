@@ -224,3 +224,18 @@ where
 order by 
 	created_at desc
 """
+date_raneg_query = """
+    WITH date_range AS (
+        SELECT  
+            meter_id,
+            MAX(end_date) as end_date,
+            MIN(start_date) as start_date
+        FROM epp.meter_hourly_entries
+        WHERE reading NOT IN ('NaN') AND facility_id = {facility_id}
+        AND is_independent_variable = {is_independent_variable}
+        GROUP BY meter_id
+    )
+    SELECT MAX(start_date) as start_date, MIN(end_date) as end_date 
+    FROM date_range 
+    WHERE meter_id > 0
+    """

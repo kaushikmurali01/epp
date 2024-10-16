@@ -6,7 +6,6 @@ from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
 import plotly.graph_objs as go
 from flask_cors import CORS
-
 from components.dataCleaner import clean_raw_data
 from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
@@ -18,7 +17,7 @@ from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_que
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
 from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -190,7 +189,21 @@ def check_issues():
 
     return jsonify(results), 200
 
+@app.route('/date_range', methods=['GET'])
+def get_date_range():
+    facility_id = request.args.get('facility_id', type=int)
+    if facility_id is None:
+        return jsonify({"error": "facility_id is required"}), 400
 
+    is_independent_variable = request.args.get('is_independent_variable', default=False, type=bool)
+    date_ranege = date_raneg_query.format(facility_id=facility_id, is_independent_variable=is_independent_variable)
+    date_raneg_df = dbtest(date_ranege)
+    response = {
+        "start_date":date_raneg_df['start_date'].tolist()[0] if not date_raneg_df['start_date'].empty else null,
+        "end_date": date_raneg_df['end_date'].tolist()[0] if not date_raneg_df['start_date'].empty else null,
+    }
+    return jsonify(response)
+    
 @app.route('/check_sufficiency', methods=['POST'])
 def get_sufficiency():
     facility_id = request.json.get('facility_id')
