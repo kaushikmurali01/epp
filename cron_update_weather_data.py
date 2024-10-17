@@ -5,7 +5,7 @@ from psycopg2 import sql
 from io import StringIO
 import requests
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from contextlib import contextmanager
 
@@ -107,19 +107,18 @@ def upload_chunk_with_retry(chunk, station_id, max_retries=3, initial_delay=1):
             time.sleep(initial_delay * (2 ** (retries - 1)))  # Exponential backoff
 
 
-def process_station(station_id, year, month, day, time_frame):
+def process_station(station_id, year, month, day, time_frame, lookup_date):
     try:
         url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         csv_data = StringIO(response.content.decode('utf-8'))
         chunk_reader = pd.read_csv(csv_data)
-        chunk_reader = chunk_reader[chunk_reader['Day'] == datetime.now().day]
+        chunk_reader = chunk_reader[chunk_reader['Day'] == lookup_date.day]
         upload_chunk_with_retry(chunk_reader, station_id)
         time.sleep(1)  # Add a small delay between chunk uploads
 
         # for chunk in chunk_reader:
-
 
     except requests.RequestException as e:
         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
@@ -132,9 +131,9 @@ def process_station(station_id, year, month, day, time_frame):
 def main(stations=None):
     if not stations or stations.empty:
         stations = dbtest("SELECT * FROM epp.weather_stations WHERE in_use=true")
-    current_year = datetime.now().year
-    current_month = datetime.now().month
-
+    lookup_date = datetime.now() - timedelta(days=15)
+    current_year = lookup_date.year
+    current_month = lookup_date.month
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
         day = 14
@@ -142,7 +141,7 @@ def main(stations=None):
         for station_id in stations['station_id'].values:
             print(f"Submitting task for station {station_id}, year {current_year}, month {current_month}")
             futures.append(
-                executor.submit(process_station, station_id, current_year, current_month, day, time_frame))
+                executor.submit(process_station, station_id, current_year, current_month, day, time_frame, lookup_date))
             time.sleep(0.1)
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
@@ -150,4 +149,8 @@ def main(stations=None):
 
 
 if __name__ == "__main__":
+    """
+    This CRON job is designed to retrieve data from a Canadian website and insert it into our database,
+    specifically targeting data from 15 days ago. 
+    """
     main()

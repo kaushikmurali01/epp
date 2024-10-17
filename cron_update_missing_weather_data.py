@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import concurrent.futures
 import psycopg2
@@ -6,9 +5,7 @@ from psycopg2 import sql
 from io import StringIO
 import requests
 import csv
-from datetime import datetime
 import time
-from functools import partial
 from contextlib import contextmanager
 
 from dbconnection import get_db_connection, dbtest, execute_query
@@ -60,32 +57,6 @@ def get_db_connection_from_pool():
         yield conn
     finally:
         conn.close()
-
-
-def check_sufficiency(df):
-    required_columns = [
-        'Temp (°C)', 'Dew Point Temp (°C)', 'Rel Hum (%)',
-        'Wind Dir (10s deg)', 'Wind Spd (km/h)', 'Visibility (km)',
-        'Stn Press (kPa)', 'Hmdx', 'Wind Chill', 'Weather'
-    ]
-
-    total_records = len(df)
-    threshold = 0.5  # 50% sufficiency threshold
-
-    for column in required_columns:
-        if column not in df.columns:
-            print(f"Required column {column} is missing")
-            return False
-
-        non_null_count = df[column].count()
-        sufficiency_percentage = non_null_count / total_records
-
-        # Uncomment these lines if sufficiency threshold is to be enforced
-        # if sufficiency_percentage < threshold:
-        #     print(f"Column {column} does not meet sufficiency threshold. Only {sufficiency_percentage:.2%} of data is present")
-        #     return False
-
-    return True
 
 
 def rename_columns(df):
@@ -145,11 +116,8 @@ def process_station(station_id, year, month, day, time_frame):
         chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
 
         for chunk in chunk_reader:
-            if check_sufficiency(chunk):
-                result = upload_chunk_with_retry(chunk, station_id)
-                time.sleep(1)  # Add a small delay between chunk uploads
-            else:
-                print(f"Data chunk for station {station_id} did not pass sufficiency check")
+            upload_chunk_with_retry(chunk, station_id)
+            time.sleep(1)  # Add a small delay between chunk uploads
 
     except requests.RequestException as e:
         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
@@ -158,13 +126,8 @@ def process_station(station_id, year, month, day, time_frame):
     except Exception as e:
         print(f"Unexpected error processing station {station_id}: {str(e)}")
 
-def main(stations=None, in_use=False):
 
-    start_year = 2018  # You can adjust this as needed
-    # if stations.empty:
-    #     stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
-    # current_year = datetime.now().year
-    # current_month = datetime.now().month
+def main(stations=None, in_use=False):
     missing_data = dbtest(MISSING_RECORDS)
     if missing_data.empty:
         return
@@ -181,18 +144,6 @@ def main(stations=None, in_use=False):
             futures.append(
                 executor.submit(process_station, station_id, year, month, day, time_frame))
             time.sleep(0.1)
-        #
-        # for year in range(start_year, current_year + 1):
-        #     for month in range(1, 13):
-        #         if year == current_year and month > current_month:
-        #             break
-        #         day = 14
-        #         time_frame = 1
-        #         for station_id in stations['station_id'].values:
-        #             print(f"Submitting task for station {station_id}, year {year}, month {month}")
-        #             futures.append(
-        #                 executor.submit(process_station, station_id, year, month, day, time_frame))
-        #             time.sleep(0.1)
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())
@@ -205,4 +156,9 @@ def main(stations=None, in_use=False):
 
 
 if __name__ == "__main__":
+    """
+    This CRON JOB will look for the missing data and update it in the database i.e 
+    if Any station does not have data for Year 2020 Month September then this CRON will 
+    fetch the data and update the weather data
+    """
     main()

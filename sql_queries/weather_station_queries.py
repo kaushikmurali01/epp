@@ -105,3 +105,17 @@ WHERE
 ORDER BY
     asm.station_id, year, month;
 """
+
+MISSING_TEMPERATURE_QUERY = """
+SELECT DISTINCT 
+    station_id,
+    EXTRACT(YEAR FROM date_time) AS year,
+    EXTRACT(MONTH FROM date_time) AS month
+FROM 
+    epp.weather_data_records
+WHERE 
+    temp IS NULL
+    AND date_time >= CURRENT_DATE - INTERVAL '365 days'
+ORDER BY 
+    station_id, year, month;
+"""
