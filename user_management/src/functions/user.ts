@@ -468,6 +468,8 @@ export async function GetUserDetailById(request: HttpRequest, context: Invocatio
  * @returns A promise resolving to an HTTP response indicating the status of user deletion.
  */
 export async function DeleteUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let resp = null;
+    let userDet:any = null;
     try {
         const userId: any = request.params.id;
         const type: any = request.params.type;
@@ -475,7 +477,7 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         context.log("Type", type);
         context.log("Company Id", company_id);
         context.log("User Id", userId);
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+         resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         const hasPermission = await AuthorizationService.check(company_id, resp.id, ['grant-revoke-access'], resp.role_id);
         if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
@@ -492,7 +494,7 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
                 context.log('1111', ucr?.role_id)
                 let user_role = ucr?.role_id;
                 const company:any = await CompanyService.GetCompanyById(request.params.company_id);
-                const userDet:any = await UserService.getUserDataById(userId);
+                 userDet = await UserService.getUserDataById(userId);
 
                 if (user_role === 1) {
                     const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
@@ -548,6 +550,17 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
     // Send Email to Admins
       }
 
+      // Log start
+      const input = {
+        "event": `Deleted user with email ${userDet?.email}`,
+        "company_id": company_id,
+        "user_id": resp.id,
+        "facility_id": 0,
+        "created_by":resp.id
+        };
+    await CompanyLogsService.createCompanyLog(input);
+    // Log end
+
 
 
 
@@ -562,6 +575,17 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         }
         return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
     } catch (error) {
+        // Log start
+        const input = {
+            "event": `Unable to delete user having email ${userDet?.email} due to some error`,
+            "company_id":request.params.company_id,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id,
+            "error": error.message
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
         return { status: 500, body: `${error.message}` };
     }
 }
