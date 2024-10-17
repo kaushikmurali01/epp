@@ -12,7 +12,7 @@ from functools import partial
 from contextlib import contextmanager
 
 from dbconnection import get_db_connection, dbtest, execute_query
-from sql_queries.weather_station_queries import UPDATE_IN_USE
+from sql_queries.weather_station_queries import UPDATE_IN_USE, MISSING_RECORDS
 
 # Adjust these parameters based on your system capabilities
 MAX_WORKERS = 100  # Reduced from 10 to 5
@@ -158,27 +158,41 @@ def process_station(station_id, year, month, day, time_frame):
     except Exception as e:
         print(f"Unexpected error processing station {station_id}: {str(e)}")
 
-
 def main(stations=None, in_use=False):
-    start_year = 2018  # You can adjust this as needed
-    if stations.empty:
-        stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
-    current_year = datetime.now().year
-    current_month = datetime.now().month
 
+    start_year = 2018  # You can adjust this as needed
+    # if stations.empty:
+    #     stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
+    # current_year = datetime.now().year
+    # current_month = datetime.now().month
+    missing_data = dbtest(MISSING_RECORDS)
+    if missing_data.empty:
+        return
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         futures = []
-        for year in range(start_year, current_year + 1):
-            for month in range(1, 13):
-                if year == current_year and month > current_month:
-                    break
-                day = 14
-                time_frame = 1
-                for station_id in stations['station_id'].values:
-                    print(f"Submitting task for station {station_id}, year {year}, month {month}")
-                    futures.append(
-                        executor.submit(process_station, station_id, year, month, day, time_frame))
-                    time.sleep(0.1)
+        for index, record in missing_data.iterrows():
+            year = record['year']
+            month = record['month']
+            station_id = record['station_id']
+            day = 14
+            time_frame = 1
+
+            print(f"Submitting task for station {station_id}, year {year}, month {month}")
+            futures.append(
+                executor.submit(process_station, station_id, year, month, day, time_frame))
+            time.sleep(0.1)
+        #
+        # for year in range(start_year, current_year + 1):
+        #     for month in range(1, 13):
+        #         if year == current_year and month > current_month:
+        #             break
+        #         day = 14
+        #         time_frame = 1
+        #         for station_id in stations['station_id'].values:
+        #             print(f"Submitting task for station {station_id}, year {year}, month {month}")
+        #             futures.append(
+        #                 executor.submit(process_station, station_id, year, month, day, time_frame))
+        #             time.sleep(0.1)
 
         for future in concurrent.futures.as_completed(futures):
             print(future.result())

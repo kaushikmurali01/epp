@@ -66,3 +66,42 @@ WHERE station_id IN {}
   AND in_use = false;
 """
 UPDATE_IN_USE = """UPDATE epp.weather_stations set in_use=true where station_id in {}"""
+
+
+MISSING_RECORDS = """WITH date_series AS (
+    SELECT generate_series('2018-01-01'::date, CURRENT_DATE, '1 month') AS first_day
+),
+all_station_months AS (
+    SELECT
+        s.station_id,
+        date_trunc('month', ds.first_day) AS month_start
+    FROM
+        date_series ds
+    CROSS JOIN
+        (SELECT DISTINCT station_id FROM epp.weather_data_records) s
+),
+recorded_months AS (
+    SELECT
+        station_id,
+        date_trunc('month', date_time) AS month_start,
+        bool_or(temp IS NOT NULL) AS has_temp
+    FROM
+        epp.weather_data_records
+    WHERE
+        date_time >= '2018-01-01'  -- ensure we consider records starting from 2018
+    GROUP BY
+        station_id, date_trunc('month', date_time)
+)
+SELECT
+    asm.station_id,
+    EXTRACT(YEAR FROM asm.month_start) AS year,
+    EXTRACT(MONTH FROM asm.month_start) AS month
+FROM
+    all_station_months asm
+LEFT JOIN
+    recorded_months rm ON asm.station_id = rm.station_id AND asm.month_start = rm.month_start
+WHERE
+    rm.station_id IS NULL OR rm.has_temp = false
+ORDER BY
+    asm.station_id, year, month;
+"""
