@@ -1,16 +1,20 @@
 import pandas as pd
 import numpy as np
-import psycopg2
 from psycopg2.extras import execute_values
 from concurrent.futures import ThreadPoolExecutor
 import math
 
+from timezonefinder import TimezoneFinder
+
 from dbconnection import get_db_connection
 
 # Read the CSV file
-# df = pd.read_csv('/Users/varunpratap/Downloads/Station Inventory EN.csv')
+
 url = 'https://collaboration.cmc.ec.gc.ca/cmc/climate/Get_More_Data_Plus_de_donnees/Station%20Inventory%20EN.csv'
+# df = pd.read_csv(url, on_bad_lines='skip')
+# last_updated = df.columns[0].split(':')[1].strip().split('-')[0]
 df = pd.read_csv(url, skiprows=[0, 1, 2], on_bad_lines='skip')
+
 # Your column mapping
 column_mapping = {
     'Name': 'name',
@@ -31,7 +35,8 @@ column_mapping = {
     'DLY First Year': 'dly_first_year',
     'DLY Last Year': 'dly_last_year',
     'MLY First Year': 'mly_first_year',
-    'MLY Last Year': 'mly_last_year'
+    'MLY Last Year': 'mly_last_year',
+    'timezone': 'timezone',
 }
 
 # Rename the columns
@@ -98,7 +103,7 @@ def insert_chunk(chunk):
         name, province, climate_id, station_id, wmo_id, tc_id,
         latitude_decimal, longitude_decimal, latitude, longitude,
         elevation_m, first_year, last_year, hly_first_year, hly_last_year,
-        dly_first_year, dly_last_year, mly_first_year, mly_last_year
+        dly_first_year, dly_last_year, mly_first_year, mly_last_year, timezone
     ) VALUES %s
     """
 
@@ -124,6 +129,42 @@ def split_dataframe(df, chunk_size=1000):
     return chunks
 
 
+def bulk_get_timezones(df):
+    """
+    Efficiently process timezone lookups in batches using a single TimezoneFinder instance
+    """
+    # Create single TimezoneFinder instance
+    tf = TimezoneFinder()
+
+    # Pre-filter valid coordinates to avoid unnecessary lookups
+    mask = (
+            (-90 <= df['latitude_decimal']) &
+            (df['latitude_decimal'] <= 90) &
+            (-180 <= df['longitude_decimal']) &
+            (df['longitude_decimal'] <= 180) &
+            df['latitude_decimal'].notna() &
+            df['longitude_decimal'].notna()
+    )
+
+    # Initialize timezone column with None/NaN
+    df['timezone'] = pd.NA
+
+    # Only process valid coordinates
+    valid_coords = df[mask]
+
+    # Vectorized timezone lookup
+    timezones = [
+        tf.timezone_at(lat=lat, lng=lon)
+        for lat, lon in zip(valid_coords['latitude_decimal'],
+                            valid_coords['longitude_decimal'])
+    ]
+
+    # Update only the valid rows
+    df.loc[mask, 'timezone'] = timezones
+
+    return df
+
+
 def bulk_insert():
     chunks = split_dataframe(df)
 
@@ -134,9 +175,10 @@ def bulk_insert():
 if __name__ == "__main__":
     print("Loading and initial analysis of data...")
     analyze_data(df)
-
+    df = df[pd.notna(df['hly_last_year'])]
     print("\nCleaning data...")
     df = clean_data(df)
+    df = bulk_get_timezones(df)
 
     print("\nAnalysis after cleaning:")
     analyze_data(df)
