@@ -49,6 +49,7 @@ import { FacilityChecklist } from "../../models/facility_checklist.model";
 import { MasterChecklist } from "../../models/master_checklist.model";
 import axios from "axios";
 import { AdminFacilityService } from "../admin/admin-facility/service";
+import { CompanyLogsService } from "../facility_logs/service";
 
 export class FacilityService {
   static async getFacility(
@@ -697,6 +698,18 @@ ORDER BY
         }
       );
       console.log(python_response.data);
+      // Log start
+      (async () => {
+        const input = {
+          "event": `Facility Created`,
+          "company_id": result?.company_id,
+          "user_id": userToken.id,
+          "facility_id": result.id,
+          "created_by":userToken.id
+          };
+         await CompanyLogsService.createCompanyLog(input);
+      })();
+    //Log end
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -1159,6 +1172,19 @@ ORDER BY
       };
       const result = await Facility.update(obj, { where: { id: facilityId } });
 
+      // Log start
+      (async () => {
+        const input = {
+          "event": `Facility Updated`,
+          "company_id": body.company_id,
+          "user_id": userToken.id,
+          "facility_id": facilityId,
+          "created_by":userToken.id
+          };
+         await CompanyLogsService.createCompanyLog(input);
+      })();
+    //Log end
+
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -1198,6 +1224,18 @@ ORDER BY
         await UserResourceFacilityPermission.destroy({
           where: { facility_id: facilityId },
         });
+        // Log start
+      (async () => {
+        const input = {
+          "event": `Facility Deleted`,
+          "company_id": userToken.company_id,
+          "user_id": userToken.id,
+          "facility_id": facilityId,
+          "created_by":userToken.id
+          };
+         await CompanyLogsService.createCompanyLog(input);
+      })();
+    //Log end
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
