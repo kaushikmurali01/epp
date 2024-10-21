@@ -982,6 +982,7 @@ def pull_station_data():
         thread = Thread(target=main, args=(nearest_station_ids, True))
         thread.start()
 
+
     return {"message": "Data Being Inserted"}, 200
 
 
