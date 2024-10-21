@@ -30,6 +30,7 @@ import NotificationsToast from "utils/notification/NotificationsToast";
 import SliderWrapper from "components/FormBuilder/Slider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Loader from "pages/Loader";
+import { cleanString } from "utils/helper/helper";
 
 let OpenLocationCode = require("open-location-code").OpenLocationCode;
 let openLocationCode = new OpenLocationCode();
@@ -237,10 +238,12 @@ const AddFacilityComponent = (props) => {
   const handleSubmit = (values) => {
     delete values.facility_id_submission_status;
 
+    const cleanedFacilityName = cleanString(values?.facility_name);
+
     const query =
       values?.unit_number +
       ", " +
-      values?.facility_name +
+      cleanedFacilityName +
       ", " +
       values?.street_number +
       " " +

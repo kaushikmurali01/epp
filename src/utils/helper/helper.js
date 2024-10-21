@@ -30,3 +30,7 @@ export const downloadFileFromUrl = async (imgUrl, fileName) => {
     console.error("Download error:", error);
   }
 };
+
+export function cleanString(input) {
+  return input.replace(/[^a-zA-Z0-9]/g, "");
+}
