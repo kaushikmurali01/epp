@@ -30,6 +30,7 @@ import {
 } from "../utils/facility-status";
 import { object } from "yup";
 import { AdminFacilityService } from "../controller/admin/admin-facility/service";
+import { CompanyLogsService } from "../controller/facility_logs/service";
 
 // Facility User CRUD
 
@@ -409,9 +410,10 @@ export async function editFacilityDetailsById(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
+  let decodedToken = null;
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () =>
+    decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
 
@@ -427,6 +429,22 @@ export async function editFacilityDetailsById(
     // Return success response
     return { body: responseBody };
   } catch (error) {
+
+     // Log start
+     (async () => {
+      const input = {
+        "event": `Unable to edit facility due to some error`,
+        "company_id":decodedToken?.company_id,
+        "user_id": decodedToken?.id,
+        "facility_id": request.params.id,
+        "created_by":decodedToken?.id,
+        "error": error.message
+        };
+    await CompanyLogsService.createCompanyLog(input);
+    })();
+    
+  // Log end
+
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -436,9 +454,10 @@ export async function removeFacility(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
+  let decodedToken = null;
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () =>
+    decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
 
@@ -454,6 +473,20 @@ export async function removeFacility(
     // Return success response
     return { body: responseBody };
   } catch (error) {
+    // Log start
+    (async () => {
+      const input = {
+        "event": `Unable to delete facility due to some error`,
+        "company_id":decodedToken?.company_id,
+        "user_id": decodedToken?.id,
+        "facility_id": request.params.id,
+        "created_by":decodedToken?.id,
+        "error": error.message
+        };
+    await CompanyLogsService.createCompanyLog(input);
+    })();
+    
+  // Log end
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -492,9 +525,10 @@ export async function getNonRoutineList(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
+  let decodedToken = null;
   try {
     // Fetch values from decoded token
-    const decodedToken = await decodeToken(request, context, async () =>
+    decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
 
@@ -511,6 +545,19 @@ export async function getNonRoutineList(
     // Return success response
     return { body: responseBody };
   } catch (error) {
+    // Log start
+    (async () => {
+      const input = {
+        "event": `Unable to create facility due to an error`,
+        "company_id":decodedToken?.company_id,
+        "user_id": decodedToken?.id,
+        "facility_id": 0,
+        "created_by":decodedToken?.id,
+        "error": error.message
+        };
+    await CompanyLogsService.createCompanyLog(input);
+    })();
+  // Log end
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
