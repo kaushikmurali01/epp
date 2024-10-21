@@ -96,11 +96,14 @@ recorded_months AS (
 SELECT
     asm.station_id,
     EXTRACT(YEAR FROM asm.month_start) AS year,
-    EXTRACT(MONTH FROM asm.month_start) AS month
+    EXTRACT(MONTH FROM asm.month_start) AS month,
+    ws.timezone
 FROM
     all_station_months asm
 LEFT JOIN
     recorded_months rm ON asm.station_id = rm.station_id AND asm.month_start = rm.month_start
+LEFT JOIN
+    epp.weather_stations ws ON asm.station_id = ws.station_id
 WHERE
     rm.station_id IS NULL OR rm.has_temp = false
 ORDER BY
@@ -109,14 +112,17 @@ ORDER BY
 
 MISSING_TEMPERATURE_QUERY = """
 SELECT DISTINCT 
-    station_id,
-    EXTRACT(YEAR FROM date_time) AS year,
-    EXTRACT(MONTH FROM date_time) AS month
+    wdr.station_id,
+    EXTRACT(YEAR FROM wdr.date_time) AS year,
+    EXTRACT(MONTH FROM wdr.date_time) AS month,
+    ws.timezone
 FROM 
-    epp.weather_data_records
+    epp.weather_data_records wdr
+LEFT JOIN
+    epp.weather_stations ws ON wdr.station_id = ws.station_id
 WHERE 
-    temp IS NULL
-    AND date_time >= CURRENT_DATE - INTERVAL '365 days'
+    wdr.temp IS NULL
+    AND wdr.date_time >= CURRENT_DATE - INTERVAL '365 days'
 ORDER BY 
-    station_id, year, month;
+    wdr.station_id, year, month;
 """
