@@ -463,14 +463,16 @@ export class AdminFacilityController {
    */
   static async signPaById(
     decodedToken: IUserToken,
-    event: HttpRequest
+    event: HttpRequest,
+    token: any
   ): Promise<Facility[]> {
     try {
       const requestData = await event.json();
       const result = await AdminFacilityService.signPaById(
         Object(decodedToken),
         Object(requestData),
-        Number(event.params.id)
+        Number(event.params.id),
+        token
       );
       return result;
     } catch (error) {

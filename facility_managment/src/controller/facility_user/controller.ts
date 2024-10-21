@@ -238,13 +238,15 @@ export class FacilityController {
   static async addPerformanceData(
     decodedToken: IUserToken,
     facility_id: number,
-    body: IBaseInterface
+    body: IBaseInterface,
+    token: string
   ): Promise<Facility[]> {
     try {
       const result = await FacilityService.addPerformanceData(
         Object(decodedToken),
         facility_id,
-        body
+        body,
+        token
       );
       return result;
     } catch (error) {
@@ -319,13 +321,15 @@ export class FacilityController {
   static async submitRejectBaseline(
     decodedToken: IUserToken,
     id: number,
-    body: IBaseInterface
+    body: IBaseInterface,
+    token: string
   ): Promise<Facility[]> {
     try {
       const result = await FacilityService.submitRejectBaseline(
         Object(decodedToken),
         id,
-        body
+        body,
+        token
       );
       return result;
     } catch (error) {

@@ -6,13 +6,10 @@ import {
   HTTP_STATUS_CODES,
   RESPONSE_MESSAGES,
   STATUS,
-  userType,
 } from "../../../utils/status";
 import { ResponseHandler } from "../../../utils/response-handler";
 import { Facility } from "../../../models/facility.model";
-import { HttpRequest } from "@azure/functions";
 import { IBaseInterface } from "../../../interfaces/baseline.interface";
-import { decodeToken } from "../../../helper/authantication.helper";
 import { IUserToken } from "../../../interfaces/usertoken.interface";
 import {
   FACILITY_APPROVAL_STATUS,
@@ -24,10 +21,7 @@ import { Company } from "../../../models/company.model";
 import { ParticipantAgreement } from "../../../models/participant_agreement.model";
 import { User } from "../../../models/user.model";
 import { creatSignDocumentUrlForUser } from "../../../helper/create-doc.helper";
-import { Op, where } from "sequelize";
-import { EmailContent, adminDetails } from "../../../utils/email-content";
-import { getEmailTemplate } from "../../../helper/mail-template.helper";
-import { Email } from "../../../helper/email-sender.helper";
+import { Op } from "sequelize";
 import { rawQuery } from "../../../services/database";
 import { UserResourceFacilityPermission } from "../../../models/user-resource-permission";
 import { Baseline } from "../../../models/facility_baseline.model";
@@ -281,17 +275,6 @@ export class AdminFacilityService {
       await Baseline.create(meter_type2);
       await Baseline.create(meter_type3);
 
-      console.log(
-        `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
-        { facility_id: result.id },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: decodedToken,
-          },
-        },"check request")
-
-
       let python_response = await axios.post(
         `${process.env.PYTHON_API}/weather/v1/pull-station-data`,
         { facility_id: result.id },
@@ -302,7 +285,6 @@ export class AdminFacilityService {
           },
         }
       );
-      console.log(python_response.data);
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -1070,10 +1052,33 @@ WHERE
     }
   }
 
+  static async forToAndCC(id, isCompany) {
+    let findToEmail: any, fromEmail: any;
+    if (isCompany) {
+      findToEmail = await rawQuery(
+        `select u.email from user_company_role ucr inner join users u on u.id =ucr.user_id where company_id=${id} and role_id =1`
+      );
+      findToEmail = findToEmail.map((ele) => ele.email)[0];
+      fromEmail = [];
+    } else {
+      let findCompanyId = await Facility.findOne({ where: { id } });
+      findToEmail = await rawQuery(
+        `select u.email from user_company_role ucr inner join users u on u.id =ucr.user_id where company_id=${findCompanyId.company_id} and role_id =1`
+      );
+      findToEmail = findToEmail.map((ele) => ele.email)[0];
+      fromEmail = await rawQuery(
+        `select email from user_resource_facility_permission where facility_id =${id}`
+      );
+      fromEmail = fromEmail.map((ele) => ele.email);
+    }
+    return [findToEmail, fromEmail];
+  }
+
   static async signPaById(
     userToken: IUserToken,
     body: IBaseInterface,
-    companyId: number
+    companyId: number,
+    token: any
   ): Promise<Facility[]> {
     try {
       const olResult = await ParticipantAgreement.findOne({
@@ -1109,12 +1114,26 @@ WHERE
             const companyDetails = await Company.findOne({
               where: { id: companyId },
             });
-            const bindingAuthorityDetails = {
-              // name: "Enerva Test Binding Authority",
-              name: userDetails?.first_name,
-            };
-            const version = "V1";
 
+            try {
+              let emails = await this.forToAndCC(companyId, true);
+              let sendParticipantMail = await axios.post(
+                `${process.env.BACKEND_API}/enerva-user/v1/email/sendSignedParticipant`,
+                {
+                  company_name: companyDetails.company_name,
+                  toEmail: emails[0],
+                },
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
+                  },
+                }
+              );
+              console.log("mail send", sendParticipantMail);
+            } catch (error) {
+              console.log(error);
+            }
             // if (userDetails.email) {
             //   (async () => {
             //     const template = await getEmailTemplate();

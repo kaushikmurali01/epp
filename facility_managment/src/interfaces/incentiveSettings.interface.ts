@@ -1,4 +1,4 @@
-import { IFacilityAttributes } from './facility.interface';
+import { IFacilityAttributes } from "./facility.interface";
 
 export interface IIncentiveSettingsAttributes {
   id: number | null;
@@ -7,6 +7,7 @@ export interface IIncentiveSettingsAttributes {
   p4pEndDate1: Date;
   p4pStartDate2: Date;
   p4pEndDate2: Date;
+  incentive_cap: number;
   p4pStartDate3: Date;
   p4pEndDate3: Date;
   preProjectIncentive: number;

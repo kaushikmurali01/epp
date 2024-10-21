@@ -1,7 +1,6 @@
 import { Email } from "../../helper/email-sender.helper";
 import { EmailSent } from "../../models/email-sent.model";
 import { IEmailSentAttributes } from "../../interfaces/email-sent.interface";
-import { Op } from "sequelize";
 
 export class EmailService {
   static async sendEmail(
@@ -14,7 +13,7 @@ export class EmailService {
         emailData.to,
         emailData.subject,
         emailData.body,
-        emailData.cc
+        emailData.cc || ""
       );
 
       // Store email details in the database

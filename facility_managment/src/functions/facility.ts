@@ -29,6 +29,7 @@ import {
   FACILITY_ID_SUBMISSION_STATUS,
 } from "../utils/facility-status";
 import { object } from "yup";
+import { AdminFacilityService } from "../controller/admin/admin-facility/service";
 
 // Facility User CRUD
 
@@ -861,7 +862,8 @@ export async function addPerformanceData(
     const result = await FacilityController.addPerformanceData(
       decodedToken,
       Number(facility_id),
-      Object(requestData)
+      Object(requestData),
+      request.headers.get("Authorization")
     );
 
     // Prepare response body
@@ -982,7 +984,8 @@ export async function submitRejectBaseline(
     const result = await FacilityController.submitRejectBaseline(
       decodedToken,
       Number(id),
-      Object(requestData)
+      Object(requestData),
+      request.headers.get("Authorization")
     );
 
     // Prepare response body
@@ -2283,7 +2286,7 @@ export async function adminEditFacilityDetailsById(
     const facility = await AdminFacilityController.editFacilityDetailsById(
       decodedToken,
       request,
-      request.headers.get("Authorization"),
+      request.headers.get("Authorization")
     );
 
     // Prepare response body
@@ -2504,7 +2507,8 @@ export async function adminEditPaById(
     // Get all result
     const result = await AdminFacilityController.signPaById(
       decodedToken,
-      request
+      request,
+      request.headers.get("Authorization")
     );
 
     // Prepare response body
@@ -2634,7 +2638,6 @@ export async function getEmailTemplatesByFacilityId(
     const result = await EmailTemplateController.getEmailTemplatesByFacilityId(
       facilityId
     );
-
     return { body: JSON.stringify(result) };
   } catch (error) {
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -2656,7 +2659,23 @@ export async function getEmailTemplatesSubjectAndBody(
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
 }
+export async function getEmailDynamicTemplate(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    const facilityId = Number(request.params.facilityId);
+    const template_name = request.query.get("template_name");
+    const result = await EmailTemplateController.getEmailDynamicTemplate(
+      facilityId,
+      template_name
+    );
 
+    return { body: JSON.stringify(result) };
+  } catch (error) {
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+  }
+}
 export async function getIncentiveSettings(
   request: HttpRequest,
   context: InvocationContext
@@ -3120,6 +3139,12 @@ app.http("getEmailTemplatesSubjectAndBody", {
   route: "email-templates/{facilityId}/subject-body",
   authLevel: "anonymous",
   handler: getEmailTemplatesSubjectAndBody,
+});
+app.http("getEmailDynamicTemplate", {
+  methods: ["GET"],
+  route: "email-templates/{facilityId}/dynamic-template",
+  authLevel: "anonymous",
+  handler: getEmailDynamicTemplate,
 });
 app.http(`facility-listing`, {
   methods: ["GET"],

@@ -19,6 +19,7 @@ class IncentiveSettings
   public p4pStartDate3!: Date;
   public p4pEndDate3!: Date;
   public preProjectIncentive!: number;
+  public incentive_cap!: number;
   public preProjectIncentiveStatus!: string;
   public p4pIncentiveStatus1!: string;
   public p4pIncentiveStatus2!: string;
@@ -82,6 +83,9 @@ IncentiveSettings.init(
     },
     p4pIncentiveStatus2: {
       type: DataTypes.STRING,
+    },
+    incentive_cap: {
+      type: DataTypes.FLOAT,
     },
     p4pIncentiveStatus3: {
       type: DataTypes.STRING,

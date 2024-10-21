@@ -48,6 +48,7 @@ import { Json } from "sequelize/types/utils";
 import { FacilityChecklist } from "../../models/facility_checklist.model";
 import { MasterChecklist } from "../../models/master_checklist.model";
 import axios from "axios";
+import { AdminFacilityService } from "../admin/admin-facility/service";
 
 export class FacilityService {
   static async getFacility(
@@ -780,7 +781,8 @@ ORDER BY
   static async addPerformanceData(
     userToken: IUserToken,
     facility_id: number,
-    body: IBaseInterface
+    body: IBaseInterface,
+    token: string
   ): Promise<Facility[]> {
     try {
       let findExist = await FacilitySavePerformance.findOne({
@@ -827,6 +829,7 @@ ORDER BY
       } else {
         status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_3RD;
       }
+      let findFacility = await Facility.findOne({ where: { id: facility_id } });
       await Facility.update(
         {
           facility_id_submission_status: status,
@@ -837,6 +840,39 @@ ORDER BY
         { performance: true },
         { where: { facility_id: facility_id } }
       );
+      // try {
+      //   let emails = await AdminFacilityService.forToAndCC(facility_id, false);
+      //   let sendParticipantMail = await axios.post(
+      //     `${process.env.BACKEND_API}/enerva-user/v1/email/sendFirstSavingsReportComplete`,
+      //     {
+      //       facility_identifier: findFacility.facility_name,
+      //       facility_address: findFacility.address,
+      //       onpeak_electricity_saving_submitted: body.data,
+      //       offpeak_electricity_saving_submitted: "35767",
+      //       onpeak_electricity_saving_approved: "387456",
+      //       offpeak_electricity_saving_approved: "35467",
+      //       missing_data_removed_from: "Dec 31, 2022",
+      //       missing_data_removed_to: "Dec 31, 2023",
+      //       paid_pre_project_incentive: "$A",
+      //       on_peak_electricity_savings_incentive:
+      //         "$0.04/kWh x Electricity Savings $B",
+      //       off_peak_electricity_savings_incentive:
+      //         "$0.15/kWh x Electricity Savings $C",
+      //       total_performance_incentive: "$B+$C-$A",
+      //       toEmail: emails[0],
+      //       cc: emails[1],
+      //     },
+      //     {
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         Authorization: token,
+      //       },
+      //     }
+      //   );
+      //   console.log("mail send", sendParticipantMail);
+      // } catch (error) {
+      //   console.log(error);
+      // }
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -920,7 +956,8 @@ ORDER BY
   static async submitRejectBaseline(
     userToken: IUserToken,
     id: number,
-    body: IBaseInterface
+    body: IBaseInterface,
+    token: string
   ): Promise<Facility[]> {
     try {
       const obj: any = {
@@ -946,6 +983,32 @@ ORDER BY
           { baseline: true },
           { where: { facility_id: findBaseline.facility_id } }
         );
+        // try {
+        //   let findFacility = await Facility.findOne({
+        //     where: { id: findBaseline.facility_id },
+        //   });
+        //   let findTOandCC = await AdminFacilityService.forToAndCC(
+        //     findBaseline.facility_id,
+        //     false
+        //   );
+        //   let sendNoticeOfApproval = await axios.post(
+        //     `${process.env.BACKEND_API}/enerva-user/v1/email/sendAcknowledgement`,
+        //     {
+        //       facility_address: findFacility.address,
+        //       facility_identifier: findFacility.facility_name,
+        //       toEmail: findTOandCC[0],
+        //     },
+        //     {
+        //       headers: {
+        //         "Content-Type": "application/json",
+        //         Authorization: token,
+        //       },
+        //     }
+        //   );
+        //   console.log("mail send", sendNoticeOfApproval);
+        // } catch (error) {
+        //   console.log(error);
+        // }
       } else {
         await Facility.update(
           {
