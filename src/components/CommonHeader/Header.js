@@ -164,7 +164,8 @@ function Header(props) {
   const clickSetting =(setting) => {
     if(setting == 'Logout'){
       //logout from the application with msal instance
-      localStorage.clear()
+      localStorage.clear();
+      sessionStorage.clear();
       instance.logoutRedirect()
     }
     else if(setting == 'Profile'){
@@ -200,11 +201,9 @@ function Header(props) {
     }
   }, [companyList, getAllCompanyList]);
 
-  console.log(companyList, getAllCompanyList, "getAllCompanyList")
-
   const getUserRoleData = () => {
     const userType = "2" // for customers
-    const apiURL = USER_MANAGEMENT.GET_USER_ROLE+"/"+userType;
+    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
     GET_REQUEST(apiURL)
       .then((res) => {
         setUserRole(res.data?.body)
@@ -243,22 +242,24 @@ function Header(props) {
 
     // Store the selected company ID
     localStorage.setItem("selectedCompanyId", selectedCompanyId);
-    dispatch(fetchUserDetails(selectedCompanyId))
     window.location.reload();
   };
-
-  // const userData = localStorage.getItem("userDetails") && JSON.parse(localStorage.getItem("userDetails"));
 
   // Get the selected company ID
   const newlySelectedCompany = localStorage.getItem("selectedCompanyId");
 
   useEffect(() => {
-    if (newlySelectedCompany) {
-      setSelectCompany(newlySelectedCompany);
-    } else {
+    const { length } = companyList;
+    const found = length ? companyList?.some(el => el?.id == localStorage.getItem("selectedCompanyId")) : false;
+    let selectedCompany = found ? localStorage.getItem("selectedCompanyId") : 0;
+    if (selectedCompany) {
+      setSelectCompany(selectedCompany);
+    } else if(userDetails?.company_id) {
       setSelectCompany(userDetails?.company_id);
-    };
-  }, [userDetails]);
+    } else if(userDetails?.type == 2){
+      dispatch(fetchUserDetails())
+    }
+  }, [userDetails, companyList]);
 
   const acceptRejectInvite = (user_id, role_id, company_id, email, type) =>{
     const apiURL = USER_MANAGEMENT.ACCEPT_REJECT_INVITE;
@@ -274,10 +275,11 @@ function Header(props) {
         if(type == 'accept' && res.status == 200) {
           NotificationsToast({ message: "You have successfully accepted the invite!", type: "success" });
           getCompanyListData();
+          navigate('/')
         } else if(type == 'reject' && res.statusCode == 200){
           NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
         }
-        dispatch(fetchUserDetails(selectCompany));
+        dispatch(fetchUserDetails(selectCompany ? selectCompany : 0));
         setInvitationPopUp(false);
       })
       .catch((error) => {
@@ -301,12 +303,9 @@ function Header(props) {
         "user_id": userData?.user?.id
       }
 
-    
-
-    
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
-          const successMessage = response.data.status === 200 ? "Your request to join has been submitted. The company’s administrators will review your request and approve as needed." : response.data.message;
+          const successMessage = response.data.status === 200 ? `Your request to join ${response?.data?.company?.company_name} has been submitted. The company’s administrators will review your request.` : response.data.message;
 
           setModalConfig((prevState) => ({
             ...prevState,
@@ -446,7 +445,7 @@ function Header(props) {
                     How it works
                   </Typography>
                 </MenuItem>
-                <MenuItem
+                {/* <MenuItem
                   onClick={(event) =>
                     scrollToSection(event, "userStorySection")
                   }
@@ -461,7 +460,7 @@ function Header(props) {
                   >
                     Success stories
                   </Typography>
-                </MenuItem>
+                </MenuItem> */}
                 <MenuItem
                   onClick={(event) => scrollToSection(event, "whatsNewSection")}
                   sx={{ py: "6px", px: "12px" }}
@@ -492,6 +491,18 @@ function Header(props) {
                     Contact us
                   </Typography>
                 </MenuItem>
+                <MenuItem sx={{ py: "6px", px: "12px" }}>
+                  <Link
+                    variant="body2"
+                    component="a"
+                    target="_blank"
+                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                    sx={{ textDecoration: "none" }}
+                    color="dark.light"
+                  >
+                    User guide
+                  </Link>
+                </MenuItem>
               </Box>
             )}
           </Box>
@@ -514,13 +525,17 @@ function Header(props) {
                     transform: "translateY(-50%)",
                   }}
                 >
-                  <Typography
+                  <Link
+                    underline="hover"
                     variant="small"
-                    sx={{ color: "blue.main", cursor: "pointer" }}
+                    sx={{
+                      color: "blue.main",
+                      cursor: "pointer",
+                    }}
                     onClick={openRequestModal}
                   >
                     Request to join company
-                  </Typography>
+                  </Link>
                 </Grid>
               ) : null}
               <Button
@@ -571,6 +586,13 @@ function Header(props) {
                           background: "#F3FFF6",
                           maxHeight: "2.25rem",
                         }}
+                        renderValue={(selected) => {
+                          let selectedObject = companyList.find(
+                            (obj) => obj.id == selectCompany
+                          );
+                          if (selectedObject)
+                            return selectedObject?.company_name;
+                        }}
                       >
                         {companyList.map((item) => {
                           return (
@@ -612,10 +634,17 @@ function Header(props) {
                     <Typography textAlign="center">{setting}</Typography>
                   </MenuItem>
                 ))} */}
-                <MenuItem onClick={() => clickSetting("Profile")} sx={{ minHeight: 'auto'}}>
+                <MenuItem
+                  onClick={() => clickSetting("Profile")}
+                  sx={{ minHeight: "auto" }}
+                >
                   <Typography textAlign="center">Profile</Typography>
                 </MenuItem>
-                <MenuItem sx={{ display: { xs: "flex", md: "none",minHeight: 'auto' } }} >
+                <MenuItem
+                  sx={{
+                    display: { xs: "flex", md: "none", minHeight: "auto" },
+                  }}
+                >
                   {userDetails?.type == 2 || userDetails?.type == 3 ? (
                     <Grid
                       item
@@ -637,50 +666,65 @@ function Header(props) {
                     </Grid>
                   ) : null}
                 </MenuItem>
-             
-                  {companyList?.length > 0 &&
-                    companyList[0] != null &&
-                    (userData?.user?.type != 3 ||
-                      userData?.user?.type != 1 ||
-                      userData?.user?.type != 5) && (
-                        <MenuItem sx={{ display: { xs: "flex", md: "none" }, minHeight: 'auto' }}>
-                          <FormGroup className="theme-form-group">
-                            <FormLabel
-                              sx={{
-                                marginBottom: "0.25rem",
-                                fontSize: "0.75rem !important",
-                                lineHeight: "1 !important",
-                                fontWeight: "400",
-                              }}
-                            >
-                              Choose company
-                            </FormLabel>
-                            <FormControl sx={{ minWidth: "10rem" }}>
-                              <Select
-                                value={selectCompany}
-                                onChange={(e) => handleSelectChange(e)}
-                                displayEmpty={true}
-                                sx={{
-                                  padding: 0,
-                                  fontWeight: 600,
-                                  background: "#F3FFF6",
-                                  maxHeight: "2.25rem",
-                                }}
-                              >
-                                {companyList.map((item) => {
-                                  return (
-                                    <MenuItem key={item?.id} value={item?.id}>
-                                      {item?.company_name}
-                                    </MenuItem>
-                                  );
-                                })}
-                              </Select>
-                            </FormControl>
-                          </FormGroup>
-                      </MenuItem>
-                    )}
-               
-                <MenuItem onClick={() => clickSetting("Logout")} sx={{  minHeight: 'auto'}}>
+
+                {companyList?.length > 0 &&
+                  companyList[0] != null &&
+                  (userData?.user?.type != 3 ||
+                    userData?.user?.type != 1 ||
+                    userData?.user?.type != 5) && (
+                    <MenuItem
+                      sx={{
+                        display: { xs: "flex", md: "none" },
+                        minHeight: "auto",
+                      }}
+                    >
+                      <FormGroup className="theme-form-group">
+                        <FormLabel
+                          sx={{
+                            marginBottom: "0.25rem",
+                            fontSize: "0.75rem !important",
+                            lineHeight: "1 !important",
+                            fontWeight: "400",
+                          }}
+                        >
+                          Choose company
+                        </FormLabel>
+                        <FormControl sx={{ minWidth: "10rem" }}>
+                          <Select
+                            value={selectCompany}
+                            onChange={(e) => handleSelectChange(e)}
+                            displayEmpty={true}
+                            sx={{
+                              padding: 0,
+                              fontWeight: 600,
+                              background: "#F3FFF6",
+                              maxHeight: "2.25rem",
+                            }}
+                            renderValue={(selected) => {
+                              let selectedObject = companyList.find(
+                                (obj) => obj.id == selectCompany
+                              );
+                              if (selectedObject)
+                                return selectedObject?.company_name;
+                            }}
+                          >
+                            {companyList.map((item) => {
+                              return (
+                                <MenuItem key={item?.id} value={item?.id}>
+                                  {item?.company_name}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                        </FormControl>
+                      </FormGroup>
+                    </MenuItem>
+                  )}
+
+                <MenuItem
+                  onClick={() => clickSetting("Logout")}
+                  sx={{ minHeight: "auto" }}
+                >
                   <Typography textAlign="center">Logout</Typography>
                 </MenuItem>
               </Menu>
@@ -709,7 +753,7 @@ function Header(props) {
                   component="a"
                   onClick={handleRedirect}
                 >
-                  Login/Sign up
+                  Log in/Sign up
                 </Button>
               </Box>
               <Box sx={{ display: { sm: "", md: "none" } }}>
@@ -755,13 +799,13 @@ function Header(props) {
                     >
                       How it works
                     </MenuItem>
-                    <MenuItem
+                    {/* <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "userStorySection")
                       }
                     >
                       Success stories
-                    </MenuItem>
+                    </MenuItem> */}
                     <MenuItem
                       onClick={(event) =>
                         scrollToSection(event, "whatsNewSection")
@@ -776,6 +820,16 @@ function Header(props) {
                     >
                       Contact us
                     </MenuItem>
+                    <MenuItem>
+                      <Link
+                        target="_blank"
+                        href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                        sx={{ textDecoration: "none" }}
+                        color="dark.light"
+                      >
+                        User guide
+                      </Link>
+                    </MenuItem>
                     <Divider />
                     <MenuItem>
                       <Button
@@ -785,7 +839,7 @@ function Header(props) {
                         onClick={handleRedirect}
                         sx={{ width: "100%" }}
                       >
-                        Login/Sign up
+                        Log in/Sign up
                       </Button>
                     </MenuItem>
                     {/* <MenuItem>
