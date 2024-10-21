@@ -27,7 +27,7 @@ const HeroBanner = () => {
               padding: theme_Sm ? "0" : "1rem 0",
             }}
           >
-            <Grid item xs={100} sm={5} className="banner-info">
+            <Grid item xs={100} sm={6} className="banner-info">
               <Typography
                 variant="h1"
                 gutterBottom
@@ -37,9 +37,19 @@ const HeroBanner = () => {
                   marginBottom: theme_Md ? "2.625rem" : "1.875rem",
                 }}
               >
-                <span>Save Energy. </span>
-                <span>Reduce Costs. </span>
-                <span>Earn Incentives.</span>
+                Energy Performance Program
+              </Typography>
+              <Typography
+                variant="h2"
+                gutterBottom
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  fontSize: {xs: "1.875rem", sm:"2rem", md:"3rem"},
+                  marginBottom: theme_Md ? "2.625rem" : "1.875rem",
+                }}
+              >
+                Save energy.<br />Reduce costs.<br />Earn incentives.
               </Typography>
               <Typography variant="span" gutterBottom>
                 Start today with the{" "}
@@ -64,7 +74,7 @@ const HeroBanner = () => {
                   color="success"
                   onClick={handleRedirect}
                 >
-                  Login/Sign up
+                  Log in/Sign up
                 </Button>
                 <Tooltip title="Learn more about EPP" arrow>
                   <Button
@@ -77,14 +87,14 @@ const HeroBanner = () => {
                       )
                     }
                   >
-                    Learn More
+                    More details on SaveOnEnergy.ca
                   </Button>
                 </Tooltip>
               </Stack>
               {/* <Typography variant='span' className='whats-new'>What's New <img src="/images/landingPage/speak_icon.svg" /></Typography> */}
             </Grid>
 
-            <Grid item xs={100} sm={7}>
+            <Grid item xs={100} sm={6}>
               <span className="banner-bg"></span>
             </Grid>
           </Grid>

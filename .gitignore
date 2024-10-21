@@ -68,6 +68,8 @@ Thumbs.db
 .env.test.local
 .env.production.local
 .env
+.env.stage
+.env.prod
 .env.production
 .env.staging
 
