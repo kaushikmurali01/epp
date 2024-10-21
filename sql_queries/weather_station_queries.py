@@ -11,6 +11,7 @@ SELECT
     s.latitude_decimal as latitude, 
     s.longitude_decimal as longitude, 
     s.climate_id, 
+    s.timezone,
     6371 * 2 * ASIN(SQRT(
         POWER(SIN(RADIANS(f.latitude - s.latitude_decimal) / 2), 2) + 
         COS(RADIANS(s.latitude_decimal)) * COS(RADIANS(f.latitude)) * 
