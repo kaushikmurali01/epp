@@ -945,6 +945,9 @@ def upload_file():
         error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
         return jsonify({"error": error_msg}), 400
     if file_name.endswith(('.xml',)):
+        if iv:
+            error_msg = "xml files are not Supported for Independent Variables"
+            return jsonify({"error": error_msg}), 400
         uploader = GreenDataUploader(file, facility_id, meter_id, iv)
     else:
         uploader = DataUploader(file, facility_id, meter_id, iv)
