@@ -99,7 +99,6 @@ def replace_consecutive_nulls(df, primary_col, replacement_cols, consecutive_cou
 
 def clean_raw_data(dataframe, facility_id, meter_type):
     df = dataframe.copy()
-
     meter_columns = df[df['meter_type'].isin([1, 2, 3])]['meter_name'].unique()
     iv_columns = df[df['meter_type'].isna()]['meter_name'].unique()
     new_df = df.pivot_table(values='reading',
@@ -143,15 +142,12 @@ def clean_raw_data(dataframe, facility_id, meter_type):
     output_columns.extend([i for i in iv_columns])
     new_df = new_df.drop(new_df[new_df['EnergyConsumption'] < 1].index)
     # Apply the function to the EnergyConsumption column
-
     outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', facility_id, meter_type)
-
     new_df = new_df[~new_df['Date'].isin(list(outliers.Date.values))]
-    # new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
     output_col = ['Date', 'EnergyConsumption', 'Temperature']
     output_col.extend(iv_columns)
+
     output_df = new_df[output_col]
     output_df = output_df[output_df['EnergyConsumption'] > 0]
     output_df['Date'] = pd.to_datetime(output_df['Date']).dt.strftime('%Y-%m-%d %H:%M:%S')
-    # output_df.reset_index(inplace=True)
     return output_df.to_dict()
