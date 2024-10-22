@@ -71,6 +71,21 @@ class CompanyLogController {
         }
     }
 
+    static async geFacilityLogById(id, offset, limit): Promise<Object> {
+        try {
+            const log = await CompanyLogsService.geFacilityLogById(id, offset, limit);
+            if (log) {
+                return { status: 200, body: log };
+            } else {
+                return { status: 500, body: { message: RESPONSE_MESSAGES.userNotFound } };
+            }
+        } catch (error) {
+            return { status: 500, body: { error: error.message } };
+        }
+    }
+
+    
+
     /**
      * Updates an existing company log by ID.
      * 

@@ -4,6 +4,7 @@ import { HTTP_STATUS_CODES, RESPONSE_MESSAGES } from 'enerva-utils/utils/status'
 import { User } from '../models/user';
 import { sequelize } from './database';
 import { Company } from '../models/company';
+import { Facility } from '../models/facility';
 
 class CompanyLogsService {
 
@@ -157,6 +158,54 @@ class CompanyLogsService {
       throw new Error(`Failed to fetch company log by ID: ${error.message}`);
     }
   }
+
+
+  static async geFacilityLogById(
+    facility_id: number,
+    offset: number,
+    limit: number
+  ): Promise<{ rows: CompanyLog[], count: number } | null> {
+    try {
+      const result = await CompanyLog.findAndCountAll({
+        where: { facility_id },
+        include: [
+          {
+            model: User,
+            as: 'user', 
+            attributes: []
+          },
+          {
+            model: Company,
+            as: 'company', 
+            attributes: []
+          },
+          {
+            model: Facility,
+            as: 'facility', 
+            attributes: []
+          },
+        ],
+        attributes: [
+          "company_id", "event", "user_id", "createdAt",
+          [sequelize.col('user.first_name'), 'event_by_first_name'], 
+          [sequelize.col('user.last_name'), 'event_by_last_name'],
+          [sequelize.col('company.company_name'), 'company_name'], 
+          [sequelize.col('facility.facility_name'), 'facility_name'],    
+        ],
+        offset,  // Pagination offset
+        limit,   // Pagination limit
+      });
+  
+      return {
+        rows: result.rows,   // The result set of rows
+        count: result.count, // The total number of rows matching the query
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch company log by ID: ${error.message}`);
+    }
+  }
+
+  
   
 
   /**

@@ -21,6 +21,8 @@ import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { CheckCompanyStatus } from "./company";
 import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
 import { CustomColumn } from '../models/custom-columns'; // Import Sequelize model
+import { Facility } from "../models/facility";
+import { CompanyLogsService } from "../services/companyLogsService";
 
 
 /**
@@ -751,9 +753,14 @@ export async function AddResourceFacilityPermission(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
+  let decoded:any = null;
+  let requestData:any = null;
   try {
+   decoded = await decodeTokenMiddleware(request, context, async () =>
+      Promise.resolve({})
+    );
     // Extract emails from request
-    const requestData: any = await request.json();
+    requestData = await request.json();
     //let emails = requestData.email.split(",")
     let emails = requestData.email.split(",").map((email) => email.trim());
     let facilityId = requestData.facilityId;
@@ -782,6 +789,24 @@ export async function AddResourceFacilityPermission(
             resource_permission_id: 5,
             company_id,
           });
+          (async () => {
+          // log start
+          
+          let facility = await Facility.findOne({
+            where: {
+              id: facilityId[j]
+            },
+          });
+          const input = {
+            "event": `Facility ${facility.facility_name} is assigned to user with email ${emails[i]} `,
+            "company_id": company_id,
+            "user_id": decoded.id,
+            "facility_id": facilityId[j],
+            "created_by":decoded.id
+            };
+           await CompanyLogsService.createCompanyLog(input);
+          // log end
+          })();
         }
       }
     }
@@ -792,6 +817,18 @@ export async function AddResourceFacilityPermission(
     // Return success response
     return { body: responseBody, status: 200 };
   } catch (error) {
+
+    // Log start
+    const input = {
+      "event": `Unable to assign facility to user due to an error`,
+      "company_id": requestData.company_id,
+      "user_id": decoded.user_id,
+      "facility_id": 0,
+      "created_by":decoded.user_id,
+      "error": error.message
+      };
+      await CompanyLogsService.createCompanyLog(input);
+      //Log end
     // Return error response
     return { status: 500, body: `${error.message}` };
   }

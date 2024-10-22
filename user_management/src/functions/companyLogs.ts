@@ -53,6 +53,19 @@ export async function GetUserLogById(request: HttpRequest, context: InvocationCo
     }
 }
 
+export async function GetFacilityLogById(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    try {
+       // const logId = parseInt(request.params.id);
+        const { offset, limit, id } = request.params;
+        const logEntry = await CompanyLogController.geFacilityLogById(id, offset, limit);
+        const responseBody = JSON.stringify(logEntry);
+
+        return { body: responseBody, status: 200 };
+    } catch (error) {
+        return { status: 500, body: `${error.message}` };
+    }
+}
+
 /**
  * List all company log entries.
  * 
@@ -94,6 +107,13 @@ app.http('GetUserLogById', {
     methods: ['GET'],
     authLevel: 'anonymous',
     handler: GetUserLogById
+});
+
+app.http('GetFacilityLogById', {
+    route: 'facilityLog/{id}/{offset}/{limit}',
+    methods: ['GET'],
+    authLevel: 'anonymous',
+    handler: GetFacilityLogById
 });
 
 

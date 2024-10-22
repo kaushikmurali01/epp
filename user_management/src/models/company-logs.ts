@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import { sequelize } from '../services/database';
 import { User } from './user';
 import { Company } from './company';
+import { Facility } from './facility';
 
 interface CompanyLogAttributes {
   id: number;
@@ -72,5 +73,6 @@ CompanyLog.init(
 // CompanyLog model
 CompanyLog.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 CompanyLog.belongsTo(Company, { foreignKey: 'company_id', as: 'company' });
+CompanyLog.belongsTo(Facility, { foreignKey: 'facility_id', as: 'facility' });
 
 export { CompanyLog };
