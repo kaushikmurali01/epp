@@ -28,6 +28,7 @@ import { Baseline } from "../../../models/facility_baseline.model";
 import { Workflow } from "../../../models/workflow.model";
 import { FacilityThreshold } from "../../../models/facility_threshold.model";
 import axios from "axios";
+import { CompanyLogsService } from "../../facility_logs/service";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -1296,6 +1297,18 @@ WHERE
           //     })();
           //   }
           // }
+          // Log start
+      (async () => {
+        const input = {
+          "event": `PA is signed`,
+          "company_id": companyId,
+          "user_id": userToken.id,
+          "facility_id": 0,
+          "created_by":userToken.id
+          };
+         await CompanyLogsService.createCompanyLog(input);
+      })();
+    //Log end
 
           const resp = ResponseHandler.getResponse(
             HTTP_STATUS_CODES.SUCCESS,
