@@ -274,7 +274,7 @@ const IncentiveSettingsMicroComponent = () => {
         incentive_cap:
           incentiveSettings.incentive_cap ||
           baselineSummary["Incentive Cap"] ||
-          "N/A",
+          "",
       });
     }
   }, [incentiveSettings, adminBaselineSummaryData]);
