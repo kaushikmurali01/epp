@@ -1,96 +1,113 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux';
-import { getEmailArchiveList } from '../../../../redux/admin/actions/adminPerformanceActions';
-import { Button, FormControl, FormGroup, Grid, TextField, Typography } from '@mui/material';
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getEmailArchiveList } from "../../../../redux/admin/actions/adminPerformanceActions";
+import {
+  Button,
+  FormControl,
+  FormGroup,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
-import { StyledButtonGroup } from '../AdminBaselineModel/styles';
+import { StyledButtonGroup } from "../AdminBaselineModel/styles";
+import CustomPagination from "components/CustomPagination";
 
- const buttonStyle = {
-   padding: "0.44rem 1.5rem",
-   lineHeight: "1",
-   height: "max-content",
-   borderRadius: "50px",
+const buttonStyle = {
+  padding: "0.44rem 1.5rem",
+  lineHeight: "1",
+  height: "max-content",
+  borderRadius: "50px",
 
-   ".MuiButtonGroup-firstButton": {
-     BorderRight: "10px",
-   },
- };
+  ".MuiButtonGroup-firstButton": {
+    BorderRight: "10px",
+  },
+};
 
- const activeButtonStyle = {
-   ...buttonStyle,
-   backgroundColor: "#2E813E",
-   color: "#F7F7F5",
-   "&:hover": {
-     backgroundColor: "#2E813E",
-   },
- };
+const activeButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: "#2E813E",
+  color: "#F7F7F5",
+  "&:hover": {
+    backgroundColor: "#2E813E",
+  },
+};
 
- const inactiveButtonStyle = {
-   ...buttonStyle,
-   backgroundColor: "#EBEBEB",
-   color: "#696969",
- };
+const inactiveButtonStyle = {
+  ...buttonStyle,
+  backgroundColor: "#EBEBEB",
+  color: "#696969",
+};
 
- const emailArchiveBoxStyle = {
-   display: "block",
-   backgroundColor: "#EBFFEF",
-   padding: "10px",
-   borderRadius: "5px",
- };
+const emailArchiveBoxStyle = {
+  display: "block",
+  backgroundColor: "#EBFFEF",
+  padding: "10px",
+  borderRadius: "5px",
+};
 
-const ArchivedEmailListsModal = ({facility_id}) => {
+const ArchivedEmailListsModal = ({ facility_id }) => {
   const dispatch = useDispatch();
   const inputRef = useRef(null);
   const [searchString, setSearchString] = useState("");
 
-  const { archivedEmailList } = useSelector(
+  const { archivedEmailList, loading } = useSelector(
     (state) => state.adminPerformanceReducer
   );
   const [activeButtonEmailArchive, setActiveButtonEmailArchive] = useState(0);
   const [filteredEmails, setFilteredEmails] = useState([]);
+  const [count, setCount] = useState(0);
+  const [pageInfo, setPageInfo] = useState({
+    page: 1,
+    pageSize: 10,
+  });
 
   useEffect(() => {
-    dispatch(getEmailArchiveList(facility_id));
-  }, [dispatch, facility_id]);
+    const getEmailType = () => {
+      switch (activeButtonEmailArchive) {
+        case 1:
+          return "user";
+        case 2:
+          return "system";
+        default:
+          return "all";
+      }
+    };
 
-  useEffect(() => {
-    filterEmails(activeButtonEmailArchive);
-  }, [archivedEmailList, searchString, activeButtonEmailArchive]);
-
-  const applySearchFilter = (emails, search) => {
-    if (!search) return emails;
-    const searchLower = search.toLowerCase();
-    return emails.filter(
-      (email) =>
-        email.subject.toLowerCase().includes(searchLower) ||
-        email.to.toLowerCase().includes(searchLower) ||
-        new Date(email.created_at)
-          .toLocaleDateString()
-          .toLowerCase()
-          .includes(searchLower)
+    // Fetch data from API
+    dispatch(
+      getEmailArchiveList(
+        facility_id,
+        pageInfo.page,
+        pageInfo.pageSize,
+        getEmailType()
+      )
     );
-  };
+  }, [dispatch, facility_id, pageInfo, activeButtonEmailArchive]);
 
-  const filterEmails = (index) => {
-    let filtered = archivedEmailList;
+  useEffect(() => {
+    const applySearchFilter = (emails, search) => {
+      if (!search) return emails;
+      const searchLower = search.toLowerCase();
+      return emails.filter(
+        (email) =>
+          email.subject.toLowerCase().includes(searchLower) ||
+          email.to.toLowerCase().includes(searchLower) ||
+          new Date(email.created_at)
+            .toLocaleDateString()
+            .toLowerCase()
+            .includes(searchLower)
+      );
+    };
 
-    switch (index) {
-      case 1: // User sent
-        filtered = filtered.filter((email) => !email.is_system_generated);
-        break;
-      case 2: // System generated
-        filtered = filtered.filter((email) => email.is_system_generated);
-        break;
-      default:
-        break;
-    }
-
-    setFilteredEmails(applySearchFilter(filtered, searchString));
-  };
+    setFilteredEmails(applySearchFilter(archivedEmailList?.rows, searchString));
+    setCount(archivedEmailList?.count);
+  }, [archivedEmailList, searchString]);
 
   const handleEmailArchiveButtonClick = (index) => {
     setActiveButtonEmailArchive(index);
+    setPageInfo((prev) => ({ ...prev, page: 1 }));
   };
 
   const handleSearchIconClick = () => {
@@ -99,11 +116,17 @@ const ArchivedEmailListsModal = ({facility_id}) => {
     }
   };
 
+  if (loading) {
+    return <Typography>Please wait...</Typography>;
+  }
+
   return (
     <>
       <Grid container sx={{ flexDirection: "column" }}>
         <FormGroup>
-          <label htmlFor="email-search">Search</label>
+          <label htmlFor="email-search" style={{ color: "#242424" }}>
+            Search
+          </label>
           <FormControl
             fullWidth
             sx={{
@@ -131,7 +154,6 @@ const ArchivedEmailListsModal = ({facility_id}) => {
               <ClearIcon
                 onClick={() => {
                   setSearchString("");
-                  filterEmails(activeButtonEmailArchive);
                 }}
                 sx={{
                   color: "#333",
@@ -262,9 +284,16 @@ const ArchivedEmailListsModal = ({facility_id}) => {
             </Grid>
           )}
         </Grid>
+        {filteredEmails.length > 0 && (
+          <CustomPagination
+            count={count}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+          />
+        )}
       </Grid>
     </>
   );
-}
+};
 
-export default ArchivedEmailListsModal
+export default ArchivedEmailListsModal;

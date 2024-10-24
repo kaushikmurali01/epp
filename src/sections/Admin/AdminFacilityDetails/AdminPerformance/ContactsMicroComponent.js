@@ -1,33 +1,19 @@
-import { Box, Button, Grid, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import { Box, Button, Grid } from "@mui/material";
+import React, { useState } from "react";
 import Table from "components/Table";
-import { useDispatch, useSelector } from 'react-redux';
-import { deleteContact, getContacts } from '../../../../redux/admin/actions/adminPerformanceActions';
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteContact,
+  getContacts,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
 
-const ContactsMicroComponent = ({handleEditContact}) => {
+const ContactsMicroComponent = ({ handleEditContact }) => {
   const dispatch = useDispatch();
-  const { contactList } = useSelector(
-    (state) => state.adminPerformanceReducer
-  );
+  const { contactList } = useSelector((state) => state.adminPerformanceReducer);
   const facilityId = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
   const [pageInfo, setPageInfo] = useState({ page: 1, pageSize: 10 });
-
-  const RolesArray = [
-    {
-      id: 1,
-      name: 1,
-      label: 1,
-      value: 1,
-    },
-    {
-      id: 2,
-      name: 2,
-      label: 2,
-      value: 2,
-    },
-  ];
 
   const columns = [
     {
@@ -40,7 +26,28 @@ const ContactsMicroComponent = ({handleEditContact}) => {
     },
     {
       Header: "Role",
-      accessor: "role",
+      accessor: (item) => {
+        if (typeof item?.role === "string") {
+          // Check if the role is one of the predefined roles
+          const predefinedRoles = [1, 2, 3, 4];
+          if (predefinedRoles.includes(parseInt(item?.role))) {
+            switch (parseInt(item?.role)) {
+              case 1:
+                return "Super-Admin";
+              case 2:
+                return "Sub-Admin";
+              case 3:
+                return "Employee";
+              case 4:
+                return "Consultant";
+              default:
+                break;
+            }
+          }
+          // If it's not a predefined role, it's a custom role, so return it as is
+          return item.role;
+        }
+      },
     },
     {
       Header: "Email",
@@ -67,7 +74,7 @@ const ContactsMicroComponent = ({handleEditContact}) => {
       ),
     },
     {
-      Header: "Actions",
+      Header: "Action",
       accessor: (item) => (
         <Box
           display="flex"
@@ -84,7 +91,7 @@ const ContactsMicroComponent = ({handleEditContact}) => {
               fontSize: "0.875rem",
               color: "#027397",
             }}
-            onClick={()=>handleEditContact(item?.id)}
+            onClick={() => handleEditContact(item?.id)}
           >
             Edit
           </Button>
@@ -98,7 +105,7 @@ const ContactsMicroComponent = ({handleEditContact}) => {
               marginLeft: "1rem",
               fontSize: "0.875rem",
             }}
-            onClick={()=>handleDeleteContact(item?.id)}
+            onClick={() => handleDeleteContact(item?.id)}
           >
             Delete
           </Button>
@@ -110,24 +117,21 @@ const ContactsMicroComponent = ({handleEditContact}) => {
   const contactListCount = contactList?.length;
 
   const handleDeleteContact = (contactId) => {
-    dispatch(deleteContact(facilityId, contactId))
-      .then(() => {
-        dispatch(getContacts(facilityId));
-    })
+    dispatch(deleteContact(facilityId, contactId)).then(() => {
+      dispatch(getContacts(facilityId));
+    });
   };
 
   return (
-    <>
-      <Box sx={{ marginTop: "2rem" }}>
-        <Table
-          columns={columns}
-          data={contactList}
-          count={contactListCount}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-        />
-      </Box>
-    </>
+    <Grid container>
+      <Table
+        columns={columns}
+        data={contactList}
+        count={contactListCount}
+        pageInfo={pageInfo}
+        setPageInfo={setPageInfo}
+      />
+    </Grid>
   );
 };
 

@@ -36,11 +36,14 @@ const PerformanceSettingComponent = () => {
       modalUI: {
         showHeader: false,
         crossIcon: false,
-        modalClass: "",
+        modalClass: "add-edit-email-template-modal",
         headerTextStyle: "",
         headerSubTextStyle: "",
         fotterActionStyle: "",
         modalBodyContentStyle: "",
+        evModalStyle: {
+          paperMaxWidth: "720px", // Set the desired max-width
+        },
       },
       buttonsUI: {
         saveButton: false,
@@ -209,6 +212,9 @@ const PerformanceSettingComponent = () => {
       },
       fotterActionStyle: "",
       modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px",
+      },
     },
     buttonsUI: {
       saveButton: false,

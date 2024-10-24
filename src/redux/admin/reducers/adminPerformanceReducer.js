@@ -86,6 +86,9 @@ import {
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -94,6 +97,7 @@ const initialState = {
   emailTemplate: null,
   emailTemplateList: [],
   editedEmailTemplate: null,
+  dynamicEmailTemplate: {},
   incentiveSettings: null,
   emailSent: "",
   createdContact: null,
@@ -587,6 +591,18 @@ const adminPerformanceReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
+
+    case GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST:
+      return { ...state, loading: true };
+    case GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        dynamicEmailTemplate: action.payload,
+        error: null,
+      };
+    case GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE:
+      return { ...state, loading: false, error: action.payload };
 
     default:
       return state;

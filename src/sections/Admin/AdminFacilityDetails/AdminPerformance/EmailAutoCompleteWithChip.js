@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Autocomplete,
   Chip,
@@ -42,30 +42,44 @@ const EmailAutoCompleteWithChip = ({
     }
   }, [multiple, field.value, setValue]);
 
-  const fetchSuggestions = async (query) => {
-    if (query.length < 2) return;
+  const fetchSuggestions = useCallback(
+    async (query) => {
+      if (query.length <= 2) {
+        setOptions([]);
+        return;
+      }
 
-    const searchLimit = 10;
-    const apiUrl = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${props.facility_id}/contact-suggestions?q=${query}&limit=${searchLimit}`;
+      const searchLimit = 10;
+      const apiUrl = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.CRUD_CONTACTS}/${props.facility_id}/contact-suggestions?q=${query}&limit=${searchLimit}`;
 
-    try {
-      const response = await GET_REQUEST(apiUrl);
-      const filteredOptions = response.data.filter(
-        (option) => !excludeEmails.includes(option.email)
-      );
-      setOptions(filteredOptions);
-    } catch (error) {
-      console.error("Error fetching email suggestions:", error);
-    }
-  };
+      try {
+        const response = await GET_REQUEST(apiUrl);
+        const filteredOptions = response.data.filter(
+          (option) => !excludeEmails.includes(option.email)
+        );
+        setOptions(filteredOptions);
+      } catch (error) {
+        console.error("Error fetching email suggestions:", error);
+      }
+    },
+    [props.facility_id, excludeEmails]
+  );
 
-  const debouncedFetchSuggestions = debounce(fetchSuggestions, 300);
+  const debouncedFetchSuggestions = useCallback(
+    debounce((query) => fetchSuggestions(query), 300),
+    [fetchSuggestions]
+  );
 
   useEffect(() => {
     if (inputValue) {
       debouncedFetchSuggestions(inputValue);
+    } else {
+      setOptions([]);
     }
-  }, [inputValue, excludeEmails]);
+    return () => {
+      debouncedFetchSuggestions.cancel();
+    };
+  }, [inputValue, excludeEmails, debouncedFetchSuggestions]);
 
   const isValidEmail = (email) => {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -113,6 +127,8 @@ const EmailAutoCompleteWithChip = ({
         props.onSelectContact(null);
       }
     }
+    setInputValue("");
+    setOptions([]);
   };
 
   const handleBlur = () => {
@@ -129,6 +145,7 @@ const EmailAutoCompleteWithChip = ({
       setValue("");
       props.onSelectContact(null);
     }
+    setOptions([]);
   };
 
   return (
@@ -173,6 +190,8 @@ const EmailAutoCompleteWithChip = ({
           tagValue.map((option, index) => (
             <Chip
               variant="outlined"
+              color="primary"
+              sx={{ fontSize: "1rem" }}
               label={option}
               {...getTagProps({ index })}
               key={option}

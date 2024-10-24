@@ -478,14 +478,22 @@ export const addContactValidationSchema = Yup.object().shape({
     .required("Email is required")
     .email("Invalid email format"),
 
-  role: Yup.string()
-    .required("Role is required")
-    .max(50, "Role must be at most 50 characters"),
+  role: Yup.string().required("Role is required"),
+
+  otherRole: Yup.string().when("role", {
+    is: "5", // When role is "Other"
+    then: (schema) =>
+      schema
+        .required("Other Role is required")
+        .max(50, "Role must be at most 50 characters"),
+    otherwise: (schema) => schema.optional(),
+  }),
 
   phone: Yup.string()
     .required("Phone is required")
     .matches(/^[0-9+\-\s()]*$/, "Invalid phone number format")
-    .max(10, "Phone number must be at most 10 characters"),
+    .max(10, "Phone number must be at most 10 characters")
+    .min(10, "Phone number must be at least 10 characters"),
 
   unit_number: Yup.string().optional(),
 

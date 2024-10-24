@@ -1,7 +1,10 @@
 import { Grid, Typography } from "@mui/material";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAdminBaselineDataSummary, getIncentiveSettings } from "../../../../redux/admin/actions/adminPerformanceActions";
+import {
+  getAdminBaselineDataSummary,
+  getIncentiveSettings,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
 import { formatNumber } from "utils/numberFormatter";
 
 const baselineStyleInAccordion = {
@@ -113,6 +116,22 @@ const BaselineSummaryAccord = ({ meter_type }) => {
             {incentiveSettings?.preProjectIncentive
               ? formatNumber(incentiveSettings?.preProjectIncentive)
               : "N/A"}
+          </Typography>
+        </Grid>
+      </Grid>
+      <Grid item container>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" sx={baselineStyleInAccordion}>
+            Incentive cap ($)
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <Typography variant="h6" sx={baselineStyleInAccordionHeading}>
+            {incentiveSettings?.incentive_cap
+              ? formatNumber(incentiveSettings?.incentive_cap)
+              : (baselineSummary["Incentive Cap"]
+                  ? formatNumber(baselineSummary["Incentive Cap"])
+                  : "N/A") ?? "N/A"}
           </Typography>
         </Grid>
       </Grid>

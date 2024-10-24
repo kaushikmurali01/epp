@@ -86,6 +86,9 @@ import {
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS,
+  GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -490,5 +493,19 @@ export const fetchAdminPerformanceDataRawSummaryMeterListSuccess = (data) => ({
 
 export const fetchAdminPerformanceDataRawSummaryMeterListFailure = (error) => ({
   type: FETCH_ADMIN_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  payload: error,
+});
+
+export const getDynamicEmailTemplateRequest = () => ({
+  type: GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST,
+});
+
+export const getDynamicEmailTemplateSuccess = (data) => ({
+  type: GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS,
+  payload: data,
+});
+
+export const getDynamicEmailTemplateFailure = (error) => ({
+  type: GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
   payload: error,
 });

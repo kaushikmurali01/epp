@@ -8,7 +8,7 @@ import { formatNumber } from "utils/numberFormatter";
 const baselineStyleInAccordion = {
   color: "#242424",
   padding: "0.375rem 1rem",
-  fontSize: {xs: "12px", sm: "14px"},
+  fontSize: { xs: "12px", sm: "14px" },
   fontStyle: "normal",
   fontWeight: 500,
 };
@@ -36,8 +36,8 @@ const BaselineSummaryAccord = ({ meter_type }) => {
   useEffect(() => {
     dispatch(getBaselineDataSummary(facility_id, meter_type))
       .then()
-    .catch((err)=>console.error(err))
-    
+      .catch((err) => console.error(err));
+
     if (facility_id) {
       dispatch(getIncentiveSettings(facility_id));
     }
@@ -109,6 +109,22 @@ const BaselineSummaryAccord = ({ meter_type }) => {
             {incentiveSettings?.preProjectIncentive
               ? formatNumber(incentiveSettings?.preProjectIncentive)
               : "N/A"}
+          </Typography>
+        </Grid>
+      </Grid>
+      <Grid item container>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" sx={baselineStyleInAccordion}>
+            Incentive cap ($)
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <Typography variant="h6" sx={baselineStyleInAccordionHeading}>
+            {incentiveSettings?.incentive_cap
+              ? formatNumber(incentiveSettings?.incentive_cap)
+              : (baselineSummary["Incentive Cap"]
+                  ? formatNumber(baselineSummary["Incentive Cap"])
+                  : "N/A") ?? "N/A"}
           </Typography>
         </Grid>
       </Grid>

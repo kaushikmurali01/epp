@@ -54,3 +54,57 @@
   padding: 6px 8px; 
   font-size: 0.875rem; 
 }
+
+/* Target the CKEditor content area */
+.ck.ck-editor__editable_inline {
+  min-height: 200px;
+
+  /* Reset the reset for all elements within the editor */
+  * {
+    margin: revert;
+    padding: revert;
+  }
+
+  /* Keep box-sizing: border-box for consistency */
+  * {
+    box-sizing: border-box;
+  }
+
+  /* Specific element adjustments */
+  p {
+    margin-bottom: 1em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  ul,
+  ol {
+    margin-left: 1em;
+    padding-left: 1em;
+  }
+}
+
+/* Ensure toolbar buttons have proper spacing */
+.ck.ck-toolbar>.ck-toolbar__items>* {
+  margin: revert;
+  padding: revert;
+}
+
+/* Make the Powered by tooltip of the CKEditor invisible */
+.ck.ck-balloon-panel.ck-balloon-panel_position_border-side_right.ck-powered-by-balloon {
+  display: none;
+  visibility: hidden;
+}
+
+.ck.ck-powered-by {
+  display: none;
+  visibility: hidden;
+}

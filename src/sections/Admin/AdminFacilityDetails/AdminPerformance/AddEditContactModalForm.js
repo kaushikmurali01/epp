@@ -1,12 +1,16 @@
-import { Button, Grid } from '@mui/material';
-import FreeSoloAutoCompleteInput from 'components/FormBuilder/FreeSoloAutoCompleteInput';
-import InputField from 'components/FormBuilder/InputField';
-import SelectBox from 'components/FormBuilder/Select';
-import { Form, Formik } from 'formik';
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { createContact, getContacts, updateContact } from '../../../../redux/admin/actions/adminPerformanceActions';
-import { addContactValidationSchema } from 'utils/validations/formValidation';
+import { Button, Grid } from "@mui/material";
+import FreeSoloAutoCompleteInput from "components/FormBuilder/FreeSoloAutoCompleteInput";
+import InputField from "components/FormBuilder/InputField";
+import SelectBox from "components/FormBuilder/Select";
+import { Form, Formik } from "formik";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import {
+  createContact,
+  getContacts,
+  updateContact,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
+import { addContactValidationSchema } from "utils/validations/formValidation";
 
 const AddEditContactModalForm = ({
   contactId,
@@ -17,18 +21,11 @@ const AddEditContactModalForm = ({
 }) => {
   const dispatch = useDispatch();
   const RolesArray = [
-    {
-      id: 1,
-      name: 1,
-      label: 1,
-      value: 1,
-    },
-    {
-      id: 2,
-      name: 2,
-      label: 2,
-      value: 2,
-    },
+    { id: 1, name: "Super-Admin", label: "Super-Admin", value: "Super-Admin" },
+    { id: 2, name: "Sub-Admin", label: "Sub-Admin", value: "Sub-Admin" },
+    { id: 3, name: "Employee", label: "Employee", value: "Employee" },
+    { id: 4, name: "Consultant", label: "Consultant", value: "Consultant" },
+    { id: 5, name: "Other", label: "Other", value: "Other" },
   ];
 
   const [initialValues, setInitialValues] = useState({
@@ -36,6 +33,7 @@ const AddEditContactModalForm = ({
     company_name: null,
     email: "",
     role: "",
+    otherRole: "",
     phone: "",
     unit_number: "",
     street_number: "",
@@ -47,6 +45,7 @@ const AddEditContactModalForm = ({
   });
 
   const [selectedCompany, setSelectedCompany] = useState(null);
+  const [showOtherRoleInput, setShowOtherRoleInput] = useState(false);
 
   useEffect(() => {
     if (contactId) {
@@ -54,11 +53,17 @@ const AddEditContactModalForm = ({
         (contact) => contact.id === contactId
       );
       if (existingContact) {
+        const roleOption = RolesArray.find(
+          (r) => r.id === parseInt(existingContact.role)
+        );
+
+        const isOtherRole = !roleOption;
         setInitialValues({
           name: existingContact.name || "",
           company_name: existingContact.company_name || "",
           email: existingContact.email || "",
-          role: existingContact.role || "",
+          role: isOtherRole ? "5" : roleOption?.id.toString() || "",
+          otherRole: isOtherRole ? existingContact.role : "",
           phone: existingContact.phone || "",
           unit_number: existingContact.unit_number || "",
           street_number: existingContact.street_number || "",
@@ -69,7 +74,8 @@ const AddEditContactModalForm = ({
           postal_code: existingContact.postal_code || "",
         });
 
-        // Find the matching company in getAllCompanyList
+        setShowOtherRoleInput(isOtherRole);
+
         const matchingCompany = getAllCompanyList.find(
           (company) => company.company_name === existingContact.company_name
         );
@@ -86,6 +92,11 @@ const AddEditContactModalForm = ({
 
   const handleSubmit = (values) => {
     let contactPayload = { ...values };
+    const selectedRole = RolesArray.find((r) => r.id === parseInt(values.role));
+    contactPayload.role =
+      selectedRole?.id === 5 ? values.otherRole : selectedRole?.id;
+    delete contactPayload.otherRole;
+
     if (contactId) {
       dispatch(updateContact(contactId, contactPayload, facility_id))
         .then(() => {
@@ -93,7 +104,7 @@ const AddEditContactModalForm = ({
           dispatch(getContacts(facility_id));
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
     } else {
       dispatch(createContact(contactPayload, facility_id))
@@ -102,7 +113,7 @@ const AddEditContactModalForm = ({
           dispatch(getContacts(facility_id));
         })
         .catch((error) => {
-          console.log(error);
+          console.error(error);
         });
     }
   };
@@ -152,87 +163,106 @@ const AddEditContactModalForm = ({
           }
         };
 
+        const handleRoleChange = (event) => {
+          const selectedRoleId = parseInt(event.target.value);
+          setFieldValue("role", selectedRoleId);
+          setShowOtherRoleInput(selectedRoleId === 5);
+          if (selectedRoleId !== 5) {
+            setFieldValue("otherRole", "");
+          }
+        };
+
         return (
           <Form>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <InputField name="name" label="Name*" type="text" />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                {getAllCompanyList && (
-                  <FreeSoloAutoCompleteInput
-                    name="company_name"
-                    inputFieldLabel="Company Name*"
-                    optionsArray={getAllCompanyList}
-                    optionKey={"id"}
-                    optionLabel={"company_name"}
-                    onChange={handleCompanyChange}
-                    allowCustomValue={true}
-                    value={selectedCompany}
+            <Grid container>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <InputField name="name" label="Name*" type="text" />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  {getAllCompanyList && (
+                    <FreeSoloAutoCompleteInput
+                      name="company_name"
+                      inputFieldLabel="Company Name*"
+                      optionsArray={getAllCompanyList}
+                      optionKey={"id"}
+                      optionLabel={"company_name"}
+                      onChange={handleCompanyChange}
+                      allowCustomValue={true}
+                      value={selectedCompany}
+                    />
+                  )}
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputField name="email" label="Email*" type="text" />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <SelectBox
+                    name="role"
+                    label="Role*"
+                    options={RolesArray}
+                    onChange={handleRoleChange}
                   />
+                </Grid>
+                {showOtherRoleInput && (
+                  <Grid item xs={12} sm={6}>
+                    <InputField
+                      name="otherRole"
+                      label="Other Role*"
+                      type="text"
+                    />
+                  </Grid>
                 )}
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <InputField name="email" label="Email*" type="text" />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <SelectBox name="role" label="Role*" options={RolesArray} />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <InputField name="phone" label="Phone*" type="text" />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <InputField
-                  name="unit_number"
-                  label="Unit number"
-                  type="text"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <InputField
-                  name="street_number"
-                  label="Street number*"
-                  type="text"
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <InputField
-                  name="street_name"
-                  label="Street name*"
-                  type="text"
-                />
-              </Grid>
-
-              <Grid item spacing={2} xs={12} sm={4}>
-                <Grid item xs={12}>
-                  <InputField name="city" label="City*" type="text" />
+                <Grid item xs={12} sm={6}>
+                  <InputField name="phone" label="Phone*" type="text" />
                 </Grid>
-                <Grid item xs={12} sx={{ marginTop: "16px" }}>
-                  <InputField name="country" label="Country*" type="text" />
-                </Grid>
-              </Grid>
-
-              <Grid item spacing={2} xs={12} sm={4}>
-                <Grid item xs={12}>
-                  <InputField name="province" label="Province*" type="text" />
-                </Grid>
-                <Grid item xs={12} sx={{ marginTop: "16px" }}>
+                <Grid item xs={12} sm={6}>
                   <InputField
-                    name="postal_code"
-                    label="Postal code*"
+                    name="unit_number"
+                    label="Unit number"
+                    type="text"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputField
+                    name="street_number"
+                    label="Street number*"
+                    type="text"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <InputField
+                    name="street_name"
+                    label="Street name*"
                     type="text"
                   />
                 </Grid>
               </Grid>
+
+              <Grid container spacing={2} marginTop={0.125}>
+                <Grid item xs={12} sm={4}>
+                  <Grid item xs={12}>
+                    <InputField name="city" label="City*" type="text" />
+                  </Grid>
+                  <Grid item xs={12} sx={{ marginTop: "16px" }}>
+                    <InputField name="country" label="Country*" type="text" />
+                  </Grid>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Grid item xs={12}>
+                    <InputField name="province" label="Province*" type="text" />
+                  </Grid>
+                  <Grid item xs={12} sx={{ marginTop: "16px" }}>
+                    <InputField
+                      name="postal_code"
+                      label="Postal code*"
+                      type="text"
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid container spacing={2} sx={{ marginTop: "20px" }}>
+            <Grid container sx={{ marginTop: "20px" }}>
               <Grid item>
                 <Button
                   type="button"
