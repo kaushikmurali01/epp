@@ -87,6 +87,9 @@ import {
   fetchAdminPerformanceDataRawSummaryMeterListRequest,
   fetchAdminPerformanceDataRawSummaryMeterListSuccess,
   fetchAdminPerformanceDataRawSummaryMeterListFailure,
+  getDynamicEmailTemplateRequest,
+  getDynamicEmailTemplateSuccess,
+  getDynamicEmailTemplateFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
 import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
@@ -331,12 +334,14 @@ export const updateContact = (contactId, updatedContactPayload, facilityId) => {
   };
 };
 
-export const getEmailArchiveList = (facilityId) => {
+export const getEmailArchiveList = (facilityId, offset, limit, filter) => {
   return async (dispatch) => {
     dispatch(getEmailArchiveRequest());
     const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.SEND_EMAIL;
     try {
-      const response = await GET_REQUEST(`${apiURL}/${facilityId}`);
+      const response = await GET_REQUEST(
+        `${apiURL}/${facilityId}/${offset}/${limit}?filter=${filter}`
+      );
       dispatch(getEmailArchiveSuccess(response?.data));
       return response;
     } catch (error) {
@@ -735,6 +740,26 @@ export const fetchAdminPerformanceDataRawSummaryMeterList = (
     } catch (error) {
       console.error(error);
       dispatch(fetchAdminPerformanceDataRawSummaryMeterListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const getDynamicEmailTemplate = (facilityId, template_name) => {
+  return async (dispatch) => {
+    dispatch(getDynamicEmailTemplateRequest());
+    const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.GET_EMAIL_TEMPLATE;
+    try {
+      const response = await GET_REQUEST(
+        `${apiURL}/${facilityId}/dynamic-template?template_name=${template_name}`
+      );
+      dispatch(getDynamicEmailTemplateSuccess(response?.data));
+      return response?.data;
+    } catch (error) {
+      dispatch(getDynamicEmailTemplateFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

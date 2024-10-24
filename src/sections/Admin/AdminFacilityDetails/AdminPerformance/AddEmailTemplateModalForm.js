@@ -1,47 +1,20 @@
-import { Box, Button, FormLabel } from '@mui/material';
-import InputField from 'components/FormBuilder/InputField';
-import { Form, Formik } from 'formik';
-import React from 'react';
-import ReactQuill from 'react-quill';
-import { useDispatch } from 'react-redux';
-import { createEmailTemplate, getEmailTemplate } from '../../../../redux/admin/actions/adminPerformanceActions';
-import { addEmailTemplateValidationSchema } from 'utils/validations/formValidation';
+import { Box, Button, FormLabel, Grid, Typography } from "@mui/material";
+import InputField from "components/FormBuilder/InputField";
+import { Form, Formik } from "formik";
+import React from "react";
+import { useDispatch } from "react-redux";
+import {
+  createEmailTemplate,
+  getEmailTemplate,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
+import { addEmailTemplateValidationSchema } from "utils/validations/formValidation";
+import CKEditorComponent from "components/CKEditorComponent";
 
 const AddEmailTemplateModalForm = ({
   facility_id,
   handleCloseAddEmailTemplateModal,
 }) => {
   const dispatch = useDispatch();
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, true] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image"],
-      ["clean"],
-      ["table"],
-    ],
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "indent",
-    "link",
-    "image",
-    "table",
-  ];
 
   const handleEmailCompose = (emailData) => {
     if (emailData && Object?.keys(emailData)?.length > 0) {
@@ -64,9 +37,10 @@ const AddEmailTemplateModalForm = ({
       validationSchema={addEmailTemplateValidationSchema}
       onSubmit={(values) => handleEmailCompose(values)}
     >
-      {({ setFieldValue, values, isValid, dirty }) => (
-        <Form>
-          <Box
+      {({ setFieldValue, values, isValid, dirty, touched, errors }) => (
+        <Form style={{ width: "100%" }}>
+          <Grid
+            container
             sx={{
               maxWidth: 600,
               margin: "auto",
@@ -74,34 +48,36 @@ const AddEmailTemplateModalForm = ({
               gap: "1rem",
             }}
           >
-            <InputField
-              type="text"
-              fullWidth
-              name="name"
-              label="Name*"
-              required
-            />
-            <InputField
-              type="text"
-              fullWidth
-              name="subject"
-              label="Subject*"
-              required
-            />
-            <Box sx={{ mt: 2, mb: 2 }}>
-              <FormLabel>
-                Email Content<span style={{ color: "red", fontSize: "1rem" }}>*</span>
-              </FormLabel>
-              <ReactQuill
-                theme="snow"
-                value={values.body}
-                onChange={(content) => setFieldValue("body", content)}
-                modules={modules}
-                formats={formats}
-                placeholder="Compose your email..."
-                className="rc-quill-editor"
+            <Grid item xs={12}>
+              <InputField
+                type="text"
+                fullWidth
+                name="name"
+                label="Name*"
+                required
               />
-            </Box>
+            </Grid>
+            <Grid item xs={12}>
+              <InputField
+                type="text"
+                fullWidth
+                name="subject"
+                label="Subject*"
+                required
+              />
+            </Grid>
+            <Grid item xs={11.98} sx={{ mt: 2, mb: 2, width: "100%" }}>
+              <FormLabel>
+                Email Content
+                <span style={{ color: "red", fontSize: "1rem" }}>*</span>
+              </FormLabel>
+              <CKEditorComponent name="body" />
+              {touched.body && errors.body && (
+                <Typography color="error" variant="caption">
+                  {errors.body}
+                </Typography>
+              )}
+            </Grid>
             <Box
               sx={{
                 display: "flex",
@@ -128,7 +104,7 @@ const AddEmailTemplateModalForm = ({
                 Cancel
               </Button>
             </Box>
-          </Box>
+          </Grid>
         </Form>
       )}
     </Formik>

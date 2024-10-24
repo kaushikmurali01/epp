@@ -118,20 +118,6 @@ body {
     }
 }
 
-.rc-quill-editor {
-    color: #242424;
-
-    .ql-toolbar {
-        border-radius: 8px 8px 0 0;
-    }
-
-    .ql-container {
-        border-radius: 0 0 8px 8px;
-        min-height: 200px;
-    }
-}
-
-
 // chart common css -
 
 .bi-embedded {
@@ -141,11 +127,12 @@ body {
 }
 
 .incentive-settings-table{
-    .css-1wla4b3-MuiTable-root .MuiTableCell-root:first-of-type {
+    .MuiTable-root .MuiTableCell-root:first-of-type {
             min-width: 13rem;
+            text-align: left;
         }
-    .css-1wla4b3-MuiTable-root .MuiTableCell-root:last-child {
-        text-align: left;
+    .MuiTable-root .MuiTableCell-root {
+        text-align: center;
     }
 }
 
@@ -180,3 +167,49 @@ body {
       100%{box-shadow: 20px 0 #2e813e20,-20px 0 #2e813e; background: #2e813e }
   }
   
+.preview-email {
+
+    /* Reset the reset for all elements within the editor */
+    * {
+        margin: revert;
+        padding: revert;
+    }
+
+    /* Keep box-sizing: border-box for consistency */
+    * {
+        box-sizing: border-box;
+    }
+
+    /* Specific element adjustments */
+    p {
+        margin-bottom: 1em;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+
+    ul,
+    ol {
+        margin-left: 1em;
+        padding-left: 1em;
+        list-style: unset;
+    }
+
+    .MuiPaper-root {
+        min-height: 300px;
+        min-width: 300px;
+        width: 600px;
+
+        .MuiDialogContent-root {
+            display: flex;
+            padding: 0;
+        }
+    }
+}

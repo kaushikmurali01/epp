@@ -233,8 +233,12 @@ const IncentiveSettingsMicroComponent = () => {
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
-  const { incentiveSettings, loading, adminPerformanceDataMinMaxDate } =
-    useSelector((state) => state.adminPerformanceReducer);
+  const {
+    incentiveSettings,
+    loading,
+    adminPerformanceDataMinMaxDate,
+    adminBaselineSummaryData,
+  } = useSelector((state) => state.adminPerformanceReducer);
 
   const [formValues, setFormValues] = useState(null);
 
@@ -246,8 +250,11 @@ const IncentiveSettingsMicroComponent = () => {
     }
   }, [dispatch, facility_id]);
 
+  const baselineSummary =
+    adminBaselineSummaryData?.baseline_summary_performance_page || {};
+
   useEffect(() => {
-    if (incentiveSettings) {
+    if (incentiveSettings && baselineSummary) {
       setFormValues({
         p4pStartDate1: incentiveSettings.p4pStartDate1 || "",
         p4pEndDate1: incentiveSettings.p4pEndDate1 || "",
@@ -264,9 +271,13 @@ const IncentiveSettingsMicroComponent = () => {
         onPeakIncentiveRate: incentiveSettings.onPeakIncentiveRate || "",
         offPeakIncentiveRate: incentiveSettings.offPeakIncentiveRate || "",
         minimumSavings: incentiveSettings.minimumSavings || "",
+        incentive_cap:
+          incentiveSettings.incentive_cap ||
+          baselineSummary["Incentive Cap"] ||
+          "N/A",
       });
     }
-  }, [incentiveSettings]);
+  }, [incentiveSettings, adminBaselineSummaryData]);
 
   const handleSubmit = (values) => {
     const numericFields = [
@@ -274,6 +285,7 @@ const IncentiveSettingsMicroComponent = () => {
       "onPeakIncentiveRate",
       "offPeakIncentiveRate",
       "minimumSavings",
+      "incentive_cap",
     ];
 
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
@@ -343,6 +355,7 @@ const IncentiveSettingsMicroComponent = () => {
       {({ values, isValid, dirty }) => (
         <Form className="incentive-settings-table" style={{ width: "100%" }}>
           <MiniTable
+            firstChildColored
             columns={userColumn}
             data={[
               {
@@ -406,6 +419,13 @@ const IncentiveSettingsMicroComponent = () => {
               {
                 id: "Minimum savings (%)",
                 first_column: renderField("minimumSavings", "number"),
+                first_p4p: null,
+                second_p4p: null,
+                third_p4p: null,
+              },
+              {
+                id: "Incentive cap",
+                first_column: renderField("incentive_cap", "number"),
                 first_p4p: null,
                 second_p4p: null,
                 third_p4p: null,

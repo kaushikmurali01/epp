@@ -7,18 +7,19 @@ import {
   FormLabel,
   Grid,
   TextField,
+  Typography,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
 import Table from "components/Table";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch, useSelector } from "react-redux";
-import { parseUTCDateToLocalDate, parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
+import { parseUTCDateToLocalDate } from "utils/dateFormat/ConvertIntoDateMonth";
 import { Form, Formik } from "formik";
 import InputField from "components/FormBuilder/InputField";
-import ReactQuill from "react-quill";
 import { deleteEmailTemplate, getEmailTemplate, updateEmailTemplate } from "../../../../redux/admin/actions/adminPerformanceActions";
 import { addEmailTemplateValidationSchema } from "utils/validations/formValidation";
+import CKEditorComponent from "components/CKEditorComponent";
 
 const EmailTemplateMicroComponent = () => {
   const dispatch = useDispatch();
@@ -33,17 +34,16 @@ const EmailTemplateMicroComponent = () => {
   const [editTemplateModalConfig, setEditTemplateModalConfig] = useState({
     modalVisible: false,
     modalUI: {
-      showHeader: true,
+      showHeader: false,
       crossIcon: false,
-      modalClass: "",
-      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-      headerSubTextStyle: {
-        marginTop: "1rem",
-        color: "rgba(36, 36, 36, 1)",
-        fontSize: { md: "0.875rem" },
-      },
+      modalClass: "add-edit-email-template-modal",
+      headerTextStyle: "",
+      headerSubTextStyle: "",
       fotterActionStyle: "",
       modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px", // Set the desired max-width
+      },
     },
     buttonsUI: {
       saveButton: false,
@@ -88,49 +88,54 @@ const EmailTemplateMicroComponent = () => {
     },
     {
       Header: "Date modified",
-      accessor: "updated_at",
-      Cell: ({ value }) => parseUTCDateToLocalDate(value),
+      accessor: (item) => {
+        return item?.id ? parseUTCDateToLocalDate(item.updated_at) : "Not Applicable";
+      },
     },
     {
-      Header: "Actions",
-      accessor: (item) => (
-        <Box
-          display="flex"
-          onClick={(e) => e.stopPropagation()}
-          justifyContent="flex-end"
-        >
-          <Button
-            disableRipple
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              marginLeft: "1rem",
-              fontSize: "0.875rem",
-              color: "#027397",
-            }}
-            onClick={() => {
-              handleEditTemplateModal(item?.id);
-            }}
+      Header: "Action",
+      accessor: (item) => {
+        return item?.id ? (
+          <Box
+            display="flex"
+            onClick={(e) => e.stopPropagation()}
+            justifyContent="flex-end"
           >
-            Edit
-          </Button>
-          <Button
-            color="error"
-            disableRipple
-            style={{
-              backgroundColor: "transparent",
-              padding: 0,
-              minWidth: "unset",
-              marginLeft: "1rem",
-              fontSize: "0.875rem",
-            }}
-            onClick={() => handleDeleteTemplate(item?.id)}
-          >
-            Delete
-          </Button>
-        </Box>
-      ),
+            <Button
+              disableRipple
+              style={{
+                backgroundColor: "transparent",
+                padding: 0,
+                minWidth: "unset",
+                marginLeft: "1rem",
+                fontSize: "0.875rem",
+                color: "#027397",
+              }}
+              onClick={() => {
+                handleEditTemplateModal(item?.id);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              color="error"
+              disableRipple
+              style={{
+                backgroundColor: "transparent",
+                padding: 0,
+                minWidth: "unset",
+                marginLeft: "1rem",
+                fontSize: "0.875rem",
+              }}
+              onClick={() => handleDeleteTemplate(item?.id)}
+            >
+              Delete
+            </Button>
+          </Box>
+        ) : (
+          "Automated E-mail"
+        );
+      },
     },
   ];
 
@@ -162,37 +167,6 @@ const EmailTemplateMicroComponent = () => {
  };
   
   const EditEmailTemplateForm = ({ selectedEmailTemplate }) => {
-    const modules = {
-      toolbar: [
-        [{ header: [1, 2, 3, true] }],
-        ["bold", "italic", "underline", "strike", "blockquote"],
-        [
-          { list: "ordered" },
-          { list: "bullet" },
-          { indent: "-1" },
-          { indent: "+1" },
-        ],
-        ["link", "image"],
-        ["clean"],
-        ["table"],
-      ],
-    };
-
-    const formats = [
-      "header",
-      "bold",
-      "italic",
-      "underline",
-      "strike",
-      "blockquote",
-      "list",
-      "bullet",
-      "indent",
-      "link",
-      "image",
-      "table",
-    ];
-
     const handleEmailUpdate = (emailData) => {
       if (emailData && Object?.keys(emailData)?.length > 0) {
         dispatch(
@@ -227,7 +201,7 @@ const EmailTemplateMicroComponent = () => {
         onSubmit={(values) => handleEmailUpdate(values)}
         enableReinitialize={true}
       >
-        {({ setFieldValue, values, dirty, isValid }) => (
+        {({ setFieldValue, values, dirty, isValid, touched, errors }) => (
           <Form>
             <Box
               sx={{
@@ -237,34 +211,36 @@ const EmailTemplateMicroComponent = () => {
                 gap: "1rem",
               }}
             >
-              <InputField
-                type="text"
-                fullWidth
-                name="name"
-                label="Name*"
-                required
-              />
-              <InputField
-                type="text"
-                fullWidth
-                name="subject"
-                label="Subject*"
-                required
-              />
-              <Box sx={{ mt: 2, mb: 2 }}>
-                <FormLabel>
-                  Email Content<span style={{ color: "red", fontSize: "1rem" }}>*</span>
-                </FormLabel>
-                <ReactQuill
-                  theme="snow"
-                  value={values.body}
-                  onChange={(content) => setFieldValue("body", content)}
-                  modules={modules}
-                  formats={formats}
-                  placeholder="Compose your email..."
-                  className="rc-quill-editor"
+              <Grid item xs={12}>
+                <InputField
+                  type="text"
+                  fullWidth
+                  name="name"
+                  label="Name*"
+                  required
                 />
-              </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <InputField
+                  type="text"
+                  fullWidth
+                  name="subject"
+                  label="Subject*"
+                  required
+                />
+              </Grid>
+              <Grid item xs={11.98} sx={{ mt: 2, mb: 2, width: "100%" }}>
+                <FormLabel>
+                  Email Content
+                  <span style={{ color: "red", fontSize: "1rem" }}>*</span>
+                </FormLabel>
+                <CKEditorComponent name="body" />
+                {touched.body && errors.body && (
+                  <Typography color="error" variant="caption">
+                    {errors.body}
+                  </Typography>
+                )}
+              </Grid>
               <Box
                 sx={{
                   display: "flex",
@@ -304,7 +280,7 @@ const EmailTemplateMicroComponent = () => {
   };
 
   return (
-    <Box
+    <Grid container
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -382,7 +358,7 @@ const EmailTemplateMicroComponent = () => {
         modalConfig={editTemplateModalConfig}
         setModalConfig={setEditTemplateModalConfig}
       />
-    </Box>
+    </Grid>
   );
 };
 

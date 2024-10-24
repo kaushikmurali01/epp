@@ -1,21 +1,25 @@
-import { ButtonGroup, Container, FormLabel, Grid, Typography } from '@mui/material';
-import InputField from 'components/FormBuilder/InputField';
-import SelectBox from 'components/FormBuilder/Select';
-import { Formik, Form, Field } from 'formik';
-import React, { useEffect, useState } from 'react';
-import Button from '@mui/material/Button';
-import EvModal from 'utils/modal/EvModal';
-import ReactQuill from 'react-quill';
-import "react-quill/dist/quill.snow.css";
-import { useDispatch, useSelector } from 'react-redux';
-import Loader from 'pages/Loader';
-import { getEmailTemplate, sendEmail } from '../../../../redux/admin/actions/adminPerformanceActions';
-import parse from 'html-react-parser';
-import EmailAutoCompleteWithChip from './EmailAutoCompleteWithChip';
-import { emailFormValidationSchema } from 'utils/validations/formValidation';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Formik, Form, useFormikContext } from "formik";
+import { Container, FormLabel, Grid, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import EditOffIcon from "@mui/icons-material/EditOff";
-import IconButton from "@mui/material/IconButton";
+import InputField from "components/FormBuilder/InputField";
+import SelectBox from "components/FormBuilder/Select";
+import EvModal from "utils/modal/EvModal";
+import EmailAutoCompleteWithChip from "./EmailAutoCompleteWithChip";
+import CKEditorComponent from "components/CKEditorComponent";
+import { emailFormValidationSchema } from "utils/validations/formValidation";
+import {
+  getEmailTemplate,
+  sendEmail,
+  getDynamicEmailTemplate,
+} from "../../../../redux/admin/actions/adminPerformanceActions";
+import parse from "html-react-parser";
+import { Height } from "@mui/icons-material";
+import NotificationsToast from "utils/notification/NotificationsToast";
 
 const ComposeEmailMicroComponent = () => {
   const dispatch = useDispatch();
@@ -26,51 +30,119 @@ const ComposeEmailMicroComponent = () => {
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
   );
 
-const [selectedToContact, setSelectedToContact] = useState(null);
+  const [selectedToContact, setSelectedToContact] = useState(null);
+  const [isEditableEditor, setIsEditableEditor] = useState(true);
+  const [isEmailSystemGenerated, setIsEmailSystemGenerated] = useState(false);
 
-console.log(selectedToContact, "to contact");
+  const [initialValues, setInitialValues] = useState({
+    select_template: "",
+    to: "",
+    cc: [],
+    subject: "",
+    body: "",
+  });
 
-const [initialValues, setInitialValues] = useState({
-  select_template: "",
-  to: "",
-  cc: [],
-  subject: "",
-  body: "",
-});
+  const templateOptions = emailTemplateList?.map((template) => ({
+    id: template?.id || template?.name,
+    name: template?.name,
+    label: template?.name,
+    value: template?.id || template?.name,
+  }));
 
-// Transform emailTemplateList for SelectBox
-const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.map((template) => ({
-  id: template?.id,
-  name: template?.name,
-  label: template?.name,
-  value: template?.id,
-}));
-
-    const [previewModalConfig, setPreviewModalConfig] = useState({
-      modalVisible: false,
-      modalUI: {
-        showHeader: true,
-        crossIcon: false,
-        modalClass: "emailArchiveModal",
-        headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-        headerSubTextStyle: {
-          marginTop: "1rem",
-          color: "rgba(36, 36, 36, 1)",
-          fontSize: { md: "0.875rem" },
-        },
-        fotterActionStyle: "",
-        modalBodyContentStyle: "",
+  const [previewModalConfig, setPreviewModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "emailArchiveModal preview-email",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)", margin: "0 0 1rem 0" },
+      headerSubTextStyle: {
+        marginBottom: "1rem",
+        color: "rgba(84, 88, 90, 1)",
+        fontSize: { xs: "1.125rem !important", sm: "1.5rem !important" },
+        fontWeight: "600",
       },
-      buttonsUI: {
-        saveButton: false,
-        cancelButton: false,
-        saveButtonName: "Sent Request",
-        cancelButtonName: "Cancel",
-        saveButtonClass: "",
-        cancelButtonClass: "",
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px",
       },
-      modalBodyContent: "",
-    });
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Sent Request",
+      cancelButtonName: "Cancel",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerSubText: "Preview",
+    modalBodyContent: "",
+  });
+
+  const handleTemplateChange = async (templateId, setFieldValue) => {
+    const selectedTemplate = emailTemplateList?.find(
+      (template) => template?.id === templateId || template?.name === templateId
+    );
+
+    if (selectedTemplate) {
+      setFieldValue("select_template", templateId);
+
+      if (selectedTemplate.id === null) {
+        // Fetch dynamic template
+        dispatch(getDynamicEmailTemplate(facility_id, selectedTemplate.temp_name)).then((res) => {
+          if (res && Object.keys(res).length > 0) {
+            setFieldValue("to", res.to || "");
+            setFieldValue("cc", res.cc || []);
+            setFieldValue("subject", res.subject || "");
+            setFieldValue("body", res.body || "");
+            setIsEmailSystemGenerated(true);
+          } else {
+            setIsEmailSystemGenerated(false);
+            console.warn(
+              "Received empty or invalid response from getDynamicEmailTemplate"
+            );
+            NotificationsToast({
+              message:
+                "Received empty or invalid response for selected template.",
+              type: "warning",
+            });
+            // Set default values or clear the fields
+            setFieldValue("select_template", "");
+            setFieldValue("to", "");
+            setFieldValue("cc", []);
+            setFieldValue("subject", "");
+            setFieldValue("body", "");
+          }
+        }).catch((error) => {
+          console.error("Error fetching dynamic template:", error);
+        });
+      } else {
+        // Use existing template
+        setFieldValue("subject", selectedTemplate?.subject);
+        setFieldValue("body", selectedTemplate?.body);
+        setIsEmailSystemGenerated(false);
+      }
+    }
+  };
+
+  const openPreviewModal = (currentValues) => {
+    setPreviewModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: <PreviewEmail values={currentValues} />,
+    }));
+  };
+
+  const PreviewEmail = ({ values }) => (
+    <Container sx={previewModalDesign}>
+      {/* <Typography> */}
+        {parse(values?.body)}
+      {/* </Typography> */}
+    </Container>
+  );
+
+  const toggleEditable = () => setIsEditableEditor(!isEditableEditor);
 
   const previewButtonDesign = {
     marginLeft: "10px",
@@ -86,89 +158,52 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
   const previewModalDesign = {
     border: "1px solid #2E813E",
     backgroundColor: "#EBFFEF",
-    padding: "10px",
+    paddingLeft: "10px !important",
+    paddingRight: "10px !important",
     borderRadius: "10px",
     color: "#242424",
-  };
-  
-  const handleSendEmail = (values) => {
-    console.log("email values", values);
-    const { to, cc, subject, body } = values;
-    const ccString = Array.isArray(cc) ? cc.join(",") : cc;
-    let emailPayload = { to, cc: ccString, subject, body };
-    console.log(emailPayload, "payload");
-    dispatch(sendEmail(emailPayload, facility_id))
-      .then(() => { 
-        setInitialValues((prevValues) => ({
-          ...prevValues,
-          select_template: "",
-          to: "",
-          cc: "",
-          subject: "",
-          body: "",
-        }));
-        dispatch(getEmailTemplate(facility_id));
-      })
-      .catch((error) => {
-      console.log(error);
-    })
+    height: "100%",
   };
 
-  const openPreviewModal = (currentValues) => {
-    setPreviewModalConfig((prevState) => ({
-      ...prevState,
-      modalVisible: true,
-      modalBodyContent: <PreviewEmail values={currentValues} />,
-    }));
+  const CCFieldHandler = () => {
+    const { values, setFieldValue } = useFormikContext();
+
+    useEffect(() => {
+      if (values.to && values.cc) {
+        const filteredCC = values.cc.filter((email) => email !== values.to);
+        if (filteredCC.length !== values.cc.length) {
+          setFieldValue("cc", filteredCC);
+        }
+      }
+    }, [values.to, values.cc]);
+
+    return null;
   };
 
-  const PreviewEmail = (values) => {
-    return (
-      <Container sx={previewModalDesign}>
-        <Typography sx={{ fontSize: "14px !important" }}>
-          <b>
-            Dear {selectedToContact?.name ? selectedToContact.name : selectedToContact?.email}
-          </b>
-          <br />
-          {parse(values?.values?.body)}
-        </Typography>
-      </Container>
-    );
-  };
+   const handleSendEmail = (values, { resetForm }) => {
+     const { to, cc, subject, body } = values;
+     const ccString = Array.isArray(cc) ? cc.join(",") : cc;
+     const wrappedBody = `<div style="max-width: 600px; margin: 0 auto;">${body}</div>`;
+     let emailPayload = {
+       to,
+       cc: ccString,
+       subject,
+       body: wrappedBody,
+       is_system_generated: isEmailSystemGenerated,
+     };
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, true] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image"],
-      ["clean"],
-    ],
-  };
-
-  const formats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "indent",
-    "link",
-    "image",
-  ];
-
-  const [isEditableEditor, setIsEditableEditor] = useState(true);
-  const toggleEditable = () => {
-    setIsEditableEditor(!isEditableEditor);
-  };
+     dispatch(sendEmail(emailPayload, facility_id))
+       .then(() => {
+         console.log("Email sent successfully");
+         resetForm();
+         setIsEmailSystemGenerated(false);
+         dispatch(getEmailTemplate(facility_id));
+       })
+       .catch((error) => {
+         console.log(error);
+         setIsEmailSystemGenerated(false);
+       });
+   };
 
   return (
     <>
@@ -178,122 +213,112 @@ const templateOptions = Array.isArray(emailTemplateList) && emailTemplateList?.m
         enableReinitialize={true}
         onSubmit={handleSendEmail}
       >
-        {({ setFieldValue, values, isValid, dirty, touched, errors }) => {
-          const handleTemplateChange = (templateId) => {
-            const selectedTemplate = emailTemplateList?.find(
-              (template) => template?.id === templateId
-            );
-            if (selectedTemplate) {
-              setFieldValue("select_template", templateId);
-              setFieldValue("subject", selectedTemplate?.subject);
-              setFieldValue("body", selectedTemplate?.body);
-            }
-          };
+        {({
+          setFieldValue,
+          values,
+          isValid,
+          dirty,
+          touched,
+          errors,
+          resetForm,
+        }) => (
+          <Form style={{ width: "100%" }}>
+            <Grid container spacing={2} sx={{ marginTop: "10px" }}>
+              <Grid item xs={12}>
+                <SelectBox
+                  name="select_template"
+                  label="Select Template"
+                  options={templateOptions}
+                  onChange={(e) =>
+                    handleTemplateChange(e.target.value, setFieldValue)
+                  }
+                />
+              </Grid>
 
-          return (
-            <Form>
-              <Grid container spacing={2} sx={{ marginTop: "10px" }}>
-                <Grid item xs={12}>
-                  <SelectBox
-                    name="select_template"
-                    label="Select Template"
-                    options={templateOptions}
-                    onChange={(e) => {
-                      setFieldValue("select_template", e.target.value);
-                      handleTemplateChange(e.target.value);
-                    }}
-                  />
-                </Grid>
+              <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                <CCFieldHandler />
+                <EmailAutoCompleteWithChip
+                  label="To*"
+                  multiple={false}
+                  value={values.to}
+                  onChange={(newValue) => setFieldValue("to", newValue)}
+                  onSelectContact={setSelectedToContact}
+                  facility_id={facility_id}
+                  error={touched.to && errors.to}
+                  helperText={touched.to && errors.to}
+                  excludeEmails={values.cc}
+                  name="to"
+                />
+              </Grid>
 
-                <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <EmailAutoCompleteWithChip
-                    label="To*"
-                    multiple={false}
-                    value={values.to}
-                    onChange={(newValue) => setFieldValue("to", newValue)}
-                    onSelectContact={setSelectedToContact}
-                    facility_id={facility_id}
-                    error={touched.to && errors.to}
-                    helperText={touched.to && errors.to}
-                    excludeEmails={values.cc}
-                    name="to"
-                  />
-                </Grid>
+              <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                <EmailAutoCompleteWithChip
+                  label="CC"
+                  multiple={true}
+                  value={values.cc}
+                  onChange={(newValue) => setFieldValue("cc", newValue)}
+                  onSelectContact={() => {}}
+                  facility_id={facility_id}
+                  error={touched.cc && errors.cc}
+                  helperText={touched.cc && errors.cc}
+                  excludeEmails={[values.to]}
+                  name="cc"
+                />
+                <Typography variant="caption" color="primary">
+                  Hit enter to add the email in CC
+                </Typography>
+              </Grid>
 
-                <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <EmailAutoCompleteWithChip
-                    label="CC"
-                    multiple={true}
-                    value={values.cc}
-                    onChange={(newValue) => setFieldValue("cc", newValue)}
-                    onSelectContact={() => {}}
-                    facility_id={facility_id}
-                    error={touched.cc && errors.cc}
-                    helperText={touched.cc && errors.cc}
-                    excludeEmails={[values.to]}
-                    name="cc"
-                  />
-                </Grid>
+              <Grid item xs={12} sx={{ marginTop: "10px" }}>
+                <InputField name="subject" label="Subject*" type="text" />
+              </Grid>
 
-                <Grid item xs={12} sx={{ marginTop: "10px" }}>
-                  <InputField name="subject" label="Subject*" type="text" />
-                </Grid>
-
-                <Grid
-                  item
-                  xs={12}
-                  sx={{ marginTop: "20px", position: "relative" }}
+              <Grid
+                item
+                xs={12}
+                sx={{ marginTop: "20px", position: "relative" }}
+              >
+                <FormLabel>Email Content</FormLabel>
+                <IconButton
+                  sx={{ position: "absolute", right: 0, top: 0 }}
+                  onClick={toggleEditable}
+                  size="small"
+                  color="primary"
                 >
-                  <FormLabel>Email Content</FormLabel>
-                  <IconButton
-                    sx={{ position: "absolute", right: 0, top: 0 }}
-                    onClick={toggleEditable}
-                    size="small"
-                  >
-                    {isEditableEditor ? <EditOffIcon /> : <EditIcon />}
-                  </IconButton>
-                  <ReactQuill
-                    theme="snow"
-                    value={values.body}
-                    onChange={(content) => setFieldValue("body", content)}
-                    modules={modules}
-                    formats={formats}
-                    placeholder="Compose your email..."
-                    className="rc-quill-editor"
-                    readOnly={isEditableEditor}
-                  />
-                  {touched.body && errors.body && (
-                    <Typography color="error" variant="caption">
-                      {errors.body}
-                    </Typography>
-                  )}
-                </Grid>
+                  {isEditableEditor ? <EditOffIcon /> : <EditIcon />}
+                </IconButton>
+                <CKEditorComponent name="body" isReadOnly={isEditableEditor} />
+                {touched.body && errors.body && (
+                  <Typography color="error" variant="caption">
+                    {errors.body}
+                  </Typography>
+                )}
               </Grid>
+            </Grid>
 
-              <Grid container spacing={2} sx={{ marginTop: "20px" }}>
-                <Grid item>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    variant="contained"
-                    disabled={!(isValid && dirty)}
-                  >
-                    Send email
-                  </Button>
-                  <Button
-                    type="button"
-                    sx={previewButtonDesign}
-                    variant="contained"
-                    disabled={!(isValid && dirty)}
-                    onClick={() => openPreviewModal(values)}
-                  >
-                    Preview
-                  </Button>
-                </Grid>
+            <Grid container spacing={2} sx={{ marginTop: "20px" }}>
+              <Grid item>
+                <Button
+                  type="submit"
+                  color="primary"
+                  variant="contained"
+                  disabled={!(isValid && dirty)}
+                >
+                  Send email
+                </Button>
+                <Button
+                  type="button"
+                  sx={previewButtonDesign}
+                  variant="contained"
+                  disabled={!(isValid && dirty)}
+                  onClick={() => openPreviewModal(values)}
+                >
+                  Preview
+                </Button>
               </Grid>
-            </Form>
-          );
-        }}
+            </Grid>
+          </Form>
+        )}
       </Formik>
 
       <EvModal
