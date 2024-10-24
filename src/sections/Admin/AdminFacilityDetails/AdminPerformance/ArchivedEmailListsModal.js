@@ -101,8 +101,12 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
       );
     };
 
-    setFilteredEmails(applySearchFilter(archivedEmailList?.rows, searchString));
-    setCount(archivedEmailList?.count);
+    if (archivedEmailList) {
+      setFilteredEmails(
+        applySearchFilter(archivedEmailList?.rows, searchString)
+      );
+      setCount(archivedEmailList?.count);
+    }
   }, [archivedEmailList, searchString]);
 
   const handleEmailArchiveButtonClick = (index) => {
@@ -225,8 +229,8 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
         </StyledButtonGroup>
 
         <Grid container sx={{ flexDirection: "column", gap: "1rem" }}>
-          {filteredEmails.length > 0 ? (
-            filteredEmails.map((email) => (
+          {filteredEmails && filteredEmails?.length > 0 ? (
+            filteredEmails?.map((email) => (
               <Grid item sx={emailArchiveBoxStyle} key={email.id}>
                 <Typography
                   sx={{
@@ -284,7 +288,7 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
             </Grid>
           )}
         </Grid>
-        {filteredEmails.length > 0 && (
+        {filteredEmails && filteredEmails?.length > 0 && (
           <CustomPagination
             count={count}
             pageInfo={pageInfo}
