@@ -57,7 +57,7 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
   );
   const [activeButtonEmailArchive, setActiveButtonEmailArchive] = useState(0);
   const [filteredEmails, setFilteredEmails] = useState([]);
-
+  const [count, setCount] = useState(0);
   const [pageInfo, setPageInfo] = useState({
     page: 1,
     pageSize: 10,
@@ -101,7 +101,8 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
       );
     };
 
-    setFilteredEmails(applySearchFilter(archivedEmailList, searchString));
+    setFilteredEmails(applySearchFilter(archivedEmailList?.rows, searchString));
+    setCount(archivedEmailList?.count);
   }, [archivedEmailList, searchString]);
 
   const handleEmailArchiveButtonClick = (index) => {
@@ -285,7 +286,7 @@ const ArchivedEmailListsModal = ({ facility_id }) => {
         </Grid>
         {filteredEmails.length > 0 && (
           <CustomPagination
-            count={5}
+            count={count}
             pageInfo={pageInfo}
             setPageInfo={setPageInfo}
           />

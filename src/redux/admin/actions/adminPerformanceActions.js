@@ -343,7 +343,7 @@ export const getEmailArchiveList = (facilityId, offset, limit, filter) => {
         `${apiURL}/${facilityId}/${offset}/${limit}?filter=${filter}`
       );
       dispatch(getEmailArchiveSuccess(response?.data));
-      return response;
+      return response?.data;
     } catch (error) {
       dispatch(getEmailArchiveFailure(error));
       NotificationsToast({

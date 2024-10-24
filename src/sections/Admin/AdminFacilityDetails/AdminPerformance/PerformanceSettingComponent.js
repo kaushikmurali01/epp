@@ -212,6 +212,9 @@ const PerformanceSettingComponent = () => {
       },
       fotterActionStyle: "",
       modalBodyContentStyle: "",
+      evModalStyle: {
+        paperMaxWidth: "720px",
+      },
     },
     buttonsUI: {
       saveButton: false,
