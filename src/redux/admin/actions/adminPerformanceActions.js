@@ -340,7 +340,7 @@ export const getEmailArchiveList = (facilityId, offset, limit, filter) => {
     const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.SEND_EMAIL;
     try {
       const response = await GET_REQUEST(
-        `${apiURL}/${facilityId}/${offset}/${limit}?filter=${filter}`
+        `${apiURL}/${facilityId}/${offset-1}/${limit}?filter=${filter}`
       );
       dispatch(getEmailArchiveSuccess(response?.data));
       return response?.data;

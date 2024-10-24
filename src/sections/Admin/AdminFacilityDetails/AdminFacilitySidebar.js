@@ -33,7 +33,7 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
     },
     { label: "Baseline Modeling", id: 5, type: "input", value: "baseline" },
     { label: "Performance", id: 6, type: "input", value: "performance" },
-    { label: "QA/QC Checklist", id: 7, type: "input", value: "qaqcChecklist" },
+    // { label: "QA/QC Checklist", id: 7, type: "input", value: "qaqcChecklist" },
     // { label: "Downloads", id: 8, type: "output", value: "downloads" },
   ];
 
@@ -78,7 +78,7 @@ export default function AdminFacilitySidebar({ selectedTab, setSelectedTab }) {
                 item.type === "input" ? "#2E8B5770" : "#058dcf70",
               width: { xs: "166px", md: "96%" },
               minHeight: "48px", // Ensure consistent height
-              padding: "0", // Remove padding to prevent height increase
+              padding: "0 10px", // Remove padding to prevent height increase
               margin: "0.125rem",
               "&.Mui-selected": {
                 color: "white",
