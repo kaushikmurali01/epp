@@ -7,8 +7,6 @@ import {
   STATUS,
 } from "../../utils/status";
 import {
-  FACILITY_APPROVAL_STATUS,
-  FACILITY_ID_SUBMISSION_STATUS,
   FACILITY_METER_TYPE,
   FACILITY_METER_TYPE_TEXT,
 } from "../../utils/facility-status";
@@ -22,6 +20,7 @@ import { FacilityMeterMonthlyEntries } from "../../models/facility_meter_monthly
 import { Baseline } from "../../models/facility_baseline.model";
 import { Op } from "sequelize";
 import { Workflow } from "../../models/workflow.model";
+import { CompanyLogsService } from "../facility_logs/service";
 
 export class FacilityMeterService {
   static async getFacilityMeterListing(
@@ -81,6 +80,23 @@ export class FacilityMeterService {
         unit: body.unit,
       };
       const result = await FacilityMeterDetail.create(obj);
+      let findFacility = await Facility.findOne({
+        where: { id: body.facility_id },
+      });
+      // Log start
+      (async () => {
+        const input = {
+          event: `Meter Added -- meter name = ${body.meter_name}`,
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          event_id: result.id,
+          event_type: "Meter",
+          facility_id: body.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      //Log end
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -116,7 +132,26 @@ export class FacilityMeterService {
       const result = await FacilityMeterDetail.update(obj, {
         where: { id: id },
       });
-
+      const findMeter = await FacilityMeterDetail.findOne({
+        where: { id: id },
+      });
+      let findFacility = await Facility.findOne({
+        where: { id: findMeter.facility_id },
+      });
+      // Log start
+      (async () => {
+        const input = {
+          event: `Meter Updated -- meter name = ${body.meter_name}`,
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          event_id: id,
+          event_type: "Meter",
+          facility_id: findMeter.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      //Log end
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -189,6 +224,26 @@ export class FacilityMeterService {
           { where: { facility_id: findFacilityId.facility_id } }
         );
       }
+      const findMeter = await FacilityMeterDetail.findOne({
+        where: { id: id },
+      });
+      let findFacilityData = await Facility.findOne({
+        where: { id: findMeter.facility_id },
+      });
+      // Log start
+      (async () => {
+        const input = {
+          event: `Meter Deleted -- meter name = ${findMeter.meter_name}`,
+          company_id: findFacilityData.company_id,
+          user_id: userToken.id,
+          event_id: id,
+          event_type: "Meter",
+          facility_id: findMeter.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      //Log end
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.meterDelete,

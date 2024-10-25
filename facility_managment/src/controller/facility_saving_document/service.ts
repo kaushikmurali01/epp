@@ -1,52 +1,78 @@
-import { IUserToken } from '../../interfaces/usertoken.interface';
-import { ResponseHandler } from '../../utils/response-handler';
-import { HTTP_STATUS_CODES, RESPONSE_MESSAGES, STATUS } from '../../utils/status';
-import { Facility } from '../../models/facility.model';
-import { IBaseInterface } from '../../interfaces/baseline.interface';
-import { FacilitySavingDocument } from '../../models/facility_saving_document.model';
-
+import { IUserToken } from "../../interfaces/usertoken.interface";
+import { ResponseHandler } from "../../utils/response-handler";
+import {
+  HTTP_STATUS_CODES,
+  RESPONSE_MESSAGES,
+  STATUS,
+} from "../../utils/status";
+import { Facility } from "../../models/facility.model";
+import { IBaseInterface } from "../../interfaces/baseline.interface";
+import { FacilitySavingDocument } from "../../models/facility_saving_document.model";
+import { CompanyLogsService } from "../facility_logs/service";
 
 export class FacilitySavingDocumentService {
-
-
-
-  static async getFacilitySavingDocumentById(userToken: IUserToken, id: number): Promise<FacilitySavingDocument[]> {
+  static async getFacilitySavingDocumentById(
+    userToken: IUserToken,
+    id: number
+  ): Promise<FacilitySavingDocument[]> {
     try {
-      const result = await FacilitySavingDocument.findOne({ where: { id: id } })
+      const result = await FacilitySavingDocument.findOne({
+        where: { id: id },
+      });
 
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
       return resp;
-
     } catch (error) {
       throw error;
-
     }
-
   }
-  static async getFacilitySavingDocument(userToken: IUserToken, facilityId: number, offset: number, limit: number, document_type: any): Promise<FacilitySavingDocument[]> {
+  static async getFacilitySavingDocument(
+    userToken: IUserToken,
+    facilityId: number,
+    offset: number,
+    limit: number,
+    document_type: any
+  ): Promise<FacilitySavingDocument[]> {
     try {
-      let whereObj: any = {}
+      let whereObj: any = {};
       if (document_type) {
-        whereObj.document_type = document_type
+        whereObj.document_type = document_type;
       }
-      const result = await FacilitySavingDocument.findAndCountAll({ where: { facility_id: facilityId, ...whereObj }, offset, limit })
+      const result = await FacilitySavingDocument.findAndCountAll({
+        where: { facility_id: facilityId, ...whereObj },
+        offset,
+        limit,
+      });
 
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
       return resp;
-
     } catch (error) {
       throw error;
-
     }
-
   }
 
-
-  static async addFacilitySavingDocument(userToken: IUserToken, body: IBaseInterface): Promise<FacilitySavingDocument[]> {
+  static async addFacilitySavingDocument(
+    userToken: IUserToken,
+    body: IBaseInterface
+  ): Promise<FacilitySavingDocument[]> {
     try {
-      const findFacility = await Facility.findOne({ where: { id: body.facility_id } })
+      const findFacility = await Facility.findOne({
+        where: { id: body.facility_id },
+      });
       if (!findFacility) {
-        return ResponseHandler.getResponse(HTTP_STATUS_CODES.RECORD_NOT_FOUND, RESPONSE_MESSAGES.notFound404, []);
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.RECORD_NOT_FOUND,
+          RESPONSE_MESSAGES.notFound404,
+          []
+        );
       } else {
         const obj: any = {
           facility_id: body.facility_id,
@@ -56,20 +82,46 @@ export class FacilitySavingDocumentService {
           document_type: body.document_type,
           file_upload: body.file_upload,
           created_by: userToken.id,
-          updated_by: userToken.id
-
+          updated_by: userToken.id,
         };
-
+        const findFacility = await Facility.findOne({
+          where: { id: body.facility_id },
+        });
         const result = await FacilitySavingDocument.create(obj);
-        return ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+        // Log start
+        (async () => {
+          const input = {
+            event: `Document Uploaded -- document name=${body.document_name}`,
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            event_id: result.id,
+            event_type: "Document",
+            facility_id: body.facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
+        //Log end
+        return ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
       }
     } catch (error) {
-      return ResponseHandler.getResponse(HTTP_STATUS_CODES.BAD_REQUEST, error, []);
+      return ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.BAD_REQUEST,
+        error,
+        []
+      );
     }
-
   }
 
-  static async editFacilitySavingDocument(userToken: IUserToken, body: IBaseInterface, id: number): Promise<FacilitySavingDocument[]> {
+  static async editFacilitySavingDocument(
+    userToken: IUserToken,
+    body: IBaseInterface,
+    id: number
+  ): Promise<FacilitySavingDocument[]> {
     try {
       const obj: any = {
         facility_id: body.facility_id,
@@ -78,28 +130,70 @@ export class FacilitySavingDocumentService {
         document_type: body.document_type,
         document_name: body.document_name,
         file_upload: body.file_upload,
-        updated_by: userToken.id
+        updated_by: userToken.id,
       };
 
-      const result = await FacilitySavingDocument.update(obj, { where: { id } })
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      const result = await FacilitySavingDocument.update(obj, {
+        where: { id },
+      });
+      const findFacility = await Facility.findOne({
+        where: { id: body.facility_id },
+      });
+      // Log start
+      (async () => {
+        const input = {
+          event: `Document Updated -- document name=${body.document_name}`,
+          company_id: findFacility.company_id,
+          event_id: id,
+          event_type: "Document",
+          user_id: userToken.id,
+          facility_id: body.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      //Log end
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
       return resp;
     } catch (error) {
       throw error;
     }
   }
-  static async deleteFacilitySavingDocument(userToken: IUserToken, id: number): Promise<FacilitySavingDocument[]> {
+  static async deleteFacilitySavingDocument(
+    userToken: IUserToken,
+    id: number
+  ): Promise<FacilitySavingDocument[]> {
     try {
-      const result = await FacilitySavingDocument.destroy({ where: { id } })
-      const resp = ResponseHandler.getResponse(HTTP_STATUS_CODES.SUCCESS, RESPONSE_MESSAGES.Success, result);
+      const findDoc = await FacilitySavingDocument.findOne({ where: { id } });
+      const result = await FacilitySavingDocument.destroy({ where: { id } });
+      const findFacility = await Facility.findOne({
+        where: { id: findDoc.facility_id },
+      });
+      // Log start
+      (async () => {
+        const input = {
+          event: `Document Deleted -- document name=${findDoc.document_name}`,
+          company_id: findFacility.company_id,
+          event_id: id,
+          event_type: "Document",
+          user_id: userToken.id,
+          facility_id: findDoc.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      const resp = ResponseHandler.getResponse(
+        HTTP_STATUS_CODES.SUCCESS,
+        RESPONSE_MESSAGES.Success,
+        result
+      );
       return resp;
     } catch (error) {
       throw error;
     }
   }
-
-
-
-
-
 }

@@ -28,6 +28,9 @@ import { Baseline } from "../../../models/facility_baseline.model";
 import { Workflow } from "../../../models/workflow.model";
 import { FacilityThreshold } from "../../../models/facility_threshold.model";
 import axios from "axios";
+import { EmailTemplateController } from "../../emailTemplate/controller";
+import { EnergyEmailTemplate } from "../../../utils/email-templates";
+import { EmailService } from "../../sentEmail/service";
 
 export class AdminFacilityService {
   static async getFacility(
@@ -1114,26 +1117,31 @@ WHERE
             const companyDetails = await Company.findOne({
               where: { id: companyId },
             });
-
-            try {
-              let emails = await this.forToAndCC(companyId, true);
-              let sendParticipantMail = await axios.post(
-                `${process.env.BACKEND_API}/enerva-user/v1/email/sendSignedParticipant`,
-                {
-                  company_name: companyDetails.company_name,
-                  toEmail: emails[0],
-                },
-                {
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: token,
-                  },
-                }
-              );
-              console.log("mail send", sendParticipantMail);
-            } catch (error) {
-              console.log(error);
-            }
+            let template: string, to, cc, subject;
+            let emails: any;
+            emails = await AdminFacilityService.forToAndCC(companyId, true);
+            subject = "SIGNED PARTICIPANT AGREEMENT ACKNOWLEDGMENT";
+            template =
+              await EnergyEmailTemplate.getSignedParticipantEmailTemplate();
+            template = template.replace(
+              "#company_name#",
+              companyDetails?.company_name
+            );
+            to = emails[0];
+            cc = [];
+            await EmailService.sendEmail(
+              {
+                to,
+                cc,
+                subject,
+                body: template,
+                facility_id: null,
+                is_system_generated: true,
+                created_by: userToken.id,
+                id: null,
+              },
+              userToken
+            );
             // if (userDetails.email) {
             //   (async () => {
             //     const template = await getEmailTemplate();

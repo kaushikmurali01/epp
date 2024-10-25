@@ -20,7 +20,7 @@ import {
 } from "../../utils/facility-status";
 import { Facility } from "../../models/facility.model";
 import { IBaseInterface, objects } from "../../interfaces/baseline.interface";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import { FacilityNAIC } from "../../models/facility_naic.model";
 import { getEmailTemplate } from "../../helper/mail-template.helper";
 import { EmailContent, adminDetails } from "../../utils/email-content";
@@ -50,6 +50,8 @@ import { MasterChecklist } from "../../models/master_checklist.model";
 import axios from "axios";
 import { AdminFacilityService } from "../admin/admin-facility/service";
 import { CompanyLogsService } from "../facility_logs/service";
+import { EmailTemplateController } from "../emailTemplate/controller";
+import { EmailService } from "../sentEmail/service";
 
 export class FacilityService {
   static async getFacility(
@@ -701,15 +703,15 @@ ORDER BY
       // Log start
       (async () => {
         const input = {
-          "event": `Facility Created`,
-          "company_id": result?.company_id,
-          "user_id": userToken.id,
-          "facility_id": result.id,
-          "created_by":userToken.id
-          };
-         await CompanyLogsService.createCompanyLog(input);
+          event: `Facility Created`,
+          company_id: result?.company_id,
+          user_id: userToken.id,
+          facility_id: result.id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
       })();
-    //Log end
+      //Log end
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -739,6 +741,21 @@ ORDER BY
         };
         findExist = await Baseline.create(obj);
       }
+      // Log start
+      let findFacility = await Facility.findOne({ where: { id: facility_id } });
+      (async () => {
+        const input = {
+          event: `Baseline Added`,
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          event_id: findExist.id,
+          event_type: "Baseline",
+          facility_id: facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
+      //Log end
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -818,6 +835,21 @@ ORDER BY
           updated_by: userToken.id,
         };
         findExist = await FacilitySavePerformance.create(obj);
+        let findFacility = await Facility.findOne({
+          where: { id: facility_id },
+        });
+        (async () => {
+          const input = {
+            event: `Performance Added for ${Number(body.performance_type)}P4P`,
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            event_id: findExist.id,
+            event_type: "Performance",
+            facility_id: facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
       } else {
         const obj: any = {
           facility_id: facility_id,
@@ -833,6 +865,23 @@ ORDER BY
         await FacilitySavePerformance.update(obj, {
           where: { id: findExist.id },
         });
+        let findFacility = await Facility.findOne({
+          where: { id: facility_id },
+        });
+        (async () => {
+          const input = {
+            event: `Performance Updated for ${Number(
+              body.performance_type
+            )}P4P`,
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            event_id: findExist.id,
+            event_type: "Performance",
+            facility_id: facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
       }
       let status = FACILITY_ID_SUBMISSION_STATUS.P4P_1ST_PENDING;
       if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
@@ -853,39 +902,6 @@ ORDER BY
         { performance: true },
         { where: { facility_id: facility_id } }
       );
-      // try {
-      //   let emails = await AdminFacilityService.forToAndCC(facility_id, false);
-      //   let sendParticipantMail = await axios.post(
-      //     `${process.env.BACKEND_API}/enerva-user/v1/email/sendFirstSavingsReportComplete`,
-      //     {
-      //       facility_identifier: findFacility.facility_name,
-      //       facility_address: findFacility.address,
-      //       onpeak_electricity_saving_submitted: body.data,
-      //       offpeak_electricity_saving_submitted: "35767",
-      //       onpeak_electricity_saving_approved: "387456",
-      //       offpeak_electricity_saving_approved: "35467",
-      //       missing_data_removed_from: "Dec 31, 2022",
-      //       missing_data_removed_to: "Dec 31, 2023",
-      //       paid_pre_project_incentive: "$A",
-      //       on_peak_electricity_savings_incentive:
-      //         "$0.04/kWh x Electricity Savings $B",
-      //       off_peak_electricity_savings_incentive:
-      //         "$0.15/kWh x Electricity Savings $C",
-      //       total_performance_incentive: "$B+$C-$A",
-      //       toEmail: emails[0],
-      //       cc: emails[1],
-      //     },
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         Authorization: token,
-      //       },
-      //     }
-      //   );
-      //   console.log("mail send", sendParticipantMail);
-      // } catch (error) {
-      //   console.log(error);
-      // }
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -956,6 +972,21 @@ ORDER BY
         );
       }
       const result = await Baseline.update(obj, { where: { id } });
+      let findFacility = await Facility.findOne({
+        where: { id: findBaseline.facility_id },
+      });
+      (async () => {
+        const input = {
+          event: `Baseline Updated`,
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          event_id: id,
+          event_type: "Baseline",
+          facility_id: findBaseline.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -979,6 +1010,9 @@ ORDER BY
         submit_date: new Date(),
       };
       let findBaseline = await Baseline.findOne({ where: { id } });
+      let findFacility = await Facility.findOne({
+        where: { id: findBaseline.facility_id },
+      });
       if (
         body.status == (BASE_LINE_STATUS.submit as any) ||
         body.status == (BASE_LINE_STATUS.verify as any)
@@ -996,32 +1030,36 @@ ORDER BY
           { baseline: true },
           { where: { facility_id: findBaseline.facility_id } }
         );
-        // try {
-        //   let findFacility = await Facility.findOne({
-        //     where: { id: findBaseline.facility_id },
-        //   });
-        //   let findTOandCC = await AdminFacilityService.forToAndCC(
-        //     findBaseline.facility_id,
-        //     false
-        //   );
-        //   let sendNoticeOfApproval = await axios.post(
-        //     `${process.env.BACKEND_API}/enerva-user/v1/email/sendAcknowledgement`,
-        //     {
-        //       facility_address: findFacility.address,
-        //       facility_identifier: findFacility.facility_name,
-        //       toEmail: findTOandCC[0],
-        //     },
-        //     {
-        //       headers: {
-        //         "Content-Type": "application/json",
-        //         Authorization: token,
-        //       },
-        //     }
-        //   );
-        //   console.log("mail send", sendNoticeOfApproval);
-        // } catch (error) {
-        //   console.log(error);
-        // }
+        let email_templates =
+          await EmailTemplateController.getEmailDynamicTemplate(
+            findBaseline.facility_id,
+            "Send_Acknowledgement"
+          );
+        await EmailService.sendEmail(
+          {
+            to:email_templates.to,
+            cc:email_templates.cc,
+            subject:email_templates.subject,
+            body: email_templates.template,
+            facility_id: findBaseline.facility_id,
+            is_system_generated: true,
+            created_by: userToken.id,
+            id: null,
+          },
+          userToken
+        );
+        (async () => {
+          const input = {
+            event: `Baseline Submit`,
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            event_id: id,
+            event_type: "Baseline",
+            facility_id: findBaseline.facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
       } else {
         await Facility.update(
           {
@@ -1030,6 +1068,18 @@ ORDER BY
           },
           { where: { id: findBaseline.facility_id } }
         );
+        (async () => {
+          const input = {
+            event: `Baseline Reject`,
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            event_id: id,
+            event_type: "Baseline",
+            facility_id: findBaseline.facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
       }
       const result = await Baseline.update(obj, { where: { id } });
       return ResponseHandler.getResponse(
@@ -1050,7 +1100,23 @@ ORDER BY
       const obj: any = {
         admin_status: body.admin_status,
       };
+      let findBaseline = await Baseline.findOne({ where: { id } });
       const result = await Baseline.update(obj, { where: { id } });
+      let findFacility = await Facility.findOne({
+        where: { id: findBaseline.facility_id },
+      });
+      (async () => {
+        const input = {
+          event: `Baseline Accepted/Rejcted`,
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          event_id: id,
+          event_type: "Baseline",
+          facility_id: findBaseline.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -1175,15 +1241,15 @@ ORDER BY
       // Log start
       (async () => {
         const input = {
-          "event": `Facility Updated`,
-          "company_id": body.company_id,
-          "user_id": userToken.id,
-          "facility_id": facilityId,
-          "created_by":userToken.id
-          };
-         await CompanyLogsService.createCompanyLog(input);
+          event: `Facility Updated`,
+          company_id: body.company_id,
+          user_id: userToken.id,
+          facility_id: facilityId,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
       })();
-    //Log end
+      //Log end
 
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
@@ -1225,17 +1291,17 @@ ORDER BY
           where: { facility_id: facilityId },
         });
         // Log start
-      (async () => {
-        const input = {
-          "event": `Facility Deleted`,
-          "company_id": userToken.company_id,
-          "user_id": userToken.id,
-          "facility_id": facilityId,
-          "created_by":userToken.id
+        (async () => {
+          const input = {
+            event: `Facility Deleted`,
+            company_id: userToken.company_id,
+            user_id: userToken.id,
+            facility_id: facilityId,
+            created_by: userToken.id,
           };
-         await CompanyLogsService.createCompanyLog(input);
-      })();
-    //Log end
+          await CompanyLogsService.createCompanyLog(input);
+        })();
+        //Log end
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,

@@ -20,7 +20,7 @@ export class EmailService {
       const sentEmail = await EmailSent.create({
         ...emailData,
         created_by: decodedToken.id,
-        is_system_generated: false,
+        is_system_generated: emailData.is_system_generated || false,
       });
 
       return sentEmail.toJSON();
@@ -31,15 +31,16 @@ export class EmailService {
 
   static async getEmailList(
     filter: string,
-    decodedToken: any
-  ): Promise<IEmailSentAttributes[]> {
+    decodedToken: any,
+    offset: number,
+    limit: number
+  ): Promise<any> {
     try {
       let whereClause = {};
 
       switch (filter) {
         case "user":
           whereClause = {
-            created_by: decodedToken.userId,
             is_system_generated: false,
           };
           break;
@@ -51,12 +52,14 @@ export class EmailService {
           break;
       }
 
-      const emails = await EmailSent.findAll({
+      const emails = await EmailSent.findAndCountAll({
         where: whereClause,
         order: [["created_at", "DESC"]],
+        offset: offset || 0,
+        limit: limit || 10,
       });
 
-      return emails.map((email) => email.toJSON());
+      return emails;
     } catch (error) {
       throw new Error(`Failed to fetch email list: ${error.message}`);
     }

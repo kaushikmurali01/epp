@@ -429,21 +429,20 @@ export async function editFacilityDetailsById(
     // Return success response
     return { body: responseBody };
   } catch (error) {
-
-     // Log start
-     (async () => {
+    // Log start
+    (async () => {
       const input = {
-        "event": `Unable to edit facility due to some error`,
-        "company_id":decodedToken?.company_id,
-        "user_id": decodedToken?.id,
-        "facility_id": request.params.id,
-        "created_by":decodedToken?.id,
-        "error": error.message
-        };
-    await CompanyLogsService.createCompanyLog(input);
+        event: `Unable to edit facility due to some error`,
+        company_id: decodedToken?.company_id,
+        user_id: decodedToken?.id,
+        facility_id: request.params.id,
+        created_by: decodedToken?.id,
+        error: error.message,
+      };
+      await CompanyLogsService.createCompanyLog(input);
     })();
-    
-  // Log end
+
+    // Log end
 
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -476,17 +475,17 @@ export async function removeFacility(
     // Log start
     (async () => {
       const input = {
-        "event": `Unable to delete facility due to some error`,
-        "company_id":decodedToken?.company_id,
-        "user_id": decodedToken?.id,
-        "facility_id": request.params.id,
-        "created_by":decodedToken?.id,
-        "error": error.message
-        };
-    await CompanyLogsService.createCompanyLog(input);
+        event: `Unable to delete facility due to some error`,
+        company_id: decodedToken?.company_id,
+        user_id: decodedToken?.id,
+        facility_id: request.params.id,
+        created_by: decodedToken?.id,
+        error: error.message,
+      };
+      await CompanyLogsService.createCompanyLog(input);
     })();
-    
-  // Log end
+
+    // Log end
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -548,16 +547,16 @@ export async function getNonRoutineList(
     // Log start
     (async () => {
       const input = {
-        "event": `Unable to create facility due to an error`,
-        "company_id":decodedToken?.company_id,
-        "user_id": decodedToken?.id,
-        "facility_id": 0,
-        "created_by":decodedToken?.id,
-        "error": error.message
-        };
-    await CompanyLogsService.createCompanyLog(input);
+        event: `Unable to create facility due to an error`,
+        company_id: decodedToken?.company_id,
+        user_id: decodedToken?.id,
+        facility_id: 0,
+        created_by: decodedToken?.id,
+        error: error.message,
+      };
+      await CompanyLogsService.createCompanyLog(input);
     })();
-  // Log end
+    // Log end
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
   }
@@ -2853,9 +2852,15 @@ export async function getEmailList(
     const decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
+    let { limit, offset } = request.params;
     const filter = request.query.get("filter") || "all";
 
-    const result = await EmailController.getEmailList(filter, decodedToken);
+    const result = await EmailController.getEmailList(
+      filter,
+      decodedToken,
+      Number(offset),
+      Number(limit)
+    );
 
     return { body: JSON.stringify(result) };
   } catch (error) {
@@ -3135,7 +3140,7 @@ app.http("send-email", {
 
 app.http("get-email-list", {
   methods: ["GET"],
-  route: "send-email/{facilityId}",
+  route: "send-email/{facilityId}/{offset}/{limit}",
   authLevel: "anonymous",
   handler: getEmailList,
 });

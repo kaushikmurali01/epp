@@ -148,7 +148,7 @@ export class EmailTemplateController {
           findFacility?.company_id || 1,
           true
         );
-        subject = "Signed_Participants";
+        subject = "SIGNED PARTICIPANT AGREEMENT ACKNOWLEDGMENT";
         template =
           await EnergyEmailTemplate.getSignedParticipantEmailTemplate();
         template = template.replace(
@@ -159,18 +159,21 @@ export class EmailTemplateController {
         cc = [];
         break;
       case "Send_Acknowledgement":
-        subject = "Send_Acknowledgement";
+        subject = "APPLICATION ACKNOWLEDGMENT";
         emails = await AdminFacilityService.forToAndCC(facilityId, false);
         template =
           await EnergyEmailTemplate.getApplicationAcknowledgementEmailTemplate();
         template = template
-          .replace("#facility_address#", findFacility.address)
-          .replace("#facility_identifier#", findFacility.facility_name);
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi);
         to = emails[0];
         cc = emails[1];
         break;
       case "First_Saving_Report":
-        subject = "First_Saving_Report";
+        subject = "FIRST SAVINGS REPORT COMPLETE";
         emails = await AdminFacilityService.forToAndCC(facilityId, false);
         let findSavingData: any = await FacilitySavePerformance.findOne({
           where: {
@@ -184,8 +187,11 @@ export class EmailTemplateController {
         template =
           await EnergyEmailTemplate.getFirstSavingsReportCompleteEmailTemplate();
         template = template
-          .replace("#facility_address#", findFacility.address)
-          .replace("#facility_identifier#", findFacility.facility_name)
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
           .replace(
             "#onpeak_electricity_saving_submitted#",
             findSavingData?.parameter_data?.on_peak_energy_savings?.value || 0
@@ -238,7 +244,7 @@ export class EmailTemplateController {
         cc = emails[1];
         break;
       case "Notice_Of_Approval":
-        subject = "Notice_Of_Approval";
+        subject = "NOTICE OF APPROVAL";
         emails = await AdminFacilityService.forToAndCC(facilityId, false);
         let findUser = await User.findOne({ where: { email: emails[0] } });
         let baselineData: any = await Baseline.findOne({
@@ -252,8 +258,11 @@ export class EmailTemplateController {
         });
         template = await EnergyEmailTemplate.getNoticeOfApprovalEmailTemplate();
         template = template
-          .replace("#facility_address#", findFacility.address)
-          .replace("#facility_identifier#", findFacility.facility_name)
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
           .replace("#facility_type#", findFacility.facility_type)
           .replace(
             "#pre_project_incentive#",
@@ -267,16 +276,25 @@ export class EmailTemplateController {
           .replace("#month#", moment().format("MMMM"))
           .replace("#day#", moment().format("D"))
           .replace("#year#", moment().format("YYYY"))
-          .replace("#Month#", moment(baselineData?.parameter_data?.end_date).format("MMMM"))
-          .replace("#Day#", moment(baselineData?.parameter_data?.end_date).format("D"))
-          .replace("#Year#", moment(baselineData?.parameter_data?.end_date).format("YYYY"))
+          .replace(
+            "#Month#",
+            moment(baselineData?.parameter_data?.end_date).format("MMMM")
+          )
+          .replace(
+            "#Day#",
+            moment(baselineData?.parameter_data?.end_date).format("D")
+          )
+          .replace(
+            "#Year#",
+            moment(baselineData?.parameter_data?.end_date).format("YYYY")
+          )
           .replace(
             "#baseline_start_date#",
             baselineData?.parameter_data?.start_date || 0
           )
           .replace(
             "#baseline_end_date#",
-            baselineData?.parameter_data?.end_date || 0 
+            baselineData?.parameter_data?.end_date || 0
           )
           .replace(
             "#baseline_energy_consumption#",
@@ -288,8 +306,7 @@ export class EmailTemplateController {
             findUser.first_name + " " + findUser.last_name
           )
           .replace("#participant_on_behalf#", findUser.first_name)
-          .replace("#participant_on_behalf2#", findUser.first_name)
-          ;
+          .replace("#participant_on_behalf2#", findUser.first_name);
         to = emails[0];
         cc = emails[1];
         break;

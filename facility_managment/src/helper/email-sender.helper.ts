@@ -10,7 +10,8 @@ class Email {
     const connectionString =
       process.env["COMMUNICATION_SERVICES_CONNECTION_STRING"];
     const client = new EmailClient(connectionString);
-    const ccRecipients = cc.split(",").map((email) => email.trim());
+    const ccRecipients =
+      cc && cc.length && cc.split(",").map((email) => email.trim());
     const emailMessage = {
       senderAddress: process.env["EMAIL_SENDER"],
       content: {
@@ -19,7 +20,11 @@ class Email {
       },
       recipients: {
         to: [{ address: to }],
-        cc: ccRecipients.map((email) => ({ address: email })),
+        cc:
+          (ccRecipients &&
+            ccRecipients.length &&
+            ccRecipients.map((email) => ({ address: email }))) ||
+          [],
       },
     };
     const poller = await client.beginSend(emailMessage);

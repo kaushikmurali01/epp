@@ -9,6 +9,7 @@ import { Facility } from "../../models/facility.model";
 import { IBaseInterface } from "../../interfaces/baseline.interface";
 import { FacilityMeasure } from "../../models/facility_measure.model";
 import { Workflow } from "../../models/workflow.model";
+import { CompanyLogsService } from "../facility_logs/service";
 
 export class FacilityMeasureService {
   static async getFacilityMeasureById(
@@ -88,6 +89,20 @@ export class FacilityMeasureService {
           { savings: true },
           { where: { facility_id: body.facility_id } }
         );
+        // Log start
+        (async () => {
+          const input = {
+            event: `Add Measure Report -- Measure name -${body.measure_name}`,
+            event_id: result.id,
+            event_type: "Measure",
+            company_id: findFacility.company_id,
+            user_id: userToken.id,
+            facility_id: body.facility_id,
+            created_by: userToken.id,
+          };
+          await CompanyLogsService.createCompanyLog(input);
+        })();
+        //Log end
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
@@ -109,6 +124,9 @@ export class FacilityMeasureService {
     id: number
   ): Promise<FacilityMeasure[]> {
     try {
+      const findFacility = await Facility.findOne({
+        where: { id: body.facility_id },
+      });
       const obj: any = {
         facility_id: body.facility_id,
         is_active: STATUS.IS_ACTIVE,
@@ -125,7 +143,18 @@ export class FacilityMeasureService {
       };
 
       const result = await FacilityMeasure.update(obj, { where: { id } });
-
+      (async () => {
+        const input = {
+          event: `Edit Measure Report -- Measure name -${body.measure_name}`,
+          event_id: id,
+          event_type: "Measure",
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          facility_id: body.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
@@ -136,9 +165,15 @@ export class FacilityMeasureService {
       throw error;
     }
   }
-  static async deleteFacilityMeasure(id: number): Promise<FacilityMeasure[]> {
+  static async deleteFacilityMeasure(
+    id: number,
+    userToken: IUserToken
+  ): Promise<FacilityMeasure[]> {
     try {
       const findone = await FacilityMeasure.findOne({ where: { id } });
+      const findFacility = await Facility.findOne({
+        where: { id: findone.facility_id },
+      });
       const result = await FacilityMeasure.destroy({ where: { id } });
       const findAll = await FacilityMeasure.findAll({
         where: {
@@ -152,6 +187,18 @@ export class FacilityMeasureService {
           { where: { facility_id: findone.facility_id } }
         );
       }
+      (async () => {
+        const input = {
+          event: `Delete Measure Report -- Measure name -${findone.measure_name}`,
+          event_id: id,
+          event_type: "Measure",
+          company_id: findFacility.company_id,
+          user_id: userToken.id,
+          facility_id: findone.facility_id,
+          created_by: userToken.id,
+        };
+        await CompanyLogsService.createCompanyLog(input);
+      })();
       const resp = ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
         RESPONSE_MESSAGES.Success,
