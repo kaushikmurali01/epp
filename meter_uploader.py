@@ -53,16 +53,15 @@ class Validators(CommonBase):
         nat_values = df[[self.start, self.end]].isnull()
         if nat_values.any().any():
             raise ValueError(
-                f"Check Date Format in Columns {self.start} {self.end}. Preferred  Formats is like 2024/09/25 09:09, 2024/09/07 09:09")
+                f"Check Date Format in Columns {self.start} {self.end}. Preferred Formats is like 2024/09/25 09:09, 2024/09/07 09:09")
+        return df
 
     def valid_start_end_date(self, df):
-        filtered_df = df[df[self.start] > df[self.end]]
-        if not filtered_df.empty:
+        filtered_df = df[df[self.start] <= df[self.end]]
+        if len(filtered_df) != len(df):
             raise ValueError('Data Contains value where Start Date is Greater then End Date')
         filtered_df = df[df[self.start] != df[self.end]]
         return filtered_df
-        # if not filtered_df.empty:
-        #     raise ValueError('Data Contains value where Start Date is equal to End Date')
 
     def dates_beyond_2018(self, df):
         past_records = df[
@@ -71,81 +70,70 @@ class Validators(CommonBase):
             ]
         if not past_records.empty:
             raise ValueError("Dates before 2018 are not accepted.")
+        return df
 
     def check_for_valid_hourly_entries(self, df):
         df['Expected End Date'] = df[self.start] + pd.Timedelta(minutes=60)
-        invalid_dates = df[df[self.end] > df['Expected End Date']]
-        if len(invalid_dates):
-            df = df[df[self.end] <= df['Expected End Date']]
-        return df
+        return df[df[self.end] <= df['Expected End Date']]
 
     def check_for_date_ranges_between_meter_dates(self, df):
         current_date = datetime.now()
         max_date = min(self.meter_inactive, current_date) if self.meter_inactive else current_date
-        min_date = self.meter_active
-        if not min_date:
-            min_date = pd.Timestamp('2018-01-01 00:00:00')
-        if self.meter_active:
-            invalid_dates = df[
-                (df[self.start] < self.meter_active) |
-                (df[self.end] > max_date)
-                ]
-        else:
-            invalid_dates = df[
-                (df[self.start] < min_date) |
-                (df[self.end] > max_date)
-                ]
+        min_date = self.meter_active if self.meter_active else pd.Timestamp('2018-01-01 00:00:00')
+
+        invalid_dates = df[
+            (df[self.start] < min_date) |
+            (df[self.end] > max_date)
+            ]
+
         if not invalid_dates.empty:
             raise ValueError(f"File contains {len(invalid_dates)} entries outside the allowed date range. "
                              f"Allowed range: {min_date.strftime('%Y-%m-%d %H:%M')} to {max_date.strftime('%Y-%m-%d %H:%M')}.")
+        return df
 
     def validate_future_records(self, df):
         current_date = datetime.now()
         invalid_dates = df[(df[self.start] > current_date) | (df[self.end] > current_date)]
         if not invalid_dates.empty:
             raise ValueError(f"File contains Future Dates")
+        return df
 
-    def validate_no_overlapping_dates(self, data_chunk):
-        iv = self.iv
-        meter_id = self.meter_id
-        min_start = data_chunk['Start Date (Required)'].min()
-        max_end = data_chunk['End Date (Required)'].max()
+    def validate_no_overlapping_dates(self, df):
+        min_start = df[self.start].min()
+        max_end = df[self.end].max()
 
-        if not min_start and max_end:
-            return
+        if pd.isnull(min_start) or pd.isnull(max_end):
+            return df
+
         query = f"""
             SELECT start_date, end_date, reading FROM epp.meter_hourly_entries 
             WHERE start_date <= '{max_end}' AND end_date >= '{min_start}' 
-            AND {'independent_variable_id' if iv else 'meter_id'} = {meter_id}
-            """
+            AND {'independent_variable_id' if self.iv else 'meter_id'} = {self.meter_id}
+        """
         db = dbtest(query)
-        db.rename(columns={'start_date': self.start, 'end_date': self.end, 'reading': self.reading}, inplace=True)
-        merged = db.merge(data_chunk, on=[self.start, self.end, self.reading], how='left', indicator=True)
-        if not merged.empty:
-            raise ValueError("Excel file contains entries that overlap with existing database records.")
+        if not db.empty:
+            db.rename(columns={'start_date': self.start, 'end_date': self.end, 'reading': self.reading}, inplace=True)
+            merged = db.merge(df, on=[self.start, self.end, self.reading], how='inner')
+            if not merged.empty:
+                raise ValueError("Excel file contains entries that overlap with existing database records.")
+        return df
 
     def validate_chunk(self, data_chunk):
         """
-        Validations:
-        1: Validate the date Should have a Valid Date Formats.| Not Done
-        2: Validate that Start Date is Always Lesser Than End Date | Done
-        3: Validate the Date of Start Date should never have the value before 2018 | Done
-        4: Validate the Difference Between Start Date and End Date Should not be more than 60 minutes for Energy Consumption.| Done
-        5: Check If It has any future Entries | Done
-        6: Validate that the values provided in case of Energy Consumption Data should not be before meter START Date if the meter has a start date available.| Done
-        7: There Should be No Overlapping Entries Present in the Database
-
+        Validates a chunk of data through all validation steps and returns the validated DataFrame
         """
-        self.validate_date_format(data_chunk)
-        data_chunk = self.valid_start_end_date(data_chunk)
-        self.dates_beyond_2018(data_chunk)
-        if not self.iv:
-            data_chunk = self.check_for_valid_hourly_entries(data_chunk)
-            self.check_for_date_ranges_between_meter_dates(data_chunk)
-        self.validate_future_records(data_chunk)
-        self.validate_no_overlapping_dates(data_chunk)
+        df = self.validate_date_format(data_chunk)
+        df = self.valid_start_end_date(df)
+        df = self.dates_beyond_2018(df)
 
-        self.clean_df = pd.concat([self.clean_df, data_chunk], ignore_index=True)
+        if not self.iv:
+            df = self.check_for_valid_hourly_entries(df)
+            df = self.check_for_date_ranges_between_meter_dates(df)
+
+        df = self.validate_future_records(df)
+        df = self.validate_no_overlapping_dates(df)
+
+        return df
 
 
 class DataUploader(BaseDataUploader):
@@ -153,6 +141,7 @@ class DataUploader(BaseDataUploader):
         super().__init__(*args, **kwargs)
         self.validator = Validators(self.meter_active, self.meter_inactive, self.iv, self.meter_id)
         self.data_len = 0
+        self.validated_chunks = []
 
     def read_excel_sheets(self, file):
         required_columns = [self.start, self.end, self.reading]
@@ -160,7 +149,7 @@ class DataUploader(BaseDataUploader):
         wb = openpyxl.load_workbook(excel_io, read_only=True)
         sheets_data = []
         invalid_sheets = []
-        missing_columns = False  # Flag to indicate if any sheets are missing required columns
+        missing_columns = False
 
         for sheet in wb.worksheets:
             if sheet.sheet_state != 'visible':
@@ -187,13 +176,9 @@ class DataUploader(BaseDataUploader):
 
     def data_cleaning(self, df):
         df = df[self.required_columns]
-        self.validator.skipping = True
         initial_row_count = len(df)
         df.dropna(subset=[self.start, self.end], inplace=True)
         df.dropna(how='all', inplace=True)
-        new_row_count = len(df)
-        if initial_row_count != new_row_count:
-            self.validator.skipping = True
         df['is_active'] = True
 
         new_row = pd.DataFrame([{
@@ -209,11 +194,16 @@ class DataUploader(BaseDataUploader):
             df[col] = pd.to_datetime(df[col], errors='coerce').dt.round('min')
         return df
 
-    def process_chunk(self, chunk_data, header, validator, iv, meter_id):
-        df = pd.DataFrame(chunk_data, columns=header)
-        df = df[[self.start, self.end, self.reading]]
-        df = self.data_cleaning(df)
-        validator.validate_chunk(df)
+    def process_chunk(self, chunk_data, header):
+        try:
+            df = pd.DataFrame(chunk_data, columns=header)
+            df = df[[self.start, self.end, self.reading]]
+            df = self.data_cleaning(df)
+            validated_df = self.validator.validate_chunk(df)
+            return validated_df
+        except Exception as e:
+            print(f"Error processing chunk: {str(e)}")
+            raise
 
     def create_file_record_in_table(self, file_path):
         insert_query = insert_query_facility_iv_files_table if self.iv else insert_query_facility_meter_hourly_entries
@@ -224,37 +214,54 @@ class DataUploader(BaseDataUploader):
     def process(self):
         try:
             sheets_data = self.read_excel_sheets(self.excel_file)
+            validated_chunks = []
+
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = []
-                chunk_set = 10000
+                chunk_set = 50000
+
                 for header, data in sheets_data:
                     self.data_len += len(data)
                     for i in range(0, len(data), chunk_set):
                         chunk = data[i:i + chunk_set]
-                        futures.append(
-                            executor.submit(self.process_chunk, chunk, header, self.validator, self.iv, self.meter_id))
-                concurrent.futures.wait(futures)
-                for future in futures:
-                    future.result()  # This will raise any exceptions that occurred during processing
-            response_message = "File Uploaded Successfully"
-            status_code = 200
-            if self.data_len != len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]):
-                removed_records = self.data_len - len(
-                    self.validator.clean_df[self.validator.clean_df['is_active'] == True])
-                if len(self.validator.clean_df[self.validator.clean_df['is_active'] == True]) == 0:
-                    status_code = 400
-                    response_message = f"All the rows had invalid data. So nothing to process."
-                else:
-                    status_code = 202
-                    response_message = f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
-            file_path, record_id = None, None
-            if status_code in [200, 202]:
-                excel_buffer = io.BytesIO()
-                self.validator.clean_df.to_csv(excel_buffer, index=False)
-                excel_buffer.seek(0)
-                blob_name = generate_blob_name(extension='csv')
-                file_path = save_file_to_blob(blob_name, excel_buffer)
-                record_id = self.create_file_record_in_table(file_path)
+                        futures.append(executor.submit(self.process_chunk, chunk, header))
+
+                # Collect results
+                for future in concurrent.futures.as_completed(futures):
+                    try:
+                        chunk_result = future.result()
+                        if chunk_result is not None and not chunk_result.empty:
+                            validated_chunks.append(chunk_result)
+                    except Exception as e:
+                        print(f"Error processing chunk: {str(e)}")
+                        raise
+
+            # Combine all validated chunks
+            if validated_chunks:
+                self.validator.clean_df = pd.concat(validated_chunks, ignore_index=True)
+
+            # Calculate response
+            active_records = len(self.validator.clean_df[self.validator.clean_df['is_active'] == True])
+
+            if active_records == 0:
+                return {
+                    "status_code": 400,
+                    "success": False,
+                    "message": "All the rows had invalid data. So nothing to process."
+                }
+
+            removed_records = self.data_len - active_records
+            status_code = 200 if removed_records == 0 else 202
+            response_message = "File Uploaded Successfully" if removed_records == 0 else \
+                f"A few Records were removed while Uploading the data as they had invalid records. {removed_records} Row(s) were removed"
+
+            # Save to blob storage
+            excel_buffer = io.BytesIO()
+            self.validator.clean_df.to_csv(excel_buffer, index=False)
+            excel_buffer.seek(0)
+            blob_name = generate_blob_name(extension='csv')
+            file_path = save_file_to_blob(blob_name, excel_buffer)
+            record_id = self.create_file_record_in_table(file_path)
 
             return {
                 "status_code": status_code,
@@ -263,6 +270,7 @@ class DataUploader(BaseDataUploader):
                 "path": file_path,
                 "record_id": record_id
             }
+
         except Exception as error:
             return {
                 "status_code": 500,
