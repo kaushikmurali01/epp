@@ -781,8 +781,7 @@ def get_clean_data():
         end_date = date_obj.replace(hour=23, minute=59)
         end_date = end_date.strftime('%Y-%m-%d %H:%M')
 
-        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type
-                                                   )
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type)
         df = dbtest(clean_data_query)
         if df.empty:
             return jsonify({"error": "No data found for the given parameters"}), 404

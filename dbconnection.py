@@ -75,23 +75,6 @@ def execute_query(query, params=None):
             conn.close()
 
 
-# def execute_query(query):
-#     """
-#
-#     :param query: delete from independent_variable_file where processed = false and id=
-#     :return:
-#     """
-#     try:
-#         conn = get_db_connection()
-#         curs = conn.cursor()
-#         curs.execute(query)
-#         curs.close()
-#         conn.close()
-#         return True, "Query Executed Successfully"
-#     except:
-#         return False, 'Something went wrong'
-
-
 def db_execute(query, values):
     conn = get_db_connection()
     curs = conn.cursor()
@@ -169,18 +152,6 @@ def db_execute_single(query, values):
     return generated_id
 
 
-def refresh_materialised_view(view='epp.combined_meter_weather_readings'):
-    query = f"REFRESH MATERIALIZED VIEW {view};"
-    conn = get_db_connection()
-    curs = conn.cursor()
-    curs.execute(query, None)
-    curs.close()
-    conn.close()
-
-
-import psycopg2
-import psycopg2.extras
-from psycopg2 import sql
 
 
 def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=100000):
