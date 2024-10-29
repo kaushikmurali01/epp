@@ -159,6 +159,7 @@ def clean_raw_data(dataframe, facility_id, meter_type):
     columns_order.extend(iv_columns)
     columns_order.extend(temp_columns)
     new_df = new_df[columns_order]
+
     # Apply the function
     df = replace_consecutive_nulls(new_df, 'Temperature', ['Temp2', 'Temp3'])
 

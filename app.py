@@ -17,7 +17,8 @@ from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_que
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
 from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, \
+    sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -32,7 +33,7 @@ from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query
-from utils import get_nearest_stations
+from utils import get_nearest_stations, get_timezone, get_utc_dates
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
 from datetime import datetime, timedelta
@@ -189,6 +190,7 @@ def check_issues():
 
     return jsonify(results), 200
 
+
 @app.route('/date_range', methods=['GET'])
 def get_date_range():
     facility_id = request.args.get('facility_id', type=int)
@@ -199,11 +201,12 @@ def get_date_range():
     date_ranege = date_raneg_query.format(facility_id=facility_id, is_independent_variable=is_independent_variable)
     date_raneg_df = dbtest(date_ranege)
     response = {
-        "start_date":date_raneg_df['start_date'].tolist()[0] if not date_raneg_df['start_date'].empty else null,
-        "end_date": date_raneg_df['end_date'].tolist()[0] if not date_raneg_df['start_date'].empty else null,
+        "start_date": date_raneg_df['start_date'].tolist()[0] if not date_raneg_df['start_date'].empty else None,
+        "end_date": date_raneg_df['end_date'].tolist()[0] if not date_raneg_df['start_date'].empty else None,
     }
     return jsonify(response)
-    
+
+
 @app.route('/check_sufficiency', methods=['POST'])
 def get_sufficiency():
     facility_id = request.json.get('facility_id')
@@ -225,42 +228,51 @@ def get_sufficiency():
 
     # Modify the query with the provided parameters
 
-    sufficiencies_hourly_query = sufficiencies_hourly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-    sufficiency_daily_query = sufficiency_daily.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-    sufficiencies_monthly_query = sufficiencies_monthly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_hourly_query = sufficiencies_hourly.format(start_date=s_d, end_date=e_d, facility_id=facility_id,
+                                                             IVids=IVids)
+    sufficiency_daily_query = sufficiency_daily.format(start_date=s_d, end_date=e_d, facility_id=facility_id,
+                                                       IVids=IVids)
+    sufficiencies_monthly_query = sufficiencies_monthly.format(start_date=s_d, end_date=e_d, facility_id=facility_id,
+                                                               IVids=IVids)
     sufficiencies_hourly_df = dbtest(sufficiencies_hourly_query)
     sufficiency_daily_df = dbtest(sufficiency_daily_query)
     sufficiencies_monthly_df = dbtest(sufficiencies_monthly_query)
     sufficiencies_monthly_df_sorted = sufficiencies_monthly_df.sort_values(by='mm')
     # Calculate sufficiency percentages
-    #hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
-    monthley_sufficiency =sufficiencies_monthly_df['value'].tolist()
-    monthley_sufficiency_pass= round(sufficiencies_monthly_df['value'].mean(), 2)
-    total_days = (end_date - start_date).days  
-    query_thershold = sufficiencie_thershold.format( facility_id=facility_id)
-    query_thershold_output = dbtest(query_thershold)  
-    hourly_thershold =  query_thershold_output['hourly'].tolist()[0] if not query_thershold_output['hourly'].empty else 90
-    daily_thershold =  query_thershold_output['daily'].tolist()[0] if not query_thershold_output['daily'].empty else 90
-    monthly_thershold =  query_thershold_output['monthly'].tolist()[0] if not query_thershold_output['monthly'].empty else 90
+    # hourly, daily, monthly, monthly_data = calculate_sufficiency(df, start_date, end_date, IVs)
+    monthley_sufficiency = sufficiencies_monthly_df['value'].tolist()
+    monthley_sufficiency_pass = round(sufficiencies_monthly_df['value'].mean(), 2)
+    total_days = (end_date - start_date).days
+    query_thershold = sufficiencie_thershold.format(facility_id=facility_id)
+    query_thershold_output = dbtest(query_thershold)
+    hourly_thershold = query_thershold_output['hourly'].tolist()[0] if not query_thershold_output[
+        'hourly'].empty else 90
+    daily_thershold = query_thershold_output['daily'].tolist()[0] if not query_thershold_output['daily'].empty else 90
+    monthly_thershold = query_thershold_output['monthly'].tolist()[0] if not query_thershold_output[
+        'monthly'].empty else 90
     for a in monthley_sufficiency:
-        if(a < monthly_thershold):
+        if (a < monthly_thershold):
             monthley_sufficiency_pass = 10
     response = {
-        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if sufficiency_daily_df['percentage'].tolist()[0] != None else 0, "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days, daily_thershold), "threshold":daily_thershold},
-        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0], "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days, hourly_thershold),  "threshold":hourly_thershold},
+        "daily": {"sufficiency": sufficiency_daily_df['percentage'].tolist()[0] if
+        sufficiency_daily_df['percentage'].tolist()[0] != None else 0,
+                  "status": get_status(sufficiency_daily_df['percentage'].tolist()[0], total_days, daily_thershold),
+                  "threshold": daily_thershold},
+        "hourly": {"sufficiency": sufficiencies_hourly_df['percentage'].tolist()[0],
+                   "status": get_status(sufficiencies_hourly_df['percentage'].tolist()[0], total_days,
+                                        hourly_thershold), "threshold": hourly_thershold},
         "monthly": {
             "sufficiency": monthley_sufficiency_pass,
             "status": get_status(monthley_sufficiency_pass, total_days, monthly_thershold),
             "data": sufficiencies_monthly_df_sorted[['value', 'month']].to_dict(orient='records'),
-            "threshold":monthly_thershold
+            "threshold": monthly_thershold
         }
     }
     return jsonify(response)
 
 
 def get_status(sufficiency, total_days, limit):
-    
-    return "passed" if ( sufficiency != None and sufficiency > limit and total_days >=364) else "failed"
+    return "passed" if (sufficiency != None and sufficiency > limit and total_days >= 364) else "failed"
 
 
 @app.route("/get_weather_data", methods=['GET'])
@@ -760,7 +772,12 @@ def get_clean_data():
             meter_type = int(meter_type)
         except ValueError:
             return jsonify({"error": "Invalid parameter format"}), 400
-
+        query = f"SELECT latitude, longitude FROM epp.facility WHERE id={facility_id}"
+        facility_lat_long = dbtest(query)
+        latitude = facility_lat_long.loc[0, 'latitude']
+        longitude = facility_lat_long.loc[0, 'longitude']
+        time_zone = get_timezone(latitude, longitude)
+        temp_start, temp_end = get_utc_dates(start_date, end_date, time_zone)
         temp1, temp2, temp3 = get_nearest_stations(facility_id, n=3).station_id.values
         if weather_station:
             weather_station = int(weather_station)
@@ -781,7 +798,8 @@ def get_clean_data():
         end_date = date_obj.replace(hour=23, minute=59)
         end_date = end_date.strftime('%Y-%m-%d %H:%M')
 
-        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type)
+        clean_data_query = get_data_cleaning_query(temp1, temp2, temp3, start_date, end_date, facility_id, meter_type, temp_start, temp_end
+                                                   )
         df = dbtest(clean_data_query)
         if df.empty:
             return jsonify({"error": "No data found for the given parameters"}), 404
@@ -927,6 +945,9 @@ def upload_file():
         error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
         return jsonify({"error": error_msg}), 400
     if file_name.endswith(('.xml',)):
+        if iv:
+            error_msg = "xml files are not Supported for Independent Variables"
+            return jsonify({"error": error_msg}), 400
         uploader = GreenDataUploader(file, facility_id, meter_id, iv)
     else:
         uploader = DataUploader(file, facility_id, meter_id, iv)

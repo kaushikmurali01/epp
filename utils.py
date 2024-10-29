@@ -3,8 +3,10 @@ import uuid
 from datetime import datetime
 
 import pandas as pd
+import pytz
 
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
+from timezonefinder import TimezoneFinder
 
 from azure.storage.blob import BlobServiceClient
 
@@ -114,3 +116,25 @@ def custom_date_parser(val):
         return pd.to_datetime(val).strftime('%Y-%m-%d %H:%M')  # Adjust the format as per your requirement
     except:
         raise ValueError(f'You have Invalid Values of Dates e.g {val}')
+
+
+def get_timezone(latitude, longitude):
+    tf = TimezoneFinder()
+    return tf.timezone_at(lat=latitude, lng=longitude)
+
+
+def get_utc_dates(start_date, end_date, timezone):
+    local_timezone = pytz.timezone(timezone)
+    end_date = datetime.strptime(end_date, '%Y-%m-%d %H:%M:%S')
+    localized_end_date = local_timezone.localize(end_date)
+    start_date = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
+    localized_start_date = local_timezone.localize(start_date)
+
+    # Convert the localized datetime to UTC
+    utc_end_date = localized_end_date.astimezone(pytz.utc)
+    utc_start_date = localized_start_date.astimezone(pytz.utc)
+    utc_start_date_str = utc_start_date.strftime('%Y-%m-%d %H:%M:%S')
+    utc_end_date_str = utc_end_date.strftime('%Y-%m-%d %H:%M:%S')
+
+    return utc_start_date_str, utc_end_date_str
+
