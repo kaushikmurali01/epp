@@ -146,6 +146,8 @@ def process_station(station_id, year, month, day, time_frame, time_zone):
 
         chunk_reader['utc_start_date'] = chunk_reader['Date/Time (LST)'].dt.tz_localize(
             time_zone, ambiguous='NaT', nonexistent='shift_forward').dt.tz_convert('UTC')
+        today_utc = pd.Timestamp.now('UTC').normalize()
+        chunk_reader = chunk_reader[chunk_reader['utc_start_date'].dt.normalize() <= today_utc]
 
         result = upload_chunk_with_retry(chunk_reader, station_id)
 
