@@ -11,7 +11,7 @@ import time
 from functools import partial
 from contextlib import contextmanager
 
-from dbconnection import get_db_connection, dbtest, refresh_materialised_view, execute_query
+from dbconnection import get_db_connection, dbtest, execute_query
 from sql_queries.weather_station_queries import UPDATE_IN_USE
 
 # Adjust these parameters based on your system capabilities
@@ -49,7 +49,8 @@ COLUMN_MAPPING = {
     'Hmdx Flag': 'hmdx_flag',
     'Wind Chill': 'wind_chill',
     'Wind Chill Flag': 'wind_chill_flag',
-    'Weather': 'weather'
+    'Weather': 'weather',
+    'utc_start_date': 'utc_start_date'
 }
 
 
@@ -103,17 +104,15 @@ def upload_chunk(conn, chunk, station_id):
     output = StringIO()
     chunk.to_csv(output, index=False, header=False, quoting=csv.QUOTE_MINIMAL)
     output.seek(0)
-
     try:
         cur.copy_expert(sql.SQL("""
             COPY epp.weather_data_records (longitude, latitude, station_name, climate_id, date_time, year, month, day, time, 
                                temp, temp_flag, dew_point_temp, dew_point_temp_flag, rel_hum, rel_hum_flag, 
                                precip_amount, precip_amount_flag, wind_dir, wind_dir_flag, wind_spd, wind_spd_flag, 
                                visibility_km, visibility_flag, station_press, station_press_flag, hmdx, hmdx_flag, 
-                               wind_chill, wind_chill_flag, weather, station_id)
+                               wind_chill, wind_chill_flag, weather, utc_start_date, station_id)
             FROM STDIN WITH CSV
         """), output)
-
         conn.commit()
         return f"Uploaded chunk for station {station_id}"
     except Exception as e:
@@ -136,20 +135,21 @@ def upload_chunk_with_retry(chunk, station_id, max_retries=3, initial_delay=1):
             time.sleep(initial_delay * (2 ** (retries - 1)))  # Exponential backoff
 
 
-def process_station(station_id, year, month, day, time_frame):
+def process_station(station_id, year, month, day, time_frame, time_zone):
     try:
         url = f"http://climate.weather.gc.ca/climate_data/bulk_data_e.html?format=csv&stationID={station_id}&Year={year}&Month={month}&Day={day}&timeframe={time_frame}&submit=Download+Data"
         response = requests.get(url, timeout=30)
         response.raise_for_status()
         csv_data = StringIO(response.content.decode('utf-8'))
-        chunk_reader = pd.read_csv(csv_data, chunksize=CHUNK_SIZE)
+        chunk_reader = pd.read_csv(csv_data)
+        chunk_reader['Date/Time (LST)'] = pd.to_datetime(chunk_reader['Date/Time (LST)'], errors='coerce')
 
-        for chunk in chunk_reader:
-            if check_sufficiency(chunk):
-                result = upload_chunk_with_retry(chunk, station_id)
-                time.sleep(1)  # Add a small delay between chunk uploads
-            else:
-                print(f"Data chunk for station {station_id} did not pass sufficiency check")
+        chunk_reader['utc_start_date'] = chunk_reader['Date/Time (LST)'].dt.tz_localize(
+            time_zone, ambiguous='NaT', nonexistent='shift_forward').dt.tz_convert('UTC')
+        today_utc = pd.Timestamp.now('UTC').normalize()
+        chunk_reader = chunk_reader[chunk_reader['utc_start_date'].dt.normalize() <= today_utc]
+
+        result = upload_chunk_with_retry(chunk_reader, station_id)
 
     except requests.RequestException as e:
         print(f"Failed to download data for station {station_id}. Error: {str(e)}")
@@ -160,10 +160,10 @@ def process_station(station_id, year, month, day, time_frame):
 
 
 def main(stations=None, in_use=False):
-
     start_year = 2018  # You can adjust this as needed
-    if stations.empty:
-        stations = dbtest(f"SELECT station_id FROM epp.weather_stations where hly_last_year={datetime.now().year}")
+    if not stations or stations.empty:
+        stations = dbtest(
+            f"SELECT station_id,timezone FROM epp.weather_stations where hly_last_year={datetime.now().year} and in_use=true")
     current_year = datetime.now().year
     current_month = datetime.now().month
 
@@ -175,10 +175,12 @@ def main(stations=None, in_use=False):
                     break
                 day = 14
                 time_frame = 1
-                for station_id in stations['station_id'].values:
+                for index, station in stations.iterrows():
+                    station_id = station['station_id']
+                    station_timezone = station['timezone']
                     print(f"Submitting task for station {station_id}, year {year}, month {month}")
                     futures.append(
-                        executor.submit(process_station, station_id, year, month, day, time_frame))
+                        executor.submit(process_station, station_id, year, month, day, time_frame, station_timezone))
                     time.sleep(0.1)
 
         for future in concurrent.futures.as_completed(futures):
