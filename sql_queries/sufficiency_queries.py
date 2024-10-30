@@ -93,7 +93,7 @@ WITH hourly_data AS (
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
-	  {IVids}
+	  AND  is_independent_variable = false AND reading > 0 
     GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
 	order by  hour
 ), hourly_sufficiency_percentage AS (
@@ -109,6 +109,62 @@ WITH hourly_data AS (
 )
 select cast(avg(hourly_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
 """
+IV_sufficiencies_hourly = """ 
+WITH hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('hour', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
+	  AND  is_independent_variable = false AND reading > 0 
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
+	order by  hour
+), hourly_sufficiency_percentage AS (
+	SELECT 
+		h.meter_id,
+		h.meter_name,
+		count(h.hourly_count),
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 3600)) * 100 AS hourly_percentage
+	FROM hourly_data h
+	where hourly_count > 0
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+), IV_hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('hour', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.iv_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
+	  AND is_independent_variable = true
+      {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('hour', start_date)
+	order by  hour
+), IV_hourly_sufficiency_percentage AS (
+	SELECT 
+		h.meter_id,
+		h.meter_name,
+		count(h.hourly_count),
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 3600)) * 100 AS hourly_percentage
+	FROM IV_hourly_data h
+	where hourly_count > 0
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+), IV_hourly_percentage as (
+    select CASE when cast(avg(hourly_percentage) as decimal(10,2)) > 0 THEN cast(avg(hourly_percentage) as decimal(10,2)) ELSE 0 END   as percentage from IV_hourly_sufficiency_percentage
+    UNION ALL
+    select cast(avg(hourly_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
+)
+select cast(avg(percentage) as decimal(10,2))  as percentage from IV_hourly_percentage 
+
+"""
 sufficiency_daily = """ 
 WITH hourly_data AS (
     SELECT 
@@ -120,7 +176,7 @@ WITH hourly_data AS (
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
-	  {IVids}
+	  AND  is_independent_variable = false AND reading > 0 
     GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
 	order by  hour
 ), hourly_sufficiency_percentage AS (
@@ -135,34 +191,59 @@ WITH hourly_data AS (
 )
 select cast(avg(daily_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
 """
-
-sufficiency_daily_old = """ 
-with daily_data AS (
-	SELECT
-		meter_id,
-		meter_name,
-		facility_id,
-		date_trunc('day', start_date) AS day,
-		COUNT(id) AS daily_count
-	FROM epp.meter_hourly_entries
-	WHERE facility_id = {facility_id}   
-		AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
-         {IVids}
-	GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
-	order by day 
-), daily_sufficiency_percentage AS (
+IV_sufficiency_daily = """ 
+WITH hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('day', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
+	  AND  is_independent_variable = false AND reading > 0 
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
+	order by  hour
+), hourly_sufficiency_percentage AS (
 	SELECT 
-		d.meter_id,
-		d.meter_name,
-		count(d.daily_count),
-		(count(d.daily_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 86400)) * 100 AS daily_percentage
-	FROM daily_data d
-	where daily_count > 0
-	GROUP BY d.meter_id, d.meter_name
-	ORDER BY d.meter_id
+		h.meter_id,
+		h.meter_name,
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 86400)) * 100 AS daily_percentage
+	FROM hourly_data h
+	where hourly_count >=24
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+),IV_hourly_data AS (
+    SELECT 
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('day', start_date) AS hour,
+        COUNT(id) AS hourly_count
+    FROM epp.iv_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}' AND '{end_date} 23:59:59' AND (EXTRACT(EPOCH FROM end_date-start_date) / 3600) <=1
+	  {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('day', start_date)
+	order by  hour
+), IV_hourly_sufficiency_percentage AS (
+	SELECT 
+		h.meter_id,
+		h.meter_name,
+		(count(h.hourly_count) / (EXTRACT(EPOCH FROM ('{end_date} 23:59:59'::timestamp - '{start_date}'::timestamp)) / 86400)) * 100 AS daily_percentage
+	FROM IV_hourly_data h
+	where hourly_count >=24
+	GROUP BY h.meter_id, h.meter_name
+	ORDER BY h.meter_id
+), IV_daily_percentage AS (
+    select CASE when cast(avg(daily_percentage) as decimal(10,2)) > 0 THEN cast(avg(daily_percentage) as decimal(10,2)) ELSE 0 END   as percentage  from IV_hourly_sufficiency_percentage
+    UNION ALL
+    select cast(avg(daily_percentage) as decimal(10,2))  as percentage from hourly_sufficiency_percentage
 )
-select cast(avg(daily_percentage) as decimal(10,2))  as percentage   from daily_sufficiency_percentage
+select cast(avg(percentage) as decimal(10,2))  as percentage from IV_daily_percentage
 """
+
 sufficiencies_monthly = """
 with RECURSIVE DateList AS (
     SELECT '{start_date}'::DATE AS month_start
@@ -182,7 +263,7 @@ with RECURSIVE DateList AS (
     WHERE facility_id = {facility_id}
       AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
       
-     {IVids}
+    AND  is_independent_variable = false AND reading > 0 
     GROUP BY meter_id, meter_name, facility_id, date_trunc('month', start_date)
 ), monthly_per as(
 	select 
@@ -210,7 +291,95 @@ select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(
 from monthly_per group by month_year, month order by mm asc
 )
 select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
-
+"""
+IV_sufficiencies_monthly = """
+with RECURSIVE DateList AS (
+    SELECT '{start_date}'::DATE AS month_start
+    UNION ALL
+    SELECT (month_start + INTERVAL '1 month')::DATE
+    FROM DateList
+    WHERE month_start < '{end_date}'::DATE
+), monthly_data AS (
+    SELECT
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('month', start_date) AS month,
+        COUNT(DISTINCT date_trunc('hour', start_date)) AS days_in_month,
+        COUNT(reading) AS monthly_count
+    FROM epp.meter_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp      
+        AND  is_independent_variable = false AND reading > 0 
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('month', start_date)
+), monthly_per as(
+	select 
+		meter_id, 
+		meter_name, 
+		month, 
+		days_in_month, 
+		TRIM(TO_CHAR(month, 'Month')) || ' ' || TO_CHAR(month, 'YYYY') AS month_year,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::FLOAT 
+            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::FLOAT
+        END AS totoal_days,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/(24*((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT ) 
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/(TO_CHAR('{end_date}'::date, 'dd')::FLOAT *24)
+            ELSE days_in_month*100/(24*DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date )::FLOAT) 
+        END AS perecnt
+	from monthly_data
+), monthsdata as (
+	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
+	FROM DateList where month_start between '{start_date}' and '{end_date}'
+), percentage_query as (
+select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
+from monthly_per group by month_year, month order by mm asc
+), IV_monthly_data AS (
+    SELECT
+        meter_id,
+        meter_name,
+        facility_id,
+        date_trunc('month', start_date) AS month,
+        COUNT(DISTINCT date_trunc('hour', start_date)) AS days_in_month,
+        COUNT(reading) AS monthly_count
+    FROM epp.iv_hourly_entries
+    WHERE facility_id = {facility_id}
+      AND start_date BETWEEN '{start_date}'::timestamp AND '{end_date} 23:59:59'::timestamp
+      
+    {IVids}
+    GROUP BY meter_id, meter_name, facility_id, date_trunc('month', start_date)
+), IV_monthly_per as(
+	select 
+		meter_id, 
+		meter_name, 
+		month, 
+		days_in_month, 
+		TRIM(TO_CHAR(month, 'Month')) || ' ' || TO_CHAR(month, 'YYYY') AS month_year,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN ((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT  
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN TO_CHAR('{end_date}'::date, 'dd')::FLOAT 
+            ELSE DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date ) ::FLOAT
+        END AS totoal_days,
+        CASE
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{start_date}'::date, 'YYYYMM') THEN days_in_month*100/(24*((DATE_TRUNC('MONTH', '{start_date}'::DATE) + INTERVAL '1 MONTH - 1 day')::DATE - '{start_date}'::DATE + 1)::FLOAT ) 
+            WHEN TO_CHAR(month, 'YYYYMM') = TO_CHAR('{end_date}'::date, 'YYYYMM') THEN days_in_month*100/(TO_CHAR('{end_date}'::date, 'dd')::FLOAT *24)
+            ELSE days_in_month*100/(24*DATE_PART('days', (DATE_TRUNC('month', month) + INTERVAL '1 month - 1 day')::date )::FLOAT) 
+        END AS perecnt
+	from IV_monthly_data
+), IV_monthsdata as (
+	SELECT TO_CHAR(month_start, 'YYYYMM') AS mm, 60 as value, TRIM(TO_CHAR(month_start, 'Month')) || ' ' || TO_CHAR(month_start, 'YYYY') AS month
+	FROM DateList where month_start between '{start_date}' and '{end_date}'
+), IV_percentage_query as (
+select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
+from IV_monthly_per group by month_year, month order by mm asc
+), monthly_percentage as (
+    select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
+    UNION ALL
+    select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join IV_monthsdata as md on md.mm=pq.mm
+)
+select cast(avg(value) as decimal(10,2))  as value, month, mm from monthly_percentage group by mm, month
 """
 sufficiencie_thershold="""
 SELECT 
