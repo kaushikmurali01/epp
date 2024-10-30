@@ -17,7 +17,7 @@ from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_que
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
 from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, IV_sufficiencies_hourly, sufficiency_daily, IV_sufficiency_daily, sufficiencies_monthly, IV_sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -220,14 +220,22 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-    IVids = f"AND  ((is_independent_variable = false AND reading > 0 ) OR (is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} AND reading>= 0))" if len(
-        IVs) > 0 else "AND  is_independent_variable = false AND reading > 0 "
+    
+    hourly_query = sufficiencies_hourly
+    daily_query = sufficiency_daily
+    monthly_query = sufficiencies_monthly
+
+    IVids = ""    
+    if len(IVs) > 0 :        
+        hourly_query = IV_sufficiencies_hourly
+        daily_query = IV_sufficiency_daily
+        monthly_query = IV_sufficiencies_monthly
+        IVids = f"AND  is_independent_variable = true AND independent_variable_id IN {'(' + ','.join(map(str, tuple(IVs))) + ')'} AND reading>= 0"
 
     # Modify the query with the provided parameters
-
-    sufficiencies_hourly_query = sufficiencies_hourly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-    sufficiency_daily_query = sufficiency_daily.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-    sufficiencies_monthly_query = sufficiencies_monthly.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_hourly_query = hourly_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiency_daily_query = daily_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_monthly_query = monthly_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
     sufficiencies_hourly_df = dbtest(sufficiencies_hourly_query)
     sufficiency_daily_df = dbtest(sufficiency_daily_query)
     sufficiencies_monthly_df = dbtest(sufficiencies_monthly_query)
