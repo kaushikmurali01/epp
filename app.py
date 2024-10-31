@@ -1,3 +1,4 @@
+import io
 import json
 from _decimal import Decimal
 from threading import Thread
@@ -14,11 +15,13 @@ from components.add_file_data_to_table import AddMeterData
 from constants import SUFFICIENCY_DATA
 from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
+from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, PERFORMANCE_OBSERVED_PREDICTED, COMBINED
 from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
 from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, sufficiencies_monthly
+from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, sufficiency_daily, \
+    sufficiencies_monthly
 from constants import IV_FACTOR, METER_FACTOR
 from data_exploration import DataExploration, OutlierSettings
 from data_eploration_summary import DataExplorationSummary
@@ -33,7 +36,7 @@ from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query
-from utils import get_nearest_stations
+from utils import get_nearest_stations, get_timezone, generate_blob_name, save_file_to_blob
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
 from datetime import datetime, timedelta
@@ -980,6 +983,41 @@ def get_independent_variable():
     return jsonify(result), 200
 
 
+@app.route('/get-performance-baseline-cal', methods=['GET'])
+def get_performance_baseline_cal():
+    facility = int(request.args.get('facility_id')) if request.args.get('facility_id') else None
+    interface = int(request.args.get('interface')) if request.args.get('interface') else None
+    user = int(request.args.get('user')) if request.args.get('user') else None
+    coordinates = f"SELECT latitude, longitude FROM epp.facility WHERE id={facility}"
+    facility_lat_long = dbtest(coordinates)
+    latitude = facility_lat_long.loc[0, 'latitude']
+    longitude = facility_lat_long.loc[0, 'longitude']
+    time_zone = get_timezone(latitude, longitude)
+    columns = ['start_date', 'end_date', 'observed', 'predicted', 'temperature']
+    if interface == 4:
+        query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+    elif interface == 5:
+        query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+    else:
+        columns.append('source')
+        query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility)
+    df = dbtest(query)
+    print(df.columns)
+    df = df[columns]
+    excel_buffer = io.BytesIO()
+    df.to_excel(excel_buffer, index=False)
+    excel_buffer.seek(0)
+    blob_name = generate_blob_name(extension='xlsx')
+    file_path = save_file_to_blob(blob_name, excel_buffer)
+    return {'file_path': file_path}
 
+
+"""
+query = f"SELECT latitude, longitude FROM epp.facility WHERE id={facility_id}"
+    facility_lat_long = dbtest(query)
+    latitude = facility_lat_long.loc[0, 'latitude']
+    longitude = facility_lat_long.loc[0, 'longitude']
+    time_zone = get_timezone(latitude, longitude)
+"""
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True, port=5000)

@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime
 
 import pandas as pd
+from timezonefinder import TimezoneFinder
 
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 
@@ -114,3 +115,8 @@ def custom_date_parser(val):
         return pd.to_datetime(val).strftime('%Y-%m-%d %H:%M')  # Adjust the format as per your requirement
     except:
         raise ValueError(f'You have Invalid Values of Dates e.g {val}')
+
+
+def get_timezone(latitude, longitude):
+    tf = TimezoneFinder()
+    return tf.timezone_at(lat=latitude, lng=longitude)

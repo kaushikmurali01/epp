@@ -17,3 +17,8 @@ SUFFICIENCY_DATA = {"daily": {"sufficiency": 46.86, "status": "passed"},
                                          {"month": "April 2024", "value": "99.86"},
                                          {"month": "May 2024", "value": "99.87"},
                                          {"month": "June 2024", "value": "63.47"}]}}
+
+EXPORT_STATUS = {0: 'In Progress', 1: 'Completed', 2: 'Failed'}
+EXPORT_TYPE = {1: 'Data Exploration', 2: 'Performance Data Summary', 3: 'Raw Data',
+               4: 'Base Line Observed vs Predicted', 5: 'Performance Observed vs Predicted'}
+
