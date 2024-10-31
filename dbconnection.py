@@ -1,6 +1,7 @@
 from io import StringIO
 
 import psycopg2.extras
+from psycopg2 import sql
 
 import config
 import psycopg2
