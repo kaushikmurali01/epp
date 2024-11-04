@@ -1,6 +1,8 @@
-import io
+import json
 from _decimal import Decimal
 from threading import Thread
+
+import numpy as np
 from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
 from flask_cors import CORS
@@ -17,7 +19,7 @@ from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
 from sql_queries.sufficiency_queries import sufficiencies_hourly, IV_sufficiencies_hourly, \
     sufficiency_daily, IV_sufficiency_daily, sufficiencies_monthly, IV_sufficiencies_monthly, sufficiencie_thershold, \
     date_raneg_query
-from constants import IV_FACTOR, METER_FACTOR
+from constants import IV_FACTOR, METER_FACTOR, EXPORT_MESSAGE
 from data_exploration import DataExploration
 from data_eploration_summary import DataExplorationSummary
 from data_exploration_v2 import DataExplorationSummaryV2
@@ -30,8 +32,8 @@ from sql_queries.weather_station_queries import min_max_date_query, min_max_mete
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
-from dbconnection import dbtest, execute_query
-from utils import get_nearest_stations, get_timezone, generate_blob_name, save_file_to_blob,get_utc_dates
+from dbconnection import dbtest, execute_query, db_execute_single
+from utils import get_nearest_stations, get_timezone, get_utc_dates, export_data, get_paginated_data
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
 from datetime import datetime
@@ -1028,29 +1030,102 @@ def get_independent_variable():
 def get_performance_baseline_cal():
     facility = int(request.args.get('facility_id')) if request.args.get('facility_id') else None
     interface = int(request.args.get('interface')) if request.args.get('interface') else None
+    page_size = int(request.args.get('page_size', 10))
+    page_no = int(request.args.get('page_number', 1))
+    meter_type = int(request.args.get('meter_type')) if request.args.get('meter_type') else None
     user = int(request.args.get('user')) if request.args.get('user') else None
-    coordinates = f"SELECT latitude, longitude FROM epp.facility WHERE id={facility}"
+    export = request.args.get('export')
+    coordinates = f"SELECT id,latitude, longitude FROM epp.facility WHERE id={facility}"
     facility_lat_long = dbtest(coordinates)
     latitude = facility_lat_long.loc[0, 'latitude']
     longitude = facility_lat_long.loc[0, 'longitude']
     time_zone = get_timezone(latitude, longitude)
+    if not facility or meter_type or user:
+        return jsonify({'success': False,
+                        'error': 'Either if the 3 required fields are Missing. Facility or Meter Type or User'}), 400
     columns = ['start_date', 'end_date', 'observed', 'predicted', 'temperature']
     if interface == 4:
-        query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+        query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
     elif interface == 5:
-        query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+        query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
     else:
         columns.append('source')
-        query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility)
+        query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility, meter_type)
     df = dbtest(query)
-    print(df.columns)
     df = df[columns]
-    excel_buffer = io.BytesIO()
-    df.to_excel(excel_buffer, index=False)
-    excel_buffer.seek(0)
-    blob_name = generate_blob_name(extension='xlsx')
-    file_path = save_file_to_blob(blob_name, excel_buffer)
-    return {'file_path': file_path}
+    total_count = len(df)
+    df['start_date'] = pd.to_datetime(df['start_date'], format='%a, %d %b %Y %H:%M:%S GMT').dt.strftime(
+        '%Y/%m/%d %H:%M:%S')
+    df['end_date'] = pd.to_datetime(df['end_date'], format='%a, %d %b %Y %H:%M:%S GMT').dt.strftime('%Y/%m/%d %H:%M:%S')
+    if export:
+        if not user:
+            return jsonify({'success': False, 'error': 'Please Provide User ID'}), 400
+        create_export_record = "INSERT INTO epp.export (created_by, interface, facility_id) VALUES (%s, %s, %s)"
+        record_id = db_execute_single(create_export_record, (user, interface, facility))
+        thread = Thread(target=export_data, args=(df, record_id))
+        thread.start()
+        return jsonify({'success': True, 'message': 'File Export in Progress', 'record_id': record_id}), 200
+    df = get_paginated_data(df, page_size, page_no)
+    return {'count': total_count, 'data': df.to_dict(orient='records')}
+
+
+@app.route('/get-export-status', methods=['GET'])
+def get_export_status():
+    record_ids = request.args.get('record_ids')
+    user = int(request.args.get('user')) if request.args.get('user') else None
+    facility = int(request.args.get('facility')) if request.args.get('facility') else None
+    if record_ids:
+        actual_list = json.loads(record_ids)
+        actual_list = tuple(actual_list)
+    if record_ids:
+        query = f"""SELECT status, id,file_path FROM epp.export where id in {actual_list}"""
+    elif user:
+        query = f"""SELECT status, id,file_path FROM epp.export where created_by = {user}"""
+    elif facility:
+        query = f"""SELECT status, id,file_path FROM epp.export where facility_id = {facility}"""
+    else:
+        return jsonify({'success': False, 'error': 'Please Provide User ID/Facility ID/Records ID(s)'}), 400
+    response = dbtest(query)
+    conditions = [response['status'] == 0, response['status'] == 1, response['status'] == 2]
+    status_code_choices = [200, 201, 500]
+    response['status_code'] = np.select(conditions, status_code_choices, default=-1)
+    response['status_code'] = response['status_code'].replace(-1, np.nan).astype('Int64')
+
+    message_choices = ['Export In Progress', 'File Exported Successfully', 'Something Went Wrong']
+    response['message'] = np.select(conditions, message_choices, default='Unknown Status')
+    return {'data': response.to_dict(orient='records')}
+
+
+@app.route('/mark-as-read', methods=['POST'])
+def mark_notification_notification_as_read():
+    record_id = int(request.json.get('record_id')) if request.json.get('record_id') else None
+    file_path = request.json.get('file_path')
+    if not record_id or file_path:
+        return jsonify({'success': False, 'error': 'Please Provide Records ID or File Path'}), 400
+    # ToDo Remove File from blob storage
+    return jsonify({'success': True, 'message': 'Marked as Read'}), 200
+
+
+@app.route('/get-unread-notifications', methods=['GET'])
+def get_unread_notifications():
+    user_id = request.args.get('user_id')
+    facility_id = request.args.get('facility_id')
+    page_size = int(request.args.get('page_size', 10))
+    page_no = int(request.args.get('page_number', 1))
+    # query = f"SELECT * FROM epp.export WHERE created_by={user_id} and is_read=false"
+    query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1"
+    notifications = dbtest(query)
+    conditions = [notifications['interface'] == 1,
+                  notifications['interface'] == 2,
+                  notifications['interface'] == 3,
+                  notifications['interface'] == 4,
+                  notifications['interface'] == 5
+                  ]
+    interface_choices = [value for key,value in EXPORT_MESSAGE]
+    notifications['message'] = np.select(conditions, interface_choices, default='NA')
+    total_count = len(notifications)
+    df = get_paginated_data(notifications, page_size, page_no)
+    return {'count': total_count, 'data': df.to_dict(orient='records')}
 
 
 if __name__ == '__main__':

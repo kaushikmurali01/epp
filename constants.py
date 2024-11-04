@@ -21,4 +21,13 @@ SUFFICIENCY_DATA = {"daily": {"sufficiency": 46.86, "status": "passed"},
 EXPORT_STATUS = {0: 'In Progress', 1: 'Completed', 2: 'Failed'}
 EXPORT_TYPE = {1: 'Data Exploration', 2: 'Performance Data Summary', 3: 'Raw Data',
                4: 'Base Line Observed vs Predicted', 5: 'Performance Observed vs Predicted'}
+EXPORT_MESSAGE = [
+    (1, 'Data Exploration Summary Report'),
+    (2, 'Performance Data Summary Report '),
+    (3, 'Raw Data Report'),
+    (4, 'Base Line Report'),
+    (5, 'Performance Report')
+]
+
+
 

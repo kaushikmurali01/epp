@@ -1,3 +1,4 @@
+import io
 import math
 import uuid
 from datetime import datetime
@@ -8,7 +9,7 @@ from timezonefinder import TimezoneFinder
 
 from config import AZURE_CONNECTION_STRING, CONTAINER_NAME
 
-from dbconnection import dbtest
+from dbconnection import dbtest, db_execute_single
 from sql_queries.weather_station_queries import nearest_weather_stations
 
 
@@ -109,3 +110,39 @@ def get_utc_dates(start_date, end_date, timezone):
 
     return utc_start_date_str, utc_end_date_str
 
+
+def export_data(df, record_id):
+    # Insert record into the export table
+    try:
+        # Generate Excel file from DataFrame
+        excel_buffer = io.BytesIO()
+        df.to_excel(excel_buffer, index=False)
+        excel_buffer.seek(0)
+
+        # Save Excel file to blob storage and get the file path
+        blob_name = generate_blob_name(extension='xlsx')
+        file_path = save_file_to_blob(blob_name, excel_buffer)
+
+        # Update the file path and status in the export table
+        update_query = "UPDATE epp.export SET file_path = %s, status = %s WHERE id = %s"
+        db_execute_single(update_query, (file_path, 1, record_id))  # Updated to not reassign record_id
+    except Exception as error:
+        update_query = "UPDATE epp.export SET status = %s WHERE id = %s"
+        db_execute_single(update_query, (2, record_id))  # Updated to not reassign record_id
+
+
+def get_paginated_data(df, page_size, page_no):
+    """
+    Paginates the DataFrame.
+
+    Args:
+    df (pd.DataFrame): The DataFrame to paginate.
+    page_size (int): The number of entries per page.
+    page_no (int): The current page number, 1-indexed.
+
+    Returns:
+    pd.DataFrame: The sliced DataFrame corresponding to the page.
+    """
+    start = (page_no - 1) * page_size
+    end = page_no * page_size
+    return df.iloc[start:end]
