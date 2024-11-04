@@ -1040,7 +1040,8 @@ def get_performance_baseline_cal():
     latitude = facility_lat_long.loc[0, 'latitude']
     longitude = facility_lat_long.loc[0, 'longitude']
     time_zone = get_timezone(latitude, longitude)
-    if not facility or meter_type or user:
+    # if not (facility or meter_type or user):
+    if not (facility or meter_type):
         return jsonify({'success': False,
                         'error': 'Either if the 3 required fields are Missing. Facility or Meter Type or User'}), 400
     columns = ['start_date', 'end_date', 'observed', 'predicted', 'temperature']
