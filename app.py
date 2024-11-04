@@ -1120,9 +1120,9 @@ def get_unread_notifications():
     page_no = int(request.args.get('page_number', 1))
     # query = f"SELECT * FROM epp.export WHERE created_by={user_id} and is_read=false"
     if user_id:
-        query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1 and user_id={user_id}"
+        query = f"SELECT * FROM epp.export WHERE is_read=false  and status=1 and user_id={user_id}"
     else:
-        query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1"
+        query = f"SELECT * FROM epp.export WHERE is_read=false and  status=1"
     notifications = dbtest(query)
     conditions = [notifications['interface'] == 1,
                   notifications['interface'] == 2,
