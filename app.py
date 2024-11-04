@@ -1098,7 +1098,7 @@ def get_export_status():
 
         message_choices = ['Export In Progress', 'File Exported Successfully', 'Something Went Wrong']
         response['message'] = np.select(conditions, message_choices, default='Unknown Status')
-        return {'count': len(response), 'data': response.to_dict(orient='records')}
+        return jsonify({'count': len(response), 'data': response.to_dict(orient='records')}), 200
     return {'success': True, 'status': 200}
 
 
