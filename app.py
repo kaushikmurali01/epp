@@ -1087,14 +1087,16 @@ def get_export_status():
     else:
         return jsonify({'success': False, 'error': 'Please Provide User ID/Facility ID/Records ID(s)'}), 400
     response = dbtest(query)
-    conditions = [response['status'] == 0, response['status'] == 1, response['status'] == 2]
-    status_code_choices = [200, 201, 500]
-    response['status_code'] = np.select(conditions, status_code_choices, default=-1)
-    response['status_code'] = response['status_code'].replace(-1, np.nan).astype('Int64')
+    if not response.empty:
+        conditions = [response['status'] == 0, response['status'] == 1, response['status'] == 2]
+        status_code_choices = [200, 201, 500]
+        response['status_code'] = np.select(conditions, status_code_choices, default=-1)
+        response['status_code'] = response['status_code'].replace(-1, np.nan).astype('Int64')
 
-    message_choices = ['Export In Progress', 'File Exported Successfully', 'Something Went Wrong']
-    response['message'] = np.select(conditions, message_choices, default='Unknown Status')
-    return {'data': response.to_dict(orient='records')}
+        message_choices = ['Export In Progress', 'File Exported Successfully', 'Something Went Wrong']
+        response['message'] = np.select(conditions, message_choices, default='Unknown Status')
+        return {'data': response.to_dict(orient='records')}
+    return {'success': True, 'status': 200}
 
 
 @app.route('/mark-as-read', methods=['POST'])
@@ -1125,7 +1127,7 @@ def get_unread_notifications():
                   notifications['interface'] == 4,
                   notifications['interface'] == 5
                   ]
-    interface_choices = [value for key,value in EXPORT_MESSAGE]
+    interface_choices = [value for key, value in EXPORT_MESSAGE]
     notifications['message'] = np.select(conditions, interface_choices, default='NA')
     total_count = len(notifications)
     df = get_paginated_data(notifications, page_size, page_no)
