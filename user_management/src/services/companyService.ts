@@ -234,13 +234,42 @@ class CompanyService {
         companyFilter,
         data,
         colName,
-        order
+        order,
+        filters
       ): Promise<any[]> {
         try {
           let filterCheck = "";
           if (companyFilter && companyFilter > 0) {
             filterCheck = `AND c.company_type=${companyFilter}`;
           }
+
+          // Filters
+          console.log("Filters", filters);
+          console.log("length", filters.length);
+          if(filters && filters.length > 0) {
+          filters.forEach((filter) => {
+            
+            if (filter.value && filter.type === 'string') {
+                if(filter.key == 'is_signed'){
+                    filter.key = `pa.${filter.key}`;
+                } else{
+                    filter.key = `c.${filter.key}`;
+                }
+              filterCheck += ` AND ${filter.key} = '${filter.value}'`;
+            }
+            else if (filter.value && filter.type === 'from_date') {
+                filter.key = `c."${filter.key}"`;
+                filterCheck += ` AND ${filter.key} >= '${filter.value}'`;
+              }
+              else if (filter.value && filter.type === 'to_date') {
+                filter.key = `c."${filter.key}"`;
+                filterCheck += ` AND ${filter.key} <= '${filter.value}'`;
+              }
+          });
+        }
+
+        console.log("Filter Check", filterCheck)
+          // Filters
     
           let bindParams = {limit, offset};
           let index = 2;
@@ -291,6 +320,7 @@ const andArray = data.filter(item => item.key !== "city");
             rawQuery(`SELECT COUNT(*) AS count FROM "company" c
                 INNER JOIN "user_company_role" cr ON c.id = cr.company_id 
                 INNER JOIN "users" u ON cr.user_id = u.id
+                LEFT JOIN "participant_agreement" pa on c.id = pa.company_id
                 WHERE cr.role_id= 1 ${filterCheck} ${filterConditions} ${filterConditionsOr}`),
             rawQuery(
               `SELECT c.*, u.id as user_id,u.first_name as first_name,u.last_name last_name,u.email as email, uc.count, pa.is_signed as is_pa_signed FROM "company" c
