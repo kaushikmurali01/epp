@@ -1108,12 +1108,15 @@ def mark_notification_notification_as_read():
 
 @app.route('/get-unread-notifications', methods=['GET'])
 def get_unread_notifications():
-    user_id = request.args.get('user_id')
+    user_id = int(request.args.get('user_id')) if request.args.get('user_id') else None
     facility_id = request.args.get('facility_id')
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
     # query = f"SELECT * FROM epp.export WHERE created_by={user_id} and is_read=false"
-    query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1"
+    if user_id:
+        query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1 and user_id={user_id}"
+    else:
+        query = f"SELECT * FROM epp.export WHERE is_read=false and facility_id={facility_id} and status=1"
     notifications = dbtest(query)
     conditions = [notifications['interface'] == 1,
                   notifications['interface'] == 2,
