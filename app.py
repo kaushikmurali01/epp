@@ -1079,7 +1079,7 @@ def get_export_status():
         actual_list = json.loads(record_ids)
         actual_list = tuple(actual_list)
     if record_ids:
-        if len(record_ids) == 1:
+        if len(actual_list) == 1:
             query = f"""SELECT status, id,file_path FROM epp.export where id = {actual_list[0]}"""
         else:
             query = f"""SELECT status, id,file_path FROM epp.export where id in {actual_list}"""
