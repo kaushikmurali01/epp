@@ -1,25 +1,24 @@
-import json
+import io
 from _decimal import Decimal
 from threading import Thread
-import calendar
 from flask import Flask, jsonify, request, render_template_string
 import pandas as pd
-import plotly.graph_objs as go
 from flask_cors import CORS
 from components.dataCleaner import clean_raw_data
-from components.meter_iv_uploader import MeterIVFileUploader
 from components.add_file_data_to_table import AddMeterData
 
-from constants import SUFFICIENCY_DATA
 from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
-from sql_queries.data_cleaning import data_cleaning_query, get_data_cleaning_query
+from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, PERFORMANCE_OBSERVED_PREDICTED, COMBINED
+from sql_queries.data_cleaning import get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
 from sql_queries.iv import INDEPENDENT_VARIABLE_QUERY
-from sql_queries.sufficiency_queries import sufficiency_query, sufficiencies_hourly, IV_sufficiencies_hourly, sufficiency_daily, IV_sufficiency_daily, sufficiencies_monthly, IV_sufficiencies_monthly, sufficiencie_thershold, date_raneg_query
+from sql_queries.sufficiency_queries import sufficiencies_hourly, IV_sufficiencies_hourly, \
+    sufficiency_daily, IV_sufficiency_daily, sufficiencies_monthly, IV_sufficiencies_monthly, sufficiencie_thershold, \
+    date_raneg_query
 from constants import IV_FACTOR, METER_FACTOR
-from data_exploration import DataExploration, OutlierSettings
+from data_exploration import DataExploration
 from data_eploration_summary import DataExplorationSummary
 from data_exploration_v2 import DataExplorationSummaryV2
 from download_weather_data import download_and_load_data
@@ -27,15 +26,15 @@ from issue_detection import detect_issues, handle_issues
 from paginator import Paginator
 from sql_queries.file_uploader import delete_file_query, STATUS_UPLOADER_INTIMATION_IV, STATUS_UPLOADER_INTIMATION_METER
 from sql_queries.weather_station_queries import min_max_date_query, min_max_meter_date_query, weather_data_query, \
-    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max, FRESH_STATIONS
+    min_max_date_query_iv, min_max_general, min_max_performance, get_base_line_min_max
 from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query
-from utils import get_nearest_stations, get_timezone, get_utc_dates
+from utils import get_nearest_stations, get_timezone, generate_blob_name, save_file_to_blob,get_utc_dates
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
-from datetime import datetime, timedelta
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -222,13 +221,13 @@ def get_sufficiency():
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
     except ValueError:
         return jsonify({"error": "Invalid date format. Use YYYY-MM-DD"}), 400
-        
+
     hourly_query = sufficiencies_hourly
     daily_query = sufficiency_daily
     monthly_query = sufficiencies_monthly
 
-    IVids = ""    
-    if len(IVs) > 0 :        
+    IVids = ""
+    if len(IVs) > 0:
         hourly_query = IV_sufficiencies_hourly
         daily_query = IV_sufficiency_daily
         monthly_query = IV_sufficiencies_monthly
@@ -237,7 +236,8 @@ def get_sufficiency():
     # Modify the query with the provided parameters
     sufficiencies_hourly_query = hourly_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
     sufficiency_daily_query = daily_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
-    sufficiencies_monthly_query = monthly_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id, IVids=IVids)
+    sufficiencies_monthly_query = monthly_query.format(start_date=s_d, end_date=e_d, facility_id=facility_id,
+                                                       IVids=IVids)
     sufficiencies_hourly_df = dbtest(sufficiencies_hourly_query)
     sufficiency_daily_df = dbtest(sufficiency_daily_query)
     sufficiencies_monthly_df = dbtest(sufficiencies_monthly_query)
@@ -1022,6 +1022,35 @@ def get_independent_variable():
                'id': iv_data_dict['id'][i]}
               for i in range(len(iv_data_dict['id']))]
     return jsonify(result), 200
+
+
+@app.route('/get-performance-baseline-cal', methods=['GET'])
+def get_performance_baseline_cal():
+    facility = int(request.args.get('facility_id')) if request.args.get('facility_id') else None
+    interface = int(request.args.get('interface')) if request.args.get('interface') else None
+    user = int(request.args.get('user')) if request.args.get('user') else None
+    coordinates = f"SELECT latitude, longitude FROM epp.facility WHERE id={facility}"
+    facility_lat_long = dbtest(coordinates)
+    latitude = facility_lat_long.loc[0, 'latitude']
+    longitude = facility_lat_long.loc[0, 'longitude']
+    time_zone = get_timezone(latitude, longitude)
+    columns = ['start_date', 'end_date', 'observed', 'predicted', 'temperature']
+    if interface == 4:
+        query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+    elif interface == 5:
+        query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility)
+    else:
+        columns.append('source')
+        query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility)
+    df = dbtest(query)
+    print(df.columns)
+    df = df[columns]
+    excel_buffer = io.BytesIO()
+    df.to_excel(excel_buffer, index=False)
+    excel_buffer.seek(0)
+    blob_name = generate_blob_name(extension='xlsx')
+    file_path = save_file_to_blob(blob_name, excel_buffer)
+    return {'file_path': file_path}
 
 
 if __name__ == '__main__':
