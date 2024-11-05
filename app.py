@@ -1106,7 +1106,7 @@ def get_export_status():
 def mark_notification_notification_as_read():
     record_id = int(request.json.get('record_id')) if request.json.get('record_id') else None
     file_path = request.json.get('file_path')
-    if not record_id or file_path:
+    if not (record_id or file_path):
         return jsonify({'success': False, 'error': 'Please Provide Records ID or File Path'}), 400
     # ToDo Remove File from blob storage
     return jsonify({'success': True, 'message': 'Marked as Read'}), 200
