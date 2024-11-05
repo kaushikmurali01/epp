@@ -1109,6 +1109,7 @@ def mark_notification_notification_as_read():
     if not (record_id or file_path):
         return jsonify({'success': False, 'error': 'Please Provide Records ID or File Path'}), 400
     # ToDo Remove File from blob storage
+    execute_query(f"DELETE FROM epp.export WHERE id={record_id}")
     return jsonify({'success': True, 'message': 'Marked as Read'}), 200
 
 
