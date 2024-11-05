@@ -194,9 +194,12 @@ class DataUploader(BaseDataUploader):
             df[col] = pd.to_datetime(df[col], errors='coerce').dt.round('min')
         return df
 
-    def process_chunk(self, chunk_data, header):
+    def process_chunk(self, chunk_data, header, chunk_df=False):
         try:
-            df = pd.DataFrame(chunk_data, columns=header)
+            if chunk_df:
+                df = chunk_data
+            else:
+                df = pd.DataFrame(chunk_data, columns=header)
             df = df[[self.start, self.end, self.reading]]
             df = self.data_cleaning(df)
             validated_df = self.validator.validate_chunk(df)
