@@ -287,7 +287,7 @@ observed_data_detail = "WITH quartiles AS (SELECT percentile_cont(0.25) WITHIN G
 # missing_data_detail = "SELECT e.start_date, e.end_date, e.reading FROM meter_hourly_entries AS e WHERE e.reading IN (0, 'NaN') AND e.meter_type = 3 AND e.facility_id = 336 AND e.is_independent_variable = False;"
 missing_data_detail = "SELECT e.start_date, e.end_date, e.reading FROM epp.meter_hourly_entries AS e WHERE e.reading IN (0, 'NaN') AND e.meter_type = {} AND e.facility_id = {} AND e.is_independent_variable = {};"
 
-OUTLIER_SETTINGS = """
+OUTLIER_SETTING = """
 WITH MeterReadings AS (
     SELECT 
         mhe.meter_id,
