@@ -12,7 +12,8 @@ from components.add_file_data_to_table import AddMeterData
 
 from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
-from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, PERFORMANCE_OBSERVED_PREDICTED, COMBINED
+from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, PERFORMANCE_OBSERVED_PREDICTED, COMBINED, \
+    P4P_DATES, PERFORMANCE_OBSERVED_PREDICTED_P4P
 from sql_queries.data_cleaning import get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
@@ -578,6 +579,7 @@ def get_outlier_settings():
     get_station_id = get_nearest_stations(facility_id)
     station_ids = tuple(get_station_id['station_id'].tolist())
     hourly_entries = OUTLIER_SETTING.format(facility_id, facility_id, station_ids)
+
     information = dbtest(hourly_entries)
     information = information.dropna(subset=['first_quartile'])
     if len(information):
@@ -1033,6 +1035,7 @@ def get_performance_baseline_cal():
     interface = int(request.args.get('interface')) if request.args.get('interface') else None
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
+    p4p_period = int(request.args.get('p4p_period')) if request.args.get('p4p_period') else 0
     meter_type = int(request.args.get('meter_type')) if request.args.get('meter_type') else None
     user = int(request.args.get('user')) if request.args.get('user') else None
     export = request.args.get('export')
@@ -1049,7 +1052,15 @@ def get_performance_baseline_cal():
     if interface == 4:
         query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
     elif interface == 5:
-        query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
+        if p4p_period == 0:
+            query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
+        else:
+            p4p_dates = dbtest(P4P_DATES.format(facility))
+            flat_values = p4p_dates.iloc[0].to_dict()
+            start_date, end_date = flat_values.get(f'p{p4p_period}_start'), flat_values.get(f'p{p4p_period}_end')
+            start_date = start_date.strftime('%Y-%m-%d')
+            end_date = end_date.strftime('%Y-%m-%d')
+            query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(time_zone, time_zone, facility, meter_type, time_zone, start_date, end_date)
     else:
         columns.append('source')
         query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility, meter_type)
