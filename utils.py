@@ -26,7 +26,7 @@ def generate_blob_name(extension="xlsx"):
 def save_file_to_blob(blob_name, file):
     try:
         # Initialize the BlobServiceClient
-        from azure.storage.blob import BlobServiceClient  # Make sure to import BlobServiceClient
+        from azure.storage.blob import BlobServiceClient
 
         blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
         container_client = blob_service_client.get_container_client(CONTAINER_NAME)
@@ -146,3 +146,22 @@ def get_paginated_data(df, page_size, page_no):
     start = (page_no - 1) * page_size
     end = page_no * page_size
     return df.iloc[start:end]
+
+
+def delete_blob(blob_name):
+    from azure.storage.blob import BlobServiceClient
+    try:
+        # Initialize the BlobServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
+
+        # Get a client to interact with the specified container
+        container_client = blob_service_client.get_container_client(CONTAINER_NAME)
+
+        # Get a client to interact with the specified blob
+        blob_client = container_client.get_blob_client(blob_name)
+
+        # Delete the blob
+        blob_client.delete_blob()
+        print(f"Blob '{blob_name}' deleted successfully.")
+    except Exception as e:
+        print(f"Failed to delete blob: {e}")

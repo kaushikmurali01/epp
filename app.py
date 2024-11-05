@@ -1,4 +1,5 @@
 import json
+import time
 from _decimal import Decimal
 from threading import Thread
 
@@ -33,7 +34,7 @@ from summarize_data import summarize_data
 from fetch_data_from_hourly_api import fetch_and_combine_data_for_user_facilities, \
     fetch_and_combine_data_for_independent_variables
 from dbconnection import dbtest, execute_query, db_execute_single
-from utils import get_nearest_stations, get_timezone, get_utc_dates, export_data, get_paginated_data
+from utils import get_nearest_stations, get_timezone, get_utc_dates, export_data, get_paginated_data, delete_blob
 from visualization.data_exploration import DataExplorationVisualisation
 from visualization.visualize_line_graph import DataVisualizer
 from datetime import datetime
@@ -1110,20 +1111,22 @@ def mark_notification_notification_as_read():
         return jsonify({'success': False, 'error': 'Please Provide Records ID or File Path'}), 400
     # ToDo Remove File from blob storage
     execute_query(f"DELETE FROM epp.export WHERE id={record_id}")
+    blob_name = file_path.split('/')[-1]
+    time.sleep(5)
+    delete_blob(blob_name)
     return jsonify({'success': True, 'message': 'Marked as Read'}), 200
 
 
 @app.route('/get-unread-notifications', methods=['GET'])
 def get_unread_notifications():
     user_id = int(request.args.get('user_id')) if request.args.get('user_id') else None
-    facility_id = request.args.get('facility_id')
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
-    # query = f"SELECT * FROM epp.export WHERE created_by={user_id} and is_read=false"
-    if user_id:
-        query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
-    else:
-        query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE is_read=false and  status=1"
+    query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
+    # if user_id:
+    #     query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
+    # else:
+    #     query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE is_read=false and  status=1"
     notifications = dbtest(query)
     conditions = [notifications['interface'] == 1,
                   notifications['interface'] == 2,
