@@ -1119,7 +1119,7 @@ def mark_notification_notification_as_read():
 
 @app.route('/get-unread-notifications', methods=['GET'])
 def get_unread_notifications():
-    user_id = int(request.args.get('user_id')) if request.args.get('user') else None
+    user_id = int(request.args.get('user')) if request.args.get('user') else None
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
     query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
