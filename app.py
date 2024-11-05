@@ -1122,7 +1122,7 @@ def get_unread_notifications():
     if user_id:
         query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
     else:
-        query = f"SELECT ex.facility_id,, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE is_read=false and  status=1"
+        query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE is_read=false and  status=1"
     notifications = dbtest(query)
     conditions = [notifications['interface'] == 1,
                   notifications['interface'] == 2,
