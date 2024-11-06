@@ -1054,7 +1054,7 @@ def get_performance_baseline_cal():
         submitted_p4p = dbtest(GET_P4P_SUBMIT.format(facility, meter_type))
         p4p_1 = submitted_p4p[submitted_p4p['performance_type'] == 1]
         p4p_2 = submitted_p4p[submitted_p4p['performance_type'] == 2]
-        p4p_3 = submitted_p4p[submitted_p4p['performance_type'] == 2]
+        p4p_3 = submitted_p4p[submitted_p4p['performance_type'] == 3]
         if p4p_period == 1:
             if p4p_1.empty:
                 return {'count': 0, 'data':[]}
