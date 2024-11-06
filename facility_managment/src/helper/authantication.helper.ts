@@ -56,6 +56,6 @@ export async function decodeToken(req: HttpRequest, context: InvocationContext, 
         // Call the next function
         return user?.dataValues;
     } catch (error) {
-        return { status: 500, body: `${error.message}` };
+        return { status: 500, body: error };
     }
 }

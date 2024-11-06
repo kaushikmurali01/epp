@@ -6,7 +6,7 @@ export class EmailService {
   static async sendEmail(
     emailData: IEmailSentAttributes,
     decodedToken: any
-  ): Promise<IEmailSentAttributes> {
+  ): Promise<any> {
     try {
       // Send email
       await Email.send(
@@ -17,13 +17,15 @@ export class EmailService {
       );
 
       // Store email details in the database
-      const sentEmail = await EmailSent.create({
-        ...emailData,
-        created_by: decodedToken.id,
-        is_system_generated: emailData.is_system_generated || false,
-      });
-
-      return sentEmail.toJSON();
+      if (emailData?.facility_id) {
+        const sentEmail = await EmailSent.create({
+          ...emailData,
+          created_by: decodedToken.id,
+          is_system_generated: emailData.is_system_generated || false,
+        });
+        return sentEmail.toJSON();
+      }
+      return true
     } catch (error) {
       throw new Error(`Failed to send email: ${error.message}`);
     }

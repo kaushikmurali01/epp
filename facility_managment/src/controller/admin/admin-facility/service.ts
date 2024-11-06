@@ -1128,7 +1128,7 @@ WHERE
               companyDetails?.company_name
             );
             to = emails[0];
-            cc = [];
+            cc = Array.isArray(cc) ? cc.join(",") : "";
             await EmailService.sendEmail(
               {
                 to,
@@ -1234,7 +1234,31 @@ WHERE
           const result = await ParticipantAgreement.update(obj, {
             where: { company_id: companyId },
           });
-
+          let template: string, to, cc, subject;
+          let emails: any;
+          emails = await AdminFacilityService.forToAndCC(companyId, true);
+          subject = "SIGNED PARTICIPANT AGREEMENT ACKNOWLEDGMENT";
+          template =
+            await EnergyEmailTemplate.getSignedParticipantEmailTemplate();
+          template = template.replace(
+            "#company_name#",
+            companyDetails?.company_name
+          );
+          to = emails[0];
+          cc = Array.isArray(cc) ? cc.join(",") : "";
+          await EmailService.sendEmail(
+            {
+              to,
+              cc: cc,
+              subject,
+              body: template,
+              facility_id: null,
+              is_system_generated: true,
+              created_by: userToken.id,
+              id: null,
+            },
+            userToken
+          );
           // if (result) {
           //   const userDetails = await User.findOne({
           //     where: { id: userToken.id },
@@ -1305,17 +1329,17 @@ WHERE
           //   }
           // }
           // Log start
-      (async () => {
-        const input = {
-          "event": `PA is signed`,
-          "company_id": companyId,
-          "user_id": userToken.id,
-          "facility_id": 0,
-          "created_by":userToken.id
-          };
-         await CompanyLogsService.createCompanyLog(input);
-      })();
-    //Log end
+          (async () => {
+            const input = {
+              event: `PA is signed`,
+              company_id: companyId,
+              user_id: userToken.id,
+              facility_id: 0,
+              created_by: userToken.id,
+            };
+            await CompanyLogsService.createCompanyLog(input);
+          })();
+          //Log end
 
           const resp = ResponseHandler.getResponse(
             HTTP_STATUS_CODES.SUCCESS,

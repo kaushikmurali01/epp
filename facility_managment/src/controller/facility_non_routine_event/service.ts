@@ -156,6 +156,7 @@ export class FacilityNonRoutineEventSevice {
           where: {
             ...obj,
             facility_id,
+            is_active: true,
           },
           offset: body.offset || 0,
           limit: body.limit || 10,

@@ -868,6 +868,32 @@ ORDER BY
         let findFacility = await Facility.findOne({
           where: { id: facility_id },
         });
+        if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
+          let allCalculationsVerified = Object.values(body.data).every(
+            (status) => status === "Verified"
+          );
+          let email_templates =
+            await EmailTemplateController.getEmailDynamicTemplate(
+              userToken,
+              facility_id,
+              "First_Saving_Report"
+            );
+          await EmailService.sendEmail(
+            {
+              to: email_templates.to,
+              cc: Array.isArray(email_templates.cc)
+                ? email_templates.cc.join(",")
+                : "",
+              subject: email_templates.subject,
+              body: email_templates.body,
+              facility_id: facility_id,
+              is_system_generated: true,
+              created_by: userToken.id,
+              id: null,
+            },
+            userToken
+          );
+        }
         (async () => {
           const input = {
             event: `Performance Updated for ${Number(
@@ -1032,15 +1058,18 @@ ORDER BY
         );
         let email_templates =
           await EmailTemplateController.getEmailDynamicTemplate(
+            userToken,
             findBaseline.facility_id,
             "Send_Acknowledgement"
           );
         await EmailService.sendEmail(
           {
-            to:email_templates.to,
-            cc:email_templates.cc,
-            subject:email_templates.subject,
-            body: email_templates.template,
+            to: email_templates.to,
+            cc: Array.isArray(email_templates.cc)
+            ? email_templates.cc.join(",")
+            : "",
+            subject: email_templates.subject,
+            body: email_templates.body,
             facility_id: findBaseline.facility_id,
             is_system_generated: true,
             created_by: userToken.id,
@@ -1068,18 +1097,18 @@ ORDER BY
           },
           { where: { id: findBaseline.facility_id } }
         );
-        (async () => {
-          const input = {
-            event: `Baseline Reject`,
-            company_id: findFacility.company_id,
-            user_id: userToken.id,
-            event_id: id,
-            event_type: "Baseline",
-            facility_id: findBaseline.facility_id,
-            created_by: userToken.id,
-          };
-          await CompanyLogsService.createCompanyLog(input);
-        })();
+        // (async () => {
+        //   const input = {
+        //     event: `Baseline Reject`,
+        //     company_id: findFacility.company_id,
+        //     user_id: userToken.id,
+        //     event_id: id,
+        //     event_type: "Baseline",
+        //     facility_id: findBaseline.facility_id,
+        //     created_by: userToken.id,
+        //   };
+        //   await CompanyLogsService.createCompanyLog(input);
+        // })();
       }
       const result = await Baseline.update(obj, { where: { id } });
       return ResponseHandler.getResponse(
@@ -1105,6 +1134,7 @@ ORDER BY
       let findFacility = await Facility.findOne({
         where: { id: findBaseline.facility_id },
       });
+
       (async () => {
         const input = {
           event: `Baseline Accepted/Rejcted`,

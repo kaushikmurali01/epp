@@ -31,6 +31,7 @@ import {
 import { object } from "yup";
 import { AdminFacilityService } from "../controller/admin/admin-facility/service";
 import { CompanyLogsService } from "../controller/facility_logs/service";
+import { EmailService } from "../controller/sentEmail/service";
 
 // Facility User CRUD
 
@@ -1040,8 +1041,9 @@ export async function submitRejectBaseline(
     // Return success response
     return { body: responseBody };
   } catch (error) {
+    console.log(error, "error");
     // Return error response
-    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
+    return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: error };
   }
 }
 export async function acceptRejectBaseline(
@@ -2547,7 +2549,7 @@ export async function adminEditPaById(
   let decodedToken = null;
   try {
     // Fetch values from decoded token
-     decodedToken = await decodeToken(request, context, async () =>
+    decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
 
@@ -2564,20 +2566,19 @@ export async function adminEditPaById(
     // Return success response
     return { body: responseBody };
   } catch (error) {
-
-  // Log start
+    // Log start
     (async () => {
       const input = {
-        "event": `Unable to sign pa due to some error`,
-        "company_id":decodedToken?.company_id,
-        "user_id": decodedToken?.id,
-        "facility_id": 0,
-        "created_by":decodedToken?.id,
-        "error": error.message
-        };
-    await CompanyLogsService.createCompanyLog(input);
+        event: `Unable to sign pa due to some error`,
+        company_id: decodedToken?.company_id,
+        user_id: decodedToken?.id,
+        facility_id: 0,
+        created_by: decodedToken?.id,
+        error: error.message,
+      };
+      await CompanyLogsService.createCompanyLog(input);
     })();
-  // Log end
+    // Log end
 
     // Return error response
     return { status: HTTP_STATUS_CODES.BAD_REQUEST, body: `${error.message}` };
@@ -2726,9 +2727,14 @@ export async function getEmailDynamicTemplate(
   context: InvocationContext
 ): Promise<HttpResponseInit> {
   try {
+    const decodedToken = await decodeToken(request, context, async () =>
+      Promise.resolve({})
+    );
+    console.log(decodedToken, "Ssss");
     const facilityId = Number(request.params.facilityId);
     const template_name = request.query.get("template_name");
     const result = await EmailTemplateController.getEmailDynamicTemplate(
+      Object(decodedToken),
       facilityId,
       template_name
     );
@@ -2818,7 +2824,27 @@ export async function upsertIncentiveSettings(
         facility_id_submission_status:
           FACILITY_ID_SUBMISSION_STATUS.APPLICATION_APPROVED,
       },
-      { where: { id: facilityId } }
+      { where: { id: facility_id } }
+    );
+    let email_templates = await EmailTemplateController.getEmailDynamicTemplate(
+      decodedToken,
+      facility_id,
+      "Notice_Of_Approval"
+    );
+    await EmailService.sendEmail(
+      {
+        to: email_templates.to,
+        cc: Array.isArray(email_templates.cc)
+          ? email_templates.cc.join(",")
+          : "",
+        subject: email_templates.subject,
+        body: email_templates.body,
+        facility_id: facility_id,
+        is_system_generated: true,
+        created_by: decodedToken.id,
+        id: null,
+      },
+      decodedToken
     );
     return { body: JSON.stringify(result) };
   } catch (error) {
@@ -3054,6 +3080,14 @@ export async function deleteContact(
     };
   }
 }
+export async function cronJobFunction() {
+  try {
+    await EmailTemplateController.sendEmailFromCron();
+    console.log("cron job run");
+  } catch (error) {
+    console.log(error);
+  }
+}
 export async function getContactSuggestions(
   request: HttpRequest,
   context: InvocationContext
@@ -3080,7 +3114,10 @@ export async function getContactSuggestions(
     };
   }
 }
-
+app.timer("workflow-schedule", {
+  schedule: "0 30 3 * * *",
+  handler: cronJobFunction,
+});
 app.http("get-contact-suggestions", {
   methods: ["GET"],
   authLevel: "anonymous",

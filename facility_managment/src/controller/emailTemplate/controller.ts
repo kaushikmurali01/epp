@@ -11,6 +11,9 @@ import { IncentiveSettings } from "../../models/incentiveSettings.model";
 import { Baseline } from "../../models/facility_baseline.model";
 import { FACILITY_METER_TYPE } from "../../utils/facility-status";
 import { User } from "../../models/user.model";
+import { IIncentiveSettingsAttributes } from "../../interfaces/incentiveSettings.interface";
+import { Op } from "sequelize";
+import { EmailService } from "../sentEmail/service";
 export class EmailTemplateController {
   static async createEmailTemplate(
     data: Partial<IEmailTemplateAttributes>,
@@ -43,6 +46,175 @@ export class EmailTemplateController {
     return null;
   }
 
+  static async sendEmailFromCron(): Promise<IIncentiveSettingsAttributes[]> {
+    const findP4pEndDate1 = await IncentiveSettings.findAll({
+      where: {
+        p4pEndDate1: {
+          [Op.eq]: moment().format("YYYY-MM-DD"),
+        },
+      },
+    });
+    const findP4pEndDate2 = await IncentiveSettings.findAll({
+      where: {
+        p4pEndDate2: {
+          [Op.eq]: moment().format("YYYY-MM-DD"),
+        },
+      },
+    });
+    const findP4pEndDate3 = await IncentiveSettings.findAll({
+      where: {
+        p4pEndDate3: {
+          [Op.eq]: moment().format("YYYY-MM-DD"),
+        },
+      },
+    });
+
+    for (let i = 0; i < findP4pEndDate1.length; i++) {
+      let template: string, to, cc, subject;
+      let emails: any;
+      let findFacility = await Facility.findOne({
+        where: { id: findP4pEndDate1[i].facility_id },
+      });
+      emails = await AdminFacilityService.forToAndCC(
+        findP4pEndDate1[i].facility_id,
+        false
+      );
+      subject = "SAVINGS SUBMISSION REMINDER – 30 DAYS";
+      template = await EnergyEmailTemplate.savingSubmmissionReminder30Days();
+      template = template
+        .replace(
+          "#facility_address#",
+          `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+        )
+        .replace("#facility_identifier#", findFacility.facility_ubi)
+        .replace(
+          "#from_date#",
+          moment(findP4pEndDate1[i]?.p4pStartDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#to_date#",
+          moment(findP4pEndDate1[i]?.p4pEndDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#deadline#",
+          moment(findP4pEndDate1[i]?.p4pEndDate1)
+            .add(1, "M")
+            .format("MMMM D, YYYY")
+        );
+      to = emails[0];
+      cc = Array.isArray(cc) ? cc.join(",") : "";
+      await EmailService.sendEmail(
+        {
+          to,
+          cc,
+          subject,
+          body: template,
+          facility_id: null,
+          is_system_generated: true,
+          created_by: findP4pEndDate1[i].created_by,
+          id: null,
+        },
+        { id: findP4pEndDate1[i].created_by }
+      );
+    }
+    for (let i = 0; i < findP4pEndDate2.length; i++) {
+      let template: string, to, cc, subject;
+      let emails: any;
+      let findFacility = await Facility.findOne({
+        where: { id: findP4pEndDate2[i].facility_id },
+      });
+      emails = await AdminFacilityService.forToAndCC(
+        findP4pEndDate2[i].facility_id,
+        false
+      );
+      subject = "SAVINGS SUBMISSION REMINDER – 30 DAYS";
+      template = await EnergyEmailTemplate.savingSubmmissionReminder30Days();
+      template = template
+        .replace(
+          "#facility_address#",
+          `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+        )
+        .replace("#facility_identifier#", findFacility.facility_ubi)
+        .replace(
+          "#from_date#",
+          moment(findP4pEndDate2[i]?.p4pStartDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#to_date#",
+          moment(findP4pEndDate2[i]?.p4pEndDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#deadline#",
+          moment(findP4pEndDate2[i]?.p4pEndDate1)
+            .add(1, "M")
+            .format("MMMM D, YYYY")
+        );
+      to = emails[0];
+      cc = Array.isArray(cc) ? cc.join(",") : "";
+      await EmailService.sendEmail(
+        {
+          to,
+          cc,
+          subject,
+          body: template,
+          facility_id: null,
+          is_system_generated: true,
+          created_by: findP4pEndDate2[i].created_by,
+          id: null,
+        },
+        { id: findP4pEndDate2[i].created_by }
+      );
+    }
+    for (let i = 0; i < findP4pEndDate3.length; i++) {
+      let template: string, to, cc, subject;
+      let emails: any;
+      let findFacility = await Facility.findOne({
+        where: { id: findP4pEndDate3[i].facility_id },
+      });
+      emails = await AdminFacilityService.forToAndCC(
+        findP4pEndDate3[i].facility_id,
+        false
+      );
+      subject = "SAVINGS SUBMISSION REMINDER – 30 DAYS";
+      template = await EnergyEmailTemplate.savingSubmmissionReminder30Days();
+      template = template
+        .replace(
+          "#facility_address#",
+          `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+        )
+        .replace("#facility_identifier#", findFacility.facility_ubi)
+        .replace(
+          "#from_date#",
+          moment(findP4pEndDate3[i]?.p4pStartDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#to_date#",
+          moment(findP4pEndDate3[i]?.p4pEndDate1).format("MMMM D, YYYY")
+        )
+        .replace(
+          "#deadline#",
+          moment(findP4pEndDate3[i]?.p4pEndDate1)
+            .add(1, "M")
+            .format("MMMM D, YYYY")
+        );
+      to = emails[0];
+      cc = Array.isArray(cc) ? cc.join(",") : "";
+      await EmailService.sendEmail(
+        {
+          to,
+          cc,
+          subject,
+          body: template,
+          facility_id: null,
+          is_system_generated: true,
+          created_by: findP4pEndDate2[i].created_by,
+          id: null,
+        },
+        { id: findP4pEndDate2[i].created_by }
+      );
+    }
+    return findP4pEndDate1;
+  }
   static async deleteEmailTemplate(id: number): Promise<boolean> {
     const deleted = await EmailTemplate.destroy({ where: { id } });
     return deleted > 0;
@@ -115,6 +287,96 @@ export class EmailTemplateController {
         createdAt: "2024-10-17T06:51:41.084Z",
         updatedAt: "2024-10-17T06:51:41.084Z",
       },
+      {
+        id: null,
+        facility_id: null,
+        name: "Information Request",
+        temp_name: "SAVINGS_SUBMISSION_INFORMATION_REQUEST",
+        subject: "SAVINGS SUBMISSION INFORMATION REQUEST",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
+      {
+        id: null,
+        facility_id: null,
+        name: "P4P Data Submission by User",
+        temp_name: "SAVINGS_SUBMISSION_ACKNOWLEDGMENT",
+        subject: "SAVINGS SUBMISSION ACKNOWLEDGMENT",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
+      {
+        id: null,
+        facility_id: null,
+        name: "Application Rejected by Enerva",
+        temp_name: "APPLICATION_NOT_APPROVED",
+        subject: "APPLICATION NOT APPROVED",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
+      {
+        id: null,
+        facility_id: null,
+        name: "Baseline Model Rejected by Enerva",
+        temp_name: "APPLICATION_INFORMATION_REQUEST",
+        subject: "APPLICATION INFORMATION REQUEST",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
+      {
+        id: null,
+        facility_id: null,
+        name: "Saving Submission Reminder 30 days",
+        temp_name: "SAVINGS_SUBMISSION_REMINDER_30_DAYS",
+        subject: "SAVINGS SUBMISSION REMINDER – 30 DAYS",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
+      {
+        id: null,
+        facility_id: null,
+        name: "Saving Submission Reminder",
+        temp_name: "SAVINGS_SUBMISSION_REMINDER",
+        subject: "SAVINGS SUBMISSION REMINDER",
+        body: "",
+        is_user_added: true,
+        created_at: "2024-10-17T06:51:41.084Z",
+        updated_at: "2024-10-17T06:51:41.084Z",
+        created_by: null,
+        updated_by: null,
+        createdAt: "2024-10-17T06:51:41.084Z",
+        updatedAt: "2024-10-17T06:51:41.084Z",
+      },
     ];
     templates.map((template) => template.toJSON());
     return [...is_added, ...templates];
@@ -133,6 +395,7 @@ export class EmailTemplateController {
     }));
   }
   static async getEmailDynamicTemplate(
+    userToken: any,
     facilityId: number,
     template_name: string
   ): Promise<any> {
@@ -141,6 +404,11 @@ export class EmailTemplateController {
     const companyDetails = await Company.findOne({
       where: { id: findFacility?.company_id || 1 },
     });
+    let findUsers = await User.findOne({ where: { id: userToken.id } });
+    let findIncentiveSettings = await IncentiveSettings.findOne({
+      where: { facility_id: facilityId },
+    });
+    let findEmail;
     let emails: any;
     switch (template_name) {
       case "Signed_Participants":
@@ -169,6 +437,120 @@ export class EmailTemplateController {
             `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
           )
           .replace("#facility_identifier#", findFacility.facility_ubi);
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "SAVINGS_SUBMISSION_INFORMATION_REQUEST":
+        subject = "SAVINGS SUBMISSION INFORMATION REQUEST";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.subbmissionInfoRequest();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
+          .replace("#facility_name#", findFacility.facility_name)
+          .replace("#first_name#", findUsers.first_name)
+          .replace("#last_name#", findUsers.last_name)
+          .replace("#email#", findUsers.email);
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "SAVINGS_SUBMISSION_ACKNOWLEDGMENT":
+        subject = "SAVINGS SUBMISSION ACKNOWLEDGMENT";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.submissionAcknowledge();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi);
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "APPLICATION_NOT_APPROVED":
+        subject = "APPLICATION NOT APPROVED";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.applicationNotApproved();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
+          .replace("#first_name#", findUsers.first_name);
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "APPLICATION_INFORMATION_REQUEST":
+        subject = "APPLICATION INFORMATION REQUEST";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.applicationInfoRequest();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
+          .replace("#first_name#", findUsers.first_name)
+          .replace("#last_name#", findUsers.last_name)
+          .replace("#email#", findUsers.email);
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "SAVINGS_SUBMISSION_REMINDER":
+        subject = "SAVINGS SUBMISSION REMINDER";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.savingSubmmissionReminder();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
+          .replace(
+            "#from_date#",
+            moment(findIncentiveSettings?.p4pStartDate1).format("MMMM D, YYYY")
+          )
+          .replace(
+            "#to_date#",
+            moment(findIncentiveSettings?.p4pEndDate1).format("MMMM D, YYYY")
+          )
+          .replace(
+            "#deadline#",
+            moment(findIncentiveSettings?.p4pEndDate1)
+              .add(1, "M")
+              .format("MMMM D, YYYY")
+          );
+        to = emails[0];
+        cc = emails[1];
+        break;
+      case "SAVINGS_SUBMISSION_REMINDER_30_DAYS":
+        subject = "SAVINGS SUBMISSION REMINDER – 30 DAYS";
+        emails = await AdminFacilityService.forToAndCC(facilityId, false);
+        template = await EnergyEmailTemplate.savingSubmmissionReminder30Days();
+        template = template
+          .replace(
+            "#facility_address#",
+            `${findFacility.street_number},${findFacility.street_name},${findFacility.city},${findFacility.country},${findFacility.postal_code}`
+          )
+          .replace("#facility_identifier#", findFacility.facility_ubi)
+          .replace(
+            "#from_date#",
+            moment(findIncentiveSettings?.p4pStartDate1).format("MMMM D, YYYY")
+          )
+          .replace(
+            "#to_date#",
+            moment(findIncentiveSettings?.p4pEndDate1).format("MMMM D, YYYY")
+          )
+          .replace(
+            "#deadline#",
+            moment(findIncentiveSettings?.p4pEndDate1)
+              .add(1, "M")
+              .format("MMMM D, YYYY")
+          );
         to = emails[0];
         cc = emails[1];
         break;
@@ -278,15 +660,15 @@ export class EmailTemplateController {
           .replace("#year#", moment().format("YYYY"))
           .replace(
             "#Month#",
-            moment(baselineData?.parameter_data?.end_date).format("MMMM")
+            moment(findIncentiveSettings?.p4pEndDate1).format("MMMM")
           )
           .replace(
             "#Day#",
-            moment(baselineData?.parameter_data?.end_date).format("D")
+            moment(findIncentiveSettings?.p4pEndDate1).format("D")
           )
           .replace(
             "#Year#",
-            moment(baselineData?.parameter_data?.end_date).format("YYYY")
+            moment(findIncentiveSettings?.p4pEndDate1).format("YYYY")
           )
           .replace(
             "#baseline_start_date#",
@@ -298,7 +680,7 @@ export class EmailTemplateController {
           )
           .replace(
             "#baseline_energy_consumption#",
-            baselineData.baseline_energy_consumption || 0
+            `${baselineData.baseline_energy_consumption}Kwh` || `0Kwh`
           )
           .replace("#participant_first_name#", findUser.first_name)
           .replace(
