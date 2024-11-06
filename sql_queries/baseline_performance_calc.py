@@ -89,7 +89,27 @@ SELECT
     (value->>'temperature')::float AS temperature
 FROM epp.scoring_data_output,
      jsonb_array_elements(scoring_data::jsonb) as value
-WHERE facility_id = {} and meter_type={} and to_timestamp((value->>'Timestamp')::bigint / 1000) AT TIME ZONE '{}' BETWEEN '{}' AND '{}';
+WHERE facility_id = {} 
+      and meter_type={}
+          AND to_timestamp((value->>'Timestamp')::bigint / 1000) BETWEEN '{}' AND '{}';
+
+
+
+SELECT 
+    facility_id,
+    (value->>'observed')::float AS observed,
+    to_timestamp((value->>'Timestamp')::bigint / 1000) AS start_date,
+    to_timestamp((value->>'Timestamp')::bigint / 1000) + interval '1 hour' AS end_date,
+    (value->>'predicted')::float AS predicted,
+    (value->>'temperature')::float AS temperature
+FROM 
+    epp.scoring_data_output,
+    jsonb_array_elements(scoring_data::jsonb) AS value
+WHERE 
+    facility_id = 506 
+    AND meter_type = 1 
+    AND to_timestamp((value->>'Timestamp')::bigint / 1000) BETWEEN '2021-03-23' AND '2022-03-22';
+
 """
 
 COMBINED = """

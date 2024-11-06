@@ -1050,20 +1050,20 @@ def get_performance_baseline_cal():
                         'error': 'Either if the 3 required fields are Missing. Facility or Meter Type or User'}), 400
     columns = ['start_date', 'end_date', 'observed', 'predicted', 'temperature']
     if interface == 4:
-        query = BASELINE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
+        query = BASELINE_OBSERVED_PREDICTED.format(facility, meter_type)
     elif interface == 5:
         if p4p_period == 0:
-            query = PERFORMANCE_OBSERVED_PREDICTED.format(time_zone, time_zone, facility, meter_type)
+            query = PERFORMANCE_OBSERVED_PREDICTED.format(facility, meter_type)
         else:
             p4p_dates = dbtest(P4P_DATES.format(facility))
             flat_values = p4p_dates.iloc[0].to_dict()
             start_date, end_date = flat_values.get(f'p{p4p_period}_start'), flat_values.get(f'p{p4p_period}_end')
             start_date = start_date.strftime('%Y-%m-%d')
             end_date = end_date.strftime('%Y-%m-%d')
-            query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(time_zone, time_zone, facility, meter_type, time_zone, start_date, end_date)
+            query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
     else:
         columns.append('source')
-        query = COMBINED.format(time_zone, time_zone, facility, time_zone, time_zone, facility, meter_type)
+        query = COMBINED.format(facility, facility, meter_type)
     df = dbtest(query)
     df = df[columns]
     total_count = len(df)
