@@ -1183,10 +1183,9 @@ def get_unread_notifications():
     notifications.loc[notifications['p4p'] == 1.0, 'message'] = 'P4P 1 Performance report'
     notifications.loc[notifications['p4p'] == 2.0, 'message'] = 'P4P 2 Performance report'
     notifications.loc[notifications['p4p'] == 3.0, 'message'] = 'P4P 3 Performance report'
-
     total_count = len(notifications)
     df = get_paginated_data(notifications, page_size, page_no)
-
+    df.drop('p4p', axis=1, inplace=True)
     return {'count': total_count, 'data': df.to_dict(orient='records')}
     # interface_choices = [value for key, value in EXPORT_MESSAGE]
     # notifications['message'] = np.select(conditions, interface_choices, default='NA')
