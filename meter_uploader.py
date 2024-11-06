@@ -164,15 +164,50 @@ class DataUploader(BaseDataUploader):
                 missing_columns = True
                 invalid_sheets.append(sheet.title)
                 continue
-            if not invalid_sheets:
-                data = rows[1:]
-                sheets_data.append((header, data))
+
+            # Convert rows to DataFrame, filter out rows with all null values
+            df = pd.DataFrame(rows[1:], columns=header)  # Exclude header row
+            df.dropna(how='all', inplace=True)  # Remove rows where all values are null
+
+            if not df.empty:
+                sheets_data.append((header, df))
 
         wb.close()
         if missing_columns:
             raise ValueError("Required Columns are missing in Sheet(s):{}".format(','.join(invalid_sheets)))
 
         return sheets_data
+
+    # def read_excel_sheets(self, file):
+    #     required_columns = [self.start, self.end, self.reading]
+    #     excel_io = io.BytesIO(file.read())
+    #     wb = openpyxl.load_workbook(excel_io, read_only=True)
+    #     sheets_data = []
+    #     invalid_sheets = []
+    #     missing_columns = False
+    #
+    #     for sheet in wb.worksheets:
+    #         if sheet.sheet_state != 'visible':
+    #             continue
+    #
+    #         rows = list(sheet.iter_rows(values_only=True))
+    #         if not rows:
+    #             continue
+    #
+    #         header = rows[0]
+    #         if not all(col in header for col in required_columns):
+    #             missing_columns = True
+    #             invalid_sheets.append(sheet.title)
+    #             continue
+    #         if not invalid_sheets:
+    #             data = rows[1:]
+    #             sheets_data.append((header, data))
+    #
+    #     wb.close()
+    #     if missing_columns:
+    #         raise ValueError("Required Columns are missing in Sheet(s):{}".format(','.join(invalid_sheets)))
+    #
+    #     return sheets_data
 
     def data_cleaning(self, df):
         df = df[self.required_columns]
