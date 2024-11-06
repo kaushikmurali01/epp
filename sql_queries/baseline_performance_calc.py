@@ -2,8 +2,8 @@ BASELINE_OBSERVED_PREDICTED = """
 SELECT 
     facility_id,
     (value->>'observed')::float as observed,
-    to_timestamp((value->>'Timestamp')::bigint/1000) AT TIME ZONE '{}' AS start_date,
-    (to_timestamp((value->>'Timestamp')::bigint/1000) AT TIME ZONE '{}' + interval '1 hour') as end_date,
+    to_timestamp((value->>'Timestamp')::bigint / 1000) AS start_date,
+    to_timestamp((value->>'Timestamp')::bigint / 1000) + interval '1 hour' AS end_date,
     (value->>'predicted')::float as predicted,
     (value->>'temperature')::float as temperature
 FROM epp.baseline_model_output_data,
