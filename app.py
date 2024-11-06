@@ -1057,16 +1057,20 @@ def get_performance_baseline_cal():
         p4p_3 = submitted_p4p[submitted_p4p['performance_type'] == 2]
         if p4p_period == 1:
             if p4p_1.empty:
-                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+                return {'count': 0, 'data':[]}
+                # return []#jsonify({'success': False, 'error': 'Data Not Found'}), 404
         elif p4p_period == 2:
             if p4p_2.empty:
-                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+                return {'count': 0, 'data': []}
+                # return []#jsonify({'success': False, 'error': 'Data Not Found'}), 404
         elif p4p_period == 3:
             if p4p_3.empty:
-                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+                return {'count': 0, 'data': []}
+                # return []#jsonify({'success': False, 'error': 'Data Not Found'}), 404
         else:
             if p4p_1.empty and p4p_2.empty and p4p_3.empty:
-                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+                return {'count': 0, 'data': []}
+                # return []#jsonify({'success': False, 'error': 'Data Not Found'}), 404
         p4p_dates = dbtest(P4P_DATES.format(facility))
         if p4p_period == 0:
             df = p4p_dates.copy()
