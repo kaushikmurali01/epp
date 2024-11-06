@@ -11,19 +11,6 @@ FROM epp.baseline_model_output_data,
 WHERE facility_id = {} and meter_type={} ORDER BY start_date;
 """
 
-PERFORMANCE_OBSERVED_PREDICTED = """
-SELECT 
-    facility_id,
-    (value->>'observed')::float AS observed,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) AS start_date,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) + interval '1 hour' AS end_date,
-    (value->>'predicted')::float AS predicted,
-    (value->>'temperature')::float AS temperature
-FROM epp.scoring_data_output,
-     jsonb_array_elements(scoring_data::jsonb) as value
-WHERE facility_id = {} and meter_type={} ORDER BY start_date;
-"""
-
 PERFORMANCE_OBSERVED_PREDICTED_P4P = """
 SELECT 
     facility_id,
@@ -39,31 +26,8 @@ WHERE facility_id = {}
           AND to_timestamp((value->>'Timestamp')::bigint / 1000)::date BETWEEN '{}' AND '{}';
 """
 
-COMBINED = """
-SELECT 
-    facility_id,
-    (value->>'observed')::float AS observed,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) AS start_date,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) + interval '1 hour' AS end_date,
-    (value->>'predicted')::float AS predicted,
-    (value->>'temperature')::float AS temperature
-FROM epp.baseline_model_output_data,
-     jsonb_array_elements(output_data::jsonb) as value
-WHERE facility_id = {} and meter_type={} ORDER BY start_date
-
-UNION ALL
-
-SELECT 
-    facility_id,
-    (value->>'observed')::float AS observed,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) AS start_date,
-    to_timestamp((value->>'Timestamp')::bigint / 1000) + interval '1 hour' AS end_date,
-    (value->>'predicted')::float AS predicted,
-    (value->>'temperature')::float AS temperature
-FROM epp.scoring_data_output,
-     jsonb_array_elements(scoring_data::jsonb) as value
-WHERE facility_id = {}
-ORDER BY start_date;
+GET_P4P_SUBMIT = """
+select * from epp.facility_save_performance where facility_id={} and meter_type = {}
 """
 
 P4P_DATES = """

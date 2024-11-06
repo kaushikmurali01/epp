@@ -12,8 +12,8 @@ from components.add_file_data_to_table import AddMeterData
 
 from green_button_uploader import GreenDataUploader
 from meter_uploader import DataUploader
-from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, PERFORMANCE_OBSERVED_PREDICTED, COMBINED, \
-    P4P_DATES, PERFORMANCE_OBSERVED_PREDICTED_P4P
+from sql_queries.baseline_performance_calc import BASELINE_OBSERVED_PREDICTED, \
+    P4P_DATES, PERFORMANCE_OBSERVED_PREDICTED_P4P, GET_P4P_SUBMIT
 from sql_queries.data_cleaning import get_data_cleaning_query
 from sql_queries.data_exploration_queries import OUTLIER_SETTING
 from sql_queries.graph import get_graph_query
@@ -1043,7 +1043,6 @@ def get_performance_baseline_cal():
     facility_lat_long = dbtest(coordinates)
     latitude = facility_lat_long.loc[0, 'latitude']
     longitude = facility_lat_long.loc[0, 'longitude']
-    time_zone = get_timezone(latitude, longitude)
     # if not (facility or meter_type or user):
     if not (facility or meter_type):
         return jsonify({'success': False,
@@ -1052,6 +1051,22 @@ def get_performance_baseline_cal():
     if interface == 4:
         query = BASELINE_OBSERVED_PREDICTED.format(facility, meter_type)
     elif interface == 5:
+        submitted_p4p = dbtest(GET_P4P_SUBMIT.format(facility, meter_type))
+        p4p_1 = submitted_p4p[submitted_p4p['performance_type'] == 1]
+        p4p_2 = submitted_p4p[submitted_p4p['performance_type'] == 2]
+        p4p_3 = submitted_p4p[submitted_p4p['performance_type'] == 2]
+        if p4p_period == 1:
+            if p4p_1.empty:
+                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+        elif p4p_period == 2:
+            if p4p_2.empty:
+                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+        elif p4p_period == 3:
+            if p4p_3.empty:
+                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
+        else:
+            if p4p_1.empty and p4p_2.empty and p4p_3.empty:
+                return jsonify({'success': False, 'error': 'Data Not Found'}), 404
         p4p_dates = dbtest(P4P_DATES.format(facility))
         if p4p_period == 0:
             df = p4p_dates.copy()
@@ -1062,11 +1077,7 @@ def get_performance_baseline_cal():
             last_end_date = df.filter(like='_end').max(axis=1).item()
             start_date = pd.to_datetime(first_start_date).strftime('%Y-%m-%d')
             end_date = pd.to_datetime(last_end_date).strftime('%Y-%m-%d')
-            # start_date = first_start_date.strftime('%Y-%m-%d')
-            # end_date = last_end_date.strftime('%Y-%m-%d')
 
-            # query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
-            # query = PERFORMANCE_OBSERVED_PREDICTED.format(facility, meter_type)
         else:
             p4p_dates = dbtest(P4P_DATES.format(facility))
             flat_values = p4p_dates.iloc[0].to_dict()
@@ -1075,9 +1086,6 @@ def get_performance_baseline_cal():
             end_date = end_date.strftime('%Y-%m-%d')
         query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
         print('\n\n\n\n', query, '\n\n\n\n')
-    else:
-        columns.append('source')
-        query = COMBINED.format(facility, facility, meter_type)
     df = dbtest(query)
     df = df[columns]
     total_count = len(df)
