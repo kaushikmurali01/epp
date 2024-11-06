@@ -1035,7 +1035,7 @@ def get_performance_baseline_cal():
     interface = int(request.args.get('interface')) if request.args.get('interface') else None
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
-    p4p_period = int(request.args.get('p4p_period')) if request.args.get('p4p_period') else 0
+    p4p_period = int(request.args.get('p4p_period', 0)) if request.args.get('p4p_period') else 0
     meter_type = int(request.args.get('meter_type')) if request.args.get('meter_type') else None
     user = int(request.args.get('user')) if request.args.get('user') else None
     export = request.args.get('export')
@@ -1057,7 +1057,7 @@ def get_performance_baseline_cal():
         p4p_3 = submitted_p4p[submitted_p4p['performance_type'] == 3]
         if p4p_period == 1:
             if p4p_1.empty:
-                return {'count': 0, 'data':[]}
+                return {'count': 0, 'data': []}
                 # return []#jsonify({'success': False, 'error': 'Data Not Found'}), 404
         elif p4p_period == 2:
             if p4p_2.empty:
@@ -1089,7 +1089,6 @@ def get_performance_baseline_cal():
             start_date = start_date.strftime('%Y-%m-%d')
             end_date = end_date.strftime('%Y-%m-%d')
         query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
-        print('\n\n\n\n', query, '\n\n\n\n')
     df = dbtest(query)
     df = df[columns]
     total_count = len(df)
@@ -1099,8 +1098,9 @@ def get_performance_baseline_cal():
     if export:
         if not user:
             return jsonify({'success': False, 'error': 'Please Provide User ID'}), 400
-        create_export_record = "INSERT INTO epp.export (created_by, interface, facility_id) VALUES (%s, %s, %s)"
-        record_id = db_execute_single(create_export_record, (user, interface, facility))
+
+        create_export_record = "INSERT INTO epp.export (created_by, interface, facility_id,p4p) VALUES (%s, %s, %s ,%s)"
+        record_id = db_execute_single(create_export_record, (user, interface, facility, p4p_period))
         thread = Thread(target=export_data, args=(df, record_id))
         thread.start()
         return jsonify({'success': True, 'message': 'File Export in Progress', 'record_id': record_id}), 200
@@ -1159,7 +1159,7 @@ def get_unread_notifications():
     user_id = int(request.args.get('user')) if request.args.get('user') else None
     page_size = int(request.args.get('page_size', 10))
     page_no = int(request.args.get('page_number', 1))
-    query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
+    query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name, ex.p4p FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id} order by id desc"
     # if user_id:
     #     query = f"SELECT ex.facility_id, ex.interface,ex.file_path, ex.id,fa.facility_name FROM epp.export as ex JOIN epp.facility as fa on ex.facility_id = fa.id WHERE ex.is_read=false  and ex.status=1 and ex.created_by={user_id}"
     # else:
@@ -1169,13 +1169,30 @@ def get_unread_notifications():
                   notifications['interface'] == 2,
                   notifications['interface'] == 3,
                   notifications['interface'] == 4,
-                  notifications['interface'] == 5
+                  notifications['interface'] == 5,
+
                   ]
+
     interface_choices = [value for key, value in EXPORT_MESSAGE]
     notifications['message'] = np.select(conditions, interface_choices, default='NA')
+    # notifications[notifications['p4p'] == 1.0].iloc['message'] = 'P4P 1 Performance report'
+    # notifications[notifications['p4p'] == 2.0].iloc['message'] = 'P4P 1 Performance report'
+    # notifications[notifications['p4p'] == 3.0].iloc['message'] = 'P4P 1 Performance report'
+
+    # Setting messages correctly according to the p4p value
+    notifications.loc[notifications['p4p'] == 1.0, 'message'] = 'P4P 1 Performance report'
+    notifications.loc[notifications['p4p'] == 2.0, 'message'] = 'P4P 2 Performance report'
+    notifications.loc[notifications['p4p'] == 3.0, 'message'] = 'P4P 3 Performance report'
+
     total_count = len(notifications)
     df = get_paginated_data(notifications, page_size, page_no)
+
     return {'count': total_count, 'data': df.to_dict(orient='records')}
+    # interface_choices = [value for key, value in EXPORT_MESSAGE]
+    # notifications['message'] = np.select(conditions, interface_choices, default='NA')
+    # total_count = len(notifications)
+    # df = get_paginated_data(notifications, page_size, page_no)
+    # return {'count': total_count, 'data': df.to_dict(orient='records')}
 
 
 if __name__ == '__main__':
