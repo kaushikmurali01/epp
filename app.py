@@ -1052,15 +1052,29 @@ def get_performance_baseline_cal():
     if interface == 4:
         query = BASELINE_OBSERVED_PREDICTED.format(facility, meter_type)
     elif interface == 5:
+        p4p_dates = dbtest(P4P_DATES.format(facility))
         if p4p_period == 0:
-            query = PERFORMANCE_OBSERVED_PREDICTED.format(facility, meter_type)
+            df = p4p_dates.copy()
+            for column in df.columns:
+                df[column] = pd.to_datetime(df[column], errors='coerce')
+            # Find the minimum of the start dates and maximum of the end dates
+            first_start_date = df.filter(like='_start').min(axis=1).item()
+            last_end_date = df.filter(like='_end').max(axis=1).item()
+            start_date = pd.to_datetime(first_start_date).strftime('%Y-%m-%d')
+            end_date = pd.to_datetime(last_end_date).strftime('%Y-%m-%d')
+            # start_date = first_start_date.strftime('%Y-%m-%d')
+            # end_date = last_end_date.strftime('%Y-%m-%d')
+
+            # query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
+            # query = PERFORMANCE_OBSERVED_PREDICTED.format(facility, meter_type)
         else:
             p4p_dates = dbtest(P4P_DATES.format(facility))
             flat_values = p4p_dates.iloc[0].to_dict()
             start_date, end_date = flat_values.get(f'p{p4p_period}_start'), flat_values.get(f'p{p4p_period}_end')
             start_date = start_date.strftime('%Y-%m-%d')
             end_date = end_date.strftime('%Y-%m-%d')
-            query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
+        query = PERFORMANCE_OBSERVED_PREDICTED_P4P.format(facility, meter_type, start_date, end_date)
+        print('\n\n\n\n', query, '\n\n\n\n')
     else:
         columns.append('source')
         query = COMBINED.format(facility, facility, meter_type)
