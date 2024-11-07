@@ -191,7 +191,7 @@ ORDER BY
     return query
 
 
-def get_outliers(facility_id, meter_type, start_date, end_date, factor=3):
+def get_outliers(facility_id, meter_type, factor=3):
     # GET_OUTLIERS = f"""SELECT
     #     PERCENTILE_CONT(0.25) WITHIN GROUP (ORDER BY reading) AS first_quartile,
     #     PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY reading) AS third_quartile,
@@ -214,7 +214,7 @@ def get_outliers(facility_id, meter_type, start_date, end_date, factor=3):
     FROM epp.meter_hourly_entries
     WHERE facility_id = {facility_id} 
     AND meter_type = {meter_type}
-	AND start_date::date between '{start_date}' and '{end_date}' 
+	AND start_date::date >= '2018-01-01'  
     GROUP BY facility_id, meter_id, DATE_TRUNC('hour', start_date)
 )
 SELECT

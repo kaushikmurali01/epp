@@ -28,11 +28,12 @@ def detect_outliers_iqr_new(df, column):
     # }
 
 def detect_outliers_iqr(df, column, facility_id, meter_type):
-    min_date, max_date = df['Date'].min(), df['Date'].max()
-    min_date = min_date.strftime('%Y-%m-%d %H:%M:%S')
-    max_date = max_date.strftime('%Y-%m-%d %H:%M:%S')
-
-    query = get_outliers(facility_id, meter_type, min_date, max_date, factor=3)
+    # min_date, max_date = df['Date'].min(), df['Date'].max()
+    # min_date = min_date.strftime('%Y-%m-%d %H:%M:%S')
+    # max_date = max_date.strftime('%Y-%m-%d %H:%M:%S')
+    # min_date = '2018-01-01'
+    query = get_outliers(facility_id, meter_type, factor=3)
+    # query = get_outliers(facility_id, meter_type, min_date, max_date, factor=3)
     outlier_df = dbtest(query)
     upper_bound, lower_bound = round(outlier_df['upper_bound'][0], 2), round(outlier_df['lower_bound'][0], 2)
     # Identify outliers
@@ -133,6 +134,7 @@ def clean_raw_data(dataframe, facility_id, meter_type):
                             columns='meter_name',
                             aggfunc='first',
                             )
+    print(new_df.shape)
     new_df_columns = new_df.columns
     temp_columns = ['Temp1', 'Temp2', 'Temp3']
     for col in temp_columns:
@@ -169,8 +171,11 @@ def clean_raw_data(dataframe, facility_id, meter_type):
     output_columns.extend([i for i in iv_columns])
     new_df = new_df.drop(new_df[new_df['EnergyConsumption'] < 1].index)
     # Apply the function to the EnergyConsumption column
-    outliers, lower_bound, upper_bound = detect_outliers_iqr_new(new_df, 'EnergyConsumption')
-    #outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', facility_id, meter_type)
+
+    #outliers, lower_bound, upper_bound = detect_outliers_iqr_new(new_df, 'EnergyConsumption')
+
+    outliers, lower_bound, upper_bound = detect_outliers_iqr(new_df, 'EnergyConsumption', facility_id, meter_type)
+    print(new_df.shape, 'Before Outliers', upper_bound, lower_bound)
     new_df = new_df[~new_df['Date'].isin(list(outliers.Date.values))]
     # new_df = new_df[(new_df['EnergyConsumption'] < upper_bound) & (new_df['EnergyConsumption'] > lower_bound)]
     output_col = ['Date', 'EnergyConsumption', 'Temperature']
