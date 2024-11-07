@@ -203,7 +203,7 @@ static async rejectInvitation(data): Promise<Response> {
     }
   }
 
-  static async search(data, offset, limit, order, col_name, company_id): Promise<any> {
+  static async search(data, offset, limit, order, col_name, company_id, filters): Promise<any> {
 // Construct the WHERE clause
 let whereClause = '';
 let whereClauseOr = '';
@@ -213,6 +213,40 @@ let index = 3; // Since 1 and 2 are for OFFSET and LIMIT
 let whereClauseCount = '';
 let whereClauseOrCount = '';
 let indCount = 1;
+
+// Filter start
+let filterCheck = "";
+         
+
+          // Filters
+          console.log("Filters", filters);
+          console.log("length", filters.length);
+          if(filters && filters.length > 0) {
+          filters.forEach((filter) => {
+            
+            if (filter.value && filter.type === 'string') {
+                // if(filter.key == 'role_id'){
+                //     filter.key = `ucr.${filter.key}`;
+                // } else{
+                //     filter.key = `u.${filter.key}`;
+                // }
+                //filter.key = `${filter.key}`;
+              filterCheck += ` AND ${filter.key} = '${filter.value}'`;
+            }
+            else if (filter.value && filter.type === 'from_date') {
+               // filter.key = `c."${filter.key}"`;
+                filterCheck += ` AND "${filter.key}" >= '${filter.value}'`;
+              }
+              else if (filter.value && filter.type === 'to_date') {
+                //filter.key = `c."${filter.key}"`;
+                filterCheck += ` AND "${filter.key}" <= '${filter.value}'`;
+              }
+          });
+        }
+
+        console.log("Filter Check", filterCheck)
+          // Filters
+// Filter end
 
 //const orArray = data.filter(item => item.key === "first_name");
 const orArray = data
@@ -290,8 +324,8 @@ if(company_id) {
     const combinedQuery = `
     SELECT * FROM (
       ${commonQuery}
-    ) AS combinedResults where user_type_id != 3
-    ${whereClause} ${whereClauseOr} ${companyCheck}
+    ) AS combinedResults where user_type_id != 0
+    ${whereClause} ${whereClauseOr} ${companyCheck} ${filterCheck}
     ORDER by ${col_name} ${order}
     OFFSET $1
     LIMIT $2;
@@ -303,7 +337,7 @@ if(company_id) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults where user_type_id != 3 ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
+  ) AS combinedResults where user_type_id != 0 ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount} ${filterCheck}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,

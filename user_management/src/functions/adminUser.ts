@@ -847,6 +847,7 @@ export async function SearchUsers(
     let order = requestData.order || "ASC";
     let col_name = requestData.col_name || "id";
     let company_id = requestData.company_id || null;
+    let filters = requestData.filters;
     if (!data) {
       data = [];
     }
@@ -856,7 +857,8 @@ export async function SearchUsers(
       limit,
       order,
       col_name,
-      company_id
+      company_id,
+      filters
     );
 
     // Prepare response body
