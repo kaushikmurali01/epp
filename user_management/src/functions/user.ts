@@ -934,10 +934,10 @@ export async function GetUserAndCompanyDetailsByUserId(request: HttpRequest, con
     try {
 
         const { company_id, user_id } = request.params;
-        let checkStatus = await CheckCompanyStatus(company_id)
-        if (!checkStatus) {
-            return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
-        }
+        // let checkStatus = await CheckCompanyStatus(company_id)
+        // if (!checkStatus) {
+        //     return { status: 401, body: RESPONSE_MESSAGES.notFound404 };
+        // }
         //  const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         // if(!resp.company_id) return { body: JSON.stringify({ status: 500, body: 'This user do not have any company' }) };
         //resp.id = 1;
