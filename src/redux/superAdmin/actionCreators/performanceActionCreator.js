@@ -50,6 +50,9 @@ import {
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_PERFORMANCE_PREDICTED_DATA_REQUEST,
+  FETCH_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  FETCH_PERFORMANCE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 export const getBaselineDataSummaryRequest = () => ({
@@ -287,5 +290,19 @@ export const fetchPerformanceDataRawSummaryMeterListSuccess = (data) => ({
 
 export const fetchPerformanceDataRawSummaryMeterListFailure = (error) => ({
   type: FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  payload: error,
+});
+
+export const fetchPerformancePredictedDataRequest = () => ({
+  type: FETCH_PERFORMANCE_PREDICTED_DATA_REQUEST,
+});
+
+export const fetchPerformancePredictedDataSuccess = (data) => ({
+  type: FETCH_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  payload: data,
+});
+
+export const fetchPerformancePredictedDataFailure = (error) => ({
+  type: FETCH_PERFORMANCE_PREDICTED_DATA_FAILURE,
   payload: error,
 });

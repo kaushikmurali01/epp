@@ -89,6 +89,9 @@ import {
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST,
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS,
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 export const createEmailTemplateRequest = () => ({
@@ -507,5 +510,19 @@ export const getDynamicEmailTemplateSuccess = (data) => ({
 
 export const getDynamicEmailTemplateFailure = (error) => ({
   type: GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminPerformancePredictedDataRequest = () => ({
+  type: FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_REQUEST,
+});
+
+export const fetchAdminPerformancePredictedDataSuccess = (data) => ({
+  type: FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminPerformancePredictedDataFailure = (error) => ({
+  type: FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_FAILURE,
   payload: error,
 });

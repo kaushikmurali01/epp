@@ -15,6 +15,9 @@ import {
   FETCH_BASELINE_PERIOD_FAILURE,
   FETCH_BASELINE_PERIOD_REQUEST,
   FETCH_BASELINE_PERIOD_SUCCESS,
+  FETCH_BASELINE_PREDICTED_DATA_FAILURE,
+  FETCH_BASELINE_PREDICTED_DATA_REQUEST,
+  FETCH_BASELINE_PREDICTED_DATA_SUCCESS,
   FETCH_DATA_EXPLORATION_SUMMARY_FAILURE,
   FETCH_DATA_EXPLORATION_SUMMARY_REQUEST,
   FETCH_DATA_EXPLORATION_SUMMARY_SUCCESS,
@@ -271,6 +274,20 @@ export const fetchOutliersSettingsSuccess = (data) => ({
 
 export const fetchOutliersSettingsFailure = (error) => ({
   type: FETCH_OUTLIERS_SETTINGS_FAILURE,
+  payload: error,
+});
+
+export const fetchBaselinePredictedDataRequest = () => ({
+  type: FETCH_BASELINE_PREDICTED_DATA_REQUEST,
+});
+
+export const fetchBaselinePredictedDataSuccess = (data) => ({
+  type: FETCH_BASELINE_PREDICTED_DATA_SUCCESS,
+  payload: data,
+});
+
+export const fetchBaselinePredictedDataFailure = (error) => ({
+  type: FETCH_BASELINE_PREDICTED_DATA_FAILURE,
   payload: error,
 });
 

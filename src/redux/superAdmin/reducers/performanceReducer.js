@@ -50,6 +50,9 @@ import {
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_REQUEST,
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_SUCCESS,
   FETCH_PERFORMANCE_DATA_RAW_SUMMARY_METER_LIST_FAILURE,
+  FETCH_PERFORMANCE_PREDICTED_DATA_REQUEST,
+  FETCH_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  FETCH_PERFORMANCE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -62,6 +65,7 @@ const initialState = {
   performanceDataVisualization: {},
   performanceDataSummaryList: [],
   performanceDataRawMeterSummaryList: [],
+  performancePredictedData: [],
   loading: false,
   processing: false,
   error: null,
@@ -403,7 +407,25 @@ const performanceReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-
+    case FETCH_PERFORMANCE_PREDICTED_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_PREDICTED_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performancePredictedData: action.payload,
+        error: null,
+      };
+    case FETCH_PERFORMANCE_PREDICTED_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     default:
       return state;
   }

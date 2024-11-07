@@ -55,6 +55,9 @@ import {
   updateFacilityThresholdRequest,
   updateFacilityThresholdSuccess,
   updateFacilityThresholdFailure,
+  fetchAdminBaselinePredictedDataRequest,
+  fetchAdminBaselinePredictedDataSuccess,
+  fetchAdminBaselinePredictedDataFailure,
 } from "../actionCreators/adminBaselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
@@ -496,6 +499,32 @@ export const updateFacilityThresholdData = (facilityId, thresholdData) => {
         type: "error",
       });
       throw error;
+    }
+  };
+};
+
+export const fetchAdminBaselinePredictedData = (
+  facilityId,
+  meterType,
+  _interface,
+  page_size,
+  page_number
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminBaselinePredictedDataRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.GET_PREDICTED_DATA}?facility_id=${facilityId}&meter_type=${meterType}&interface=${_interface}&page_size=${page_size}&page_number=${page_number}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminBaselinePredictedDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminBaselinePredictedDataFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
     }
   };
 };

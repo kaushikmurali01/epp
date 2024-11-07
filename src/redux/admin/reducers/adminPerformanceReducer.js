@@ -89,6 +89,9 @@ import {
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST,
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS,
   GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_FAILURE,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_REQUEST,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_SUCCESS,
+  FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -113,6 +116,7 @@ const initialState = {
   adminPerformanceDataVisualization: {},
   adminPerformanceDataSummaryList: [],
   adminPerformanceDataRawMeterSummaryList: [],
+  performancePredictedData: [],
   error: null,
 };
 
@@ -591,7 +595,25 @@ const adminPerformanceReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
       };
-
+    case FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        performancePredictedData: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_PERFORMANCE_PREDICTED_DATA_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
     case GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_REQUEST:
       return { ...state, loading: true };
     case GET_ADMIN_DYNAMIC_EMAIL_TEMPLATE_SUCCESS:

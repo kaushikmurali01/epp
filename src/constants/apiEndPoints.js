@@ -139,6 +139,10 @@ export const ENERVA_USER_MANAGEMENT = {
   // EDIT REQUEST
   EDIT_EV_INVITATION_BY_ADMIN: "/enerva-user/v1/adassign",
   USER_ACTIVE_IN_ACTIVE: "enerva-user/v1/user/status",
+
+  // customize columns
+  CUSTOMIZE_COLUMNS: "/enerva-user/v1/columns/get",
+  UPDATE_CUSTOMIZE_COLUMNS: "/enerva-user/v1/columns/save",
 };
 
 export const ROLES_PERMISSIONS_MANAGEMENT = {
@@ -203,6 +207,12 @@ export const dashboardEndPoints = {
   ADMIN_DASHBOARD_STATS: "company-facility/v1/dashboard/statistics",
 };
 
+export const adminCommonEndPoints = {
+  ADMIN_COMPANY_LOGS: "/enerva-user/v1/companylog",
+  ADMIN_USER_LOGS: "/enerva-user/v1/userLog",
+  ADMIN_FACILITY_LOGS: "/enerva-user/v1/facilityLog",
+};
+
 export const hourlyEndPoints = {
   GET_HOURLY_DATA:
     "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
@@ -253,6 +263,11 @@ export const BASELINE_ENDPOINTS = {
   FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary-v2",
   FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
   FACILITY_THRESHOLD: "company-facility/v1/facility-threshold",
+  GET_PREDICTED_DATA: "/v1/get-performance-baseline-cal",
+  GET_EXPORT_STATUS: "/v1/get-export-status",
+  GET_UNREAD_NOTIFICATIONS: "/v1/get-unread-notifications",
+  MARK_AS_READ_NOTIFICATION: "/v1/mark-as-read",
+  GET_DATA_EXPLORATION_TIME_PERIOD: "/v1/date_range",
 };
 
 export const PERFORMANCE_ENDPOINTS = {
@@ -272,6 +287,7 @@ export const PERFORMANCE_ENDPOINTS = {
   GET_PERFORMANCE_DATA_MIN_MAX_DATE: "/weather/v1/get-performance-min-max",
   GET_PERFORMANCE_DATA_VISUALIZATION: "/model/v1/get_performance_scoring_data",
   FETCH_PERFORMANCE_DATA_SUMMARY: "v1/data-exploration-summary-v2",
+  GET_PREDICTED_DATA: "/v1/get-performance-baseline-cal",
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "@emotion/styled";
 import {
   Button,
@@ -19,6 +25,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { format } from "date-fns";
 import Loader from "pages/Loader";
 import { useSelector } from "react-redux";
+import PerformanceTabularSummary from "./PerformanceTabularSummary";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -95,7 +102,7 @@ const Performance = () => {
   const handleSubmittedP4PsChange = useCallback((newSubmittedP4P) => {
     setSubmittedP4P(newSubmittedP4P);
   }, []);
-  
+
   const handleVerifiedP4PsChange = useCallback((newVerifiedP4P) => {
     setVerifiedP4P(newVerifiedP4P);
   }, []);
@@ -278,6 +285,13 @@ const Performance = () => {
               summary="Performance period data visualization"
               // details={<PerformancePeriodDataVisualization />}
               panelId="performancePeriodDataVisualization"
+              expanded={expanded}
+              onChange={handleAccordionChange}
+            />
+            <CustomAccordion
+              summary="Tabular Summary"
+              details={<PerformanceTabularSummary meterType={activeButton} />}
+              panelId="tabularSummary"
               expanded={expanded}
               onChange={handleAccordionChange}
             />

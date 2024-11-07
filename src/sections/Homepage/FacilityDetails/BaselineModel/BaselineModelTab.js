@@ -36,6 +36,7 @@ import { format } from "date-fns";
 import { getSummaryDataByMeterType } from ".";
 import ModelConstructorView from "./ModelConstructorView";
 import { fetchFacilityStatus } from "../../../../redux/superAdmin/actions/facilityActions";
+import TabularSummary from "./TabularSummary";
 
 const BaselineModelTab = ({ openEnrollmentModal }) => {
   const dispatch = useDispatch();
@@ -233,7 +234,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
       const data = getSummaryDataByMeterType(baselineListData, activeButton);
       const body = { status: baselineStatus };
       console.log(data.id, body);
-      
+
       dispatch(submitRejectedBaselineDB(data?.id, body))
         .then(() => {
           if (baselineStatus === "USER_SUBMITTED") {
@@ -385,6 +386,13 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          expanded={expanded}
+          onChange={handleAccordionChange}
+        />
+        <CustomAccordion
+          summary="Tabular Summary"
+          details={<TabularSummary meterType={activeButton} />}
+          panelId="tabularSummary"
           expanded={expanded}
           onChange={handleAccordionChange}
         />

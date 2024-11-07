@@ -54,6 +54,9 @@ import {
   UPDATE_FACILITY_THRESHOLD_REQUEST,
   UPDATE_FACILITY_THRESHOLD_SUCCESS,
   UPDATE_FACILITY_THRESHOLD_FAILURE,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_REQUEST,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_SUCCESS,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 const initialState = {
@@ -70,6 +73,7 @@ const initialState = {
   rawMeterSummaryList: [],
   outliersSettingsData: [],
   facilityThresholdData: [],
+  baselinePredictedData: [],
   loading: false,
   summaryLoading: false,
   sufficiencyCheckLoading: false,
@@ -412,6 +416,25 @@ const adminBaselineReducer = (state = initialState, action) => {
         error: null,
       };
     case UPDATE_FACILITY_THRESHOLD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
+    case FETCH_ADMIN_BASELINE_PREDICTED_DATA_REQUEST:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
+    case FETCH_ADMIN_BASELINE_PREDICTED_DATA_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        baselinePredictedData: action.payload,
+        error: null,
+      };
+    case FETCH_ADMIN_BASELINE_PREDICTED_DATA_FAILURE:
       return {
         ...state,
         loading: false,

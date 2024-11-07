@@ -51,9 +51,17 @@ import {
   fetchPerformanceDataRawSummaryMeterListRequest,
   fetchPerformanceDataRawSummaryMeterListSuccess,
   fetchPerformanceDataRawSummaryMeterListFailure,
+  fetchPerformancePredictedDataRequest,
+  fetchPerformancePredictedDataSuccess,
+  fetchPerformancePredictedDataFailure,
 } from "../actionCreators/performanceActionCreator";
 import NotificationsToast from "utils/notification/NotificationsToast";
-import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
+import {
+  DELETE_REQUEST,
+  GET_REQUEST,
+  PATCH_REQUEST,
+  POST_REQUEST,
+} from "utils/HTTPRequests";
 
 export const getBaselineDataSummary = (facility_id, meter_type) => {
   return async (dispatch) => {
@@ -68,7 +76,9 @@ export const getBaselineDataSummary = (facility_id, meter_type) => {
       console.error(error);
       dispatch(getBaselineDataSummaryFailure(error));
       NotificationsToast({
-        message: error?.response?.data?.error ? error.response?.data?.error : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error.response?.data?.error
+          : "Something went wrong!",
         type: "error",
       });
       throw error;
@@ -158,7 +168,7 @@ export const deleteNonRoutineEvent = (eventId) => {
       dispatch(deleteNonRoutineEventRequest());
       let apiUrl = PERFORMANCE_ENDPOINTS.DELETE_NON_ROUTINE_EVENT;
       const response = await DELETE_REQUEST(`${apiUrl}/${eventId}`);
-      dispatch(deleteNonRoutineEventSuccess(response.data))
+      dispatch(deleteNonRoutineEventSuccess(response.data));
       NotificationsToast({
         message: response?.message
           ? response.message
@@ -182,7 +192,7 @@ export const deleteNonRoutineEventData = (data_entry_id) => {
       dispatch(deleteNonRoutineEventDataRequest());
       let apiUrl = PERFORMANCE_ENDPOINTS.DELETE_NON_ROUTINE_EVENT_DATA;
       const response = await DELETE_REQUEST(`${apiUrl}/${data_entry_id}`);
-      dispatch(deleteNonRoutineEventDataSuccess(response.data))
+      dispatch(deleteNonRoutineEventDataSuccess(response.data));
       NotificationsToast({
         message: response?.message
           ? response.message
@@ -201,7 +211,7 @@ export const deleteNonRoutineEventData = (data_entry_id) => {
 };
 
 export const updateNonRoutineEvent = (eventId, payload) => {
-  return async (dispatch) => { 
+  return async (dispatch) => {
     try {
       dispatch(editNonRoutineEventRequest);
       let apiURL = `${PERFORMANCE_ENDPOINTS.EDIT_NON_ROUTINE_EVENT}/${eventId}`;
@@ -333,10 +343,7 @@ export const getPerformanceDataMinMaxDate = (facility_id, meter_type) => {
   };
 };
 
-export const getPerformanceDataVisualization = (
-  facility_id,
-  meter_type
-) => {
+export const getPerformanceDataVisualization = (facility_id, meter_type) => {
   return async (dispatch) => {
     try {
       dispatch(getPerformanceDataVisualizationRequest());
@@ -354,10 +361,7 @@ export const getPerformanceDataVisualization = (
   };
 };
 
-export const fetchPerformanceDataSummaryList = (
-  payload,
-  summaryType
-) => {
+export const fetchPerformanceDataSummaryList = (payload, summaryType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchPerformanceDataSummaryListRequest());
@@ -397,7 +401,7 @@ export const fetchPerformanceDataRawSummaryMeterList = (
   pageNumber,
   pageSize,
   min_date,
-  max_date,
+  max_date
 ) => {
   return async (dispatch) => {
     try {
@@ -438,6 +442,39 @@ export const fetchPerformanceDataRawSummaryMeterList = (
     } catch (error) {
       console.error(error);
       dispatch(fetchPerformanceDataRawSummaryMeterListFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchPerformancePredictedData = (
+  facilityId,
+  meterType,
+  _interface,
+  page_number,
+  page_size,
+  performancePeriod
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchPerformancePredictedDataRequest());
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_PREDICTED_DATA}?facility_id=${facilityId}&meter_type=${meterType}&interface=${_interface}&p4p_period=${performancePeriod}`;
+      if (page_number) {
+        endpointWithParams += `&page_number=${page_number}`;
+      }
+      if (page_size) {
+        endpointWithParams += `&page_size=${page_size}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchPerformancePredictedDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchPerformancePredictedDataFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
