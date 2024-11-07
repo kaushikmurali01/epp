@@ -342,7 +342,12 @@ const Performance = () => {
           />
           <CustomAccordion
             summary="Tabular Summary"
-            details={<PerformanceTabularSummary meterType={activeButton} />}
+            details={
+              <PerformanceTabularSummary
+                meterType={activeButton}
+                submittedP4P={submittedP4P}
+              />
+            }
             panelId="tabularSummary"
             expanded={expanded}
             onChange={handleAccordionChange}

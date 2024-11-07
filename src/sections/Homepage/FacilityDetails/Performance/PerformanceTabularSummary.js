@@ -13,7 +13,7 @@ import {
 } from "../../../../redux/global/actions/exportFileAction";
 import NotificationsToast from "utils/notification/NotificationsToast";
 
-const PerformanceTabularSummary = ({ meterType }) => {
+const PerformanceTabularSummary = ({ meterType, submittedP4P}) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [performanceP4PCalcTab, setPerformanceP4PCalcTab] = useState(1);
@@ -33,7 +33,7 @@ const PerformanceTabularSummary = ({ meterType }) => {
         performanceP4PCalcTab
       )
     );
-  }, [id, meterType, pageInfo.page, pageInfo.pageSize, performanceP4PCalcTab]);
+  }, [id, meterType, pageInfo.page, pageInfo.pageSize, performanceP4PCalcTab, submittedP4P]);
 
   useEffect(() => {
     setPageInfo({
@@ -249,12 +249,14 @@ const PerformanceTabularSummary = ({ meterType }) => {
       </Grid>
       <Box>
         <MiniTable columns={observeDataColumn} data={tableData} />
-        <CustomPagination
-          count={count}
-          pageInfo={pageInfo}
-          setPageInfo={setPageInfo}
-          incomingRowPerPageArr={[10, 20, 50, 75, 100]}
-        />
+        {count > 10 && (
+          <CustomPagination
+            count={count}
+            pageInfo={pageInfo}
+            setPageInfo={setPageInfo}
+            incomingRowPerPageArr={[10, 20, 50, 75, 100]}
+          />
+        )}
       </Box>
     </Box>
   );
