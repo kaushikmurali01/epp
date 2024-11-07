@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
-import { Slider, Typography } from "@mui/material";
+import { Grid, Slider, Typography } from "@mui/material";
 import {
   format,
   addDays,
@@ -161,7 +161,7 @@ const DateRangeSlider = ({
   }, [handleKeyDown]);
 
   return (
-    <div style={{ width: "90%", margin: "auto" }} ref={sliderRef} tabIndex="0">
+    <Grid sx={{ width: {xs: "75%", md: "87%"}, margin: "auto" }} ref={sliderRef} tabIndex="0">
       <Slider
         value={range}
         onChange={handleChange}
@@ -238,7 +238,7 @@ const DateRangeSlider = ({
           },
         }}
       />
-    </div>
+    </Grid>
   );
 };
 
