@@ -14,6 +14,7 @@ import adminBaselineReducer from "./admin/reducers/adminBaselineReducer";
 import adminPerformanceReducer from "./admin/reducers/adminPerformanceReducer";
 import performanceReducer from "./superAdmin/reducers/performanceReducer";
 import adminQaQcChecklistReducer from "./admin/reducers/adminQaQcChecklistReducer";
+import exportFileReducer from "./global/reducers/exportFileReducer";
 export default combineReducers({
   simpleReducer,
   facilityReducer,
@@ -30,4 +31,5 @@ export default combineReducers({
   adminPerformanceReducer,
   performanceReducer,
   adminQaQcChecklistReducer,
+  exportFileReducer,
 });

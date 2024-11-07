@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import ModelConstructorForm from "./ModelConstructorForm";
 import CustomAccordion from "components/CustomAccordion";
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Grid,
+  Typography,
+} from "@mui/material";
 import BaselineSummary from "./BaselineSummary";
 import BaselineVisualization from "./BaselineVisualization";
 import {
@@ -26,6 +34,7 @@ import { getSummaryDataByMeterType } from ".";
 import { format } from "date-fns";
 import BaselineSuccessModal from "sections/Homepage/FacilityDetails/BaselineModel/BaselineSuccessModal";
 import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
+import TabularSummary from "./TabularSummary";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
@@ -167,50 +176,49 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
     }));
   };
 
-    const [baselineSuccessModalConfig, setBaselineSuccessModalConfig] =
-      useState({
-        modalVisible: false,
-        modalUI: {
-          showHeader: true,
-          crossIcon: false,
-          modalClass: "",
-          headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
-          headerSubTextStyle: {
-            marginTop: "1rem",
-            color: "rgba(36, 36, 36, 1)",
-            fontSize: { md: "0.875rem" },
-          },
-          fotterActionStyle: "",
-          modalBodyContentStyle: "",
-        },
-        buttonsUI: {
-          saveButton: false,
-          cancelButton: false,
-          saveButtonName: "Yes",
-          cancelButtonName: "No",
-          saveButtonClass: "",
-          cancelButtonClass: "",
-        },
-        headerText: "",
-        headerSubText: "",
-        modalBodyContent: "",
-        saveButtonAction: "",
-      });
+  const [baselineSuccessModalConfig, setBaselineSuccessModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "",
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
+      fotterActionStyle: "",
+      modalBodyContentStyle: "",
+    },
+    buttonsUI: {
+      saveButton: false,
+      cancelButton: false,
+      saveButtonName: "Yes",
+      cancelButtonName: "No",
+      saveButtonClass: "",
+      cancelButtonClass: "",
+    },
+    headerText: "",
+    headerSubText: "",
+    modalBodyContent: "",
+    saveButtonAction: "",
+  });
 
-    const [showSubmitButton, setShowSubmitButton] = useState(false);
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
 
-    const openBaselineSuccessModal = (content_status) => {
-      setBaselineSuccessModalConfig((prevState) => ({
-        ...prevState,
-        modalVisible: true,
-        modalBodyContent: (
-          <BaselineSuccessModal
-            setBaselineSuccessModalConfig={setBaselineSuccessModalConfig}
-            contentStatus={content_status}
-          />
-        ),
-      }));
-    };
+  const openBaselineSuccessModal = (content_status) => {
+    setBaselineSuccessModalConfig((prevState) => ({
+      ...prevState,
+      modalVisible: true,
+      modalBodyContent: (
+        <BaselineSuccessModal
+          setBaselineSuccessModalConfig={setBaselineSuccessModalConfig}
+          contentStatus={content_status}
+        />
+      ),
+    }));
+  };
 
   const handleCheckboxChange = (e) => {
     setShowSubmitButton(e);
@@ -225,7 +233,7 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       const data = getSummaryDataByMeterType(baselineListData, activeButton);
       const body = { status: baselineStatus };
       console.log(data.id, body);
-      
+
       dispatch(submitAdminRejectedBaselineDB(data?.id, body))
         .then(() => {
           dispatch(fetchAdminBaselineDetailsFromDb(id));
@@ -360,6 +368,13 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
           summary="Visualization"
           // details={<BaselineVisualization />}
           panelId="visualization"
+          expanded={expanded}
+          onChange={handleAccordionChange}
+        />
+        <CustomAccordion
+          summary="Tabular Summary"
+          details={<TabularSummary meterType={activeButton} />}
+          panelId="tabularSummary"
           expanded={expanded}
           onChange={handleAccordionChange}
         />

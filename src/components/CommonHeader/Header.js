@@ -17,27 +17,44 @@ import Tooltip from "@mui/material/Tooltip";
 import AdbIcon from "@mui/icons-material/Adb";
 import { useNavigate } from "react-router-dom";
 import { logoStyle } from "../../styles/commonStyles";
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal, MsalProvider } from "@azure/msal-react";
+import {
+  AuthenticatedTemplate,
+  UnauthenticatedTemplate,
+  useMsal,
+  MsalProvider,
+} from "@azure/msal-react";
 import { loginRequest } from "authConfig";
-import { FormControl, FormGroup, FormLabel, Grid, Link, Modal, Select, Stack } from "@mui/material";
+import {
+  FormControl,
+  FormGroup,
+  FormLabel,
+  Grid,
+  Link,
+  Modal,
+  Select,
+  Stack,
+} from "@mui/material";
 import { GET_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
 import { useEffect, useState } from "react";
 import { USER_MANAGEMENT } from "constants/apiEndPoints";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { fetchUserDetails } from "../../redux/superAdmin/actions/facilityActions";
 import { useDispatch, useSelector } from "react-redux";
-import EvModal from 'utils/modal/EvModal';
-import SelectBox from 'components/FormBuilder/Select';
-import { Form, Formik } from 'formik';
-import ButtonWrapper from 'components/FormBuilder/Button';
+import EvModal from "utils/modal/EvModal";
+import SelectBox from "components/FormBuilder/Select";
+import { Form, Formik } from "formik";
+import ButtonWrapper from "components/FormBuilder/Button";
 import { requestToJoinCompanyFormValidationSchema } from "utils/validations/formValidation";
 import { parseUTCDateToLocalDateTime } from "utils/dateFormat/ConvertIntoDateMonth";
-import "./header.scss"
+import "./header.scss";
 import AutoCompleteInputField from "components/FormBuilder/AutoCompleteInputField";
-
+import DownloadIcon from "@mui/icons-material/Download";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { fetchUnreadNotifications } from "../../redux/global/actions/exportFileAction";
+import NotificationPopup from "components/NotificationPopup/NotificationPopup";
 // const settings = ["Profile", "Logout"];
 
-export const InvitationList = ({invitationData, acceptRejectInvite}) => {
+export const InvitationList = ({ invitationData, acceptRejectInvite }) => {
   return (
     <Grid
       sx={{
@@ -48,7 +65,7 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
         transition: "box-shadow 0.3s",
         ":hover": {
           boxShadow: "0 0 11px rgba(33,33,33,.2)",
-        }
+        },
       }}
     >
       <Grid display="flex" justifyContent="space-between" alignItems={"center"}>
@@ -60,12 +77,40 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
             For role: <b>{invitationData?.role}</b>
           </Typography>
           <Typography variant="h6" color="rgba(84, 88, 90, 1)" fontWeight={400}>
-            Invitation date: <b>{parseUTCDateToLocalDateTime(invitationData?.createdAt) || ""}</b>
+            Invitation date:{" "}
+            <b>
+              {parseUTCDateToLocalDateTime(invitationData?.createdAt) || ""}
+            </b>
           </Typography>
         </Box>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
-          <Button onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "accept")}>Accept</Button>
-          <Button sx={{ color: "danger.main" }} onClick={() => acceptRejectInvite(invitationData?.user_id, invitationData?.role_id, invitationData?.company_id, invitationData.email, "reject")}>Reject</Button>
+          <Button
+            onClick={() =>
+              acceptRejectInvite(
+                invitationData?.user_id,
+                invitationData?.role_id,
+                invitationData?.company_id,
+                invitationData.email,
+                "accept"
+              )
+            }
+          >
+            Accept
+          </Button>
+          <Button
+            sx={{ color: "danger.main" }}
+            onClick={() =>
+              acceptRejectInvite(
+                invitationData?.user_id,
+                invitationData?.role_id,
+                invitationData?.company_id,
+                invitationData.email,
+                "reject"
+              )
+            }
+          >
+            Reject
+          </Button>
         </Box>
       </Grid>
     </Grid>
@@ -73,12 +118,11 @@ export const InvitationList = ({invitationData, acceptRejectInvite}) => {
 };
 
 function Header(props) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  const invite = urlParams.get('invite') //to check if page is loading from 
-  
+  const invite = urlParams.get("invite"); //to check if page is loading from
   const [open, setOpen] = React.useState(false);
   const { instance } = useMsal();
   const [showInvitationPopup, setInvitationPopUp] = useState(false);
@@ -88,10 +132,14 @@ function Header(props) {
       showHeader: true,
       crossIcon: false,
       modalClass: "",
-      headerTextStyle: { color: 'rgba(84, 88, 90, 1)' },
-      headerSubTextStyle: { marginTop: '1rem', color: 'rgba(36, 36, 36, 1)', fontSize: { md: '0.875rem' }, },
+      headerTextStyle: { color: "rgba(84, 88, 90, 1)" },
+      headerSubTextStyle: {
+        marginTop: "1rem",
+        color: "rgba(36, 36, 36, 1)",
+        fontSize: { md: "0.875rem" },
+      },
       fotterActionStyle: "",
-      modalBodyContentStyle: ''
+      modalBodyContentStyle: "",
     },
     buttonsUI: {
       saveButton: false,
@@ -102,19 +150,28 @@ function Header(props) {
       cancelButtonStyle: {},
       saveButtonClass: "",
       cancelButtonClass: "",
-
     },
     headerText: "",
-    headerSubText: '',
+    headerSubText: "",
     modalBodyContent: "",
   });
-  
+
   const onClose = () => {
     setInvitationPopUp(false);
   };
 
+  const [showNotificationPopup, setShowNotificationPopup] = useState(false);
+
+  const openNotificationModal = () => {
+    setShowNotificationPopup(true);
+  };
+
+  const closeNotificationModal = () => {
+    setShowNotificationPopup(false);
+  };
+
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const userData= useSelector(
+  const userData = useSelector(
     (state) => state?.facilityReducer?.userDetails || {}
   );
 
@@ -133,20 +190,22 @@ function Header(props) {
     setOpen(newOpen);
   };
 
-  const handleRedirect=()=>{
-    console.log('redirecting',)
-    instance.loginRedirect({
-      ...loginRequest,
-      // prompt: 'create'
-    }).catch((error)=> console.log("error in login redirect", error))
-  }
+  const handleRedirect = () => {
+    console.log("redirecting");
+    instance
+      .loginRedirect({
+        ...loginRequest,
+        // prompt: 'create'
+      })
+      .catch((error) => console.log("error in login redirect", error));
+  };
 
-  if(invite && !(props?.page == "authenticated")){
-    handleRedirect()
+  if (invite && !(props?.page == "authenticated")) {
+    handleRedirect();
   }
 
   const scrollToSection = (event, sectionId) => {
-    event.preventDefault()
+    event.preventDefault();
     const sectionElement = document.getElementById(sectionId);
     const offset = 128;
     if (sectionElement) {
@@ -160,60 +219,76 @@ function Header(props) {
     }
   };
 
-
-  const clickSetting =(setting) => {
-    if(setting == 'Logout'){
+  const clickSetting = (setting) => {
+    if (setting == "Logout") {
       //logout from the application with msal instance
       localStorage.clear();
       sessionStorage.clear();
-      instance.logoutRedirect()
+      instance.logoutRedirect();
+    } else if (setting == "Profile") {
+      navigate("/profile");
     }
-    else if(setting == 'Profile'){
-      navigate("/profile")
-    }
-    setAnchorElUser(null)
-  }
+    setAnchorElUser(null);
+  };
 
   const [companyList, setCompanyList] = useState([]);
   const [selectCompany, setSelectCompany] = useState("");
   const [getAllCompanyList, setAllCompanyList] = useState([]);
   const [getUserRole, setUserRole] = useState([]);
-
+  const notification_data = useSelector(
+    (state) => state?.exportFileReducer?.notification_data
+  );
   const getAllCompanyListData = () => {
     const apiURL = USER_MANAGEMENT.GET_COMPANY_LIST + "/" + "0/100";
     GET_REQUEST(apiURL)
       .then((res) => {
         setAllCompanyList(res.data?.data?.rows);
-      }).catch((error) => {
-        console.log(error)
+      })
+      .catch((error) => {
+        console.log(error);
       });
-  }
-
+  };
 
   useEffect(() => {
-    if(props.page == "authenticated" && companyList.length > 0 && getAllCompanyList.length > 0) {
-      const companiesWithoutUserCompanies = getAllCompanyList.filter(allcompanyItem => 
-        !companyList.some(companyItem => companyItem?.id === allcompanyItem?.id)
-      )
-      if(companiesWithoutUserCompanies.length != getAllCompanyList.length){
-        setAllCompanyList([...companiesWithoutUserCompanies])
+    if (
+      props.page == "authenticated" &&
+      companyList.length > 0 &&
+      getAllCompanyList.length > 0
+    ) {
+      const companiesWithoutUserCompanies = getAllCompanyList.filter(
+        (allcompanyItem) =>
+          !companyList.some(
+            (companyItem) => companyItem?.id === allcompanyItem?.id
+          )
+      );
+      if (companiesWithoutUserCompanies.length != getAllCompanyList.length) {
+        setAllCompanyList([...companiesWithoutUserCompanies]);
       }
+      dispatch(fetchUnreadNotifications(userData?.user?.id, 10, 1));
     }
   }, [companyList, getAllCompanyList]);
 
   const getUserRoleData = () => {
-    const userType = "2" // for customers
-    const apiURL = USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE+"/"+userType;
+    const userType = "2"; // for customers
+    const apiURL =
+      USER_MANAGEMENT.GET_REQUEST_TO_JOIN_USER_ROLE + "/" + userType;
     GET_REQUEST(apiURL)
       .then((res) => {
-        setUserRole(res.data?.body)
-      }).catch((error) => {
-        console.log(error)
+        setUserRole(res.data?.body);
+      })
+      .catch((error) => {
+        console.log(error);
       });
-  }
+  };
 
   useEffect(() => {
-    if(props.page == "authenticated" && (userData?.user?.type && (userData?.user?.type != 1 || userData?.user?.type != 4 || userData?.user?.type != 5))){
+    if (
+      props.page == "authenticated" &&
+      userData?.user?.type &&
+      (userData?.user?.type != 1 ||
+        userData?.user?.type != 4 ||
+        userData?.user?.type != 5)
+    ) {
       getAllCompanyListData();
       getUserRoleData();
     }
@@ -229,12 +304,16 @@ function Header(props) {
         console.log(error);
       });
   };
-  
+
   useEffect(() => {
-    if(props.page == "authenticated" && localStorage.getItem("accessToken")){
+    if (props.page == "authenticated" && localStorage.getItem("accessToken")) {
       getCompanyListData();
     }
-  }, [props.page, localStorage.getItem("accessToken"), userDetails?.company_id]);
+  }, [
+    props.page,
+    localStorage.getItem("accessToken"),
+    userDetails?.company_id,
+  ]);
 
   const handleSelectChange = (event) => {
     const selectedCompanyId = event.target.value;
@@ -250,34 +329,44 @@ function Header(props) {
 
   useEffect(() => {
     const { length } = companyList;
-    const found = length ? companyList?.some(el => el?.id == localStorage.getItem("selectedCompanyId")) : false;
+    const found = length
+      ? companyList?.some(
+          (el) => el?.id == localStorage.getItem("selectedCompanyId")
+        )
+      : false;
     let selectedCompany = found ? localStorage.getItem("selectedCompanyId") : 0;
     if (selectedCompany) {
       setSelectCompany(selectedCompany);
-    } else if(userDetails?.company_id) {
+    } else if (userDetails?.company_id) {
       setSelectCompany(userDetails?.company_id);
-    } else if(userDetails?.type == 2){
-      dispatch(fetchUserDetails())
+    } else if (userDetails?.type == 2) {
+      dispatch(fetchUserDetails());
     }
   }, [userDetails, companyList]);
 
-  const acceptRejectInvite = (user_id, role_id, company_id, email, type) =>{
+  const acceptRejectInvite = (user_id, role_id, company_id, email, type) => {
     const apiURL = USER_MANAGEMENT.ACCEPT_REJECT_INVITE;
     const body = {
       user_id: user_id,
       role_id: role_id,
       company_id: company_id,
       type: type,
-      email: email
-    }
+      email: email,
+    };
     POST_REQUEST(apiURL, body)
       .then((res) => {
-        if(type == 'accept' && res.status == 200) {
-          NotificationsToast({ message: "You have successfully accepted the invite!", type: "success" });
+        if (type == "accept" && res.status == 200) {
+          NotificationsToast({
+            message: "You have successfully accepted the invite!",
+            type: "success",
+          });
           getCompanyListData();
-          navigate('/')
-        } else if(type == 'reject' && res.statusCode == 200){
-          NotificationsToast({ message: "You have rejected the invitation!", type: "warning" });
+          navigate("/");
+        } else if (type == "reject" && res.statusCode == 200) {
+          NotificationsToast({
+            message: "You have rejected the invitation!",
+            type: "warning",
+          });
         }
         dispatch(fetchUserDetails(selectCompany ? selectCompany : 0));
         setInvitationPopUp(false);
@@ -285,34 +374,39 @@ function Header(props) {
       .catch((error) => {
         console.log(error);
       });
-  }
+  };
 
   const RequestToJoinForm = () => {
-
     const initialValues = {
-      company: { id: '',label: '', },
-      role: '',
+      company: { id: "", label: "" },
+      role: "",
     };
     const formSubmit = (data) => {
-      console.log(data, "check role")
+      console.log(data, "check role");
       const apiURL = USER_MANAGEMENT.JOIN_REQUEST;
       const requestBody = {
         // "company_id": data.company.toString(),
-        "company_id": data.company.id.toString(),
-        "role": data.role.toString(),
-        "user_id": userData?.user?.id
-      }
+        company_id: data.company.id.toString(),
+        role: data.role.toString(),
+        user_id: userData?.user?.id,
+      };
 
       POST_REQUEST(apiURL, requestBody)
         .then((response) => {
-          const successMessage = response.data.status === 200 ? `Your request to join ${response?.data?.company?.company_name} has been submitted. The company’s administrators will review your request.` : response.data.message;
+          const successMessage =
+            response.data.status === 200
+              ? `Your request to join ${response?.data?.company?.company_name} has been submitted. The company’s administrators will review your request.`
+              : response.data.message;
 
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
             modalUI: {
               ...prevState.modalUI,
-              modalBodyContentStyle: {color: 'primary_2.main', lineHeight: '1.5rem'},
+              modalBodyContentStyle: {
+                color: "primary_2.main",
+                lineHeight: "1.5rem",
+              },
               fotterActionStyle: { justifyContent: "center", gap: "1rem" },
             },
             buttonsUI: {
@@ -325,50 +419,59 @@ function Header(props) {
                 color: "#fff",
               },
               cancelButtonName: "Okay",
-          },
-          headerText: "",
-          headerSubText: '',
-          modalBodyContent: successMessage
+            },
+            headerText: "",
+            headerSubText: "",
+            modalBodyContent: successMessage,
           }));
-
         })
         .catch((error) => {
-          console.log(error, 'error')
+          console.log(error, "error");
           // NotificationsToast({ message: error?.message ? error.message : 'Something went wrong!', type: "error" });
-
-        })
-    }
+        });
+    };
 
     return (
       <Formik
         initialValues={{
-          ...initialValues
+          ...initialValues,
         }}
         validationSchema={requestToJoinCompanyFormValidationSchema}
         onSubmit={formSubmit}
       >
-        <Form >
-          <Stack sx={{ marginBottom: '1rem' }}>
+        <Form>
+          <Stack sx={{ marginBottom: "1rem" }}>
             {/* <SelectBox name="company" label="Company name" options={getAllCompanyList} valueKey="id" labelKey="company_name" /> */}
-            {getAllCompanyList && <AutoCompleteInputField name="company" inputFieldLabel="Company Name" optionsArray={getAllCompanyList}  optionKey={"id"} optionLabel={"company_name"} /> } 
+            {getAllCompanyList && (
+              <AutoCompleteInputField
+                name="company"
+                inputFieldLabel="Company Name"
+                optionsArray={getAllCompanyList}
+                optionKey={"id"}
+                optionLabel={"company_name"}
+              />
+            )}
           </Stack>
-          <Stack sx={{ marginBottom: '1rem' }}>
-            <SelectBox name="role" label="Role" options={getUserRole} valueKey="id" labelKey="rolename" />
+          <Stack sx={{ marginBottom: "1rem" }}>
+            <SelectBox
+              name="role"
+              label="Role"
+              options={getUserRole}
+              valueKey="id"
+              labelKey="rolename"
+            />
           </Stack>
-
-
 
           {/* <SelectBox /> */}
-          <Grid display="flex" sx={{ marginTop: '1.5rem' }}>
-            <ButtonWrapper type="submit" variant="contained"  >
-               Send Request
+          <Grid display="flex" sx={{ marginTop: "1.5rem" }}>
+            <ButtonWrapper type="submit" variant="contained">
+              Send Request
             </ButtonWrapper>
-
           </Grid>
         </Form>
       </Formik>
-    )
-  }
+    );
+  };
 
   const openRequestModal = () => {
     setModalConfig((prevState) => ({
@@ -378,12 +481,13 @@ function Header(props) {
         ...prevState.buttonsUI,
         saveButton: false,
         cancelButton: false,
-    },
-    headerText: "Request to join company",
-    headerSubText: 'Please enter the following details to send request to join company',
-      modalBodyContent: <RequestToJoinForm />
+      },
+      headerText: "Request to join company",
+      headerSubText:
+        "Please enter the following details to send request to join company",
+      modalBodyContent: <RequestToJoinForm />,
     }));
-  }
+  };
 
   return (
     <AppBar
@@ -539,6 +643,20 @@ function Header(props) {
                 </Grid>
               ) : null}
               <Button
+                onClick={openNotificationModal}
+                sx={{
+                  minWidth: "auto !important",
+                  padding: "0 !important",
+                }}
+              >
+                <NotificationsIcon sx={{ height: "40px", width: "60px" }} />
+                {notification_data?.count ? (
+                  <span class="invitation-count">
+                    {notification_data.count || 0}
+                  </span>
+                ) : null}
+              </Button>
+              <Button
                 onClick={() => setInvitationPopUp(true)}
                 sx={{
                   minWidth: "auto !important",
@@ -556,6 +674,7 @@ function Header(props) {
                   </span>
                 ) : null}
               </Button>
+
               {companyList?.length > 0 &&
                 companyList[0] != null &&
                 (userData?.user?.type != 3 ||
@@ -914,6 +1033,10 @@ function Header(props) {
         </Box>
       </Modal>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <NotificationPopup
+        showNotificationPopup={showNotificationPopup}
+        closeNotificationModal={closeNotificationModal}
+      />
     </AppBar>
   );
 }

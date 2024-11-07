@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import {
-  Typography,
-  styled,
-} from "@mui/material";
+import { Typography, styled } from "@mui/material";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
@@ -20,6 +17,9 @@ const Accordion = styled((props) => (
   },
   "&::before": {
     display: "none",
+  },
+  "& .MuiCollapse-root": {
+    overflow: "auto",
   },
 }));
 

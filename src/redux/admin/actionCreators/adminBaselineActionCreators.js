@@ -54,6 +54,9 @@ import {
   UPDATE_FACILITY_THRESHOLD_REQUEST,
   UPDATE_FACILITY_THRESHOLD_SUCCESS,
   UPDATE_FACILITY_THRESHOLD_FAILURE,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_REQUEST,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_SUCCESS,
+  FETCH_ADMIN_BASELINE_PREDICTED_DATA_FAILURE,
 } from "../actionTypes";
 
 export const adminSufficiencyCheckRequest = () => ({
@@ -303,6 +306,20 @@ export const updateFacilityThresholdSuccess = (data) => ({
 
 export const updateFacilityThresholdFailure = (error) => ({
   type: UPDATE_FACILITY_THRESHOLD_FAILURE,
+  payload: error,
+});
+
+export const fetchAdminBaselinePredictedDataRequest = () => ({
+  type: FETCH_ADMIN_BASELINE_PREDICTED_DATA_REQUEST,
+});
+
+export const fetchAdminBaselinePredictedDataSuccess = (data) => ({
+  type: FETCH_ADMIN_BASELINE_PREDICTED_DATA_SUCCESS,
+  payload: data,
+});
+
+export const fetchAdminBaselinePredictedDataFailure = (error) => ({
+  type: FETCH_ADMIN_BASELINE_PREDICTED_DATA_FAILURE,
   payload: error,
 });
 

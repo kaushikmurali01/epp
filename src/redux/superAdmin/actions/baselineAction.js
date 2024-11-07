@@ -16,6 +16,9 @@ import {
   fetchBaselinePeriodFailure,
   fetchBaselinePeriodRequest,
   fetchBaselinePeriodSuccess,
+  fetchBaselinePredictedDataFailure,
+  fetchBaselinePredictedDataRequest,
+  fetchBaselinePredictedDataSuccess,
   fetchDataExplorationSummaryListFailure,
   fetchDataExplorationSummaryListRequest,
   fetchDataExplorationSummaryListSuccess,
@@ -445,12 +448,37 @@ export const fetchOutliersSettingsData = (facilityId) => {
       let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
-      console.log(response);
       dispatch(fetchOutliersSettingsSuccess(data));
       return data;
     } catch (error) {
       console.error(error);
       dispatch(fetchOutliersSettingsFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchBaselinePredictedData = (
+  facilityId,
+  meterType,
+  _interface,
+  page_size,
+  page_number
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchBaselinePredictedDataRequest());
+      let endpointWithParams = `${BASELINE_ENDPOINTS.GET_PREDICTED_DATA}?facility_id=${facilityId}&meter_type=${meterType}&interface=${_interface}&page_size=${page_size}&page_number=${page_number}`;
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchBaselinePredictedDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchBaselinePredictedDataFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",

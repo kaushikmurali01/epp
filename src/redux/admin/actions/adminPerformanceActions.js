@@ -1,4 +1,10 @@
-import { DELETE_REQUEST, GET_REQUEST, PATCH_REQUEST, POST_REQUEST, PUT_REQUEST } from "utils/HTTPRequests";
+import {
+  DELETE_REQUEST,
+  GET_REQUEST,
+  PATCH_REQUEST,
+  POST_REQUEST,
+  PUT_REQUEST,
+} from "utils/HTTPRequests";
 import {
   createEmailTemplateFailure,
   createEmailTemplateRequest,
@@ -90,9 +96,15 @@ import {
   getDynamicEmailTemplateRequest,
   getDynamicEmailTemplateSuccess,
   getDynamicEmailTemplateFailure,
+  fetchAdminPerformancePredictedDataRequest,
+  fetchAdminPerformancePredictedDataSuccess,
+  fetchAdminPerformancePredictedDataFailure,
 } from "../actionCreators/adminPerformanceActionCreators";
 import NotificationsToast from "../../../utils/notification/NotificationsToast";
-import { PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS, PERFORMANCE_ENDPOINTS } from "constants/apiEndPoints";
+import {
+  PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS,
+  PERFORMANCE_ENDPOINTS,
+} from "constants/apiEndPoints";
 
 export const createEmailTemplate = (templateData) => {
   return async (dispatch) => {
@@ -101,7 +113,7 @@ export const createEmailTemplate = (templateData) => {
 
     try {
       const response = await POST_REQUEST(apiURL, templateData);
-      dispatch(createEmailTemplateSuccess(response?.data))
+      dispatch(createEmailTemplateSuccess(response?.data));
       NotificationsToast({
         message: "Email template created successfully.",
         type: "success",
@@ -117,7 +129,7 @@ export const createEmailTemplate = (templateData) => {
 };
 
 export const getEmailTemplate = (facilityId) => {
-  return async (dispatch) => { 
+  return async (dispatch) => {
     dispatch(getEmailTemplateRequest());
     const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.GET_EMAIL_TEMPLATE;
     try {
@@ -133,7 +145,7 @@ export const getEmailTemplate = (facilityId) => {
     }
   };
 };
- 
+
 export const updateEmailTemplate = (templateData) => {
   return async (dispatch) => {
     dispatch(updateEmailTemplateRequest());
@@ -190,7 +202,8 @@ export const deleteEmailTemplate = (template_id) => {
 export const getIncentiveSettings = (facilityId) => {
   return async (dispatch) => {
     dispatch(getIncentiveSettingsRequest());
-    const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.GET_UPDATE_INCENTIVE_SETTINGS;
+    const apiURL =
+      PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.GET_UPDATE_INCENTIVE_SETTINGS;
     try {
       const response = await GET_REQUEST(`${apiURL}/${facilityId}`);
       dispatch(getIncentiveSettingsSuccess(response?.data));
@@ -205,7 +218,10 @@ export const getIncentiveSettings = (facilityId) => {
   };
 };
 
-export const updateIncentiveSettings = (updatedSettingsPayload, facility_id) => {
+export const updateIncentiveSettings = (
+  updatedSettingsPayload,
+  facility_id
+) => {
   return async (dispatch) => {
     dispatch(updateIncentiveSettingsRequest());
     const apiURL = `${PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.GET_UPDATE_INCENTIVE_SETTINGS}/${facility_id}`;
@@ -340,7 +356,7 @@ export const getEmailArchiveList = (facilityId, offset, limit, filter) => {
     const apiURL = PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS.SEND_EMAIL;
     try {
       const response = await GET_REQUEST(
-        `${apiURL}/${facilityId}/${offset-1}/${limit}?filter=${filter}`
+        `${apiURL}/${facilityId}/${offset - 1}/${limit}?filter=${filter}`
       );
       dispatch(getEmailArchiveSuccess(response?.data));
       return response?.data;
@@ -630,7 +646,9 @@ export const getAdminPerformanceDataMinMaxDate = (facility_id, meter_type) => {
       console.error(error);
       dispatch(getAdminPerformanceDataMinMaxDateFailure(error));
       NotificationsToast({
-        message: error?.response?.data?.error ? error.response?.data?.error : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error.response?.data?.error
+          : "Something went wrong!",
         type: "error",
       });
       throw error;
@@ -638,7 +656,10 @@ export const getAdminPerformanceDataMinMaxDate = (facility_id, meter_type) => {
   };
 };
 
-export const getAdminPerformanceDataVisualization = (facility_id, meter_type) => {
+export const getAdminPerformanceDataVisualization = (
+  facility_id,
+  meter_type
+) => {
   return async (dispatch) => {
     try {
       dispatch(getAdminPerformanceDataVisualizationRequest());
@@ -656,10 +677,7 @@ export const getAdminPerformanceDataVisualization = (facility_id, meter_type) =>
   };
 };
 
-export const fetchAdminPerformanceDataSummaryList = (
-  payload,
-  summaryType
-) => {
+export const fetchAdminPerformanceDataSummaryList = (payload, summaryType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminPerformanceDataSummaryListRequest());
@@ -699,7 +717,7 @@ export const fetchAdminPerformanceDataRawSummaryMeterList = (
   pageNumber,
   pageSize,
   min_date,
-  max_date,
+  max_date
 ) => {
   return async (dispatch) => {
     try {
@@ -760,6 +778,39 @@ export const getDynamicEmailTemplate = (facilityId, template_name) => {
       return response?.data;
     } catch (error) {
       dispatch(getDynamicEmailTemplateFailure(error));
+      NotificationsToast({
+        message: error?.message ? error.message : "Something went wrong!",
+        type: "error",
+      });
+    }
+  };
+};
+
+export const fetchAdminPerformancePredictedData = (
+  facilityId,
+  meterType,
+  _interface,
+  page_number,
+  page_size,
+  performancePeriod
+) => {
+  return async (dispatch) => {
+    try {
+      dispatch(fetchAdminPerformancePredictedDataRequest());
+      let endpointWithParams = `${PERFORMANCE_ENDPOINTS.GET_PREDICTED_DATA}?facility_id=${facilityId}&meter_type=${meterType}&interface=${_interface}&p4p_period=${performancePeriod}`;
+      if (page_number) {
+        endpointWithParams += `&page_number=${page_number}`;
+      }
+      if (page_size) {
+        endpointWithParams += `&page_size=${page_size}`;
+      }
+      const response = await GET_REQUEST(endpointWithParams);
+      const data = response.data;
+      dispatch(fetchAdminPerformancePredictedDataSuccess(data));
+      return data;
+    } catch (error) {
+      console.error(error);
+      dispatch(fetchAdminPerformancePredictedDataFailure(error));
       NotificationsToast({
         message: error?.message ? error.message : "Something went wrong!",
         type: "error",
