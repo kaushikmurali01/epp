@@ -29,6 +29,7 @@ import {
   addBaselineToDb,
   clearBaselineStateAction,
   fetchBaselineDetailsFromDb,
+  fetchBaselinePredictedData,
   fetchIndependentVariableList,
   submitRejectedBaselineDB,
 } from "../../../../redux/superAdmin/actions/baselineAction";
@@ -79,6 +80,9 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
       setRenderViewOnlyComp(true);
     } else {
       setRenderViewOnlyComp(false);
+    }
+    if (baselineDataStoredInDB?.status === "CALCULATED") {
+      dispatch(fetchBaselinePredictedData(id, activeButton, 4, 10, 1));
     }
   }, [id, activeButton, baselineListData]);
 

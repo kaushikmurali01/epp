@@ -35,6 +35,7 @@ import { format } from "date-fns";
 import BaselineSuccessModal from "sections/Homepage/FacilityDetails/BaselineModel/BaselineSuccessModal";
 import { fetchAdminFacilityStatus } from "../../../../redux/admin/actions/adminFacilityActions";
 import TabularSummary from "./TabularSummary";
+import { fetchAdminBaselinePredictedData } from "../../../../redux/admin/actions/adminBaselineAction";
 
 const BaselineModelTab = ({ handleSufficiencySettings }) => {
   const [activeButton, setActiveButton] = useState(1);
@@ -81,6 +82,9 @@ const BaselineModelTab = ({ handleSufficiencySettings }) => {
       setRenderFormComp(false);
     } else {
       setRenderFormComp(true);
+    }
+    if (baselineDataStoredInDB?.status === "CALCULATED") {
+      dispatch(fetchAdminBaselinePredictedData(id, activeButton, 4, 10, 1));
     }
   }, [id, activeButton, baselineListData]);
 

@@ -228,13 +228,13 @@ const NotificationPopup = ({
               </Typography>
             </ListItem>
           )}
-          {!hasMore && localNotifications.length > 10 && (
+          {/* {!hasMore && localNotifications.length > 10 && (
             <ListItem>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
                 No more notifications
               </Typography>
             </ListItem>
-          )}
+          )} */}
           {!loading && localNotifications.length === 0 && (
             <ListItem>
               <Typography variant="body2" sx={{ color: "text.secondary" }}>
