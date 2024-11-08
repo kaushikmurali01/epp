@@ -257,7 +257,9 @@ export const scorePerformanceData = (payload) => {
       console.error(error);
       dispatch(scorePerformanceDataFailure(error));
       NotificationsToast({
-        message: error?.message ? error.message : "Something went wrong!",
+        message: error?.response?.data?.error
+          ? error?.response?.data?.error
+          : "Something went wrong!",
         type: "error",
       });
     }
