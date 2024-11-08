@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -127,6 +129,7 @@ class AddMeterData:
                 if not self.is_workflow_updated:
                     self.is_workflow_updated = True
                     self.add_update_workflow()
+                    time.sleep(5)
             logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
