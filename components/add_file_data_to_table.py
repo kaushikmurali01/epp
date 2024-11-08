@@ -28,6 +28,7 @@ class AddMeterData:
         self.raw_data_query = meter_file_processing_query.format(self.facility_id, self.record_id)
         self.iv_data_query = iv_file_processing_query.format(self.facility_id, self.record_id)
         self.raw_df = dbtest(self.raw_data_query) if not self.iv else dbtest(self.iv_data_query)
+        self.is_workflow_updated = False
 
     def add_update_workflow(self):
         if self.iv:
@@ -122,6 +123,10 @@ class AddMeterData:
                 'independent_variable_file' if self.iv else 'facility_meter_hourly_entries'
             )
             execute_query("DELETE FROM meter_hourly_entries where is_active = false")
+            if not df.empty:
+                if not self.is_workflow_updated:
+                    self.is_workflow_updated = True
+                    self.add_update_workflow()
             logging.debug("DB Insert End")
             return f"Successfully processed record ID: {record_id}"
         except Exception as e:
@@ -139,5 +144,6 @@ class AddMeterData:
                 logging.debug(future.result())
 
     def process(self):
+        # self.add_update_workflow()
         self.process_files()
-        self.add_update_workflow()
+
