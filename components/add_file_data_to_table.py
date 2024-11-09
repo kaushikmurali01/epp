@@ -144,5 +144,5 @@ class AddMeterData:
     def process(self):
         self.process_files()
         self.add_update_workflow()
-        query = "UPDATE %s SET processed = true WHERE id = %s"
-        execute_query(query, (self.table_name, self.record_id))
+        query = f"UPDATE {self.table_name} SET processed = true WHERE id = {self.record_id}"
+        execute_query(query)
