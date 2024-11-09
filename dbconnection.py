@@ -153,21 +153,9 @@ def db_execute_single(query, values):
     return generated_id
 
 
-
-
-def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=100000):
+def optimized_bulk_insert_df(df, table_name, chunk_size=100000):
     # Prepare the INSERT query
     columns = list(df.columns)
-    insert_stmt = sql.SQL("INSERT INTO {} ({}) VALUES {}").format(
-        sql.Identifier(table_name),
-        sql.SQL(', ').join(map(sql.Identifier, columns)),
-        sql.SQL(', ').join([sql.Placeholder()] * len(columns))
-    )
-
-    # Prepare the UPDATE query
-    update_stmt = sql.SQL("UPDATE {} SET processed = true WHERE id = %s").format(
-        sql.Identifier(file_table)
-    )
 
     conn = None
     try:
@@ -185,10 +173,6 @@ def optimized_bulk_insert_df(df, table_name, record_id, file_table, chunk_size=1
                 cur.copy_from(buffer, table_name, null='', columns=columns)
 
                 conn.commit()
-
-            # Update the file table
-            cur.execute(update_stmt, (record_id,))
-            conn.commit()
     except Exception as e:
         if conn:
             conn.rollback()
