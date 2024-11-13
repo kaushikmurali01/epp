@@ -680,7 +680,7 @@ export class EmailTemplateController {
           )
           .replace(
             "#baseline_energy_consumption#",
-            `${baselineData.baseline_energy_consumption}Kwh` || `0Kwh`
+            `${baselineData.baseline_energy_consumption || 0}Kwh` || `0Kwh`
           )
           .replace("#participant_first_name#", findUser.first_name)
           .replace(

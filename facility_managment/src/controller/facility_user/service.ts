@@ -872,27 +872,29 @@ ORDER BY
           let allCalculationsVerified = Object.values(body.data).every(
             (status) => status === "Verified"
           );
-          let email_templates =
-            await EmailTemplateController.getEmailDynamicTemplate(
-              userToken,
-              facility_id,
-              "First_Saving_Report"
+          if (allCalculationsVerified) {
+            let email_templates =
+              await EmailTemplateController.getEmailDynamicTemplate(
+                userToken,
+                facility_id,
+                "First_Saving_Report"
+              );
+            await EmailService.sendEmail(
+              {
+                to: email_templates.to,
+                cc: Array.isArray(email_templates.cc)
+                  ? email_templates.cc.join(",")
+                  : "",
+                subject: email_templates.subject,
+                body: email_templates.body,
+                facility_id: facility_id,
+                is_system_generated: true,
+                created_by: userToken.id,
+                id: null,
+              },
+              userToken
             );
-          await EmailService.sendEmail(
-            {
-              to: email_templates.to,
-              cc: Array.isArray(email_templates.cc)
-                ? email_templates.cc.join(",")
-                : "",
-              subject: email_templates.subject,
-              body: email_templates.body,
-              facility_id: facility_id,
-              is_system_generated: true,
-              created_by: userToken.id,
-              id: null,
-            },
-            userToken
-          );
+          }
         }
         (async () => {
           const input = {
@@ -1066,8 +1068,8 @@ ORDER BY
           {
             to: email_templates.to,
             cc: Array.isArray(email_templates.cc)
-            ? email_templates.cc.join(",")
-            : "",
+              ? email_templates.cc.join(",")
+              : "",
             subject: email_templates.subject,
             body: email_templates.body,
             facility_id: findBaseline.facility_id,
