@@ -1177,36 +1177,46 @@ export async function postUploadAnyFile(
   const fileContents = await uploadedFile.arrayBuffer();
   const fileContentsBuffer: Buffer = Buffer.from(fileContents);
   const size = fileContentsBuffer.byteLength;
-  const username = request.query.get("username") || "anonymous";
-  let filename =
-    "_" +
-    size +
-    "_" +
-    (request.query.get("filename") || "unknown" + Date.now());
-  filename += "." + ext;
-  console.log(
-    `lastModified = ${uploadedFile?.lastModified}, size = ${size}`,
-    uploadedFile.type,
-    uploadedFile.name,
-    ext
-  );
+  const bytesToMB = (bytes) => bytes / (1024 * 1024);
+  const megabytes = bytesToMB(size);
+  if (megabytes >= 25) {
+    // check for 25 MB
+    return {
+      status: HTTP_STATUS_CODES.BAD_REQUEST,
+      body: "File size too long",
+    };
+  } else {
+    const username = request.query.get("username") || "anonymous";
+    let filename =
+      "_" +
+      size +
+      "_" +
+      (request.query.get("filename") || "unknown" + Date.now());
+    filename += "." + ext;
+    console.log(
+      `lastModified = ${uploadedFile?.lastModified}, size = ${size}`,
+      uploadedFile.type,
+      uploadedFile.name,
+      ext
+    );
 
-  const sasTokenUrl = await uploadBlob(
-    process.env?.Azure_Storage_AccountName as string,
-    process.env?.Azure_Storage_AccountKey as string,
-    filename,
-    username,
-    fileContentsBuffer
-  );
-  console.log(sasTokenUrl.split("_")[1], "size");
-  return {
-    jsonBody: {
+    const sasTokenUrl = await uploadBlob(
+      process.env?.Azure_Storage_AccountName as string,
+      process.env?.Azure_Storage_AccountKey as string,
       filename,
-      storageAccountName: process.env.Azure_Storage_AccountName,
-      containername: username,
-      sasTokenUrl,
-    },
-  };
+      username,
+      fileContentsBuffer
+    );
+    console.log(sasTokenUrl.split("_")[1], "size");
+    return {
+      jsonBody: {
+        filename,
+        storageAccountName: process.env.Azure_Storage_AccountName,
+        containername: username,
+        sasTokenUrl,
+      },
+    };
+  }
 }
 
 export async function submitForApprovalByUser(

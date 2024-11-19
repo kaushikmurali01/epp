@@ -413,7 +413,7 @@ export class AdminFacilityService {
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
-          result
+          { id: facilityId }
         );
         return resp;
       } else {
@@ -443,9 +443,9 @@ export class AdminFacilityService {
           occupancy: body.occupancy,
           number_of_building: body.number_of_building,
           // company_id: body.company_id,
-          facility_id_general_status: Number(
-            FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY
-          ),
+          // facility_id_general_status: Number(
+          //   FACILITY_ID_GENERAL_STATUS.CREATE_FACILIY
+          // ),
           facility_id_submission_status: Number(
             FACILITY_ID_SUBMISSION_STATUS.DRAFT
           ),
@@ -466,7 +466,7 @@ export class AdminFacilityService {
         const resp = ResponseHandler.getResponse(
           HTTP_STATUS_CODES.SUCCESS,
           RESPONSE_MESSAGES.Success,
-          result
+          { id: facilityId }
         );
         return resp;
       }
