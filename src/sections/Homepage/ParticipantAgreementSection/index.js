@@ -114,6 +114,12 @@ const ParticipantAgreement = (props) => {
               label=" Click to Upload Signed Document or drag and drop"
               maxSize={25}
               multiple={false}
+              onSizeError={(file) => {
+                NotificationsToast({
+                  message: "Document cannot be uploaded greater than 25MB.",
+                  type: "error",
+                });
+              }}
               onTypeError={(error) =>
                 NotificationsToast({
                   message: "Signed PA file should only be in PDF format.",
