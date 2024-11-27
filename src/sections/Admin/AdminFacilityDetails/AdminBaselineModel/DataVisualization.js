@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { GET_REQUEST } from "utils/HTTPRequests";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
+import { useParams } from "react-router-dom";
 
 const DataVisualization = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -13,6 +14,7 @@ const DataVisualization = () => {
   const facilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
+  const { id } = useParams();
   const dataSetId = process.env.REACT_APP_DATA_EXPLORATION_DATASET_ID;
   const reportId = process.env.REACT_APP_DATA_EXPLORATION_REPORT_ID;
   const embedUrl = process.env.REACT_APP_DATA_EXPLORATION_EMBED_URL;
@@ -66,7 +68,7 @@ const DataVisualization = () => {
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
         localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data));
-        setReportParameters();
+        setReportLoading(false);
       })
       .catch((error) => {
         console.log(error);
@@ -80,59 +82,11 @@ const DataVisualization = () => {
     ? JSON.parse(localStorage.getItem("powerBiReportToken"))
     : null;
 
-  const setReportParameters = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`;
-    const body = {
-      updateDetails: [
-        {
-          name: "facility_id",
-          newValue: facilityData?.id,
-        },
-        {
-          name: "created_by",
-          newValue: facilityData?.created_by,
-        },
-        {
-          name: "meter_id",
-          newValue: "2",
-        },
-        {
-          name: "granularity",
-          newValue: "daily",
-        },
-      ],
-    };
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        console.log("resss after setting parameters", res);
-        refreshPowerBiReport();
-      })
-      .catch((error) => {
-        setReportLoading(false);
-        console.log(error);
-      });
-  };
-
-  const refreshPowerBiReport = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/refreshes`;
-    const body = {
-      retryCount: 3,
-    };
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        console.log("resss after refreshing", res);
-        setReportLoading(false);
-      })
-      .catch((error) => {
-        setReportLoading(false);
-        console.log(error);
-      });
-  };
-
+  
   let powerBiConfig = {
     type: "report",
     id: reportId,
-    embedUrl: embedUrl,
+    embedUrl: `${embedUrl}&filter=Energy/facility_id eq ${id}`,
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {

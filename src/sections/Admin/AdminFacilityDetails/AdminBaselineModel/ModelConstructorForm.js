@@ -212,7 +212,7 @@ const ModelConstructorForm = ({
       setFormData(initialValues);
       setDummyVariables(initialDummyVariables);
     }
-  }, [baselinePeriod, meterType, sliderStartDate, sliderEndDate]);
+  }, [baselinePeriod, meterType, sliderStartDate, sliderEndDate, baselineListData]);
 
   const handleSubmit = (values) => {
     const myData = {
@@ -493,17 +493,23 @@ const ModelConstructorForm = ({
               }
             );
 
-            // If any variable exceeds max_duration, set granularity to "daily"
-            if (hasExceededMaxDuration) {
-              setFieldValue("granularity", "daily");
-            }
+            // If no independent variables are selected, reset to hourly
+            const newGranularity =
+              newIndependentVariables.length === 0
+                ? "hourly"
+                : hasExceededMaxDuration
+                ? "daily"
+                : values.granularity;
+
+            // Update field values
             setFieldValue("independent_variables", newIndependentVariables);
+            setFieldValue("granularity", newGranularity);
+
+            // Submit the updated form
             handleSubmit({
               ...values,
               independent_variables: newIndependentVariables,
-              granularity: hasExceededMaxDuration
-                ? "daily"
-                : values.granularity,
+              granularity: newGranularity,
             });
           };
 
