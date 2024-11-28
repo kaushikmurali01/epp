@@ -5,6 +5,7 @@ import TabsSection from "sections/Homepage/TabsSection";
 import axiosInstance from "utils/interceptor";
 import EvModal from "utils/modal/EvModal";
 import { useDispatch } from "react-redux";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 const Header = lazy(() => import("components/CommonHeader/Header"));
 const Footer = lazy(() => import("components/CommonFooter/Footer"));
@@ -17,30 +18,47 @@ const DashboardLayout = ({ children }) => {
     modalVisible: false,
     modalUI: {
       showHeader: true,
-      crossIcon: true,
+      crossIcon: false,
       modalClass: "authentication-modal",
-      headerTextStyle: "",
+      headerTextStyle: {
+        textAlign: "center",
+      },
       headerSubTextStyle: "",
-      fotterActionStyle: {justifyContent: "center", gap: '1rem', padding: '1rem'},
-      modalBodyContentStyle: {minHeight: '120px', minWidth: {xs: '100%', sm: '450px'}, display: 'flex',flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', color: '#242424'}
+      fotterActionStyle: {
+        justifyContent: "center",
+        gap: "1rem",
+        padding: "1rem",
+      },
+      modalBodyContentStyle: {
+        // minHeight: "120px",
+        minWidth: { xs: "100%", sm: "450px" },
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#242424",
+        fontSize: "1.5rem",
+      },
     },
     buttonsUI: {
       saveButton: true,
       cancelButton: false,
-      saveButtonName: "Okay",
+      saveButtonName: "Back to dashboard",
       cancelButtonName: "",
-      successButtonStyle: {backgroundColor: '#2e813e',"&:hover": {backgroundColor: '#1e6329'}, color: '#fff'},
+      successButtonStyle: {
+        backgroundColor: "#2e813e",
+        "&:hover": { backgroundColor: "#1e6329" },
+        color: "#fff",
+      },
       cancelButtonStyle: {},
       saveButtonClass: "",
       cancelButtonClass: "",
-
     },
-    headerText: "",
-    headerSubText: '',
-    modalBodyContent: "You do not have permission to access this module.",
-    saveButtonAction: ()=> handelPermissionCheck(),
-    closeButtonRedirect: '/facility-dashboard'
-
+    headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
+    headerSubText: "",
+    modalBodyContent: "Unauthorized Access!",
+    saveButtonAction: () => handelPermissionCheck(),
+    closeButtonRedirect: "/facility-dashboard",
   });
 
   const handelPermissionCheck = ()=> {

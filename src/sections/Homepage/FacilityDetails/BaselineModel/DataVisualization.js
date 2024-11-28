@@ -11,6 +11,7 @@ import {
   inactiveButtonStyle,
   StyledButtonGroup,
 } from "./styles";
+import { useParams } from "react-router-dom";
 
 const DataVisualization = () => {
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
@@ -24,7 +25,7 @@ const DataVisualization = () => {
   const facility_status = useSelector(
     (state) => state?.facilityReducer?.facilityStatus?.data
   );
-  
+  const { id } = useParams();
   const dataSetId = process.env.REACT_APP_DATA_EXPLORATION_DATASET_ID;
   const reportId = process.env.REACT_APP_DATA_EXPLORATION_REPORT_ID;
   const embedUrl = process.env.REACT_APP_DATA_EXPLORATION_EMBED_URL;
@@ -32,7 +33,7 @@ const DataVisualization = () => {
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
     setReportLoading(true);
-    setReportParameters(btn_name);
+    // setReportParameters(btn_name);
   };
 
   useEffect(() => {
@@ -68,40 +69,6 @@ const DataVisualization = () => {
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
         localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data));
-        setReportParameters(activeButton);
-      })
-      .catch((error) => {
-        console.log(error);
-        setReportLoading(false);
-      });
-  };
-
-  const setReportParameters = (currentActiveButton) => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`;
-    const body = {
-      updateDetails: [
-        {
-          name: "facility_id",
-          newValue: facilityData?.id,
-        },
-        {
-          name: "meter_type",
-          newValue: currentActiveButton,
-        },
-        {
-          name: "from_date",
-          newValue: "2022-07-20",
-        },
-        {
-          name: "to_date",
-          newValue: "2024-08-31",
-        },
-      ],
-    };
-
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        console.log("Parameters updated successfully", res);
         setReportLoading(false);
       })
       .catch((error) => {
@@ -109,6 +76,40 @@ const DataVisualization = () => {
         setReportLoading(false);
       });
   };
+
+  // const setReportParameters = (currentActiveButton) => {
+  //   const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`;
+  //   const body = {
+  //     updateDetails: [
+  //       {
+  //         name: "facility_id",
+  //         newValue: facilityData?.id,
+  //       },
+  //       {
+  //         name: "meter_type",
+  //         newValue: currentActiveButton,
+  //       },
+  //       {
+  //         name: "from_date",
+  //         newValue: "2022-07-20",
+  //       },
+  //       {
+  //         name: "to_date",
+  //         newValue: "2024-08-31",
+  //       },
+  //     ],
+  //   };
+
+  //   POWERBI_POST_REQUEST(apiURL, body)
+  //     .then((res) => {
+  //       console.log("Parameters updated successfully", res);
+  //       setReportLoading(false);
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       setReportLoading(false);
+  //     });
+  // };
 
   let powerBiReportToken = localStorage.getItem("powerBiReportToken")
     ? JSON.parse(localStorage.getItem("powerBiReportToken"))
@@ -117,7 +118,7 @@ const DataVisualization = () => {
   let powerBiConfig = {
     type: "report",
     id: reportId,
-    embedUrl: embedUrl,
+    embedUrl: `${embedUrl}&filter=Energy/facility_id eq ${id}`,
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
