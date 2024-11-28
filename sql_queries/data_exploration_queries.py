@@ -10,8 +10,7 @@ WITH quartiles AS (
         MAX(end_date) AS end_date, 
         MIN(start_date) AS start_date 
     FROM epp.meter_hourly_entries 
-    WHERE reading NOT IN ('NaN') 
-        AND facility_id = {facility_id} 
+    WHERE facility_id = {facility_id} 
     GROUP BY meter_id
 ), meter_details AS (
 	SELECT 
@@ -85,8 +84,7 @@ WITH quartiles AS (
         MAX(end_date) AS end_date, 
         MIN(start_date) AS start_date 
     FROM epp.meter_hourly_entries 
-    WHERE reading NOT IN ('NaN') 
-        AND facility_id = {facility_id} 
+    WHERE  facility_id = {facility_id} 
     GROUP BY meter_id
 ), 
 outlier_ranges AS (
@@ -160,7 +158,7 @@ WITH quartiles AS (
 		MAX(end_date) as end_date, 
 		MIN(start_date) as start_date 
 	FROM epp.meter_hourly_entries 
-	WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} 
+	WHERE facility_id = {facility_id} 
     AND is_independent_variable = {is_independent_variable}
 	GROUP BY  meter_id
 ), outlier_ranges AS (
@@ -202,7 +200,7 @@ missing_data_summary = """WITH date_range AS (
 		MAX(end_date) as end_date, 
 		MIN(start_date) as start_date 
 	FROM epp.meter_hourly_entries 
-	WHERE reading NOT IN ( 'NaN') AND facility_id = {facility_id} 
+	WHERE  facility_id = {facility_id} 
     AND is_independent_variable = {is_independent_variable}
 	GROUP BY  meter_id
 ), cte AS (
