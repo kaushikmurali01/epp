@@ -13,7 +13,7 @@ import { FacilityMeterEntriesController } from "../controller/facility_meter_ent
 import { FacilityCharacteristicsController } from "../controller/facility_characteristics/controller";
 import { AdminFacilityController } from "../controller/admin/admin-facility/controller";
 import { decodeToken } from "../helper/authantication.helper";
-import { HTTP_STATUS_CODES } from "../utils/status";
+import { HTTP_STATUS_CODES, userType } from "../utils/status";
 import { FacilityMeterHourlyEntriesController } from "../controller/facility_hourly_entries/controller";
 import { FacilityMeasureController } from "../controller/facility_measure/controller";
 import { FacilitySavingDocumentController } from "../controller/facility_saving_document/controller";
@@ -388,7 +388,18 @@ export async function getFacilityById(
     const decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
-
+    if (Object(decodedToken).role_id != userType.ENERVA_ADMIN) {
+      if (Number(request.params.id)) {
+        const hasPermission = await AuthorizationService.checkFaciltiy(
+          Number(request.params.id),
+          Object(decodedToken).email
+        );
+        if (!hasPermission)
+          return {
+            body: JSON.stringify({ status: 403, message: "Forbidden" }),
+          };
+      }
+    }
     // Get facility by Id
 
     const result = await FacilityController.getFacilityById(
