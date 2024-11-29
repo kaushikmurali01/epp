@@ -32,6 +32,8 @@ import { object } from "yup";
 import { AdminFacilityService } from "../controller/admin/admin-facility/service";
 import { CompanyLogsService } from "../controller/facility_logs/service";
 import { EmailService } from "../controller/sentEmail/service";
+import { UserCompanyRole } from "../models/user-company-role";
+import { User } from "../models/user.model";
 
 // Facility User CRUD
 
@@ -388,17 +390,40 @@ export async function getFacilityById(
     const decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
-    if (Object(decodedToken).role_id != userType.ENERVA_ADMIN) {
-      if (Number(request.params.id)) {
-        const hasPermission = await AuthorizationService.checkFaciltiy(
-          Number(request.params.id),
-          Object(decodedToken).email
-        );
-        if (!hasPermission)
-          return {
-            body: JSON.stringify({ status: 403, message: "Forbidden" }),
-          };
+    const findCompanyId = await Facility.findOne({
+      where: { id: Number(request.params.id) },
+    });
+    const findUser = await User.findOne({
+      where: { email: Object(decodedToken).email },
+    });
+    if (findCompanyId.company_id) {
+      let findRole = await UserCompanyRole.findOne({
+        where: {
+          company_id: findCompanyId.company_id,
+          user_id: findUser?.id,
+          role_id: 1,
+        },
+      });
+      if (
+        Object(decodedToken).role_id == userType.ENERVA_ADMIN ||
+        (findRole && findRole.id)
+      ) {
+      } else {
+        if (Number(request.params.id)) {
+          const hasPermission = await AuthorizationService.checkFaciltiy(
+            Number(request.params.id),
+            Object(decodedToken).email
+          );
+          if (!hasPermission)
+            return {
+              body: JSON.stringify({ status: 403, message: "Forbidden" }),
+            };
+        }
       }
+    } else {
+      return {
+        body: JSON.stringify({ status: 403, message: "Forbidden" }),
+      };
     }
     // Get facility by Id
 
