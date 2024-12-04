@@ -175,22 +175,23 @@ const ModelConstructorForm = ({
       });
   };
 
-  useEffect(() => {
+  useEffect(()=> {
     if (meterTypeRef.current !== meterType) {
       setFormData({ ...formData, start_date: null, end_date: null });
       meterTypeRef.current = meterType;
       return;
     }
-    if (
-      !checkSufficiencyAfter &&
-      baselinePeriod?.start_date &&
-      baselinePeriod?.end_date
-    ) {
-      if (formData?.start_date && formData?.end_date) {
+
+  }, [])
+
+  useEffect(() => {
+    
+    if ( !checkSufficiencyAfter && (baselinePeriod?.start_date !== undefined && baselinePeriod?.end_date !== undefined)) {
+      if (formData?.start_date !== null && formData?.end_date !== null) {
         handleSubmit(formData);
       }
     }
-  }, [formData, baselinePeriod?.start_date, baselinePeriod?.end_date]);
+  }, [checkSufficiencyAfter,baselineStartDate,baselineEndDate, formData?.start_date,formData?.end_date, baselinePeriod?.start_date, baselinePeriod?.end_date]);
 
   const sufficiencyVerificationStatusButton = (status) => {
     return status === "passed" ? (

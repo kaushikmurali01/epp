@@ -188,7 +188,7 @@ const ModelConstructorView = ({ openSeeDetails, meterType }) => {
     <Grid container>
       <Formik initialValues={formData} enableReinitialize={true}>
         {({ values, setFieldValue, errors }) => {
-          console.log(values?.independent_variables, independentVariables);
+
           return (
             <Form>
               <Grid container display={"grid"} gap={"2rem"}>
