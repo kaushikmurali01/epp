@@ -44,6 +44,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
   const [activeButton, setActiveButton] = useState(1);
   const { id } = useParams();
   const [renderViewOnlyComp, setRenderViewOnlyComp] = useState(false);
+  const [isReadyToRender, setIsReadyToRender] = useState(false);
   const [baselineDetails, setBaselineDetails] = useState(null);
   const [expanded, setExpanded] = useState("modelConstructor");
 
@@ -84,6 +85,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
     if (baselineDataStoredInDB?.status === "CALCULATED") {
       dispatch(fetchBaselinePredictedData(id, activeButton, 4, 10, 1));
     }
+    setIsReadyToRender(true); // Allow rendering after state is set
+
   }, [id, activeButton, baselineListData]);
 
   const handleBaselineDetails = () => {
@@ -354,19 +357,22 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
         <CustomAccordion
           summary="Model constructor"
           details={
-            renderViewOnlyComp ? (
-              <ModelConstructorView
-                openSeeDetails={openSeeDetailsModal}
-                meterType={activeButton}
-              />
-            ) : (
-              <ModelConstructorForm
-                openSeeDetails={openSeeDetailsModal}
-                openSendHelpRequestModal={openSendHelpRequestModal}
-                meterType={activeButton}
-                openBaselineSuccessModal={openBaselineSuccessModal}
-              />
-            )
+            isReadyToRender ? (
+              renderViewOnlyComp ? (
+                <ModelConstructorView
+                  openSeeDetails={openSeeDetailsModal}
+                  meterType={activeButton}
+                />
+              ) : (
+                <ModelConstructorForm
+                  openSeeDetails={openSeeDetailsModal}
+                  openSendHelpRequestModal={openSendHelpRequestModal}
+                  meterType={activeButton}
+                  openBaselineSuccessModal={openBaselineSuccessModal}
+                />
+              )
+            ) : null // Optionally, you could display a loader here
+
           }
           panelId="modelConstructor"
           expanded={expanded}
