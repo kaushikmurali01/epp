@@ -42,6 +42,7 @@ const Table = ({
   sortOrder,
   setSortColumn,
   setSortOrder,
+  isInaActiveRowClickDisabled = false
 }) => {
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
     useTable(
@@ -217,11 +218,13 @@ const Table = ({
                   }}
                 >
                   {row.cells.map((cell) => {
+                    // disabled the table row click event if isInaActiveRowClickDisabled is true from props
+                    const isInActiveCell =  isInaActiveRowClickDisabled && ( typeof cell?.row?.values?.Status?.props?.children === "string" && cell?.row?.values?.Status?.props?.children?.toLowerCase() === "inactive");
                     return (
                       <TableCell
                         {...cell.getCellProps()}
                         onClick={() => {
-                          if (onClick) {
+                          if (onClick && !isInActiveCell) {
                             onClick(id, row?.original);
                           }
                         }}
@@ -231,7 +234,7 @@ const Table = ({
                           fontSize: "0.875rem",
                           padding: "1.5rem 0.5rem",
                           // cursor: 'pointer',
-                          cursor: cursorStyle ? cursorStyle : "default",
+                          cursor: cursorStyle && !isInActiveCell ? cursorStyle : "default",
                           "&:first-of-type": {
                             fontWeight: 600,
                           },
