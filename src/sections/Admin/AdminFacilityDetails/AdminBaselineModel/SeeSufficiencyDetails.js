@@ -59,7 +59,11 @@ const SeeSufficiencyDetails = ({
             fontWeight: 400,
           }}
         >
-          {activeButton === "monthly" ? item?.value : `${item?.sufficiency}%`}
+          {activeButton === "monthly"
+            ? item?.value
+            : item?.sufficiency === null
+            ? 0
+            : `${item?.sufficiency}%`}
         </Typography>
       ),
     },
@@ -133,7 +137,10 @@ const SeeSufficiencyDetails = ({
           </Grid>
           <Grid item>
             <Typography variant="small">
-              {sufficiencyData?.sufficiency}% Data is available
+              {sufficiencyData?.sufficiency === null
+                ? 0
+                : sufficiencyData?.sufficiency}
+              % Data is available
             </Typography>
           </Grid>
         </Grid>
