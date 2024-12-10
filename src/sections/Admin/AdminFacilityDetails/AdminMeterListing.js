@@ -413,6 +413,7 @@ const AdminMeterListing = ({
           setSortColumn={setSortColumn}
           setSortOrder={setSortOrder}
           tableClass="meter-listing-table"
+          isInaActiveRowClickDisabled = {true}
         />
       </Box>
       <EvModal

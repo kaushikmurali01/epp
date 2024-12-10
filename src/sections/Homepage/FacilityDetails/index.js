@@ -22,9 +22,26 @@ const FacilityDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const scrollTop = () => {
+    window.scrollTo({
+        top: 0,
+        behavior: "instant",
+    });
+};
+
+  useEffect(() => {
+
+    scrollTop();
+    return () => {
+        scrollTop();
+    };
+}, [])
+
   useEffect(() => {
     dispatch(fetchFacilityDetails(id));
   }, [dispatch, id]);
+
+
   const renderComponent = (componentName) => {
     switch (componentName) {
       case 0:

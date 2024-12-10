@@ -359,7 +359,7 @@ const Facility = () => {
             <Stack sx={{ marginBottom: "1rem", width: "300px" }}>
               <FormGroup className="theme-form-group theme-select-form-group">
                 <InputLabel>
-                  Assign Facility <span className="asterisk">*</span>
+                  Assign Facility<span className="asterisk">*</span>
                 </InputLabel>
                 <FormControl sx={{ color: "primary.main" }}>
                   <Select
@@ -369,6 +369,13 @@ const Facility = () => {
                     value={values.facilityId}
                     onChange={(e) => {
                       setFieldValue("facilityId", e.target.value);
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: 320,
+                        },
+                      },
                     }}
                   >
                     {facilitiesDropdownData?.map((item) => (

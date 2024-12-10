@@ -257,6 +257,8 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
     }
   };
 
+  console.log(isReadyToRender,renderViewOnlyComp, "isReadyToRender")
+
   return (
     <>
       <Grid container justifyContent="space-between">
