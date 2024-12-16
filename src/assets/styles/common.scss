@@ -213,3 +213,10 @@ body {
         }
     }
 }
+
+.authentication-modal {
+    .MuiBackdrop-root {
+        background-color: rgba(240, 248, 255);
+        backdrop-filter: blur(10px);
+    }
+}
