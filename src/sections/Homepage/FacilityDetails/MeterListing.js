@@ -411,7 +411,7 @@ const MeterListing = ({
           setSortColumn={setSortColumn}
           setSortOrder={setSortOrder}
           tableClass="meter-listing-table"
-          isInaActiveRowClickDisabled = {true}
+          // isInaActiveRowClickDisabled = {true}
         />
       </Box>
       <EvModal
