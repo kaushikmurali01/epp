@@ -217,7 +217,8 @@ let indCount = 1;
 //const orArray = data.filter(item => item.key === "first_name");
 const orArray = data
   .filter(item => item.key === "first_name")
-  .flatMap(item => [item, { key: "last_name", value: item.value }]);
+  .flatMap(item => [item, { key: "CONCAT(first_name, last_name)", value: item.value.replace(/ /g, '') }]);
+  //orArray.push({"key":"CONCAT(first_name, last_name)","value":"item.value"});
 
   console.log("orArray", orArray);
 
@@ -290,7 +291,7 @@ if(company_id) {
     const combinedQuery = `
     SELECT * FROM (
       ${commonQuery}
-    ) AS combinedResults where user_type_id != 0
+    ) AS combinedResults where user_type_id != 0 and status != 'InActive'
     ${whereClause} ${whereClauseOr} ${companyCheck}
     ORDER by ${col_name} ${order}
     OFFSET $1

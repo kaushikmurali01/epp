@@ -562,7 +562,10 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
     try {
         const user_id: any = request.params.id;
         const type: any = request.params.type;
-        const company_id: any = request.params.company_id;
+        let company_id: any = request.params.company_id;
+        if(company_id == 'null') {
+            company_id = 0; 
+        }
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const userDet:any = await UserService.getUserDataById(user_id);
         const userType = resp.type;
@@ -574,16 +577,20 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
         if (userType !== 1 || !email) {
             return { body: JSON.stringify({ status: 403, body: "You are not allowed to perform this request" }) };
         }
-        if(type == 1) {
+        if(type == 1 || type == 3) {
             //start
-            const PA = await ParticipantAgreement.findOne({
+            let UCR:any;
+            let FC;
+            let PA;
+            if(type == 1) {
+             PA = await ParticipantAgreement.findOne({
                 where: { 
                     company_id: company_id,
                     is_signed: true
                 },
             });
             
-            const FC = await Facility.findOne({
+             FC = await Facility.findOne({
                 where: {
                     company_id: company_id,
                     is_active: {
@@ -592,14 +599,15 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
                 }
             });
             
-            let UCR:any= await UserCompanyRole.findOne({where: {
+            UCR= await UserCompanyRole.findOne({where: {
                 user_id: user_id,
                 company_id:company_id
             }});
-            if(UCR.role_id == 1 && (FC || PA) && company_id) {
+            if(UCR?.role_id == 1 && (FC || PA) && company_id) {
                 return { body: JSON.stringify({ status: 409, body: "Please change the super admin of the company before deleting this user, as they hold the role of super admin. The associated company either has a PA signed or has facilities created under it." }) };
             }
             // end
+        }
 
         const tokenResponse = await axios.post(
             `https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`, 
@@ -639,7 +647,7 @@ export async function DeleteUserByemail(request: HttpRequest, context: Invocatio
                 UserCompanyRolePermission.destroy({ where: { user_id:user_id }}),
                 UserCompanyRole.destroy({ where: { user_id:user_id } }),
                 UserRequest.destroy({ where: { user_id:user_id } }),
-                User.update({email: uniqueEmail, type: 3 },{where: {id:user_id}}),
+                User.update({email: uniqueEmail, type: 3, status: 'InActive' },{where: {id:user_id}}),
                 UserResourceFacilityPermission.destroy({where: {email:userDet?.email}}),
                 UserInvitation.destroy({ where: { email: userDet?.email } })
             ]);
@@ -1041,12 +1049,15 @@ export async function CheckEmailExists(request: HttpRequest, context: Invocation
     try {
 
         const requestData: any = await request.json();
+        context.log("jjj",requestData);
         const email = requestData.email;
+        context.log("kkk", email);
         const user = await User.findOne({
             where: {
                 email
             }
         });
+        context.log("mmm",user);
         if(user) return { body: JSON.stringify({ status: 200, body: { exist : true} }) };
         else return { body: JSON.stringify({ status: 200, body: { exist : false} }) };
     } catch (error) {
