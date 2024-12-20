@@ -188,10 +188,10 @@ export async function GetPermissionsByRoleId(request: HttpRequest, context: Invo
         const roleId = parseInt(request.params.id);
 
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       if(resp?.company_id) {
-        const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
-        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
-       }
+    //    if(resp?.company_id) {
+    //     const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+    //     if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+    //    }
 
         // Get permissions by role ID
         const permissions = await RolePermissionService.getPermissionsByRoleId(roleId);
