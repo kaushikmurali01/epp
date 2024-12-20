@@ -134,7 +134,7 @@ const Facility = () => {
           onClick={(e) => e.stopPropagation()}
           justifyContent="flex-end"
         >
-          <Button
+          {hasPermission(permissionList, "facility-data") && <Button
             disableRipple
             style={{
               backgroundColor: "transparent",
@@ -145,7 +145,7 @@ const Facility = () => {
             onClick={() => navigate(`/facility-list/edit-facility/${item?.id}`)}
           >
             Edit
-          </Button>
+          </Button>}
           {hasPermission(permissionList, "delete-facility") && (
             <Button
               color="error"
@@ -444,51 +444,56 @@ const Facility = () => {
                 }}
               />
             </Grid>
-            <Grid
-              item
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Button
-                variant="contained"
-                sx={{
-                  padding: "4px 12px",
-                  minWidth: "5rem!important",
-                  // bgcolor: "#2C77E9",
-                }}
-                onClick={openRequestModal}
-              >
-                Assign Access
-              </Button>
-            </Grid>
-            <Grid
-              item
-              display="flex"
-              alignItems="center"
-              justifyContent="flex-end"
-            >
-              <Button
-                style={{
-                  backgroundColor: "transparent",
-                  padding: 0,
-                  minWidth: "unset",
-                  fontSize: "0.875rem",
-                }}
-                disableRipple
-                endIcon={
-                  <AddCircleIcon
-                    style={{
-                      color: "text.primary",
-                      fontSize: "2rem",
-                    }}
-                  />
-                }
-                onClick={() => navigate("/facility-list/add-facility")}
-              >
-                Add Facility
-              </Button>
-            </Grid>
+            {(hasPermission(permissionList, "facility") ||
+              hasPermission(permissionList, "facility-data")) && (
+                <>
+                  <Grid
+                    item
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Button
+                      variant="contained"
+                      sx={{
+                        padding: "4px 12px",
+                        minWidth: "5rem!important",
+                        // bgcolor: "#2C77E9",
+                      }}
+                      onClick={openRequestModal}
+                    >
+                      Assign Access
+                    </Button>
+                  </Grid>
+                  <Grid
+                    item
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="flex-end"
+                  >
+                    <Button
+                      style={{
+                        backgroundColor: "transparent",
+                        padding: 0,
+                        minWidth: "unset",
+                        fontSize: "0.875rem",
+                      }}
+                      disableRipple
+                      endIcon={
+                        <AddCircleIcon
+                          style={{
+                            color: "text.primary",
+                            fontSize: "2rem",
+                          }}
+                        />
+                      }
+                      onClick={() => navigate("/facility-list/add-facility")}
+                    >
+                      Add Facility
+                    </Button>
+                  </Grid>
+                </>
+              )}
           </Grid>
         </Grid>
       </Grid>

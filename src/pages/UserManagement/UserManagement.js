@@ -45,7 +45,35 @@ const UserManagement = () => {
   // selector 
   const hasToken = localStorage.getItem("accessToken");
   const userCompanyId = useSelector((state) => state?.facilityReducer?.userDetails?.user?.company_id);
-  const userData= useSelector((state) => state?.facilityReducer?.userDetails || {});
+  const userData = useSelector((state) => state?.facilityReducer?.userDetails || {});
+  
+  const userPermissions = useSelector(
+        (state) => state?.facilityReducer?.userDetails?.permissions || {}
+    );
+    
+  const computePermissions = (permissions) => {
+    const hasAddUser = permissions.some(
+      (perm) =>
+        perm?.permission === "add-user" ||
+        perm?.Permission?.permission === "add-user"
+    );
+    const hasGrantRevokeAccess = permissions.some(
+      (perm) =>
+        perm?.permission === "grant-revoke-access" ||
+        perm?.Permission?.permission === "grant-revoke-access"
+    );
+
+    if (hasAddUser && hasGrantRevokeAccess) {
+      return true;
+    } else if (hasAddUser) {
+      return true;
+    } else if (hasGrantRevokeAccess) {
+      return false;
+    }
+    return false; // No permissions
+  };
+  
+  const addUserBtnPermission = computePermissions(userPermissions);
 
   const [modalConfig, setModalConfig] = useState({
     modalVisible: false,
@@ -354,7 +382,7 @@ const UserManagement = () => {
 
   return (
     <React.Fragment>
-      {isVisibleInvitePage ?
+      {isVisibleInvitePage ? (
         <InviteUser
           getUserRole={getUserRole}
           setVisibleInvitePage={setVisibleInvitePage}
@@ -363,18 +391,30 @@ const UserManagement = () => {
           handleAPISuccessCallBack={handleAPISuccessCallBack}
           selectTableRow={selectTableRow}
           inviteAPIURL={inviteAPIURL}
-        /> :
-
+        />
+      ) : (
         <Box component="section">
           <Container maxWidth="lg">
-            <Grid container sx={{ justifyContent: 'space-between' }} >
-              <Grid item xs={12} md={4} >
-                <Typography variant='h4'>User Management</Typography>
+            <Grid container sx={{ justifyContent: "space-between" }}>
+              <Grid item xs={12} md={4}>
+                <Typography variant="h4">User Management</Typography>
               </Grid>
-              <Grid item xs={12} md={7} sx={{ display: 'flex', flexDirection: {xs: 'column', md: 'row'}, justifyContent: {xs: 'flex-start', md: 'flex-end'}, gap: {xs: '0.5rem', md: '2rem'}, marginTop: {xs: '1rem' ,md: '0'} }}>
-                <FormGroup className="theme-form-group theme-select-form-group" >
-
-                  <FormControl sx={{ minWidth: '6rem', maxWidth: '8rem', flexGrow: '1' }}>
+              <Grid
+                item
+                xs={12}
+                md={7}
+                sx={{
+                  display: "flex",
+                  flexDirection: { xs: "column", md: "row" },
+                  justifyContent: { xs: "flex-start", md: "flex-end" },
+                  gap: { xs: "0.5rem", md: "2rem" },
+                  marginTop: { xs: "1rem", md: "0" },
+                }}
+              >
+                <FormGroup className="theme-form-group theme-select-form-group">
+                  <FormControl
+                    sx={{ minWidth: "6rem", maxWidth: "8rem", flexGrow: "1" }}
+                  >
                     <Select
                       value={selectFilterType}
                       onChange={(e) => handleSelectChange(e)}
@@ -392,15 +432,32 @@ const UserManagement = () => {
                     </Select>
                   </FormControl>
                 </FormGroup>
-                <FormGroup >
-                  <FormControl fullWidth sx={{ position: 'relative', bgcolor: '#fff', borderRadius: '8px', color: 'dark.main' }}>
+                <FormGroup>
+                  <FormControl
+                    fullWidth
+                    sx={{
+                      position: "relative",
+                      bgcolor: "#fff",
+                      borderRadius: "8px",
+                      color: "dark.main",
+                    }}
+                  >
                     <TextField
                       value={searchString}
                       placeholder="Search"
-                      inputProps={{ style: { color: '#242424', fontSize: '1rem', paddingRight: '2rem' } }}
-                      onChange={(e) => {setSearchString(e.target.value); setPageInfo({ page: 1, pageSize: 10 })}}
+                      inputProps={{
+                        style: {
+                          color: "#242424",
+                          fontSize: "1rem",
+                          paddingRight: "2rem",
+                        },
+                      }}
+                      onChange={(e) => {
+                        setSearchString(e.target.value);
+                        setPageInfo({ page: 1, pageSize: 10 });
+                      }}
                     />
-                    {searchString?.length > 0 &&
+                    {searchString?.length > 0 && (
                       <ClearIcon
                         onClick={() => setSearchString("")}
                         sx={{
@@ -408,76 +465,96 @@ const UserManagement = () => {
                           fontSize: "1.25rem",
                           position: "absolute",
                           right: "0.75rem",
-                          top: '0', bottom: '0', margin: 'auto',
+                          top: "0",
+                          bottom: "0",
+                          margin: "auto",
                           zIndex: "1",
-                          cursor: "pointer"
+                          cursor: "pointer",
                         }}
                       />
-                    }
+                    )}
                   </FormControl>
                 </FormGroup>
-
-                <Button
+                {addUserBtnPermission && <Button
                   color="primary"
                   variant="contained"
-                  sx={{ alignSelf: 'flex-start', marginTop: {xs: '1rem', md: '0'} }}
+                  sx={{
+                    alignSelf: "flex-start",
+                    marginTop: { xs: "1rem", md: "0" },
+                  }}
                   onClick={() => handelInviteUser()}
                 >
                   Invite User
-                </Button>
+                </Button>}
               </Grid>
-
             </Grid>
 
-            <Grid container sx={{ alignItems: "center", justifyContent: 'space-between', gap: '1rem', marginTop: '1rem', marginBottom: '3rem' }}>
-              <Grid item xs={4}  >
+            <Grid
+              container
+              sx={{
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "1rem",
+                marginTop: "1rem",
+                marginBottom: "3rem",
+              }}
+            >
+              <Grid item xs={4}>
                 <Tabs
-                  className='theme-tabs-list'
+                  className="theme-tabs-list"
                   value={tabValue}
                   onChange={handleChange}
-                  sx={{ display: 'inline-flex' }}
+                  sx={{ display: "inline-flex" }}
                 >
-                  <Tab value="allUsers" label="All Users" sx={{ minWidth: '10rem' }} />
+                  <Tab
+                    value="allUsers"
+                    label="All Users"
+                    sx={{ minWidth: "10rem" }}
+                  />
                   {/* <Tab value="invitationSent" label="Invitation Sent" sx={{ minWidth: '10rem' }} />
                     <Tab value="request" label="Requestt" sx={{ minWidth: '10rem' }} /> */}
                 </Tabs>
               </Grid>
-              <Grid item sx={{ justifySelf: 'flex-end' }}>
-                <Typography variant='small' sx={{ color: 'blue.main', cursor: 'pointer' }} onClick={openRequestModal}>
-                Request to join company
+              <Grid item sx={{ justifySelf: "flex-end" }}>
+                <Typography
+                  variant="small"
+                  sx={{ color: "blue.main", cursor: "pointer" }}
+                  onClick={openRequestModal}
+                >
+                  Request to join company
                 </Typography>
               </Grid>
             </Grid>
 
             <Grid container>
-              {getAllUser && <Table
-                customTableStyles={{
-                  "tbody td:nth-child(3n)": {
-                    maxWidth: '16rem',
-                    wordBreak: 'break-word',
-                  },
-                }}
-                columns={columns} data={getAllUser || []}
-                count={pageCount}
-                pageInfo={pageInfo}
-                setPageInfo={setPageInfo}
-                headbgColor="rgba(217, 217, 217, 0.2)" 
-
-                setSortColumn={setSortCustomerColumn}
-                setSortOrder={setSortCustomerOrder}
-                sortColumn={sortCustomerColumn}
-                sortOrder={sortCustomerOrder}
-                />}
-                
+              {getAllUser && (
+                <Table
+                  customTableStyles={{
+                    "tbody td:nth-child(3n)": {
+                      maxWidth: "16rem",
+                      wordBreak: "break-word",
+                    },
+                  }}
+                  columns={columns}
+                  data={getAllUser || []}
+                  count={pageCount}
+                  pageInfo={pageInfo}
+                  setPageInfo={setPageInfo}
+                  headbgColor="rgba(217, 217, 217, 0.2)"
+                  setSortColumn={setSortCustomerColumn}
+                  setSortOrder={setSortCustomerOrder}
+                  sortColumn={sortCustomerColumn}
+                  sortOrder={sortCustomerOrder}
+                />
+              )}
             </Grid>
           </Container>
 
           <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
-        </Box >
-      }
-
+        </Box>
+      )}
     </React.Fragment>
-  )
+  );
 }
 
 export default UserManagement

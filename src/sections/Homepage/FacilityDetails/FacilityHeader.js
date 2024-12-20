@@ -538,7 +538,7 @@ const FacilityHeader = () => {
                 </Box>
               )}
               <Box>
-                <Button
+                {hasPermission(permissionList, "facility-data") && <Button
                   style={{
                     backgroundColor: "transparent",
                     padding: 0,
@@ -547,7 +547,7 @@ const FacilityHeader = () => {
                   onClick={() => navigate(`/facility-list/edit-facility/${id}`)}
                 >
                   Edit
-                </Button>
+                </Button>}
                 {hasPermission(permissionList, "delete-facility") && (
                   <Button
                     color="error"

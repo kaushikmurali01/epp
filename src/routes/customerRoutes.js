@@ -115,20 +115,51 @@ export const CustomerRoutes = ({ userDetails, userPermissions, userCompany }) =>
     <Route
       path={facilityEndPoints.facilityDashboard}
       element={<DashboardSectionComponent />}
+      />,
+    <Route
+      path={userManagementEndPoints.userManagement}
+      element={<UserManagement />}
+      />,
+    <Route
+      path={facilityEndPoints.facilityList}
+      element={<FacilityList />}
+    />,
+    <Route
+      path={
+        facilityEndPoints.facilityList +
+        "/" +
+        facilityEndPoints.editFacility
+      }
+      element={<AddFacilityComponent />}
+    />,
+    <Route
+      path={
+        facilityEndPoints.facilityList + "/" + facilityEndPoints.addFacility
+      }
+      element={<AddFacilityComponent />}
+    />,
+    <Route
+      path={
+        facilityEndPoints.facilityList +
+        "/" +
+        facilityEndPoints.facilityDetails
+      }
+      element={<FacilityDetailsPage />}
     />,
     <Route path="*" element={<Error404 />} />,
     <Route path= {profilePageEndPoints.profilePage} element={ <ProfilePage /> }/>,)
   }
 
   for (let i = 0; i < userPermissions.length; i++) {
-    if (userPermissions[i].permission === "add-user" || userPermissions[i].permission =="grant-revoke-access") {
-      routesToPermit.push(
-        <Route
-          path={userManagementEndPoints.userManagement}
-          element={<UserManagement />}
-        />
-      );
-    } else if (userPermissions[i].permission == "bind-company") {
+    // if (userPermissions[i].permission === "add-user" || userPermissions[i].permission =="grant-revoke-access") {
+    //   routesToPermit.push(
+    //     <Route
+    //       path={userManagementEndPoints.userManagement}
+    //       element={<UserManagement />}
+    //     />
+    //   );
+    // } else
+    if (userPermissions[i].permission == "bind-company") {
       routesToPermit.push(
         <Route
           path={participantAgreementEndPoints.participantAgreement}
@@ -136,36 +167,44 @@ export const CustomerRoutes = ({ userDetails, userPermissions, userCompany }) =>
         />
       );
     } else if (userPermissions[i].permission == "facility") {
-      routesToPermit.push(
-        <Route
-          path={facilityEndPoints.facilityList}
-          element={<FacilityList />}
-        />,
-        <Route
-          path={
-            facilityEndPoints.facilityList +
-            "/" +
-            facilityEndPoints.editFacility
-          }
-          element={<AddFacilityComponent />}
-        />,
-        <Route
-          path={
-            facilityEndPoints.facilityList + "/" + facilityEndPoints.addFacility
-          }
-          element={<AddFacilityComponent />}
-        />,
-      );
+      // routesToPermit.push(
+      //   <Route
+      //     path={facilityEndPoints.facilityList}
+      //     element={<FacilityList />}
+      //   />,
+      //   <Route
+      //     path={
+      //       facilityEndPoints.facilityList +
+      //       "/" +
+      //       facilityEndPoints.editFacility
+      //     }
+      //     element={<AddFacilityComponent />}
+      //   />,
+      //   <Route
+      //     path={
+      //       facilityEndPoints.facilityList + "/" + facilityEndPoints.addFacility
+      //     }
+      //     element={<AddFacilityComponent />}
+      //   />,
+      //   <Route
+      //     path={
+      //       facilityEndPoints.facilityList +
+      //       "/" +
+      //       facilityEndPoints.facilityDetails
+      //     }
+      //     element={<FacilityDetailsPage />}
+      //   />
+      // );
     } else if (userPermissions[i].permission == "facility-data" || userPermissions[i].permission == "facility-data-visualizations") {
       routesToPermit.push(
-        <Route
-          path={
-            facilityEndPoints.facilityList +
-            "/" +
-            facilityEndPoints.facilityDetails
-          }
-          element={<FacilityDetailsPage />}
-        />,
+        // <Route
+        //   path={
+        //     facilityEndPoints.facilityList +
+        //     "/" +
+        //     facilityEndPoints.facilityDetails
+        //   }
+        //   element={<FacilityDetailsPage />}
+        // />,
         <Route
           path={
             facilityEndPoints.facilityList +

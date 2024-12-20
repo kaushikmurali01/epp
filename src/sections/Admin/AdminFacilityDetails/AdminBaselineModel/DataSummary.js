@@ -22,11 +22,22 @@ const DataSummary = () => {
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
+  
+  const [isDataExplorationSummaryReady, setIsDataExplorationSummaryReady] = useState(true);
+  
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchAdminDataExplorationSummaryList(id, activeButton));
+      dispatch(fetchAdminDataExplorationSummaryList(id, activeButton)).then(
+        (res) => {
+          setIsDataExplorationSummaryReady(false);
+        }
+      );
     } else {
-      dispatch(fetchAdminDataExplorationSummaryList(id));
+      dispatch(fetchAdminDataExplorationSummaryList(id)).then(
+        (res) => {
+          setIsDataExplorationSummaryReady(false);
+        }
+      );
     }
   }, [dispatch, id, activeButton]);
 
@@ -355,6 +366,24 @@ const DataSummary = () => {
         return null;
     }
   };
+
+  if (isDataExplorationSummaryReady) {
+    return (
+      <Box display={"flex"} gap={1} alignItems={"center"}> 
+        <Typography
+          variant="body1"
+          color="textSecondary"
+          sx={{
+            marginRight: "1rem",
+            fontWeight: 700,
+          }}
+        >
+          Please wait
+        </Typography>
+        <div className="progress-loader"></div>
+      </Box>
+    );
+  }
 
   return (
     <Grid

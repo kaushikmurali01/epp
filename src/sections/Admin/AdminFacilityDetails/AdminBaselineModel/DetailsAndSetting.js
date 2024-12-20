@@ -167,7 +167,7 @@ const DetailsAndSetting = () => {
                 displayEmpty={true}
                 className="transparent-border"
               >
-                <MenuItem value="">Outlier Detection Method</MenuItem>
+                <MenuItem disabled value="">Outlier Detection Method</MenuItem>
                 <MenuItem value="interquartile">Interquartile</MenuItem>
               </Select>
             </FormControl>
