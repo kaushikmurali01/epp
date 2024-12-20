@@ -9,10 +9,11 @@ from datetime import datetime, timedelta
 
 
 class DataExplorationSummaryV2:
-    def __init__(self, facility_id, summary_type, meter_name, meter_id, min_date, max_date):
+    def __init__(self, facility_id, summary_type, meter_name, meter_type, meter_id, min_date, max_date):
         self.facility_id = facility_id
         self.summary_type = summary_type
         self.meter_name = meter_name
+        self.meter_type = meter_type
         self.meter_id = meter_id
         self.query = None
         self.temperature_query = None
@@ -47,17 +48,17 @@ class DataExplorationSummaryV2:
         station_id= tuple(get_station_id['station_id'].tolist())
         query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
         if self.missing_data:
-            self.query = missing_data_summary.format(facility_id = self.facility_id, is_independent_variable = False, date_filter= query_date_filter)
+            self.query = missing_data_summary.format(facility_id = self.facility_id, meter_type=self.meter_type , is_independent_variable = False, date_filter= query_date_filter)
         elif self.outliers:
-            self.query = outlier_summary.format(facility_id = self.facility_id, meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
+            self.query = outlier_summary.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
         else:
-            self.query = observed_data_summary.format(facility_id = self.facility_id, meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
+            self.query = observed_data_summary.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_factor = METER_FACTOR, is_independent_variable= False, date_filter=query_date_filter)
         self.raw_df = dbtest(self.query)
         query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter_temp()
         if self.missing_data:
             self.temperature_query = get_temp_missing_data_summary(self.facility_id, station_id[0], query_date_filter )
         elif self.outliers:
-            self.temperature_query = temp_outlier_summary.format(facility_id = self.facility_id, station_id= station_id[0], meter_factor =METER_FACTOR)
+            self.temperature_query = temp_outlier_summary.format(facility_id = self.facility_id, meter_type=self.meter_type , station_id= station_id[0], meter_factor =METER_FACTOR)
         else:
             if (self.start_date == None and self.end_date == None):
                 s_date = self.raw_df['time_stamp_start'].tolist()[0] if  len(self.raw_df)>0 else (datetime.now() - timedelta(days=2*365.25)).strftime('%Y/%m/%d  %H:%M')
@@ -86,34 +87,34 @@ class DataExplorationSummaryV2:
     def setup_listing_query(self, page_size, page_no, bound):
         if self.meter_name == '104':
             if  (self.start_date == None and self.end_date == None) :
-                query = daterangequery.format(facility_id = self.facility_id)
+                query = daterangequery.format(facility_id = self.facility_id, meter_type=self.meter_type )
                 dateRangeData = dbtest(query)
                 self.start_date  = dateRangeData['start_date'].tolist()[0] 
                 self.end_date = dateRangeData['end_date'].tolist()[0]
             
             query_date_filter = self.date_filter_temp()
             if self.missing_data:
-                self.query = temp_missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = temp_missing_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
             elif self.outliers:
                 if bound == 'Lower limit':
                     outliers_query = temp_outlier_summary_lower_bound_list
                 else:
                     outliers_query = temp_outlier_summary_upper_bound_list
-                self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
-                self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
+                self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         else:
             query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
             if self.missing_data:
-                self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
             elif self.outliers:
                 if bound == 'Lower limit':
                     outliers_query = outlier_summary_lower_bound_list
                 else:
                     outliers_query = outlier_summary_upper_bound_list
-                self.query = outliers_query.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
             else:
-                self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
+                self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         self.raw_df = dbtest(self.query)
         
 
