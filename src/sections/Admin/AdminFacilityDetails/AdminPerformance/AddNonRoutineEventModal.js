@@ -70,12 +70,21 @@ const AddNonRoutineEventModal = ({
   }, [editMode]);
 
   const handleSubmit = (values) => {
-    const payload = { ...values, facility_id, meter_type };
+    const payload = {
+      ...values,
+      event_to_period: values?.event_to_period
+        ? format(new Date(values.event_to_period), "MM-dd-yyyy")
+        : null,
+      event_from_period: values?.event_from_period
+        ? format(new Date(values.event_from_period), "MM-dd-yyyy")
+        : null,
+      facility_id,
+      meter_type,
+    };
     const action = editMode.isEditing
       ? updateAdminNonRoutineEvent(editMode.eventId, payload)
       : addAdminNonRoutineEvent(payload);
 
-    console.log(payload, action);
     
     dispatch(action)
       .then((response) => {
@@ -167,7 +176,7 @@ const AddNonRoutineEventModal = ({
                 }}
                 disableFuture
                 minDate={
-                  values.event_from_period ||
+                  new Date(values?.event_from_period) ||
                   new Date(adminPerformanceDataMinMaxDate?.min_date)
                 }
                 maxDate={new Date(adminPerformanceDataMinMaxDate?.max_date)}

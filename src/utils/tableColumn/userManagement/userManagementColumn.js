@@ -38,8 +38,6 @@ const UserManagementColumn = () => {
           perm?.Permission?.permission === "grant-revoke-access"
       );
 
-      console.log(hasAddUser, hasGrantRevokeAccess);
-
       if (hasAddUser && hasGrantRevokeAccess) {
         return false;
       } else if (hasAddUser) {
@@ -176,8 +174,6 @@ const UserManagementColumn = () => {
         {
             Header: "Action",
             accessor: (item) => {
-                console.log(item, "action item");
-                
                 return (
                   <Box gap={1}>
                     <Typography

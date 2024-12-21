@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchOutliersSettingsData } from "../../../../redux/superAdmin/actions/baselineAction";
 import { useParams } from "react-router-dom";
 
-const DetailsAndSetting = () => {
+const DetailsAndSetting = ({ meterType }) => {
   const [activeButton, setActiveButton] = useState("outliers_info");
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -27,8 +27,8 @@ const DetailsAndSetting = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchOutliersSettingsData(id));
-  }, [dispatch, id]);
+    dispatch(fetchOutliersSettingsData(id, meterType));
+  }, [dispatch, id, meterType]);
 
   const summaryData = useSelector(
     (state) => state?.baselineReducer?.outliersSettingsData

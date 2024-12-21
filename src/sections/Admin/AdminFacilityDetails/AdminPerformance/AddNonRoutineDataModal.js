@@ -210,10 +210,10 @@ const AddNonRoutineDataModal = ({
             data_entries: values.data_entries.map((entry) => ({
               id: entry.id || null,
               start_date: entry.start_date
-                ? format(entry.start_date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+                ? format(new Date(entry.start_date), "MM-dd-yyyy")
                 : null,
               end_date: entry.end_date
-                ? format(entry.end_date, "yyyy-MM-dd'T'HH:mm:ss.SSSxxx")
+                ? format(new Date(entry.end_date), "MM-dd-yyyy")
                 : null,
               non_routine_adjustment: entry.non_routine_adjustment,
             })),
@@ -324,8 +324,8 @@ const AddNonRoutineDataModal = ({
                                   }}
                                   disableFuture
                                   format="MM/dd/yyyy"
-                                  minDate={new Date(formatDateToLocal(event_from_period))}
-                                  maxDate={new Date(formatDateToLocal(event_to_period))}
+                                  minDate={new Date(event_from_period)}
+                                  maxDate={new Date(event_to_period)}
                                   slotProps={{
                                     textField: {
                                       readOnly: true,

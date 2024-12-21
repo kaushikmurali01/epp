@@ -15,7 +15,7 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { formatNumber } from "utils/numberFormatter";
 
-const DataSummary = () => {
+const DataSummary = ({meterType}) => {
   const [activeButton, setActiveButton] = useState("observe_data");
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -27,19 +27,19 @@ const DataSummary = () => {
 
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchDataExplorationSummaryList(id, activeButton)).then(
+      dispatch(fetchDataExplorationSummaryList(id, meterType, activeButton)).then(
         (res) => {
           setIsDataExplorationSummaryReady(false);
         }
       );
     } else {
-      dispatch(fetchDataExplorationSummaryList(id)).then(
+      dispatch(fetchDataExplorationSummaryList(id, meterType)).then(
         (res) => {
           setIsDataExplorationSummaryReady(false);
         }
       );
     }
-  }, [dispatch, id, activeButton]);
+  }, [dispatch, id, activeButton, meterType]);
 
   const summaryData = useSelector(
     (state) => state?.baselineReducer?.dataExplorationSummaryList
@@ -144,6 +144,7 @@ const DataSummary = () => {
       modalVisible: true,
       modalBodyContent: (
         <DetailsAndSetting
+          meterType={meterType}
           setDetailsAndSettingModalConfig={setDetailsAndSettingModalConfig}
         />
       ),
@@ -381,7 +382,7 @@ const DataSummary = () => {
             fontWeight: 700,
           }}
         >
-          Please wait
+          Please wait for the data to process
         </Typography>
         <div className="progress-loader"></div>
       </Box>
