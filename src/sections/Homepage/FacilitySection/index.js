@@ -444,8 +444,7 @@ const Facility = () => {
                 }}
               />
             </Grid>
-            {(hasPermission(permissionList, "facility") ||
-              hasPermission(permissionList, "facility-data")) && (
+            {hasPermission(permissionList, "facility") && (
                 <>
                   <Grid
                     item
