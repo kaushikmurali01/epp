@@ -1,4 +1,3 @@
-
 export const HTTP_STATUS_CODES = {
   SUCCESS: 200,
   NO_CONTENT: 204,
@@ -40,6 +39,7 @@ export const RESPONSE_MESSAGES = {
   dataUnique: "Data Should be unique",
   emailNotExist: "Please enter a registered email address",
   paAlreadySigned: "You have already sign the participant agreement",
+  noDataForMeter: "Data is not available for this period",
 };
 
 export const STATUS = {

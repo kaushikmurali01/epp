@@ -53,16 +53,16 @@ export async function getAllFacility(
     const decodedToken = await decodeToken(request, context, async () =>
       Promise.resolve({})
     );
-    if (companyId) {
-      const hasPermission = await AuthorizationService.check(
-        Number(companyId),
-        decodedToken.id,
-        ["facility"],
-        decodedToken.role_id
-      );
-      if (!hasPermission)
-        return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
-    }
+    // if (companyId) {
+    //   const hasPermission = await AuthorizationService.check(
+    //     Number(companyId),
+    //     decodedToken.id,
+    //     ["facility"],
+    //     decodedToken.role_id
+    //   );
+    //   if (!hasPermission)
+    //     return { body: JSON.stringify({ status: 403, message: "Forbidden" }) };
+    // }
 
     const result = await FacilityController.getFacility(
       decodedToken,

@@ -441,34 +441,47 @@ export class FacilityNonRoutineEventSevice {
         };
       }
       if (facility_id) {
-        await MeterHourlyEntries.destroy({
+        let checkEntries = await MeterHourlyEntries.findOne({
           where: {
             ...obj,
             facility_id,
           },
         });
-        let findMeterEntries = await MeterHourlyEntries.findOne({
-          where: {
-            facility_id,
-            is_independent_variable: { [Op.notIn]: [true] },
-          },
-        });
-        let findMeterEntriesWithIv = await MeterHourlyEntries.findOne({
-          where: { facility_id, is_independent_variable: true },
-        });
-        if (!findMeterEntries) {
-          await Workflow.update({ ew: false }, { where: { facility_id } });
-        }
-        if (!findMeterEntriesWithIv) {
-          await Workflow.update(
-            { weather_iv: false },
-            { where: { facility_id } }
+        if (checkEntries && checkEntries.id) {
+          await MeterHourlyEntries.destroy({
+            where: {
+              ...obj,
+              facility_id,
+            },
+          });
+          let findMeterEntries = await MeterHourlyEntries.findOne({
+            where: {
+              facility_id,
+              is_independent_variable: { [Op.notIn]: [true] },
+            },
+          });
+          let findMeterEntriesWithIv = await MeterHourlyEntries.findOne({
+            where: { facility_id, is_independent_variable: true },
+          });
+          if (!findMeterEntries) {
+            await Workflow.update({ ew: false }, { where: { facility_id } });
+          }
+          if (!findMeterEntriesWithIv) {
+            await Workflow.update(
+              { weather_iv: false },
+              { where: { facility_id } }
+            );
+          }
+          return ResponseHandler.getResponse(
+            HTTP_STATUS_CODES.SUCCESS,
+            RESPONSE_MESSAGES.Success
+          );
+        } else {
+          return ResponseHandler.getResponse(
+            HTTP_STATUS_CODES.BAD_REQUEST,
+            RESPONSE_MESSAGES.noDataForMeter
           );
         }
-        return ResponseHandler.getResponse(
-          HTTP_STATUS_CODES.SUCCESS,
-          RESPONSE_MESSAGES.Success
-        );
       } else {
         return ResponseHandler.getResponse(
           HTTP_STATUS_CODES.BAD_REQUEST,

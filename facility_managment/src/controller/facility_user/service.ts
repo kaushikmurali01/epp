@@ -52,6 +52,7 @@ import { AdminFacilityService } from "../admin/admin-facility/service";
 import { CompanyLogsService } from "../facility_logs/service";
 import { EmailTemplateController } from "../emailTemplate/controller";
 import { EmailService } from "../sentEmail/service";
+import { UserCompanyRolePermission } from "../../models/user_company_role_permission.model";
 
 export class FacilityService {
   static async getFacility(
@@ -1588,6 +1589,24 @@ ORDER BY
     facilityId: number
   ): Promise<Facility[]> {
     try {
+      const facility = await Facility.findOne({
+        where: { id: facilityId },
+        attributes: [
+          "id",
+          "company_id",
+          "naic_code",
+          "facility_id_general_status",
+        ],
+      });
+      const findPermission = await UserCompanyRolePermission.findOne({
+        where: {
+          user_id: userToken.id,
+          is_active: true,
+          company_id: facility.company_id,
+          permission_id: { [Op.in]: [7, 8] },
+        },
+      });
+
       const timeLineObj = {
         summary: true,
         detail: true,
@@ -1597,11 +1616,6 @@ ORDER BY
         baseline: false,
         performance: false,
       };
-
-      const facility = await Facility.findOne({
-        where: { id: facilityId },
-        attributes: ["id", "naic_code", "facility_id_general_status"],
-      });
 
       const workflowData = await Workflow.findOne({
         where: { facility_id: facilityId },
@@ -1654,6 +1668,23 @@ ORDER BY
       };
 
       facilityData.disabled = finalStatus;
+      const timeLineObj2 = {
+        summary: true,
+        detail: false,
+        ew: false,
+        weather_iv: false,
+        savings: false,
+        baseline: false,
+        performance: false,
+      };
+      if (
+        (findPermission && findPermission.id) ||
+        userToken.role_id === userType.ENERVA_ADMIN
+      ) {
+      } else {
+        facilityData.disabled = timeLineObj2;
+        facilityData.timeline = timeLineObj2;
+      }
 
       return ResponseHandler.getResponse(
         HTTP_STATUS_CODES.SUCCESS,
