@@ -55,7 +55,6 @@ import {
 } from "../actionCreators/baselineActionCreators";
 import NotificationsToast from "utils/notification/NotificationsToast";
 import { BASELINE_ENDPOINTS } from "constants/apiEndPoints";
-import { ReceiptRounded } from "@mui/icons-material";
 
 export const SufficiencyCheck = (sufficiencyParameters) => {
   return async (dispatch) => {
@@ -352,6 +351,7 @@ export const submitBaselineDt = (baselineParameters) => {
 
 export const fetchDataExplorationSummaryList = (
   facilityId,
+  meterType,
   summaryType,
   page,
   pageSize
@@ -359,7 +359,7 @@ export const fetchDataExplorationSummaryList = (
   return async (dispatch) => {
     try {
       dispatch(fetchDataExplorationSummaryListRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}&meter_type=${meterType}`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data =
@@ -441,11 +441,11 @@ export const fetchRawSummaryMeterList = (
   };
 };
 
-export const fetchOutliersSettingsData = (facilityId) => {
+export const fetchOutliersSettingsData = (facilityId, meterType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchOutliersSettingsRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}&meter_type=${meterType}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       dispatch(fetchOutliersSettingsSuccess(data));

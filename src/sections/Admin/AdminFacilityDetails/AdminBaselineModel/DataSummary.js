@@ -15,20 +15,32 @@ import { fetchAdminDataExplorationSummaryList } from "../../../../redux/admin/ac
 import { format } from "date-fns";
 import { formatNumber } from "utils/numberFormatter";
 
-const DataSummary = () => {
+const DataSummary = ({meterType}) => {
   const [activeButton, setActiveButton] = useState("observe_data");
   const dispatch = useDispatch();
   const { id } = useParams();
   const handleButtonClick = (btn_name) => {
     setActiveButton(btn_name);
   };
+  const [isDataExplorationSummaryReady, setIsDataExplorationSummaryReady] =
+    useState(true);
   useEffect(() => {
     if (activeButton === "missing_data" || activeButton === "outliers") {
-      dispatch(fetchAdminDataExplorationSummaryList(id, activeButton));
+      dispatch(
+        fetchAdminDataExplorationSummaryList(id, meterType, activeButton)
+      ).then(
+        (res) => {
+          setIsDataExplorationSummaryReady(false);
+        }
+      );
     } else {
-      dispatch(fetchAdminDataExplorationSummaryList(id));
+      dispatch(fetchAdminDataExplorationSummaryList(id, meterType)).then(
+        (res) => {
+          setIsDataExplorationSummaryReady(false);
+        }
+      );
     }
-  }, [dispatch, id, activeButton]);
+  }, [dispatch, id, activeButton, meterType]);
 
   const summaryData = useSelector(
     (state) => state?.adminBaselineReducer?.dataExplorationSummaryList
@@ -130,6 +142,7 @@ const DataSummary = () => {
       modalVisible: true,
       modalBodyContent: (
         <DetailsAndSetting
+          meterType={meterType}
           setDetailsAndSettingModalConfig={setDetailsAndSettingModalConfig}
         />
       ),
@@ -355,6 +368,24 @@ const DataSummary = () => {
         return null;
     }
   };
+
+  if (isDataExplorationSummaryReady) {
+    return (
+      <Box display={"flex"} gap={1} alignItems={"center"}>
+        <Typography
+          variant="body1"
+          color="textSecondary"
+          sx={{
+            marginRight: "1rem",
+            fontWeight: 700,
+          }}
+        >
+          Please wait for the data to process
+        </Typography>
+        <div className="progress-loader"></div>
+      </Box>
+    );
+  }
 
   return (
     <Grid

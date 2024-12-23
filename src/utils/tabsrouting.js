@@ -97,14 +97,14 @@ export const tabsData = (userType, userRole, permissions = []) => {
   let tabs = [];
 
   if(userType === 2){
-    if(checkValueNotExist(permissions, "facility") || checkValueNotExist(permissions, "facility-data")){
+    // if(checkValueNotExist(permissions, "facility") || checkValueNotExist(permissions, "facility-data")){
       tabs.push(
         {
           label:"Facility List",
           route:'/facility-list'
         },
       );
-    }
+    // }
     if(checkValueNotExist(permissions, "bind-company")){
       tabs.push(
         {
@@ -113,14 +113,14 @@ export const tabsData = (userType, userRole, permissions = []) => {
         },
       );
     }
-    if(checkValueNotExist(permissions, "add-user") || checkValueNotExist(permissions, "grant-revoke-access")){
+    // if(checkValueNotExist(permissions, "add-user") || checkValueNotExist(permissions, "grant-revoke-access")){
       tabs.push(
         {
           label:"User Management",
           route:'/user-management'
         },
       );
-    }
+    // }
   }
   // if(userType === 2){
   //   for(let i = 0; i < permissions.length; i++){

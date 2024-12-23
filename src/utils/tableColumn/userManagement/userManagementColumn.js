@@ -22,6 +22,33 @@ import { stringFilter } from "utils/helper/helper";
 const UserManagementColumn = () => {
     const dispatch = useDispatch();
     const show_loader = useSelector((state) => state?.loaderReducer?.show_loader);
+    const userPermissions = useSelector(
+        (state) => state?.facilityReducer?.userDetails?.permissions || {}
+    );
+    
+    const computePermissions = (permissions) => {
+      const hasAddUser = permissions.some(
+        (perm) =>
+          perm?.permission === "add-user" ||
+          perm?.Permission?.permission === "add-user"
+      );
+      const hasGrantRevokeAccess = permissions.some(
+        (perm) =>
+          perm?.permission === "grant-revoke-access" ||
+          perm?.Permission?.permission === "grant-revoke-access"
+      );
+
+      if (hasAddUser && hasGrantRevokeAccess) {
+        return false;
+      } else if (hasAddUser) {
+        return true;
+      } else if (hasGrantRevokeAccess) {
+        return false;
+      }
+      return true; // No permissions
+    };
+  
+  const viewPermission = computePermissions(userPermissions);
 
     const buttonStyle = {
         display: 'inline-flex',
@@ -146,17 +173,71 @@ const UserManagementColumn = () => {
         },
         {
             Header: "Action",
-            accessor: (item) => (
-                <Box gap={1} >
-                    <Typography disabled={item.status === 'Initiated' || item.status === 'Rejected' }  variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'blue.main' }} onClick={() => handelManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)}>
-                    {((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && (item?.role_id === 1 ||item?.role_id === 2 )) ) ? 'View permission' : 'Manage permission'} 
+            accessor: (item) => {
+                return (
+                  <Box gap={1}>
+                    <Typography
+                      disabled={
+                        item.status === "Initiated" ||
+                        item.status === "Rejected"
+                      }
+                      variant="span"
+                      sx={{
+                        ...buttonStyle,
+                        padding: "0",
+                        margin: "0.4375rem 1rem",
+                        marginRight: "0",
+                        color: "blue.main",
+                      }}
+                      onClick={() =>
+                        handelManagePermission(
+                          userData,
+                          item,
+                          setVisibleInvitePage,
+                          setSelectTableRow,
+                          setInvitePageInfo,
+                          setInviteAPIURL,
+                          viewPermission
+                        )
+                      }
+                    >
+                      {userData?.user?.id === item?.id ||
+                      (userData?.user?.id !== item?.id &&
+                        (item?.role_id === 1 || item?.role_id === 2)) ||
+                      viewPermission
+                        ? "View permission"
+                        : "Manage permission"}
                     </Typography>
-                    <Typography disabled={(userData?.user?.id === item?.id) || (item.status === 'Initiated' || (item?.role_id === 1 ||item?.role_id === 2 ))} variant="span" sx={{ ...buttonStyle, padding: '0', margin:'0.4375rem 1rem', marginRight: '0', color: 'danger.main' }} onClick={() => handelDeleteModalOpen(userData,item, handleAPISuccessCallBack, setModalConfig)} >
-                        Delete
+                    <Typography
+                      disabled={
+                        userData?.user?.id === item?.id ||
+                        item.status === "Initiated" ||
+                        item?.role_id === 1 ||
+                        item?.role_id === 2 ||
+                        viewPermission
+                      }
+                      variant="span"
+                      sx={{
+                        ...buttonStyle,
+                        padding: "0",
+                        margin: "0.4375rem 1rem",
+                        marginRight: "0",
+                        color: "danger.main",
+                      }}
+                      onClick={() =>
+                        handelDeleteModalOpen(
+                          userData,
+                          item,
+                          handleAPISuccessCallBack,
+                          setModalConfig
+                        )
+                      }
+                    >
+                      Delete
                     </Typography>
-
-                </Box>
-            ),
+                  </Box>
+                );
+            },
         },
     ];
 
@@ -217,16 +298,22 @@ const UserManagementColumn = () => {
             })
     }
 
-    const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL) => {
-        if(item.status === 'Initiated' || item.status === 'Rejected'){
-            NotificationsToast({ message: "You don't have permission for this!", type: "error" });
-            return;
+    const handelManagePermission = (userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL,viewPermission) => {
+        if (
+          item.status === "Initiated" ||
+          item.status === "Rejected" 
+        ) {
+          NotificationsToast({
+            message: "You don't have permission for this!",
+            type: "error",
+          });
+          return;
         }
-        const pageTitle = ((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && (item?.role_id === 1 ||item?.role_id === 2 )) ) ? "View permission" : "Manage permission"
+        const pageTitle = ((userData?.user?.id === item?.id) || (userData?.user?.id !== item?.id && (item?.role_id === 1 ||item?.role_id === 2 )) || viewPermission ) ? "View permission" : "Manage permission"
         const apiURL = USER_MANAGEMENT.EDIT_INVITATION_BY_ADMIN;
         setVisibleInvitePage(true);
         setSelectTableRow(item)
-        setInvitePageInfo({title:pageTitle, type: null })
+        setInvitePageInfo({title:pageTitle, type: null, viewPermission })
         setInviteAPIURL(apiURL)
     }
 

@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { fetchAdminOutliersSettingsData } from "../../../../redux/admin/actions/adminBaselineAction";
 
-const DetailsAndSetting = () => {
+const DetailsAndSetting = ({ meterType }) => {
   const [activeButton, setActiveButton] = useState("outliers_info");
   const dispatch = useDispatch();
   const { id } = useParams();
@@ -27,8 +27,8 @@ const DetailsAndSetting = () => {
   };
 
   useEffect(() => {
-    dispatch(fetchAdminOutliersSettingsData(id));
-  }, [dispatch, id]);
+    dispatch(fetchAdminOutliersSettingsData(id, meterType));
+  }, [dispatch, id, meterType]);
 
   const summaryData = useSelector(
     (state) => state?.adminBaselineReducer?.outliersSettingsData
@@ -167,7 +167,7 @@ const DetailsAndSetting = () => {
                 displayEmpty={true}
                 className="transparent-border"
               >
-                <MenuItem value="">Outlier Detection Method</MenuItem>
+                <MenuItem disabled value="">Outlier Detection Method</MenuItem>
                 <MenuItem value="interquartile">Interquartile</MenuItem>
               </Select>
             </FormControl>

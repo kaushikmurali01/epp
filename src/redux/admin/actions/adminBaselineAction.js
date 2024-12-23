@@ -355,12 +355,13 @@ export const submitAdminBaselineDt = (baselineParameters) => {
 
 export const fetchAdminDataExplorationSummaryList = (
   facilityId,
+  meterType,
   summaryType
 ) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminDataExplorationSummaryListRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_DATA_EXPLORATION_SUMMARY}?facility_id=${facilityId}&meter_type=${meterType}`;
       endpointWithParams += summaryType ? `&summary_type=${summaryType}` : "";
       const response = await GET_REQUEST(endpointWithParams);
       const data =
@@ -439,11 +440,11 @@ export const fetchAdminRawSummaryMeterList = (
   };
 };
 
-export const fetchAdminOutliersSettingsData = (facilityId) => {
+export const fetchAdminOutliersSettingsData = (facilityId, meterType) => {
   return async (dispatch) => {
     try {
       dispatch(fetchAdminOutliersSettingsRequest());
-      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}`;
+      let endpointWithParams = `${BASELINE_ENDPOINTS.FETCH_OUTLIERS_SETTING}?facility_id=${facilityId}&meter_type=${meterType}`;
       const response = await GET_REQUEST(endpointWithParams);
       const data = response.data;
       console.log(response);
