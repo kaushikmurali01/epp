@@ -11,6 +11,7 @@ import { Company } from "../models/company";
 import { Model } from "sequelize";
 import { UserRequest } from "../models/user-request";
 import { AuthorizationService } from "../middleware/authorizeMiddleware";
+import { CompanyLogsService } from "../services/companyLogsService";
 /**
  * Creates a new role based on the provided request data.
  * 
@@ -187,10 +188,10 @@ export async function GetPermissionsByRoleId(request: HttpRequest, context: Invo
         const roleId = parseInt(request.params.id);
 
         const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-       if(resp?.company_id) {
-        const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
-        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
-       }
+    //    if(resp?.company_id) {
+    //     const hasPermission = await AuthorizationService.check(resp.company_id, resp.id, ['grant-revoke-access'], resp.role_id);
+    //     if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+    //    }
 
         // Get permissions by role ID
         const permissions = await RolePermissionService.getPermissionsByRoleId(roleId);
@@ -207,12 +208,15 @@ export async function GetPermissionsByRoleId(request: HttpRequest, context: Invo
 }
 
 export async function AssignPermissions(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+   let requestData:any = null;
+   let resp = null;
     try {
         // Parse request data
-        const requestData:any = await request.json(); 
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+         requestData = await request.json(); 
+        resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         requestData.company_id = resp.company_id;
+        requestData.uid = resp.id;
         // Create role
         const role = await RoleController.assignPermissions(requestData, context);
        
@@ -222,6 +226,17 @@ export async function AssignPermissions(request: HttpRequest, context: Invocatio
         // Return success response
         return { body: responseBody, status: 200 };
     } catch (error) {
+        // Log start
+        const input = {
+            "event": `Unable to assign permissions to user having email ${requestData.email} due to some error`,
+            "company_id":request.params.company_id,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id,
+            "error": error.message
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
         // Return error response
         return { status: 500, body: `Error: ${error.message}` };
     }

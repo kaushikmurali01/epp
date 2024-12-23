@@ -24,6 +24,7 @@ import axios from 'axios';
 import { ParticipantAgreement } from "../models/participantAgreement";
 import { Facility } from "../models/facility";
 import { Op } from 'sequelize';
+import { CompanyLogsService } from "../services/companyLogsService";
 
 /**
  * Registers a new user based on the provided request data.
@@ -168,23 +169,49 @@ export async function GetIESOUsers(request: HttpRequest, context: InvocationCont
 }
 
 export async function AcceptInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let requestData:any = null;
+    let resp: any = null;
     try {
-        const requestData = await request.json();
+        resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+         requestData = await request.json();
         const data = await UserController.acceptInvitation(requestData);
         const responseBody = JSON.stringify(data);
         return { body: responseBody };
     } catch (error) {
+        // Log start
+     const input = {
+        "event": `Unable to accept company join request due to an error`,
+        "company_id": requestData.company_id,
+        "user_id": resp.user_id,
+        "facility_id": 0,
+        "created_by":resp.user_id,
+        "error": error.message
+        };
+        await CompanyLogsService.createCompanyLog(input);
+        //Log end
         return { status: 500, body: `${error.message}` };
     }
 }
 
 export async function RejectInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let requestData:any = null;
     try {
-        const requestData = await request.json();
+         requestData = await request.json();
         const data = await UserService.rejectInvitation(requestData);
         const responseBody = JSON.stringify(data);
         return { body: responseBody };
     } catch (error) {
+        // Log start
+     const input = {
+        "event": `Unable to reject company join request due to an error`,
+        "company_id": requestData.company_id,
+        "user_id": requestData.user_id,
+        "facility_id": 0,
+        "created_by":requestData.user_id,
+        "error": error.message
+        };
+        await CompanyLogsService.createCompanyLog(input);
+        //Log end
         return { status: 500, body: `${error.message}` };
     }
 }
@@ -357,6 +384,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
  * @returns A promise resolving to an HTTP response containing the user with the specified ID.
  */
 export async function AcceptUserInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    const requestData:any = await request.json();
     try {
 
         // Middleware
@@ -364,7 +392,7 @@ export async function AcceptUserInvitation(request: HttpRequest, context: Invoca
         context.log("middlewareResponse", resp);
 
         // Extract user ID from request
-        const requestData = await request.json();
+        
 
         // Get user by ID
         const user = await UserInvitationService.acceptUserInvitation(requestData, resp, context);
@@ -375,6 +403,21 @@ export async function AcceptUserInvitation(request: HttpRequest, context: Invoca
         // Return success response
         return { body: responseBody };
     } catch (error) {
+        // Log start
+     const input = {
+     "event": `Unable to accept invitation due to an error`,
+     "company_id": requestData.company_id,
+     "user_id": requestData.user_id,
+     "facility_id": 0,
+     "created_by":requestData.user_id,
+     "error": error.message
+     };
+     if(requestData.type === 'reject') {
+        input.event = `Unable to reject invitation due to an error`;
+     }
+     
+   await CompanyLogsService.createCompanyLog(input);
+   // Log end
         // Return error response
         return { status: 500, body: `Error: ${error.message}` };
     }
@@ -425,6 +468,8 @@ export async function GetUserDetailById(request: HttpRequest, context: Invocatio
  * @returns A promise resolving to an HTTP response indicating the status of user deletion.
  */
 export async function DeleteUser(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let resp = null;
+    let userDet:any = null;
     try {
         const userId: any = request.params.id;
         const type: any = request.params.type;
@@ -432,7 +477,7 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         context.log("Type", type);
         context.log("Company Id", company_id);
         context.log("User Id", userId);
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+         resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         const hasPermission = await AuthorizationService.check(company_id, resp.id, ['grant-revoke-access'], resp.role_id);
         if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
@@ -449,7 +494,7 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
                 context.log('1111', ucr?.role_id)
                 let user_role = ucr?.role_id;
                 const company:any = await CompanyService.GetCompanyById(request.params.company_id);
-                const userDet:any = await UserService.getUserDataById(userId);
+                 userDet = await UserService.getUserDataById(userId);
 
                 if (user_role === 1) {
                     const companyUsers = await UserCompanyRole.findAll({ where: { company_id } });
@@ -505,6 +550,17 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
     // Send Email to Admins
       }
 
+      // Log start
+      const input = {
+        "event": `Deleted user with email ${userDet?.email}`,
+        "company_id": company_id,
+        "user_id": resp.id,
+        "facility_id": 0,
+        "created_by":resp.id
+        };
+    await CompanyLogsService.createCompanyLog(input);
+    // Log end
+
 
 
 
@@ -519,6 +575,17 @@ export async function DeleteUser(request: HttpRequest, context: InvocationContex
         }
         return { body: JSON.stringify({ status: 200, body: `Deleted Successfully.` }) };
     } catch (error) {
+        // Log start
+        const input = {
+            "event": `Unable to delete user having email ${userDet?.email} due to some error`,
+            "company_id":request.params.company_id,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id,
+            "error": error.message
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
         return { status: 500, body: `${error.message}` };
     }
 }
@@ -557,6 +624,8 @@ export async function DeleteUserAdmin(request: HttpRequest, context: InvocationC
         return { status: 500, body: `${error.message}` };
     }
 }
+
+
 
 export async function DeleteUserByemail(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     try {
@@ -708,12 +777,14 @@ export async function GetUserInvitationList(request: HttpRequest, context: Invoc
 }
 
 export async function SendAdminInvitation(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let requestData: any = null;
+    let resp = null;
     try {
         // Parse request data
-        const requestData: any = await request.json();
+        requestData = await request.json();
         requestData.type = 2;
         console.log('requestData', requestData);
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+        resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
 
         // Validation starts
         const email = requestData.email;
@@ -761,6 +832,17 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         // Validation ends
 
         const data = await UserInvitationService.sendInvitation(requestData, resp);
+        
+        // Log start
+        const input = {
+            "event": `Sent invitation to user with email ${email}`,
+            "company_id": company,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
 
         // Prepare response body
         const responseBody = JSON.stringify(data);
@@ -769,6 +851,17 @@ export async function SendAdminInvitation(request: HttpRequest, context: Invocat
         return { body: responseBody };
     } catch (error) {
         // Return error response
+        // Log start
+        const input = {
+            "event": `Unable to send invitation due to some error`,
+            "company_id": requestData.company,
+            "user_id": resp.id,
+            "facility_id": 0,
+            "created_by":resp.id,
+            "error": error.message
+            };
+        await CompanyLogsService.createCompanyLog(input);
+        // Log end
         return { status: 500, body: `${error.message}` };
     }
 }
@@ -844,10 +937,12 @@ export async function GetFilteredUsers(request: HttpRequest, context: Invocation
 }
 
 export async function CreateUserRequest(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+    let requestData:any = null;
+    let resp = null;
     try {
         // Parse request data
-        const requestData:any = await request.json();
-        const resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
+         requestData = await request.json();
+        resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
         const email = resp.email;
         const company = requestData.company_id;
         const user_id = requestData.user_id;
@@ -874,6 +969,17 @@ export async function CreateUserRequest(request: HttpRequest, context: Invocatio
         // Return success response
         return { body: responseBody };
     } catch (error) {
+         // Log start
+     const input = {
+        "event": `Unable to send company join request due to an error`,
+        "company_id": requestData.company_id,
+        "user_id": requestData.user_id,
+        "facility_id": 0,
+        "created_by":requestData.user_id,
+        "error": error.message
+        };
+        await CompanyLogsService.createCompanyLog(input);
+        //Log end
         // Return error response
         return { status: 500, body: `${error.message}` };
     }
@@ -1003,8 +1109,8 @@ export async function GetCombinedResults(request: HttpRequest, context: Invocati
         console.log('abcd');
         let companyId = company_id ? company_id : resp.company_id;
 
-        const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
-        if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
+       // const hasPermission = await AuthorizationService.check(companyId, resp.id, ['add-user', 'grant-revoke-access'], resp.role_id);
+        //if(!hasPermission) return {body: JSON.stringify({ status: 403, message: "Forbidden" })};
         let order = request.query.get('order') || 'ASC';
         const colName = request.query.get('col_name') || 'id';
 

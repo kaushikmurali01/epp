@@ -8,6 +8,7 @@ import { UserInvitation } from '../models/user-invitation';
 import { sequelize } from './database';
 import { Op } from 'sequelize';
 import { UserCompanyRole } from '../models/user-company-role';
+import { CompanyLogsService } from './companyLogsService';
 
 
 class RoleService {
@@ -179,10 +180,25 @@ class RoleService {
                     const [affectedRows] = await UserCompanyRole.update({ role_id:data.role_id }, { where: { user_id:user.id, company_id:data.company_id } });
                 }
                 // Update company role ends
+                // Log start
+                (async () => {
+                const userSUper = await User.findOne({ where: { id: data.uid } });
+       const input = {
+        "event": ` ${userSUper.first_name} ${userSUper.last_name} has assigned/updated permissions to user having email ${data.email}`,
+        "company_id": data.company_id,
+        "user_id": data.uid,
+        "facility_id": 0,
+        "created_by":data.uid
+        };
+        await CompanyLogsService.createCompanyLog(input);
+    })();
+    // Log end
+
             } else {
                 context.log("4444", data);
                 await UserInvitation.update({ permissions, role: data.role_id }, { where: { email, company: data.company_id } });
             }
+            
             console.log('Permissions inserted successfully.');
             //return perm;
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };

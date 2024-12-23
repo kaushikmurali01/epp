@@ -20,6 +20,10 @@ import { UserResourceFacilityPermission } from "../models/user-resource-permissi
 import { UserCompanyRolePermission } from "../models/userCompanyRolePermission";
 import { CheckCompanyStatus } from "./company";
 import { RESPONSE_MESSAGES } from "enerva-utils/utils/status";
+import { CustomColumn } from '../models/custom-columns'; // Import Sequelize model
+import { Facility } from "../models/facility";
+import { CompanyLogsService } from "../services/companyLogsService";
+
 
 /**
  * Registers a new user based on the provided request data.
@@ -711,11 +715,11 @@ export async function GetPermissionsByUserAdmin(
         ],
       });
 
-      // Aggregate permissions into an array
+      // Aggregate permissions into an array.
       const permissionsArray = userPermissions.map(
         (permission) => permission.permission_id
       );
-      context.log("permissionsArray", userPermissions);
+      //context.log("permissionsArray", userPermissions);
 
       // Return a single object
       let permissions = {
@@ -749,9 +753,14 @@ export async function AddResourceFacilityPermission(
   request: HttpRequest,
   context: InvocationContext
 ): Promise<HttpResponseInit> {
+  let decoded:any = null;
+  let requestData:any = null;
   try {
+   decoded = await decodeTokenMiddleware(request, context, async () =>
+      Promise.resolve({})
+    );
     // Extract emails from request
-    const requestData: any = await request.json();
+    requestData = await request.json();
     //let emails = requestData.email.split(",")
     let emails = requestData.email.split(",").map((email) => email.trim());
     let facilityId = requestData.facilityId;
@@ -780,6 +789,24 @@ export async function AddResourceFacilityPermission(
             resource_permission_id: 5,
             company_id,
           });
+          (async () => {
+          // log start
+          
+          let facility = await Facility.findOne({
+            where: {
+              id: facilityId[j]
+            },
+          });
+          const input = {
+            "event": `Facility ${facility.facility_name} is assigned to user with email ${emails[i]} `,
+            "company_id": company_id,
+            "user_id": decoded.id,
+            "facility_id": facilityId[j],
+            "created_by":decoded.id
+            };
+           await CompanyLogsService.createCompanyLog(input);
+          // log end
+          })();
         }
       }
     }
@@ -790,6 +817,18 @@ export async function AddResourceFacilityPermission(
     // Return success response
     return { body: responseBody, status: 200 };
   } catch (error) {
+
+    // Log start
+    const input = {
+      "event": `Unable to assign facility to user due to an error`,
+      "company_id": requestData.company_id,
+      "user_id": decoded.user_id,
+      "facility_id": 0,
+      "created_by":decoded.user_id,
+      "error": error.message
+      };
+      await CompanyLogsService.createCompanyLog(input);
+      //Log end
     // Return error response
     return { status: 500, body: `${error.message}` };
   }
@@ -808,6 +847,7 @@ export async function SearchUsers(
     let order = requestData.order || "ASC";
     let col_name = requestData.col_name || "id";
     let company_id = requestData.company_id || null;
+    let filters = requestData.filters;
     if (!data) {
       data = [];
     }
@@ -817,7 +857,8 @@ export async function SearchUsers(
       limit,
       order,
       col_name,
-      company_id
+      company_id,
+      filters
     );
 
     // Prepare response body
@@ -830,6 +871,115 @@ export async function SearchUsers(
     return { status: 500, body: `Error: ${error.message}` };
   }
 }
+
+/**
+ * Add or update custom columns.
+ *
+ * @param request The HTTP request object containing fields and type.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the result of the operation.
+ */
+export async function SaveCustomColumns(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Extract data from request
+    const requestData: any = await request.json();
+    const { fields, type } = requestData;
+
+    for (let i = 0; i < fields.length; i++) {
+      const { field_slug, field_name, is_checked } = fields[i];
+
+      // Check if the record exists
+      let existingColumn = await CustomColumn.findOne({
+        where: {
+          field_slug,
+          module_type: type,
+        },
+      });
+
+      if (existingColumn) {
+        // If it exists, update the `is_checked` value
+        existingColumn.is_checked = is_checked;
+        await existingColumn.save();
+      } else {
+        // If it doesn't exist, create a new record
+        await CustomColumn.create({
+          field_slug,
+          field_name,
+          field_type: 'text', 
+          module_type: type,
+          createdat: new Date(),
+          updatedat: new Date(),
+          created_by: 1,
+          updated_by: 1,
+          is_checked,
+        });
+      }
+    }
+
+    // Prepare response
+    const response = { status: 200, body: 'Custom columns processed successfully' };
+    return { body: JSON.stringify(response), status: 200 };
+  } catch (error) {
+    // Return error response in case of failure
+    return { status: 500, body: `Error: ${error.message}` };
+  }
+}
+
+/**
+ * Get custom columns based on module type.
+ *
+ * @param request The HTTP request object containing the module type.
+ * @param context The invocation context of the Azure Function.
+ * @returns A promise resolving to an HTTP response containing the columns data.
+ */
+export async function GetCustomColumns(
+  request: HttpRequest,
+  context: InvocationContext
+): Promise<HttpResponseInit> {
+  try {
+    // Extract module type from query parameters
+    //const moduleType = request.query.get('type');
+
+    const moduleType = request.params.type;
+
+
+    if (!moduleType) {
+      return { status: 400, body: 'Type is required' };
+    }
+
+    // Fetch custom columns based on the module type
+    const customColumns = await CustomColumn.findAll({
+      where: {
+        module_type: moduleType,
+      },
+      attributes: ['id', 'field_slug', 'field_name', 'module_type', 'is_checked', 'order_id', 'is_sort', 'is_search']
+    });
+
+    // Prepare response
+    const response = { status: 200, body: JSON.stringify(customColumns) };
+    return { body: response.body, status: response.status };
+  } catch (error) {
+    // Return error response in case of failure
+    return { status: 500, body: `Error: ${error.message}` };
+  }
+}
+
+app.http("SaveCustomColumns", {
+  methods: ["POST"],
+  authLevel: "anonymous",
+  route: "columns/save",
+  handler: SaveCustomColumns,
+});
+
+app.http("GetCustomColumns", {
+  methods: ["GET"],
+  authLevel: "anonymous",
+  route: "columns/get/{type}",
+  handler: GetCustomColumns,
+});
 
 app.http("SearchUsers", {
   methods: ["POST"],
