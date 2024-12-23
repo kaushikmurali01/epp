@@ -203,7 +203,7 @@ static async rejectInvitation(data): Promise<Response> {
     }
   }
 
-  static async search(data, offset, limit, order, col_name, company_id, filters): Promise<any> {
+  static async search(data, offset, limit, order, col_name, company_id, filters:any): Promise<any> {
 // Construct the WHERE clause
 let whereClause = '';
 let whereClauseOr = '';
@@ -219,8 +219,9 @@ let filterCheck = "";
          
 
           // Filters
-          console.log("Filters", filters);
-          console.log("length", filters.length);
+          //console.log("Filters", filters);
+          //console.log("length", filters.length);
+          if(!filters) filters = [];
           if(filters && filters.length > 0) {
           filters.forEach((filter) => {
             

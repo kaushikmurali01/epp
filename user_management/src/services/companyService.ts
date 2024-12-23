@@ -235,7 +235,7 @@ class CompanyService {
         data,
         colName,
         order,
-        filters
+        filters:any
       ): Promise<any[]> {
         try {
           let filterCheck = "";
@@ -244,9 +244,11 @@ class CompanyService {
           }
 
           // Filters
-          console.log("Filters", filters);
-          console.log("length", filters.length);
-          if(filters && filters.length > 0) {
+         // console.log("Filters", filters);
+         // console.log("length", filters.length);
+         if(!filters) filters = []
+          
+         if(filters && filters.length > 0) {
           filters.forEach((filter) => {
             
             if (filter.value && filter.type === 'string') {
