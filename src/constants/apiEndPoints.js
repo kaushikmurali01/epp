@@ -1,3 +1,5 @@
+const API_PREFIX = process.env.REACT_APP_API_PREFIX || "";
+
 export const facilityEndPoints = {
   ADD_EDIT_FACILITY: "/company-facility/v1/facility",
   FACILITY_LIST: "/company-facility/v1/facility-listing",
@@ -217,16 +219,16 @@ export const hourlyEndPoints = {
   GET_HOURLY_DATA:
     "company-facility/v1/facility-meter-hourly-entries/0/10?facility_meter_detail_id=",
   ADD_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry",
-  ADD_BULK_HOURLY_DATA: "/v1/upload-meter-file",
-  ADD_HOURLY_METER_DATA: "/v1/add-meter-data",
+  ADD_BULK_HOURLY_DATA: `/${API_PREFIX}v1/upload-meter-file`,
+  ADD_HOURLY_METER_DATA: `/${API_PREFIX}v1/add-meter-data`,
   DELETE_HOURLY_DATA: "company-facility/v1/facility-meter-hourly-entry/",
-  DELETE_HOURLY_ENTRIES_FILE: "/v1/remove-meter-file",
+  DELETE_HOURLY_ENTRIES_FILE: `/${API_PREFIX}v1/remove-meter-file`,
 };
 
 export const adminHourlyEndPoints = {
   GET_HOURLY_ENTRIES: "/company-facility/v1/facility/getHourlyEntries",
   DELETE_HOURLY_ENTRIES: "/company-facility/v1/facility/removeHourlyEntries",
-  GET_UPLOAD_RESULT: "/v1/get-uploader-result",
+  GET_UPLOAD_RESULT: `/${API_PREFIX}v1/get-uploader-result`,
 };
 
 export const POWERBI_ENDPOINTS = {
@@ -241,18 +243,18 @@ export const WEATHER_INDEPENDENT_VARIABLE_ENDPOINTS = {
   DELETE_INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
   UPLOAD_INDEPENDENT_VARIABLE_FILE: "etl/v1/etl/upload-file-iv",
   GET_WEATHER_STATION: "weather/v1/get_station_details",
-  GET_WEATHER_DATA: "v1/get_weather_data",
+  GET_WEATHER_DATA: `${API_PREFIX}v1/get_weather_data`,
   INSERT_WEATHER_DATA: "weather/v1/insert_weather_data",
 };
 
 export const BASELINE_ENDPOINTS = {
-  CHECK_SUFFICIENCY: "v1/check_sufficiency",
+  CHECK_SUFFICIENCY: `${API_PREFIX}v1/check_sufficiency`, //for PROD env, use "${API_PREFIX}v1/check_sufficiency" url
   // INDEPENDENT_VARIABLE: "etl/v1/etl/independent_variable",
-  INDEPENDENT_VARIABLE: "v1/get-independent-variable",
+  INDEPENDENT_VARIABLE: `${API_PREFIX}v1/get-independent-variable`,
   STATION_DETAILS: "weather/v1/get_station_details",
   BASELINE_PERIOD: "weather/v1/get_min_max_dates",
-  CHECK_ISSUES_DETAILS: "v1/check_issues",
-  SHOW_OBSERVE_DATA_LIST: "v1/get_observed_data",
+  CHECK_ISSUES_DETAILS: `${API_PREFIX}v1/check_issues`,
+  SHOW_OBSERVE_DATA_LIST: `${API_PREFIX}v1/get_observed_data`,
   ADD_BASELINE_DB: "company-facility/v1/baseline",
   FETCH_BASELINE_DB: "company-facility/v1/getBaseline",
   UPDATE_BASELINE_DB: "company-facility/v1/baseline",
@@ -260,14 +262,14 @@ export const BASELINE_ENDPOINTS = {
   ADD_ASSIGNEE_DB: "company-facility/v1/baseline/addAssignee",
   SUBMIT_REJECTED_BASELINE_DB: "company-facility/v1/submitRejectedBaseline",
   SUBMIT_BASELINE_D_T: "model/v1/model_summary",
-  FETCH_DATA_EXPLORATION_SUMMARY: "v1/data-exploration-summary-v2",
-  FETCH_OUTLIERS_SETTING: "/v1/outlier-settings",
+  FETCH_DATA_EXPLORATION_SUMMARY: `${API_PREFIX}v1/data-exploration-summary-v2`,
+  FETCH_OUTLIERS_SETTING: `/${API_PREFIX}v1/outlier-settings`,
   FACILITY_THRESHOLD: "company-facility/v1/facility-threshold",
-  GET_PREDICTED_DATA: "/v1/get-performance-baseline-cal",
-  GET_EXPORT_STATUS: "/v1/get-export-status",
-  GET_UNREAD_NOTIFICATIONS: "/v1/get-unread-notifications",
-  MARK_AS_READ_NOTIFICATION: "/v1/mark-as-read",
-  GET_DATA_EXPLORATION_TIME_PERIOD: "/v1/date_range",
+  GET_PREDICTED_DATA: `/${API_PREFIX}v1/get-performance-baseline-cal`,
+  GET_EXPORT_STATUS: `/${API_PREFIX}v1/get-export-status`,
+  GET_UNREAD_NOTIFICATIONS: `/${API_PREFIX}v1/get-unread-notifications`,
+  MARK_AS_READ_NOTIFICATION: `/${API_PREFIX}v1/mark-as-read`,
+  GET_DATA_EXPLORATION_TIME_PERIOD: `/${API_PREFIX}v1/date_range`,
 };
 
 export const PERFORMANCE_ENDPOINTS = {
@@ -286,8 +288,8 @@ export const PERFORMANCE_ENDPOINTS = {
   GET_PERFORMANCE_REPORT: "/company-facility/v1/performance",
   GET_PERFORMANCE_DATA_MIN_MAX_DATE: "/weather/v1/get-performance-min-max",
   GET_PERFORMANCE_DATA_VISUALIZATION: "/model/v1/get_performance_scoring_data",
-  FETCH_PERFORMANCE_DATA_SUMMARY: "v1/data-exploration-summary-v2",
-  GET_PREDICTED_DATA: "/v1/get-performance-baseline-cal",
+  FETCH_PERFORMANCE_DATA_SUMMARY: `${API_PREFIX}v1/data-exploration-summary-v2`,
+  GET_PREDICTED_DATA: `/${API_PREFIX}v1/get-performance-baseline-cal`,
 };
 
 export const PERFORMANCE_ADMIN_SETTINGS_ENDPOINTS = {
