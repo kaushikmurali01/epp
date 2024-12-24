@@ -63,6 +63,7 @@ const SavingsReportForm = forwardRef(
       onDateValidation,
       isSubmitted,
       onP4PStartDatesLoaded,
+      isNRAFileDeleted,
     },
     ref
   ) => {
@@ -365,7 +366,7 @@ const SavingsReportForm = forwardRef(
 
     useEffect(() => {
       handleRefreshCalculation();
-    }, [adminNonRoutineEventList]);
+    }, [adminNonRoutineEventList, isNRAFileDeleted]);
 
     const handleSaveSavingsReport = useCallback(
       (currentStatuses = statuses) => {

@@ -44,6 +44,7 @@ const PerformancePeriodInformationAccordion = ({
   const [totalPages, setTotalPages] = useState(0);
   const itemsPerPage = 10;
   const [responseCount, setResponseCount] = useState(0);
+  const [isNRAFileDeleted, setIsNRAFileDeleted] = useState(false);
 
   const facility_id = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data?.id
@@ -203,6 +204,7 @@ const PerformancePeriodInformationAccordion = ({
                 eventDetails={adminNonRoutineEventDetails}
                 key={Date.now()} // Force re-render
                 meter_type={meter_type}
+                setIsNRAFileDeleted={setIsNRAFileDeleted}
               />
             ),
           }));
@@ -225,6 +227,7 @@ const PerformancePeriodInformationAccordion = ({
             editMode={editMode}
             key={Date.now()} // Force re-render
             meter_type={meter_type}
+            setIsNRAFileDeleted={setIsNRAFileDeleted}
           />
         ),
       }));
@@ -584,6 +587,7 @@ const PerformancePeriodInformationAccordion = ({
               false
             }
             onP4PStartDatesLoaded={handleP4PStartDatesLoaded}
+            isNRAFileDeleted={isNRAFileDeleted}
           />
         </Grid>
 

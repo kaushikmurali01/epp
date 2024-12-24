@@ -61,7 +61,8 @@ const SavingsReportForm = ({
   onDateValidation,
   isSubmitted,
   onP4PStartDatesLoaded,
-  reviewRequested
+  reviewRequested,
+  isNRAFileDeleted,
 }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({});
@@ -290,7 +291,7 @@ const SavingsReportForm = ({
 
   useEffect(() => {
     handleRefreshCalculation();
-  }, [nonRoutineEventList]);
+  }, [nonRoutineEventList, isNRAFileDeleted]);
 
   const handleDateChange = (newValue) => {
     if (isSubmitted) return;
