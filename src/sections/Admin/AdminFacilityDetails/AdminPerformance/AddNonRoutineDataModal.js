@@ -35,7 +35,8 @@ const AddNonRoutineDataModal = ({
   event_from_period,
   closeAddNonRoutineDataModal,
   editMode,
-  meter_type
+  meter_type,
+  setIsNRAFileDeleted,
 }) => {
   const dispatch = useDispatch();
   const [modalNonRoutineTabs, setModalNonRoutineTabs] = useState("filledData");
@@ -163,7 +164,7 @@ const AddNonRoutineDataModal = ({
       event.target.value = "";
       return;
     }
-    
+
     dispatch(fileUploadAction(selectedFile))
       .then((data) => {
         const newFile = {
@@ -589,6 +590,7 @@ const AddNonRoutineDataModal = ({
                             if (file?.id) {
                               dispatch(deleteAdminNonRoutineEventData(file.id))
                                 .then(() => {
+                                  setIsNRAFileDeleted(true);
                                   closeAddNonRoutineDataModal();
                                 })
                                 .catch(console.error());
