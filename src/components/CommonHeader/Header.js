@@ -222,14 +222,27 @@ function Header(props) {
   const clickSetting = (setting) => {
     if (setting == "Logout") {
       //logout from the application with msal instance
-      localStorage.clear();
-      sessionStorage.clear();
-      instance.logoutRedirect();
+      instance.logoutRedirect().then(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
     } else if (setting == "Profile") {
       navigate("/profile");
     }
     setAnchorElUser(null);
   };
+
+  const postLogoutCleanup = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has("postLogout")) {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+  };
+
+  useEffect(() => {
+    postLogoutCleanup();
+  }, []);
 
   const [companyList, setCompanyList] = useState([]);
   const [selectCompany, setSelectCompany] = useState("");
