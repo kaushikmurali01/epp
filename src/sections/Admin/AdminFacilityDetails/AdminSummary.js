@@ -207,7 +207,7 @@ const Summary = () => {
           </Box>
         </Grid>
       </Grid>
-      <Grid>
+      {/* <Grid>
         <Box id="bi-report" mt={4}>
           {facility_status?.timeline?.ew &&
           !isErrorInPowerBi &&
@@ -260,7 +260,7 @@ const Summary = () => {
             </Typography>
           )}
         </Box>
-      </Grid>
+      </Grid> */}
     </Box>
   );
 };

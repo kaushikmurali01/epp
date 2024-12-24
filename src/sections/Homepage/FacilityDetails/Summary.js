@@ -201,7 +201,7 @@ const Summary = () => {
           </Box>
         </Grid>
       </Grid>
-      <Grid>
+      {/* <Grid>
         <Box id="bi-report" mt={4}>
           {(facility_status?.timeline?.ew && (!isErrorInPowerBi && !reportLoading)) ? <PowerBIEmbed
             embedConfig={powerBiConfig}
@@ -247,7 +247,7 @@ const Summary = () => {
             Either data has not been uploaded and verified yet or uploaded data is in processing state, so this visualization is not available.
           </Typography>}
         </Box>
-      </Grid>
+      </Grid> */}
     </Box>
   );
 };
