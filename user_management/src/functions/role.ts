@@ -214,9 +214,10 @@ export async function AssignPermissions(request: HttpRequest, context: Invocatio
         // Parse request data
          requestData = await request.json(); 
         resp = await decodeTokenMiddleware(request, context, async () => Promise.resolve({}));
-
-        requestData.company_id = resp.company_id;
+        let company_id:any;
+        if(requestData.company_id) company_id = requestData.company_id; else company_id = resp.company_id;
         requestData.uid = resp.id;
+        requestData.company_id = company_id;
         // Create role
         const role = await RoleController.assignPermissions(requestData, context);
        

@@ -171,7 +171,7 @@ export class EmailTemplate {
                                         text-transform: lowercase;
                                         padding-bottom: 1.5rem;
                                       ">
-                              <a href="https://eppstgstorage.z14.web.core.windows.net?invite=true" target="_blank" style="
+                              <a href="https://energyperformanceprogram.ca?invite=true" target="_blank" style="
                                         border: transparent;
                                         padding: 0.5rem 0.75rem;
                                         border-radius: 0.25rem;
@@ -417,7 +417,7 @@ export class EmailTemplate {
                                     text-transform: lowercase;
                                     padding-bottom: 1.5rem;
                                   ">
-                                  <a href="https://eppstgstorage.z14.web.core.windows.net?invite=true" target="_blank" style="
+                                  <a href="https://energyperformanceprogram.ca?invite=true" target="_blank" style="
                                     border: transparent;
                                     padding: 0.5rem 0.75rem;
                                     border-radius: 0.25rem;

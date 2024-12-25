@@ -175,7 +175,7 @@ class RoleService {
                     await UserCompanyRolePermission.create({
                         role_id: data.role_id,
                         permission_id: permissionId,
-                        user_id: usid,
+                        user_id: user.dataValues.id,
                         company_id: data.company_id,
                         is_active: 1,
                     });
