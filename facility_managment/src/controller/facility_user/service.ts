@@ -1598,12 +1598,18 @@ ORDER BY
           "facility_id_general_status",
         ],
       });
+      const findRolePermission = await UserCompanyRole.findOne({
+        where: {
+          user_id: userToken.id,
+          company_id: facility.company_id,
+          role_id: 1,
+        },
+      });
       const findPermission = await UserCompanyRolePermission.findOne({
         where: {
           user_id: userToken.id,
-          is_active: true,
           company_id: facility.company_id,
-          permission_id: { [Op.in]: [7, 8] },
+          permission_id: { [Op.in]: [15,16] },
         },
       });
 
@@ -1679,7 +1685,8 @@ ORDER BY
       };
       if (
         (findPermission && findPermission.id) ||
-        userToken.role_id === userType.ENERVA_ADMIN
+        userToken.role_id === userType.ENERVA_ADMIN ||
+        (findRolePermission && findRolePermission.id)
       ) {
       } else {
         facilityData.disabled = timeLineObj2;
@@ -1692,7 +1699,7 @@ ORDER BY
         facilityData
       );
     } catch (error) {
-      throw new Error("Failed to get current status of facility.");
+      throw new Error(error);
     }
   }
   static async editStatusOfFacility(
