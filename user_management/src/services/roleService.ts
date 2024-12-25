@@ -163,22 +163,31 @@ class RoleService {
             if (data.entry_type == 1 || data.entry_type == 3) {
                 const user = await User.findOne({ where: { email } });
             context.log("2222", user.dataValues.id);
+            let usid:any;
+            if(user.id) usid = user.id
+            else usid  = user.dataValues.id
+            context.log("8888", usid);
                 context.log("3333", data.id);
+                try {
                 await this.deletePermissions(user.dataValues.id, data.company_id);
                 for (const permissionId of data.permissions) {
                     // Create a new record for each permission
                     await UserCompanyRolePermission.create({
                         role_id: data.role_id,
                         permission_id: permissionId,
-                        user_id: user.id,
+                        user_id: usid,
                         company_id: data.company_id,
                         is_active: 1,
                     });
                 }
+                
                 // Update company role start
                 if(data.company_id) {
                     const [affectedRows] = await UserCompanyRole.update({ role_id:data.role_id }, { where: { user_id:user.id, company_id:data.company_id } });
                 }
+            } catch(error) { 
+                context.log("jjjj", error);
+            }
                 // Update company role ends
                 // Log start
                 (async () => {
