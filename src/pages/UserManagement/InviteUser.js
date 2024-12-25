@@ -237,7 +237,7 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
             const requestBody = {
                 "email": userEmail,
                 "role_id": selectRoleType,
-                // "company_id": selectTableRow.company_id, // comapnay id is static right now.
+                "company_id": selectTableRow.company_id, 
                 "permissions": permissionIds,
                 "entry_type": selectTableRow.entry_type
             }
