@@ -106,7 +106,7 @@ class DataExplorationSummaryV2:
         else:
             query_date_filter = ""  if  (self.start_date == None and self.end_date == None) else self.date_filter()
             if self.missing_data:
-                self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = missing_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
             elif self.outliers:
                 if bound == 'Lower limit':
                     outliers_query = outlier_summary_lower_bound_list
