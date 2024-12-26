@@ -639,6 +639,7 @@ class UserService {
     // }
 
     for (let i = 0; i < results.length; i++) {
+      if(results[i].entry_type == 1) {
       let findAllFaciltiy: any = await UserResourceFacilityPermission.findAll({
         where: { email: results[i].email },
         attributes: ["facility_id"],
@@ -661,6 +662,7 @@ class UserService {
       let name = [];
       facility.map((ele) => name.push(ele.facility_name));
       results[i].facility = name.join(",");
+    }
     }
     return {
       status: 200, // OK status code
