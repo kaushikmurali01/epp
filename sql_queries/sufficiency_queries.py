@@ -290,7 +290,7 @@ with RECURSIVE DateList AS (
 select cast(avg(perecnt) as decimal(10,2)) as value , month_year as month, TRIM(TO_CHAR(month, 'YYYYMM')) as mm 
 from monthly_per group by month_year, month order by mm asc
 )
-select COALESCE(pq.value, 0.00) AS value, md.month as month, md.mm as mm  from percentage_query as pq right join monthsdata as md on md.mm=pq.mm
+select COALESCE(pq.value, 0.00) AS value, pq.month as month, md.mm as mm  from percentage_query as pq left join monthsdata as md on md.mm=pq.mm
 """
 IV_sufficiencies_monthly = """
 with RECURSIVE DateList AS (
