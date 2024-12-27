@@ -193,7 +193,7 @@ OFFSET ({page_number} - 1) * {page_size};
 
 
 # Missing Data
-missing_data_summary_list= "SELECT TO_CHAR(start_date, 'YYYY/MM/DD HH24:MI'), TO_CHAR(end_date, 'YYYY/MM/DD HH24:MI') end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} and meter_type= {meter_type} and meter_id={meter_id} AND ( reading = 'NaN' OR reading = 0 or reading < 0 OR reading IS NULL) AND is_independent_variable = {is_independent_variable} {query_date_filter} order by start_date LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size}"
+missing_data_summary_list= "SELECT TO_CHAR(start_date, 'YYYY/MM/DD HH24:MI') as start_date, TO_CHAR(end_date, 'YYYY/MM/DD HH24:MI') as end_date, meter_id, meter_type, reading FROM epp.meter_hourly_entries WHERE facility_id = {facility_id} and meter_type= {meter_type} and meter_id={meter_id} AND ( reading = 'NaN' OR reading = 0 or reading < 0 OR reading IS NULL) AND is_independent_variable = {is_independent_variable} {query_date_filter} order by start_date LIMIT {page_size} OFFSET ({page_number} - 1) * {page_size}"
 missing_data_summary = """WITH date_range AS (
 	SELECT  
 		meter_id, 
