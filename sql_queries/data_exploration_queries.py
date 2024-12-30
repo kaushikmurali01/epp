@@ -169,7 +169,7 @@ WITH quartiles AS (
     FROM quartiles
 )
 SELECT      
-    TO_CHAR(distinct(start_date), 'YYYY/MM/DD HH24:MI') as start_date, 
+    distinct(TO_CHAR(start_date, 'YYYY/MM/DD HH24:MI')) as start_date, 
     TO_CHAR(end_date, 'YYYY/MM/DD HH24:MI') as  end_date,
     meter_id, 
     meter_type, 
