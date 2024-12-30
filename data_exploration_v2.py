@@ -100,7 +100,7 @@ class DataExplorationSummaryV2:
                     outliers_query = temp_outlier_summary_lower_bound_list
                 else:
                     outliers_query = temp_outlier_summary_upper_bound_list
-                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
             else:
                 self.query = temp_observed_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         else:
@@ -112,7 +112,7 @@ class DataExplorationSummaryV2:
                     outliers_query = outlier_summary_lower_bound_list
                 else:
                     outliers_query = outlier_summary_upper_bound_list
-                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size)
+                self.query = outliers_query.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
             else:
                 self.query = observed_data_summary_list.format(facility_id = self.facility_id, meter_type=self.meter_type , meter_id = self.meter_id, METER_FACTOR= METER_FACTOR, is_independent_variable= False, page_number=page_no, page_size=page_size, query_date_filter=query_date_filter)
         self.raw_df = dbtest(self.query)
