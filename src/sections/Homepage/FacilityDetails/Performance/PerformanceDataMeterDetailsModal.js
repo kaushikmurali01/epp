@@ -115,8 +115,8 @@ const PerformanceDataMeterDetailsModal = ({
             format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")} */}
           {item?.meter_type === 104
             ? item?.start_date &&
-              format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")
-            : item?.start_date && convertDateFormat(item?.start_date)}
+            format(new Date(item?.start_date), "yyyy-MM-dd HH:mm")
+            : item?.start_date}
         </Typography>
       ),
     },
@@ -130,7 +130,7 @@ const PerformanceDataMeterDetailsModal = ({
             {item?.meter_type === 104
               ? item?.end_date &&
                 format(new Date(item?.end_date), "yyyy-MM-dd HH:mm")
-              : item?.end_date && convertDateFormat(item?.end_date)}
+              : item?.end_date}
           </>
         );
       },
