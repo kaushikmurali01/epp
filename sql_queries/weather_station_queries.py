@@ -17,7 +17,7 @@ SELECT
         COS(RADIANS(s.latitude_decimal)) * COS(RADIANS(f.latitude)) * 
         POWER(SIN(RADIANS(f.longitude - s.longitude_decimal) / 2), 2)
     )) AS distance_km 
-FROM epp.weather_stations s, facility_location f where s.hly_last_year = {}
+FROM epp.weather_stations s, facility_location f where s.hly_last_year = (select max(hly_last_year) from epp.weather_stations)
 ORDER BY distance_km ASC 
 LIMIT {};
 """
