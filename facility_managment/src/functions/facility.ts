@@ -34,6 +34,7 @@ import { CompanyLogsService } from "../controller/facility_logs/service";
 import { EmailService } from "../controller/sentEmail/service";
 import { UserCompanyRole } from "../models/user-company-role";
 import { User } from "../models/user.model";
+import { Op } from "sequelize";
 
 // Facility User CRUD
 
@@ -401,7 +402,7 @@ export async function getFacilityById(
         where: {
           company_id: findCompanyId.company_id,
           user_id: findUser?.id,
-          role_id: 1,
+          role_id: { [Op.in]: [1, 2] },
         },
       });
       if (

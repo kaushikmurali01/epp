@@ -1602,14 +1602,14 @@ ORDER BY
         where: {
           user_id: userToken.id,
           company_id: facility.company_id,
-          role_id: 1,
+          role_id: { [Op.in]: [1, 2] },
         },
       });
       const findPermission = await UserCompanyRolePermission.findOne({
         where: {
           user_id: userToken.id,
           company_id: facility.company_id,
-          permission_id: { [Op.in]: [15,16] },
+          permission_id: { [Op.in]: [15, 16] },
         },
       });
 
