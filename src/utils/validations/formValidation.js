@@ -50,7 +50,7 @@ export const validationSchemaSignUp = Yup.object().shape({
     .required("You must agree to the agreement"),
 });
 
-export const validationSchemaAminAddFacility = Yup.object().shape({
+export const validationSchemaAdminAddFacility = Yup.object().shape({
   facility_construction_status: Yup.string().required(
     "Facility Construction Status is required"
   ),

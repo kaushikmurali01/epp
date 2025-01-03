@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import SelectBox from "components/FormBuilder/Select";
 import { Form, Formik } from "formik";
-import { validationSchemaAminAddFacility } from "../../../utils/validations/formValidation";
+import { validationSchemaAdminAddFacility } from "../../../utils/validations/formValidation";
 import InputField from "components/FormBuilder/InputField";
 import ButtonWrapper from "components/FormBuilder/Button";
 import { GET_REQUEST, PATCH_REQUEST, POST_REQUEST } from "utils/HTTPRequests";
@@ -679,7 +679,7 @@ const AdminAddFacilityComponent = (props) => {
 
         <Formik
           initialValues={{ ...initialValues }}
-          validationSchema={validationSchemaAminAddFacility}
+          validationSchema={validationSchemaAdminAddFacility}
           enableReinitialize={true}
           onSubmit={handleSubmit}
         >
