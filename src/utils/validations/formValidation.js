@@ -101,7 +101,6 @@ export const validationSchemaAddFacility = Yup.object().shape({
         .required("NAIC's Code is required"),
     otherwise: () => Yup.string().notRequired(),
   }),
-  company_id: Yup.string().required("Company ID is required"),
   facility_category: Yup.string().required("Facility Category is required"),
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
