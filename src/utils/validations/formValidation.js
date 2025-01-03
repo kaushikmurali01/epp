@@ -50,6 +50,42 @@ export const validationSchemaSignUp = Yup.object().shape({
     .required("You must agree to the agreement"),
 });
 
+export const validationSchemaAminAddFacility = Yup.object().shape({
+  facility_construction_status: Yup.string().required(
+    "Facility Construction Status is required"
+  ),
+  facility_name: Yup.string().required("Facility Name is required"),
+  // isBuildinTarriffClass: Yup.string().required("Build in Tarriff Class is required"),
+  facility_type: Yup.string().required("Facility Type is required"),
+  naic_code: Yup.string().when("facility_type", {
+    is: "Other", // condition
+    then: () =>
+      Yup.string()
+        .matches(fourDigitNumberRegex, "NAIC's Code must be exactly 4 digits")
+        .required("NAIC's Code is required"),
+    otherwise: () => Yup.string().notRequired(),
+  }),
+  company_id: Yup.string().required("Company ID is required"),
+  facility_category: Yup.string().required("Facility Category is required"),
+  target_saving: Yup.string().required(
+    "Energy Saving For Facility is required"
+  ),
+  // unit_number: Yup.string().required("Unit Number is required"),
+  street_number: Yup.string().required("Street Number is required"),
+  street_name: Yup.string()
+    .required("Street Name is required")
+    .max(100, "Street name should be maximum 100 characters"),
+  // address: Yup.string().required("Address is required"),
+  city: Yup.string()
+    .required("City is required")
+    .matches(onlyCharactersRegExp, "Numbers are not allowed"),
+  province: Yup.string().required("Province is required"),
+  country: Yup.string().required("Country is required"),
+  postal_code: Yup.string()
+    .required("Postal Code is required")
+    .matches(postalCodeCanadaFormatRegExp, "Invalid Postal Code"),
+});
+
 export const validationSchemaAddFacility = Yup.object().shape({
   facility_construction_status: Yup.string().required(
     "Facility Construction Status is required"
@@ -65,6 +101,7 @@ export const validationSchemaAddFacility = Yup.object().shape({
         .required("NAIC's Code is required"),
     otherwise: () => Yup.string().notRequired(),
   }),
+  company_id: Yup.string().required("Company ID is required"),
   facility_category: Yup.string().required("Facility Category is required"),
   target_saving: Yup.string().required(
     "Energy Saving For Facility is required"
