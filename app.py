@@ -946,7 +946,8 @@ def upload_file():
         return jsonify({"error": "No file provided"}), 400
 
     file_name = file.filename
-    if not file_name.endswith(('.xls', '.xlsx', '.xml')):
+    f_name = file_name.lower()
+    if not f_name.endswith(('.xls', '.xlsx', '.xml')):
         return jsonify({"error": "Please provide a valid file (.xls , .xlsx , xml)"}), 400
 
     facility_id = request.form.get('facility_id')
@@ -958,7 +959,7 @@ def upload_file():
     if not meter_id:
         error_msg = "Please Provide Independent Variable ID" if iv else "Please Provide Meter ID"
         return jsonify({"error": error_msg}), 400
-    if file_name.endswith(('.xml',)):
+    if f_name.endswith(('.xml',)):
         if iv:
             error_msg = "xml files are not Supported for Independent Variables"
             return jsonify({"error": error_msg}), 400
