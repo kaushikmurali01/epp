@@ -946,7 +946,8 @@ def upload_file():
         return jsonify({"error": "No file provided"}), 400
 
     file_name = file.filename
-    if not file_name.endswith(('.xls', '.xlsx', '.xml')):
+    f_name = file_name.lower()
+    if not f_name.endswith(('.xls', '.xlsx', '.xml')):
         return jsonify({"error": "Please provide a valid file (.xls , .xlsx , xml)"}), 400
 
     facility_id = request.form.get('facility_id')
