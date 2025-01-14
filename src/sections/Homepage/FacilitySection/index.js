@@ -59,7 +59,7 @@ const Facility = () => {
             alignItems: "flex-start",
           }}
           gap={2}
-          onClick={(e) => e.stopPropagation()}
+          // onClick={(e) => e.stopPropagation()}
         >
           <Typography variant="body2" sx={{ fontWeight: "inherit" }}>
             {item.facility_name}
