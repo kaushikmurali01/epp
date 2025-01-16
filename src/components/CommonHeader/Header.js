@@ -613,7 +613,7 @@ function Header(props) {
                     variant="body2"
                     component="a"
                     target="_blank"
-                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                    href="https://eppfileupload.blob.core.windows.net/file-uploads/Energy-Performance-Program-User-Guide.pdf"
                     sx={{ textDecoration: "none" }}
                     color="dark.light"
                   >
@@ -955,7 +955,7 @@ function Header(props) {
                     <MenuItem>
                       <Link
                         target="_blank"
-                        href="https://eppdevstorage.blob.core.windows.net/agreement-docs/epp_portal_user_guide_v1.2.pdf"
+                        href="https://eppfileupload.blob.core.windows.net/file-uploads/Energy-Performance-Program-User-Guide.pdf"
                         sx={{ textDecoration: "none" }}
                         color="dark.light"
                       >
