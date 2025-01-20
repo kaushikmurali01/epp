@@ -334,11 +334,13 @@ const InviteUser = ({ getUserRole, setVisibleInvitePage, handleAPISuccessCallBac
         const isValidEmail = emailRegExp.test(userEmail)
         const isRoleTypePermissonsSelected = selectRoleType !== '' && selectedPermissions?.length > 0;
         const permissionsChanged = isEdited ? havePermissionsChanged() : true;
+        const currentRole = selectTableRow?.role_id;
+        const isRoleTypeChanged = selectRoleType === currentRole;
 
         if (invitePageInfo?.type === "2") {
-            setIsFormValid(isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged)
+            setIsFormValid((isValidEmail && isRoleTypePermissonsSelected && selectCompanyType !== '' && permissionsChanged) || !isRoleTypeChanged)
         } else {
-            setIsFormValid((isValidEmail && isRoleTypePermissonsSelected && permissionsChanged) || invitePageInfo?.handelAccept)
+            setIsFormValid((isValidEmail && isRoleTypePermissonsSelected && permissionsChanged) || !isRoleTypeChanged || invitePageInfo?.handelAccept)
         }
 
     }, [userEmail, selectRoleType, selectCompanyType, selectedPermissions,initialPermissions])

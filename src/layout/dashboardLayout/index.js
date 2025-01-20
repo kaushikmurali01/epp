@@ -38,30 +38,31 @@ const DashboardLayout = ({ children }) => {
         justifyContent: "center",
         color: "#242424",
         fontSize: "1.5rem",
+        textAlign: "center",
       },
     },
     buttonsUI: {
       saveButton: true,
       cancelButton: false,
-      saveButtonName: "Back to dashboard",
+      // saveButtonName: "Back to dashboard",
       cancelButtonName: "",
-      successButtonStyle: {
-        backgroundColor: "#2e813e",
-        "&:hover": { backgroundColor: "#1e6329" },
-        color: "#fff",
-      },
+      // successButtonStyle: {
+      //   backgroundColor: "#2e813e",
+      //   "&:hover": { backgroundColor: "#1e6329" },
+      //   color: "#fff",
+      // },
       cancelButtonStyle: {},
       saveButtonClass: "",
       cancelButtonClass: "",
     },
-    headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
+    // headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
     headerSubText: "",
-    modalBodyContent: "Unauthorized Access!",
-    saveButtonAction: () => handelPermissionCheck(),
-    closeButtonRedirect: "/facility-dashboard",
+    // modalBodyContent: "Unauthorized Access!",
+    // saveButtonAction: () => handelPermissionCheck(),
+    // closeButtonRedirect: "/facility-dashboard",
   });
 
-  const handelPermissionCheck = ()=> {
+  const handlePermissionCheck = ()=> {
     console.log('check permission')
     if(localStorage.getItem("selectedCompanyId")){
       dispatch(fetchUserDetails(localStorage.getItem("selectedCompanyId")));
@@ -78,14 +79,50 @@ const DashboardLayout = ({ children }) => {
     }));
   }
 
+  const handleRefreshPage = () => {
+    window.location.reload();
+  };
+
   useEffect(() => {
     const interceptor = axiosInstance.interceptors.response.use(
       (response) => {
         if (response.data.status === 403) {
-          console.log(response, 'check api response');
+          console.log(response, "check api response");
           setModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
+            buttonsUI: {
+              saveButton: true,
+              saveButtonName: "Back to dashboard",
+              successButtonStyle: {
+                backgroundColor: "#2e813e",
+                "&:hover": { backgroundColor: "#1e6329" },
+                color: "#fff",
+              },
+            },
+            headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
+            modalBodyContent: "Unauthorized Access!",
+            saveButtonAction: () => handlePermissionCheck(),
+            closeButtonRedirect: "/facility-dashboard",
+          }));
+        } else if (response.data.status === 502) {
+          console.log(response, "check api response");
+          setModalConfig((prevState) => ({
+            ...prevState,
+            modalVisible: true,
+            buttonsUI: {
+              saveButton: true,
+              saveButtonName: "Refresh",
+              successButtonStyle: {
+                backgroundColor: "#2e813e",
+                "&:hover": { backgroundColor: "#1e6329" },
+                color: "#fff",
+              },
+            },
+            headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
+            modalBodyContent:
+              "Your internet might be down! Please refresh the page",
+            saveButtonAction: () => handleRefreshPage(),
           }));
         }
         return response;

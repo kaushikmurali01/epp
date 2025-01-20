@@ -173,7 +173,7 @@ const InputField = ({ field }) => {
     }
 
     // Prevent multiple decimal points
-    if (evt.key === "." && field.value.includes(".")) {
+    if (evt.key === "." && field.value.toString().includes(".")) {
       evt.preventDefault();
     }
   };
@@ -290,7 +290,9 @@ const IncentiveSettingsMicroComponent = () => {
 
     const updatedValues = Object.entries(values).reduce((acc, [key, value]) => {
       if (numericFields.includes(key)) {
-        acc[key] = value.trim() !== "" ? Number(value) : null;
+        // acc[key] = value.trim() !== "" ? Number(value) : null;
+        const stringValue = String(value);
+        acc[key] = stringValue.trim() !== "" ? Number(stringValue) : null;
       } else if (typeof value === "string" && value.trim() === "") {
         delete acc[key];
       } else {
