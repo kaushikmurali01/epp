@@ -305,17 +305,14 @@ const IncentiveSettingsMicroComponent = () => {
       ...updatedValues,
     };
 
-    console.log(payload);
-    
-
-    // dispatch(updateIncentiveSettings(payload, facility_id))
-    //   .then(() => {
-    //     dispatch(getIncentiveSettings(facility_id));
-    //     dispatch(fetchAdminFacilityStatus(facility_id));
-    //   })
-    //   .catch((error) => {
-    //     console.error("Error updating settings:", error);
-    //   });
+    dispatch(updateIncentiveSettings(payload, facility_id))
+      .then(() => {
+        dispatch(getIncentiveSettings(facility_id));
+        dispatch(fetchAdminFacilityStatus(facility_id));
+      })
+      .catch((error) => {
+        console.error("Error updating settings:", error);
+      });
   };
 
   const userColumn = [
