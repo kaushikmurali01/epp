@@ -50,6 +50,12 @@ const UserManagementColumn = () => {
   
   const viewPermission = computePermissions(userPermissions);
 
+  const hasAddUserPermission = userPermissions?.some(
+    (perm) =>
+      perm?.permission === "add-user" ||
+      perm?.Permission?.permission === "add-user"
+  );
+
     const buttonStyle = {
         display: 'inline-flex',
         alignItems: 'center',
@@ -152,17 +158,45 @@ const UserManagementColumn = () => {
                 const capitalizeSentence = (str) => {
                     return str.charAt(0).toUpperCase() + str.slice(1);
                 };
-                if (item.status === 'Initiated') {
+              if (item.status === 'Initiated') {
+                  if (hasAddUserPermission) {
                     return (
-                        <Box  >
-                            <Typography variant="span" sx={{ ...buttonStyle, border: '1px solid #2e813e', color: 'primary.main', marginRight: '1rem' }} onClick={() => handelAcceptManagePermission(userData,item, setVisibleInvitePage, setSelectTableRow,setInvitePageInfo,setInviteAPIURL)} >
-                                <CheckCircleIcon /> Accept
-                            </Typography>
-                            <Typography variant="span" sx={{ ...buttonStyle, color: 'danger.main' }} onClick={() => handelReject(item, handleAPISuccessCallBack)} >
-                                <CancelIcon /> Reject
-                            </Typography>
-                        </Box>
+                      <Box>
+                        <Typography
+                          variant="span"
+                          sx={{
+                            ...buttonStyle,
+                            border: "1px solid #2e813e",
+                            color: "primary.main",
+                            marginRight: "1rem",
+                          }}
+                          onClick={() =>
+                            handelAcceptManagePermission(
+                              userData,
+                              item,
+                              setVisibleInvitePage,
+                              setSelectTableRow,
+                              setInvitePageInfo,
+                              setInviteAPIURL
+                            )
+                          }
+                        >
+                          <CheckCircleIcon /> Accept
+                        </Typography>
+                        <Typography
+                          variant="span"
+                          sx={{ ...buttonStyle, color: "danger.main" }}
+                          onClick={() =>
+                            handelReject(item, handleAPISuccessCallBack)
+                          }
+                        >
+                          <CancelIcon /> Reject
+                        </Typography>
+                      </Box>
                     );
+                  } else {
+                    return "Initiated";
+                  }
                 } else if (item.status === 'pending') {
                     return 'Invitation sent'
                 }
