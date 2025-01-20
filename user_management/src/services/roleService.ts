@@ -212,7 +212,7 @@ class RoleService {
             //return perm;
             return { status: HTTP_STATUS_CODES.SUCCESS, message: RESPONSE_MESSAGES.Success };
         } catch (error) {
-            console.error('Error inserting permissions:', error);
+            context.error('Error inserting permissions:', error);
         }
     }
 
