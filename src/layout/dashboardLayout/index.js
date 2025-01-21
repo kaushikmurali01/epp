@@ -133,8 +133,8 @@ const DashboardLayout = ({ children }) => {
             headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
             modalBodyContent: (
               <>
-                The connection to the server timed out. This could be a
-                temporary issue. <br /> Please try again in a few minutes.
+                Connection timed out due to slow internet speed. Please check
+                your network and try again.
               </>
             ),
           }));
