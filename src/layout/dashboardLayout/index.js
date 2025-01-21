@@ -30,7 +30,6 @@ const DashboardLayout = ({ children }) => {
         padding: "1rem",
       },
       modalBodyContentStyle: {
-        // minHeight: "120px",
         minWidth: { xs: "100%", sm: "450px" },
         display: "flex",
         flexWrap: "wrap",
@@ -41,25 +40,36 @@ const DashboardLayout = ({ children }) => {
         textAlign: "center",
       },
     },
-    buttonsUI: {
-      saveButton: true,
-      cancelButton: false,
-      // saveButtonName: "Back to dashboard",
-      cancelButtonName: "",
-      // successButtonStyle: {
-      //   backgroundColor: "#2e813e",
-      //   "&:hover": { backgroundColor: "#1e6329" },
-      //   color: "#fff",
-      // },
-      cancelButtonStyle: {},
-      saveButtonClass: "",
-      cancelButtonClass: "",
-    },
-    // headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
     headerSubText: "",
-    // modalBodyContent: "Unauthorized Access!",
-    // saveButtonAction: () => handelPermissionCheck(),
-    // closeButtonRedirect: "/facility-dashboard",
+  });
+
+  const [timeoutModalConfig, setTimeoutModalConfig] = useState({
+    modalVisible: false,
+    modalUI: {
+      showHeader: true,
+      crossIcon: false,
+      modalClass: "timeout-modal",
+      headerTextStyle: {
+        textAlign: "center",
+      },
+      headerSubTextStyle: "",
+      fotterActionStyle: {
+        justifyContent: "center",
+        gap: "1rem",
+        padding: "1rem",
+      },
+      modalBodyContentStyle: {
+        minWidth: { xs: "100%", sm: "450px" },
+        display: "flex",
+        flexWrap: "wrap",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#242424",
+        fontSize: "1.25rem",
+        textAlign: "center",
+      },
+    },
+    headerSubText: "",
   });
 
   const handlePermissionCheck = ()=> {
@@ -93,6 +103,7 @@ const DashboardLayout = ({ children }) => {
             modalVisible: true,
             buttonsUI: {
               saveButton: true,
+              cancelButton: false,
               saveButtonName: "Back to dashboard",
               successButtonStyle: {
                 backgroundColor: "#2e813e",
@@ -105,24 +116,27 @@ const DashboardLayout = ({ children }) => {
             saveButtonAction: () => handlePermissionCheck(),
             closeButtonRedirect: "/facility-dashboard",
           }));
-        } else if (response.data.status === 502) {
-          console.log(response, "check api response");
-          setModalConfig((prevState) => ({
+        } else if (response.data.status === 504) {
+          setTimeoutModalConfig((prevState) => ({
             ...prevState,
             modalVisible: true,
             buttonsUI: {
-              saveButton: true,
-              saveButtonName: "Refresh",
-              successButtonStyle: {
-                backgroundColor: "#2e813e",
-                "&:hover": { backgroundColor: "#1e6329" },
+              saveButton: false,
+              cancelButton: true,
+              cancelButtonName: "Close",
+              cancelButtonStyle: {
+                backgroundColor: "#FF5858",
+                "&:hover": { backgroundColor: "#e54949" },
                 color: "#fff",
               },
             },
             headerText: <img src="/images/icons/iIcon.svg" alt="info" />,
-            modalBodyContent:
-              "Your internet might be down! Please refresh the page",
-            saveButtonAction: () => handleRefreshPage(),
+            modalBodyContent: (
+              <>
+                The connection to the server timed out. This could be a
+                temporary issue. <br /> Please try again in a few minutes.
+              </>
+            ),
           }));
         }
         return response;
@@ -147,6 +161,9 @@ const DashboardLayout = ({ children }) => {
         <Footer />
       </div>
       <EvModal modalConfig={modalConfig} setModalConfig={setModalConfig} />
+      <EvModal
+        modalConfig={timeoutModalConfig}
+        setModalConfig={setTimeoutModalConfig} />
     </React.Fragment>
   );
 };
