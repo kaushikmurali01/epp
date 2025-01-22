@@ -9,6 +9,7 @@ export interface IIncentiveSettingsAttributes {
   p4pEndDate2: Date;
   incentive_cap: number;
   p4pStartDate3: Date;
+  meter_type: number;
   p4pEndDate3: Date;
   preProjectIncentive: number;
   preProjectIncentiveStatus: string;

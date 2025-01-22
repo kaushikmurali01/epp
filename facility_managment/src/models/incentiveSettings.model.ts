@@ -7,7 +7,10 @@ interface IncentiveSettingsCreationAttributes
   extends Optional<IIncentiveSettingsAttributes, "id"> {}
 
 class IncentiveSettings
-  extends Model<IIncentiveSettingsAttributes, IncentiveSettingsCreationAttributes>
+  extends Model<
+    IIncentiveSettingsAttributes,
+    IncentiveSettingsCreationAttributes
+  >
   implements IIncentiveSettingsAttributes
 {
   public id!: number;
@@ -15,6 +18,7 @@ class IncentiveSettings
   public p4pStartDate1!: Date;
   public p4pEndDate1!: Date;
   public p4pStartDate2!: Date;
+  public meter_type!: number;
   public p4pEndDate2!: Date;
   public p4pStartDate3!: Date;
   public p4pEndDate3!: Date;
@@ -45,7 +49,7 @@ IncentiveSettings.init(
       allowNull: false,
       references: {
         model: Facility,
-        key: 'id',
+        key: "id",
       },
     },
     p4pStartDate1: {
@@ -87,6 +91,11 @@ IncentiveSettings.init(
     incentive_cap: {
       type: DataTypes.FLOAT,
     },
+    meter_type: {
+      type: DataTypes.INTEGER,
+      defaultValue: 1,
+    },
+
     p4pIncentiveStatus3: {
       type: DataTypes.STRING,
     },

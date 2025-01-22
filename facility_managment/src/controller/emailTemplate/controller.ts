@@ -636,7 +636,10 @@ export class EmailTemplateController {
           },
         });
         let incentives: any = await IncentiveSettings.findOne({
-          where: { facility_id: facilityId },
+          where: {
+            facility_id: facilityId,
+            meter_type: FACILITY_METER_TYPE.ELECTRICITY,
+          },
         });
         template = await EnergyEmailTemplate.getNoticeOfApprovalEmailTemplate();
         template = template
