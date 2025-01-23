@@ -191,7 +191,7 @@ export class AdminFacilityController {
     data: any
   ): Promise<Facility[]> {
     try {
-      const result = await AdminFacilityService.getAllFacilityInprocess(
+      const result = await AdminFacilityService.getAllFacilityInprocess2(
         Object(decodedToken),
         offset,
         limit,

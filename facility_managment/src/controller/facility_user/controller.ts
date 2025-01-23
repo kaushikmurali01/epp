@@ -84,7 +84,7 @@ export class FacilityController {
     companyId: number
   ): Promise<Facility[]> {
     try {
-      const result = await FacilityService.getAllFacilityInprocess(
+      const result = await FacilityService.getAllFacilityInprocess2(
         Object(decodedToken),
         offset,
         limit,

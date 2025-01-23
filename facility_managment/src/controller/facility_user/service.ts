@@ -84,6 +84,12 @@ export class FacilityService {
           where: {
             company_id: companyId || userToken.company_id,
             is_active: STATUS.IS_ACTIVE,
+            // facility_id_submission_status: {
+            //   [Op.notIn]: [
+            //     FACILITY_ID_SUBMISSION_STATUS.DRAFT,
+            //     FACILITY_ID_SUBMISSION_STATUS.SUBMITTED,
+            //   ],
+            // }, // change according to status
             [Op.or]: [
               { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
               { street_number: { [Op.iLike]: `%${searchPromt}%` } },
@@ -104,6 +110,12 @@ export class FacilityService {
         result = await Facility.findAndCountAll({
           where: {
             company_id: companyId || userToken.company_id,
+            // facility_id_submission_status: {
+            //   [Op.notIn]: [
+            //     FACILITY_ID_SUBMISSION_STATUS.DRAFT,
+            //     FACILITY_ID_SUBMISSION_STATUS.SUBMITTED,
+            //   ],
+            // },// change according to status
             is_active: STATUS.IS_ACTIVE,
             [Op.and]: [
               {
@@ -112,6 +124,7 @@ export class FacilityService {
                   { id: { [Op.in]: allFacilityId } },
                 ],
               },
+              
               {
                 [Op.or]: [
                   { facility_name: { [Op.iLike]: `%${searchPromt}%` } },
@@ -207,7 +220,10 @@ export class FacilityService {
            users u ON f.created_by = u.id
        left JOIN 
            company c ON f.company_id = c.id
-       WHERE 
+       WHERE f.facility_id_submission_status NOT IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
         f.is_active = ${STATUS.IS_ACTIVE}
          ${companyQuery}
            ) p
@@ -228,7 +244,10 @@ where facility_id=p.id) as total_user_count from (SELECT
      users u ON f.created_by = u.id
  left JOIN 
      company c ON f.company_id = c.id
- WHERE 
+ WHERE f.facility_id_submission_status NOT IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
      f.is_active = ${STATUS.IS_ACTIVE}
          ${companyQuery}
  ORDER BY 
@@ -263,6 +282,10 @@ where facility_id=p.id) as total_user_count from (SELECT
      left JOIN 
          company c ON f.company_id = c.id
      WHERE 
+     f.facility_id_submission_status NOT IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
          f.company_id = ${companyId || userToken.company_id}
          AND f.is_active = ${STATUS.IS_ACTIVE} AND (f.created_by=${
             userToken.id
@@ -285,6 +308,10 @@ left JOIN
 left JOIN 
    company c ON f.company_id = c.id
 WHERE 
+     f.facility_id_submission_status NOT IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
    f.company_id = ${companyId || userToken.company_id}
    AND f.is_active = ${STATUS.IS_ACTIVE}
    AND (f.created_by=${userToken.id} OR f.id in ${allFacilityId})
@@ -445,6 +472,190 @@ LIMIT
                 LIMIT
                     ${limit};
  `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      }
+      if (result) {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.Success,
+          result
+        );
+        return resp;
+      } else {
+        const resp = ResponseHandler.getResponse(
+          HTTP_STATUS_CODES.SUCCESS,
+          RESPONSE_MESSAGES.noContent,
+          []
+        );
+        return resp;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  static async getAllFacilityInprocess2(
+    userToken: IUserToken | any,
+    offset: number,
+    limit: number,
+    colName: string,
+    order: string,
+    data: any,
+    companyId: number
+  ): Promise<Facility[]> {
+    try {
+      let searchArray = "";
+      if (data && data.length) {
+        searchArray = " where ";
+        data.map((ele, index) => {
+          if (!index) {
+            searchArray += `p.${ele.key} ILIKE '%${ele.value}%'`;
+          } else {
+            searchArray += ` AND p.${ele.key} ILIKE '%${ele.value}%'`;
+          }
+        });
+      }
+      let findRole: any = {};
+      if (companyId) {
+        findRole = await UserCompanyRole.findOne({
+          where: { user_id: userToken.id, company_id: companyId },
+        });
+        if (!findRole) {
+          findRole = {};
+          findRole.role_id = userToken.role_id;
+        }
+      } else {
+        findRole.role_id = userToken.role_id;
+      }
+      let result, datas, count;
+      if (
+        userToken &&
+        (findRole.role_id === userType.ADMIN ||
+          findRole.role_id === userType.SUPER_ADMIN ||
+          findRole.role_id === userType.ENERVA_ADMIN)
+      ) {
+        let companyQuery = "";
+        if (companyId) {
+          companyQuery += ` AND f.company_id = ${
+            companyId || userToken.company_id
+          }`;
+        }
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+          f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+       FROM 
+           Facility f
+       left JOIN 
+           users u ON f.created_by = u.id
+       left JOIN 
+           company c ON f.company_id = c.id
+       WHERE f.facility_id_submission_status IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
+        f.is_active = ${STATUS.IS_ACTIVE}
+         ${companyQuery}
+           ) p
+     ${searchArray}
+       `);
+        datas =
+          await rawQuery(`SELECT *,(select (COUNT(*) + 1) from user_resource_facility_permission 
+where facility_id=p.id) as total_user_count from (SELECT 
+     f.*, 
+     u.id AS submitted_by_id, 
+     u.first_name, 
+     u.last_name, 
+     c.id AS company_id, 
+     c.company_name
+ FROM 
+     Facility f
+ left JOIN 
+     users u ON f.created_by = u.id
+ left JOIN 
+     company c ON f.company_id = c.id
+ WHERE f.facility_id_submission_status  IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
+     f.is_active = ${STATUS.IS_ACTIVE}
+         ${companyQuery}
+ ORDER BY 
+     ${colName} ${order}) p
+     ${searchArray}
+ OFFSET 
+     ${offset}
+ LIMIT 
+     ${limit};
+ `);
+        result = { count: Number(count[0]?.total_count) || 0, rows: datas };
+      } else {
+        let findPermission = await UserResourceFacilityPermission.findAll({
+          where: {
+            company_id: companyId || userToken.company_id,
+            email: userToken?.email,
+          },
+        });
+        let allFacilityId = findPermission.map((ele) => ele.facility_id);
+        count =
+          await rawQuery(`SELECT COUNT(*) OVER() AS total_count from (SELECT 
+        f.*, 
+   u.id AS submitted_by_id, 
+   u.first_name, 
+   u.last_name, 
+   c.id AS company_id, 
+   c.company_name
+     FROM 
+         Facility f
+     left JOIN 
+         users u ON f.created_by = u.id
+     left JOIN 
+         company c ON f.company_id = c.id
+     WHERE 
+     f.facility_id_submission_status IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
+         f.company_id = ${companyId || userToken.company_id}
+         AND f.is_active = ${STATUS.IS_ACTIVE} AND (f.created_by=${
+            userToken.id
+          } OR f.id in ${allFacilityId})) p
+   ${searchArray}
+     `);
+        datas =
+          await rawQuery(`SELECT *,(select (COUNT(*) + 1) from user_resource_facility_permission 
+where facility_id=p.id) as total_user_count from (SELECT 
+   f.*, 
+   u.id AS submitted_by_id, 
+   u.first_name, 
+   u.last_name, 
+   c.id AS company_id, 
+   c.company_name
+FROM 
+   Facility f
+left JOIN 
+   users u ON f.created_by = u.id
+left JOIN 
+   company c ON f.company_id = c.id
+WHERE 
+     f.facility_id_submission_status IN (${FACILITY_ID_SUBMISSION_STATUS.DRAFT},${FACILITY_ID_SUBMISSION_STATUS.READY_FOR_SUBMISSION},
+       ${FACILITY_ID_SUBMISSION_STATUS.IN_REVIEW},${FACILITY_ID_SUBMISSION_STATUS.APPROVED},${FACILITY_ID_SUBMISSION_STATUS.REJECTED},
+       ${FACILITY_ID_SUBMISSION_STATUS.BASELINE_APPROVED},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_MODELING_STAGE},${FACILITY_ID_SUBMISSION_STATUS.BASELINE_PENDING_REVIEW},
+       ${FACILITY_ID_SUBMISSION_STATUS.ENROLLMENT_IN_PROGRESS_APPROVEL_PENDING}) AND
+   f.company_id = ${companyId || userToken.company_id}
+   AND f.is_active = ${STATUS.IS_ACTIVE}
+   AND (f.created_by=${userToken.id} OR f.id in ${allFacilityId})
+ORDER BY 
+   ${colName} ${order}) p
+   ${searchArray}
+OFFSET 
+   ${offset}
+LIMIT 
+   ${limit};
+`);
         result = { count: Number(count[0]?.total_count) || 0, rows: datas };
       }
       if (result) {
@@ -915,7 +1126,7 @@ ORDER BY
       let status = FACILITY_ID_SUBMISSION_STATUS.P4P_1ST_PENDING;
       if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
         status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_1ST;
-      } else if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p1) {
+      } else if (Number(body.performance_type) == PERFORMANCE_TYPE.p4p2) {
         status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_2ND;
       } else {
         status = FACILITY_ID_SUBMISSION_STATUS.IN_P4P_3RD;
