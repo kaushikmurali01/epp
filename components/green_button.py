@@ -1,60 +1,113 @@
-import pandas as pd
-from xml.etree.ElementTree import parse
+import csv
 from datetime import datetime
+from xml.etree.ElementTree import parse
+from dataclasses import dataclass
+
+import pandas as pd
+
+
+prefixes = {
+        '0': 1,  # x10^0 = 1
+        '1': 10,  # x10^1 = 10
+        '2': 100,  # x10^2 = 100
+        '-3': 0.001,  # x10^-3 = 0.001 (mili)
+        '3': 1000,  # x10^3 = 1000 (kilo)
+        '6': 1e6,  # x10^6 = 1,000,000 (Mega)
+        '-6': 1e-6,  # x10^-6 = 0.000001 (micro)
+        '9': 1e9  # x10^9 = 1,000,000,000 (Giga)
+    }
+
+@dataclass
+class GreenButtonData:
+    columns = []
+    rows = []
+    offset = None
+    uom = None
+    powerOfTenMultiplier = None
+
+
+gb = GreenButtonData()
 
 
 def Convert(input_file):
-    """
-    input_file: a file path from which the XML data is parsed
-    returns: pandas DataFrame containing the parsed data
-    """
-    # Set up a namespace for the various XML namespaces in the document
     ns = {
-        'Atom': "http://www.w3.org/2005/Atom",
-        'espi': "http://naesb.org/espi",
-        'xsi:schemaLocation': "http://naesb.org/espi espiDerived.xsd",
-        'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance"
+        'espi': "http://naesb.org/espi"
     }
-    """
-        tree = parse(input_file)
-    root = tree.getroot()
-    tzOffset = get_child_node_text(root, ns, 'tzOffset')
-    powerOfTenMultiplier = get_child_node_text(root, ns, "powerOfTenMultiplier")
-    """
-    # Parse the XML tree
+
+    csv.register_dialect('csvdialect', delimiter=',', lineterminator='\n', quoting=csv.QUOTE_NONNUMERIC)
+
     tree = parse(input_file)
     root = tree.getroot()
     tzOffset = get_child_node_text(root, ns, 'tzOffset')
     powerOfTenMultiplier = get_child_node_text(root, ns, "powerOfTenMultiplier")
-    power_of_10 = (int(powerOfTenMultiplier) * -1)
-    pow(10, power_of_10)
-    divisor = pow(10, power_of_10)
-    data = []  # Initialize an empty list to store row data
+    gb.offset = int(tzOffset)
+    gb.powerOfTenMultiplier = powerOfTenMultiplier
+    # writer = csv.writer(output_file, 'csvdialect')
+    headers = ['Start Timestamp', 'Duration (Seconds)', 'End Timestamp', 'Cost', 'Meter Reading', 'Reading Quality']
+    gb.columns = headers
+    # writer.writerow(headers)
 
-    # Iterate through each entry in the XML
-    for entry in root.findall('.//espi:IntervalReading', namespaces=ns):
-        # Retrieve data for each entry
-        start_time = get_child_node_text(entry, ns, 'start')
-        duration = get_child_node_text(entry, ns, 'duration')
-        value = get_child_node_text(entry, ns, 'value')
+    rows_written = 0
+    for node in root.findall('.//espi:IntervalReading', namespaces=ns):
+        row = process_row(node, ns)
+        gb.rows.append(row)
+        # writer.writerow(row)
+        rows_written += 1
 
-        # Convert start time to datetime
-        start_datetime = datetime.utcfromtimestamp(int(start_time))
-        end_datetime = datetime.utcfromtimestamp(int(start_time) + int(duration))
+    df = pd.DataFrame(gb.rows, columns=gb.columns)
+    df = df[['Start Timestamp', 'End Timestamp', 'Meter Reading']].rename(columns={
+        'Start Timestamp': 'Start Date (Required)',
+        'End Timestamp': 'End Date (Required)',
+        'Meter Reading': 'Meter Reading (Required)'
+    })
+    df['Start Date (Required)'] = pd.to_datetime(df['Start Date (Required)'])
+    df['End Date (Required)'] = pd.to_datetime(df['End Date (Required)'])
 
-        # Append the data to the list
-        data.append({
-            'Start Date (Required)': start_datetime,
-            'End Date (Required)': end_datetime,
-            'Meter Reading (Required)': float(value) / divisor if value else None,
-        })
+    # gbd.offset is -18000 seconds
+    # Apply the offset in seconds directly
+    df['Start Date (Required)'] += pd.to_timedelta(gb.offset, unit='s')
+    df['End Date (Required)'] += pd.to_timedelta(gb.offset, unit='s')
+    df['Meter Reading (Required)'] = pd.to_numeric(df['Meter Reading (Required)'], errors='coerce')
 
-    return pd.DataFrame(data)
+    df['Meter Reading (Required)'] = df.apply(
+        lambda row: row['Meter Reading (Required)'] * prefixes.get(str(gb.powerOfTenMultiplier)), axis=1)
+    print(df.head())
+    return df
 
 
-def get_child_node_text(node, ns, tag):
-    """
-    Helper function to extract text from a specified child node
-    """
-    child = node.find(f'.//espi:{tag}', namespaces=ns)
-    return child.text if child is not None and child.text is not None else None
+def process_row(node, ns):
+    interval_date = get_child_node_text(node, ns, 'start')
+    formatted_date = datetime.utcfromtimestamp(int(interval_date))
+    interval_duration = get_child_node_text(node, ns, "duration")
+    interval_cost = get_child_node_text(node, ns, "cost")
+    interval_reading_quality = QUALITY_OF_READING.get(get_child_node_text(node, ns, "quality"), "Unknown quality")
+    interval_value = get_child_node_text(node, ns, "value")
+
+    end_date = datetime.utcfromtimestamp(
+        int(interval_date) + int(interval_duration)) if interval_duration else formatted_date
+    cost = float(interval_cost) / 100000 if interval_cost else 0
+
+    return [formatted_date, interval_duration, end_date, cost, interval_value, interval_reading_quality]
+
+
+def get_child_node_text(node, ns, node_tag):
+    child_node = node.find(f'.//espi:{node_tag}', namespaces=ns)
+    return child_node.text if child_node is not None and child_node.text is not None else ""
+
+
+QUALITY_OF_READING = {
+    '0': 'valid',
+    '7': 'manually edited',
+    '8': 'estimated using reference day',
+    '9': 'estimated using linear interpolation',
+    '10': 'questionable',
+    '11': 'derived',
+    '12': 'projected (forecast)',
+    '13': 'mixed',
+    '14': 'raw',
+    '15': 'normalized for weather',
+    '16': 'other',
+    '17': 'validated',
+    '18': 'verified',
+    '19': 'revenue-quality',
+}
