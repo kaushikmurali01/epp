@@ -7,15 +7,20 @@ import pandas as pd
 
 
 prefixes = {
-        '0': 1,  # x10^0 = 1
-        '1': 10,  # x10^1 = 10
-        '2': 100,  # x10^2 = 100
-        '-3': 0.001,  # x10^-3 = 0.001 (mili)
-        '3': 1000,  # x10^3 = 1000 (kilo)
-        '6': 1e6,  # x10^6 = 1,000,000 (Mega)
-        '-6': 1e-6,  # x10^-6 = 0.000001 (micro)
-        '9': 1e9  # x10^9 = 1,000,000,000 (Giga)
-    }
+    '0': 1,  # No scaling
+    '1': 10,
+    '2': 100,
+    '-1': 0.1,  # Deci
+    '-2': 0.01,  # Centi
+    '-3': 0.001,  # Milli
+    '-6': 1e-6,  # Micro
+    '-9': 1e-9,  # Nano
+    '-12': 1e-12,  # Pico
+    '3': 1000,  # Kilo
+    '6': 1e6,  # Mega
+    '9': 1e9,  # Giga
+    '12': 1e12  # Tera
+}
 
 @dataclass
 class GreenButtonData:
@@ -70,7 +75,10 @@ def Convert(input_file):
     df['Meter Reading (Required)'] = pd.to_numeric(df['Meter Reading (Required)'], errors='coerce')
 
     df['Meter Reading (Required)'] = df.apply(
-        lambda row: row['Meter Reading (Required)'] * prefixes.get(str(gb.powerOfTenMultiplier)), axis=1)
+        lambda row: (row['Meter Reading (Required)'] * prefixes.get(str(row['powerOfTenMultiplier']), 1)) / 1000, axis=1
+    )
+    # df['Meter Reading (Required)'] = df.apply(
+    #     lambda row: row['Meter Reading (Required)'] * prefixes.get(str(gb.powerOfTenMultiplier)), axis=1)
     print(df.head())
     return df
 
