@@ -307,6 +307,7 @@ export async function GetUserById(request: HttpRequest, context: InvocationConte
                 attributes: ['id', [sequelize.col('Permission.permission'), 'permission'], [sequelize.col('Permission.permission_type'), 'permission_type']],
             });
         }
+        if(userPermissions && userPermissions.length == 0 ) userPermissions = null
 
         user.permissions = userPermissions;
 

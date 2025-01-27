@@ -53,7 +53,7 @@ class AdminUserController {
   }
 
   /**
-   * Retrieves all users.
+   * Retrieves all users
    * 
    * @returns Promise<any> - A promise resolving to an HTTP response.
    * @description Handles the retrieval of all users by invoking the AdminUserService to fetch all users and returning an HTTP response with appropriate status and JSON data.
