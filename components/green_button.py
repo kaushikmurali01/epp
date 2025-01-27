@@ -75,7 +75,7 @@ def Convert(input_file):
     df['Meter Reading (Required)'] = pd.to_numeric(df['Meter Reading (Required)'], errors='coerce')
 
     df['Meter Reading (Required)'] = df.apply(
-        lambda row: (row['Meter Reading (Required)'] * prefixes.get(str(row['powerOfTenMultiplier']), 1)) / 1000, axis=1
+        lambda row: (row['Meter Reading (Required)'] * prefixes.get(str(gb.powerOfTenMultiplier))) / 1000, axis=1
     )
     # df['Meter Reading (Required)'] = df.apply(
     #     lambda row: row['Meter Reading (Required)'] * prefixes.get(str(gb.powerOfTenMultiplier)), axis=1)
