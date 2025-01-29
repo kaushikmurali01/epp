@@ -183,7 +183,7 @@ const HowItWorks = () => {
                   *
                   <Link
                     target="_blank"
-                    href="https://eppdevstorage.blob.core.windows.net/agreement-docs/Energy-Performance-Program-Participant-Agreement.pdf"
+                    href="https://eppfileupload.blob.core.windows.net/file-uploads/Energy-Performance-Program-Participant-Agreement.pdf"
                     variant="a"
                     sx={{ color: "blue.main", textDecoration: "none" }}
                   >
