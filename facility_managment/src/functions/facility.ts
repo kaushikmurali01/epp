@@ -13,7 +13,7 @@ import { FacilityMeterEntriesController } from "../controller/facility_meter_ent
 import { FacilityCharacteristicsController } from "../controller/facility_characteristics/controller";
 import { AdminFacilityController } from "../controller/admin/admin-facility/controller";
 import { decodeToken } from "../helper/authantication.helper";
-import { HTTP_STATUS_CODES, userType } from "../utils/status";
+import { HTTP_STATUS_CODES, STATUS, userType } from "../utils/status";
 import { FacilityMeterHourlyEntriesController } from "../controller/facility_hourly_entries/controller";
 import { FacilityMeasureController } from "../controller/facility_measure/controller";
 import { FacilitySavingDocumentController } from "../controller/facility_saving_document/controller";
@@ -392,40 +392,47 @@ export async function getFacilityById(
       Promise.resolve({})
     );
     const findCompanyId = await Facility.findOne({
-      where: { id: Number(request.params.id) },
+      where: { id: Number(request.params.id), is_active: STATUS.IS_ACTIVE },
     });
     const findUser = await User.findOne({
       where: { email: Object(decodedToken).email },
     });
-    if (findCompanyId.company_id) {
-      let findRole = await UserCompanyRole.findOne({
-        where: {
-          company_id: findCompanyId.company_id,
-          user_id: findUser?.id,
-          role_id: { [Op.in]: [1, 2] },
-        },
-      });
-      if (
-        Object(decodedToken).role_id == userType.ENERVA_ADMIN ||
-        (findRole && findRole.id)
-      ) {
-      } else {
-        if (Number(request.params.id)) {
-          const hasPermission = await AuthorizationService.checkFaciltiy(
-            Number(request.params.id),
-            Object(decodedToken).email
-          );
-          if (!hasPermission)
-            return {
-              body: JSON.stringify({ status: 403, message: "Forbidden" }),
-            };
+    if (findCompanyId) {
+      if (findCompanyId?.company_id) {
+        let findRole = await UserCompanyRole.findOne({
+          where: {
+            company_id: findCompanyId.company_id,
+            user_id: findUser?.id,
+            role_id: { [Op.in]: [1, 2] },
+          },
+        });
+        if (
+          Object(decodedToken).role_id == userType.ENERVA_ADMIN ||
+          (findRole && findRole.id)
+        ) {
+        } else {
+          if (Number(request.params.id)) {
+            const hasPermission = await AuthorizationService.checkFaciltiy(
+              Number(request.params.id),
+              Object(decodedToken).email
+            );
+            if (!hasPermission)
+              return {
+                body: JSON.stringify({ status: 403, message: "Forbidden" }),
+              };
+          }
         }
+      } else {
+        return {
+          body: JSON.stringify({ status: 403, message: "Facility does not exist" }),
+        };
       }
     } else {
       return {
-        body: JSON.stringify({ status: 403, message: "Forbidden" }),
+        body: JSON.stringify({ status: 403, message: "Facility does not exist" }),
       };
     }
+
     // Get facility by Id
 
     const result = await FacilityController.getFacilityById(
