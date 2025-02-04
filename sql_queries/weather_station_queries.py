@@ -17,7 +17,10 @@ SELECT
         COS(RADIANS(s.latitude_decimal)) * COS(RADIANS(f.latitude)) * 
         POWER(SIN(RADIANS(f.longitude - s.longitude_decimal) / 2), 2)
     )) AS distance_km 
-FROM epp.weather_stations s, facility_location f where s.hly_last_year = (select max(hly_last_year) from epp.weather_stations)
+FROM epp.weather_stations s, facility_location f
+WHERE s.hly_last_year = (SELECT MAX(hly_last_year) FROM epp.weather_stations)
+AND s.name NOT LIKE '%PORTABLE%'
+AND s.name != 'SOUTHERN ONTARIO EMERGENCY PORTABLE WEATHER STATION'
 ORDER BY distance_km ASC 
 LIMIT {};
 """
