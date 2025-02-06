@@ -15,7 +15,11 @@ class GreenDataUploader(DataUploader):
 
     def process(self):
         # Use the converted DataFrame directly
+        print("in the process \n\n\n\n")
         df = Convert(self.xml_file)
+        sum= df['Meter Reading (Required)'].sum()
+        print("\nSum:-", sum)
+        print("\n\n\ndataframe:\n", df)
         df = df.drop_duplicates(subset=['Start Date (Required)', 'End Date (Required)',
                                         'Meter Reading (Required)'])
         try:
