@@ -24,20 +24,24 @@ prefixes = {
 
 @dataclass
 class GreenButtonData:
-    columns = []
-    rows = []
+    columns = None
+    rows = None
     offset = None
     uom = None
     powerOfTenMultiplier = None
 
 
-gb = GreenButtonData()
+# gb = GreenButtonData()
 
 
 def Convert(input_file):
     ns = {
         'espi': "http://naesb.org/espi"
     }
+
+    gb = GreenButtonData()
+    gb.rows=[]
+    gb.columns=[]
 
     csv.register_dialect('csvdialect', delimiter=',', lineterminator='\n', quoting=csv.QUOTE_NONNUMERIC)
 
