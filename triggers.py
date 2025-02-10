@@ -251,3 +251,69 @@ SELECT
     (json_array_elements(scoring_data::json)->>'temperature')::float as temperature
 FROM epp.scoring_data_output;
 """
+
+# Baseline
+BASELINE_DATA_INSERTION = """
+-- First, create the target table if it doesn't exist
+CREATE TABLE IF NOT EXISTS epp.processed_baseline_data (
+    id SERIAL PRIMARY KEY,
+    facility_id INTEGER,
+    meter_type TEXT,
+    start_date TIMESTAMP,
+    observed FLOAT,
+    predicted FLOAT,
+    temperature FLOAT
+);
+
+-- Create or replace the trigger function
+CREATE OR REPLACE FUNCTION epp.process_baseline_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Insert new records from output_data JSON array into processed_baseline_data
+    INSERT INTO epp.processed_baseline_data (
+        facility_id,
+        meter_type,
+        start_date,
+        observed,
+        predicted,
+        temperature
+    )
+    SELECT
+        NEW.facility_id,
+        NEW.meter_type,
+        to_timestamp((json_array_elements(NEW.output_data::json)->>'Timestamp')::bigint / 1000) as start_date,
+        (json_array_elements(NEW.output_data::json)->>'observed')::float as observed,
+        (json_array_elements(NEW.output_data::json)->>'predicted')::float as predicted,
+        (json_array_elements(NEW.output_data::json)->>'temperature')::float as temperature
+    ;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE OR REPLACE TRIGGER baseline_data_insert_trigger
+AFTER INSERT ON epp.baseline_model_output_data
+FOR EACH ROW
+EXECUTE FUNCTION epp.process_baseline_data();
+"""
+
+UPDATE_EXISTING_BASELINE_RECORDS = """
+INSERT INTO epp.processed_baseline_data (
+    facility_id,
+    meter_type,
+    start_date,
+    observed,
+    predicted,
+    temperature
+)
+SELECT
+    facility_id,
+    meter_type,
+    to_timestamp((json_array_elements(output_data::json)->>'Timestamp')::bigint / 1000) as start_date,
+    (json_array_elements(output_data::json)->>'observed')::float as observed,
+    (json_array_elements(output_data::json)->>'predicted')::float as predicted,
+    (json_array_elements(output_data::json)->>'temperature')::float as temperature
+FROM epp.baseline_model_output_data;
+
+"""
