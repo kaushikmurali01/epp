@@ -50,7 +50,7 @@ class AddMeterData:
                            'Meter Reading (Required)': 'reading'}, inplace=True)
         df['start_date_og'] = df['start_date']
         df['end_date_og'] = df['end_date']
-        df['reading_og'] = df['reading']
+        df['reading_og'] = pd.to_numeric(df['reading'], errors='coerce')
         df['reading'] = pd.to_numeric(df['reading'], errors='coerce')
         df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
         df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce')
