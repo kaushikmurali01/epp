@@ -110,7 +110,7 @@ class AddMeterData:
             df['meter_name'] = meter_name
             df['facility_id'] = self.facility_id
             df['independent_variable_id'] = iv_id if self.iv else None
-            df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
+            df['reading'] = df['reading'].apply(lambda x: round(float(x), 5) if self.is_float_or_int(x) else np.nan)
             required_columns = ['start_date', 'end_date', 'reading', 'start_date_og', 'end_date_og', 'reading_og',
                                 'outliers', 'missing',
                                 'meter_id', 'meter_type', 'is_independent_variable',
