@@ -2,6 +2,7 @@ import time
 
 import numpy as np
 import pandas as pd
+from decimal import Decimal
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dbconnection import dbtest, execute_query, optimized_bulk_insert_df
 from openpyxl import load_workbook
@@ -49,7 +50,7 @@ class AddMeterData:
                            'Meter Reading (Required)': 'reading'}, inplace=True)
         df['start_date_og'] = df['start_date']
         df['end_date_og'] = df['end_date']
-        df['reading_og'] = df['reading']
+        df['reading_og'] = pd.to_numeric(df['reading'], errors='coerce')
         df['reading'] = pd.to_numeric(df['reading'], errors='coerce')
         df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce')
         df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce')
@@ -110,7 +111,8 @@ class AddMeterData:
             df['meter_name'] = meter_name
             df['facility_id'] = self.facility_id
             df['independent_variable_id'] = iv_id if self.iv else None
-            df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
+            # df['reading'] = df['reading'].apply(lambda x: float(x) if self.is_float_or_int(x) else np.nan)
+            df['reading'] = df['reading'].apply(lambda x: Decimal(str(x)).quantize(Decimal('0.00001')) if self.is_float_or_int(x) else np.nan)
             required_columns = ['start_date', 'end_date', 'reading', 'start_date_og', 'end_date_og', 'reading_og',
                                 'outliers', 'missing',
                                 'meter_id', 'meter_type', 'is_independent_variable',
