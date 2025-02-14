@@ -258,7 +258,7 @@ BASELINE_DATA_INSERTION = """
 CREATE TABLE IF NOT EXISTS epp.processed_baseline_data (
     id SERIAL PRIMARY KEY,
     facility_id INTEGER,
-    meter_type TEXT,
+    meter_type INTEGER,
     start_date TIMESTAMP,
     observed FLOAT,
     predicted FLOAT,
