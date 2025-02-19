@@ -129,5 +129,6 @@ if __name__ == "__main__":
     """
     This CRON job is designed to retrieve data from a Canadian website and insert it into our database,
     specifically targeting last Date. This will be schedule 00:00 hours UTC. 
+    No longer in User
     """
     main()

@@ -15,7 +15,15 @@ class GreenDataUploader(DataUploader):
 
     def process(self):
         # Use the converted DataFrame directly
+        print("in the process \n\n\n\n")
         df = Convert(self.xml_file)
+        sum= df['Meter Reading (Required)'].sum()
+        print("\nSum:-", sum)
+        print("\ndataframe:", df.shape)
+        # df = df.drop_duplicates(subset=['Start Date (Required)', 'End Date (Required)',
+        #                                 'Meter Reading (Required)'])
+        df = df.drop_duplicates(subset=['Start Date (Required)', 'End Date (Required)'])
+
         try:
             validated_chunks = []
             chunk_size = 50000
