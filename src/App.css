@@ -49,6 +49,10 @@
   /* border-radius: 8px; */
 }
 
+.bi-embedded.waterfall-chart {
+  max-height: 200px;
+}
+
 .my-datepicker-actionbar .MuiButton-textPrimary {
   min-width: unset; 
   padding: 6px 8px; 

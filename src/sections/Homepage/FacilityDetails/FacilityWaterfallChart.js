@@ -1,53 +1,36 @@
-import { Box, Grid, Typography, useMediaQuery } from "@mui/material";
+import { Box, Button, Grid, Typography, useMediaQuery } from "@mui/material";
 import { POWERBI_ENDPOINTS } from "constants/apiEndPoints";
+import { PowerBIEmbed } from "powerbi-client-react";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { GET_REQUEST } from "utils/HTTPRequests";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { models } from "powerbi-client";
-import { PowerBIEmbed } from "powerbi-client-react";
 import { useParams } from "react-router-dom";
 
-const BaselineVisualization = ({ meter_type }) => {
+const FacilityWaterfallChart = () => {
   const [reportLoading, setReportLoading] = useState(true);
   const facilityData = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityDetails?.data
+    (state) => state?.facilityReducer?.facilityDetails?.data
   );
-
   const { id } = useParams();
-  // Dynamically set dataSetId, reportId, and embedUrl based on meterType
   let dataSetId, reportId, embedUrl;
+  dataSetId = process.env.REACT_APP_POWERBI_WATERFALL_CHART_DATASET_ID;
+  reportId = process.env.REACT_APP_POWERBI_WATERFALL_CHART_REPORT_ID;
+  embedUrl = process.env.REACT_APP_POWERBI_WATERFALL_CHART_EMBED_URL;
 
-  switch (meter_type) {
-    case 1: // Electricity
-      dataSetId =
-        process.env.REACT_APP_BASELINE_MODEL_VISUAL_DATASET_ID_ELECTRICITY;
-      reportId =
-        process.env.REACT_APP_BASELINE_MODEL_VISUAL_REPORT_ID_ELECTRICITY;
-      embedUrl =
-        process.env.REACT_APP_BASELINE_MODEL_VISUAL_EMBED_URL_ELECTRICITY;
-      break;
-    case 3: // Natural Gas
-      dataSetId = process.env.REACT_APP_BASELINE_MODEL_VISUAL_DATASET_ID_NG;
-      reportId = process.env.REACT_APP_BASELINE_MODEL_VISUAL_REPORT_ID_NG;
-      embedUrl = process.env.REACT_APP_BASELINE_MODEL_VISUAL_EMBED_URL_NG;
-      break;
-    default:
-      // Set to null or provide a default behavior
-      dataSetId = null;
-      reportId = null;
-      embedUrl = null;
-  }
+  console.log("dataSetId", dataSetId);
+  
 
   const facility_status = useSelector(
-    (state) => state?.adminFacilityReducer?.facilityStatus?.data
+    (state) => state?.facilityReducer?.facilityStatus?.data
   );
 
   useEffect(() => {
     if (!facilityData) return;
     setReportLoading(true);
     getPowerBiToken();
-  }, [facilityData, meter_type]);
+  }, [facilityData]);
 
   const getPowerBiToken = () => {
     const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI;
@@ -104,7 +87,7 @@ const BaselineVisualization = ({ meter_type }) => {
   let powerBiConfig = {
     type: "report",
     id: reportId,
-    embedUrl: `${embedUrl}&filter=Facility_id/facility_id eq ${id}`,
+    embedUrl: `${embedUrl}&filter=Incentive/facility_id eq ${id}`,
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
@@ -162,7 +145,7 @@ const BaselineVisualization = ({ meter_type }) => {
                   ["pageChanged", (event) => console.log(event)],
                 ])
               }
-              cssClassName={"bi-embedded"}
+              cssClassName={"bi-embedded waterfall-chart"}
               getEmbeddedComponent={(embeddedReport) => {
                 window.report = embeddedReport;
               }}
@@ -177,9 +160,7 @@ const BaselineVisualization = ({ meter_type }) => {
                 letterSpacing: "-0.01125rem",
               }}
             >
-              Either data has not been uploaded and verified yet or uploaded
-              data is in processing state, so this visualization is not
-              available.
+              Either data is not available or it is in processing state, Please Wait...
             </Typography>
           )}
         </Box>
@@ -188,4 +169,4 @@ const BaselineVisualization = ({ meter_type }) => {
   );
 };
 
-export default BaselineVisualization;
+export default FacilityWaterfallChart;
