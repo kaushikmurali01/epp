@@ -18,9 +18,6 @@ const BaselineVisualization = ({ meter_type }) => {
   // Dynamically set dataSetId, reportId, and embedUrl based on meterType
   let dataSetId, reportId, embedUrl;
 
-  console.log("meter_type", meter_type);
-  
-
   switch (meter_type) {
     case 1: // Electricity
       dataSetId =
@@ -41,8 +38,6 @@ const BaselineVisualization = ({ meter_type }) => {
       reportId = null;
       embedUrl = null;
   }
-
-  console.log(dataSetId, reportId, embedUrl);
 
   const facility_status = useSelector(
     (state) => state?.adminFacilityReducer?.facilityStatus?.data

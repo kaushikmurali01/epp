@@ -39,9 +39,6 @@ const BaselineVisualization = ({ meter_type }) => {
       embedUrl = null;
   }
 
-  console.log(dataSetId, reportId, embedUrl);
-  
-
   const facility_status = useSelector(
     (state) => state?.facilityReducer?.facilityStatus?.data
   );
