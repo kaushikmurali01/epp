@@ -283,7 +283,7 @@ const Performance = () => {
 
             <CustomAccordion
               summary="Performance period data visualization"
-              // details={<PerformancePeriodDataVisualization />}
+              details={<PerformancePeriodDataVisualization meter_type={activeButton} />}
               panelId="performancePeriodDataVisualization"
               expanded={expanded}
               onChange={handleAccordionChange}
