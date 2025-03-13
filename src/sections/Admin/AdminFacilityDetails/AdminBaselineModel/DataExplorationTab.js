@@ -21,8 +21,7 @@ const DataExplorationTab = () => {
     setActiveButton(btn_name);
   };
 
-  const [expanded, setExpanded] = useState("summary"); //change it to visualization when ready
-
+  const [expanded, setExpanded] = useState("visualization");
   const handleAccordionChange = (panel, isExpanded) => {
     setExpanded(isExpanded ? panel : false);
   };
@@ -51,7 +50,7 @@ const DataExplorationTab = () => {
 
       <CustomAccordion
         summary="Visualization"
-        // details={<DataVisualization meterType={activeButton} />}
+        details={<DataVisualization meterType={activeButton} />}
         panelId="visualization"
         expanded={expanded}
         onChange={handleAccordionChange}
