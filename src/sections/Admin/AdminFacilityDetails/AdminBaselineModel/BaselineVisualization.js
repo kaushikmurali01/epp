@@ -6,17 +6,43 @@ import { GET_REQUEST } from "utils/HTTPRequests";
 import { POWERBI_POST_REQUEST } from "utils/powerBiHttpRequests";
 import { models } from "powerbi-client";
 import { PowerBIEmbed } from "powerbi-client-react";
+import { useParams } from "react-router-dom";
 
-const BaselineVisualization = () => {
-  const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("md"));
+const BaselineVisualization = ({ meter_type }) => {
   const [reportLoading, setReportLoading] = useState(true);
-  const [isErrorInPowerBi, setIsErrorInPowerBi] = useState(false);
   const facilityData = useSelector(
     (state) => state?.adminFacilityReducer?.facilityDetails?.data
   );
-  const dataSetId = process.env.REACT_APP_POWERBI_RADIAL_CHART_DATASET_ID;
-  const reportId = process.env.REACT_APP_POWERBI_RADIAL_CHART_REPORT_ID;
-  const embedUrl = process.env.REACT_APP_POWERBI_RADIAL_CHART_EMBED_URL;
+
+  const { id } = useParams();
+  // Dynamically set dataSetId, reportId, and embedUrl based on meterType
+  let dataSetId, reportId, embedUrl;
+
+  console.log("meter_type", meter_type);
+  
+
+  switch (meter_type) {
+    case 1: // Electricity
+      dataSetId =
+        process.env.REACT_APP_BASELINE_MODEL_VISUAL_DATASET_ID_ELECTRICITY;
+      reportId =
+        process.env.REACT_APP_BASELINE_MODEL_VISUAL_REPORT_ID_ELECTRICITY;
+      embedUrl =
+        process.env.REACT_APP_BASELINE_MODEL_VISUAL_EMBED_URL_ELECTRICITY;
+      break;
+    case 3: // Natural Gas
+      dataSetId = process.env.REACT_APP_BASELINE_MODEL_VISUAL_DATASET_ID_NG;
+      reportId = process.env.REACT_APP_BASELINE_MODEL_VISUAL_REPORT_ID_NG;
+      embedUrl = process.env.REACT_APP_BASELINE_MODEL_VISUAL_EMBED_URL_NG;
+      break;
+    default:
+      // Set to null or provide a default behavior
+      dataSetId = null;
+      reportId = null;
+      embedUrl = null;
+  }
+
+  console.log(dataSetId, reportId, embedUrl);
 
   const facility_status = useSelector(
     (state) => state?.adminFacilityReducer?.facilityStatus?.data
@@ -24,8 +50,9 @@ const BaselineVisualization = () => {
 
   useEffect(() => {
     if (!facilityData) return;
+    setReportLoading(true);
     getPowerBiToken();
-  }, [facilityData]);
+  }, [facilityData, meter_type]);
 
   const getPowerBiToken = () => {
     const apiURL = POWERBI_ENDPOINTS.GET_AZURE_TOKEN_FOR_POWER_BI;
@@ -65,7 +92,7 @@ const BaselineVisualization = () => {
     POWERBI_POST_REQUEST(apiURL, body)
       .then((res) => {
         localStorage.setItem("powerBiReportToken", JSON.stringify(res?.data));
-        setReportParameters();
+        setReportLoading(false);
       })
       .catch((error) => {
         console.log(error);
@@ -79,59 +106,10 @@ const BaselineVisualization = () => {
     ? JSON.parse(localStorage.getItem("powerBiReportToken"))
     : null;
 
-  const setReportParameters = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/Default.UpdateParameters`;
-    const body = {
-      updateDetails: [
-        {
-          name: "facility_id",
-          newValue: facilityData?.id,
-        },
-        {
-          name: "created_by",
-          newValue: facilityData?.created_by,
-        },
-        {
-          name: "meter_id",
-          newValue: "3",
-        },
-        {
-          name: "granularity",
-          newValue: "daily",
-        },
-      ],
-    };
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        console.log("resss after setting parameters", res);
-        refreshPowerBiReport();
-      })
-      .catch((error) => {
-        setReportLoading(false);
-        console.log(error);
-      });
-  };
-
-  const refreshPowerBiReport = () => {
-    const apiURL = `https://api.powerbi.com/v1.0/myorg/groups/d5ca9c18-0e45-4f7a-8b5a-0e0c75ddec73/datasets/${dataSetId}/refreshes`;
-    const body = {
-      retryCount: 3,
-    };
-    POWERBI_POST_REQUEST(apiURL, body)
-      .then((res) => {
-        console.log("resss after refreshing", res);
-        setReportLoading(false);
-      })
-      .catch((error) => {
-        setReportLoading(false);
-        console.log(error);
-      });
-  };
-
   let powerBiConfig = {
     type: "report",
     id: reportId,
-    embedUrl: embedUrl,
+    embedUrl: `${embedUrl}&filter=Facility_id/facility_id eq ${id}`,
     accessToken: powerBiReportToken?.token || null,
     tokenType: models.TokenType.Embed,
     settings: {
@@ -157,15 +135,11 @@ const BaselineVisualization = () => {
     <Box
       sx={{
         width: "100%",
-        padding: "0 2rem",
-        marginTop: isSmallScreen && "2rem",
       }}
     >
       <Grid>
-        <Box id="bi-report" mt={4}>
-          {facility_status?.timeline?.energy_and_water &&
-          !isErrorInPowerBi &&
-          !reportLoading ? (
+        <Box id="bi-report">
+          {facility_status?.timeline?.ew && !reportLoading ? (
             <PowerBIEmbed
               embedConfig={powerBiConfig}
               eventHandlers={

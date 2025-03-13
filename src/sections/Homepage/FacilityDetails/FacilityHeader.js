@@ -33,6 +33,7 @@ import {
   Cell,
 } from "recharts";
 import { INVERTED_FACILITY_ID_SUBMISSION_STATUS } from "utils/ConstantsTypes";
+import FacilityWaterfallChart from "./FacilityWaterfallChart.js";
 
 const StyledButtonGroup = styled(ButtonGroup)(({ theme }) => ({
   "& .MuiButtonGroup-firstButton": {
@@ -198,269 +199,11 @@ const FacilityHeader = () => {
     }));
   };
 
-  // const incentiveData = [
-  //   { name: "Total", value: -3255, onPeak: 3255, offPeak: 0 },
-  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
-  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
-  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
-  //   { name: "Pre-Project", value: 1500, onPeak: 1500, offPeak: 0 },
-  // ];
-
-  // const energySavingData = [
-  //   { name: "3rd P4P", value: 1550, onPeak: 750, offPeak: 800 },
-  //   { name: "2nd P4P", value: 1085, onPeak: 525, offPeak: 560 },
-  //   { name: "1st P4P", value: 625, onPeak: 300, offPeak: 325 },
-  // ];
-
-  function Legend() {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          mt: 0.5,
-          fontSize: 10,
-        }}
-      >
-        <Box sx={{ display: "flex", alignItems: "center", mr: 1 }}>
-          <Box sx={{ width: 10, height: 10, bgcolor: "#8bc34a", mr: 0.5 }} />
-          <Typography variant="caption">
-            On-Peak {activeButton === "incentive" ? "Incentive" : "Saving"}
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Box sx={{ width: 10, height: 10, bgcolor: "#4caf50", mr: 0.5 }} />
-          <Typography variant="caption">
-            Off-Peak {activeButton === "incentive" ? "Incentive" : "Saving"}
-          </Typography>
-        </Box>
-      </Box>
-    );
-  }
-
-  const CustomBar = (props) => {
-    const { x, y, width, height, value, fill } = props;
-
-    // Ensure width is not negative
-    const validatedWidth = Math.max(width, 0);
-
-    const displayIncentiveValue =
-      typeof value === "number" && activeButton === "incentive"
-        ? `$${value.toFixed(2)}`
-        : value;
-    const displaySavingValue = `${value}kWh`;
-    return (
-      <g>
-        <rect x={x} y={y} width={validatedWidth} height={15} fill={fill} />
-        {validatedWidth > 30 && (
-          <text
-            x={x + validatedWidth / 2}
-            y={y + 15 / 2}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="#000000"
-            fontSize={10}
-          >
-            {activeButton === "incentive"
-              ? displayIncentiveValue
-              : displaySavingValue}
-          </text>
-        )}
-      </g>
-    );
-  };
-
-  function IncentiveChart({ data }) {
-    const processedData = React.useMemo(() => {
-      return data?.reduce((acc, item, index, array) => {
-        let transparentValue = 0;
-        let cumulativeTotal = item.value;
-
-        if (item.name.includes("2nd P4P")) {
-          const firstP4PIndex = array.findIndex((d) =>
-            d.name.includes("1st P4P")
-          );
-          transparentValue = array[firstP4PIndex].value;
-          cumulativeTotal += transparentValue;
-        } else if (item.name.includes("3rd P4P")) {
-          const firstP4PIndex = array.findIndex((d) =>
-            d.name.includes("1st P4P")
-          );
-          const secondP4PIndex = array.findIndex((d) =>
-            d.name.includes("2nd P4P")
-          );
-          transparentValue =
-            array[firstP4PIndex].value + array[secondP4PIndex].value;
-          cumulativeTotal += transparentValue;
-        }
-        return [
-          ...acc,
-          {
-            ...item,
-            transparentValue,
-            cumulativeTotal,
-          },
-        ];
-      }, []);
-    }, [data]);
-
-    const maxTotal = Math.max(
-      ...processedData.map((item) => item.cumulativeTotal)
-    );
-
-    return (
-      <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            layout="vertical"
-            data={processedData}
-            margin={{ left: 25 }}
-          >
-            <XAxis type="number" domain={[0, maxTotal]} hide />
-            <YAxis
-              dataKey="name"
-              type="category"
-              tick={{
-                fontSize: 10,
-                fontWeight: 500,
-                fill: "#333",
-                textAnchor: "end",
-                width: 160,
-              }}
-              wrapperStyle={{ whiteSpace: "nowrap" }}
-            />
-            <Bar
-              dataKey="transparentValue"
-              stackId="a"
-              fill="transparent"
-              shape={(props) => <CustomBar {...props} value={null} />}
-            />
-
-            <Bar
-              dataKey="onPeak"
-              stackId="a"
-              fill="#8bc34a"
-              shape={(props) => (
-                <CustomBar {...props} value={props.payload.onPeak} />
-              )}
-            />
-            <Bar
-              dataKey="offPeak"
-              stackId="a"
-              fill="#4caf50"
-              shape={(props) => (
-                <CustomBar {...props} value={props.payload.offPeak} />
-              )}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-    );
-  }
-
-  function EnergySavingsChart({ data }) {
-    return (
-      <Box sx={{ width: "100%", height: 120, overflow: "hidden" }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart layout="vertical" data={data} margin={{ left: 25 }}>
-            <XAxis type="number" hide />
-            <YAxis
-              dataKey="name"
-              type="category"
-              tick={{
-                fontSize: 10,
-                fontWeight: 500,
-                fill: "#333",
-                textAnchor: "end",
-                width: 160,
-              }}
-              wrapperStyle={{ whiteSpace: "nowrap" }}
-            />
-            <Bar
-              dataKey="onPeak"
-              stackId="a"
-              fill="#8bc34a"
-              shape={(props) => (
-                <CustomBar {...props} value={props.payload.onPeak} />
-              )}
-            />
-            <Bar
-              dataKey="offPeak"
-              stackId="a"
-              fill="#4caf50"
-              shape={(props) => (
-                <CustomBar {...props} value={props.payload.offPeak} />
-              )}
-            />
-            <text
-              x="50%"
-              y="100%"
-              dy={-5}
-              textAnchor="middle"
-              fill="#333"
-              fontSize={10}
-            >
-              Minimum savings: {minimumSaving}
-            </text>
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-    );
-  }
-
-  const IncentiveEnergyChart = React.memo(function IncentiveEnergyChart({
-    incentiveData,
-    energySavingData,
-  }) {
-    return (
-      <Box sx={{ height: 141, fontFamily: "Arial, sans-serif" }}>
-        <Grid
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <StyledButtonGroup
-            disableElevation
-            variant="contained"
-            color="primary"
-          >
-            <Button
-              sx={
-                activeButton === "incentive"
-                  ? activeButtonStyle
-                  : inactiveButtonStyle
-              }
-              onClick={() => handleButtonClick("incentive")}
-            >
-              Incentive
-            </Button>
-            <Button
-              sx={
-                activeButton === "energy_saving"
-                  ? activeButtonStyle
-                  : inactiveButtonStyle
-              }
-              onClick={() => handleButtonClick("energy_saving")}
-            >
-              Energy saving
-            </Button>
-          </StyledButtonGroup>
-          <Legend />
-        </Grid>
-        {activeButton === "incentive" ? (
-          <IncentiveChart data={incentiveData} />
-        ) : (
-          <EnergySavingsChart data={energySavingData} />
-        )}
-      </Box>
-    );
-  });
-
   return (
-    <Container maxWidth="xl" sx={{ marginTop: "2rem" }}>
+    <Container
+      maxWidth="xl"
+      sx={{ marginTop: "2rem", padding: "0 !important" }}
+    >
       <Grid container spacing={2} justifyContent="space-between">
         <Grid item xs={12} md={3.5}>
           <Box display="flex" flexDirection={isSmallScreen ? "column" : "row"}>
@@ -569,10 +312,7 @@ const FacilityHeader = () => {
 
         {/* Graph section */}
         <Grid item xs={12} md={5}>
-          <IncentiveEnergyChart
-            incentiveData={incentiveData}
-            energySavingData={energySavingData}
-          />
+          <FacilityWaterfallChart />
         </Grid>
 
         <Grid
@@ -623,7 +363,10 @@ const FacilityHeader = () => {
                   <Typography variant="small2" sx={{ color: "#54585A" }}>
                     Facility UBI
                   </Typography>
-                  <Typography variant="h6" sx={{ fontSize: "0.875rem" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontSize: "0.875rem", textWrap: "wrap" }}
+                  >
                     {facilityDetails?.facility_ubi}
                   </Typography>
                 </BoxCard>
