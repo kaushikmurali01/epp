@@ -138,6 +138,10 @@ const CompanyProfile = () => {
     (state) => state?.adminCompanyReducer?.loading
   );
 
+  const filterActiveFacility = companyFacilityData.filter(
+    (item) => item?.is_active === 1
+  );
+
   return (
     <Container>
       <Grid container mb={4} alignItems="center">
@@ -299,7 +303,7 @@ const CompanyProfile = () => {
           panelId="facility"
           details={
             <Grid container>
-              <MiniTable columns={facilityColumn} data={companyFacilityData} />
+              <MiniTable columns={facilityColumn} data={filterActiveFacility?.length ? filterActiveFacility : []} />
             </Grid>
           }
           expanded={expanded}
