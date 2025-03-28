@@ -129,6 +129,13 @@ const DataVisualization = ({ meterType }) => {
     console.log("Error in setIsErrorInPowerBi", errorDetail);
   };
 
+  if (!dataSetId || !reportId || !embedUrl) {
+    console.error(
+      "Invalid meterType or missing dataSetId, reportId, or embedUrl."
+    );
+    return <Typography variant="h5" color="red" >Invalid or missing configuration for Visualization.</Typography>;
+  }
+
   return (
     <Box
       sx={{
