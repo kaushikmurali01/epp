@@ -327,7 +327,7 @@ if(company_id) {
     const combinedQuery = `
     SELECT * FROM (
       ${commonQuery}
-    ) AS combinedResults where user_type_id != 0
+    ) AS combinedResults where user_type_id != 0 and status != 'InActive' 
     ${whereClause} ${whereClauseOr} ${companyCheck}
     ORDER by ${col_name} ${order}
     OFFSET $1
@@ -340,7 +340,7 @@ if(company_id) {
   const countQuery = `
   SELECT count(*) as count FROM (
     ${commonQuery}
-  ) AS combinedResults where user_type_id != 0 ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
+  ) AS combinedResults where user_type_id != 0 and status != 'InActive' ${whereClauseCount} ${whereClauseOrCount} ${companyCheckCount}`;
   const resultsCount:any = await sequelize.query(countQuery, {
     bind: countParams,
     type: QueryTypes.SELECT,
