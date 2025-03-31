@@ -52,3 +52,5 @@ Thumbs.db
 .env
 enerva_config.py
 config.py
+environments/
+venv/
