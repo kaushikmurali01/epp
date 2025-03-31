@@ -312,7 +312,7 @@ const FacilityHeader = () => {
 
         {/* Graph section */}
         <Grid item xs={12} md={5}>
-          <FacilityWaterfallChart />
+          {/* <FacilityWaterfallChart /> */}
         </Grid>
 
         <Grid

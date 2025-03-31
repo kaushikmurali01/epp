@@ -396,7 +396,7 @@ const BaselineModelTab = ({ openEnrollmentModal }) => {
 
         <CustomAccordion
           summary="Visualization"
-          details={<BaselineVisualization meter_type={activeButton} />}
+          // details={<BaselineVisualization meter_type={activeButton} />}
           panelId="visualization"
           expanded={expanded}
           onChange={handleAccordionChange}
