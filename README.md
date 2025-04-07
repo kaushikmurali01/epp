@@ -21,47 +21,86 @@ The Onboarding environment is managed using Azure AD B2C. This module handles th
 ## 2. Main Application Environment
 
 ### Description
-The Main Application is the core environment where the primary functionalities of the project reside. There are separate branches for different stages of development:
-
-- **Development Branch**: `origin/development`
-- **Staging Branch**: `origin/staging`
+The Main Application is the core environment where the primary functionalities of the project reside.
 
 ### Setup Instructions
 1. **Checkout Code**:
    - For Development:
      ```bash
-     git checkout origin/development
+     git checkout branch-name
      ```
-   - For Staging:
-     ```bash
-     git checkout origin/staging
-     ```
+     ***Note: **`branch-name` is the branch given by the team in which all the latest code will be.*
+     
 
 2. **Setup Environment Variables**:
-   - Create a folder named `.env` in the root directory.
-   - Obtain the environment variables from the team and place them inside the `.env` folder.
 
-3. **Install Dependencies**:
+      - Create folders named `.env`, `.env.stage`, `.env.prod` in the root directory.
+      - Obtain the environment variables from the team and place them inside the respected folder.
+
+
+3. **Node version: ** 
+      ```bash
+      ^v18.20.4
+      ```
+
+4. **Install Dependencies**:
    ```bash
    npm install
    ```
-
-4. **Run the Application**:
+   or
    ```bash
-   npm start
+   npm i
    ```
 
 ## Available Scripts
 
 Within the project directory, you have access to several npm scripts for various tasks:
 
-### `npm start`
+### **Scripts to run the Application**:
 - **Purpose**: Runs the app in development mode.
 - **Usage**: Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 - **Note**: The page will automatically reload when you make changes to the source code.
 
-### `npm run build`
+   1. *For development server:*
+         ```bash
+         npm start
+         ```
+         or
+         ```bash
+         npm run start:dev
+         ```
+
+   2. *For staging server:*
+         ```bash
+         npm run start:stage
+         ```
+
+   3. *For production server:*
+         ```bash
+         npm run start:prod
+         ```
+
+### **Scripts to run the Application build**:
 - **Purpose**: Builds the app for production.
 - **Output**: The build artifacts are stored in the `build` folder.
 - **Details**: This script correctly bundles React in production mode and optimizes the build for the best performance. The build is minified, and the filenames include hashes for efficient caching.
 - **Deployment**: Once built, your app is ready to be deployed.
+
+   1. *For development server:*
+         ```bash
+         npm run build
+         ```
+         or
+         ```bash
+         npm run build:dev
+         ```
+
+   2. *For staging server:*
+         ```bash
+         npm run build:stage
+         ```
+
+   3. *For production server:*
+         ```bash
+         npm run build:prod
+         ```
