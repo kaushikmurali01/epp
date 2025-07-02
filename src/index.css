@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-white rounded-lg shadow-sm border p-6;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-200 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors;
+  }
+}
+
+@layer utilities {
+  .text-primary-600 {
+    color: #2563eb;
+  }
+  
+  .text-success-600 {
+    color: #059669;
+  }
+  
+  .text-warning-600 {
+    color: #d97706;
+  }
+  
+  .text-error-600 {
+    color: #dc2626;
+  }
+  
+  .bg-success-50 {
+    background-color: #ecfdf5;
+  }
+  
+  .bg-warning-50 {
+    background-color: #fffbeb;
+  }
+  
+  .bg-error-50 {
+    background-color: #fef2f2;
+  }
+  
+  .border-success-200 {
+    border-color: #a7f3d0;
+  }
+  
+  .border-warning-200 {
+    border-color: #fde68a;
+  }
+  
+  .border-error-200 {
+    border-color: #fecaca;
+  }
+}
